@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Player {
+  id             String             @id @default(cuid())
+  name           String
+  firstName      String
+  lastName       String
+  position       String             // "PG" | "SG" | "SF" | "PF" | "C" | "UNK"
+  heightInches   Int
+  primaryTeam    String?
+  primaryEraFrom Int?
+  primaryEraTo   Int?
+  isHallOfFamer  Boolean            @default(false)
+  totalTeams     Int                @default(1)
+
+  seasonStats    PlayerSeasonStat[]
+  draftPicks     DraftPick[]
+}
+
+model PlayerSeasonStat {
+  id       String @id @default(cuid())
+  playerId String
+  season   Int
+  team     String
+  games    Int
+
+  ppg      Float
+  apg      Float
+  rpg      Float
+  spg      Float
+  bpg      Float
+  tsPct    Float?
+  threeRate Float?
+
+  player   Player   @relation(fields: [playerId], references: [id])
+
+  @@index([playerId])
+  @@index([season])
+  @@index([team])
+}
+
+model Draft {
+  id            String       @id @default(cuid())
+  title         String?
+  league        String       // "NBA"
+  mode          String       // "standard" | "free"
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  randomEra     Boolean      @default(true)
+  eraFrom       Int?
+  eraTo         Int?
+  randomTeam    Boolean      @default(true)
+  teamConstraint String?
+
+  maxPlayers    Int          @default(5)
+  requirePositions Boolean   @default(true)
+
+  scoringMethod String       @default("system")
+  rules         Json         // { maxPpgCap, overallCap, hallRule, multiTeamOnly, playedWithPlayerId, peakMode }
+
+  picks         DraftPick[]
+  votes         Vote[]
+}
+
+model DraftPick {
+  id        String   @id @default(cuid())
+  draftId   String
+  playerId  String
+  slot      Int
+  position  String
+
+  draft     Draft    @relation(fields: [draftId], references: [id])
+  player    Player   @relation(fields: [playerId], references: [id])
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  draftId   String
+  createdAt DateTime @default(now())
+  value     Int      // +1, -1 (or 1 only)
+  draft     Draft    @relation(fields: [draftId], references: [id])
+
+  @@index([draftId])
+}
