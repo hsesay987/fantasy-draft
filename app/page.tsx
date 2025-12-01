@@ -66,9 +66,34 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+type DraftSummary = {
+  id: string;
+  title: string | null;
+  mode: string;
+  createdAt?: string;
+};
 
 export default function HomePage() {
   const router = useRouter();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+  const [drafts, setDrafts] = useState<DraftSummary[]>([]);
+
+  async function loadDrafts() {
+    try {
+      const res = await fetch(`${API_URL}/drafts`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setDrafts(data);
+    } catch (err) {
+      console.error("Failed to load drafts", err);
+    }
+  }
+
+  useEffect(() => {
+    loadDrafts();
+  }, []);
 
   return (
     <main className="space-y-6">
@@ -84,6 +109,38 @@ export default function HomePage() {
         >
           Start NBA Draft
         </button>
+      </section>
+
+      <section className="bg-slate-800 rounded-lg p-6">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-semibold">Recent drafts</h3>
+          <button
+            onClick={loadDrafts}
+            className="text-xs text-slate-300 underline"
+          >
+            Refresh
+          </button>
+        </div>
+        {drafts.length === 0 ? (
+          <p className="text-sm text-slate-400">No drafts yet.</p>
+        ) : (
+          <div className="grid gap-2 md:grid-cols-2">
+            {drafts.map((d) => (
+              <button
+                key={d.id}
+                onClick={() => router.push(`/draft/${d.id}`)}
+                className="rounded border border-slate-700 bg-slate-900 px-3 py-2 text-left hover:border-indigo-500"
+              >
+                <div className="font-semibold text-sm">
+                  {d.title || "NBA Draft"}
+                </div>
+                <div className="text-xs text-slate-400">
+                  Mode: {d.mode || "default"}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

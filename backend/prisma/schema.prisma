@@ -10,8 +10,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
 }
+
 
 model Player {
   id             String             @id @default(cuid())
@@ -71,6 +72,8 @@ model Draft {
 
   scoringMethod String       @default("system")
   rules         Json         // { maxPpgCap, overallCap, hallRule, multiTeamOnly, playedWithPlayerId, peakMode }
+  participants  Int @default(1)
+  playersPerTeam  Int @default(6)
 
   picks         DraftPick[]
   votes         Vote[]
@@ -85,6 +88,11 @@ model DraftPick {
 
   draft     Draft    @relation(fields: [draftId], references: [id])
   player    Player   @relation(fields: [playerId], references: [id])
+  ownerIndex Int @default(1)
+
+  @@index([draftId, ownerIndex])
+  @@index([draftId, slot])
+  @@unique([draftId, slot])
 }
 
 model Vote {
