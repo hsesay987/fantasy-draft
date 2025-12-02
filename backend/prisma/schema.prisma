@@ -13,13 +13,14 @@ datasource db {
   provider   = "postgresql"
 }
 
-
 model Player {
   id             String             @id @default(cuid())
   name           String
   firstName      String
   lastName       String
-  position       String             // "PG" | "SG" | "SF" | "PF" | "C" | "UNK"
+  position       String             // Primary position: "PG" | "SG" | "SF" | "PF" | "C" | "UNK"
+  eligiblePositions String?          // All positions player is eligible for (e.g., "PG,SG")
+  imageUrl       String?
   heightInches   Int
   primaryTeam    String?
   primaryEraFrom Int?
@@ -45,6 +46,9 @@ model PlayerSeasonStat {
   bpg      Float
   tsPct    Float?
   threeRate Float?
+  per      Float?
+  ws       Float?
+  usgPct   Float?
 
   player   Player   @relation(fields: [playerId], references: [id])
 

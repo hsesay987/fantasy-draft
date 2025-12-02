@@ -1,3 +1,4 @@
+// // src/services/draft.service.ts
 // src/services/draft.service.ts
 import prisma from "../lib/prisma";
 import {
@@ -36,7 +37,7 @@ export interface ScoreResponse {
     pickId: string;
     playerId: string;
     name: string;
-    position: NbaPosition;
+    position: string;
     seasonUsed?: number;
     ppg: number;
     score: number;
@@ -44,6 +45,7 @@ export interface ScoreResponse {
     ownerIndex?: number;
     threeRate?: number | null;
     heightInches?: number;
+    usgPct?: number;
   }[];
   teams?: {
     participant: number;
@@ -319,14 +321,14 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
   );
 
   // group picks into teams by ownerIndex
-  const teamsMap = new Map<
-    number,
-    {
-      heights: number[];
-      shooters: number;
-      picks: ScoreResponse["perPlayerScores"];
-    }
-  >();
+  interface TeamDataForScoring {
+    heights: number[];
+    shooters: number;
+    positions: NbaPosition[];
+    usages: number[];
+    picks: ScoreResponse["perPlayerScores"];
+  }
+  const teamsMap = new Map<number, TeamDataForScoring>();
 
   draft.picks.forEach((pick: any, idx: number) => {
     const choice = perPickBase[idx];
@@ -336,6 +338,8 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
     const team = teamsMap.get(ownerIndex) || {
       heights: [],
       shooters: 0,
+      positions: [],
+      usages: [],
       picks: [],
     };
 
@@ -352,9 +356,12 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
 
     const heightInches = pick.player.heightInches ?? 78;
     const threeRate = base.threeRate ?? 0;
+    const usgPct = base.usgPct ?? 20; // Default USG% to 20 if not available
 
     team.heights.push(heightInches);
     if (threeRate >= 0.33) team.shooters++;
+    team.positions.push(pos); // Add position
+    team.usages.push(usgPct); // Add usage
 
     team.picks.push({
       pickId: pick.id,
@@ -368,6 +375,7 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
       ownerIndex,
       threeRate,
       heightInches,
+      usgPct, // Add usgPct to the pick object
     });
 
     teamsMap.set(ownerIndex, team);
@@ -395,17 +403,37 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
         threeRate: p.threeRate ?? 0,
       };
 
+      // The context for player 'p' is the team *excluding* 'p' itself.
+      // Since 't' contains all players, we need to filter out 'p' from the context arrays.
+      const otherPicks = t.picks.filter((other) => other.pickId !== p.pickId);
+
+      const teamHeights = otherPicks.map((op) => op.heightInches ?? 78);
+      const teamShooters = otherPicks.filter(
+        (op) => (op.threeRate ?? 0) >= 0.33
+      ).length;
+      const teamPositions = otherPicks.map((op) => op.position as NbaPosition);
+      const teamUsage = otherPicks.map((op) => op.usgPct ?? 20);
+
       const fit: TeamFitContext = {
-        position: p.position,
+        position: p.position as NbaPosition,
         heightInches: p.heightInches ?? 78,
-        teamHeights: t.heights,
-        teamShooters: t.shooters,
+        teamHeights,
+        teamShooters,
+        teamPositions,
+        teamUsage,
       };
 
-      const score = scoreNbaPlayer(stat, p.position, eraCtx, fit);
+      const score = scoreNbaPlayer(
+        stat,
+        p.position as NbaPosition,
+        eraCtx,
+        fit
+      );
 
       const withScore = { ...p, score };
-      perPlayerScores.push(withScore);
+      perPlayerScores.push(
+        withScore as ScoreResponse["perPlayerScores"][number]
+      );
 
       teamScore += score;
       teamPpg += p.ppg;
@@ -483,8 +511,6 @@ export async function addVote(draftId: string, value: number) {
     data: { draftId, value },
   });
 }
-
-// // src/services/draft.service.ts
 // import prisma from "../lib/prisma";
 // import {
 //   scoreNbaPlayer,
@@ -502,8 +528,8 @@ export async function addVote(draftId: string, value: number) {
 //   playedWithPlayerId?: string | null;
 //   peakMode?: "peak" | "average";
 
-//   participants?: number;
-//   playersPerTeam?: number;
+//   participants?: number; // 1–5
+//   playersPerTeam?: number; // 5–12
 
 //   // timer + autopick
 //   pickTimerSeconds?: number | null;
@@ -688,22 +714,43 @@ export async function addVote(draftId: string, value: number) {
 // }
 
 // // ---------------------------------------------------------------------
-// // UPDATE PICK — no overwriting a different player
+// // UPDATE PICK — enforce turn order & no overwrite
 // // ---------------------------------------------------------------------
 
 // export async function updatePick(
 //   draftId: string,
 //   data: { slot: number; playerId: string; position: string }
 // ) {
-//   const draft = await prisma.draft.findUnique({ where: { id: draftId } });
+//   const draft = await prisma.draft.findUnique({
+//     where: { id: draftId },
+//     include: { picks: true },
+//   });
 //   if (!draft) throw new Error("Draft not found");
 
 //   const rules = (draft.rules || {}) as DraftRules;
-//   const { participants } = getParticipantsAndPlayersPerTeam(draft, rules);
+//   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
+//     draft,
+//     rules
+//   );
 
-//   // TURN LOGIC: slot 1->P1, 2->P2,..., N->PN, N+1->P1 etc.
-//   const ownerIndex = ((data.slot - 1) % participants) + 1;
+//   // Turn logic: P1, P2, ... PN, P1, ...
+//   const totalPicks = draft.picks.length;
+//   const activeParticipant =
+//     totalPicks < draft.maxPlayers ? (totalPicks % participants) + 1 : undefined;
 
+//   if (!activeParticipant) {
+//     throw new Error("Draft is already full");
+//   }
+
+//   // Slot must belong to the active participant
+//   const slotParticipant = Math.floor((data.slot - 1) / playersPerTeam) + 1;
+//   if (slotParticipant !== activeParticipant) {
+//     throw new Error(
+//       `It's Player ${activeParticipant}'s turn. You cannot pick in Player ${slotParticipant}'s slot.`
+//     );
+//   }
+
+//   // Does this slot already have a pick?
 //   const existing = await prisma.draftPick.findUnique({
 //     where: {
 //       draftId_slot: {
@@ -714,7 +761,7 @@ export async function addVote(draftId: string, value: number) {
 //   });
 
 //   if (existing && existing.playerId !== data.playerId) {
-//     // force Undo if they want to change a filled slot
+//     // force Undo if they want to change
 //     throw new Error("Slot already filled. Undo this pick before changing it.");
 //   }
 
@@ -725,12 +772,12 @@ export async function addVote(draftId: string, value: number) {
 //         slot: data.slot,
 //         playerId: data.playerId,
 //         position: data.position,
-//         ownerIndex,
+//         ownerIndex: activeParticipant,
 //       },
 //     });
 //   }
 
-//   // Update same slot/player (or position tweak)
+//   // Update (only allowed if same player, e.g. changing position)
 //   return prisma.draftPick.update({
 //     where: {
 //       draftId_slot: {
@@ -741,7 +788,7 @@ export async function addVote(draftId: string, value: number) {
 //     data: {
 //       playerId: data.playerId,
 //       position: data.position,
-//       ownerIndex,
+//       ownerIndex: activeParticipant,
 //     },
 //   });
 // }
@@ -891,8 +938,7 @@ export async function addVote(draftId: string, value: number) {
 //     });
 //   }
 
-//   // PPG / rating caps
-//   // Only MAX caps matter; minimum values are NOT enforced.
+//   // PPG / rating caps — ONLY MAX caps
 //   const maxPpgCap = rules.maxPpgCap ?? null;
 //   const maxOverallCap = rules.overallCap ?? null;
 
