@@ -1,73 +1,16 @@
-// import Image from "next/image";
-
-// export default function Home() {
-//   return (
-//     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-//       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-//         <Image
-//           className="dark:invert"
-//           src="/next.svg"
-//           alt="Next.js logo"
-//           width={100}
-//           height={20}
-//           priority
-//         />
-//         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-//           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-//             To get started, edit the page.tsx file.
-//           </h1>
-//           <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-//             Looking for a starting point or more instructions? Head over to{" "}
-//             <a
-//               href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//               className="font-medium text-zinc-950 dark:text-zinc-50"
-//             >
-//               Templates
-//             </a>{" "}
-//             or the{" "}
-//             <a
-//               href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//               className="font-medium text-zinc-950 dark:text-zinc-50"
-//             >
-//               Learning
-//             </a>{" "}
-//             center.
-//           </p>
-//         </div>
-//         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-//           <a
-//             className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-//             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             <Image
-//               className="dark:invert"
-//               src="/vercel.svg"
-//               alt="Vercel logomark"
-//               width={16}
-//               height={16}
-//             />
-//             Deploy Now
-//           </a>
-//           <a
-//             className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-//             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             Documentation
-//           </a>
-//         </div>
-//       </main>
-//     </div>
-//   );
-// }
 "use client";
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image, { type StaticImageData } from "next/image";
+import nbaImg from "./assets/nba.jpg";
+import nflImg from "./assets/nfl.jpg";
+import foodImg from "./assets/food.jpg";
+import animeImg from "./assets/anime.jpg";
+import cartoonsImg from "./assets/cartoons.jpg";
+import fifaImg from "./assets/fifa.jpg";
 
+// Unified Draft Box Type
 type DraftSummary = {
   id: string;
   title: string | null;
@@ -75,9 +18,18 @@ type DraftSummary = {
   createdAt?: string;
 };
 
+type DraftCategory = {
+  id: string;
+  name: string;
+  image: StaticImageData;
+  enabled: boolean;
+  onClick?: () => void;
+};
+
 export default function HomePage() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
   const [drafts, setDrafts] = useState<DraftSummary[]>([]);
 
   async function loadDrafts() {
@@ -95,53 +47,233 @@ export default function HomePage() {
     loadDrafts();
   }, []);
 
+  const draftCategories: DraftCategory[] = [
+    {
+      id: "nba",
+      name: "NBA Draft",
+      image: nbaImg,
+      enabled: true,
+      onClick: () => router.push("/draft/new"),
+    },
+    {
+      id: "nfl",
+      name: "NFL Draft",
+      image: nflImg,
+      enabled: false,
+    },
+    {
+      id: "food",
+      name: "Food Draft",
+      image: foodImg,
+      enabled: false,
+    },
+    {
+      id: "anime",
+      name: "Anime Characters Draft",
+      image: animeImg,
+      enabled: false,
+    },
+    {
+      id: "cartoons",
+      name: "Cartoon Characters Draft",
+      image: cartoonsImg,
+      enabled: false,
+    },
+    {
+      id: "epl",
+      name: "EPL / FIFA Draft",
+      image: fifaImg,
+      enabled: false,
+    },
+  ];
+
   return (
-    <main className="space-y-6">
-      <section className="bg-slate-800 rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-2">Create a New NBA Draft</h2>
-        <p className="text-sm text-slate-300 mb-4">
-          Draft a lineup with random eras, teams, and custom rules. We’ll start
-          with NBA and reuse the engine for NFL / EPL later.
+    <main className="min-h-screen p-6 md:p-10 bg-slate-950 text-slate-50 space-y-10">
+      {/* PAGE TITLE */}
+      <header>
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-indigo-300 mb-2">
+          DraftHub
+        </h1>
+        <p className="text-slate-400 text-sm md:text-base">
+          Create fantasy lineups across sports, games, food, and more.
         </p>
-        <button
-          onClick={() => router.push("/draft/new")}
-          className="px-4 py-2 rounded bg-indigo-500 hover:bg-indigo-600 text-sm font-semibold"
-        >
-          Start NBA Draft
-        </button>
+      </header>
+
+      {/* AVAILABLE DRAFT MODES */}
+      <section>
+        <h2 className="text-2xl font-semibold mb-4">Available Drafts</h2>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {draftCategories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => cat.enabled && cat.onClick?.()}
+              disabled={!cat.enabled}
+              className={`group relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-900/30 backdrop-blur-sm transition-all ${
+                cat.enabled
+                  ? "hover:border-indigo-500 hover:shadow-indigo-500/30"
+                  : "opacity-60 cursor-not-allowed"
+              }`}
+            >
+              {/* Image */}
+              <div className="relative h-40 w-full overflow-hidden">
+                <Image
+                  src={cat.image}
+                  alt={cat.name}
+                  fill
+                  className={`object-cover transition-all duration-300 group-hover:scale-105 ${
+                    !cat.enabled ? "grayscale" : ""
+                  }`}
+                />
+              </div>
+
+              {/* Title */}
+              <div className="p-4 text-left">
+                <div className="text-xl font-semibold mb-1 text-slate-100">
+                  {cat.name}
+                </div>
+                {cat.enabled ? (
+                  <p className="text-sm text-indigo-400 font-medium">
+                    ✦ Start Draft
+                  </p>
+                ) : (
+                  <p className="text-sm text-slate-500">Coming Soon</p>
+                )}
+              </div>
+
+              {/* Coming Soon overlay */}
+              {!cat.enabled && (
+                <div className="absolute inset-0 bg-slate-950/50 flex items-end justify-end p-3 pointer-events-none">
+                  <span className="text-[10px] uppercase tracking-wide bg-slate-700/60 text-slate-300 px-2 py-[2px] rounded">
+                    Coming Soon
+                  </span>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
       </section>
 
-      <section className="bg-slate-800 rounded-lg p-6">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold">Recent drafts</h3>
+      {/* RECENT DRAFTS */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold">Recent Drafts</h3>
           <button
             onClick={loadDrafts}
-            className="text-xs text-slate-300 underline"
+            className="text-xs text-slate-300 underline hover:text-white"
           >
             Refresh
           </button>
         </div>
-        {drafts.length === 0 ? (
-          <p className="text-sm text-slate-400">No drafts yet.</p>
-        ) : (
-          <div className="grid gap-2 md:grid-cols-2">
-            {drafts.map((d) => (
-              <button
-                key={d.id}
-                onClick={() => router.push(`/draft/${d.id}`)}
-                className="rounded border border-slate-700 bg-slate-900 px-3 py-2 text-left hover:border-indigo-500"
-              >
-                <div className="font-semibold text-sm">
-                  {d.title || "NBA Draft"}
-                </div>
-                <div className="text-xs text-slate-400">
-                  Mode: {d.mode || "default"}
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
+
+        <div className="rounded-2xl bg-slate-900/60 border border-slate-700 p-4">
+          {drafts.length === 0 ? (
+            <p className="text-sm text-slate-500">No drafts yet.</p>
+          ) : (
+            <div className="grid gap-2 md:grid-cols-2">
+              {drafts.map((d) => (
+                <button
+                  key={d.id}
+                  onClick={() => router.push(`/draft/${d.id}`)}
+                  className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-left hover:border-indigo-500 transition-all"
+                >
+                  <div className="font-semibold text-sm text-slate-100">
+                    {d.title || "NBA Draft"}
+                  </div>
+                  <div className="text-xs text-slate-400 flex items-center justify-between">
+                    <span>Mode: {d.mode}</span>
+                    {d.createdAt && (
+                      <span>{new Date(d.createdAt).toLocaleDateString()}</span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
     </main>
   );
 }
+// "use client";
+
+// import { useRouter } from "next/navigation";
+// import { useEffect, useState } from "react";
+
+// type DraftSummary = {
+//   id: string;
+//   title: string | null;
+//   mode: string;
+//   createdAt?: string;
+// };
+
+// export default function HomePage() {
+//   const router = useRouter();
+//   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+//   const [drafts, setDrafts] = useState<DraftSummary[]>([]);
+
+//   async function loadDrafts() {
+//     try {
+//       const res = await fetch(`${API_URL}/drafts`);
+//       if (!res.ok) return;
+//       const data = await res.json();
+//       setDrafts(data);
+//     } catch (err) {
+//       console.error("Failed to load drafts", err);
+//     }
+//   }
+
+//   useEffect(() => {
+//     loadDrafts();
+//   }, []);
+
+//   return (
+//     <main className="space-y-6">
+//       <section className="bg-slate-800 rounded-lg p-6">
+//         <h2 className="text-xl font-semibold mb-2">Create a New NBA Draft</h2>
+//         <p className="text-sm text-slate-300 mb-4">
+//           Draft a lineup with random eras, teams, and custom rules. We’ll start
+//           with NBA and reuse the engine for NFL / EPL later.
+//         </p>
+//         <button
+//           onClick={() => router.push("/draft/new")}
+//           className="px-4 py-2 rounded bg-indigo-500 hover:bg-indigo-600 text-sm font-semibold"
+//         >
+//           Start NBA Draft
+//         </button>
+//       </section>
+
+//       <section className="bg-slate-800 rounded-lg p-6">
+//         <div className="flex items-center justify-between mb-2">
+//           <h3 className="text-lg font-semibold">Recent drafts</h3>
+//           <button
+//             onClick={loadDrafts}
+//             className="text-xs text-slate-300 underline"
+//           >
+//             Refresh
+//           </button>
+//         </div>
+//         {drafts.length === 0 ? (
+//           <p className="text-sm text-slate-400">No drafts yet.</p>
+//         ) : (
+//           <div className="grid gap-2 md:grid-cols-2">
+//             {drafts.map((d) => (
+//               <button
+//                 key={d.id}
+//                 onClick={() => router.push(`/draft/${d.id}`)}
+//                 className="rounded border border-slate-700 bg-slate-900 px-3 py-2 text-left hover:border-indigo-500"
+//               >
+//                 <div className="font-semibold text-sm">
+//                   {d.title || "NBA Draft"}
+//                 </div>
+//                 <div className="text-xs text-slate-400">
+//                   Mode: {d.mode || "default"}
+//                 </div>
+//               </button>
+//             ))}
+//           </div>
+//         )}
+//       </section>
+//     </main>
+//   );
+// }
