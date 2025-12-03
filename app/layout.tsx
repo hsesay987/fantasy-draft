@@ -47,7 +47,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen w-screen bg-slate-950 text-slate-100 overflow-x-hidden">
+      <body className="min-h-screen bg-slate-950 text-slate-100">
         <div className="max-w-5xl mx-auto px-4 py-6">
           <header className="mb-6 flex items-center justify-between">
             <h1 className="text-2xl font-bold">Fantasy Era Draft</h1>
