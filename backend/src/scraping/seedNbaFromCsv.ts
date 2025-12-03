@@ -162,7 +162,7 @@ async function buildPlayersFromCsv(): Promise<PlayerAgg[]> {
   return Array.from(playersMap.values());
 }
 
-async function seedModernFromCsv() {
+export async function seedModernFromCsv() {
   console.log("Loading NBA player seasons from CSV...");
   const players = await buildPlayersFromCsv();
   console.log(`Loaded ${players.length} modern players from CSV`);
@@ -171,7 +171,7 @@ async function seedModernFromCsv() {
   for (const p of players) {
     i++;
 
-    const player = await prisma.player.upsert({
+    const player = await prisma.nBAPlayer.upsert({
       where: { id: p.id },
       update: {
         name: p.name,
@@ -201,13 +201,13 @@ async function seedModernFromCsv() {
       },
     });
 
-    await prisma.playerSeasonStat.deleteMany({
+    await prisma.nBAPlayerSeasonStat.deleteMany({
       where: { playerId: player.id },
     });
 
     for (const s of p.seasons) {
       const games = s.games || 1;
-      await prisma.playerSeasonStat.create({
+      await prisma.nBAPlayerSeasonStat.create({
         data: {
           playerId: player.id,
           season: s.season,
@@ -321,7 +321,7 @@ async function seedPre1980Legends() {
   ];
 
   for (const l of legends) {
-    const player = await prisma.player.upsert({
+    const player = await prisma.nBAPlayer.upsert({
       where: { id: l.id },
       update: {},
       create: {
@@ -339,12 +339,12 @@ async function seedPre1980Legends() {
       },
     });
 
-    await prisma.playerSeasonStat.deleteMany({
+    await prisma.nBAPlayerSeasonStat.deleteMany({
       where: { playerId: player.id },
     });
 
     for (const s of l.seasons) {
-      await prisma.playerSeasonStat.create({
+      await prisma.nBAPlayerSeasonStat.create({
         data: {
           playerId: player.id,
           season: s.season,

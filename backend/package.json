@@ -8,7 +8,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seed:nba": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNbaFromCsv.ts"
+    "seed:nba": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNbaModern.ts"
   },
   "keywords": [],
   "author": "",

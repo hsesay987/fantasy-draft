@@ -13,7 +13,7 @@ datasource db {
   provider   = "postgresql"
 }
 
-model Player {
+model NBAPlayer {
   id             String             @id @default(cuid())
   name           String
   firstName      String
@@ -28,11 +28,11 @@ model Player {
   isHallOfFamer  Boolean            @default(false)
   totalTeams     Int                @default(1)
 
-  seasonStats    PlayerSeasonStat[]
-  draftPicks     DraftPick[]
+  seasonStats    NBAPlayerSeasonStat[]
+  draftPicks     NBADraftPick[]
 }
 
-model PlayerSeasonStat {
+model NBAPlayerSeasonStat {
   id       String @id @default(cuid())
   playerId String
   season   Int
@@ -50,7 +50,7 @@ model PlayerSeasonStat {
   ws       Float?
   usgPct   Float?
 
-  player   Player   @relation(fields: [playerId], references: [id])
+  player   NBAPlayer   @relation(fields: [playerId], references: [id])
 
   @@index([playerId])
   @@index([season])
@@ -79,11 +79,11 @@ model Draft {
   participants  Int @default(1)
   playersPerTeam  Int @default(6)
 
-  picks         DraftPick[]
+  picks         NBADraftPick[]
   votes         Vote[]
 }
 
-model DraftPick {
+model NBADraftPick {
   id        String   @id @default(cuid())
   draftId   String
   playerId  String
@@ -91,7 +91,7 @@ model DraftPick {
   position  String
 
   draft     Draft    @relation(fields: [draftId], references: [id])
-  player    Player   @relation(fields: [playerId], references: [id])
+  player    NBAPlayer   @relation(fields: [playerId], references: [id])
   ownerIndex Int @default(1)
 
   @@index([draftId, ownerIndex])

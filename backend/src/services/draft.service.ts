@@ -241,7 +241,7 @@ export async function updatePick(
   }
 
   // Does this slot already have a pick?
-  const existing = await prisma.draftPick.findUnique({
+  const existing = await prisma.nBADraftPick.findUnique({
     where: {
       draftId_slot: {
         draftId,
@@ -256,7 +256,7 @@ export async function updatePick(
   }
 
   if (!existing) {
-    return prisma.draftPick.create({
+    return prisma.nBADraftPick.create({
       data: {
         draftId,
         slot: data.slot,
@@ -268,7 +268,7 @@ export async function updatePick(
   }
 
   // Update (only allowed if same player, e.g. changing position)
-  return prisma.draftPick.update({
+  return prisma.nBADraftPick.update({
     where: {
       draftId_slot: {
         draftId,
@@ -288,7 +288,7 @@ export async function updatePick(
 // ---------------------------------------------------------------------
 
 export async function undoPick(draftId: string, slot: number) {
-  await prisma.draftPick.delete({
+  await prisma.nBADraftPick.delete({
     where: {
       draftId_slot: {
         draftId,

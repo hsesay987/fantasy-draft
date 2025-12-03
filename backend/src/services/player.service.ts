@@ -163,7 +163,7 @@ export async function searchPlayers(input: SearchPlayersInput) {
     offset = 0,
   } = input;
 
-  const andFilters: Prisma.PlayerWhereInput[] = [];
+  const andFilters: Prisma.NBAPlayerWhereInput[] = [];
 
   if (q) {
     andFilters.push({
@@ -201,12 +201,12 @@ export async function searchPlayers(input: SearchPlayersInput) {
     andFilters.push({ isHallOfFamer: false });
   }
 
-  const where: Prisma.PlayerWhereInput = andFilters.length
+  const where: Prisma.NBAPlayerWhereInput = andFilters.length
     ? { AND: andFilters }
     : {};
 
   // Only restrict by season range inside the JOIN
-  const seasonWhere: Prisma.PlayerSeasonStatWhereInput = {
+  const seasonWhere: Prisma.NBAPlayerSeasonStatWhereInput = {
     ...(eraFrom || eraTo
       ? {
           season: {
@@ -220,7 +220,7 @@ export async function searchPlayers(input: SearchPlayersInput) {
   const rawLimit = Math.max(limit, 1);
   const queryLimit = Math.min(rawLimit * 3, 300);
 
-  const players = await prisma.player.findMany({
+  const players = await prisma.nBAPlayer.findMany({
     where,
     include: {
       seasonStats: {
