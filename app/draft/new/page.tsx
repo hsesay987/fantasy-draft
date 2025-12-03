@@ -49,6 +49,10 @@ export default function NewDraftPage() {
   const [peakMode, setPeakMode] = useState<"peak" | "average">("peak");
 
   const [loading, setLoading] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [rulesTab, setRulesTab] = useState<"classic" | "casual" | "free">(
+    "classic"
+  );
 
   // ------------------------------------------
   //  LOCKING LOGIC
@@ -123,7 +127,7 @@ export default function NewDraftPage() {
           : Number(overallCap),
         hallRule: isClassic ? "any" : hallRule,
         multiTeamOnly: isClassic ? false : multiTeamOnly,
-        peakMode,
+        peakMode: mode === "classic" ? "peak-era-team" : peakMode,
         participants,
         playersPerTeam,
       };
@@ -176,13 +180,29 @@ export default function NewDraftPage() {
   return (
     <main className="min-h-screen p-6 md:p-10 bg-slate-950 text-slate-50 space-y-10">
       {/* HEADER */}
-      <header>
-        <h1 className="text-3xl md:text-4xl font-extrabold text-indigo-300 tracking-tight mb-1">
-          Create a New NBA Draft
-        </h1>
-        <p className="text-slate-400 text-sm">
-          Classic mode locks rules; Casual & Free let you get creative.
-        </p>
+      <header className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-indigo-300 tracking-tight mb-1">
+            Create a New NBA Draft
+          </h1>
+          <p className="text-slate-400 text-sm">
+            Classic mode locks rules; Casual & Free let you get creative.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowRules(true)}
+            className="text-xs underline text-slate-300 hover:text-white"
+          >
+            View rules
+          </button>
+          <button
+            className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-4 py-2 text-sm font-semibold hover:bg-indigo-600"
+            onClick={() => applyModeDefaults(mode)}
+          >
+            <Zap className="h-4 w-4" /> Quick Defaults
+          </button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -524,6 +544,65 @@ export default function NewDraftPage() {
         {loading ? "Creating Draft..." : "Create Draft"}{" "}
         <ChevronRight className="w-4 h-4" />
       </button>
+
+      {showRules && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 w-full max-w-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Draft Rules</h3>
+              <button
+                onClick={() => setShowRules(false)}
+                className="text-sm text-slate-300 hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="flex gap-2 text-xs">
+              {(["classic", "casual", "free"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setRulesTab(tab)}
+                  className={`px-3 py-1 rounded border ${
+                    rulesTab === tab
+                      ? "border-indigo-400 bg-indigo-500/20 text-indigo-200"
+                      : "border-slate-700 text-slate-300"
+                  }`}
+                >
+                  {tab[0].toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            {rulesTab === "classic" && (
+              <ul className="text-sm text-slate-200 space-y-2">
+                <li>• Random era + team; one spin per turn.</li>
+                <li>• Unique players only, positions enforced.</li>
+                <li>• Scoring uses best season for that team in the era.</li>
+              </ul>
+            )}
+            {rulesTab === "casual" && (
+              <ul className="text-sm text-slate-200 space-y-2">
+                <li>
+                  • Tweak era/team, allow duplicate versions across teams.
+                </li>
+                <li>
+                  • Choose stat mode: peak in era, average in era, or team
+                  tenure.
+                </li>
+                <li>• Optional custom scoring weights.</li>
+              </ul>
+            )}
+            {rulesTab === "free" && (
+              <ul className="text-sm text-slate-200 space-y-2">
+                <li>• No position enforcement; sandbox picks.</li>
+                <li>• Up to 5 participants, any lineup size.</li>
+                <li>• You decide ordering and scoring.</li>
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

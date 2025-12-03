@@ -93,6 +93,9 @@ model NBADraftPick {
   draft     Draft    @relation(fields: [draftId], references: [id])
   player    NBAPlayer   @relation(fields: [playerId], references: [id])
   ownerIndex Int @default(1)
+  seasonUsed Int?  
+  teamUsed   String?
+
 
   @@index([draftId, ownerIndex])
   @@index([draftId, slot])

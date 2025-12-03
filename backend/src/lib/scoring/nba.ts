@@ -209,150 +209,116 @@ export function scoreNbaPlayer(
 
   return clamp(finalScore, 0, 100);
 }
-// // // lib/scoring/nba.ts
-// // src/lib/scoring/nba.ts
 
-// export type NbaPosition = "PG" | "SG" | "SF" | "PF" | "C";
+// --- Franchise Normalization ------------------------------------------------
+//
+// Converts any historical team code into a modern unified franchise identifier.
+// Example: SEA → OKC, BRK → BKN, NJN → BKN, NOH → NOP, CHA → CHH/CHA handling, etc.
+//
+export function normalizeFranchise(team: string): string {
+  if (!team) return "";
 
-// export interface NbaStatLine {
-//   ppg: number;
-//   apg: number;
-//   rpg: number;
-//   spg: number;
-//   bpg: number;
-//   tsPct?: number | null;
-//   threeRate?: number | null; // 0–1, proportion of shots that are 3s
-// }
+  const t = team.trim().toUpperCase();
 
-// export interface NbaEraContext {
-//   eraFrom?: number | null;
-//   eraTo?: number | null;
-// }
+  const map: Record<string, string> = {
+    // --- Active Franchises ---
+    ATL: "ATL",
+    BOS: "BOS",
+    BRK: "BKN",
+    BKN: "BKN",
+    NJN: "BKN",
 
-// export interface TeamFitContext {
-//   position: NbaPosition;
-//   heightInches: number;
-//   teamHeights: number[]; // heights of teammates
-//   teamShooters: number; // count of teammates with good shooting
-// }
+    CHA: "CHA",
+    CHH: "CHA",
 
-// function clamp(x: number, min: number, max: number) {
-//   return Math.max(min, Math.min(max, x));
-// }
+    CHI: "CHI",
 
-// // Normalize a stat vs some rough idea of "elite" caps.
-// function normalize(value: number, elite: number): number {
-//   return clamp(value / elite, 0, 1);
-// }
+    CLE: "CLE",
 
-// // Base score ignoring era and fit.
-// export function baseNbaScore(stat: NbaStatLine, position: NbaPosition): number {
-//   const scoring = normalize(stat.ppg, 35); // 35 PPG ~ elite
-//   const assists = normalize(stat.apg, 10);
-//   const rebounds = normalize(stat.rpg, 15);
-//   const steals = normalize(stat.spg, 3);
-//   const blocks = normalize(stat.bpg, 3);
-//   const efficiency = stat.tsPct
-//     ? clamp((stat.tsPct - 0.48) / (0.65 - 0.48), 0, 1)
-//     : 0.5;
+    DAL: "DAL",
 
-//   // Weighting depends on position a bit
-//   let wScoring = 0.45;
-//   let wAssists = 0.2;
-//   let wReb = 0.2;
-//   let wDef = 0.1;
-//   let wEff = 0.05;
+    DEN: "DEN",
 
-//   if (position === "PG") {
-//     wAssists += 0.1;
-//     wReb -= 0.05;
-//   } else if (position === "C" || position === "PF") {
-//     wReb += 0.1;
-//     wAssists -= 0.05;
-//   }
+    DET: "DET",
 
-//   const def = (steals + blocks) / 2;
+    GSW: "GSW",
+    PHO: "PHX",
+    PHX: "PHX",
 
-//   const raw =
-//     wScoring * scoring +
-//     wAssists * assists +
-//     wReb * rebounds +
-//     wDef * def +
-//     wEff * efficiency;
+    HOU: "HOU",
 
-//   return clamp(raw * 100, 0, 100);
-// }
+    IND: "IND",
 
-// // Era adjustment: 3pt specialists hurt in 60s, rewarded in 2010s, etc.
-// export function applyEraAdjustment(
-//   baseScore: number,
-//   stat: NbaStatLine,
-//   era: NbaEraContext
-// ): number {
-//   if (!era.eraFrom || !era.eraTo) return baseScore;
+    LAC: "LAC",
+    SD: "LAC",
+    SDC: "LAC",
 
-//   const midEra = (era.eraFrom + era.eraTo) / 2;
+    LAL: "LAL",
+    MPL: "LAL",
 
-//   const threeRate = stat.threeRate ?? 0;
+    MEM: "MEM",
+    VAN: "MEM",
 
-//   // Very rough rules:
-//   if (midEra < 1980) {
-//     // 3pt doesn't matter; pure scoring/rebounding era.
-//     const penalty = threeRate * 10; // up to -10
-//     return baseScore - penalty;
-//   } else if (midEra >= 2005) {
-//     // Spacing era: 3pt specialists get bonus.
-//     const bonus = threeRate * 10; // up to +10
-//     return baseScore + bonus;
-//   }
+    MIA: "MIA",
 
-//   // Neutral-ish in between
-//   return baseScore;
-// }
+    MIL: "MIL",
 
-// // Team fit: penalize no size / no spacing etc.
-// export function applyTeamFitAdjustment(
-//   score: number,
-//   fit: TeamFitContext
-// ): number {
-//   const teamAvgHeight =
-//     fit.teamHeights.length > 0
-//       ? fit.teamHeights.reduce((a, b) => a + b, 0) / fit.teamHeights.length
-//       : fit.heightInches;
+    MIN: "MIN",
 
-//   let adjustment = 0;
+    NOP: "NOP",
+    NOH: "NOP",
+    NOK: "NOP",
+    // Old Charlotte/New Orleans:
+    CHO: "CHA",
 
-//   // Too small frontcourt
-//   if (
-//     (fit.position === "PF" || fit.position === "C") &&
-//     fit.heightInches < 80
-//   ) {
-//     adjustment -= 8;
-//   }
+    NYK: "NYK",
 
-//   // If entire team is tiny, small penalty
-//   if (teamAvgHeight < 77) {
-//     adjustment -= 5;
-//   }
+    OKC: "OKC",
+    SEA: "OKC",
 
-//   // Spacing: if fewer than 2 shooters, slight penalty
-//   if (fit.teamShooters < 2) {
-//     adjustment -= 5;
-//   } else if (fit.teamShooters >= 3) {
-//     adjustment += 5;
-//   }
+    ORL: "ORL",
 
-//   return clamp(score + adjustment, 0, 100);
-// }
+    POR: "POR",
 
-// export function scoreNbaPlayer(
-//   stat: NbaStatLine,
-//   position: NbaPosition,
-//   era: NbaEraContext,
-//   fit: TeamFitContext
-// ): number {
-//   const base = baseNbaScore(stat, position);
-//   const eraAdjusted = applyEraAdjustment(base, stat, era);
-//   const fitAdjusted = applyTeamFitAdjustment(eraAdjusted, fit);
-//   return fitAdjusted;
-// }
+    SAC: "SAC",
+    KCK: "SAC",
+    KCO: "SAC",
+    ROC: "SAC", // Rochester Royals
+    CIN: "SAC", // Cincinnati Royals
+    KAN: "SAC",
+
+    SAS: "SAS",
+    ABA: "SAS",
+
+    TOR: "TOR",
+
+    UTA: "UTA",
+    NOJ: "UTA",
+
+    WAS: "WAS",
+    WSB: "WAS",
+    BAL: "WAS",
+
+    // --- Defunct historical / early NBA ---
+    SYR: "PHI", // Nationals → 76ers
+    PHW: "GSW", // Philadelphia Warriors → Golden State
+    SFW: "GSW",
+
+    FTL: "DET",
+    FTW: "LAL", // Fort Wayne Pistons → Detroit (but historically same franchise) (could map to DET too)
+
+    TRI: "ATL", // Tri-Cities Blackhawks → Hawks
+    MNL: "LAL",
+
+    STL: "ATL", // St. Louis Hawks → Atlanta
+    BUF: "LAC", // Buffalo Braves → Clippers
+
+    // ABA teams that merged:
+    NYA: "NYK",
+    PTA: "POR",
+    DNN: "DEN",
+    SPG: "SAS",
+  };
+
+  return map[t] || t;
+}

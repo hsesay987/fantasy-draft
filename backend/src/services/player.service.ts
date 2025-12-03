@@ -127,9 +127,10 @@ function pickBestSeasonForPlayer(
   team?: string
 ) {
   const targetTeam = team ? normalizeFranchise(team) : null;
+  const eraFromInclusive = eraFrom ? eraFrom - 1 : undefined; // allow prior season (e.g., 2009-10 counts for 2010)
 
   const candid = p.seasonStats.filter((s) => {
-    if (eraFrom && s.season < eraFrom) return false;
+    if (eraFromInclusive && s.season < eraFromInclusive) return false;
     if (eraTo && s.season > eraTo) return false;
 
     if (targetTeam) {
