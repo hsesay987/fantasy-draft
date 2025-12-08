@@ -44,9 +44,29 @@ type DraftPick = {
 type DraftRules = {
   hallRule?: "any" | "only" | "none";
   maxPpgCap?: number | null;
-  overallCap?: number | null;
+  // overallCap?: number | null;
   multiTeamOnly?: boolean;
-  peakMode?: "peak" | "average";
+  peakMode?:
+    | "peak"
+    | "average"
+    | "peak-era"
+    | "peak-team"
+    | "peak-era-team"
+    | "average-era"
+    | "average-era-team"
+    | "career-avg"
+    | "best-any";
+  playedWithPlayerId?: string | null;
+  statMode?:
+    | "peak"
+    | "average"
+    | "peak-era"
+    | "peak-team"
+    | "peak-era-team"
+    | "average-era"
+    | "average-era-team"
+    | "career-avg"
+    | "best-any";
 
   participants?: number;
   playersPerTeam?: number;
@@ -61,9 +81,11 @@ type DraftRules = {
   savedState?: any;
   savedAt?: string;
   mode?: string;
+  suggestionsEnabled?: boolean;
 };
 
 type Draft = {
+  randomTeam: boolean;
   id: string;
   title: string | null;
   league: string;
@@ -226,6 +248,7 @@ export default function DraftPage() {
   const [loading, setLoading] = useState(true);
 
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
+  const [pickError, setPickError] = useState<string | null>(null);
 
   /***************************************************************************/
   /*                           SPIN LOCKS                                    */
@@ -364,6 +387,51 @@ export default function DraftPage() {
     }
   }, [id]);
 
+  // const suggestedPicks = useMemo(() => {
+  //   if (!score || !draft || !activeParticipant) return [];
+
+  //   // Exclude already drafted players
+  //   const draftedIds = new Set(draft.picks.map((p) => p.player.id));
+
+  //   return score.perPlayerScores
+  //     .filter((p) => !draftedIds.has(p.playerId))
+  //     .sort((a, b) => b.score - a.score)
+  //     .slice(0, 5);
+  // }, [score, draft, activeParticipant]);
+  const [suggestedPicks, setSuggestedPicks] = useState<
+    {
+      playerId: string;
+      name: string;
+      position: string;
+      score: number;
+      ppg: number;
+      seasonUsed?: number;
+    }[]
+  >([]);
+
+  async function loadSuggestions() {
+    if (!draft) return;
+
+    if (draft.mode !== "casual") {
+      setSuggestedPicks([]);
+      return;
+    }
+
+    if (!draft.rules?.suggestionsEnabled) {
+      setSuggestedPicks([]);
+      return;
+    }
+
+    const res = await fetch(`${API_URL}/drafts/${draft.id}/suggestions`);
+    if (!res.ok) {
+      setSuggestedPicks([]);
+      return;
+    }
+
+    const data = await res.json();
+    setSuggestedPicks(data);
+  }
+
   /***************************************************************************/
   /*            SYNC SELECTEDSLOT WITH ACTIVE PARTICIPANT’S OPEN SLOT        */
   /***************************************************************************/
@@ -427,14 +495,37 @@ export default function DraftPage() {
     return params;
   }
 
+  // async function searchPlayers() {
+  //   if (!draft || !selectedSlot) return;
+  //   setSearchLoading(true);
+  //   const params = buildSearchParams(selectedSlot);
+  //   const res = await fetch(`${API_URL}/players/search?${params.toString()}`);
+  //   const data = await res.json();
+  //   setSearchResults(data);
+  //   setSearchLoading(false);
+  // }
   async function searchPlayers() {
-    if (!draft || !selectedSlot) return;
+    if (!draft) return;
+
+    const slot = selectedSlot ?? defaultSlotForActive;
+    if (!slot) {
+      alert("No available slot selected for this player.");
+      return;
+    }
+
     setSearchLoading(true);
-    const params = buildSearchParams(selectedSlot);
-    const res = await fetch(`${API_URL}/players/search?${params.toString()}`);
-    const data = await res.json();
-    setSearchResults(data);
-    setSearchLoading(false);
+    try {
+      const params = buildSearchParams(slot);
+      const res = await fetch(`${API_URL}/players/search?${params.toString()}`);
+      if (!res.ok) {
+        setSearchResults([]);
+        return;
+      }
+      const data = await res.json();
+      setSearchResults(data);
+    } finally {
+      setSearchLoading(false);
+    }
   }
 
   /***************************************************************************/
@@ -477,9 +568,49 @@ export default function DraftPage() {
     return player.eligiblePositions.split(",").map((s) => s.trim());
   }
 
+  function matchesRequiredPosition(required: string, token: string) {
+    const req = required.toUpperCase();
+    const pos = token.toUpperCase();
+
+    if (req === "C") {
+      return pos.includes("C"); // C, C-F, F-C, G-C, etc.
+    }
+
+    if (req === "PF") {
+      return (
+        pos === "PF" ||
+        pos === "F" ||
+        (pos.includes("F") && pos.includes("C")) // C-F, F-C
+      );
+    }
+
+    if (req === "SF") {
+      return (
+        pos === "SF" ||
+        pos === "F" ||
+        (pos.includes("F") && pos.includes("G")) // F-G, G-F
+      );
+    }
+
+    if (req === "SG") {
+      return (
+        pos === "SG" ||
+        pos === "G" ||
+        (pos.includes("G") && pos.includes("F")) // F-G, G-F
+      );
+    }
+
+    if (req === "PG") {
+      return pos === "PG" || pos === "G";
+    }
+
+    return pos === req;
+  }
+
   function isPlayerEligible(player: Player, requiredPos?: string) {
-    if (!requiredPos) return true;
-    return getEligiblePositions(player).includes(requiredPos);
+    if (!requiredPos) return true; // bench / free mode
+    const eligibles = getEligiblePositions(player);
+    return eligibles.some((pos) => matchesRequiredPosition(requiredPos, pos));
   }
 
   /***************************************************************************/
@@ -506,9 +637,11 @@ export default function DraftPage() {
     const requiredPos = getSlotPosition(slot, draft);
     const eligiblePositions = getEligiblePositions(player);
 
-    // UPDATED eligibility check
-    if (requiredPos && !eligiblePositions.includes(requiredPos)) {
-      if (!fromAutoPick) alert("Player not eligible for this position.");
+    // UPDATED eligibility check with flexible position matching
+    if (requiredPos && !isPlayerEligible(player, requiredPos)) {
+      if (!fromAutoPick) {
+        alert("Player not eligible for this position.");
+      }
       return;
     }
 
@@ -527,16 +660,18 @@ export default function DraftPage() {
         slot,
         playerId: player.id,
         position,
+        ownerIndex: activeParticipant,
         mode: draft.rules?.mode,
       }),
     });
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      alert(err.error || "Failed to make pick");
+      setPickError(err.error || "Pick failed.");
       return;
     }
 
+    setPickError(null);
     setPendingPlayer(null);
     setSelectedPositionForPick(null);
     setSearchQuery("");
@@ -557,6 +692,8 @@ export default function DraftPage() {
   /*                                UNDO                                      */
   /***************************************************************************/
   async function handleUndo(slot: number, e?: React.MouseEvent) {
+    if (draft?.picks.length === 0) return;
+
     if (e) e.stopPropagation();
     if (!draft) return;
 
@@ -618,14 +755,58 @@ export default function DraftPage() {
     }, 1400);
   }
 
+  // function handleSpinEraTeam() {
+  //   if (!draft) return;
+
+  //   const defaultMode = draft.mode === "default";
+  //   const allowRespin =
+  //     draft.rules?.allowRespinsWithoutPick || draft.mode !== "default";
+
+  //   if (defaultMode && hasSpunThisTurn && !allowRespin) {
+  //     alert("Already spun this turn.");
+  //     return;
+  //   }
+
+  //   const combos = buildValidEraTeamCombos();
+
+  //   spin<EraTeamCombo>(
+  //     combos,
+  //     (item) => {
+  //       setCurrentSpinTeam(item.team);
+  //       setEraSpinLabel(item.era.label);
+  //     },
+  //     setSpinning,
+  //     async (final) => {
+  //       setCurrentSpinTeam(final.team);
+  //       setEraSpinLabel(final.era.label);
+  //       setLockedTeam(final.team);
+  //       setLockedEra({ from: final.era.from, to: final.era.to });
+  //       setHasSpunThisTurn(true);
+
+  //       // SAVE SPIN TO BACKEND (IMPORTANT)
+  //       await fetch(`${API_URL}/drafts/${draft.id}/save`, {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           savedState: {
+  //             teamLandedOn: final.team,
+  //             eraFrom: final.era.from,
+  //             eraTo: final.era.to,
+  //           },
+  //           status: "in_progress",
+  //         }),
+  //       });
+  //     }
+  //   );
+  // }
   function handleSpinEraTeam() {
     if (!draft) return;
 
-    const defaultMode = draft.mode === "default";
-    const allowRespin =
-      draft.rules?.allowRespinsWithoutPick || draft.mode !== "default";
+    const isClassicMode = draft.mode === "classic";
+    const allowRespin = draft.rules?.allowRespinsWithoutPick || !isClassicMode;
 
-    if (defaultMode && hasSpunThisTurn && !allowRespin) {
+    // In classic mode, 1 spin per turn unless explicitly allowed
+    if (isClassicMode && hasSpunThisTurn && !allowRespin) {
       alert("Already spun this turn.");
       return;
     }
@@ -663,6 +844,11 @@ export default function DraftPage() {
     );
   }
 
+  useEffect(() => {
+    setHasSpunThisTurn(false);
+    clearLocks();
+  }, [activeParticipant]);
+
   function clearLocks() {
     setLockedEra(null);
     setLockedTeam(null);
@@ -684,7 +870,17 @@ export default function DraftPage() {
     const seconds = draft.rules?.pickTimerSeconds ?? null;
     const auto = draft.rules?.autoPickEnabled;
 
-    if (!seconds || !auto) {
+    // Only start when randomizer requirements are satisfied or disabled
+    // const needsEraSpin =
+    //   draft.mode === "default" && draft.randomEra && !lockedEra;
+    // const needsTeamSpin =
+    //   draft.mode === "default" && draft.randomTeam && !lockedTeam;
+    const needsEraSpin =
+      draft.mode === "classic" && draft.randomEra && !lockedEra;
+    const needsTeamSpin =
+      draft.mode === "classic" && draft.randomTeam && !lockedTeam;
+
+    if (!seconds || !auto || needsEraSpin || needsTeamSpin) {
       setTimerActive(false);
       setTimeLeft(null);
       return;
@@ -708,7 +904,10 @@ export default function DraftPage() {
         if (prev <= 1) {
           clearInterval(interval);
           setTimerActive(false);
-          autoPickCurrentTurn();
+          if (!pendingPlayer) {
+            autoPickCurrentTurn();
+          }
+
           return 0;
         }
         return prev - 1;
@@ -716,7 +915,7 @@ export default function DraftPage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [draft, activeParticipant]);
+  }, [draft, activeParticipant, lockedEra, lockedTeam]);
 
   /***************************************************************************/
   /*                      PLAYER CARD COMPONENT (UNCHANGED UI)               */
@@ -737,6 +936,7 @@ export default function DraftPage() {
     const pos = getSlotPosition(slot, draft);
     const playerScore =
       score?.perPlayerScores.find((s) => s.slot === slot) ?? null;
+    const seasonUsed = pick?.seasonUsed || pick?.player.bestSeason?.season;
     const teamCode = pick?.teamUsed || pick?.player.primaryTeam;
     const teamData = teamCode ? teamDataMap.get(teamCode) : undefined;
 
@@ -793,9 +993,7 @@ export default function DraftPage() {
             <div className="flex flex-col gap-0.5 z-10 pr-12">
               <span className="text-[10px] text-slate-200">
                 {pick.player.position}
-                {pick.player.bestSeason?.season
-                  ? ` • ${pick.player.bestSeason.season}`
-                  : ""}
+                {seasonUsed ? ` • ${seasonUsed}` : ""}
               </span>
 
               {playerScore && (
@@ -905,6 +1103,15 @@ export default function DraftPage() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [pendingPlayer, selectedSlot, draft, participants, allSlots]);
 
+  useEffect(() => {
+    if (!draft || !activeParticipant) return;
+    loadSuggestions();
+  }, [
+    draft?.picks.length,
+    activeParticipant,
+    draft?.rules?.suggestionsEnabled,
+  ]);
+
   /***************************************************************************/
   /*                                 UI LOADING                             */
   /***************************************************************************/
@@ -920,6 +1127,35 @@ export default function DraftPage() {
     { length: participants },
     (_, i) => i + 1
   );
+
+  const safeLen = (arr?: any[]) => (arr && arr.length ? arr.length : 1);
+
+  function ChemistryBar({
+    label,
+    value,
+    good,
+  }: {
+    label: string;
+    value: number;
+    good: boolean;
+  }) {
+    return (
+      <div className="space-y-1">
+        <div className="flex justify-between text-[10px] text-slate-400">
+          <span>{label}</span>
+          <span className={good ? "text-emerald-300" : "text-orange-300"}>
+            {value.toFixed(0)}
+          </span>
+        </div>
+        <div className="h-1.5 rounded bg-slate-800 overflow-hidden">
+          <div
+            className={`h-full ${good ? "bg-emerald-500" : "bg-orange-400"}`}
+            style={{ width: `${Math.min(100, value)}%` }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   /***************************************************************************/
   /*                           MAIN RENDER LAYOUT                            */
@@ -1069,17 +1305,65 @@ export default function DraftPage() {
                       </div>
 
                       {teamScore && (
-                        <div className="text-right text-[10px] leading-tight">
-                          <div className="text-slate-400">Score</div>
-                          <div className="text-sm font-semibold text-emerald-300">
-                            {teamScore.teamScore.toFixed(1)}
-                          </div>
-                          <div className="text-[10px] text-slate-500">
-                            {teamScore.totalPpg.toFixed(1)} PPG
-                          </div>
+                        <div className="mt-2 space-y-2">
+                          <ChemistryBar
+                            label="Spacing"
+                            value={
+                              (teamScore.picks.filter(
+                                (p) => (p.threeRate ?? 0) >= 0.33
+                              ).length /
+                                safeLen(teamScore.picks)) *
+                              100
+                            }
+                            good={true}
+                          />
+                          <ChemistryBar
+                            label="Size"
+                            value={Math.min(
+                              100,
+                              (teamScore.picks.reduce(
+                                (s, p) => s + (p.heightInches ?? 78),
+                                0
+                              ) /
+                                safeLen(teamScore.picks) -
+                                72) *
+                                6
+                            )}
+                            good={true}
+                          />
+                          <ChemistryBar
+                            label="Usage Balance"
+                            value={
+                              100 -
+                              Math.min(
+                                100,
+                                Math.abs(
+                                  teamScore.picks.reduce(
+                                    (s, p) => s + (p.usgPct ?? 20),
+                                    0
+                                  ) /
+                                    safeLen(teamScore.picks) -
+                                    22
+                                ) * 6
+                              )
+                            }
+                            good={true}
+                          />
                         </div>
                       )}
                     </div>
+
+                    {teamScore && (
+                      <div className="text-right text-[10px] leading-tight">
+                        <div className="text-slate-400">Score</div>
+                        <div className="text-sm font-semibold text-emerald-300">
+                          {teamScore.teamScore.toFixed(1)}
+                        </div>
+                        <div className="text-[10px] text-slate-500">
+                          {teamScore.totalPpg.toFixed(1)} PPG
+                        </div>
+                      </div>
+                    )}
 
                     {/* Player slots */}
                     <div className="flex flex-col gap-2">
@@ -1206,8 +1490,48 @@ export default function DraftPage() {
             </div>
           </div>
 
+          {/* Suggested Picks */}
+          {suggestedPicks.length > 0 && (
+            <div className="rounded-2xl border border-slate-700 bg-slate-900/80 p-4 space-y-2">
+              <h2 className="text-sm font-semibold text-indigo-300">
+                Suggested Picks
+              </h2>
+
+              {suggestedPicks.map((p) => (
+                <button
+                  key={p.playerId}
+                  onClick={() =>
+                    setPendingPlayer({
+                      id: p.playerId,
+                      name: p.name,
+                      position: p.position,
+                    } as Player)
+                  }
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-800/60 text-xs"
+                >
+                  <div className="flex flex-col text-left">
+                    <span className="font-semibold">{p.name}</span>
+                    <span className="text-[10px] text-slate-400">
+                      {p.position} • {p.seasonUsed ?? "—"} • {p.ppg.toFixed(1)}{" "}
+                      PPG
+                    </span>
+                  </div>
+                  <span className="text-emerald-300 font-semibold">
+                    {p.score.toFixed(1)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Search */}
           <div className="rounded-2xl border border-slate-700 bg-slate-900/80 p-4 space-y-3">
+            {pickError && (
+              <div className="mb-2 rounded-lg bg-red-900/30 border border-red-500/50 px-3 py-2 text-xs text-red-200">
+                ⚠ {pickError}
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-50">
                 Search Player
@@ -1231,7 +1555,9 @@ export default function DraftPage() {
               />
               <button
                 onClick={searchPlayers}
-                disabled={searchLoading || !selectedSlot}
+                disabled={
+                  searchLoading || (!selectedSlot && !defaultSlotForActive)
+                }
                 className="px-3 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-xs font-semibold disabled:opacity-50"
               >
                 {searchLoading ? "..." : "Search"}

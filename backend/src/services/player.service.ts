@@ -207,16 +207,16 @@ export async function searchPlayers(input: SearchPlayersInput) {
     : {};
 
   // Only restrict by season range inside the JOIN
-  const seasonWhere: Prisma.NBAPlayerSeasonStatWhereInput = {
-    ...(eraFrom || eraTo
+  const eraFromInclusive = eraFrom ? eraFrom - 1 : undefined;
+  const seasonWhere: Prisma.NBAPlayerSeasonStatWhereInput =
+    eraFromInclusive || eraTo
       ? {
           season: {
-            ...(eraFrom ? { gte: eraFrom } : {}),
+            ...(eraFromInclusive ? { gte: eraFromInclusive } : {}),
             ...(eraTo ? { lte: eraTo } : {}),
           },
         }
-      : {}),
-  };
+      : {};
 
   const rawLimit = Math.max(limit, 1);
   const queryLimit = Math.min(rawLimit * 3, 300);

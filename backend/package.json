@@ -8,7 +8,9 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seed:nba": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNbaModern.ts"
+    "seed:nba:base": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNBABase.ts",
+    "seed:nba:advanced": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNBAAdvanced.ts",
+    "seed:nba": "npm run seed:nba:base && npm run seed:nba:advanced"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +22,7 @@
     "axios": "^1.13.2",
     "cors": "^2.8.5",
     "csv-parse": "^6.1.0",
+    "csv-parser": "^3.2.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "node-fetch": "^2.7.0",

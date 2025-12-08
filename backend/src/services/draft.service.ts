@@ -14,56 +14,35 @@ import {
 
 function normalizeFranchise(team: string) {
   const map: Record<string, string> = {
-    // Lakers
     LAL: "LAL",
     MIN: "LAL",
     MNL: "LAL",
-
-    // Warriors
     GSW: "GSW",
     PHW: "GSW",
     SFW: "GSW",
-
-    // Kings
     SAC: "SAC",
     KCO: "SAC",
     KCK: "SAC",
     ROC: "SAC",
-
-    // Nets
     BKN: "BKN",
     NJN: "BKN",
     NYA: "BKN",
-
-    // Clippers
     LAC: "LAC",
     SDC: "LAC",
-
-    // Hawks
     ATL: "ATL",
     STB: "ATL",
     MLI: "ATL",
-
-    // Wizards
     WAS: "WAS",
     BAL: "WAS",
     CHI: "WAS",
     WSB: "WAS",
-
-    // Thunder
     OKC: "OKC",
     SEA: "OKC",
-
-    // Pelicans
     NOP: "NOP",
     NOH: "NOP",
     NOK: "NOP",
-
-    // Hornets
     CHA: "CHA",
     CHH: "CHA",
-
-    // fallback
   };
   return map[team] ?? team;
 }
@@ -72,6 +51,42 @@ function normalizeFranchise(team: string) {
 /*                                   TYPES                                    */
 /* -------------------------------------------------------------------------- */
 
+export type StatMode =
+  | "peak"
+  | "average"
+  | "peak-era"
+  | "peak-team"
+  | "peak-era-team"
+  | "average-era"
+  | "average-era-team"
+  | "career-avg"
+  | "best-any";
+
+// export type DraftRules = {
+//   hallRule?: "any" | "only" | "none";
+//   maxPpgCap?: number | null;
+//   overallCap?: number | null;
+//   multiTeamOnly?: boolean;
+//   playedWithPlayerId?: string | null;
+
+//   peakMode?: StatMode; // legacy
+//   statMode?: StatMode; // canonical
+//   mode?: "classic" | "casual" | "free";
+
+//   participants?: number;
+//   playersPerTeam?: number;
+
+//   pickTimerSeconds?: number | null;
+//   autoPickEnabled?: boolean;
+
+//   allowRespinsWithoutPick?: boolean;
+
+//   eraFrom?: number;
+//   eraTo?: number;
+//   teamLandedOn?: string;
+
+//   savedState?: any;
+// };
 export type DraftRules = {
   hallRule?: "any" | "only" | "none";
   maxPpgCap?: number | null;
@@ -79,27 +94,26 @@ export type DraftRules = {
   multiTeamOnly?: boolean;
   playedWithPlayerId?: string | null;
 
-  /** scoring algorithm selection */
-  peakMode?: "peak" | "average";
-  mode?: string; // "default" | "classic" | "casual"
+  peakMode?: StatMode; // legacy
+  statMode?: StatMode; // canonical
+  mode?: "classic" | "casual" | "free";
 
-  /** participants */
   participants?: number;
   playersPerTeam?: number;
 
-  /** timer */
   pickTimerSeconds?: number | null;
   autoPickEnabled?: boolean;
 
-  /** respin */
   allowRespinsWithoutPick?: boolean;
 
-  /** spin locks */
+  // NEW: whether to show system suggestions
+  suggestionsEnabled?: boolean;
+
+  // Spin state
   eraFrom?: number;
   eraTo?: number;
   teamLandedOn?: string;
 
-  /** UI saved state */
   savedState?: any;
 };
 
@@ -108,7 +122,6 @@ export interface ScoreResponse {
   teamScore: number;
   avgScore: number;
   totalPpg: number;
-
   perPlayerScores: {
     pickId: string;
     playerId: string;
@@ -123,7 +136,6 @@ export interface ScoreResponse {
     heightInches?: number;
     usgPct?: number;
   }[];
-
   teams?: {
     participant: number;
     teamScore: number;
@@ -131,7 +143,6 @@ export interface ScoreResponse {
     totalRating: number;
     picks: ScoreResponse["perPlayerScores"];
   }[];
-
   winner?: number;
   ruleWarnings: string[];
 }
@@ -150,7 +161,6 @@ function getParticipantsAndPlayersPerTeam(draft: any, rules: DraftRules) {
     rules.playersPerTeam && rules.playersPerTeam > 0
       ? rules.playersPerTeam
       : draft.playersPerTeam;
-
   return { participants, playersPerTeam };
 }
 
@@ -164,13 +174,15 @@ function chooseSeasonForScoring(
   era: NbaEraContext
 ) {
   if (!player || !player.seasonStats?.length) return null;
-
   const stats = player.seasonStats;
 
-  // resolve era
   const eraFrom = rules.eraFrom ?? era.eraFrom;
   const eraTo = rules.eraTo ?? era.eraTo;
-  const eraFromInclusive = eraFrom ? eraFrom - 1 : undefined; // allow prior season (e.g., 1979-80 counts for 1980)
+
+  const isClassic = rules.mode === "classic";
+
+  const eraFromInclusive =
+    eraFrom && !isClassic ? eraFrom - 1 : eraFrom ?? undefined;
 
   const spunTeam = rules.teamLandedOn
     ? normalizeFranchise(rules.teamLandedOn)
@@ -189,84 +201,49 @@ function chooseSeasonForScoring(
   const byTeam = stats.filter(teamFilter);
   const byEraTeam = stats.filter((s: any) => eraFilter(s) && teamFilter(s));
 
-  const mode = rules.mode || rules.peakMode || "peak";
+  const mode: StatMode =
+    rules.statMode || rules.peakMode || (isClassic ? "peak-era-team" : "peak");
 
   const peak = (list: any[]) => {
     if (!list.length) return null;
     const best = list.reduce((a, b) => (a.ppg > b.ppg ? a : b));
     return {
-      statLine: {
-        ppg: best.ppg,
-        apg: best.apg,
-        rpg: best.rpg,
-        spg: best.spg,
-        bpg: best.bpg,
-        threeRate: best.threeRate ?? 0,
-        usgPct: best.usgPct ?? 20,
-      },
       seasonUsed: best.season,
+      statLine: best as NbaStatLine,
     };
   };
 
   const average = (list: any[]) => {
     if (!list.length) return null;
     const n = list.length;
-    const sum = list.reduce(
-      (acc: any, s: any) => {
-        acc.ppg += s.ppg;
-        acc.apg += s.apg;
-        acc.rpg += s.rpg;
-        acc.spg += s.spg;
-        acc.bpg += s.bpg;
-        acc.threeRate += s.threeRate ?? 0;
-        acc.usgPct += s.usgPct ?? 20;
-        return acc;
-      },
-      { ppg: 0, apg: 0, rpg: 0, spg: 0, bpg: 0, threeRate: 0, usgPct: 0 }
-    );
-
-    return {
-      statLine: {
-        ppg: sum.ppg / n,
-        apg: sum.apg / n,
-        rpg: sum.rpg / n,
-        spg: sum.spg / n,
-        bpg: sum.bpg / n,
-        threeRate: sum.threeRate / n,
-        usgPct: sum.usgPct / n,
-      },
-      seasonUsed: undefined,
-    };
+    const avg: any = {};
+    for (const k of Object.keys(list[0])) {
+      if (typeof list[0][k] === "number") {
+        avg[k] = list.reduce((s: number, r: any) => s + (r[k] ?? 0), 0) / n;
+      }
+    }
+    return { seasonUsed: undefined, statLine: avg as NbaStatLine };
   };
 
-  /* ----------------------------- CLASSIC MODE ----------------------------- */
-  if (mode === "classic") {
+  if (isClassic) {
     return peak(byEraTeam) || peak(byEra) || peak(byTeam) || peak(stats);
   }
 
-  /* ----------------------------- OTHER MODES ------------------------------ */
   switch (mode) {
     case "average":
       return average(stats);
-
     case "peak-era":
       return peak(byEra) || peak(stats);
-
     case "peak-team":
       return peak(byTeam) || peak(stats);
-
     case "peak-era-team":
       return peak(byEraTeam) || peak(byEra) || peak(byTeam) || peak(stats);
-
-    case "average-era":
-      return average(byEra) || average(stats);
-
-    case "average-era-team":
-      return average(byEraTeam) || average(byEra) || average(stats);
-
-    case "peak":
+    case "career-avg":
+      return average(stats);
+    case "best-any":
+      return peak(stats);
     default:
-      return peak(byEraTeam) || peak(byEra) || peak(byTeam) || peak(stats);
+      return peak(byEraTeam) || peak(stats);
   }
 }
 
@@ -276,34 +253,99 @@ function chooseSeasonForScoring(
 
 export async function createDraft(data: any) {
   const rules: DraftRules = data.rules || {};
-  rules.mode = data.mode;
+  rules.mode = data.mode as DraftRules["mode"];
+
+  if (data.mode === "classic") {
+    // HARD LOCKED classic rules
+    rules.participants = 2;
+    rules.playersPerTeam = 6;
+    rules.statMode = "peak-era-team";
+    rules.pickTimerSeconds = 60;
+    rules.autoPickEnabled = true;
+    rules.suggestionsEnabled = false;
+    rules.hallRule = "any";
+    rules.multiTeamOnly = false;
+    rules.maxPpgCap = null;
+  } else if (data.mode === "casual") {
+    // Casual defaults (can be overridden by frontend)
+    if (rules.participants == null) {
+      rules.participants = data.participants ?? 2;
+    }
+    if (rules.playersPerTeam == null) {
+      rules.playersPerTeam = data.playersPerTeam ?? 6;
+    }
+    if (rules.pickTimerSeconds === undefined) {
+      // allow "off" by sending null from frontend
+      rules.pickTimerSeconds = null;
+    }
+    if (rules.autoPickEnabled === undefined) {
+      rules.autoPickEnabled = false;
+    }
+    if (rules.suggestionsEnabled === undefined) {
+      rules.suggestionsEnabled = true;
+    }
+  } else if (data.mode === "free") {
+    // Free mode: no timer by default, no suggestions
+    if (rules.participants == null) {
+      rules.participants = data.participants ?? 1;
+    }
+    if (rules.playersPerTeam == null) {
+      rules.playersPerTeam = data.playersPerTeam ?? 10;
+    }
+    rules.pickTimerSeconds = null;
+    rules.autoPickEnabled = false;
+    rules.suggestionsEnabled = false;
+  }
+
+  if (!rules.statMode) {
+    // peakMode from frontend or default to peak
+    rules.statMode = rules.peakMode || "peak";
+  }
 
   const rulesJson = jsonSafe(rules);
-
   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
-    { participants: rules.participants, playersPerTeam: rules.playersPerTeam },
+    data,
     rules
   );
 
   return prisma.draft.create({
     data: {
-      title: data.title || null,
-      league: data.league,
-      mode: data.mode,
-      randomEra: data.randomEra,
-      eraFrom: data.eraFrom ?? null,
-      eraTo: data.eraTo ?? null,
-      randomTeam: data.randomTeam,
-      teamConstraint: data.teamConstraint ?? null,
-      maxPlayers: data.maxPlayers,
-      requirePositions: data.requirePositions,
-      scoringMethod: data.scoringMethod,
+      ...data,
       rules: rulesJson,
       participants,
       playersPerTeam,
     },
   });
 }
+// export async function createDraft(data: any) {
+//   const rules: DraftRules = data.rules || {};
+//   rules.mode = data.mode;
+
+//   if (data.mode === "classic") {
+//     rules.participants = 2;
+//     rules.playersPerTeam = 6;
+//     rules.statMode = "peak-era-team";
+//     rules.pickTimerSeconds = 60;
+//     rules.autoPickEnabled = true;
+//   }
+
+//   if (!rules.statMode) rules.statMode = rules.peakMode || "peak";
+
+//   const rulesJson = jsonSafe(rules);
+//   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
+//     data,
+//     rules
+//   );
+
+//   return prisma.draft.create({
+//     data: {
+//       ...data,
+//       rules: rulesJson,
+//       participants,
+//       playersPerTeam,
+//     },
+//   });
+// }
 
 /* -------------------------------------------------------------------------- */
 /*                                  GET DRAFT                                 */
@@ -314,9 +356,7 @@ export async function getDraft(id: string) {
     where: { id },
     include: {
       picks: {
-        include: {
-          player: { include: { seasonStats: true } },
-        },
+        include: { player: { include: { seasonStats: true } } },
         orderBy: { slot: "asc" },
       },
       votes: true,
@@ -374,91 +414,85 @@ export async function saveDraftState(
 }
 
 /* -------------------------------------------------------------------------- */
-/*                            UPDATE PICK (TURN ORDER)                        */
+/*                            UPDATE PICK                                     */
 /* -------------------------------------------------------------------------- */
 
 export async function updatePick(
   draftId: string,
   data: { slot: number; playerId: string; position: string }
 ) {
-  const draft = await prisma.draft.findUnique({
-    where: { id: draftId },
-    include: { picks: true },
-  });
+  const draft = await getDraft(draftId);
   if (!draft) throw new Error("Draft not found");
 
-  const rules: DraftRules = Object.assign(
-    {},
-    draft.rules || {},
-    (draft.rules as any)?.savedState || {}
-  );
+  const rules: DraftRules = {
+    ...(draft.rules as any),
+    ...(draft.rules as any)?.savedState,
+  };
 
   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
     draft,
     rules
   );
 
-  // Determine whose turn it is
   const totalPicks = draft.picks.length;
-  const activeParticipant =
-    totalPicks < draft.maxPlayers ? (totalPicks % participants) + 1 : undefined;
-
-  if (!activeParticipant) throw new Error("Draft is already full");
+  const activeParticipant = (totalPicks % participants) + 1;
 
   const slotParticipant = Math.floor((data.slot - 1) / playersPerTeam) + 1;
+  if (slotParticipant !== activeParticipant) throw new Error("Not your turn");
 
-  if (slotParticipant !== activeParticipant) {
-    throw new Error(
-      `It's Player ${activeParticipant}'s turn. You cannot pick in Player ${slotParticipant}'s slot.`
-    );
-  }
+  if (draft.picks.some((p) => p.playerId === data.playerId))
+    throw new Error("Player already drafted");
 
-  // Resolve seasonUsed + teamUsed
   const player = await prisma.nBAPlayer.findUnique({
     where: { id: data.playerId },
     include: { seasonStats: true },
   });
+  if (!player) throw new Error("Player not found");
 
-  const eraCtx: NbaEraContext = {
+  const eraCtx = {
     eraFrom: rules.eraFrom ?? draft.eraFrom ?? undefined,
     eraTo: rules.eraTo ?? draft.eraTo ?? undefined,
   };
 
   const chosen = chooseSeasonForScoring(player, rules, eraCtx);
+  if (!chosen) throw new Error("No valid season");
 
-  const seasonUsed = chosen?.seasonUsed ?? null;
-  const teamUsed = rules.teamLandedOn ?? draft.teamConstraint ?? null;
+  // Casual PPG cap: prevent team from exceeding maxPpgCap
+  if (rules.mode === "casual" && rules.maxPpgCap) {
+    let teamTotalPpg = chosen.statLine.ppg;
 
-  const existing = await prisma.nBADraftPick.findFirst({
-    where: { draftId, slot: data.slot },
-  });
+    for (const existing of draft.picks) {
+      if (existing.ownerIndex !== activeParticipant) continue;
+      if (!existing.player) continue;
 
-  if (existing && existing.playerId !== data.playerId) {
-    throw new Error("Slot already filled. Undo this pick before changing it.");
+      const existingChoice = chooseSeasonForScoring(
+        existing.player,
+        rules,
+        eraCtx
+      );
+      if (existingChoice) {
+        teamTotalPpg += existingChoice.statLine.ppg;
+      }
+    }
+
+    if (teamTotalPpg > rules.maxPpgCap) {
+      throw new Error(
+        `PPG cap exceeded (${teamTotalPpg.toFixed(
+          1
+        )} > ${rules.maxPpgCap.toFixed(1)})`
+      );
+    }
   }
 
-  if (!existing) {
-    return prisma.nBADraftPick.create({
-      data: {
-        draftId,
-        slot: data.slot,
-        playerId: data.playerId,
-        position: data.position,
-        ownerIndex: activeParticipant,
-        seasonUsed,
-        teamUsed,
-      },
-    });
-  }
-
-  return prisma.nBADraftPick.update({
-    where: { id: existing.id },
+  return prisma.nBADraftPick.create({
     data: {
+      draftId,
+      slot: data.slot,
       playerId: data.playerId,
       position: data.position,
       ownerIndex: activeParticipant,
-      seasonUsed,
-      teamUsed,
+      seasonUsed: chosen.seasonUsed ?? null,
+      teamUsed: rules.teamLandedOn ?? draft.teamConstraint ?? null,
     },
   });
 }
@@ -484,190 +518,70 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
   const draft = await getDraft(draftId);
   if (!draft) throw new Error("Draft not found");
 
-  const rulesObj =
-    typeof draft.rules === "object" && draft.rules !== null
-      ? (draft.rules as DraftRules)
-      : {};
-  const savedStateObj =
-    typeof (rulesObj as any).savedState === "object" &&
-    (rulesObj as any).savedState !== null
-      ? (rulesObj as any).savedState
-      : {};
   const rules: DraftRules = {
-    ...rulesObj,
-    ...savedStateObj,
+    ...(draft.rules as any),
+    ...(draft.rules as any)?.savedState,
   };
 
-  const eraCtx: NbaEraContext = {
+  const eraCtx = {
     eraFrom: rules.eraFrom ?? draft.eraFrom ?? undefined,
     eraTo: rules.eraTo ?? draft.eraTo ?? undefined,
   };
 
-  const { participants } = getParticipantsAndPlayersPerTeam(draft, rules);
+  const teams = new Map<number, any>();
 
-  const ruleWarnings = new Set<string>();
+  for (const pick of draft.picks) {
+    const choice = chooseSeasonForScoring(pick.player, rules, eraCtx);
+    if (!choice) continue;
 
-  /* base season selection */
-  const perPickBase = draft.picks.map((p: any) =>
-    chooseSeasonForScoring(p.player, rules, eraCtx)
-  );
+    const owner = pick.ownerIndex!;
+    if (!teams.has(owner))
+      teams.set(owner, { picks: [], height: [], usage: [], pos: [] });
 
-  /* group by ownerIndex */
-  const teamsMap = new Map<
-    number,
-    {
-      heights: number[];
-      shooters: number;
-      positions: NbaPosition[];
-      usages: number[];
-      picks: ScoreResponse["perPlayerScores"];
-    }
-  >();
+    teams.get(owner).picks.push({ pick, stat: choice.statLine });
+    teams.get(owner).height.push(pick.player.heightInches ?? 78);
+    teams.get(owner).usage.push(choice.statLine.usgPct ?? 20);
+    teams.get(owner).pos.push(pick.position as NbaPosition);
+  }
 
-  draft.picks.forEach((pick: any, idx: number) => {
-    const choice = perPickBase[idx];
-    if (!choice) return;
-
-    const ownerIndex = pick.ownerIndex || ((pick.slot - 1) % participants) + 1;
-
-    const team = teamsMap.get(ownerIndex) || {
-      heights: [],
-      shooters: 0,
-      positions: [],
-      usages: [],
-      picks: [],
-    };
-
-    const base = choice.statLine;
-
-    const pos: NbaPosition = ["PG", "SG", "SF", "PF", "C"].includes(
-      pick.position
-    )
-      ? pick.position
-      : "SF";
-
-    const heightInches = pick.player.heightInches ?? 78;
-
-    const threeRate = base.threeRate ?? 0;
-    const usgPct = base.usgPct ?? 20;
-
-    team.heights.push(heightInches);
-    if (threeRate >= 0.33) team.shooters++;
-    team.positions.push(pos);
-    team.usages.push(usgPct);
-
-    team.picks.push({
-      pickId: pick.id,
-      playerId: pick.player.id,
-      name: pick.player.name,
-      position: pos,
-      seasonUsed: pick.seasonUsed ?? choice.seasonUsed,
-      ppg: base.ppg,
-      slot: pick.slot,
-      ownerIndex,
-      score: 0,
-      threeRate,
-      heightInches,
-      usgPct,
-    });
-
-    teamsMap.set(ownerIndex, team);
-  });
-
-  /* scoring */
-  const perPlayerScores: ScoreResponse["perPlayerScores"] = [];
-  const teams: ScoreResponse["teams"] = [];
-
+  const perPlayerScores: any[] = [];
   let totalScore = 0;
   let totalPpg = 0;
 
-  for (const [ownerIndex, t] of teamsMap.entries()) {
-    let teamScore = 0;
-    let teamPpg = 0;
-    let teamRating = 0;
-
-    for (const p of t.picks) {
-      const stat: NbaStatLine = {
-        ppg: p.ppg,
-        apg: 0,
-        rpg: 0,
-        spg: 0,
-        bpg: 0,
-        tsPct: undefined,
-        threeRate: p.threeRate ?? 0,
-        usgPct: p.usgPct ?? 20,
-      };
-
-      const otherPicks = t.picks.filter((o) => o.pickId !== p.pickId);
-
+  teams.forEach((t, ownerIndex) => {
+    for (const { pick, stat } of t.picks) {
       const fit: TeamFitContext = {
-        position: p.position as NbaPosition,
-        heightInches: p.heightInches ?? 78,
-        teamHeights: otherPicks.map((o) => o.heightInches ?? 78),
-        teamShooters: otherPicks.filter((o) => (o.threeRate ?? 0) >= 0.33)
-          .length,
-        teamPositions: otherPicks.map((o) => o.position as NbaPosition),
-        teamUsage: otherPicks.map((o) => o.usgPct ?? 20),
+        position: pick.position,
+        heightInches: pick.player.heightInches ?? 78,
+        teamHeights: t.height,
+        teamShooters: t.picks.filter(
+          (p: any) => (p.stat.threeRate ?? 0) >= 0.33
+        ).length,
+        teamPositions: t.pos,
+        teamUsage: t.usage,
       };
 
       const score = scoreNbaPlayer(
         stat,
-        p.position as NbaPosition,
+        pick.position as NbaPosition,
         eraCtx,
         fit
       );
 
-      const withScore = { ...p, score };
-      perPlayerScores.push(withScore);
+      perPlayerScores.push({
+        pickId: pick.id,
+        playerId: pick.playerId,
+        name: pick.player.name,
+        position: pick.position,
+        ppg: stat.ppg,
+        score,
+        ownerIndex,
+      });
 
-      teamScore += score;
-      teamPpg += p.ppg;
-      teamRating += score;
+      totalScore += score;
+      totalPpg += stat.ppg;
     }
-
-    totalScore += teamScore;
-    totalPpg += teamPpg;
-
-    teams.push({
-      participant: ownerIndex,
-      teamScore,
-      totalPpg: teamPpg,
-      totalRating: teamRating,
-      picks: t.picks.map(
-        (p) => perPlayerScores.find((s) => s.pickId === p.pickId)!
-      ),
-    });
-  }
-
-  /* caps */
-  const maxPpgCap = rules.maxPpgCap ?? null;
-  const maxOverallCap = rules.overallCap ?? null;
-
-  if (teams.length) {
-    for (const t of teams) {
-      if (maxPpgCap && t.totalPpg > maxPpgCap) {
-        ruleWarnings.add(
-          `Player ${t.participant} exceeds PPG cap (${t.totalPpg.toFixed(
-            1
-          )} > ${maxPpgCap}).`
-        );
-      }
-
-      if (maxOverallCap && t.totalRating > maxOverallCap) {
-        ruleWarnings.add(
-          `Player ${t.participant} exceeds rating cap (${t.totalRating.toFixed(
-            1
-          )} > ${maxOverallCap}).`
-        );
-      }
-    }
-  }
-
-  const winner =
-    teams.length > 1
-      ? teams.reduce((best, t) => (t.teamScore > best.teamScore ? t : best))
-          .participant
-      : undefined;
+  });
 
   return {
     draftId,
@@ -675,9 +589,7 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
     avgScore: totalScore / (perPlayerScores.length || 1),
     totalPpg,
     perPlayerScores,
-    teams,
-    winner,
-    ruleWarnings: [...ruleWarnings],
+    ruleWarnings: [],
   };
 }
 
@@ -695,7 +607,116 @@ export async function getDraftScore(draftId: string) {
   return scoreDraft(draftId);
 }
 
-// // src/services/draft.service.ts
+/* -------------------------------------------------------------------------- */
+/*                              SUGGESTIONS                                   */
+/* -------------------------------------------------------------------------- */
+
+export async function getDraftSuggestions(draftId: string, limit = 5) {
+  const draft = await getDraft(draftId);
+  if (!draft) throw new Error("Draft not found");
+
+  const rules: DraftRules = {
+    ...(draft.rules as any),
+    ...(draft.rules as any)?.savedState,
+  };
+
+  // ✅ Classic is always pure — no suggestions
+  if (rules.mode !== "casual" || rules.suggestionsEnabled === false) {
+    return [];
+  }
+
+  const eraCtx: NbaEraContext = {
+    eraFrom: rules.eraFrom ?? draft.eraFrom ?? undefined,
+    eraTo: rules.eraTo ?? draft.eraTo ?? undefined,
+  };
+
+  const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
+    draft,
+    rules
+  );
+
+  const activeParticipant = (draft.picks.length % participants) + 1;
+
+  // determine active slot
+  const takenSlots = new Set(draft.picks.map((p) => p.slot));
+  const allSlots = Array.from({ length: draft.maxPlayers }, (_, i) => i + 1);
+
+  const activeSlot =
+    allSlots.find(
+      (s) =>
+        Math.floor((s - 1) / playersPerTeam) + 1 === activeParticipant &&
+        !takenSlots.has(s)
+    ) ?? null;
+
+  if (!activeSlot) return [];
+
+  // position constraint
+  const requiredPosition = draft.requirePositions
+    ? (["PG", "SG", "SF", "PF", "C"][
+        (activeSlot - 1) % playersPerTeam
+      ] as NbaPosition)
+    : null;
+
+  const draftedPlayerIds = new Set(draft.picks.map((p) => p.playerId));
+
+  const players = await prisma.nBAPlayer.findMany({
+    include: { seasonStats: true },
+  });
+
+  const scored: any[] = [];
+
+  for (const player of players) {
+    if (draftedPlayerIds.has(player.id)) continue;
+
+    const eligiblePositions = player.eligiblePositions
+      ? player.eligiblePositions.split(",").map((p) => p.trim())
+      : [player.position];
+
+    if (requiredPosition && !eligiblePositions.includes(requiredPosition))
+      continue;
+
+    const chosen = chooseSeasonForScoring(player, rules, eraCtx);
+    if (!chosen) continue;
+
+    // Casual PPG cap
+    if (
+      rules.mode === "casual" &&
+      rules.maxPpgCap &&
+      chosen.statLine.ppg > rules.maxPpgCap
+    ) {
+      continue;
+    }
+
+    const score = scoreNbaPlayer(
+      chosen.statLine,
+      requiredPosition ?? (player.position as NbaPosition),
+      eraCtx,
+      {
+        position: requiredPosition ?? (player.position as NbaPosition),
+        heightInches: player.heightInches ?? 78,
+        teamHeights: [],
+        teamShooters: 0,
+        teamPositions: [],
+        teamUsage: [],
+      }
+    );
+
+    scored.push({
+      playerId: player.id,
+      name: player.name,
+      position: player.position,
+      ppg: chosen.statLine.ppg,
+      seasonUsed: chosen.seasonUsed,
+      score,
+      threeRate: chosen.statLine.threeRate ?? null,
+      usgPct: chosen.statLine.usgPct ?? null,
+      heightInches: player.heightInches ?? null,
+    });
+  }
+
+  return scored.sort((a, b) => b.score - a.score).slice(0, limit);
+}
+
 // import prisma from "../lib/prisma";
 // import {
 //   scoreNbaPlayer,
@@ -705,23 +726,98 @@ export async function getDraftScore(draftId: string) {
 //   NbaPosition,
 // } from "../lib/scoring/nba";
 
+// /* -------------------------------------------------------------------------- */
+// /*                               NORMALIZE TEAM                               */
+// /* -------------------------------------------------------------------------- */
+
+// function normalizeFranchise(team: string) {
+//   const map: Record<string, string> = {
+//     // Lakers
+//     LAL: "LAL",
+//     MIN: "LAL",
+//     MNL: "LAL",
+
+//     // Warriors
+//     GSW: "GSW",
+//     PHW: "GSW",
+//     SFW: "GSW",
+
+//     // Kings
+//     SAC: "SAC",
+//     KCO: "SAC",
+//     KCK: "SAC",
+//     ROC: "SAC",
+
+//     // Nets
+//     BKN: "BKN",
+//     NJN: "BKN",
+//     NYA: "BKN",
+
+//     // Clippers
+//     LAC: "LAC",
+//     SDC: "LAC",
+
+//     // Hawks
+//     ATL: "ATL",
+//     STB: "ATL",
+//     MLI: "ATL",
+
+//     // Wizards
+//     WAS: "WAS",
+//     BAL: "WAS",
+//     CHI: "WAS",
+//     WSB: "WAS",
+
+//     // Thunder
+//     OKC: "OKC",
+//     SEA: "OKC",
+
+//     // Pelicans
+//     NOP: "NOP",
+//     NOH: "NOP",
+//     NOK: "NOP",
+
+//     // Hornets
+//     CHA: "CHA",
+//     CHH: "CHA",
+
+//     // fallback
+//   };
+//   return map[team] ?? team;
+// }
+
+// /* -------------------------------------------------------------------------- */
+// /*                                   TYPES                                    */
+// /* -------------------------------------------------------------------------- */
+
 // export type DraftRules = {
 //   hallRule?: "any" | "only" | "none";
 //   maxPpgCap?: number | null;
 //   overallCap?: number | null;
 //   multiTeamOnly?: boolean;
 //   playedWithPlayerId?: string | null;
+
+//   /** scoring algorithm selection */
 //   peakMode?: "peak" | "average";
+//   mode?: string; // "default" | "classic" | "casual"
 
-//   participants?: number; // 1–5
-//   playersPerTeam?: number; // 5–12
+//   /** participants */
+//   participants?: number;
+//   playersPerTeam?: number;
 
-//   // timer + autopick
+//   /** timer */
 //   pickTimerSeconds?: number | null;
 //   autoPickEnabled?: boolean;
 
-//   // allow re-spin before pick? (for casual/creative)
+//   /** respin */
 //   allowRespinsWithoutPick?: boolean;
+
+//   /** spin locks */
+//   eraFrom?: number;
+//   eraTo?: number;
+//   teamLandedOn?: string;
+
+//   /** UI saved state */
 //   savedState?: any;
 // };
 
@@ -730,6 +826,7 @@ export async function getDraftScore(draftId: string) {
 //   teamScore: number;
 //   avgScore: number;
 //   totalPpg: number;
+
 //   perPlayerScores: {
 //     pickId: string;
 //     playerId: string;
@@ -744,6 +841,7 @@ export async function getDraftScore(draftId: string) {
 //     heightInches?: number;
 //     usgPct?: number;
 //   }[];
+
 //   teams?: {
 //     participant: number;
 //     teamScore: number;
@@ -751,16 +849,16 @@ export async function getDraftScore(draftId: string) {
 //     totalRating: number;
 //     picks: ScoreResponse["perPlayerScores"];
 //   }[];
+
 //   winner?: number;
 //   ruleWarnings: string[];
 // }
 
-// // ---------------------------------------------------------------------
-// // Helpers
-// // ---------------------------------------------------------------------
+// /* -------------------------------------------------------------------------- */
+// /*                                   HELPERS                                  */
+// /* -------------------------------------------------------------------------- */
 
 // function jsonSafe<T>(obj: T): T {
-//   // ensure prisma Json accepts this safely
 //   return JSON.parse(JSON.stringify(obj));
 // }
 
@@ -774,86 +872,130 @@ export async function getDraftScore(draftId: string) {
 //   return { participants, playersPerTeam };
 // }
 
+// /* -------------------------------------------------------------------------- */
+// /*                        CHOOSE SEASON FOR SCORING                           */
+// /* -------------------------------------------------------------------------- */
+
 // function chooseSeasonForScoring(
 //   player: any,
 //   rules: DraftRules,
 //   era: NbaEraContext
-// ): { statLine: NbaStatLine; seasonUsed?: number } | null {
-//   const stats = player.seasonStats || [];
-//   if (!stats.length) return null;
+// ) {
+//   if (!player || !player.seasonStats?.length) return null;
 
-//   const filtered =
-//     era.eraFrom || era.eraTo
-//       ? stats.filter((s: any) => {
-//           if (era.eraFrom && s.season < era.eraFrom) return false;
-//           if (era.eraTo && s.season > era.eraTo) return false;
-//           return true;
-//         })
-//       : stats;
+//   const stats = player.seasonStats;
 
-//   const pool = filtered.length ? filtered : stats;
+//   // resolve era
+//   const eraFrom = rules.eraFrom ?? era.eraFrom;
+//   const eraTo = rules.eraTo ?? era.eraTo;
+//   const eraFromInclusive = eraFrom ? eraFrom - 1 : undefined; // allow prior season (e.g., 1979-80 counts for 1980)
 
-//   if (rules.peakMode === "average") {
-//     const n = pool.length;
-//     const agg = pool.reduce(
+//   const spunTeam = rules.teamLandedOn
+//     ? normalizeFranchise(rules.teamLandedOn)
+//     : null;
+
+//   const eraFilter = (s: any) => {
+//     if (eraFromInclusive && s.season < eraFromInclusive) return false;
+//     if (eraTo && s.season > eraTo) return false;
+//     return true;
+//   };
+
+//   const teamFilter = (s: any) =>
+//     spunTeam ? normalizeFranchise(s.team) === spunTeam : true;
+
+//   const byEra = stats.filter(eraFilter);
+//   const byTeam = stats.filter(teamFilter);
+//   const byEraTeam = stats.filter((s: any) => eraFilter(s) && teamFilter(s));
+
+//   const mode = rules.mode || rules.peakMode || "peak";
+
+//   const peak = (list: any[]) => {
+//     if (!list.length) return null;
+//     const best = list.reduce((a, b) => (a.ppg > b.ppg ? a : b));
+//     return {
+//       statLine: {
+//         ppg: best.ppg,
+//         apg: best.apg,
+//         rpg: best.rpg,
+//         spg: best.spg,
+//         bpg: best.bpg,
+//         threeRate: best.threeRate ?? 0,
+//         usgPct: best.usgPct ?? 20,
+//       },
+//       seasonUsed: best.season,
+//     };
+//   };
+
+//   const average = (list: any[]) => {
+//     if (!list.length) return null;
+//     const n = list.length;
+//     const sum = list.reduce(
 //       (acc: any, s: any) => {
 //         acc.ppg += s.ppg;
 //         acc.apg += s.apg;
 //         acc.rpg += s.rpg;
 //         acc.spg += s.spg;
 //         acc.bpg += s.bpg;
-//         acc.tsPct += s.tsPct ?? 0;
 //         acc.threeRate += s.threeRate ?? 0;
+//         acc.usgPct += s.usgPct ?? 20;
 //         return acc;
 //       },
-//       {
-//         ppg: 0,
-//         apg: 0,
-//         rpg: 0,
-//         spg: 0,
-//         bpg: 0,
-//         tsPct: 0,
-//         threeRate: 0,
-//       }
+//       { ppg: 0, apg: 0, rpg: 0, spg: 0, bpg: 0, threeRate: 0, usgPct: 0 }
 //     );
 
 //     return {
 //       statLine: {
-//         ppg: agg.ppg / n,
-//         apg: agg.apg / n,
-//         rpg: agg.rpg / n,
-//         spg: agg.spg / n,
-//         bpg: agg.bpg / n,
-//         tsPct: agg.tsPct / n,
-//         threeRate: agg.threeRate / n,
+//         ppg: sum.ppg / n,
+//         apg: sum.apg / n,
+//         rpg: sum.rpg / n,
+//         spg: sum.spg / n,
+//         bpg: sum.bpg / n,
+//         threeRate: sum.threeRate / n,
+//         usgPct: sum.usgPct / n,
 //       },
 //       seasonUsed: undefined,
 //     };
+//   };
+
+//   /* ----------------------------- CLASSIC MODE ----------------------------- */
+//   if (mode === "classic") {
+//     return peak(byEraTeam) || peak(byEra) || peak(byTeam) || peak(stats);
 //   }
 
-//   // peak mode: pick highest PPG season
-//   const best = pool.reduce((a: any, b: any) => (a.ppg > b.ppg ? a : b));
+//   /* ----------------------------- OTHER MODES ------------------------------ */
+//   switch (mode) {
+//     case "average":
+//       return average(stats);
 
-//   return {
-//     statLine: {
-//       ppg: best.ppg,
-//       apg: best.apg,
-//       rpg: best.rpg,
-//       spg: best.spg,
-//       bpg: best.bpg,
-//       tsPct: best.tsPct,
-//       threeRate: best.threeRate,
-//     },
-//     seasonUsed: best.season,
-//   };
+//     case "peak-era":
+//       return peak(byEra) || peak(stats);
+
+//     case "peak-team":
+//       return peak(byTeam) || peak(stats);
+
+//     case "peak-era-team":
+//       return peak(byEraTeam) || peak(byEra) || peak(byTeam) || peak(stats);
+
+//     case "average-era":
+//       return average(byEra) || average(stats);
+
+//     case "average-era-team":
+//       return average(byEraTeam) || average(byEra) || average(stats);
+
+//     case "peak":
+//     default:
+//       return peak(byEraTeam) || peak(byEra) || peak(byTeam) || peak(stats);
+//   }
 // }
 
-// // ---------------------------------------------------------------------
-// // CREATE DRAFT
-// // ---------------------------------------------------------------------
+// /* -------------------------------------------------------------------------- */
+// /*                                CREATE DRAFT                                */
+// /* -------------------------------------------------------------------------- */
 
 // export async function createDraft(data: any) {
 //   const rules: DraftRules = data.rules || {};
+//   rules.mode = data.mode;
+
 //   const rulesJson = jsonSafe(rules);
 
 //   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
@@ -865,7 +1007,7 @@ export async function getDraftScore(draftId: string) {
 //     data: {
 //       title: data.title || null,
 //       league: data.league,
-//       mode: data.mode, // "default" | "casual" | "free"
+//       mode: data.mode,
 //       randomEra: data.randomEra,
 //       eraFrom: data.eraFrom ?? null,
 //       eraTo: data.eraTo ?? null,
@@ -873,7 +1015,7 @@ export async function getDraftScore(draftId: string) {
 //       teamConstraint: data.teamConstraint ?? null,
 //       maxPlayers: data.maxPlayers,
 //       requirePositions: data.requirePositions,
-//       scoringMethod: data.scoringMethod, // "system" | "user" | "public"
+//       scoringMethod: data.scoringMethod,
 //       rules: rulesJson,
 //       participants,
 //       playersPerTeam,
@@ -881,9 +1023,9 @@ export async function getDraftScore(draftId: string) {
 //   });
 // }
 
-// // ---------------------------------------------------------------------
-// // GET DRAFT
-// // ---------------------------------------------------------------------
+// /* -------------------------------------------------------------------------- */
+// /*                                  GET DRAFT                                 */
+// /* -------------------------------------------------------------------------- */
 
 // export async function getDraft(id: string) {
 //   return prisma.draft.findUnique({
@@ -900,7 +1042,10 @@ export async function getDraftScore(draftId: string) {
 //   });
 // }
 
-// // Cancel draft: delete picks/votes then draft
+// /* -------------------------------------------------------------------------- */
+// /*                                CANCEL DRAFT                                */
+// /* -------------------------------------------------------------------------- */
+
 // export async function cancelDraft(id: string) {
 //   await prisma.nBADraftPick.deleteMany({ where: { draftId: id } });
 //   await prisma.vote.deleteMany({ where: { draftId: id } });
@@ -908,7 +1053,10 @@ export async function getDraftScore(draftId: string) {
 //   return { ok: true };
 // }
 
-// // Save draft state into rules (JSON) without schema changes
+// /* -------------------------------------------------------------------------- */
+// /*                               SAVE DRAFT STATE                             */
+// /* -------------------------------------------------------------------------- */
+
 // export async function saveDraftState(
 //   id: string,
 //   savedState: any,
@@ -918,9 +1066,14 @@ export async function getDraftScore(draftId: string) {
 //   if (!draft) throw new Error("Draft not found");
 
 //   const rules = (draft.rules || {}) as DraftRules;
+
 //   const mergedRules = jsonSafe({
 //     ...rules,
-//     savedState: savedState ?? rules.savedState ?? {},
+//     ...savedState,
+//     savedState: {
+//       ...(rules.savedState || {}),
+//       ...(savedState || {}),
+//     },
 //     status,
 //     savedAt: new Date().toISOString(),
 //   });
@@ -938,9 +1091,9 @@ export async function getDraftScore(draftId: string) {
 //   });
 // }
 
-// // ---------------------------------------------------------------------
-// // UPDATE PICK — enforce turn order & no overwrite
-// // ---------------------------------------------------------------------
+// /* -------------------------------------------------------------------------- */
+// /*                            UPDATE PICK (TURN ORDER)                        */
+// /* -------------------------------------------------------------------------- */
 
 // export async function updatePick(
 //   draftId: string,
@@ -952,36 +1105,53 @@ export async function getDraftScore(draftId: string) {
 //   });
 //   if (!draft) throw new Error("Draft not found");
 
-//   const rules = (draft.rules || {}) as DraftRules;
+//   const rules: DraftRules = Object.assign(
+//     {},
+//     draft.rules || {},
+//     (draft.rules as any)?.savedState || {}
+//   );
+
 //   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
 //     draft,
 //     rules
 //   );
 
-//   // Turn logic: P1, P2, ... PN, P1, ...
+//   // Determine whose turn it is
 //   const totalPicks = draft.picks.length;
 //   const activeParticipant =
 //     totalPicks < draft.maxPlayers ? (totalPicks % participants) + 1 : undefined;
 
-//   if (!activeParticipant) {
-//     throw new Error("Draft is already full");
-//   }
+//   if (!activeParticipant) throw new Error("Draft is already full");
 
-//   // Slot must belong to the active participant
 //   const slotParticipant = Math.floor((data.slot - 1) / playersPerTeam) + 1;
+
 //   if (slotParticipant !== activeParticipant) {
 //     throw new Error(
 //       `It's Player ${activeParticipant}'s turn. You cannot pick in Player ${slotParticipant}'s slot.`
 //     );
 //   }
 
-//   // Does this slot already have a pick?
+//   // Resolve seasonUsed + teamUsed
+//   const player = await prisma.nBAPlayer.findUnique({
+//     where: { id: data.playerId },
+//     include: { seasonStats: true },
+//   });
+
+//   const eraCtx: NbaEraContext = {
+//     eraFrom: rules.eraFrom ?? draft.eraFrom ?? undefined,
+//     eraTo: rules.eraTo ?? draft.eraTo ?? undefined,
+//   };
+
+//   const chosen = chooseSeasonForScoring(player, rules, eraCtx);
+
+//   const seasonUsed = chosen?.seasonUsed ?? null;
+//   const teamUsed = rules.teamLandedOn ?? draft.teamConstraint ?? null;
+
 //   const existing = await prisma.nBADraftPick.findFirst({
 //     where: { draftId, slot: data.slot },
 //   });
 
 //   if (existing && existing.playerId !== data.playerId) {
-//     // force Undo if they want to change
 //     throw new Error("Slot already filled. Undo this pick before changing it.");
 //   }
 
@@ -993,71 +1163,91 @@ export async function getDraftScore(draftId: string) {
 //         playerId: data.playerId,
 //         position: data.position,
 //         ownerIndex: activeParticipant,
+//         seasonUsed,
+//         teamUsed,
 //       },
 //     });
 //   }
 
-//   // Update (only allowed if same player, e.g. changing position)
 //   return prisma.nBADraftPick.update({
 //     where: { id: existing.id },
 //     data: {
 //       playerId: data.playerId,
 //       position: data.position,
 //       ownerIndex: activeParticipant,
+//       seasonUsed,
+//       teamUsed,
 //     },
 //   });
 // }
 
-// // ---------------------------------------------------------------------
-// // UNDO PICK — clear slot
-// // ---------------------------------------------------------------------
+// /* -------------------------------------------------------------------------- */
+// /*                                 UNDO PICK                                  */
+// /* -------------------------------------------------------------------------- */
 
 // export async function undoPick(draftId: string, slot: number) {
 //   const existing = await prisma.nBADraftPick.findFirst({
 //     where: { draftId, slot },
 //   });
-//   if (existing) {
+//   if (existing)
 //     await prisma.nBADraftPick.delete({ where: { id: existing.id } });
-//   }
 //   return getDraft(draftId);
 // }
 
-// // ---------------------------------------------------------------------
-// // SCORE DRAFT
-// // ---------------------------------------------------------------------
+// /* -------------------------------------------------------------------------- */
+// /*                                  SCORE                                     */
+// /* -------------------------------------------------------------------------- */
 
 // export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
 //   const draft = await getDraft(draftId);
 //   if (!draft) throw new Error("Draft not found");
 
-//   const rules = (draft.rules || {}) as DraftRules;
-//   const eraCtx: NbaEraContext = {
-//     eraFrom: draft.eraFrom ?? undefined,
-//     eraTo: draft.eraTo ?? undefined,
+//   const rulesObj =
+//     typeof draft.rules === "object" && draft.rules !== null
+//       ? (draft.rules as DraftRules)
+//       : {};
+//   const savedStateObj =
+//     typeof (rulesObj as any).savedState === "object" &&
+//     (rulesObj as any).savedState !== null
+//       ? (rulesObj as any).savedState
+//       : {};
+//   const rules: DraftRules = {
+//     ...rulesObj,
+//     ...savedStateObj,
 //   };
 
-//   const ruleWarnings = new Set<string>();
+//   const eraCtx: NbaEraContext = {
+//     eraFrom: rules.eraFrom ?? draft.eraFrom ?? undefined,
+//     eraTo: rules.eraTo ?? draft.eraTo ?? undefined,
+//   };
+
 //   const { participants } = getParticipantsAndPlayersPerTeam(draft, rules);
 
+//   const ruleWarnings = new Set<string>();
+
+//   /* base season selection */
 //   const perPickBase = draft.picks.map((p: any) =>
 //     chooseSeasonForScoring(p.player, rules, eraCtx)
 //   );
 
-//   // group picks into teams by ownerIndex
-//   interface TeamDataForScoring {
-//     heights: number[];
-//     shooters: number;
-//     positions: NbaPosition[];
-//     usages: number[];
-//     picks: ScoreResponse["perPlayerScores"];
-//   }
-//   const teamsMap = new Map<number, TeamDataForScoring>();
+//   /* group by ownerIndex */
+//   const teamsMap = new Map<
+//     number,
+//     {
+//       heights: number[];
+//       shooters: number;
+//       positions: NbaPosition[];
+//       usages: number[];
+//       picks: ScoreResponse["perPlayerScores"];
+//     }
+//   >();
 
 //   draft.picks.forEach((pick: any, idx: number) => {
 //     const choice = perPickBase[idx];
 //     if (!choice) return;
 
 //     const ownerIndex = pick.ownerIndex || ((pick.slot - 1) % participants) + 1;
+
 //     const team = teamsMap.get(ownerIndex) || {
 //       heights: [],
 //       shooters: 0,
@@ -1067,43 +1257,42 @@ export async function getDraftScore(draftId: string) {
 //     };
 
 //     const base = choice.statLine;
-//     const rawPos = pick.position as string;
-//     const pos: NbaPosition =
-//       rawPos === "PG" ||
-//       rawPos === "SG" ||
-//       rawPos === "SF" ||
-//       rawPos === "PF" ||
-//       rawPos === "C"
-//         ? rawPos
-//         : "SF";
+
+//     const pos: NbaPosition = ["PG", "SG", "SF", "PF", "C"].includes(
+//       pick.position
+//     )
+//       ? pick.position
+//       : "SF";
 
 //     const heightInches = pick.player.heightInches ?? 78;
+
 //     const threeRate = base.threeRate ?? 0;
-//     const usgPct = base.usgPct ?? 20; // Default USG% to 20 if not available
+//     const usgPct = base.usgPct ?? 20;
 
 //     team.heights.push(heightInches);
 //     if (threeRate >= 0.33) team.shooters++;
-//     team.positions.push(pos); // Add position
-//     team.usages.push(usgPct); // Add usage
+//     team.positions.push(pos);
+//     team.usages.push(usgPct);
 
 //     team.picks.push({
 //       pickId: pick.id,
 //       playerId: pick.player.id,
 //       name: pick.player.name,
 //       position: pos,
-//       seasonUsed: choice.seasonUsed,
+//       seasonUsed: pick.seasonUsed ?? choice.seasonUsed,
 //       ppg: base.ppg,
-//       score: 0,
 //       slot: pick.slot,
 //       ownerIndex,
+//       score: 0,
 //       threeRate,
 //       heightInches,
-//       usgPct, // Add usgPct to the pick object
+//       usgPct,
 //     });
 
 //     teamsMap.set(ownerIndex, team);
 //   });
 
+//   /* scoring */
 //   const perPlayerScores: ScoreResponse["perPlayerScores"] = [];
 //   const teams: ScoreResponse["teams"] = [];
 
@@ -1124,26 +1313,19 @@ export async function getDraftScore(draftId: string) {
 //         bpg: 0,
 //         tsPct: undefined,
 //         threeRate: p.threeRate ?? 0,
+//         usgPct: p.usgPct ?? 20,
 //       };
 
-//       // The context for player 'p' is the team *excluding* 'p' itself.
-//       // Since 't' contains all players, we need to filter out 'p' from the context arrays.
-//       const otherPicks = t.picks.filter((other) => other.pickId !== p.pickId);
-
-//       const teamHeights = otherPicks.map((op) => op.heightInches ?? 78);
-//       const teamShooters = otherPicks.filter(
-//         (op) => (op.threeRate ?? 0) >= 0.33
-//       ).length;
-//       const teamPositions = otherPicks.map((op) => op.position as NbaPosition);
-//       const teamUsage = otherPicks.map((op) => op.usgPct ?? 20);
+//       const otherPicks = t.picks.filter((o) => o.pickId !== p.pickId);
 
 //       const fit: TeamFitContext = {
 //         position: p.position as NbaPosition,
 //         heightInches: p.heightInches ?? 78,
-//         teamHeights,
-//         teamShooters,
-//         teamPositions,
-//         teamUsage,
+//         teamHeights: otherPicks.map((o) => o.heightInches ?? 78),
+//         teamShooters: otherPicks.filter((o) => (o.threeRate ?? 0) >= 0.33)
+//           .length,
+//         teamPositions: otherPicks.map((o) => o.position as NbaPosition),
+//         teamUsage: otherPicks.map((o) => o.usgPct ?? 20),
 //       };
 
 //       const score = scoreNbaPlayer(
@@ -1154,9 +1336,7 @@ export async function getDraftScore(draftId: string) {
 //       );
 
 //       const withScore = { ...p, score };
-//       perPlayerScores.push(
-//         withScore as ScoreResponse["perPlayerScores"][number]
-//       );
+//       perPlayerScores.push(withScore);
 
 //       teamScore += score;
 //       teamPpg += p.ppg;
@@ -1177,15 +1357,15 @@ export async function getDraftScore(draftId: string) {
 //     });
 //   }
 
-//   // PPG / rating caps — ONLY MAX caps
+//   /* caps */
 //   const maxPpgCap = rules.maxPpgCap ?? null;
 //   const maxOverallCap = rules.overallCap ?? null;
 
-//   if (teams && teams.length) {
+//   if (teams.length) {
 //     for (const t of teams) {
 //       if (maxPpgCap && t.totalPpg > maxPpgCap) {
 //         ruleWarnings.add(
-//           `Player ${t.participant} exceeds team PPG cap (${t.totalPpg.toFixed(
+//           `Player ${t.participant} exceeds PPG cap (${t.totalPpg.toFixed(
 //             1
 //           )} > ${maxPpgCap}).`
 //         );
@@ -1193,9 +1373,7 @@ export async function getDraftScore(draftId: string) {
 
 //       if (maxOverallCap && t.totalRating > maxOverallCap) {
 //         ruleWarnings.add(
-//           `Player ${
-//             t.participant
-//           } exceeds team rating cap (${t.totalRating.toFixed(
+//           `Player ${t.participant} exceeds rating cap (${t.totalRating.toFixed(
 //             1
 //           )} > ${maxOverallCap}).`
 //         );
@@ -1221,16 +1399,16 @@ export async function getDraftScore(draftId: string) {
 //   };
 // }
 
-// export async function getDraftScore(draftId: string) {
-//   return scoreDraft(draftId);
-// }
-
-// // ---------------------------------------------------------------------
-// // Votes
-// // ---------------------------------------------------------------------
+// /* -------------------------------------------------------------------------- */
+// /*                                 VOTING                                     */
+// /* -------------------------------------------------------------------------- */
 
 // export async function addVote(draftId: string, value: number) {
 //   return prisma.vote.create({
 //     data: { draftId, value },
 //   });
+// }
+
+// export async function getDraftScore(draftId: string) {
+//   return scoreDraft(draftId);
 // }

@@ -9,6 +9,7 @@ router.post("/", DraftController.createDraft);
 router.get("/:id", DraftController.getDraft);
 router.patch("/:id", DraftController.updatePick);
 router.post("/:id/save", DraftController.saveDraft);
+router.get("/:id/suggestions", DraftController.getDraftSuggestions);
 router.get("/:id/score", DraftController.scoreDraft);
 router.delete("/:id/picks/:slot", DraftController.undoPick);
 router.delete("/:id", DraftController.cancelDraft);

@@ -21,7 +21,7 @@ model NBAPlayer {
   position       String             // Primary position: "PG" | "SG" | "SF" | "PF" | "C" | "UNK"
   eligiblePositions String?          // All positions player is eligible for (e.g., "PG,SG")
   imageUrl       String?
-  heightInches   Int
+  heightInches   Int?
   primaryTeam    String?
   primaryEraFrom Int?
   primaryEraTo   Int?
@@ -33,29 +33,55 @@ model NBAPlayer {
 }
 
 model NBAPlayerSeasonStat {
-  id       String @id @default(cuid())
-  playerId String
-  season   Int
-  team     String
-  games    Int
+  id          String   @id @default(cuid())
+  playerId    String
+  season      Int              // season START year (ex: 2025 = 2025–26)
+  team        String
+  pos         String?
 
-  ppg      Float
-  apg      Float
-  rpg      Float
-  spg      Float
-  bpg      Float
-  tsPct    Float?
-  threeRate Float?
-  per      Float?
-  ws       Float?
-  usgPct   Float?
+  games       Int?
+  minutes     Float?
 
-  player   NBAPlayer   @relation(fields: [playerId], references: [id])
+  ppg         Float
+  apg         Float
+  rpg         Float
+  spg         Float?
+  bpg         Float?
 
-  @@index([playerId])
+  tsPct       Float?
+  threeRate   Float?
+  usgPct      Float?
+
+  per         Float?
+  ws          Float?
+  wsPer48     Float?
+  bpm         Float?
+  obpm        Float?
+  dbpm        Float?
+  vorp        Float?
+
+  plusMinusPer100     Float?
+  netPlusMinusPer100 Float?
+
+  ptsPer36 Float?
+  trbPer36 Float?
+  astPer36 Float?
+  stlPer36 Float?
+  blkPer36 Float?
+
+  allStar     Boolean   @default(false)
+  allNBA      Int?      // 1,2,3
+  allDefense  Int?
+  allRookie   Boolean   @default(false)
+  mvpShare    Float?
+  dpoyShare   Float?
+
+  player      NBAPlayer @relation(fields: [playerId], references: [id])
+
+  @@unique([playerId, season])
   @@index([season])
-  @@index([team])
 }
+
 
 model Draft {
   id            String       @id @default(cuid())

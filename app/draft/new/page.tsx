@@ -43,7 +43,7 @@ export default function NewDraftPage() {
 
   // caps and rule tweaks
   const [maxPpgCap, setMaxPpgCap] = useState<number | "">("");
-  const [overallCap, setOverallCap] = useState<number | "">("");
+  // const [overallCap, setOverallCap] = useState<number | "">("");
   const [hallRule, setHallRule] = useState<"any" | "none">("any");
   const [multiTeamOnly, setMultiTeamOnly] = useState(false);
   const [peakMode, setPeakMode] = useState<"peak" | "average">("peak");
@@ -53,6 +53,10 @@ export default function NewDraftPage() {
   const [rulesTab, setRulesTab] = useState<"classic" | "casual" | "free">(
     "classic"
   );
+
+  const [pickTimerSeconds, setPickTimerSeconds] = useState<number | "">("");
+  const [autoPickEnabled, setAutoPickEnabled] = useState(false);
+  const [suggestionsEnabled, setSuggestionsEnabled] = useState(true);
 
   // ------------------------------------------
   //  LOCKING LOGIC
@@ -77,8 +81,12 @@ export default function NewDraftPage() {
       setEraTo("");
       setTeamConstraint("");
       setMaxPpgCap("");
-      setOverallCap("");
+      // setOverallCap("");
       setMaxPlayers(12);
+
+      setPickTimerSeconds(60);
+      setAutoPickEnabled(true);
+      setSuggestionsEnabled(false);
     }
 
     if (nextMode === "casual") {
@@ -88,6 +96,10 @@ export default function NewDraftPage() {
       setPlayersPerTeam(5);
       setRequirePositions(true);
       setMaxPlayers(10);
+
+      setPickTimerSeconds("");
+      setAutoPickEnabled(false);
+      setSuggestionsEnabled(true);
     }
 
     if (nextMode === "free") {
@@ -97,6 +109,10 @@ export default function NewDraftPage() {
       setPlayersPerTeam(10);
       setRequirePositions(false); // locked off
       setMaxPlayers(10);
+
+      setPickTimerSeconds("");
+      setAutoPickEnabled(false);
+      setSuggestionsEnabled(false);
     }
 
     setMode(nextMode);
@@ -120,16 +136,25 @@ export default function NewDraftPage() {
           : maxPpgCap === ""
           ? null
           : Number(maxPpgCap),
-        overallCap: isClassic
-          ? null
-          : overallCap === ""
-          ? null
-          : Number(overallCap),
+
         hallRule: isClassic ? "any" : hallRule,
         multiTeamOnly: isClassic ? false : multiTeamOnly,
+
+        // For classic, backend will force statMode = "peak-era-team"
         peakMode: mode === "classic" ? "peak-era-team" : peakMode,
+
         participants,
         playersPerTeam,
+
+        // NEW: timer / auto-pick / suggestions
+        pickTimerSeconds:
+          mode === "classic"
+            ? 60
+            : pickTimerSeconds === ""
+            ? null
+            : Number(pickTimerSeconds),
+        autoPickEnabled: mode === "classic" ? true : autoPickEnabled,
+        suggestionsEnabled: mode === "classic" ? false : suggestionsEnabled,
       };
 
       const res = await fetch(`${API_URL}/drafts`, {
@@ -469,22 +494,68 @@ export default function NewDraftPage() {
                 }`}
               />
 
-              <input
-                type="number"
-                placeholder="Overall Rating Cap"
-                disabled={isClassic}
-                value={isClassic ? "" : overallCap}
-                onChange={(e) =>
-                  setOverallCap(
-                    e.target.value === "" ? "" : Number(e.target.value)
-                  )
-                }
-                className={`w-full px-3 py-2 rounded-lg ${
-                  isClassic
-                    ? "bg-slate-800 border-slate-700 text-slate-600"
-                    : "bg-slate-900 border-slate-700"
-                }`}
-              />
+              {/* Timer (Casual/Classic) */}
+              <label className="block text-sm">
+                Pick Timer (seconds)
+                <input
+                  type="number"
+                  min={20}
+                  max={120}
+                  step={5}
+                  disabled={isClassic || isFree}
+                  value={
+                    isClassic
+                      ? 60
+                      : pickTimerSeconds === ""
+                      ? ""
+                      : pickTimerSeconds
+                  }
+                  onChange={(e) =>
+                    setPickTimerSeconds(
+                      e.target.value === "" ? "" : Number(e.target.value)
+                    )
+                  }
+                  className={`mt-1 w-full px-3 py-2 rounded-lg ${
+                    isClassic || isFree
+                      ? "bg-slate-800 border-slate-700 text-slate-600"
+                      : "bg-slate-900 border-slate-700"
+                  }`}
+                  placeholder="Off"
+                />
+                <span className="text-[11px] text-slate-500">
+                  Leave blank to turn timer off (Casual/Free).
+                </span>
+              </label>
+
+              {/* Auto-pick */}
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  disabled={isFree}
+                  checked={isClassic ? true : autoPickEnabled}
+                  onChange={(e) => setAutoPickEnabled(e.target.checked)}
+                />
+                <span className={isFree ? "text-slate-600" : "text-slate-200"}>
+                  Auto-pick when timer expires
+                </span>
+              </label>
+
+              {/* Suggestions (Casual only) */}
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  disabled={isClassic || isFree}
+                  checked={isClassic ? false : suggestionsEnabled}
+                  onChange={(e) => setSuggestionsEnabled(e.target.checked)}
+                />
+                <span
+                  className={
+                    isClassic || isFree ? "text-slate-600" : "text-slate-200"
+                  }
+                >
+                  Show system suggestion picks
+                </span>
+              </label>
 
               {/* Hall Rule */}
               <label className="block text-sm">

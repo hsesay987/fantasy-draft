@@ -98,3 +98,19 @@ export async function voteDraft(req: Request, res: Response) {
     return res.status(400).json({ error: e.message || "Failed to vote" });
   }
 }
+
+export async function getDraftSuggestions(req: Request, res: Response) {
+  try {
+    const limit = Number(req.query.limit) || 5;
+    const suggestions = await DraftService.getDraftSuggestions(
+      req.params.id,
+      limit
+    );
+    return res.json(suggestions);
+  } catch (e: any) {
+    console.error(e);
+    return res
+      .status(400)
+      .json({ error: e.message || "Failed to get suggestions" });
+  }
+}

@@ -1,0 +1,33 @@
+-- DropIndex
+DROP INDEX "NBAPlayerSeasonStat_playerId_idx";
+
+-- DropIndex
+DROP INDEX "NBAPlayerSeasonStat_team_idx";
+
+-- AlterTable
+ALTER TABLE "NBAPlayerSeasonStat" ADD COLUMN     "allDefense" INTEGER,
+ADD COLUMN     "allNBA" INTEGER,
+ADD COLUMN     "allRookie" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "allStar" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "astPer36" DOUBLE PRECISION,
+ADD COLUMN     "blkPer36" DOUBLE PRECISION,
+ADD COLUMN     "bpm" DOUBLE PRECISION,
+ADD COLUMN     "dbpm" DOUBLE PRECISION,
+ADD COLUMN     "dpoyShare" DOUBLE PRECISION,
+ADD COLUMN     "minutes" DOUBLE PRECISION,
+ADD COLUMN     "mvpShare" DOUBLE PRECISION,
+ADD COLUMN     "netPlusMinusPer100" DOUBLE PRECISION,
+ADD COLUMN     "obpm" DOUBLE PRECISION,
+ADD COLUMN     "plusMinusPer100" DOUBLE PRECISION,
+ADD COLUMN     "pos" TEXT,
+ADD COLUMN     "ptsPer36" DOUBLE PRECISION,
+ADD COLUMN     "stlPer36" DOUBLE PRECISION,
+ADD COLUMN     "trbPer36" DOUBLE PRECISION,
+ADD COLUMN     "vorp" DOUBLE PRECISION,
+ADD COLUMN     "wsPer48" DOUBLE PRECISION,
+ALTER COLUMN "games" DROP NOT NULL,
+ALTER COLUMN "spg" DROP NOT NULL,
+ALTER COLUMN "bpg" DROP NOT NULL;
+
+-- CreateIndex
+CREATE INDEX "NBAPlayerSeasonStat_playerId_season_idx" ON "NBAPlayerSeasonStat"("playerId", "season");
