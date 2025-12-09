@@ -178,16 +178,21 @@ export async function searchPlayers(input: SearchPlayersInput) {
 
   if (position) {
     const pos = position.toUpperCase();
+
+    let positionSet: string[] = [pos];
+
+    if (pos === "PG" || pos === "SG") {
+      positionSet = ["PG", "SG", "G", "G-F", "F-G"];
+    } else if (pos === "SF" || pos === "PF") {
+      positionSet = ["SF", "PF", "F", "F-C", "C-F", "F-G", "G-F"];
+    } else if (pos === "C") {
+      positionSet = ["C", "C-F", "F-C"];
+    }
+
     andFilters.push({
       OR: [
-        { position: { equals: pos } },
+        { position: { in: positionSet } },
         { eligiblePositions: { contains: pos, mode: "insensitive" } },
-        {
-          AND: [
-            { position: { in: ["G", "F", "C"] } },
-            { position: { startsWith: pos[0] || "" } },
-          ],
-        },
       ],
     });
   }

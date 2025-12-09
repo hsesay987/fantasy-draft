@@ -62,14 +62,26 @@ const tsPct = (pts: number, fga: number, fta: number) =>
 const threeRate = (fg3a: number, fga: number) => (fga > 0 ? fg3a / fga : null);
 
 function eligiblePositions(pos: string) {
+  const base = (pos || "").toUpperCase();
+
   const map: Record<string, string[]> = {
     PG: ["PG", "SG"],
     SG: ["SG", "PG"],
+    G: ["PG", "SG"],
+
     SF: ["SF", "PF"],
     PF: ["PF", "SF"],
+    F: ["SF", "PF"],
+
     C: ["C", "PF"],
+
+    "G-F": ["PG", "SG", "SF"],
+    "F-G": ["SG", "SF", "PF"],
+    "F-C": ["SF", "PF", "C"],
+    "C-F": ["PF", "C"],
   };
-  return (map[pos] || [pos]).join(",");
+
+  return (map[base] || [base]).join(",");
 }
 
 /* ====================== MAIN SEED ====================== */
@@ -182,7 +194,19 @@ async function main() {
         primaryEraTo: p.eraTo ?? null,
         totalTeams: p.teams?.size ?? 1,
       },
-      update: {},
+      update: {
+        name: p.name,
+        firstName: firstName || p.name,
+        lastName: lastName,
+        position: p.position,
+        eligiblePositions: p.eligiblePositions,
+        heightInches,
+        isHallOfFamer: p.hof,
+        primaryTeam,
+        primaryEraFrom: p.eraFrom ?? null,
+        primaryEraTo: p.eraTo ?? null,
+        totalTeams: p.teams?.size ?? 1,
+      },
     });
 
     await prisma.nBAPlayerSeasonStat.deleteMany({

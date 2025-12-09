@@ -523,72 +523,103 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
     ...(draft.rules as any)?.savedState,
   };
 
-  const eraCtx = {
+  const eraCtx: NbaEraContext = {
     eraFrom: rules.eraFrom ?? draft.eraFrom ?? undefined,
     eraTo: rules.eraTo ?? draft.eraTo ?? undefined,
   };
 
-  const teams = new Map<number, any>();
+  const teams = new Map<
+    number,
+    {
+      participant: number;
+      picks: any[];
+      totalScore: number;
+      totalPpg: number;
+    }
+  >();
 
+  /* --------------------- build team buckets --------------------- */
   for (const pick of draft.picks) {
+    if (!pick.ownerIndex) continue;
+
     const choice = chooseSeasonForScoring(pick.player, rules, eraCtx);
     if (!choice) continue;
 
-    const owner = pick.ownerIndex!;
-    if (!teams.has(owner))
-      teams.set(owner, { picks: [], height: [], usage: [], pos: [] });
+    if (!teams.has(pick.ownerIndex)) {
+      teams.set(pick.ownerIndex, {
+        participant: pick.ownerIndex,
+        picks: [],
+        totalScore: 0,
+        totalPpg: 0,
+      });
+    }
 
-    teams.get(owner).picks.push({ pick, stat: choice.statLine });
-    teams.get(owner).height.push(pick.player.heightInches ?? 78);
-    teams.get(owner).usage.push(choice.statLine.usgPct ?? 20);
-    teams.get(owner).pos.push(pick.position as NbaPosition);
+    const team = teams.get(pick.ownerIndex)!;
+
+    const fit: TeamFitContext = {
+      position: pick.position as NbaPosition,
+      heightInches: pick.player.heightInches ?? 78,
+      teamHeights: team.picks.map((p) => p.heightInches ?? 78),
+      teamShooters: team.picks.filter((p) => (p.threeRate ?? 0) >= 0.33).length,
+      teamPositions: team.picks.map((p) => p.position as NbaPosition),
+      teamUsage: team.picks.map((p) => p.usgPct ?? 20),
+    };
+
+    const score = scoreNbaPlayer(
+      choice.statLine,
+      pick.position as NbaPosition,
+      eraCtx,
+      fit
+    );
+
+    const scoredPick = {
+      pickId: pick.id,
+      playerId: pick.playerId,
+      slot: pick.slot,
+      ownerIndex: pick.ownerIndex,
+      name: pick.player.name,
+      position: pick.position,
+      seasonUsed: pick.seasonUsed ?? choice.seasonUsed,
+      ppg: choice.statLine.ppg,
+      score,
+      threeRate: choice.statLine.threeRate ?? null,
+      usgPct: choice.statLine.usgPct ?? null,
+      heightInches: pick.player.heightInches ?? null,
+    };
+
+    team.picks.push(scoredPick);
+    team.totalScore += score;
+    team.totalPpg += choice.statLine.ppg;
   }
 
-  const perPlayerScores: any[] = [];
-  let totalScore = 0;
-  let totalPpg = 0;
+  /* --------------------- build response --------------------- */
+  const teamList = Array.from(teams.values()).map((t) => ({
+    participant: t.participant,
+    teamScore: t.totalScore,
+    totalPpg: t.totalPpg,
+    totalRating: t.totalScore / Math.max(1, t.picks.length),
+    picks: t.picks,
+  }));
 
-  teams.forEach((t, ownerIndex) => {
-    for (const { pick, stat } of t.picks) {
-      const fit: TeamFitContext = {
-        position: pick.position,
-        heightInches: pick.player.heightInches ?? 78,
-        teamHeights: t.height,
-        teamShooters: t.picks.filter(
-          (p: any) => (p.stat.threeRate ?? 0) >= 0.33
-        ).length,
-        teamPositions: t.pos,
-        teamUsage: t.usage,
-      };
+  let winner: number | undefined;
+  if (teamList.length > 1) {
+    winner = teamList.reduce((best, curr) =>
+      curr.teamScore > best.teamScore ? curr : best
+    ).participant;
+  }
 
-      const score = scoreNbaPlayer(
-        stat,
-        pick.position as NbaPosition,
-        eraCtx,
-        fit
-      );
-
-      perPlayerScores.push({
-        pickId: pick.id,
-        playerId: pick.playerId,
-        name: pick.player.name,
-        position: pick.position,
-        ppg: stat.ppg,
-        score,
-        ownerIndex,
-      });
-
-      totalScore += score;
-      totalPpg += stat.ppg;
-    }
-  });
+  const allPicks = teamList.flatMap((t) => t.picks);
 
   return {
     draftId,
-    teamScore: totalScore,
-    avgScore: totalScore / (perPlayerScores.length || 1),
-    totalPpg,
-    perPlayerScores,
+    teamScore: teamList.reduce((s, t) => s + t.teamScore, 0),
+    avgScore:
+      teamList.reduce((s, t) => s + t.totalRating, 0) /
+      Math.max(1, teamList.length),
+    totalPpg: teamList.reduce((s, t) => s + t.totalPpg, 0),
+    perPlayerScores: allPicks,
+    teams: teamList,
+    winner,
     ruleWarnings: [],
   };
 }

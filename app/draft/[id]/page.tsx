@@ -459,12 +459,18 @@ export default function DraftPage() {
   /***************************************************************************/
   /*                        BUILD SEARCH PARAMS (UPDATED)                    */
   /***************************************************************************/
-  function buildSearchParams(slot: number | null, extra?: { limit?: number }) {
+  function buildSearchParams(
+    slot: number | null,
+    extra?: { limit?: number; ignoreName?: boolean }
+  ) {
     const params = new URLSearchParams();
-    if (!draft || !slot) return params;
+    if (!draft) return params;
 
     // name
-    if (searchQuery) params.set("q", searchQuery);
+    // name (optionally ignored)
+    if (searchQuery && !extra?.ignoreName) {
+      params.set("q", searchQuery);
+    }
 
     // UPDATED: spin-locked era overrides draft era
     const useEraFrom = lockedEra?.from ?? draft.eraFrom;
@@ -475,8 +481,11 @@ export default function DraftPage() {
     }
 
     // position
-    const pos = getSlotPosition(slot, draft);
-    if (pos) params.set("position", pos);
+    // position
+    if (slot) {
+      const pos = getSlotPosition(slot, draft);
+      if (pos) params.set("position", pos);
+    }
 
     // UPDATED: lockedTeam overrides teamConstraint
     const teamFilter = lockedTeam ?? draft.teamConstraint;
@@ -495,15 +504,6 @@ export default function DraftPage() {
     return params;
   }
 
-  // async function searchPlayers() {
-  //   if (!draft || !selectedSlot) return;
-  //   setSearchLoading(true);
-  //   const params = buildSearchParams(selectedSlot);
-  //   const res = await fetch(`${API_URL}/players/search?${params.toString()}`);
-  //   const data = await res.json();
-  //   setSearchResults(data);
-  //   setSearchLoading(false);
-  // }
   async function searchPlayers() {
     if (!draft) return;
 
@@ -543,17 +543,34 @@ export default function DraftPage() {
     const autoSlot = slotsForActive[0];
 
     try {
-      const params = buildSearchParams(autoSlot, { limit: 50 });
-      const res = await fetch(`${API_URL}/players/search?${params.toString()}`);
-      const data: Player[] = await res.json();
+      // First try: respect position / team / era, but ignore name query
+      let params = buildSearchParams(autoSlot, {
+        limit: 50,
+        ignoreName: true,
+      });
+      let res = await fetch(`${API_URL}/players/search?${params.toString()}`);
+      let data: Player[] = await res.json();
+
+      // Fallback: relax position – just era/team/hall/etc
+      if (!data.length) {
+        const fallbackParams = buildSearchParams(null, {
+          limit: 100,
+          ignoreName: true,
+        });
+        res = await fetch(
+          `${API_URL}/players/search?${fallbackParams.toString()}`
+        );
+        data = await res.json();
+      }
 
       if (!data.length) return;
 
       // random pick from eligible pool
       const candidate = data[Math.floor(Math.random() * data.length)];
-
       await lockInPlayer(candidate, autoSlot, true);
-    } catch {}
+    } catch {
+      // swallow auto-pick errors so timer doesn't crash UI
+    }
   }
 
   /***************************************************************************/
@@ -578,25 +595,19 @@ export default function DraftPage() {
 
     if (req === "PF") {
       return (
-        pos === "PF" ||
-        pos === "F" ||
-        (pos.includes("F") && pos.includes("C")) // C-F, F-C
+        pos === "PF" || pos === "F" || (pos.includes("F") && pos.includes("C")) // C-F, F-C
       );
     }
 
     if (req === "SF") {
       return (
-        pos === "SF" ||
-        pos === "F" ||
-        (pos.includes("F") && pos.includes("G")) // F-G, G-F
+        pos === "SF" || pos === "F" || (pos.includes("F") && pos.includes("G")) // F-G, G-F
       );
     }
 
     if (req === "SG") {
       return (
-        pos === "SG" ||
-        pos === "G" ||
-        (pos.includes("G") && pos.includes("F")) // F-G, G-F
+        pos === "SG" || pos === "G" || (pos.includes("G") && pos.includes("F")) // F-G, G-F
       );
     }
 
@@ -712,6 +723,59 @@ export default function DraftPage() {
 
     setPendingPlayer(null);
     setSelectedSlot(slot);
+  }
+  /***************************************************************************/
+  /*                                SAVE, PAUSE, NEW, CANCEL                 */
+  /***************************************************************************/
+
+  async function handleSaveDraft() {
+    if (!draft) return;
+
+    await fetch(`${API_URL}/drafts/${draft.id}/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: "saved",
+      }),
+    });
+
+    alert("Draft saved");
+  }
+
+  async function handlePauseDraft() {
+    if (!draft) return;
+
+    await fetch(`${API_URL}/drafts/${draft.id}/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: "saved",
+      }),
+    });
+
+    alert("Draft paused & saved");
+  }
+
+  async function handleCancelDraft() {
+    if (!draft) return;
+
+    const ok = confirm("Are you sure? This will delete the draft.");
+    if (!ok) return;
+
+    await fetch(`${API_URL}/drafts/${draft.id}`, {
+      method: "DELETE",
+    });
+
+    window.location.href = "/draft/new";
+  }
+
+  function handleNewDraft() {
+    const ok = draftComplete
+      ? true
+      : confirm("Draft not finished. Start a new one anyway?");
+    if (!ok) return;
+
+    window.location.href = "/draft/new";
   }
 
   /***************************************************************************/
@@ -1018,12 +1082,14 @@ export default function DraftPage() {
               <Image
                 src={
                   pick.player.imageUrl ||
-                  `https://cdn.nba.com/headshots/nba/latest/1040x760/${pick.player.id}.png`
+                  // Basketball-Reference fallback (uses your player.id)
+                  `https://www.basketball-reference.com/req/202106291/images/players/${pick.player.id}.jpg`
                 }
                 alt={pick.player.name}
                 width={70}
                 height={70}
                 className="h-full w-full object-contain drop-shadow-lg"
+                unoptimized
               />
             </div>
 
@@ -1112,6 +1178,23 @@ export default function DraftPage() {
     draft?.rules?.suggestionsEnabled,
   ]);
 
+  // helpers / derived values that shouldn't change hook order
+  const safeLen = (arr?: any[]) => (arr && arr.length ? arr.length : 1);
+  const draftComplete = draft ? draft.picks.length >= draft.maxPlayers : false;
+  const allTeams = (score?.teams ?? []) as Array<
+    NonNullable<ScoreResponse["teams"]>[number]
+  >;
+
+  useEffect(() => {
+    if (!draft || !draftComplete) return;
+
+    fetch(`${API_URL}/drafts/${draft.id}/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "complete" }),
+    });
+  }, [draft, draftComplete]);
+
   /***************************************************************************/
   /*                                 UI LOADING                             */
   /***************************************************************************/
@@ -1128,7 +1211,45 @@ export default function DraftPage() {
     (_, i) => i + 1
   );
 
-  const safeLen = (arr?: any[]) => (arr && arr.length ? arr.length : 1);
+  type TeamSummary = NonNullable<ScoreResponse["teams"]>[number] & {
+    spacing?: number;
+    size?: number;
+    usageBalance?: number;
+  };
+
+  const teamsWithChemistry: TeamSummary[] = allTeams.map((t) => {
+    const picks = t.picks ?? [];
+    const spacing =
+      (picks.filter((p) => (p.threeRate ?? 0) >= 0.33).length /
+        safeLen(picks)) *
+      100;
+
+    const avgHeight =
+      picks.reduce((s, p) => s + (p.heightInches ?? 78), 0) / safeLen(picks);
+
+    const size = Math.min(100, (avgHeight - 72) * 6);
+
+    const avgUsage =
+      picks.reduce((s, p) => s + (p.usgPct ?? 20), 0) / safeLen(picks);
+
+    const usageBalance = 100 - Math.min(100, Math.abs(avgUsage - 22) * 6);
+
+    return { ...t, spacing, size, usageBalance };
+  });
+
+  const leaderBy = <K extends keyof TeamSummary>(key: K) => {
+    if (!teamsWithChemistry.length) return null;
+    return teamsWithChemistry.reduce((best, t) =>
+      (t[key] ?? 0) > (best[key] ?? 0) ? t : best
+    );
+  };
+
+  const leaderTeam =
+    teamsWithChemistry.length > 0
+      ? teamsWithChemistry.reduce((best, t) =>
+          (t.teamScore ?? 0) > (best.teamScore ?? 0) ? t : best
+        )
+      : null;
 
   function ChemistryBar({
     label,
@@ -1188,38 +1309,141 @@ export default function DraftPage() {
             )}
           </div>
 
-          {/* Score Summary */}
+          {/* Draft Actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSaveDraft}
+              className="px-3 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-xs font-semibold text-slate-900"
+            >
+              💾 Save
+            </button>
+
+            {!draftComplete && (
+              <button
+                onClick={handlePauseDraft}
+                className="px-3 py-1.5 rounded-md bg-yellow-500 hover:bg-yellow-400 text-xs font-semibold text-slate-900"
+              >
+                ⏸ Pause
+              </button>
+            )}
+
+            <button
+              onClick={handleNewDraft}
+              className="px-3 py-1.5 rounded-md bg-indigo-500 hover:bg-indigo-600 text-xs font-semibold"
+            >
+              ➕ New Draft
+            </button>
+
+            <button
+              onClick={handleCancelDraft}
+              className="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-xs font-semibold"
+            >
+              ✖ Cancel
+            </button>
+          </div>
+
+          {/* Score & Leaders Summary */}
           {score && (
-            <div className="rounded-2xl bg-slate-900 border border-slate-700 px-4 py-3 text-xs flex flex-col gap-2 min-w-[240px] max-w-[320px]">
+            <div className="rounded-2xl bg-slate-900 border border-slate-700 px-4 py-3 text-xs flex flex-col gap-2 min-w-[260px] max-w-[360px]">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-200">Score</span>
-                {score.winner && (
+                <span className="font-semibold text-slate-200">
+                  Draft status
+                </span>
+                {leaderTeam && (
                   <span className="text-emerald-300 font-semibold">
-                    Winner: Player {score.winner}
+                    {draftComplete
+                      ? `Winner: Player ${leaderTeam.participant}`
+                      : `Player ${leaderTeam.participant} is in the lead`}
                   </span>
                 )}
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                <div className="rounded-lg bg-slate-800 px-2 py-1 text-center">
-                  <div className="text-[10px] text-slate-400">Team</div>
-                  <div className="text-sm font-semibold">
-                    {score.teamScore.toFixed(1)}
-                  </div>
+              {/* Per-team scores */}
+              {teamsWithChemistry.length > 0 && (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {teamsWithChemistry.map((t) => (
+                    <div
+                      key={t.participant}
+                      className="rounded-lg bg-slate-800 px-2 py-1 flex items-center justify-between"
+                    >
+                      <div className="text-[10px] text-slate-300">
+                        Team {t.participant}
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-emerald-300">
+                          {t.teamScore.toFixed(1)}
+                        </div>
+                        <div className="text-[10px] text-slate-400">
+                          {t.totalPpg.toFixed(1)} PPG
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="rounded-lg bg-slate-800 px-2 py-1 text-center">
-                  <div className="text-[10px] text-slate-400">Avg</div>
-                  <div className="text-sm font-semibold">
-                    {score.avgScore.toFixed(1)}
+              )}
+
+              {/* Category leaders */}
+              {teamsWithChemistry.length > 1 && (
+                <div className="mt-3 border-t border-slate-700 pt-2 text-[10px] space-y-1">
+                  <div className="font-semibold text-slate-200 mb-1">
+                    Category leaders
                   </div>
+                  {leaderBy("teamScore") && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Highest score</span>
+                      <span className="text-slate-100">
+                        Team {leaderBy("teamScore")!.participant} (
+                        {leaderBy("teamScore")!.teamScore.toFixed(1)})
+                      </span>
+                    </div>
+                  )}
+                  {leaderBy("totalPpg") && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Most PPG</span>
+                      <span className="text-slate-100">
+                        Team {leaderBy("totalPpg")!.participant} (
+                        {leaderBy("totalPpg")!.totalPpg.toFixed(1)})
+                      </span>
+                    </div>
+                  )}
+                  {leaderBy("totalRating") && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Best avg score</span>
+                      <span className="text-slate-100">
+                        Team {leaderBy("totalRating")!.participant} (
+                        {leaderBy("totalRating")!.totalRating.toFixed(1)})
+                      </span>
+                    </div>
+                  )}
+                  {leaderBy("spacing") && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Best spacing</span>
+                      <span className="text-slate-100">
+                        Team {leaderBy("spacing")!.participant} (
+                        {leaderBy("spacing")!.spacing!.toFixed(0)}%)
+                      </span>
+                    </div>
+                  )}
+                  {leaderBy("size") && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Best size</span>
+                      <span className="text-slate-100">
+                        Team {leaderBy("size")!.participant} (
+                        {leaderBy("size")!.size!.toFixed(0)})
+                      </span>
+                    </div>
+                  )}
+                  {leaderBy("usageBalance") && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Best usage balance</span>
+                      <span className="text-slate-100">
+                        Team {leaderBy("usageBalance")!.participant} (
+                        {leaderBy("usageBalance")!.usageBalance!.toFixed(0)})
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <div className="rounded-lg bg-slate-800 px-2 py-1 text-center">
-                  <div className="text-[10px] text-slate-400">PPG</div>
-                  <div className="text-sm font-semibold">
-                    {score.totalPpg.toFixed(1)}
-                  </div>
-                </div>
-              </div>
+              )}
 
               {score.ruleWarnings.length > 0 && (
                 <div className="text-[10px] text-red-300 mt-1 max-h-20 overflow-y-auto">
@@ -1290,8 +1514,8 @@ export default function DraftPage() {
                       }
                     `}
                   >
-                    {/* Team Header */}
-                    <div className="flex items-start justify-between mb-2">
+                    {/* Team Header + Score + Chemistry */}
+                    <div className="flex items-start justify-between mb-1.5">
                       <div className="flex flex-col">
                         <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
                           Team {pNum}
@@ -1305,7 +1529,21 @@ export default function DraftPage() {
                       </div>
 
                       {teamScore && (
-                        <div className="mt-2 space-y-2">
+                        <div className="text-right text-[10px] leading-tight">
+                          <div className="text-slate-400">Score</div>
+                          <div className="text-sm font-semibold text-emerald-300">
+                            {teamScore.teamScore.toFixed(1)}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            {teamScore.totalPpg.toFixed(1)} PPG
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* {teamScore && (
+                      <div className="mb-2 mt-1 flex gap-2">
+                        <div className="flex-1 space-y-1.5">
                           <ChemistryBar
                             label="Spacing"
                             value={
@@ -1350,20 +1588,8 @@ export default function DraftPage() {
                             good={true}
                           />
                         </div>
-                      )}
-                    </div>
-
-                    {teamScore && (
-                      <div className="text-right text-[10px] leading-tight">
-                        <div className="text-slate-400">Score</div>
-                        <div className="text-sm font-semibold text-emerald-300">
-                          {teamScore.teamScore.toFixed(1)}
-                        </div>
-                        <div className="text-[10px] text-slate-500">
-                          {teamScore.totalPpg.toFixed(1)} PPG
-                        </div>
                       </div>
-                    )}
+                    )} */}
 
                     {/* Player slots */}
                     <div className="flex flex-col gap-2">
@@ -1381,6 +1607,56 @@ export default function DraftPage() {
                         );
                       })}
                     </div>
+
+                    {teamScore && (
+                      <div className="mb-2 mt-1 flex gap-2">
+                        <div className="flex-1 space-y-1.5">
+                          <ChemistryBar
+                            label="Spacing"
+                            value={
+                              (teamScore.picks.filter(
+                                (p) => (p.threeRate ?? 0) >= 0.33
+                              ).length /
+                                safeLen(teamScore.picks)) *
+                              100
+                            }
+                            good={true}
+                          />
+                          <ChemistryBar
+                            label="Size"
+                            value={Math.min(
+                              100,
+                              (teamScore.picks.reduce(
+                                (s, p) => s + (p.heightInches ?? 78),
+                                0
+                              ) /
+                                safeLen(teamScore.picks) -
+                                72) *
+                                6
+                            )}
+                            good={true}
+                          />
+                          <ChemistryBar
+                            label="Usage Balance"
+                            value={
+                              100 -
+                              Math.min(
+                                100,
+                                Math.abs(
+                                  teamScore.picks.reduce(
+                                    (s, p) => s + (p.usgPct ?? 20),
+                                    0
+                                  ) /
+                                    safeLen(teamScore.picks) -
+                                    22
+                                ) * 6
+                              )
+                            }
+                            good={true}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -1621,13 +1897,16 @@ export default function DraftPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-8 w-8 rounded-full overflow-hidden border border-slate-700">
-                        <img
+                        <Image
                           src={
                             player.imageUrl ||
-                            `https://cdn.nba.com/headshots/nba/latest/1040x760/${player.id}.png`
+                            `https://www.basketball-reference.com/req/202106291/images/players/${player.id}.jpg`
                           }
                           alt={player.name}
+                          width={32}
+                          height={32}
                           className="h-full w-full object-cover"
+                          unoptimized
                         />
                       </div>
 
