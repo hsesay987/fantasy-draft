@@ -5,62 +5,72 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "binary"
 }
 
 datasource db {
-  provider   = "postgresql"
+  provider = "postgresql"
+}
+
+model Game {
+  id        String   @id @default(cuid())
+  type      String // "DRAFT" | "IMPOSTER" | "QUIZ" | "AUX" | "LINEUP"
+  category  String // "SPORTS" | "FOOD" | "ANIME" | "TV" | "MUSIC"
+  subtype   String? // "NBA" | "NFL" | "ANIME" | "FOOD"
+  title     String?
+  createdAt DateTime @default(now())
+  drafts    Draft[]
 }
 
 model NBAPlayer {
-  id             String             @id @default(cuid())
-  name           String
-  firstName      String
-  lastName       String
-  position       String             // Primary position: "PG" | "SG" | "SF" | "PF" | "C" | "UNK"
-  eligiblePositions String?          // All positions player is eligible for (e.g., "PG,SG")
-  imageUrl       String?
-  heightInches   Int?
-  primaryTeam    String?
-  primaryEraFrom Int?
-  primaryEraTo   Int?
-  isHallOfFamer  Boolean            @default(false)
-  totalTeams     Int                @default(1)
+  id                String  @id @default(cuid())
+  name              String
+  firstName         String
+  lastName          String
+  position          String // Primary position: "PG" | "SG" | "SF" | "PF" | "C" | "UNK"
+  eligiblePositions String? // All positions player is eligible for (e.g., "PG,SG")
+  imageUrl          String?
+  heightInches      Int?
+  primaryTeam       String?
+  primaryEraFrom    Int?
+  primaryEraTo      Int?
+  isHallOfFamer     Boolean @default(false)
+  totalTeams        Int     @default(1)
 
-  seasonStats    NBAPlayerSeasonStat[]
-  draftPicks     NBADraftPick[]
+  seasonStats NBAPlayerSeasonStat[]
+  draftPicks  NBADraftPick[]
 }
 
 model NBAPlayerSeasonStat {
-  id          String   @id @default(cuid())
-  playerId    String
-  season      Int              // season START year (ex: 2025 = 2025–26)
-  team        String
-  pos         String?
+  id       String  @id @default(cuid())
+  playerId String
+  season   Int // season START year (ex: 2025 = 2025–26)
+  team     String
+  pos      String?
 
-  games       Int?
-  minutes     Float?
+  games   Int?
+  minutes Float?
 
-  ppg         Float
-  apg         Float
-  rpg         Float
-  spg         Float?
-  bpg         Float?
+  ppg Float
+  apg Float
+  rpg Float
+  spg Float?
+  bpg Float?
 
-  tsPct       Float?
-  threeRate   Float?
-  usgPct      Float?
+  tsPct     Float?
+  threeRate Float?
+  usgPct    Float?
 
-  per         Float?
-  ws          Float?
-  wsPer48     Float?
-  bpm         Float?
-  obpm        Float?
-  dbpm        Float?
-  vorp        Float?
+  per     Float?
+  ws      Float?
+  wsPer48 Float?
+  bpm     Float?
+  obpm    Float?
+  dbpm    Float?
+  vorp    Float?
 
-  plusMinusPer100     Float?
+  plusMinusPer100    Float?
   netPlusMinusPer100 Float?
 
   ptsPer36 Float?
@@ -69,70 +79,71 @@ model NBAPlayerSeasonStat {
   stlPer36 Float?
   blkPer36 Float?
 
-  allStar     Boolean   @default(false)
-  allNBA      Int?      // 1,2,3
-  allDefense  Int?
-  allRookie   Boolean   @default(false)
-  mvpShare    Float?
-  dpoyShare   Float?
+  allStar    Boolean @default(false)
+  allNBA     Int? // 1,2,3
+  allDefense Int?
+  allRookie  Boolean @default(false)
+  mvpShare   Float?
+  dpoyShare  Float?
 
-  player      NBAPlayer @relation(fields: [playerId], references: [id])
+  player NBAPlayer @relation(fields: [playerId], references: [id])
 
   @@unique([playerId, season])
   @@index([season])
 }
 
-
 model Draft {
-  id            String       @id @default(cuid())
-  title         String?
-  league        String       // "NBA"
-  mode          String       // "standard" | "free"
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id        String   @id @default(cuid())
+  gameId    String
+  title     String?
+  league    String // "NBA"
+  mode      String // "standard" | "free"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  randomEra     Boolean      @default(true)
-  eraFrom       Int?
-  eraTo         Int?
-  randomTeam    Boolean      @default(true)
+  randomEra      Boolean @default(true)
+  eraFrom        Int?
+  eraTo          Int?
+  randomTeam     Boolean @default(true)
   teamConstraint String?
 
-  maxPlayers    Int          @default(5)
-  requirePositions Boolean   @default(true)
+  maxPlayers       Int     @default(5)
+  requirePositions Boolean @default(true)
 
-  scoringMethod String       @default("system")
-  rules         Json         // { maxPpgCap, overallCap, hallRule, multiTeamOnly, playedWithPlayerId, peakMode }
-  participants  Int @default(1)
-  playersPerTeam  Int @default(6)
+  scoringMethod  String @default("system")
+  rules          Json // { maxPpgCap, overallCap, hallRule, multiTeamOnly, playedWithPlayerId, peakMode }
+  participants   Int    @default(1)
+  playersPerTeam Int    @default(6)
 
-  picks         NBADraftPick[]
-  votes         Vote[]
+  picks NBADraftPick[]
+  votes Vote[]
+
+  game Game @relation(fields: [gameId], references: [id])
 }
 
 model NBADraftPick {
-  id        String   @id @default(cuid())
-  draftId   String
-  playerId  String
-  slot      Int
-  position  String
+  id       String @id @default(cuid())
+  draftId  String
+  playerId String
+  slot     Int
+  position String
 
-  draft     Draft    @relation(fields: [draftId], references: [id])
-  player    NBAPlayer   @relation(fields: [playerId], references: [id])
-  ownerIndex Int @default(1)
-  seasonUsed Int?  
+  draft      Draft     @relation(fields: [draftId], references: [id])
+  player     NBAPlayer @relation(fields: [playerId], references: [id])
+  ownerIndex Int       @default(1)
+  seasonUsed Int?
   teamUsed   String?
 
-
+  @@unique([draftId, slot])
   @@index([draftId, ownerIndex])
   @@index([draftId, slot])
-  @@unique([draftId, slot])
 }
 
 model Vote {
   id        String   @id @default(cuid())
   draftId   String
   createdAt DateTime @default(now())
-  value     Int      // +1, -1 (or 1 only)
+  value     Int // +1, -1 (or 1 only)
   draft     Draft    @relation(fields: [draftId], references: [id])
 
   @@index([draftId])
