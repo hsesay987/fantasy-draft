@@ -8,6 +8,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import TEAM_DATA, { TeamData } from "../../teamData";
+import { useAuth } from "@/app/hooks/useAuth";
+import { io as socketIo, type Socket } from "socket.io-client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -82,6 +84,9 @@ type DraftRules = {
   savedAt?: string;
   mode?: string;
   suggestionsEnabled?: boolean;
+  online?: boolean;
+  seatDisplayNames?: string[];
+  seatAssignments?: string[];
 };
 
 type Draft = {
@@ -238,6 +243,7 @@ function isTeamValidForEra(
 
 /* ================================ Component =============================== */
 export default function DraftPage() {
+  const { user, token } = useAuth();
   /***************************************************************************/
   /*                          STATE + LOADING                                */
   /***************************************************************************/
@@ -246,9 +252,9 @@ export default function DraftPage() {
 
   const [draft, setDraft] = useState<Draft | null>(null);
   const [loading, setLoading] = useState(true);
-
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [pickError, setPickError] = useState<string | null>(null);
+  const isOnline = draft?.rules?.online;
 
   /***************************************************************************/
   /*                           SPIN LOCKS                                    */
@@ -340,6 +346,35 @@ export default function DraftPage() {
     return candidate ?? null;
   }, [draft, activeParticipant, allSlots]);
 
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  useEffect(() => {
+    const s = socketIo(API_URL, {
+      transports: ["websocket"],
+    });
+    setSocket(s);
+
+    return () => {
+      s.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!socket || !id) return;
+
+    socket.emit("draft:join", id);
+
+    socket.on("draft:update", (updated: Draft) => {
+      if (updated.id === id) {
+        setDraft(updated);
+      }
+    });
+
+    return () => {
+      socket.off("draft:update");
+    };
+  }, [socket, id]);
+
   /***************************************************************************/
   /*                              UTIL                                       */
   /***************************************************************************/
@@ -387,17 +422,18 @@ export default function DraftPage() {
     }
   }, [id]);
 
-  // const suggestedPicks = useMemo(() => {
-  //   if (!score || !draft || !activeParticipant) return [];
+  useEffect(() => {
+    if (!isOnline || !draft?.id) return;
 
-  //   // Exclude already drafted players
-  //   const draftedIds = new Set(draft.picks.map((p) => p.player.id));
+    const interval = setInterval(async () => {
+      const res = await fetch(`${API_URL}/drafts/${draft.id}`);
+      const updated = await res.json();
+      setDraft(updated);
+    }, 2000); // 👈 2s sync
 
-  //   return score.perPlayerScores
-  //     .filter((p) => !draftedIds.has(p.playerId))
-  //     .sort((a, b) => b.score - a.score)
-  //     .slice(0, 5);
-  // }, [score, draft, activeParticipant]);
+    return () => clearInterval(interval);
+  }, [draft?.id, isOnline]);
+
   const [suggestedPicks, setSuggestedPicks] = useState<
     {
       playerId: string;
@@ -634,6 +670,17 @@ export default function DraftPage() {
   ) {
     if (!draft || !activeParticipant) return;
 
+    // 🔹 NEW - client-side guard for online spectators
+    if (
+      draft.rules?.online &&
+      draft.rules.seatAssignments &&
+      user &&
+      !draft.rules.seatAssignments.includes(user.id)
+    ) {
+      alert("You are spectating this draft and cannot make picks.");
+      return;
+    }
+
     const slot = slotOverride ?? selectedSlot;
     if (!slot) return;
 
@@ -666,7 +713,10 @@ export default function DraftPage() {
     // NEW: backend updated route expects PATCH /drafts/:id with payload
     const res = await fetch(`${API_URL}/drafts/${draft.id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify({
         slot,
         playerId: player.id,
@@ -731,9 +781,18 @@ export default function DraftPage() {
   async function handleSaveDraft() {
     if (!draft) return;
 
+    if (!user) {
+      alert("Log in to save drafts and show up on leaderboards.");
+      return;
+    }
+
     await fetch(`${API_URL}/drafts/${draft.id}/save`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+
       body: JSON.stringify({
         status: "saved",
       }),
@@ -744,6 +803,11 @@ export default function DraftPage() {
 
   async function handlePauseDraft() {
     if (!draft) return;
+
+    if (!user) {
+      alert("Log in to save drafts and show up on leaderboards.");
+      return;
+    }
 
     await fetch(`${API_URL}/drafts/${draft.id}/save`, {
       method: "POST",
@@ -819,50 +883,6 @@ export default function DraftPage() {
     }, 1400);
   }
 
-  // function handleSpinEraTeam() {
-  //   if (!draft) return;
-
-  //   const defaultMode = draft.mode === "default";
-  //   const allowRespin =
-  //     draft.rules?.allowRespinsWithoutPick || draft.mode !== "default";
-
-  //   if (defaultMode && hasSpunThisTurn && !allowRespin) {
-  //     alert("Already spun this turn.");
-  //     return;
-  //   }
-
-  //   const combos = buildValidEraTeamCombos();
-
-  //   spin<EraTeamCombo>(
-  //     combos,
-  //     (item) => {
-  //       setCurrentSpinTeam(item.team);
-  //       setEraSpinLabel(item.era.label);
-  //     },
-  //     setSpinning,
-  //     async (final) => {
-  //       setCurrentSpinTeam(final.team);
-  //       setEraSpinLabel(final.era.label);
-  //       setLockedTeam(final.team);
-  //       setLockedEra({ from: final.era.from, to: final.era.to });
-  //       setHasSpunThisTurn(true);
-
-  //       // SAVE SPIN TO BACKEND (IMPORTANT)
-  //       await fetch(`${API_URL}/drafts/${draft.id}/save`, {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({
-  //           savedState: {
-  //             teamLandedOn: final.team,
-  //             eraFrom: final.era.from,
-  //             eraTo: final.era.to,
-  //           },
-  //           status: "in_progress",
-  //         }),
-  //       });
-  //     }
-  //   );
-  // }
   function handleSpinEraTeam() {
     if (!draft) return;
 
@@ -933,12 +953,6 @@ export default function DraftPage() {
 
     const seconds = draft.rules?.pickTimerSeconds ?? null;
     const auto = draft.rules?.autoPickEnabled;
-
-    // Only start when randomizer requirements are satisfied or disabled
-    // const needsEraSpin =
-    //   draft.mode === "default" && draft.randomEra && !lockedEra;
-    // const needsTeamSpin =
-    //   draft.mode === "default" && draft.randomTeam && !lockedTeam;
     const needsEraSpin =
       draft.mode === "classic" && draft.randomEra && !lockedEra;
     const needsTeamSpin =
@@ -1181,12 +1195,31 @@ export default function DraftPage() {
   // helpers / derived values that shouldn't change hook order
   const safeLen = (arr?: any[]) => (arr && arr.length ? arr.length : 1);
   const draftComplete = draft ? draft.picks.length >= draft.maxPlayers : false;
+
+  const activeSeatName =
+    activeParticipant &&
+    draft?.rules?.seatDisplayNames &&
+    draft.rules.seatDisplayNames[activeParticipant - 1]
+      ? draft.rules.seatDisplayNames[activeParticipant - 1]
+      : null;
+
+  const isSpectator =
+    !!user &&
+    draft?.rules?.online &&
+    draft.rules?.seatAssignments &&
+    !draft.rules.seatAssignments.includes(user.id);
+
   const allTeams = (score?.teams ?? []) as Array<
     NonNullable<ScoreResponse["teams"]>[number]
   >;
 
   useEffect(() => {
     if (!draft || !draftComplete) return;
+
+    if (!user) {
+      alert("Log in to save drafts and show up on leaderboards.");
+      return;
+    }
 
     fetch(`${API_URL}/drafts/${draft.id}/save`, {
       method: "POST",
@@ -1303,8 +1336,29 @@ export default function DraftPage() {
 
             {activeParticipant && (
               <p className="text-xs mt-1 text-indigo-300">
-                On the clock: Player {activeParticipant}
+                On the clock:{" "}
+                {activeSeatName ? (
+                  <>
+                    {activeSeatName}{" "}
+                    <span className="text-slate-400">
+                      (Player {activeParticipant})
+                    </span>
+                  </>
+                ) : (
+                  <>Player {activeParticipant}</>
+                )}
                 {timerActive && timeLeft !== null && <> • {timeLeft}s</>}
+              </p>
+            )}
+
+            {draft.rules?.online && user && (
+              <p className="text-[11px] mt-1 text-slate-400">
+                You are{" "}
+                {isSpectator ? (
+                  <span className="text-amber-300">spectating this draft</span>
+                ) : (
+                  <span className="text-emerald-300">seated in this draft</span>
+                )}
               </p>
             )}
           </div>
@@ -1540,56 +1594,6 @@ export default function DraftPage() {
                         </div>
                       )}
                     </div>
-
-                    {/* {teamScore && (
-                      <div className="mb-2 mt-1 flex gap-2">
-                        <div className="flex-1 space-y-1.5">
-                          <ChemistryBar
-                            label="Spacing"
-                            value={
-                              (teamScore.picks.filter(
-                                (p) => (p.threeRate ?? 0) >= 0.33
-                              ).length /
-                                safeLen(teamScore.picks)) *
-                              100
-                            }
-                            good={true}
-                          />
-                          <ChemistryBar
-                            label="Size"
-                            value={Math.min(
-                              100,
-                              (teamScore.picks.reduce(
-                                (s, p) => s + (p.heightInches ?? 78),
-                                0
-                              ) /
-                                safeLen(teamScore.picks) -
-                                72) *
-                                6
-                            )}
-                            good={true}
-                          />
-                          <ChemistryBar
-                            label="Usage Balance"
-                            value={
-                              100 -
-                              Math.min(
-                                100,
-                                Math.abs(
-                                  teamScore.picks.reduce(
-                                    (s, p) => s + (p.usgPct ?? 20),
-                                    0
-                                  ) /
-                                    safeLen(teamScore.picks) -
-                                    22
-                                ) * 6
-                              )
-                            }
-                            good={true}
-                          />
-                        </div>
-                      </div>
-                    )} */}
 
                     {/* Player slots */}
                     <div className="flex flex-col gap-2">

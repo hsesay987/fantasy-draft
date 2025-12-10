@@ -7,6 +7,7 @@ import {
   TeamFitContext,
   NbaPosition,
 } from "../lib/scoring/nba";
+import { getIo } from "../socket";
 
 /* -------------------------------------------------------------------------- */
 /*                               NORMALIZE TEAM                               */
@@ -115,6 +116,13 @@ export type DraftRules = {
   teamLandedOn?: string;
 
   savedState?: any;
+
+  // 🔹 ONLINE
+  online?: boolean;
+  roomCode?: string;
+  seatAssignments?: string[]; // index 0 → Player 1 userId, etc.
+  seatDisplayNames?: string[]; // index 0 → label for Player 1
+  hostUserId?: string;
 };
 
 export interface ScoreResponse {
@@ -251,7 +259,7 @@ function chooseSeasonForScoring(
 /*                                CREATE DRAFT                                */
 /* -------------------------------------------------------------------------- */
 
-export async function createDraft(data: any) {
+export async function createDraft(data: any, userId?: string) {
   const rules: DraftRules = data.rules || {};
   rules.mode = data.mode as DraftRules["mode"];
 
@@ -322,41 +330,13 @@ export async function createDraft(data: any) {
     data: {
       ...data,
       gameId: game.id,
+      ownerId: userId ?? null,
       rules: rulesJson,
       participants,
       playersPerTeam,
     },
   });
 }
-// export async function createDraft(data: any) {
-//   const rules: DraftRules = data.rules || {};
-//   rules.mode = data.mode;
-
-//   if (data.mode === "classic") {
-//     rules.participants = 2;
-//     rules.playersPerTeam = 6;
-//     rules.statMode = "peak-era-team";
-//     rules.pickTimerSeconds = 60;
-//     rules.autoPickEnabled = true;
-//   }
-
-//   if (!rules.statMode) rules.statMode = rules.peakMode || "peak";
-
-//   const rulesJson = jsonSafe(rules);
-//   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
-//     data,
-//     rules
-//   );
-
-//   return prisma.draft.create({
-//     data: {
-//       ...data,
-//       rules: rulesJson,
-//       participants,
-//       playersPerTeam,
-//     },
-//   });
-// }
 
 /* -------------------------------------------------------------------------- */
 /*                                  GET DRAFT                                 */
@@ -371,6 +351,20 @@ export async function getDraft(id: string) {
         orderBy: { slot: "asc" },
       },
       votes: true,
+    },
+  });
+}
+
+export async function getDraftsByOwner(ownerId: string) {
+  return prisma.draft.findMany({
+    where: { ownerId },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      mode: true,
+      createdAt: true,
+      rules: true,
     },
   });
 }
@@ -411,7 +405,19 @@ export async function saveDraftState(
     savedAt: new Date().toISOString(),
   });
 
-  return prisma.draft.update({
+  // return prisma.draft.update({
+  //   where: { id },
+  //   data: { rules: mergedRules },
+  //   include: {
+  //     picks: {
+  //       include: { player: true },
+  //       orderBy: { slot: "asc" },
+  //     },
+  //     votes: true,
+  //   },
+  // });
+
+  const saved = await prisma.draft.update({
     where: { id },
     data: { rules: mergedRules },
     include: {
@@ -422,6 +428,15 @@ export async function saveDraftState(
       votes: true,
     },
   });
+
+  // broadcast updated draft
+  const updated = await getDraft(id);
+  const io = getIo();
+  if (io && updated) {
+    io.to(`draft:${id}`).emit("draft:update", updated);
+  }
+
+  return saved;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -430,7 +445,12 @@ export async function saveDraftState(
 
 export async function updatePick(
   draftId: string,
-  data: { slot: number; playerId: string; position: string }
+  data: {
+    slot: number;
+    playerId: string;
+    position: string;
+    userId?: string | null;
+  }
 ) {
   const draft = await getDraft(draftId);
   if (!draft) throw new Error("Draft not found");
@@ -447,6 +467,16 @@ export async function updatePick(
 
   const totalPicks = draft.picks.length;
   const activeParticipant = (totalPicks % participants) + 1;
+
+  // 🔹 NEW: enforce by userId when online
+  const seatAssignments: string[] | undefined = (rules as any).seatAssignments;
+
+  if (rules.online && seatAssignments && seatAssignments.length) {
+    const expectedUserId = seatAssignments[activeParticipant - 1];
+    if (expectedUserId && expectedUserId !== data.userId) {
+      throw new Error("Not your turn");
+    }
+  }
 
   const slotParticipant = Math.floor((data.slot - 1) / playersPerTeam) + 1;
   if (slotParticipant !== activeParticipant) throw new Error("Not your turn");
@@ -495,7 +525,7 @@ export async function updatePick(
     }
   }
 
-  return prisma.nBADraftPick.create({
+  const pick = await prisma.nBADraftPick.create({
     data: {
       draftId,
       slot: data.slot,
@@ -506,6 +536,15 @@ export async function updatePick(
       teamUsed: rules.teamLandedOn ?? draft.teamConstraint ?? null,
     },
   });
+
+  // broadcast updated draft
+  const updated = await getDraft(draftId);
+  const io = getIo();
+  if (io && updated) {
+    io.to(`draft:${draftId}`).emit("draft:update", updated);
+  }
+
+  return pick;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -518,7 +557,16 @@ export async function undoPick(draftId: string, slot: number) {
   });
   if (existing)
     await prisma.nBADraftPick.delete({ where: { id: existing.id } });
-  return getDraft(draftId);
+  // return getDraft(draftId);
+
+  // broadcast updated draft
+  const updated = await getDraft(draftId);
+  const io = getIo();
+  if (io && updated) {
+    io.to(`draft:${draftId}`).emit("draft:update", updated);
+  }
+
+  return updated;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -617,6 +665,19 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
     winner = teamList.reduce((best, curr) =>
       curr.teamScore > best.teamScore ? curr : best
     ).participant;
+  }
+
+  // After computing teamList and winner inside scoreDraft:
+  if (winner && draft.gameId && draft.ownerId) {
+    // basic: credit owner with teamScore / avgScore
+    // Or, if you later track which user is which participant, map them properly.
+    await prisma.gameResult.create({
+      data: {
+        gameId: draft.gameId,
+        userId: draft.ownerId,
+        score: teamList.find((t) => t.participant === winner)?.teamScore ?? 0,
+      },
+    });
   }
 
   const allPicks = teamList.flatMap((t) => t.picks);

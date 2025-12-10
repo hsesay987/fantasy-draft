@@ -1,6 +1,7 @@
 // src/controllers/draft.controller.ts
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
+import { AuthedRequest } from "../middleware/auth";
 import * as DraftService from "../services/draft.service";
 
 export async function listDrafts(req: Request, res: Response) {
@@ -11,9 +12,15 @@ export async function listDrafts(req: Request, res: Response) {
   return res.json(drafts);
 }
 
-export async function createDraft(req: Request, res: Response) {
-  const draft = await DraftService.createDraft(req.body);
-  return res.status(201).json(draft);
+export async function createDraft(req: AuthedRequest, res: Response) {
+  const ownerId = (req as any).user?.id ?? null;
+  try {
+    const draft = await DraftService.createDraft(req.body, ownerId);
+    res.status(201).json(draft);
+  } catch (e: any) {
+    console.error(e);
+    res.status(500).json({ error: "Failed to create draft" });
+  }
 }
 
 export async function getDraft(req: Request, res: Response) {
@@ -50,18 +57,20 @@ export async function saveDraft(req: Request, res: Response) {
 }
 
 export async function updatePick(req: Request, res: Response) {
+  const draftId = req.params.id;
+  const { slot, playerId, position } = req.body;
+  const userId = (req as any).user?.id || null;
+
   try {
-    const pick = await DraftService.updatePick(req.params.id, {
-      slot: Number(req.body.slot),
-      playerId: req.body.playerId,
-      position: req.body.position,
+    const pick = await DraftService.updatePick(draftId, {
+      slot,
+      playerId,
+      position,
+      userId,
     });
-    return res.json(pick);
+    res.json(pick);
   } catch (e: any) {
-    console.error(e);
-    return res
-      .status(400)
-      .json({ error: e.message || "Failed to update pick" });
+    res.status(400).json({ error: e.message || "Pick failed" });
   }
 }
 
@@ -113,4 +122,10 @@ export async function getDraftSuggestions(req: Request, res: Response) {
       .status(400)
       .json({ error: e.message || "Failed to get suggestions" });
   }
+}
+
+export async function getMyDrafts(req: Request, res: Response) {
+  const userId = (req as any).user.id; // adapt to your auth typing
+  const drafts = await DraftService.getDraftsByOwner(userId);
+  res.json(drafts);
 }

@@ -13,14 +13,89 @@ datasource db {
   provider = "postgresql"
 }
 
-model Game {
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  name          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  emailVerified Boolean  @default(false)
+
+  // relationships
+  drafts             Draft[]
+  rooms              Room[]              @relation("RoomHost")
+  roomMembers        RoomParticipant[]
+  gameResults        GameResult[]
+  verificationTokens VerificationToken[]
+}
+
+model VerificationToken {
   id        String   @id @default(cuid())
-  type      String // "DRAFT" | "IMPOSTER" | "QUIZ" | "AUX" | "LINEUP"
-  category  String // "SPORTS" | "FOOD" | "ANIME" | "TV" | "MUSIC"
-  subtype   String? // "NBA" | "NFL" | "ANIME" | "FOOD"
-  title     String?
+  userId    String
+  token     String   @unique
   createdAt DateTime @default(now())
-  drafts    Draft[]
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model GameResult {
+  id        String   @id @default(cuid())
+  gameId    String
+  userId    String
+  score     Float
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@index([gameId])
+  @@index([userId])
+}
+
+model Game {
+  id          String       @id @default(cuid())
+  type        String // "DRAFT" | "IMPOSTER" | "QUIZ" | "AUX" | "LINEUP"
+  category    String // "SPORTS" | "FOOD" | "ANIME" | "TV" | "MUSIC"
+  subtype     String? // "NBA" | "NFL" | "ANIME" | "FOOD"
+  title       String?
+  createdAt   DateTime     @default(now())
+  drafts      Draft[]
+  gameResults GameResult[]
+}
+
+model Room {
+  id       String  @id @default(cuid())
+  code     String  @unique
+  name     String?
+  isPublic Boolean @default(false)
+  status   String  @default("lobby") // "lobby" | "in_progress" | "completed"
+
+  hostId String
+  host   User   @relation("RoomHost", fields: [hostId], references: [id])
+
+  gameType String // "DRAFT" | "IMPOSTER" | ...
+  gameId   String? // tie to Game or Draft (depending on how you want)
+
+  createdAt DateTime @default(now())
+
+  participants RoomParticipant[]
+}
+
+model RoomParticipant {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  isHost    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  room Room @relation(fields: [roomId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([roomId, userId])
 }
 
 model NBAPlayer {
@@ -114,6 +189,9 @@ model Draft {
   rules          Json // { maxPpgCap, overallCap, hallRule, multiTeamOnly, playedWithPlayerId, peakMode }
   participants   Int    @default(1)
   playersPerTeam Int    @default(6)
+
+  ownerId String? // nullable for anonymous/offline games
+  owner   User?   @relation(fields: [ownerId], references: [id])
 
   picks NBADraftPick[]
   votes Vote[]
