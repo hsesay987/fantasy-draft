@@ -18,6 +18,10 @@ export type SearchPlayersInput = {
   imaegeUrl?: string; // NEW: filter by imageUrl presence
 };
 
+function stripAccents(text: string) {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 /* -------------------------------------------------------
    TEAM NORMALIZATION (historical → modern franchises)
 ------------------------------------------------------- */
@@ -276,6 +280,14 @@ export async function searchPlayers(input: SearchPlayersInput) {
           }
         : null,
     });
+  }
+
+  // Accent-insensitive filter for queries like "jokic" matching "Jokić"
+  if (q) {
+    const normQ = stripAccents(q).toLowerCase();
+    return results
+      .filter((p) => stripAccents(p.name).toLowerCase().includes(normQ))
+      .slice(0, rawLimit);
   }
 
   return results.slice(0, rawLimit);
