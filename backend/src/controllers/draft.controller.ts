@@ -13,7 +13,7 @@ export async function listDrafts(req: Request, res: Response) {
 }
 
 export async function createDraft(req: AuthedRequest, res: Response) {
-  const ownerId = (req as any).user?.id ?? null;
+  const ownerId = req.userId ?? null;
   try {
     const draft = await DraftService.createDraft(req.body, ownerId);
     res.status(201).json(draft);
@@ -56,10 +56,10 @@ export async function saveDraft(req: Request, res: Response) {
   }
 }
 
-export async function updatePick(req: Request, res: Response) {
+export async function updatePick(req: AuthedRequest, res: Response) {
   const draftId = req.params.id;
-  const { slot, playerId, position } = req.body;
-  const userId = (req as any).user?.id || null;
+  const { slot, playerId, position, teamLandedOn, eraFrom, eraTo } = req.body;
+  const userId = req.userId || null;
 
   try {
     const pick = await DraftService.updatePick(draftId, {
@@ -67,6 +67,9 @@ export async function updatePick(req: Request, res: Response) {
       playerId,
       position,
       userId,
+      teamOverride: teamLandedOn,
+      eraFromOverride: eraFrom,
+      eraToOverride: eraTo,
     });
     res.json(pick);
   } catch (e: any) {
@@ -124,8 +127,13 @@ export async function getDraftSuggestions(req: Request, res: Response) {
   }
 }
 
-export async function getMyDrafts(req: Request, res: Response) {
-  const userId = (req as any).user.id; // adapt to your auth typing
+export async function getMyDrafts(req: AuthedRequest, res: Response) {
+  const userId = req.userId;
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   const drafts = await DraftService.getDraftsByOwner(userId);
   res.json(drafts);
 }

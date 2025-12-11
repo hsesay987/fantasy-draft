@@ -179,7 +179,8 @@ function getParticipantsAndPlayersPerTeam(draft: any, rules: DraftRules) {
 function chooseSeasonForScoring(
   player: any,
   rules: DraftRules,
-  era: NbaEraContext
+  era: NbaEraContext,
+  opts?: { teamOverride?: string | null; seasonOverride?: number | null }
 ) {
   if (!player || !player.seasonStats?.length) return null;
   const stats = player.seasonStats;
@@ -192,9 +193,14 @@ function chooseSeasonForScoring(
   const eraFromInclusive =
     eraFrom && !isClassic ? eraFrom - 1 : eraFrom ?? undefined;
 
-  const spunTeam = rules.teamLandedOn
-    ? normalizeFranchise(rules.teamLandedOn)
-    : null;
+  const spunTeam =
+    opts?.teamOverride !== undefined
+      ? opts.teamOverride
+        ? normalizeFranchise(opts.teamOverride)
+        : null
+      : rules.teamLandedOn
+        ? normalizeFranchise(rules.teamLandedOn)
+        : null;
 
   const eraFilter = (s: any) => {
     if (eraFromInclusive && s.season < eraFromInclusive) return false;
@@ -211,6 +217,17 @@ function chooseSeasonForScoring(
 
   const mode: StatMode =
     rules.statMode || rules.peakMode || (isClassic ? "peak-era-team" : "peak");
+
+  // If a specific season was already locked (e.g., earlier spin), honor it
+  if (opts?.seasonOverride != null) {
+    const seasonMatch = stats.find((s: any) => s.season === opts.seasonOverride);
+    if (seasonMatch && (!spunTeam || normalizeFranchise(seasonMatch.team) === spunTeam)) {
+      return { seasonUsed: seasonMatch.season, statLine: seasonMatch as NbaStatLine };
+    }
+    if (seasonMatch) {
+      return { seasonUsed: seasonMatch.season, statLine: seasonMatch as NbaStatLine };
+    }
+  }
 
   const peak = (list: any[]) => {
     if (!list.length) return null;
@@ -315,6 +332,7 @@ export async function createDraft(data: any, userId?: string) {
     data,
     rules
   );
+  const maxPlayers = participants * playersPerTeam;
 
   // ✅ CREATE GAME FIRST
   const game = await prisma.game.create({
@@ -326,7 +344,7 @@ export async function createDraft(data: any, userId?: string) {
     },
   });
 
-  return prisma.draft.create({
+  const draft = await prisma.draft.create({
     data: {
       ...data,
       gameId: game.id,
@@ -334,8 +352,23 @@ export async function createDraft(data: any, userId?: string) {
       rules: rulesJson,
       participants,
       playersPerTeam,
+      maxPlayers,
     },
   });
+
+  // 🔹 If this draft was started from an online room, notify lobby clients
+  if ((rules as any).online && (rules as any).roomCode) {
+    const io = getIo();
+    const roomCode = (rules as any).roomCode as string;
+
+    if (io && roomCode) {
+      io.to(`room:${roomCode}`).emit("room:draft-started", {
+        draftId: draft.id,
+      });
+    }
+  }
+
+  return draft;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -450,6 +483,9 @@ export async function updatePick(
     playerId: string;
     position: string;
     userId?: string | null;
+    teamOverride?: string | null;
+    eraFromOverride?: number | null;
+    eraToOverride?: number | null;
   }
 ) {
   const draft = await getDraft(draftId);
@@ -491,11 +527,18 @@ export async function updatePick(
   if (!player) throw new Error("Player not found");
 
   const eraCtx = {
-    eraFrom: rules.eraFrom ?? draft.eraFrom ?? undefined,
-    eraTo: rules.eraTo ?? draft.eraTo ?? undefined,
+    eraFrom:
+      data.eraFromOverride ??
+      rules.eraFrom ??
+      draft.eraFrom ??
+      undefined,
+    eraTo:
+      data.eraToOverride ?? rules.eraTo ?? draft.eraTo ?? undefined,
   };
 
-  const chosen = chooseSeasonForScoring(player, rules, eraCtx);
+  const chosen = chooseSeasonForScoring(player, rules, eraCtx, {
+    teamOverride: data.teamOverride ?? rules.teamLandedOn ?? null,
+  });
   if (!chosen) throw new Error("No valid season");
 
   // Casual PPG cap: prevent team from exceeding maxPpgCap
@@ -506,11 +549,10 @@ export async function updatePick(
       if (existing.ownerIndex !== activeParticipant) continue;
       if (!existing.player) continue;
 
-      const existingChoice = chooseSeasonForScoring(
-        existing.player,
-        rules,
-        eraCtx
-      );
+      const existingChoice = chooseSeasonForScoring(existing.player, rules, eraCtx, {
+        teamOverride: existing.teamUsed ?? null,
+        seasonOverride: existing.seasonUsed ?? null,
+      });
       if (existingChoice) {
         teamTotalPpg += existingChoice.statLine.ppg;
       }
@@ -533,8 +575,24 @@ export async function updatePick(
       position: data.position,
       ownerIndex: activeParticipant,
       seasonUsed: chosen.seasonUsed ?? null,
-      teamUsed: rules.teamLandedOn ?? draft.teamConstraint ?? null,
+      teamUsed:
+        data.teamOverride ??
+        rules.teamLandedOn ??
+        draft.teamConstraint ??
+        null,
     },
+  });
+
+  // Clear saved spin state so next turn starts fresh
+  const nextRules = jsonSafe({
+    ...(draft.rules as any),
+    ...(draft.rules as any)?.savedState,
+  });
+  delete (nextRules as any).savedState;
+
+  await prisma.draft.update({
+    where: { id: draftId },
+    data: { rules: nextRules },
   });
 
   // broadcast updated draft
@@ -552,6 +610,18 @@ export async function updatePick(
 /* -------------------------------------------------------------------------- */
 
 export async function undoPick(draftId: string, slot: number) {
+  const draft = await getDraft(draftId);
+  if (!draft) throw new Error("Draft not found");
+
+  const rules: DraftRules = {
+    ...(draft.rules as any),
+    ...(draft.rules as any)?.savedState,
+  };
+
+  if (rules.online) {
+    throw new Error("Undo is disabled for online drafts");
+  }
+
   const existing = await prisma.nBADraftPick.findFirst({
     where: { draftId, slot },
   });
@@ -601,7 +671,10 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
   for (const pick of draft.picks) {
     if (!pick.ownerIndex) continue;
 
-    const choice = chooseSeasonForScoring(pick.player, rules, eraCtx);
+    const choice = chooseSeasonForScoring(pick.player, rules, eraCtx, {
+      teamOverride: pick.teamUsed ?? null,
+      seasonOverride: pick.seasonUsed ?? null,
+    });
     if (!choice) continue;
 
     if (!teams.has(pick.ownerIndex)) {

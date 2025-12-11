@@ -11,7 +11,7 @@ router.get("/", DraftController.listDrafts);
 router.get("/:id", DraftController.getDraft);
 router.post("/", DraftController.createDraft);
 router.get("/my", authRequired, DraftController.getMyDrafts);
-router.patch("/:id", DraftController.updatePick);
+router.patch("/:id", authRequired, DraftController.updatePick);
 router.post("/:id/save", authRequired, async (req: AuthedRequest, res) => {
   try {
     const draftId = req.params.id;

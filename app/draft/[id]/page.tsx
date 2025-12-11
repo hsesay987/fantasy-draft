@@ -492,6 +492,22 @@ export default function DraftPage() {
     });
   }, [draft, activeParticipant]);
 
+  // Keep local spin locks in sync with saved state so all players see the spinner result
+  useEffect(() => {
+    const saved = draft?.rules?.savedState as
+      | { teamLandedOn?: string; eraFrom?: number; eraTo?: number }
+      | undefined;
+
+    if (saved?.teamLandedOn) {
+      setLockedTeam(saved.teamLandedOn);
+      setCurrentSpinTeam(saved.teamLandedOn);
+    }
+    if (saved?.eraFrom && saved?.eraTo) {
+      setLockedEra({ from: saved.eraFrom, to: saved.eraTo });
+      setEraSpinLabel(`${saved.eraFrom}-${saved.eraTo}`);
+    }
+  }, [draft?.rules?.savedState]);
+
   /***************************************************************************/
   /*                        BUILD SEARCH PARAMS (UPDATED)                    */
   /***************************************************************************/
@@ -723,6 +739,18 @@ export default function DraftPage() {
         position,
         ownerIndex: activeParticipant,
         mode: draft.rules?.mode,
+        teamLandedOn:
+          lockedTeam ?? draft.rules?.savedState?.teamLandedOn ?? null,
+        eraFrom:
+          lockedEra?.from ??
+          draft.rules?.savedState?.eraFrom ??
+          draft.eraFrom ??
+          null,
+        eraTo:
+          lockedEra?.to ??
+          draft.rules?.savedState?.eraTo ??
+          draft.eraTo ??
+          null,
       }),
     });
 
@@ -754,6 +782,10 @@ export default function DraftPage() {
   /***************************************************************************/
   async function handleUndo(slot: number, e?: React.MouseEvent) {
     if (draft?.picks.length === 0) return;
+    if (draft?.rules?.online) {
+      alert("Undo is disabled for online drafts.");
+      return;
+    }
 
     if (e) e.stopPropagation();
     if (!draft) return;
@@ -811,7 +843,10 @@ export default function DraftPage() {
 
     await fetch(`${API_URL}/drafts/${draft.id}/save`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify({
         status: "saved",
       }),
@@ -885,6 +920,10 @@ export default function DraftPage() {
 
   function handleSpinEraTeam() {
     if (!draft) return;
+    if (draft.rules?.online && !amOnClock) {
+      alert("Only the active player can spin right now.");
+      return;
+    }
 
     const isClassicMode = draft.mode === "classic";
     const allowRespin = draft.rules?.allowRespinsWithoutPick || !isClassicMode;
@@ -914,7 +953,10 @@ export default function DraftPage() {
         // SAVE SPIN TO BACKEND (IMPORTANT)
         await fetch(`${API_URL}/drafts/${draft.id}/save`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({
             savedState: {
               teamLandedOn: final.team,
@@ -1107,13 +1149,15 @@ export default function DraftPage() {
               />
             </div>
 
-            {/* Undo */}
-            <button
-              onClick={(e) => onUndo(slot, e)}
-              className="absolute top-1 right-1 z-20 rounded-full bg-slate-950/80 px-1.5 py-[1px] text-[8px] font-semibold text-red-300 hover:text-red-100 hover:bg-red-700/60 border border-red-500/40"
-            >
-              Undo
-            </button>
+            {/* Undo (disabled in online drafts) */}
+            {!draft?.rules?.online && (
+              <button
+                onClick={(e) => onUndo(slot, e)}
+                className="absolute top-1 right-1 z-20 rounded-full bg-slate-950/80 px-1.5 py-[1px] text-[8px] font-semibold text-red-300 hover:text-red-100 hover:bg-red-700/60 border border-red-500/40"
+              >
+                Undo
+              </button>
+            )}
 
             <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-[#020617dd] to-transparent" />
           </div>
@@ -1209,6 +1253,13 @@ export default function DraftPage() {
     draft.rules?.seatAssignments &&
     !draft.rules.seatAssignments.includes(user.id);
 
+  const activeSeatUserId =
+    draft?.rules?.seatAssignments && activeParticipant
+      ? draft.rules.seatAssignments[activeParticipant - 1]
+      : null;
+
+  const amOnClock = !!user && activeSeatUserId === user.id;
+
   const allTeams = (score?.teams ?? []) as Array<
     NonNullable<ScoreResponse["teams"]>[number]
   >;
@@ -1223,7 +1274,10 @@ export default function DraftPage() {
 
     fetch(`${API_URL}/drafts/${draft.id}/save`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify({ status: "complete" }),
     });
   }, [draft, draftComplete]);
@@ -1365,14 +1419,16 @@ export default function DraftPage() {
 
           {/* Draft Actions */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleSaveDraft}
-              className="px-3 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-xs font-semibold text-slate-900"
-            >
-              💾 Save
-            </button>
+            {!isOnline && (
+              <button
+                onClick={handleSaveDraft}
+                className="px-3 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-xs font-semibold text-slate-900"
+              >
+                💾 Save
+              </button>
+            )}
 
-            {!draftComplete && (
+            {!draftComplete && !isOnline && (
               <button
                 onClick={handlePauseDraft}
                 className="px-3 py-1.5 rounded-md bg-yellow-500 hover:bg-yellow-400 text-xs font-semibold text-slate-900"
@@ -1395,6 +1451,13 @@ export default function DraftPage() {
               ✖ Cancel
             </button>
           </div>
+
+          {isOnline && (
+            <p className="text-[11px] text-slate-400">
+              Online drafts auto-save after each pick. Cancel will end the room
+              for everyone.
+            </p>
+          )}
 
           {/* Score & Leaders Summary */}
           {score && (

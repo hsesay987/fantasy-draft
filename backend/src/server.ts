@@ -44,6 +44,6 @@ app.use(
 const server = http.createServer(app);
 initSocket(server, corsOrigin);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`API server running on http://localhost:${PORT}`);
 });
