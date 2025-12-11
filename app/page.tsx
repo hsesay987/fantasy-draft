@@ -1,3 +1,4 @@
+// app/page.tsx
 "use client";
 
 import Image from "next/image";
@@ -63,8 +64,70 @@ export default function MainHomePage() {
           Competitive games across sports, culture, and creativity.
         </p>
       </header>
-
       <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {games.map((game) => {
+          const isDraft = game.id === "draft";
+
+          return (
+            <div
+              key={game.id}
+              className={`relative overflow-hidden rounded-2xl border transition-all ${
+                game.enabled
+                  ? "border-indigo-500 hover:shadow-indigo-500/40"
+                  : "border-slate-700 opacity-60 cursor-not-allowed"
+              }`}
+            >
+              <div
+                className={`relative h-48 ${
+                  game.enabled ? "cursor-pointer" : "cursor-not-allowed"
+                }`}
+                onClick={() =>
+                  game.enabled && game.route && router.push(game.route)
+                }
+              >
+                <Image
+                  src={game.image}
+                  alt={game.name}
+                  fill
+                  className={`object-cover ${!game.enabled ? "grayscale" : ""}`}
+                />
+              </div>
+
+              <div className="p-4 text-left">
+                <h3 className="text-xl font-semibold">{game.name}</h3>
+                <p className="text-sm text-slate-400 mb-3">
+                  {game.enabled ? "Choose your mode" : "Coming soon"}
+                </p>
+
+                {isDraft && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => router.push("/draft")}
+                      className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2"
+                    >
+                      Offline Drafts
+                    </button>
+                    <button
+                      onClick={() => router.push("/online")}
+                      className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2"
+                    >
+                      Online Drafts
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {!game.enabled && (
+                <span className="absolute top-2 right-2 bg-slate-800 text-xs px-2 py-1 rounded">
+                  Soon
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </section>
+
+      {/* <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {games.map((game) => (
           <button
             key={game.id}
@@ -101,7 +164,7 @@ export default function MainHomePage() {
             )}
           </button>
         ))}
-      </section>
+      </section> */}
     </main>
   );
 }

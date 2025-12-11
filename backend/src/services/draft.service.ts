@@ -723,7 +723,7 @@ export async function getDraftSuggestions(draftId: string, limit = 5) {
     ...(draft.rules as any)?.savedState,
   };
 
-  // ✅ Classic is always pure — no suggestions
+  // Classic is always pure — no suggestions
   if (rules.mode !== "casual" || rules.suggestionsEnabled === false) {
     return [];
   }
@@ -732,6 +732,15 @@ export async function getDraftSuggestions(draftId: string, limit = 5) {
     eraFrom: rules.eraFrom ?? draft.eraFrom ?? undefined,
     eraTo: rules.eraTo ?? draft.eraTo ?? undefined,
   };
+
+  const spunTeam = rules.teamLandedOn
+    ? normalizeFranchise(rules.teamLandedOn)
+    : null;
+
+  // 🔒 Only suggest when we have at least era or team context
+  if (!spunTeam && !eraCtx.eraFrom && !eraCtx.eraTo) {
+    return [];
+  }
 
   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
     draft,
@@ -775,11 +784,20 @@ export async function getDraftSuggestions(draftId: string, limit = 5) {
       ? player.eligiblePositions.split(",").map((p) => p.trim())
       : [player.position];
 
-    if (requiredPosition && !eligiblePositions.includes(requiredPosition))
+    if (requiredPosition && !eligiblePositions.includes(requiredPosition)) {
       continue;
+    }
 
+    // pick best season given rules + era + team
     const chosen = chooseSeasonForScoring(player, rules, eraCtx);
     if (!chosen) continue;
+
+    // Optionally: if a team is spun AND mode is "peak-era-team" or classic-like,
+    // skip players whose chosen season is not on that team.
+    if (spunTeam) {
+      const normalizedSeasonTeam = normalizeFranchise(chosen.statLine.team);
+      if (normalizedSeasonTeam !== spunTeam) continue;
+    }
 
     // Casual PPG cap
     if (

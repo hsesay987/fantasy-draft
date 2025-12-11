@@ -1,3 +1,4 @@
+// app/draft/new/page.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -20,8 +21,20 @@ export default function NewDraftPage() {
 
   const [title, setTitle] = useState("");
 
+  type StatMode =
+    | "peak"
+    | "average"
+    | "peak-era"
+    | "peak-team"
+    | "peak-era-team"
+    | "average-era"
+    | "average-era-team"
+    | "career-avg"
+    | "best-any";
+
   // Classic | Casual | Free
   const [mode, setMode] = useState<"classic" | "casual" | "free">("classic");
+  const [statMode, setStatMode] = useState<StatMode>("peak");
 
   // Base states
   const [randomEra, setRandomEra] = useState(true);
@@ -46,7 +59,6 @@ export default function NewDraftPage() {
   // const [overallCap, setOverallCap] = useState<number | "">("");
   const [hallRule, setHallRule] = useState<"any" | "none">("any");
   const [multiTeamOnly, setMultiTeamOnly] = useState(false);
-  const [peakMode, setPeakMode] = useState<"peak" | "average">("peak");
 
   const [loading, setLoading] = useState(false);
   const [showRules, setShowRules] = useState(false);
@@ -76,7 +88,7 @@ export default function NewDraftPage() {
       setRequirePositions(true);
       setHallRule("any");
       setMultiTeamOnly(false);
-      setPeakMode("peak");
+      setStatMode("peak-era-team");
       setEraFrom("");
       setEraTo("");
       setTeamConstraint("");
@@ -141,7 +153,7 @@ export default function NewDraftPage() {
         multiTeamOnly: isClassic ? false : multiTeamOnly,
 
         // For classic, backend will force statMode = "peak-era-team"
-        peakMode: mode === "classic" ? "peak-era-team" : peakMode,
+        statMode: mode === "classic" ? "peak-era-team" : statMode,
 
         participants,
         playersPerTeam,
@@ -593,12 +605,35 @@ export default function NewDraftPage() {
                 Stat Mode
                 <select
                   disabled={false} // always allowed
-                  value={peakMode}
-                  onChange={(e) => setPeakMode(e.target.value as any)}
+                  value={statMode}
+                  onChange={(e) => setStatMode(e.target.value as any)}
                   className="mt-1 w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700"
                 >
-                  <option value="peak">Peak Season</option>
-                  <option value="average">Era Average</option>
+                  <option disabled={isClassic!} value="peak">
+                    Peak Season
+                  </option>
+                  <option disabled={isClassic!} value="average">
+                    Era Average
+                  </option>
+                  <option disabled={isClassic!} value="peak-era">
+                    Peak in Era
+                  </option>
+                  <option disabled={isClassic!} value="peak-team">
+                    Peak with Team
+                  </option>
+                  <option value="peak-era-team">Peak in Era & Team</option>
+                  <option disabled={isClassic!} value="average-era">
+                    Average in Era
+                  </option>
+                  <option value="average-era-team">
+                    Average in Era & Team
+                  </option>
+                  <option disabled={isClassic!} value="career-avg">
+                    Career Average
+                  </option>
+                  <option disabled={isClassic!} value="best-any">
+                    Best Any Season
+                  </option>
                 </select>
               </label>
             </div>

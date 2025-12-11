@@ -40,6 +40,8 @@ export interface NbaStatLine {
   allRookie?: boolean; // optional, from End Of Season Teams
   mvpShare?: number | null; // 0–1 (pts_won / pts_max)
   dpoyShare?: number | null; // 0–1
+
+  team?: string | null; // franchise normalization helper
 }
 
 export interface NbaEraContext {
