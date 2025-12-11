@@ -190,8 +190,9 @@ const ERA_1970s = [
   "BKN",
   "SAS",
 ];
-const ERA_1980s = [...ERA_1970s, "DAL", "CHA", "MIA", "MIN", "ORL"];
-const ERA_1990s = [...ERA_1980s, "TOR", "MEM"];
+// Timberwolves debuted in 1989-90; exclude them from 1980s spins
+const ERA_1980s = [...ERA_1970s, "DAL", "CHA", "MIA", "ORL"];
+const ERA_1990s = [...ERA_1980s, "MIN", "TOR", "MEM"];
 const ERA_2000s = [...ERA_1990s];
 const ERA_MODERN = [
   "ATL",

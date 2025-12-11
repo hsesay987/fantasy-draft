@@ -28,6 +28,10 @@ function normalizeFranchise(raw: string | null | undefined): string | null {
   if (t === "TOT") return null;
 
   switch (t) {
+    case "PHO":
+    case "PHX":
+      return "PHX";
+
     case "PHW":
     case "SFW":
     case "GSW":
