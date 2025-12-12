@@ -11,6 +11,7 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const email_1 = require("../lib/email");
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 function signToken(userId) {
@@ -35,9 +36,27 @@ async function signup(req, res) {
             expiresAt,
         },
     });
-    // TODO: send actual email via nodemailer / provider
     const verifyUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
-    console.log("Verify email link:", verifyUrl);
+    try {
+        await (0, email_1.sendVerificationEmail)({
+            to: email,
+            name,
+            verifyUrl,
+        });
+    }
+    catch (err) {
+        console.error("Failed to send verification email", err);
+        try {
+            await prisma_1.default.verificationToken.deleteMany({ where: { userId: user.id } });
+            await prisma_1.default.user.delete({ where: { id: user.id } });
+        }
+        catch (cleanupErr) {
+            console.error("Failed to clean up user after email failure", cleanupErr);
+        }
+        return res
+            .status(500)
+            .json({ error: "Could not send verification email. Please try again." });
+    }
     return res.status(201).json({
         message: "Signup successful. Check your email to verify.",
     });

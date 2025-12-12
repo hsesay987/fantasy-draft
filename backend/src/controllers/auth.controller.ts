@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import prisma from "../lib/prisma";
+import { sendVerificationEmail } from "../lib/email";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
@@ -36,9 +37,26 @@ export async function signup(req: Request, res: Response) {
     },
   });
 
-  // TODO: send actual email via nodemailer / provider
   const verifyUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
-  console.log("Verify email link:", verifyUrl);
+
+  try {
+    await sendVerificationEmail({
+      to: email,
+      name,
+      verifyUrl,
+    });
+  } catch (err) {
+    console.error("Failed to send verification email", err);
+    try {
+      await prisma.verificationToken.deleteMany({ where: { userId: user.id } });
+      await prisma.user.delete({ where: { id: user.id } });
+    } catch (cleanupErr) {
+      console.error("Failed to clean up user after email failure", cleanupErr);
+    }
+    return res
+      .status(500)
+      .json({ error: "Could not send verification email. Please try again." });
+  }
 
   return res.status(201).json({
     message: "Signup successful. Check your email to verify.",
