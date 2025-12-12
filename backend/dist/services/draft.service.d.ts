@@ -1,0 +1,352 @@
+export type StatMode = "peak" | "average" | "peak-era" | "peak-team" | "peak-era-team" | "average-era" | "average-era-team" | "career-avg" | "best-any";
+export type DraftRules = {
+    hallRule?: "any" | "only" | "none";
+    maxPpgCap?: number | null;
+    overallCap?: number | null;
+    multiTeamOnly?: boolean;
+    playedWithPlayerId?: string | null;
+    peakMode?: StatMode;
+    statMode?: StatMode;
+    mode?: "classic" | "casual" | "free";
+    participants?: number;
+    playersPerTeam?: number;
+    pickTimerSeconds?: number | null;
+    autoPickEnabled?: boolean;
+    allowRespinsWithoutPick?: boolean;
+    suggestionsEnabled?: boolean;
+    eraFrom?: number;
+    eraTo?: number;
+    teamLandedOn?: string;
+    savedState?: any;
+    online?: boolean;
+    roomCode?: string;
+    seatAssignments?: string[];
+    seatDisplayNames?: string[];
+    hostUserId?: string;
+};
+export interface ScoreResponse {
+    draftId: string;
+    teamScore: number;
+    avgScore: number;
+    totalPpg: number;
+    perPlayerScores: {
+        pickId: string;
+        playerId: string;
+        name: string;
+        position: string;
+        seasonUsed?: number;
+        ppg: number;
+        score: number;
+        slot?: number;
+        ownerIndex?: number;
+        threeRate?: number | null;
+        heightInches?: number;
+        usgPct?: number;
+    }[];
+    teams?: {
+        participant: number;
+        teamScore: number;
+        totalPpg: number;
+        totalRating: number;
+        picks: ScoreResponse["perPlayerScores"];
+    }[];
+    winner?: number;
+    ruleWarnings: string[];
+}
+export declare function createDraft(data: any, userId?: string): Promise<{
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    gameId: string;
+    title: string | null;
+    league: string;
+    mode: string;
+    randomEra: boolean;
+    eraFrom: number | null;
+    eraTo: number | null;
+    randomTeam: boolean;
+    teamConstraint: string | null;
+    maxPlayers: number;
+    requirePositions: boolean;
+    scoringMethod: string;
+    rules: import("@prisma/client/runtime/client").JsonValue;
+    participants: number;
+    playersPerTeam: number;
+    ownerId: string | null;
+}>;
+export declare function getDraft(id: string): Promise<{
+    picks: ({
+        player: {
+            seasonStats: {
+                id: string;
+                playerId: string;
+                season: number;
+                team: string;
+                pos: string | null;
+                games: number | null;
+                minutes: number | null;
+                ppg: number;
+                apg: number;
+                rpg: number;
+                spg: number | null;
+                bpg: number | null;
+                tsPct: number | null;
+                threeRate: number | null;
+                usgPct: number | null;
+                per: number | null;
+                ws: number | null;
+                wsPer48: number | null;
+                bpm: number | null;
+                obpm: number | null;
+                dbpm: number | null;
+                vorp: number | null;
+                plusMinusPer100: number | null;
+                netPlusMinusPer100: number | null;
+                ptsPer36: number | null;
+                trbPer36: number | null;
+                astPer36: number | null;
+                stlPer36: number | null;
+                blkPer36: number | null;
+                allStar: boolean;
+                allNBA: number | null;
+                allDefense: number | null;
+                allRookie: boolean;
+                mvpShare: number | null;
+                dpoyShare: number | null;
+            }[];
+        } & {
+            name: string;
+            id: string;
+            firstName: string;
+            lastName: string;
+            position: string;
+            eligiblePositions: string | null;
+            imageUrl: string | null;
+            heightInches: number | null;
+            primaryTeam: string | null;
+            primaryEraFrom: number | null;
+            primaryEraTo: number | null;
+            isHallOfFamer: boolean;
+            totalTeams: number;
+        };
+    } & {
+        id: string;
+        position: string;
+        playerId: string;
+        draftId: string;
+        slot: number;
+        ownerIndex: number;
+        seasonUsed: number | null;
+        teamUsed: string | null;
+    })[];
+    votes: {
+        id: string;
+        createdAt: Date;
+        draftId: string;
+        value: number;
+    }[];
+} & {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    gameId: string;
+    title: string | null;
+    league: string;
+    mode: string;
+    randomEra: boolean;
+    eraFrom: number | null;
+    eraTo: number | null;
+    randomTeam: boolean;
+    teamConstraint: string | null;
+    maxPlayers: number;
+    requirePositions: boolean;
+    scoringMethod: string;
+    rules: import("@prisma/client/runtime/client").JsonValue;
+    participants: number;
+    playersPerTeam: number;
+    ownerId: string | null;
+}>;
+export declare function getDraftsByOwner(ownerId: string): Promise<{
+    id: string;
+    createdAt: Date;
+    title: string;
+    mode: string;
+    rules: import("@prisma/client/runtime/client").JsonValue;
+}[]>;
+export declare function cancelDraft(id: string): Promise<{
+    ok: boolean;
+}>;
+export declare function saveDraftState(id: string, savedState: any, status?: "saved" | "in_progress"): Promise<{
+    picks: ({
+        player: {
+            name: string;
+            id: string;
+            firstName: string;
+            lastName: string;
+            position: string;
+            eligiblePositions: string | null;
+            imageUrl: string | null;
+            heightInches: number | null;
+            primaryTeam: string | null;
+            primaryEraFrom: number | null;
+            primaryEraTo: number | null;
+            isHallOfFamer: boolean;
+            totalTeams: number;
+        };
+    } & {
+        id: string;
+        position: string;
+        playerId: string;
+        draftId: string;
+        slot: number;
+        ownerIndex: number;
+        seasonUsed: number | null;
+        teamUsed: string | null;
+    })[];
+    votes: {
+        id: string;
+        createdAt: Date;
+        draftId: string;
+        value: number;
+    }[];
+} & {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    gameId: string;
+    title: string | null;
+    league: string;
+    mode: string;
+    randomEra: boolean;
+    eraFrom: number | null;
+    eraTo: number | null;
+    randomTeam: boolean;
+    teamConstraint: string | null;
+    maxPlayers: number;
+    requirePositions: boolean;
+    scoringMethod: string;
+    rules: import("@prisma/client/runtime/client").JsonValue;
+    participants: number;
+    playersPerTeam: number;
+    ownerId: string | null;
+}>;
+export declare function updatePick(draftId: string, data: {
+    slot: number;
+    playerId: string;
+    position: string;
+    userId?: string | null;
+    teamOverride?: string | null;
+    eraFromOverride?: number | null;
+    eraToOverride?: number | null;
+}): Promise<{
+    id: string;
+    position: string;
+    playerId: string;
+    draftId: string;
+    slot: number;
+    ownerIndex: number;
+    seasonUsed: number | null;
+    teamUsed: string | null;
+}>;
+export declare function undoPick(draftId: string, slot: number): Promise<{
+    picks: ({
+        player: {
+            seasonStats: {
+                id: string;
+                playerId: string;
+                season: number;
+                team: string;
+                pos: string | null;
+                games: number | null;
+                minutes: number | null;
+                ppg: number;
+                apg: number;
+                rpg: number;
+                spg: number | null;
+                bpg: number | null;
+                tsPct: number | null;
+                threeRate: number | null;
+                usgPct: number | null;
+                per: number | null;
+                ws: number | null;
+                wsPer48: number | null;
+                bpm: number | null;
+                obpm: number | null;
+                dbpm: number | null;
+                vorp: number | null;
+                plusMinusPer100: number | null;
+                netPlusMinusPer100: number | null;
+                ptsPer36: number | null;
+                trbPer36: number | null;
+                astPer36: number | null;
+                stlPer36: number | null;
+                blkPer36: number | null;
+                allStar: boolean;
+                allNBA: number | null;
+                allDefense: number | null;
+                allRookie: boolean;
+                mvpShare: number | null;
+                dpoyShare: number | null;
+            }[];
+        } & {
+            name: string;
+            id: string;
+            firstName: string;
+            lastName: string;
+            position: string;
+            eligiblePositions: string | null;
+            imageUrl: string | null;
+            heightInches: number | null;
+            primaryTeam: string | null;
+            primaryEraFrom: number | null;
+            primaryEraTo: number | null;
+            isHallOfFamer: boolean;
+            totalTeams: number;
+        };
+    } & {
+        id: string;
+        position: string;
+        playerId: string;
+        draftId: string;
+        slot: number;
+        ownerIndex: number;
+        seasonUsed: number | null;
+        teamUsed: string | null;
+    })[];
+    votes: {
+        id: string;
+        createdAt: Date;
+        draftId: string;
+        value: number;
+    }[];
+} & {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    gameId: string;
+    title: string | null;
+    league: string;
+    mode: string;
+    randomEra: boolean;
+    eraFrom: number | null;
+    eraTo: number | null;
+    randomTeam: boolean;
+    teamConstraint: string | null;
+    maxPlayers: number;
+    requirePositions: boolean;
+    scoringMethod: string;
+    rules: import("@prisma/client/runtime/client").JsonValue;
+    participants: number;
+    playersPerTeam: number;
+    ownerId: string | null;
+}>;
+export declare function scoreDraft(draftId: string): Promise<ScoreResponse>;
+export declare function addVote(draftId: string, value: number): Promise<{
+    id: string;
+    createdAt: Date;
+    draftId: string;
+    value: number;
+}>;
+export declare function getDraftScore(draftId: string): Promise<ScoreResponse>;
+export declare function getDraftSuggestions(draftId: string, limit?: number): Promise<any[]>;
+//# sourceMappingURL=draft.service.d.ts.map
