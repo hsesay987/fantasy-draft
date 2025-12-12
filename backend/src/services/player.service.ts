@@ -1,6 +1,4 @@
 // src/services/player.service.ts
-import type { Prisma } from "@prisma/client";
-
 import prisma from "../lib/prisma";
 
 export type HallRule = "any" | "only" | "none";

@@ -1,37 +1,37 @@
 import "dotenv/config";
-import pkg from "@prisma/client";
+import { PrismaClient } from "@prisma/client/edge";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
-
-const { PrismaClient } = pkg;
 
 declare global {
   // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
 
-// Prisma 7 defaults to the "client" engine in some contexts.
-// Force the Node "library" engine unless already set.
+// Force engine type
 if (!process.env.PRISMA_CLIENT_ENGINE_TYPE) {
-  process.env.PRISMA_CLIENT_ENGINE_TYPE = "library";
+  process.env.PRISMA_CLIENT_ENGINE_TYPE = "binary";
 }
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL is not set. Add it to your .env file.");
+  throw new Error("DATABASE_URL is not set");
 }
 
-// Optional SSL override (not recommended in prod)
+// Optional: allow disabling SSL verification
 const wantsNoVerify =
-  process.env.PGSSL_NO_VERIFY === "true" ||
-  process.env.PGSSL_NO_VERIFY === "1" ||
-  (databaseUrl && /accept_invalid_certs/i.test(databaseUrl));
+  process.env.PGSSL_NO_VERIFY === "true" || process.env.PGSSL_NO_VERIFY === "1";
 
 const ssl = wantsNoVerify ? { rejectUnauthorized: false } : undefined;
 
-const pool = new Pool({ connectionString: databaseUrl, ssl });
+const pool = new Pool({
+  connectionString: databaseUrl,
+  ssl,
+});
+
 const adapter = new PrismaPg(pool);
 
+// Reuse global client in dev
 const prisma =
   globalThis.prisma ||
   new PrismaClient({
