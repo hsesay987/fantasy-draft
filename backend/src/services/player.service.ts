@@ -1,5 +1,6 @@
 // src/services/player.service.ts
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
+
 import prisma from "../lib/prisma";
 
 export type HallRule = "any" | "only" | "none";
@@ -172,7 +173,7 @@ export async function searchPlayers(input: SearchPlayersInput) {
     offset = 0,
   } = input;
 
-  const andFilters: Prisma.NBAPlayerWhereInput[] = [];
+  const andFilters: any[] = []; // or fully type it manually
 
   if (q) {
     andFilters.push({
@@ -215,13 +216,11 @@ export async function searchPlayers(input: SearchPlayersInput) {
     andFilters.push({ isHallOfFamer: false });
   }
 
-  const where: Prisma.NBAPlayerWhereInput = andFilters.length
-    ? { AND: andFilters }
-    : {};
+  const where: any = andFilters.length ? { AND: andFilters } : {};
 
   // Only restrict by season range inside the JOIN
   const eraFromInclusive = eraFrom ? eraFrom - 1 : undefined;
-  const seasonWhere: Prisma.NBAPlayerSeasonStatWhereInput =
+  const seasonWhere: any =
     eraFromInclusive || eraTo
       ? {
           season: {

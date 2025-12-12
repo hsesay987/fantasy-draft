@@ -967,6 +967,9 @@ export default function DraftPage() {
             status: "in_progress",
           }),
         });
+
+        // refresh suggestions immediately with new era/team context
+        loadSuggestions();
       }
     );
   }
@@ -1235,6 +1238,9 @@ export default function DraftPage() {
     draft?.picks.length,
     activeParticipant,
     draft?.rules?.suggestionsEnabled,
+    lockedTeam,
+    lockedEra?.from,
+    lockedEra?.to,
   ]);
 
   // helpers / derived values that shouldn't change hook order

@@ -5,7 +5,7 @@ import { AuthProvider } from "./hooks/useAuth";
 import UserMenu from "./components/UserMenu";
 
 export const metadata: Metadata = {
-  title: "GameFilter",
+  title: "TopPic",
   description:
     "A social game platform for drafts, quizzes, imposter games, and culture battles.",
 };
@@ -23,9 +23,7 @@ export default function RootLayout({
           <div className="min-h-screen flex flex-col">
             {/* Global Header (lightweight, optional per-page) */}
             <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
-              <h1 className="text-xl font-extrabold text-indigo-400">
-                GameFilter
-              </h1>
+              <h1 className="text-xl font-extrabold text-indigo-400">TopPic</h1>
 
               <nav className="flex gap-6 text-sm text-slate-300">
                 <a href="/draft" className="hover:text-indigo-400">
