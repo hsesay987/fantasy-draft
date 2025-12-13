@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const params = useSearchParams();
   const router = useRouter();
   const token = params.get("token");
@@ -26,7 +26,7 @@ export default function VerifyEmailPage() {
         setTimeout(() => router.push("/login"), 2500);
       })
       .catch(() => setStatus("error"));
-  }, [token]);
+  }, [token, router]);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-50">
@@ -42,5 +42,21 @@ export default function VerifyEmailPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-50">
+          <div className="max-w-md text-center text-sm text-slate-300">
+            Loading verification screen...
+          </div>
+        </main>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
