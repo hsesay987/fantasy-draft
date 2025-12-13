@@ -2,12 +2,12 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 type User = {
   id: string;
   email: string;
   name?: string | null;
+  emailVerified?: boolean;
 };
 
 type AuthContextValue = {
@@ -17,18 +17,35 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     const storedToken = localStorage.getItem("authToken");
     const storedUser = localStorage.getItem("authUser");
-    if (storedToken && storedUser) {
+    if (storedToken) {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+
+      fetch(`${API_URL}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.user) {
+            setAuth(storedToken, data.user);
+          } else {
+            setAuth(null, null);
+          }
+        })
+        .catch(() => setAuth(null, null));
     }
   }, []);
 

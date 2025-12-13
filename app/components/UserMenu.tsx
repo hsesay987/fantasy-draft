@@ -59,6 +59,16 @@ export default function UserMenu() {
 
           <button
             onClick={() => {
+              router.push("/account");
+              setOpen(false);
+            }}
+            className="block w-full px-4 py-2 text-left text-sm text-slate-200 hover:bg-slate-800"
+          >
+            Account settings
+          </button>
+
+          <button
+            onClick={() => {
               setAuth(null, null);
               setOpen(false);
               router.push("/");

@@ -4,13 +4,32 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import prisma from "../lib/prisma";
-import { sendVerificationEmail } from "../lib/email";
+import { sendVerificationEmail, sendPasswordResetEmail } from "../lib/email";
+import { OAuth2Client } from "google-auth-library";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 function signToken(userId: string) {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
+}
+
+async function createVerificationToken(userId: string) {
+  await prisma.verificationToken.deleteMany({ where: { userId } });
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24h
+
+  await prisma.verificationToken.create({
+    data: {
+      userId,
+      token,
+      expiresAt,
+    },
+  });
+
+  return token;
 }
 
 export async function signup(req: Request, res: Response) {
@@ -26,16 +45,7 @@ export async function signup(req: Request, res: Response) {
   });
 
   // create verification token
-  const token = crypto.randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24h
-
-  await prisma.verificationToken.create({
-    data: {
-      userId: user.id,
-      token,
-      expiresAt,
-    },
-  });
+  const token = await createVerificationToken(user.id);
 
   const verifyUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
 
@@ -69,6 +79,12 @@ export async function login(req: Request, res: Response) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(400).json({ error: "Invalid credentials" });
 
+  if (!user.passwordHash) {
+    return res.status(400).json({
+      error: "Account uses Google sign-in. Please continue with Google.",
+    });
+  }
+
   const match = await bcrypt.compare(password, user.passwordHash);
   if (!match) return res.status(400).json({ error: "Invalid credentials" });
 
@@ -86,6 +102,7 @@ export async function login(req: Request, res: Response) {
       id: user.id,
       email: user.email,
       name: user.name,
+      emailVerified: user.emailVerified,
     },
   });
 }
@@ -123,4 +140,204 @@ export async function me(req: Request & { userId?: string }, res: Response) {
   });
 
   return res.json({ user });
+}
+
+export async function forgotPassword(req: Request, res: Response) {
+  const { email } = req.body;
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user)
+    return res.json({ message: "If the email exists, a reset link was sent." });
+
+  await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } });
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 60);
+
+  await prisma.passwordResetToken.create({
+    data: { userId: user.id, token, expiresAt },
+  });
+
+  const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
+
+  try {
+    await sendPasswordResetEmail({ to: email, name: user.name, resetUrl });
+  } catch (err) {
+    console.error("Failed to send password reset email", err);
+    return res
+      .status(500)
+      .json({ error: "Unable to send password reset email." });
+  }
+
+  res.json({ message: "Check your email for reset instructions." });
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  const { token, password } = req.body;
+
+  const record = await prisma.passwordResetToken.findUnique({
+    where: { token },
+  });
+  if (!record || record.expiresAt < new Date())
+    return res.status(400).json({ error: "Invalid or expired token" });
+
+  const user = await prisma.user.findUnique({
+    where: { id: record.userId },
+  });
+
+  if (!user) return res.status(400).json({ error: "User no longer exists." });
+
+  const hash = await bcrypt.hash(password, 10);
+
+  await prisma.user.update({
+    where: { id: record.userId },
+    data: { passwordHash: hash },
+  });
+
+  await prisma.passwordResetToken.deleteMany({ where: { userId: record.userId } });
+
+  res.json({ message: "Password reset successful" });
+}
+
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+export async function googleAuth(req: Request, res: Response) {
+  const { credential } = req.body;
+
+  if (!GOOGLE_CLIENT_ID) {
+    return res
+      .status(500)
+      .json({ error: "Google login not configured on the server." });
+  }
+
+  const ticket = await client.verifyIdToken({
+    idToken: credential,
+    audience: GOOGLE_CLIENT_ID,
+  });
+
+  const payload = ticket.getPayload();
+  if (!payload?.email)
+    return res.status(400).json({ error: "Invalid Google token" });
+
+  let user = await prisma.user.findUnique({ where: { email: payload.email } });
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email: payload.email,
+        name: payload.name,
+        googleId: payload.sub,
+        emailVerified: true,
+      },
+    });
+  } else if (!user.emailVerified) {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerified: true },
+    });
+  }
+
+  const token = signToken(user.id);
+
+  res.json({
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      emailVerified: user.emailVerified,
+    },
+  });
+}
+
+export async function resendVerification(req: Request, res: Response) {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ error: "Email is required" });
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return res.json({
+      message: "If the email exists, a verification link was sent.",
+    });
+  }
+
+  if (user.emailVerified) {
+    return res.status(400).json({ error: "Email already verified." });
+  }
+
+  const token = await createVerificationToken(user.id);
+  const verifyUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
+
+  try {
+    await sendVerificationEmail({
+      to: user.email,
+      name: user.name,
+      verifyUrl,
+    });
+  } catch (err) {
+    console.error("Failed to resend verification email", err);
+    return res
+      .status(500)
+      .json({ error: "Unable to send verification email right now." });
+  }
+
+  return res.json({
+    message: "Verification email sent if the address is valid.",
+  });
+}
+
+export async function updateProfile(
+  req: Request & { userId?: string },
+  res: Response
+) {
+  const { name } = req.body;
+
+  if (!req.userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const updated = await prisma.user.update({
+    where: { id: req.userId },
+    data: { name },
+    select: { id: true, email: true, name: true, emailVerified: true },
+  });
+
+  res.json({ user: updated });
+}
+
+export async function changePassword(
+  req: Request & { userId?: string },
+  res: Response
+) {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!req.userId) return res.status(401).json({ error: "Unauthorized" });
+  if (!newPassword || newPassword.length < 6) {
+    return res
+      .status(400)
+      .json({ error: "New password must be at least 6 characters." });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: req.userId } });
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  if (user.passwordHash) {
+    if (!currentPassword) {
+      return res
+        .status(400)
+        .json({ error: "Current password is required to change it." });
+    }
+    const match = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!match) return res.status(400).json({ error: "Incorrect password." });
+  }
+
+  const newHash = await bcrypt.hash(newPassword, 10);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: newHash },
+  });
+
+  await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } });
+
+  res.json({ message: "Password updated." });
 }

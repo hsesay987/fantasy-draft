@@ -16,18 +16,20 @@ datasource db {
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
-  passwordHash  String
+  passwordHash  String?
   name          String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  googleId      String?  @unique
   emailVerified Boolean  @default(false)
 
   // relationships
-  drafts             Draft[]
-  rooms              Room[]              @relation("RoomHost")
-  roomMembers        RoomParticipant[]
-  gameResults        GameResult[]
-  verificationTokens VerificationToken[]
+  drafts              Draft[]
+  rooms               Room[]               @relation("RoomHost")
+  roomMembers         RoomParticipant[]
+  gameResults         GameResult[]
+  verificationTokens  VerificationToken[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model VerificationToken {
@@ -36,6 +38,18 @@ model VerificationToken {
   token     String   @unique
   createdAt DateTime @default(now())
   expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
 
