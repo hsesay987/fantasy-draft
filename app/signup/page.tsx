@@ -146,14 +146,6 @@ export default function SignupPage() {
           className="w-full mb-4 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
         />
 
-        {/* <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full mb-4 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
-        /> */}
-
         <button
           onClick={handleSignup}
           disabled={loading}
