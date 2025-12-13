@@ -29,18 +29,20 @@ async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
       await new Promise((res) => setTimeout(res, 500 * i));
     }
   }
-  throw new Error(`${label} failed after ${NBA_API_RETRIES} attempts: ${lastErr}`);
+  throw new Error(
+    `${label} failed after ${NBA_API_RETRIES} attempts: ${lastErr}`
+  );
 }
 
-async function nbaFetch(endpoint: string, params: Record<string, any>) {
+async function nbaFetch(
+  endpoint: string,
+  params: Record<string, any>
+): Promise<any> {
   const url = BASE + endpoint + "?" + new URLSearchParams(params).toString();
 
   const doFetch = async () => {
     const controller = new AbortController();
-    const timer = setTimeout(
-      () => controller.abort(),
-      NBA_API_TIMEOUT_MS
-    );
+    const timer = setTimeout(() => controller.abort(), NBA_API_TIMEOUT_MS);
 
     try {
       const res = await fetch(url, {
@@ -52,7 +54,10 @@ async function nbaFetch(endpoint: string, params: Record<string, any>) {
       if (!res.ok) {
         const text = await res.text();
         throw new Error(
-          `NBA API error ${res.status} fetching ${endpoint}: ${text.slice(0, 200)}`
+          `NBA API error ${res.status} fetching ${endpoint}: ${text.slice(
+            0,
+            200
+          )}`
         );
       }
 
