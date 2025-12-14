@@ -18,14 +18,17 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const adsenseClient =
+    process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-3005130388684291";
+
   return (
     <html lang="en" className="h-full">
-      {process.env.NEXT_PUBLIC_ADSENSE_CLIENT && (
+      {adsenseClient && (
         <Script
           id="adsense-loader"
           strategy="afterInteractive"
-          data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_CLIENT}
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT}`}
+          data-ad-client={adsenseClient}
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
           crossOrigin="anonymous"
         />
       )}
