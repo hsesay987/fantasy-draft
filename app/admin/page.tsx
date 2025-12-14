@@ -23,6 +23,8 @@ type AdminStats = {
   totalGames: number;
   gamesPlayedToday: number;
   totalFeedback: number;
+  stripeRevenue: number;
+  adsenseRevenue: number;
 };
 
 type CommunityAd = {
@@ -206,6 +208,16 @@ export default function AdminPage() {
           <StatCard
             label="Feedback received"
             value={stats?.totalFeedback ?? feedback.length}
+            loading={loading}
+          />
+          <StatCard
+            label="Stripe revenue (cents)"
+            value={stats?.stripeRevenue ?? 0}
+            loading={loading}
+          />
+          <StatCard
+            label="AdSense revenue (cents)"
+            value={stats?.adsenseRevenue ?? 0}
             loading={loading}
           />
         </div>

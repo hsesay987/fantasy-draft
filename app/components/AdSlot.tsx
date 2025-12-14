@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCommunityAds } from "../hooks/useCommunityAds";
 
 type AdSlotProps = {
@@ -38,6 +38,8 @@ const baseCopy: Record<
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
 const ADSENSE_RAIL_SLOT = process.env.NEXT_PUBLIC_ADSENSE_SLOT_RAIL;
 const ADSENSE_FOOTER_SLOT = process.env.NEXT_PUBLIC_ADSENSE_SLOT_FOOTER;
+const AD_FREQ_MS = Number(process.env.NEXT_PUBLIC_AD_COOLDOWN_MS || 60000);
+const ADSENSE_FALLBACK_MS = 1500;
 
 export default function AdSlot({
   placement,
@@ -48,17 +50,48 @@ export default function AdSlot({
   const { ad } = useCommunityAds(placement, variant === "community");
   const slotId = placement === "rail" ? ADSENSE_RAIL_SLOT : ADSENSE_FOOTER_SLOT;
   const adsenseReady = !!(ADSENSE_CLIENT && slotId && variant !== "community");
+  const [cooldownActive, setCooldownActive] = useState(false);
+  const [fallback, setFallback] = useState(!adsenseReady);
+  const loggedTelemetry = useRef(false);
+
+  useEffect(() => {
+    const key = `adfreq-${placement}`;
+    const now = Date.now();
+    try {
+      const last = Number(localStorage.getItem(key) || "0");
+      if (now - last < AD_FREQ_MS) {
+        setCooldownActive(true);
+        return;
+      }
+      localStorage.setItem(key, String(now));
+    } catch {
+      // ignore storage errors
+    }
+    setCooldownActive(false);
+  }, [placement]);
 
   useEffect(() => {
     if (!adsenseReady) return;
     if (typeof window === "undefined") return;
+    const timer = setTimeout(() => setFallback(true), ADSENSE_FALLBACK_MS);
     try {
       // @ts-ignore
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch (err) {
       console.warn("AdSense push failed", err);
     }
+    return () => clearTimeout(timer);
   }, [adsenseReady, slotId]);
+
+  useEffect(() => {
+    if (!adsenseReady || fallback || loggedTelemetry.current) return;
+    fetch("/ads/telemetry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "impression", placement }),
+    }).catch(() => {});
+    loggedTelemetry.current = true;
+  }, [adsenseReady, fallback, placement]);
 
   const headline = variant === "community" && ad?.title ? ad.title : copy.title;
   const body = variant === "community" && ad?.body ? ad.body : copy.body;
@@ -99,6 +132,12 @@ export default function AdSlot({
     </Link>
   );
 
+  const showHouse = fallback || !adsenseReady;
+
+  if (cooldownActive) {
+    return null;
+  }
+
   return (
     <div
       className={`rounded-2xl border border-slate-800 bg-slate-900/70 shadow-lg overflow-hidden ${className}`}
@@ -116,7 +155,9 @@ export default function AdSlot({
           <p className="text-sm text-slate-400 leading-relaxed">{body}</p>
         )}
 
-        {adsenseReady ? (
+        {showHouse ? (
+          ctaButton
+        ) : (
           <ins
             className="adsbygoogle block w-full"
             style={{ display: "block" }}
@@ -125,8 +166,6 @@ export default function AdSlot({
             data-ad-format="auto"
             data-full-width-responsive="true"
           />
-        ) : (
-          ctaButton
         )}
       </div>
     </div>

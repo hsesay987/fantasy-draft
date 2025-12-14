@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import Stripe from "stripe";
 import prisma from "../lib/prisma";
 import { AuthedRequest } from "../middleware/auth";
+import { sendReceiptEmail } from "../lib/email";
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
@@ -214,6 +215,16 @@ async function applySubscriptionFromStripe(
       stripeCustomerId: customerId || undefined,
     },
   });
+
+  await prisma.revenueEvent.create({
+    data: {
+      userId,
+      source: "stripe",
+      type: tier ? "subscription" : "subscription-cancel",
+      amountCents: 0,
+      metadata: { tier, currentPeriodEnd },
+    },
+  });
 }
 
 export async function webhook(req: Request, res: Response) {
@@ -248,6 +259,55 @@ export async function webhook(req: Request, res: Response) {
             undefined,
             session.customer as string
           );
+        }
+        break;
+      }
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const customerId = invoice.customer as string | undefined;
+        const user = customerId
+          ? await prisma.user.findFirst({
+              where: { stripeCustomerId: customerId },
+              select: { id: true, email: true, name: true },
+            })
+          : null;
+
+        if (user) {
+          const amountCents = invoice.amount_paid || 0;
+          const billingCycle =
+            invoice.lines?.data?.[0]?.price?.recurring?.interval || "monthly";
+          const receiptId = invoice.number || invoice.id;
+          const invoiceDate = invoice.status_transitions?.paid_at
+            ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
+            : new Date().toISOString();
+          await prisma.revenueEvent.create({
+            data: {
+              userId: user.id,
+              source: "stripe",
+              type: "subscription",
+              amountCents,
+              currency: invoice.currency || "usd",
+              metadata: {
+                invoiceId: invoice.id,
+                status: invoice.status,
+              },
+            },
+          });
+
+          try {
+            await sendReceiptEmail({
+              to: user.email,
+              name: user.name,
+              amountCents,
+              currency: invoice.currency || "usd",
+              invoiceUrl: invoice.hosted_invoice_url || undefined,
+              billingCycle,
+              receiptId,
+              date: invoiceDate,
+            });
+          } catch (err) {
+            console.error("Failed to send receipt email", err);
+          }
         }
         break;
       }

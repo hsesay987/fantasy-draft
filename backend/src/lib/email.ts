@@ -8,6 +8,7 @@ const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 const VERIFY_TEMPLATE_ID = process.env.RESEND_VERIFY_TEMPLATE_ID!;
 const RESET_TEMPLATE_ID = process.env.RESEND_RESET_TEMPLATE_ID!;
+const RECEIPT_TEMPLATE_ID = process.env.RESEND_RECEIPT_TEMPLATE_ID;
 
 export async function sendVerificationEmail({
   to,
@@ -56,6 +57,65 @@ export async function sendPasswordResetEmail({
         resetUrl,
       },
     },
+  });
+}
+
+export async function sendReceiptEmail({
+  to,
+  name,
+  amountCents,
+  currency,
+  invoiceUrl,
+  billingCycle,
+  receiptId,
+  date,
+}: {
+  to: string;
+  name?: string | null;
+  amountCents: number;
+  currency: string;
+  invoiceUrl?: string;
+  billingCycle?: string;
+  receiptId?: string;
+  date?: string;
+}) {
+  if (!resend) throw new Error("Resend not configured");
+
+  if (RECEIPT_TEMPLATE_ID) {
+    await resend.emails.send({
+      from: `Toppic Games <${fromEmail}>`,
+      to,
+      subject: "Your TopPic subscription receipt",
+      template: {
+        id: RECEIPT_TEMPLATE_ID,
+        variables: {
+          name: name || to,
+          amount: (amountCents / 100).toFixed(2),
+          currency: currency.toUpperCase(),
+          year: new Date().getFullYear(),
+          billing_cycle: billingCycle || "monthly",
+          receipt_id: receiptId || "N/A",
+          date: date || new Date().toISOString(),
+          invoiceUrl,
+        },
+      },
+    });
+    return;
+  }
+
+  const total = `${(amountCents / 100).toFixed(2)} ${currency.toUpperCase()}`;
+  await resend.emails.send({
+    from: `Toppic Games <${fromEmail}>`,
+    to,
+    subject: "Your TopPic subscription receipt",
+    text: [
+      `Hi ${name || to},`,
+      "",
+      `Thanks for supporting TopPic. We processed your payment of ${total}.`,
+      invoiceUrl ? `View your invoice: ${invoiceUrl}` : "",
+      "",
+      "Questions? Reply to this email and we'll help.",
+    ].join("\n"),
   });
 }
 

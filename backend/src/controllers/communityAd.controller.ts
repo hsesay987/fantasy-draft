@@ -73,3 +73,27 @@ export async function updateStatus(req: AuthedRequest, res: Response) {
 
   return res.json({ ad });
 }
+
+export async function telemetry(req: Request, res: Response) {
+  const { type, placement, amountCents, userId } = req.body as {
+    type?: string;
+    placement?: string;
+    amountCents?: number;
+    userId?: string;
+  };
+
+  if (!type) return res.status(400).json({ error: "Missing telemetry type" });
+
+  await prisma.revenueEvent.create({
+    data: {
+      source: "adsense",
+      type,
+      amountCents: amountCents || 0,
+      currency: "usd",
+      metadata: { placement },
+      userId: userId || undefined,
+    },
+  });
+
+  res.json({ ok: true });
+}

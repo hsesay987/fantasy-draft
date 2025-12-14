@@ -37,7 +37,8 @@ model User {
   gameResults         GameResult[]
   verificationTokens  VerificationToken[]
   passwordResetTokens PasswordResetToken[]
-  communityAds        CommunityAd[]
+  communityAds        CommunityAd[]     @relation("UserAds")
+  revenueEvents       RevenueEvent[]
 }
 
 model VerificationToken {
@@ -135,9 +136,24 @@ model CommunityAd {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  submittedBy User? @relation(fields: [submittedById], references: [id])
+  submittedBy User? @relation("UserAds", fields: [submittedById], references: [id])
 
   @@index([status, placement, startsAt, endsAt])
+}
+
+model RevenueEvent {
+  id          String   @id @default(cuid())
+  userId      String?
+  source      String   // "stripe" | "adsense" | "house"
+  type        String   // "subscription" | "impression"
+  amountCents Int      @default(0)
+  currency    String   @default("usd")
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([source, type, createdAt])
 }
 
 model NBAPlayer {

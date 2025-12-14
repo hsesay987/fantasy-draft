@@ -5,6 +5,7 @@ import {
   listApproved,
   submitAd,
   updateStatus,
+  telemetry,
 } from "../controllers/communityAd.controller";
 import { adminRequired, authRequired } from "../middleware/auth";
 
@@ -15,5 +16,6 @@ router.post("/community", authRequired, submitAd);
 
 router.get("/community/admin", authRequired, adminRequired, adminList);
 router.patch("/community/:id", authRequired, adminRequired, updateStatus);
+router.post("/telemetry", telemetry);
 
 export default router;
