@@ -5,6 +5,7 @@ import Providers from "./providers";
 import UserMenu from "./components/UserMenu";
 import FeedbackWidget from "./components/FeedbackWidget";
 import AdShell from "./components/AdShell";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "TopPic",
@@ -19,6 +20,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
+      {process.env.NEXT_PUBLIC_ADSENSE_CLIENT && (
+        <Script
+          id="adsense-loader"
+          strategy="afterInteractive"
+          data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_CLIENT}
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT}`}
+          crossOrigin="anonymous"
+        />
+      )}
       <body className="h-full bg-slate-950 text-slate-100">
         <Providers>
           <div className="min-h-screen flex flex-col">

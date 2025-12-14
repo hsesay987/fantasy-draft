@@ -66,6 +66,15 @@ export default function UserMenu() {
           >
             Account settings
           </button>
+          <button
+            onClick={() => {
+              router.push("/account/subscription");
+              setOpen(false);
+            }}
+            className="block w-full px-4 py-2 text-left text-sm text-slate-200 hover:bg-slate-800"
+          >
+            Subscription
+          </button>
 
           {user.isAdmin && (
             <button

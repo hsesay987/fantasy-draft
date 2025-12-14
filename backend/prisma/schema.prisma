@@ -14,20 +14,21 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  passwordHash  String?
-  name          String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  googleId      String?  @unique
-  emailVerified Boolean  @default(false)
-  isAdmin       Boolean  @default(false)
+  id               String   @id @default(cuid())
+  email            String   @unique
+  passwordHash     String?
+  name             String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  googleId         String?  @unique
+  stripeCustomerId String?  @unique
+  emailVerified    Boolean  @default(false)
+  isAdmin          Boolean  @default(false)
 
   // 🔑 monetization
   subscriptionTier String? // null | "founder" | "monthly" | "yearly"
   subscriptionEnds DateTime?
-  isFounder        Boolean  @default(false)
+  isFounder        Boolean   @default(false)
 
   // relationships
   drafts              Draft[]
@@ -36,6 +37,7 @@ model User {
   gameResults         GameResult[]
   verificationTokens  VerificationToken[]
   passwordResetTokens PasswordResetToken[]
+  communityAds        CommunityAd[]
 }
 
 model VerificationToken {
@@ -116,6 +118,26 @@ model RoomParticipant {
   user User @relation(fields: [userId], references: [id])
 
   @@unique([roomId, userId])
+}
+
+model CommunityAd {
+  id            String    @id @default(cuid())
+  title         String
+  body          String?
+  imageUrl      String?
+  targetUrl     String
+  category      String?
+  placement     String    @default("rail") // rail | footer
+  status        String    @default("pending") // pending | approved | rejected
+  submittedById String?
+  startsAt      DateTime?
+  endsAt        DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  submittedBy User? @relation(fields: [submittedById], references: [id])
+
+  @@index([status, placement, startsAt, endsAt])
 }
 
 model NBAPlayer {
@@ -250,11 +272,10 @@ model Vote {
 model Feedback {
   id        String   @id @default(cuid())
   userId    String?
-  type      String   // "feedback" | "bug"
+  type      String // "feedback" | "bug"
   category  String?
   message   String
   url       String?
   userAgent String?
   createdAt DateTime @default(now())
 }
-

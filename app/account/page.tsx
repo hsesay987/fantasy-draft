@@ -170,8 +170,14 @@ export default function AccountPage() {
             )}
           </div>
 
-          <div className="mt-4 text-sm text-slate-400">
+          <div className="mt-4 text-sm text-slate-400 space-y-1">
             <p>Email: {user?.email}</p>
+            {user?.isFounder && (
+              <span className="inline-flex items-center gap-2 rounded-full bg-amber-900/40 px-3 py-1 text-xs font-semibold text-amber-100 border border-amber-600/50">
+                <ShieldCheck className="h-4 w-4" />
+                Founder — ad-free lifetime perks
+              </span>
+            )}
           </div>
 
           {(status || error) && (

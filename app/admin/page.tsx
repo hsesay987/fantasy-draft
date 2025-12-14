@@ -1,3 +1,4 @@
+// app/admin/page.tsx
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -24,6 +25,18 @@ type AdminStats = {
   totalFeedback: number;
 };
 
+type CommunityAd = {
+  id: string;
+  title: string;
+  body?: string | null;
+  targetUrl: string;
+  imageUrl?: string | null;
+  status: string;
+  placement: string;
+  submittedBy?: { email: string; id: string } | null;
+  createdAt: string;
+};
+
 export default function AdminPage() {
   const { user, token } = useAuth();
   const router = useRouter();
@@ -31,6 +44,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
+  const [ads, setAds] = useState<CommunityAd[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
@@ -38,24 +52,31 @@ export default function AdminPage() {
     setLoading(true);
     setError(null);
     try {
-      const [statsRes, feedbackRes] = await Promise.all([
+      const [statsRes, feedbackRes, adsRes] = await Promise.all([
         fetch(`${API_URL}/admin/stats`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch(`${API_URL}/admin/feedback`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
+        fetch(`${API_URL}/ads/community/admin`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ]);
 
       const statsJson = await statsRes.json();
       const feedbackJson = await feedbackRes.json();
+      const adsJson = await adsRes.json();
 
-      if (!statsRes.ok) throw new Error(statsJson.error || "Failed to load stats");
+      if (!statsRes.ok)
+        throw new Error(statsJson.error || "Failed to load stats");
       if (!feedbackRes.ok)
         throw new Error(feedbackJson.error || "Failed to load feedback");
+      if (!adsRes.ok) throw new Error(adsJson.error || "Failed to load ads");
 
       setStats(statsJson.stats);
       setFeedback(feedbackJson.feedback);
+      setAds(adsJson.ads);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -81,6 +102,28 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to delete");
       setFeedback((prev) => prev.filter((f) => f.id !== id));
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }
+
+  async function updateAdStatus(
+    id: string,
+    status: "approved" | "rejected" | "pending"
+  ) {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/ads/community/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update ad.");
+      setAds((prev) => prev.map((a) => (a.id === id ? data.ad : a)));
     } catch (err: any) {
       setError(err.message);
     }
@@ -171,13 +214,99 @@ export default function AdminPage() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
             <div>
               <p className="text-xs uppercase tracking-widest text-slate-500">
+                Community ads
+              </p>
+              <h2 className="text-lg font-semibold text-slate-100">
+                Pending approvals
+              </h2>
+            </div>
+            {loading && (
+              <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+            )}
+          </div>
+
+          {ads.length === 0 && !loading ? (
+            <div className="p-6 text-sm text-slate-400">
+              No ad submissions yet.
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-800">
+              {ads.map((ad) => (
+                <div key={ad.id} className="p-4 space-y-2">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                    <span className="rounded-full bg-slate-800 px-2 py-0.5">
+                      {ad.status}
+                    </span>
+                    <span className="rounded-full bg-slate-800 px-2 py-0.5">
+                      {ad.placement}
+                    </span>
+                    <span>
+                      {new Date(ad.createdAt).toLocaleString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                    {ad.submittedBy?.email && (
+                      <span className="text-slate-500">
+                        By {ad.submittedBy.email}
+                      </span>
+                    )}
+                    <a
+                      href={ad.targetUrl}
+                      className="underline hover:text-indigo-200"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Visit
+                    </a>
+                  </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-slate-100">
+                        {ad.title}
+                      </p>
+                      {ad.body && (
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                          {ad.body}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => updateAdStatus(ad.id, "approved")}
+                        className="rounded-lg border border-emerald-700/60 bg-emerald-900/40 px-3 py-1 text-xs font-semibold text-emerald-100 hover:border-emerald-500/80"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => updateAdStatus(ad.id, "rejected")}
+                        className="rounded-lg border border-red-700/60 bg-red-900/30 px-3 py-1 text-xs font-semibold text-red-100 hover:border-red-500/80"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 shadow-xl overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-slate-500">
                 Feedback
               </p>
               <h2 className="text-lg font-semibold text-slate-100">
                 Latest submissions
               </h2>
             </div>
-            {loading && <Loader2 className="h-5 w-5 animate-spin text-slate-400" />}
+            {loading && (
+              <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+            )}
           </div>
 
           {feedback.length === 0 && !loading ? (
@@ -206,7 +335,9 @@ export default function AdminPage() {
                         })}
                       </span>
                       {item.userId && (
-                        <span className="text-slate-500">User: {item.userId}</span>
+                        <span className="text-slate-500">
+                          User: {item.userId}
+                        </span>
                       )}
                       {item.url && (
                         <a
@@ -250,7 +381,9 @@ function StatCard({
 }) {
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-lg">
-      <p className="text-xs uppercase tracking-widest text-slate-500">{label}</p>
+      <p className="text-xs uppercase tracking-widest text-slate-500">
+        {label}
+      </p>
       <div className="mt-2 flex items-baseline gap-2">
         <p className="text-3xl font-bold text-indigo-200">
           {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : value}

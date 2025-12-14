@@ -11,6 +11,8 @@ import authRoutes from "./routes/auth.route";
 import roomRoutes from "./routes/room.route";
 import feedbackRoutes from "./routes/feedback.route";
 import adminRoutes from "./routes/admin.route";
+import billingRoutes from "./routes/billing.route";
+import adRoutes from "./routes/ad.route";
 import { authOptional } from "./middleware/auth";
 
 const app = express();
@@ -27,7 +29,15 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req: any, _res, buf) => {
+      if (req.originalUrl === "/billing/webhook") {
+        req.rawBody = buf;
+      }
+    },
+  })
+);
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, uptime: process.uptime() });
@@ -40,6 +50,8 @@ app.use("/drafts", draftRoutes);
 app.use("/players", playerRoutes);
 app.use("/rooms", roomRoutes);
 app.use("/feedback", feedbackRoutes);
+app.use("/billing", billingRoutes);
+app.use("/ads", adRoutes);
 app.use("/admin", adminRoutes);
 
 app.use(
