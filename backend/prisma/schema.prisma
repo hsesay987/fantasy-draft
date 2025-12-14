@@ -22,6 +22,7 @@ model User {
   updatedAt     DateTime @updatedAt
   googleId      String?  @unique
   emailVerified Boolean  @default(false)
+  isAdmin       Boolean  @default(false)
 
   // relationships
   drafts              Draft[]
@@ -240,3 +241,15 @@ model Vote {
 
   @@index([draftId])
 }
+
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String?
+  type      String   // "feedback" | "bug"
+  category  String?
+  message   String
+  url       String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+

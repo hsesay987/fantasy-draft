@@ -8,6 +8,7 @@ type User = {
   email: string;
   name?: string | null;
   emailVerified?: boolean;
+  isAdmin?: boolean;
 };
 
 type AuthContextValue = {

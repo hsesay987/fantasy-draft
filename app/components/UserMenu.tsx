@@ -67,6 +67,18 @@ export default function UserMenu() {
             Account settings
           </button>
 
+          {user.isAdmin && (
+            <button
+              onClick={() => {
+                router.push("/admin");
+                setOpen(false);
+              }}
+              className="block w-full px-4 py-2 text-left text-sm text-indigo-200 hover:bg-slate-800"
+            >
+              Admin
+            </button>
+          )}
+
           <button
             onClick={() => {
               setAuth(null, null);

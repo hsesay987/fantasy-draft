@@ -9,6 +9,8 @@ import draftRoutes from "./routes/draft.route";
 import playerRoutes from "./routes/player.route";
 import authRoutes from "./routes/auth.route";
 import roomRoutes from "./routes/room.route";
+import feedbackRoutes from "./routes/feedback.route";
+import adminRoutes from "./routes/admin.route";
 import { authOptional } from "./middleware/auth";
 
 const app = express();
@@ -37,6 +39,8 @@ app.use("/auth", authRoutes);
 app.use("/drafts", draftRoutes);
 app.use("/players", playerRoutes);
 app.use("/rooms", roomRoutes);
+app.use("/feedback", feedbackRoutes);
+app.use("/admin", adminRoutes);
 
 app.use(
   (err: any, _req: express.Request, res: express.Response, _next: any) => {

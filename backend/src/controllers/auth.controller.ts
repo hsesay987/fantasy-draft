@@ -103,6 +103,7 @@ export async function login(req: Request, res: Response) {
       email: user.email,
       name: user.name,
       emailVerified: user.emailVerified,
+      isAdmin: user.isAdmin,
     },
   });
 }
@@ -136,7 +137,13 @@ export async function me(req: Request & { userId?: string }, res: Response) {
 
   const user = await prisma.user.findUnique({
     where: { id: req.userId },
-    select: { id: true, email: true, name: true, emailVerified: true },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      emailVerified: true,
+      isAdmin: true,
+    },
   });
 
   return res.json({ user });
@@ -246,6 +253,7 @@ export async function googleAuth(req: Request, res: Response) {
       email: user.email,
       name: user.name,
       emailVerified: user.emailVerified,
+      isAdmin: user.isAdmin,
     },
   });
 }
@@ -298,7 +306,13 @@ export async function updateProfile(
   const updated = await prisma.user.update({
     where: { id: req.userId },
     data: { name },
-    select: { id: true, email: true, name: true, emailVerified: true },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      emailVerified: true,
+      isAdmin: true,
+    },
   });
 
   res.json({ user: updated });

@@ -1385,9 +1385,7 @@ export default function DraftPage() {
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-indigo-300">
               {draft.title || "NBA Era Fantasy Draft"}
             </h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Draft ID: {draft.id} • Mode: {draft.mode}
-            </p>
+            <p className="text-xs text-slate-400 mt-1">Mode: {draft.mode}</p>
             <p className="text-xs text-slate-400">
               Era:{" "}
               {draft.randomEra
