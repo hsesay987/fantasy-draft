@@ -116,7 +116,7 @@ export default function AdSlot({
           <p className="text-sm text-slate-400 leading-relaxed">{body}</p>
         )}
 
-        {adsenseReady && variant !== "community" ? (
+        {adsenseReady ? (
           <ins
             className="adsbygoogle block w-full"
             style={{ display: "block" }}
