@@ -40,8 +40,18 @@ export async function signup(req: Request, res: Response) {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
+  const userCount = await prisma.user.count();
+
+  const isFounder = userCount < 250;
+
   const user = await prisma.user.create({
-    data: { email, passwordHash, name },
+    data: {
+      email,
+      passwordHash,
+      name,
+      isFounder,
+      subscriptionTier: isFounder ? "founder" : null,
+    },
   });
 
   // create verification token
@@ -104,6 +114,9 @@ export async function login(req: Request, res: Response) {
       name: user.name,
       emailVerified: user.emailVerified,
       isAdmin: user.isAdmin,
+      isFounder: user.isFounder,
+      subscriptionTier: user.subscriptionTier,
+      subscriptionEnds: user.subscriptionEnds,
     },
   });
 }
@@ -143,6 +156,9 @@ export async function me(req: Request & { userId?: string }, res: Response) {
       name: true,
       emailVerified: true,
       isAdmin: true,
+      isFounder: true,
+      subscriptionTier: true,
+      subscriptionEnds: true,
     },
   });
 
@@ -201,7 +217,9 @@ export async function resetPassword(req: Request, res: Response) {
     data: { passwordHash: hash },
   });
 
-  await prisma.passwordResetToken.deleteMany({ where: { userId: record.userId } });
+  await prisma.passwordResetToken.deleteMany({
+    where: { userId: record.userId },
+  });
 
   res.json({ message: "Password reset successful" });
 }
@@ -229,12 +247,17 @@ export async function googleAuth(req: Request, res: Response) {
   let user = await prisma.user.findUnique({ where: { email: payload.email } });
 
   if (!user) {
+    const userCount = await prisma.user.count();
+    const isFounder = userCount < 250;
+
     user = await prisma.user.create({
       data: {
         email: payload.email,
         name: payload.name,
         googleId: payload.sub,
         emailVerified: true,
+        isFounder,
+        subscriptionTier: isFounder ? "founder" : null,
       },
     });
   } else if (!user.emailVerified) {
@@ -254,6 +277,9 @@ export async function googleAuth(req: Request, res: Response) {
       name: user.name,
       emailVerified: user.emailVerified,
       isAdmin: user.isAdmin,
+      isFounder: user.isFounder,
+      subscriptionTier: user.subscriptionTier,
+      subscriptionEnds: user.subscriptionEnds,
     },
   });
 }
@@ -312,6 +338,9 @@ export async function updateProfile(
       name: true,
       emailVerified: true,
       isAdmin: true,
+      isFounder: true,
+      subscriptionTier: true,
+      subscriptionEnds: true,
     },
   });
 

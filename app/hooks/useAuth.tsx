@@ -9,6 +9,9 @@ type User = {
   name?: string | null;
   emailVerified?: boolean;
   isAdmin?: boolean;
+  isFounder?: boolean;
+  subscriptionTier?: string | null;
+  subscriptionEnds?: string | null;
 };
 
 type AuthContextValue = {

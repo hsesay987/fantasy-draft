@@ -1,3 +1,4 @@
+// app/components/AdSlot.tsx
 type AdSlotProps = {
   placement: "rail" | "footer";
   variant?: "primary" | "secondary" | "community";

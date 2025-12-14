@@ -24,6 +24,11 @@ model User {
   emailVerified Boolean  @default(false)
   isAdmin       Boolean  @default(false)
 
+  // 🔑 monetization
+  subscriptionTier String? // null | "founder" | "monthly" | "yearly"
+  subscriptionEnds DateTime?
+  isFounder        Boolean  @default(false)
+
   // relationships
   drafts              Draft[]
   rooms               Room[]               @relation("RoomHost")

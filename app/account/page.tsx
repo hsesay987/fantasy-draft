@@ -1,3 +1,4 @@
+// app/account/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -269,15 +270,15 @@ export default function AccountPage() {
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
             />
           </div>
-            <button
-              onClick={handleChangePassword}
-              disabled={changingPassword}
-              className="mt-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold disabled:opacity-60"
-            >
-              {changingPassword ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Updating...
+          <button
+            onClick={handleChangePassword}
+            disabled={changingPassword}
+            className="mt-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+          >
+            {changingPassword ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Updating...
               </span>
             ) : (
               "Update password"
