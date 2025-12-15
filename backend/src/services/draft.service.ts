@@ -361,6 +361,16 @@ export async function createDraft(data: any, userId?: string) {
     const io = getIo();
     const roomCode = (rules as any).roomCode as string;
 
+    if (roomCode) {
+      // tie draft to the room so late joiners can be redirected
+      await prisma.room
+        .update({
+          where: { code: roomCode },
+          data: { status: "in_progress", gameId: draft.id },
+        })
+        .catch(() => null);
+    }
+
     if (io && roomCode) {
       io.to(`room:${roomCode}`).emit("room:draft-started", {
         draftId: draft.id,
@@ -407,9 +417,52 @@ export async function getDraftsByOwner(ownerId: string) {
 /* -------------------------------------------------------------------------- */
 
 export async function cancelDraft(id: string) {
+  const draft = await prisma.draft.findUnique({ where: { id } });
+  if (!draft) throw new Error("Draft not found");
+
+  const rules: DraftRules = (draft.rules as any) || {};
+  const roomCode = (rules as any).roomCode as string | undefined;
+  const hostUserId = (rules as any).hostUserId as string | undefined;
+
   await prisma.nBADraftPick.deleteMany({ where: { draftId: id } });
   await prisma.vote.deleteMany({ where: { draftId: id } });
   await prisma.draft.delete({ where: { id } });
+
+  // For online drafts, reset/clean up the room as well
+  if (rules.online && roomCode) {
+    const io = getIo();
+
+    // Remove non-host participants so everyone else is forced out
+    if (hostUserId) {
+      await prisma.roomParticipant.deleteMany({
+        where: { room: { code: roomCode }, NOT: { userId: hostUserId } },
+      });
+    }
+
+    // Reset room status so host can re-open, or delete if nobody left
+    const remaining = await prisma.roomParticipant.count({
+      where: { room: { code: roomCode } },
+    });
+
+    if (remaining <= 1) {
+      await prisma.room.deleteMany({ where: { code: roomCode } });
+      if (io) {
+        io.to(`room:${roomCode}`).emit("room:cancelled", { code: roomCode });
+      }
+    } else {
+      await prisma.room
+        .update({
+          where: { code: roomCode },
+          data: { status: "lobby", gameId: null },
+        })
+        .catch(() => null);
+
+      if (io) {
+        io.to(`room:${roomCode}`).emit("room:returned", { code: roomCode });
+      }
+    }
+  }
+
   return { ok: true };
 }
 

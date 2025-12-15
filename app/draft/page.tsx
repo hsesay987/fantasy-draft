@@ -105,53 +105,79 @@ export default function HomePage() {
         <h2 className="text-2xl font-semibold mb-4">Available Drafts</h2>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {draftCategories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => cat.enabled && cat.onClick?.()}
-              disabled={!cat.enabled}
-              className={`group relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-900/30 backdrop-blur-sm transition-all ${
-                cat.enabled
-                  ? "hover:border-indigo-500 hover:shadow-indigo-500/30"
-                  : "opacity-60 cursor-not-allowed"
-              }`}
-            >
-              {/* Image */}
-              <div className="relative h-40 w-full overflow-hidden">
-                <Image
-                  src={cat.image}
-                  alt={cat.name}
-                  fill
-                  className={`object-cover transition-all duration-300 group-hover:scale-105 ${
-                    !cat.enabled ? "grayscale" : ""
-                  }`}
-                />
-              </div>
-
-              {/* Title */}
-              <div className="p-4 text-left">
-                <div className="text-xl font-semibold mb-1 text-slate-100">
-                  {cat.name}
+          {draftCategories.map((cat) => {
+            const isNba = cat.id === "nba";
+            return (
+              <div
+                key={cat.id}
+                role={cat.enabled ? "button" : undefined}
+                onClick={() => cat.enabled && cat.onClick?.()}
+                className={`group relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-900/30 backdrop-blur-sm transition-all ${
+                  cat.enabled
+                    ? "hover:border-indigo-500 hover:shadow-indigo-500/30 cursor-pointer"
+                    : "opacity-60 cursor-not-allowed"
+                }`}
+              >
+                {/* Image */}
+                <div className="relative h-40 w-full overflow-hidden">
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className={`object-cover transition-all duration-300 group-hover:scale-105 ${
+                      !cat.enabled ? "grayscale" : ""
+                    }`}
+                  />
                 </div>
-                {cat.enabled ? (
-                  <p className="text-sm text-indigo-400 font-medium">
-                    ✦ Start Draft
-                  </p>
-                ) : (
-                  <p className="text-sm text-slate-500">Coming Soon</p>
+
+                {/* Title */}
+                <div className="p-4 text-left">
+                  <div className="text-xl font-semibold mb-1 text-slate-100">
+                    {cat.name}
+                  </div>
+                  {cat.enabled ? (
+                    <p className="text-sm text-indigo-400 font-medium">
+                      ✦ Start Draft
+                    </p>
+                  ) : (
+                    <p className="text-sm text-slate-500">Coming Soon</p>
+                  )}
+
+                  {cat.enabled && isNba && (
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push("/draft/new");
+                        }}
+                        className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2"
+                      >
+                        Offline Draft
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push("/online");
+                        }}
+                        className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2"
+                      >
+                        Online Draft
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Coming Soon overlay */}
+                {!cat.enabled && (
+                  <div className="absolute inset-0 bg-slate-950/50 flex items-end justify-end p-3 pointer-events-none">
+                    <span className="text-[10px] uppercase tracking-wide bg-slate-700/60 text-slate-300 px-2 py-[2px] rounded">
+                      Coming Soon
+                    </span>
+                  </div>
                 )}
               </div>
-
-              {/* Coming Soon overlay */}
-              {!cat.enabled && (
-                <div className="absolute inset-0 bg-slate-950/50 flex items-end justify-end p-3 pointer-events-none">
-                  <span className="text-[10px] uppercase tracking-wide bg-slate-700/60 text-slate-300 px-2 py-[2px] rounded">
-                    Coming Soon
-                  </span>
-                </div>
-              )}
-            </button>
-          ))}
+            );
+          })}
         </div>
       </section>
 

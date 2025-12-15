@@ -10,12 +10,12 @@ import { loadAwardsVoting } from "./loaders/loadAwardsVoting";
 async function main() {
   console.log("📊 Seeding NBA advanced metrics...");
 
-  await loadAdvanced("data/Advanced.csv");
-  await loadPer36("data/Per 36 Minutes.csv");
-  await loadPlayByPlay("data/Player Play By Play.csv");
-  await loadAllStar("data/All-Star Selections.csv");
-  await loadEndOfSeasonTeams("data/End of Season Teams.csv");
-  await loadAwardsVoting("data/Player Award Shares.csv");
+  await loadAdvanced("data/nba/Advanced.csv");
+  await loadPer36("data/nba/Per 36 Minutes.csv");
+  await loadPlayByPlay("data/nba/Player Play By Play.csv");
+  await loadAllStar("data/nba/All-Star Selections.csv");
+  await loadEndOfSeasonTeams("data/nba/End of Season Teams.csv");
+  await loadAwardsVoting("data/nba/Player Award Shares.csv");
 
   console.log("✅ NBA advanced seed complete");
   await prisma.$disconnect();

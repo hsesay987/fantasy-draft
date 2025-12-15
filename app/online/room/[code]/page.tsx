@@ -14,6 +14,7 @@ type Room = {
   code: string;
   hostId: string;
   status: string;
+  gameId?: string | null;
   participants: {
     user: {
       id: string;
@@ -79,11 +80,39 @@ export default function RoomLobbyPage() {
       }
 
       const data = (await res.json()) as Room;
+      const isMember = data.participants.some((p) => p.user.id === user?.id);
+      if (!isMember) {
+        setError("You are not in this room.");
+        setRoom(null);
+        localStorage.removeItem("activeRoomCode");
+        localStorage.removeItem("activeRoomDraftId");
+        return;
+      }
+
       setRoom(data);
       setError(null);
+
+      // Persist room presence for header banner
+      localStorage.setItem("activeRoomCode", data.code);
+      if (data.status === "in_progress" && data.gameId) {
+        localStorage.setItem("activeRoomDraftId", data.gameId);
+      } else {
+        localStorage.removeItem("activeRoomDraftId");
+      }
+
+      // If a draft is already running and user was seated, jump back in
+      if (
+        data.status === "in_progress" &&
+        data.gameId &&
+        data.participants.some((p) => p.user.id === user?.id)
+      ) {
+        router.replace(`/draft/${data.gameId}`);
+      }
     } catch (e: any) {
       setError(e.message || "Failed to load room");
       setRoom(null);
+      localStorage.removeItem("activeRoomCode");
+      localStorage.removeItem("activeRoomDraftId");
     } finally {
       setLoading(false);
     }
@@ -99,7 +128,7 @@ export default function RoomLobbyPage() {
     fetchRoom();
     const interval = setInterval(fetchRoom, 3000); // polling fallback
     return () => clearInterval(interval);
-  }, [code, token]);
+  }, [code, token, user?.id]);
 
   /* -------------------- SOCKET.IO: FOLLOW DRAFT START -------------------- */
   useEffect(() => {
@@ -112,10 +141,14 @@ export default function RoomLobbyPage() {
     socket.emit("room:join", code);
 
     socket.on("room:draft-started", (payload: { draftId: string }) => {
+      localStorage.setItem("activeRoomCode", String(code));
+      localStorage.setItem("activeRoomDraftId", payload.draftId);
       router.push(`/draft/${payload.draftId}`);
     });
     socket.on("room:cancelled", () => {
       alert("Host cancelled this game. Returning to Online lobby.");
+      localStorage.removeItem("activeRoomCode");
+      localStorage.removeItem("activeRoomDraftId");
       router.push("/online");
     });
 
@@ -204,6 +237,8 @@ export default function RoomLobbyPage() {
       }
 
       const draft = await res.json();
+      localStorage.setItem("activeRoomCode", room.code);
+      localStorage.setItem("activeRoomDraftId", draft.id);
       // Host goes straight into the draft; others are pushed via Socket.IO
       router.push(`/draft/${draft.id}`);
     } catch (e: any) {
@@ -238,6 +273,8 @@ export default function RoomLobbyPage() {
         throw new Error(e.error || "Failed to cancel room");
       }
 
+      localStorage.removeItem("activeRoomCode");
+      localStorage.removeItem("activeRoomDraftId");
       router.push("/online");
     } catch (e: any) {
       setError(e.message || "Failed to cancel room");

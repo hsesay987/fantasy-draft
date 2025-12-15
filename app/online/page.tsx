@@ -47,6 +47,8 @@ export default function OnlinePage() {
       }
 
       const room = await res.json();
+      localStorage.setItem("activeRoomCode", room.code);
+      localStorage.removeItem("activeRoomDraftId");
       router.push(`/online/room/${room.code}`);
     } catch (err: any) {
       setError(err.message);
@@ -81,6 +83,15 @@ export default function OnlinePage() {
         throw new Error(e.error || "Failed to join room");
       }
 
+      const room = await res.json();
+      localStorage.setItem("activeRoomCode", room.code);
+      if (room.status === "in_progress" && room.gameId) {
+        localStorage.setItem("activeRoomDraftId", room.gameId);
+        router.push(`/draft/${room.gameId}`);
+        return;
+      }
+
+      localStorage.removeItem("activeRoomDraftId");
       router.push(`/online/room/${joinCode}`);
     } catch (err: any) {
       setError(err.message);

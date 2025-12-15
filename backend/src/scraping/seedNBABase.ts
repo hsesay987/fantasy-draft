@@ -89,9 +89,9 @@ function eligiblePositions(pos: string) {
 async function main() {
   console.log("🏀 Seeding NBA players & seasons...");
 
-  const totals = readCsv<TotalsRow>("Player Totals.csv");
-  const adv = readCsv<AdvancedRow>("Advanced.csv");
-  const careers = readCsv<CareerRow>("Player Career Info.csv");
+  const totals = readCsv<TotalsRow>("nba/Player Totals.csv");
+  const adv = readCsv<AdvancedRow>("nba/Advanced.csv");
+  const careers = readCsv<CareerRow>("nba/Player Career Info.csv");
 
   const advMap = new Map(adv.map((a) => [`${a.player_id}_${a.season}`, a]));
 

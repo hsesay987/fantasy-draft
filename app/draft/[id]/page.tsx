@@ -4,7 +4,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, memo } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import TEAM_DATA, { TeamData } from "../../teamData";
@@ -190,9 +190,9 @@ const ERA_1970s = [
   "BKN",
   "SAS",
 ];
-// Timberwolves debuted in 1989-90; exclude them from 1980s spins
-const ERA_1980s = [...ERA_1970s, "DAL", "CHA", "MIA", "ORL"];
-const ERA_1990s = [...ERA_1980s, "MIN", "TOR", "MEM"];
+// Timberwolves/Heat/Mavs shouldn't appear in 1980s spins
+const ERA_1980s = [...ERA_1970s, "CHA", "ORL"];
+const ERA_1990s = [...ERA_1980s, "DAL", "MIA", "MIN", "TOR", "MEM"];
 const ERA_2000s = [...ERA_1990s];
 const ERA_MODERN = [
   "ATL",
@@ -291,6 +291,10 @@ export default function DraftPage() {
   /***************************************************************************/
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [timerActive, setTimerActive] = useState(false);
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerDeadlineRef = useRef<number | null>(null);
+  const timerTurnKeyRef = useRef<string | null>(null);
+  const autoPickTriggeredRef = useRef(false);
 
   /***************************************************************************/
   /*                         DERIVED DATA                                    */
@@ -434,6 +438,13 @@ export default function DraftPage() {
 
     return () => clearInterval(interval);
   }, [draft?.id, isOnline]);
+
+  useEffect(() => {
+    if (draft?.rules?.online && draft.rules.roomCode) {
+      localStorage.setItem("activeRoomCode", draft.rules.roomCode);
+      localStorage.setItem("activeRoomDraftId", draft.id);
+    }
+  }, [draft?.id, draft?.rules?.online, draft?.rules?.roomCode]);
 
   const [suggestedPicks, setSuggestedPicks] = useState<
     {
@@ -866,10 +877,32 @@ export default function DraftPage() {
       method: "DELETE",
     });
 
+    if (draft.rules?.online && draft.rules.roomCode) {
+      localStorage.removeItem("activeRoomDraftId");
+      localStorage.removeItem("activeRoomCode");
+      if (token) {
+        await fetch(`${API_URL}/rooms/${draft.rules.roomCode}/leave`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }).catch(() => null);
+      }
+      window.location.href = "/online";
+      return;
+    }
+
     window.location.href = "/draft/new";
   }
 
   function handleNewDraft() {
+    if (draft?.rules?.online && draft.rules.roomCode) {
+      const ok = draftComplete
+        ? true
+        : confirm("Return to the lobby to ready up a new draft?");
+      if (!ok) return;
+      window.location.href = `/online/room/${draft.rules.roomCode}`;
+      return;
+    }
+
     const ok = draftComplete
       ? true
       : confirm("Draft not finished. Start a new one anyway?");
@@ -991,9 +1024,24 @@ export default function DraftPage() {
   /*                               TIMER Updated                             */
   /***************************************************************************/
   useEffect(() => {
-    if (!draft || !activeParticipant) {
+    const clearIntervalOnly = () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+    };
+
+    const resetTimer = () => {
+      clearIntervalOnly();
+      timerDeadlineRef.current = null;
+      timerTurnKeyRef.current = null;
+      autoPickTriggeredRef.current = false;
       setTimerActive(false);
       setTimeLeft(null);
+    };
+
+    if (!draft || !activeParticipant) {
+      resetTimer();
       return;
     }
 
@@ -1005,8 +1053,7 @@ export default function DraftPage() {
       draft.mode === "classic" && draft.randomTeam && !lockedTeam;
 
     if (!seconds || !auto || needsEraSpin || needsTeamSpin) {
-      setTimerActive(false);
-      setTimeLeft(null);
+      resetTimer();
       return;
     }
 
@@ -1014,173 +1061,58 @@ export default function DraftPage() {
       (p) => p.ownerIndex === activeParticipant
     );
     if (picksForActive.length >= playersPerTeam) {
-      setTimerActive(false);
-      setTimeLeft(null);
+      resetTimer();
       return;
     }
 
-    setTimeLeft(seconds);
+    const turnKey = `${draft.id}-${activeParticipant}-${draft.picks.length}`;
+    const timerAlreadyRunning = timerTurnKeyRef.current === turnKey;
+
+    if (!timerAlreadyRunning) {
+      timerTurnKeyRef.current = turnKey;
+      timerDeadlineRef.current = Date.now() + seconds * 1000;
+      autoPickTriggeredRef.current = false;
+    }
+
     setTimerActive(true);
 
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev === null) return null;
-        if (prev <= 1) {
-          clearInterval(interval);
-          setTimerActive(false);
-          if (!pendingPlayer) {
-            autoPickCurrentTurn();
-          }
+    const tick = () => {
+      const deadline = timerDeadlineRef.current;
+      if (!deadline) return;
+      const remainingMs = deadline - Date.now();
+      const remainingSeconds = Math.max(
+        0,
+        Math.ceil(remainingMs / 1000)
+      );
 
-          return 0;
+      setTimeLeft((prev) =>
+        prev === remainingSeconds ? prev : remainingSeconds
+      );
+
+      if (remainingMs <= 0 && !autoPickTriggeredRef.current) {
+        autoPickTriggeredRef.current = true;
+        resetTimer();
+        if (!pendingPlayer) {
+          autoPickCurrentTurn();
         }
-        return prev - 1;
-      });
-    }, 1000);
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, [draft, activeParticipant, lockedEra, lockedTeam]);
+    tick();
+    clearIntervalOnly();
+    timerIntervalRef.current = setInterval(tick, 250);
 
-  /***************************************************************************/
-  /*                      PLAYER CARD COMPONENT (UNCHANGED UI)               */
-  /***************************************************************************/
-  const PlayerCard = ({
-    pick,
-    slot,
-    isSelected,
-    onSelect,
-    onUndo,
-  }: {
-    pick: DraftPick | undefined;
-    slot: number;
-    isSelected: boolean;
-    onSelect: (slot: number) => void;
-    onUndo: (slot: number, e: React.MouseEvent) => void;
-  }) => {
-    const pos = getSlotPosition(slot, draft);
-    const playerScore =
-      score?.perPlayerScores.find((s) => s.slot === slot) ?? null;
-    const seasonUsed = pick?.seasonUsed || pick?.player.bestSeason?.season;
-    const teamCode = pick?.teamUsed || pick?.player.primaryTeam;
-    const teamData = teamCode ? teamDataMap.get(teamCode) : undefined;
+    return () => clearIntervalOnly();
+  }, [
+    draft,
+    activeParticipant,
+    lockedEra,
+    lockedTeam,
+    playersPerTeam,
+    pendingPlayer,
+  ]);
 
-    const primaryColor = teamData?.colors[0] || "#4f46e5";
-    const secondaryColor = teamData?.colors[1] || "#22c55e";
-
-    return (
-      <div
-        key={slot}
-        onClick={() => onSelect(slot)}
-        className={`relative flex flex-col rounded-xl border-[1.5px] overflow-hidden cursor-pointer transition-all duration-200
-          ${
-            isSelected
-              ? "border-indigo-400 shadow-lg shadow-indigo-500/40 scale-[1.01]"
-              : "border-slate-700 hover:border-slate-500"
-          }
-        `}
-        style={{
-          background: pick
-            ? `radial-gradient(circle at 10% 0%, ${primaryColor}33 0, #020617 50%)`
-            : "#020617",
-        }}
-      >
-        {/* HEADER */}
-        <div className="flex items-center justify-between px-2 pt-1.5 pb-1">
-          <div className="flex flex-col">
-            <span className="text-[8.5px] uppercase tracking-[0.16em] text-slate-400">
-              Slot {slot} {pos ? `• ${pos}` : "• Bench"}
-            </span>
-            <span className="text-xs font-semibold text-white truncate max-w-[150px]">
-              {pick ? pick.player.name : "Empty"}
-            </span>
-          </div>
-
-          {pick && teamData && (
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-semibold text-slate-100">
-                {teamData.code}
-              </span>
-              <Image
-                src={teamData?.logoUrl || "/logos/default.svg"}
-                alt={teamCode || "TEAM"}
-                width={22}
-                height={22}
-                className="h-5 w-5 object-contain drop-shadow"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* BODY */}
-        {pick ? (
-          <div className="relative flex items-end px-2 pb-2.5 pt-1 min-h-[72px]">
-            <div className="flex flex-col gap-0.5 z-10 pr-12">
-              <span className="text-[10px] text-slate-200">
-                {pick.player.position}
-                {seasonUsed ? ` • ${seasonUsed}` : ""}
-              </span>
-
-              {playerScore && (
-                <div className="flex items-center flex-wrap gap-1">
-                  <span className="inline-flex items-center rounded-full px-1.5 py-[1px] text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
-                    Score {playerScore.score.toFixed(1)}
-                  </span>
-                  <span className="text-[9px] text-slate-300">
-                    {playerScore.ppg.toFixed(1)} PPG
-                  </span>
-                  {playerScore?.seasonUsed && (
-                    <span className="text-[9px] text-slate-300">
-                      • {playerScore.seasonUsed}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Player image */}
-            <div className="absolute right-1 bottom-0 h-16 w-16 opacity-85">
-              <Image
-                src={
-                  pick.player.imageUrl ||
-                  // Basketball-Reference fallback (uses your player.id)
-                  `https://www.basketball-reference.com/req/202106291/images/players/${pick.player.id}.jpg`
-                }
-                alt={pick.player.name}
-                width={70}
-                height={70}
-                className="h-full w-full object-contain drop-shadow-lg"
-                unoptimized
-              />
-            </div>
-
-            {/* Undo (disabled in online drafts) */}
-            {!draft?.rules?.online && (
-              <button
-                onClick={(e) => onUndo(slot, e)}
-                className="absolute top-1 right-1 z-20 rounded-full bg-slate-950/80 px-1.5 py-[1px] text-[8px] font-semibold text-red-300 hover:text-red-100 hover:bg-red-700/60 border border-red-500/40"
-              >
-                Undo
-              </button>
-            )}
-
-            <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-[#020617dd] to-transparent" />
-          </div>
-        ) : (
-          <div className="px-2 pb-2.5 pt-1 text-[10px] text-slate-500 italic">
-            Awaiting pick...
-          </div>
-        )}
-
-        <div
-          className="h-[2px] w-full"
-          style={{
-            background: `linear-gradient(90deg,${primaryColor},${secondaryColor})`,
-          }}
-        />
-      </div>
-    );
-  };
-
+  // Player cards rendered via memoized component near bottom of file
   /***************************************************************************/
   /*                   AUTO SCROLL TO ACTIVE PARTICIPANT                   */
   /***************************************************************************/
@@ -1667,14 +1599,27 @@ export default function DraftPage() {
                     <div className="flex flex-col gap-2">
                       {slots.map((slot) => {
                         const pick = draft.picks.find((p) => p.slot === slot);
+                        const positionLabel = getSlotPosition(slot, draft);
+                        const playerScore =
+                          score?.perPlayerScores.find((s) => s.slot === slot) ??
+                          null;
+                        const teamCode = pick?.teamUsed || pick?.player.primaryTeam || null;
+                        const teamData = teamCode
+                          ? teamDataMap.get(teamCode)
+                          : undefined;
                         return (
                           <PlayerCard
                             key={slot}
                             pick={pick}
                             slot={slot}
+                            positionLabel={positionLabel}
                             isSelected={selectedSlot === slot}
+                            playerScore={playerScore}
+                            teamData={teamData}
+                            teamCode={teamCode}
+                            canUndo={!draft?.rules?.online}
                             onSelect={setSelectedSlot}
-                            onUndo={handleUndo}
+                            onUndo={draft?.rules?.online ? undefined : handleUndo}
                           />
                         );
                       })}
@@ -2076,6 +2021,154 @@ export default function DraftPage() {
     </main>
   );
 }
+
+type PlayerCardProps = {
+  pick?: DraftPick;
+  slot: number;
+  positionLabel?: string;
+  isSelected: boolean;
+  playerScore?: ScoreResponse["perPlayerScores"][number] | null;
+  teamData?: TeamData;
+  teamCode?: string | null;
+  canUndo: boolean;
+  onSelect: (slot: number) => void;
+  onUndo?: (slot: number, e?: React.MouseEvent) => void;
+};
+
+const PlayerCard = memo(
+  ({
+    pick,
+    slot,
+    positionLabel,
+    isSelected,
+    playerScore,
+    teamData,
+    teamCode,
+    canUndo,
+    onSelect,
+    onUndo,
+  }: PlayerCardProps) => {
+    const seasonUsed = pick?.seasonUsed || pick?.player.bestSeason?.season;
+    const primaryColor = teamData?.colors[0] || "#4f46e5";
+    const secondaryColor = teamData?.colors[1] || "#22c55e";
+
+    return (
+      <div
+        onClick={() => onSelect(slot)}
+        className={`relative flex flex-col rounded-xl border-[1.5px] overflow-hidden cursor-pointer transition-all duration-200
+          ${
+            isSelected
+              ? "border-indigo-400 shadow-lg shadow-indigo-500/40 scale-[1.01]"
+              : "border-slate-700 hover:border-slate-500"
+          }
+        `}
+        style={{
+          background: pick
+            ? `radial-gradient(circle at 10% 0%, ${primaryColor}33 0, #020617 50%)`
+            : "#020617",
+        }}
+      >
+        <div className="flex items-center justify-between px-2 pt-1.5 pb-1">
+          <div className="flex flex-col">
+            <span className="text-[8.5px] uppercase tracking-[0.16em] text-slate-400">
+              Slot {slot} {positionLabel ? `• ${positionLabel}` : "• Bench"}
+            </span>
+            <span className="text-xs font-semibold text-white truncate max-w-[150px]">
+              {pick ? pick.player.name : "Empty"}
+            </span>
+          </div>
+
+          {pick && teamData && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-semibold text-slate-100">
+                {teamData.code}
+              </span>
+              <Image
+                src={teamData?.logoUrl || "/logos/default.svg"}
+                alt={teamCode || "TEAM"}
+                width={22}
+                height={22}
+                className="h-5 w-5 object-contain drop-shadow"
+              />
+            </div>
+          )}
+        </div>
+
+        {pick ? (
+          <div className="relative flex items-end px-2 pb-2.5 pt-1 min-h-[72px]">
+            <div className="flex flex-col gap-0.5 z-10 pr-12">
+              <span className="text-[10px] text-slate-200">
+                {pick.player.position}
+                {seasonUsed ? ` • ${seasonUsed}` : ""}
+              </span>
+
+              {playerScore && (
+                <div className="flex items-center flex-wrap gap-1">
+                  <span className="inline-flex items-center rounded-full px-1.5 py-[1px] text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+                    Score {playerScore.score.toFixed(1)}
+                  </span>
+                  <span className="text-[9px] text-slate-300">
+                    {playerScore.ppg.toFixed(1)} PPG
+                  </span>
+                  {playerScore?.seasonUsed && (
+                    <span className="text-[9px] text-slate-300">
+                      • {playerScore.seasonUsed}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="absolute right-1 bottom-0 h-16 w-16 opacity-85">
+              <Image
+                src={
+                  pick.player.imageUrl ||
+                  `https://www.basketball-reference.com/req/202106291/images/players/${pick.player.id}.jpg`
+                }
+                alt={pick.player.name}
+                width={70}
+                height={70}
+                className="h-full w-full object-contain drop-shadow-lg"
+                unoptimized
+              />
+            </div>
+
+            {canUndo && onUndo && (
+              <button
+                onClick={(e) => onUndo(slot, e)}
+                className="absolute top-1 right-1 z-20 rounded-full bg-slate-950/80 px-1.5 py-[1px] text-[8px] font-semibold text-red-300 hover:text-red-100 hover:bg-red-700/60 border border-red-500/40"
+              >
+                Undo
+              </button>
+            )}
+
+            <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-[#020617dd] to-transparent" />
+          </div>
+        ) : (
+          <div className="px-2 pb-2.5 pt-1 text-[10px] text-slate-500 italic">
+            Awaiting pick...
+          </div>
+        )}
+
+        <div
+          className="h-[2px] w-full"
+          style={{
+            background: `linear-gradient(90deg,${primaryColor},${secondaryColor})`,
+          }}
+        />
+      </div>
+    );
+  },
+  (prev, next) =>
+    prev.slot === next.slot &&
+    prev.isSelected === next.isSelected &&
+    prev.canUndo === next.canUndo &&
+    prev.positionLabel === next.positionLabel &&
+    prev.teamCode === next.teamCode &&
+    prev.pick?.id === next.pick?.id &&
+    prev.pick?.player.id === next.pick?.player.id &&
+    prev.playerScore?.score === next.playerScore?.score
+);
 
 // // app/draft/[id]/page.tsx  (OPTION B - CLEAN DRAFT ROOM)
 // "use client";

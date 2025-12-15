@@ -48,7 +48,11 @@ function calcThreeRate(fg3a: number, fga: number): number | null {
 }
 
 async function loadCsv(): Promise<RawRow[]> {
-  const csvPath = path.join(process.cwd(), "data", "nba_player_seasons.csv");
+  const csvPath = path.join(
+    process.cwd(),
+    "data",
+    "nba/nba_player_seasons.csv"
+  );
   const buf = await fs.readFile(csvPath);
   const records = parse(buf, {
     columns: true,

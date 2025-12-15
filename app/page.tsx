@@ -100,20 +100,12 @@ export default function MainHomePage() {
                 </p>
 
                 {isDraft && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => router.push("/draft")}
-                      className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2"
-                    >
-                      Offline Drafts
-                    </button>
-                    <button
-                      onClick={() => router.push("/online")}
-                      className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2"
-                    >
-                      Online Drafts
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => router.push("/draft")}
+                    className="w-full rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2 font-semibold"
+                  >
+                    Explore Drafts
+                  </button>
                 )}
               </div>
 

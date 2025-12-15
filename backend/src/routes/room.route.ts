@@ -99,9 +99,21 @@ router.post("/:code/join", authRequired, async (req: AuthedRequest, res) => {
       return res.status(404).json({ error: "Room not found" });
     }
 
-    // already in room? just return
+    // already in room? handle in-progress redirect
     const alreadyInRoom = room.participants.some((p) => p.userId === userId);
-    if (alreadyInRoom) return res.json(room);
+    if (alreadyInRoom) {
+      if (room.status === "in_progress" && room.gameId) {
+        return res.json({ ...room, activeDraftId: room.gameId });
+      }
+      return res.json(room);
+    }
+
+    // If a draft is already running, block new joins
+    if (room.status === "in_progress" && room.gameId) {
+      return res
+        .status(409)
+        .json({ error: "Draft already in progress", activeDraftId: room.gameId });
+    }
 
     await prisma.roomParticipant.create({
       data: {
@@ -120,6 +132,53 @@ router.post("/:code/join", authRequired, async (req: AuthedRequest, res) => {
   } catch (e: any) {
     console.error(e);
     return res.status(500).json({ error: "Failed to join room" });
+  }
+});
+
+// LEAVE ROOM (self-serve, host leaving cancels room)
+router.post("/:code/leave", authRequired, async (req: AuthedRequest, res) => {
+  try {
+    const { code } = req.params;
+    const userId = req.userId;
+
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const room = await prisma.room.findUnique({
+      where: { code },
+      include: { participants: true },
+    });
+    if (!room) return res.status(404).json({ error: "Room not found" });
+
+    const isHost = room.hostId === userId;
+
+    if (isHost) {
+      await prisma.roomParticipant.deleteMany({ where: { roomId: room.id } });
+      await prisma.room.delete({ where: { id: room.id } });
+      const io = getIo();
+      if (io) io.to(`room:${code}`).emit("room:cancelled", { code });
+      return res.json({ ok: true, cancelled: true });
+    }
+
+    await prisma.roomParticipant.deleteMany({
+      where: { roomId: room.id, userId },
+    });
+
+    const remaining = await prisma.roomParticipant.count({
+      where: { roomId: room.id },
+    });
+
+    if (remaining <= 1) {
+      await prisma.roomParticipant.deleteMany({ where: { roomId: room.id } });
+      await prisma.room.delete({ where: { id: room.id } });
+      const io = getIo();
+      if (io) io.to(`room:${code}`).emit("room:cancelled", { code });
+      return res.json({ ok: true, cancelled: true });
+    }
+
+    return res.json({ ok: true });
+  } catch (e: any) {
+    console.error(e);
+    return res.status(500).json({ error: "Failed to leave room" });
   }
 });
 
