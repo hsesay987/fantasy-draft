@@ -459,15 +459,24 @@ export async function createDraft(data: any, userId?: string) {
     rules.allowDefense =
       rules.allowDefense !== undefined ? rules.allowDefense : true;
     rules.fantasyScoring =
-      rules.fantasyScoring !== undefined ? rules.fantasyScoring : false;
+    rules.fantasyScoring !== undefined ? rules.fantasyScoring : false;
   }
 
-  const rulesJson = jsonSafe(rules);
+  const lineup = isNfl ? getNflLineup(rules) : undefined;
   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
     isNfl ? { ...data, playersPerTeam: rules.playersPerTeam } : data,
     rules
   );
-  const maxPlayers = participants * playersPerTeam;
+  const playersPerTeamFinal = isNfl
+    ? lineup?.length ?? playersPerTeam
+    : playersPerTeam;
+
+  if (isNfl) {
+    rules.playersPerTeam = playersPerTeamFinal;
+  }
+
+  const rulesJson = jsonSafe(rules);
+  const maxPlayers = participants * playersPerTeamFinal;
 
   // ✅ CREATE GAME FIRST
   const game = await prisma.game.create({
@@ -487,7 +496,7 @@ export async function createDraft(data: any, userId?: string) {
       ownerId: userId ?? null,
       rules: rulesJson,
       participants,
-      playersPerTeam,
+      playersPerTeam: playersPerTeamFinal,
       maxPlayers,
       requirePositions:
         data.requirePositions !== undefined
@@ -709,6 +718,7 @@ export async function updatePick(
     ...(draft.rules as any)?.savedState,
   };
 
+  const lineup = isNfl ? getNflLineup(rules) : undefined;
   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
     isNfl
       ? {
@@ -718,23 +728,39 @@ export async function updatePick(
       : draft,
     rules
   );
+  const playersPerTeamFinal = isNfl
+    ? lineup?.length ?? playersPerTeam
+    : playersPerTeam;
 
   const picks = isNfl ? draft.nflPicks : draft.picks;
-  const totalPicks = picks.length;
-  const activeParticipant = (totalPicks % participants) + 1;
+  const pickIndex = picks.length;
+
+  const slotOwner =
+    isNfl && playersPerTeamFinal
+      ? Math.floor((data.slot - 1) / playersPerTeamFinal) + 1
+      : (pickIndex % participants) + 1;
+
+  const ownerIndex = slotOwner;
+
+  if (slotOwner !== ownerIndex) {
+    throw new Error("Invalid slot ownership");
+  }
 
   // 🔹 NEW: enforce by userId when online
   const seatAssignments: string[] | undefined = (rules as any).seatAssignments;
 
   if (rules.online && seatAssignments && seatAssignments.length) {
-    const expectedUserId = seatAssignments[activeParticipant - 1];
+    const expectedUserId = seatAssignments[ownerIndex - 1];
     if (expectedUserId && expectedUserId !== data.userId) {
       throw new Error("Not your turn");
     }
   }
 
-  const slotParticipant = Math.floor((data.slot - 1) / playersPerTeam) + 1;
-  if (slotParticipant !== activeParticipant) throw new Error("Not your turn");
+  if (!isNfl) {
+    const slotParticipant =
+      Math.floor((data.slot - 1) / playersPerTeamFinal) + 1;
+    if (slotParticipant !== ownerIndex) throw new Error("Not your turn");
+  }
 
   if (picks.some((p: any) => p.playerId === data.playerId))
     throw new Error("Player already drafted");
@@ -756,7 +782,7 @@ export async function updatePick(
 
     const lineup = getNflLineup(rules);
     const requiredPos = draft.requirePositions
-      ? lineup[(data.slot - 1) % playersPerTeam]
+      ? lineup[(data.slot - 1) % playersPerTeamFinal]
       : null;
     const normalizedPos = normalizeNflPosition(data.position);
 
@@ -788,7 +814,7 @@ export async function updatePick(
         slot: data.slot,
         playerId: data.playerId,
         position: normalizedPos,
-        ownerIndex: activeParticipant,
+        ownerIndex,
         seasonUsed: chosen.seasonUsed ?? null,
         teamUsed: null,
       },
@@ -816,7 +842,7 @@ export async function updatePick(
       let teamTotalPpg = chosen.statLine.ppg;
 
       for (const existing of draft.picks) {
-        if (existing.ownerIndex !== activeParticipant) continue;
+        if (existing.ownerIndex !== ownerIndex) continue;
         if (!existing.player) continue;
 
         const existingChoice = chooseSeasonForScoring(
@@ -848,7 +874,7 @@ export async function updatePick(
         slot: data.slot,
         playerId: data.playerId,
         position: data.position,
-        ownerIndex: activeParticipant,
+        ownerIndex,
         seasonUsed: chosen.seasonUsed ?? null,
         teamUsed:
           data.teamOverride ??

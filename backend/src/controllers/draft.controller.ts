@@ -14,6 +14,16 @@ export async function listDrafts(req: Request, res: Response) {
 
 export async function createDraft(req: AuthedRequest, res: Response) {
   const ownerId = req.userId ?? null;
+
+  const league = (req.body?.league || "NBA").toUpperCase();
+  const rules = req.body?.rules;
+
+  if (league === "NFL" && (!rules?.lineup || !rules.lineup.length)) {
+    return res.status(400).json({
+      error: "NFL drafts require a lineup definition",
+    });
+  }
+
   try {
     const draft = await DraftService.createDraft(req.body, ownerId);
     res.status(201).json(draft);
