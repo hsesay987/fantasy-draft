@@ -18,6 +18,7 @@ type DraftSummary = {
   title: string | null;
   mode: string;
   createdAt?: string;
+  league?: string;
 };
 
 type DraftCategory = {
@@ -258,11 +259,20 @@ export default function HomePage() {
               {drafts.map((d) => (
                 <button
                   key={d.id}
-                  onClick={() => router.push(`/draft/${d.id}`)}
+                  onClick={() => {
+                    const leaguePath =
+                      (d.league || "NBA").toUpperCase() === "NFL"
+                        ? "nfl"
+                        : "nba";
+                    router.push(`/draft/${leaguePath}/${d.id}`);
+                  }}
                   className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-left hover:border-indigo-500 transition-all"
                 >
                   <div className="font-semibold text-sm text-slate-100">
-                    {d.title || "NBA Draft"}
+                    {d.title ||
+                      ((d.league || "NBA").toUpperCase() === "NFL"
+                        ? "NFL Draft"
+                        : "NBA Draft")}
                   </div>
                   <div className="text-xs text-slate-400 flex items-center justify-between">
                     <span>Mode: {d.mode}</span>

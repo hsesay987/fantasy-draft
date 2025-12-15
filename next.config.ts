@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.cdn.turner.com",
       },
+      {
+        protocol: "https",
+        hostname: "a.espncdn.com",
+      },
     ],
   },
 };

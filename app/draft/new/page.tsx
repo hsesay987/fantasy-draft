@@ -246,7 +246,11 @@ export default function NewDraftPage() {
       }
 
       const draft = await res.json();
-      router.push(`/draft/${draft.id}`);
+      const leaguePath =
+        ((draft.league || league || "NBA") as string).toUpperCase() === "NFL"
+          ? "nfl"
+          : "nba";
+      router.push(`/draft/${leaguePath}/${draft.id}`);
     } catch {
       alert("Backend unreachable");
     } finally {

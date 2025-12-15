@@ -13,7 +13,8 @@
     "seed:nba": "npm run seed:nba:base && npm run seed:nba:advanced",
     "seed:nfl:base": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNFLBase.ts",
     "seed:nfl:advanced": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNFLAdvanced.ts",
-    "seed:nfl": "npm run seed:nfl:base && npm run seed:nfl:advanced"
+    "seed:nfl": "npm run seed:nfl:base && npm run seed:nfl:advanced",
+    "seed:nfl:fitTopPic": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scripts/updateFitTopPicEligibility.ts"
   },
   "keywords": [],
   "author": "",
