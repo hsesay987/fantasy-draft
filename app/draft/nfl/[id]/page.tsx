@@ -155,7 +155,7 @@ type ScoreResponse = {
 };
 
 /* --------------------------------- Constants ------------------------------- */
-const POSITION_ORDER = ["QB", "RB", "RB", "WR", "WR", "TE", "FLEX", "DEF"];
+const POSITION_ORDER = ["QB", "RB", "WR", "WR", "TE", "FLEX", "DEF"];
 
 const YEARS = Array.from({ length: 13 }, (_, i) => 2012 + i).map((year) => ({
   label: String(year),
@@ -252,7 +252,9 @@ export default function DraftPage() {
   const playersPerTeam = useMemo(
     () =>
       draft
-        ? draft.rules?.playersPerTeam && draft.rules.playersPerTeam > 0
+        ? draft.rules?.lineup?.length && draft.rules.lineup.length > 0
+          ? draft.rules.lineup.length
+          : draft.rules?.playersPerTeam && draft.rules.playersPerTeam > 0
           ? draft.rules.playersPerTeam
           : draft.playersPerTeam
         : POSITION_ORDER.length,
@@ -315,6 +317,11 @@ export default function DraftPage() {
   /***************************************************************************/
   /*                              UTIL                                       */
   /***************************************************************************/
+  const formatEra = (from?: number | null, to?: number | null) => {
+    if (!from || !to) return "?";
+    return from === to ? `${from}` : `${from}–${to}`;
+  };
+
   function getSlotPosition(slot: number | null, d: Draft | null) {
     if (!slot || !d || !d.requirePositions) return;
     const lineup =
@@ -452,7 +459,7 @@ export default function DraftPage() {
     }
     if (saved?.eraFrom && saved?.eraTo) {
       setLockedEra({ from: saved.eraFrom, to: saved.eraTo });
-      setEraSpinLabel(`${saved.eraFrom}-${saved.eraTo}`);
+      setEraSpinLabel(formatEra(saved.eraFrom, saved.eraTo));
     }
   }, [draft?.rules?.savedState]);
 
@@ -1254,10 +1261,7 @@ export default function DraftPage() {
             </h1>
             <p className="text-xs text-slate-400 mt-1">Mode: {draft.mode}</p>
             <p className="text-xs text-slate-400">
-              Season:{" "}
-              {draft.randomEra
-                ? "Random Year"
-                : `${draft.eraFrom ?? "?"}–${draft.eraTo ?? "?"}`}
+              Season: {draft.randomEra ? "Random Year" : formatEra(draft.eraFrom, draft.eraTo)}
             </p>
 
             {activeParticipant && (
@@ -1713,10 +1717,10 @@ export default function DraftPage() {
                   Locked:{" "}
                   <span className="font-semibold">
                     {lockedEra
-                      ? `${lockedEra.from}–${lockedEra.to}`
+                      ? formatEra(lockedEra.from, lockedEra.to)
                       : draft.randomEra
                       ? "Random"
-                      : `${draft.eraFrom ?? "?"}–${draft.eraTo ?? "?"}`}
+                      : formatEra(draft.eraFrom, draft.eraTo)}
                   </span>
                 </div>
               </div>
@@ -1805,10 +1809,10 @@ export default function DraftPage() {
               •{" "}
               <span className="font-medium">
                 {lockedEra
-                  ? `${lockedEra.from}-${lockedEra.to}`
+                  ? formatEra(lockedEra.from, lockedEra.to)
                   : draft.randomEra
                   ? "Random"
-                  : `${draft.eraFrom ?? "?"}-${draft.eraTo ?? "?"}`}
+                  : formatEra(draft.eraFrom, draft.eraTo)}
               </span>{" "}
               •{" "}
               <span className="font-medium">

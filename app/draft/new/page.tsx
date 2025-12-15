@@ -29,7 +29,7 @@ export default function NewDraftPage() {
 
   const [league, setLeague] = useState<"NBA" | "NFL">(initialLeague);
   const [title, setTitle] = useState("");
-  const NFL_LINEUP = ["QB", "RB", "RB", "WR", "WR", "TE", "FLEX", "DEF"];
+  const NFL_LINEUP = ["QB", "RB", "WR", "WR", "TE", "FLEX", "DEF"];
 
   type StatMode =
     | "peak"
@@ -173,8 +173,17 @@ export default function NewDraftPage() {
   async function handleCreate() {
     setLoading(true);
     try {
+      const nflBaseLineup = NFL_LINEUP;
+      const nflLineup =
+        league === "NFL" && playersPerTeam > nflBaseLineup.length
+          ? [
+              ...nflBaseLineup,
+              ...Array(playersPerTeam - nflBaseLineup.length).fill("FLEX"),
+            ]
+          : nflBaseLineup;
+
       const effectivePlayersPerTeam =
-        league === "NFL" ? NFL_LINEUP.length : playersPerTeam;
+        league === "NFL" ? nflLineup.length : playersPerTeam;
       const effectiveMaxPlayers = participants * effectivePlayersPerTeam;
 
       const rules = {
@@ -204,7 +213,7 @@ export default function NewDraftPage() {
         suggestionsEnabled: mode === "classic" ? false : suggestionsEnabled,
         ...(league === "NFL"
           ? {
-              lineup: NFL_LINEUP,
+              lineup: nflLineup,
               fantasyScoring: false,
               allowDefense: true,
             }
@@ -234,7 +243,8 @@ export default function NewDraftPage() {
               : undefined,
           maxPlayers: effectiveMaxPlayers,
           playersPerTeam: effectivePlayersPerTeam,
-          requirePositions: league === "NFL" ? true : isFree ? false : requirePositions,
+          requirePositions:
+            league === "NFL" ? true : isFree ? false : requirePositions,
           scoringMethod,
           rules,
         }),
@@ -376,7 +386,10 @@ export default function NewDraftPage() {
                   onChange={(e) => {
                     const v = Math.min(5, Math.max(1, Number(e.target.value)));
                     setParticipants(v);
-                    recalcTotalSlots(v, league === "NFL" ? NFL_LINEUP.length : playersPerTeam);
+                    recalcTotalSlots(
+                      v,
+                      league === "NFL" ? playersPerTeam : playersPerTeam
+                    );
                   }}
                   className={`w-full px-3 py-2 rounded-lg ${
                     isClassic
@@ -392,20 +405,24 @@ export default function NewDraftPage() {
                 </label>
                 <input
                   type="number"
-                  disabled={isClassic || league === "NFL"}
+                  disabled={isClassic || (league === "NFL" && mode !== "casual")}
                   min={league === "NFL" ? NFL_LINEUP.length : 5}
                   max={mode === "free" ? 15 : 12}
-                  value={league === "NFL" ? NFL_LINEUP.length : playersPerTeam}
+                  value={playersPerTeam}
                   onChange={(e) => {
                     const v = Math.min(
                       mode === "free" ? 15 : 12,
                       Math.max(1, Number(e.target.value))
                     );
-                    setPlayersPerTeam(v);
-                    recalcTotalSlots(participants, v);
+                    const clamped =
+                      league === "NFL"
+                        ? Math.max(NFL_LINEUP.length, v)
+                        : v;
+                    setPlayersPerTeam(clamped);
+                    recalcTotalSlots(participants, clamped);
                   }}
                   className={`w-full px-3 py-2 rounded-lg ${
-                    isClassic || league === "NFL"
+                    isClassic || (league === "NFL" && mode !== "casual")
                       ? "bg-slate-800 border-slate-700 text-slate-500"
                       : "bg-slate-900 border-slate-700"
                   }`}
