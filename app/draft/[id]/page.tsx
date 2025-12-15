@@ -85,6 +85,7 @@ type DraftRules = {
   mode?: string;
   suggestionsEnabled?: boolean;
   online?: boolean;
+  roomCode?: string | null;
   seatDisplayNames?: string[];
   seatAssignments?: string[];
 };
@@ -1080,10 +1081,7 @@ export default function DraftPage() {
       const deadline = timerDeadlineRef.current;
       if (!deadline) return;
       const remainingMs = deadline - Date.now();
-      const remainingSeconds = Math.max(
-        0,
-        Math.ceil(remainingMs / 1000)
-      );
+      const remainingSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
 
       setTimeLeft((prev) =>
         prev === remainingSeconds ? prev : remainingSeconds
@@ -1603,7 +1601,8 @@ export default function DraftPage() {
                         const playerScore =
                           score?.perPlayerScores.find((s) => s.slot === slot) ??
                           null;
-                        const teamCode = pick?.teamUsed || pick?.player.primaryTeam || null;
+                        const teamCode =
+                          pick?.teamUsed || pick?.player.primaryTeam || null;
                         const teamData = teamCode
                           ? teamDataMap.get(teamCode)
                           : undefined;
@@ -1619,7 +1618,9 @@ export default function DraftPage() {
                             teamCode={teamCode}
                             canUndo={!draft?.rules?.online}
                             onSelect={setSelectedSlot}
-                            onUndo={draft?.rules?.online ? undefined : handleUndo}
+                            onUndo={
+                              draft?.rules?.online ? undefined : handleUndo
+                            }
                           />
                         );
                       })}
