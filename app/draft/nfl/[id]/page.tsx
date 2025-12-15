@@ -263,8 +263,18 @@ export default function DraftPage() {
 
   const allSlots = useMemo(
     () =>
-      draft ? Array.from({ length: draft.maxPlayers }, (_, i) => i + 1) : [],
-    [draft]
+      draft
+        ? Array.from(
+            {
+              length: Math.max(
+                draft.maxPlayers || 0,
+                participants * playersPerTeam
+              ),
+            },
+            (_, i) => i + 1
+          )
+        : [],
+    [draft, participants, playersPerTeam]
   );
 
   const getParticipantForSlot = (slot: number) =>
@@ -272,7 +282,7 @@ export default function DraftPage() {
 
   const activeParticipant = useMemo(() => {
     if (!draft) return null;
-    if (draft.picks.length >= draft.maxPlayers) return null;
+    if (draft.picks.length >= allSlots.length) return null;
     return (draft.picks.length % participants) + 1;
   }, [draft, participants]);
 
@@ -1119,7 +1129,7 @@ export default function DraftPage() {
 
   // helpers / derived values that shouldn't change hook order
   const safeLen = (arr?: any[]) => (arr && arr.length ? arr.length : 1);
-  const draftComplete = draft ? draft.picks.length >= draft.maxPlayers : false;
+  const draftComplete = draft ? draft.picks.length >= allSlots.length : false;
 
   const activeSeatName =
     activeParticipant &&
