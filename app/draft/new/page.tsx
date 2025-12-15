@@ -2,7 +2,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ChevronRight,
   Settings,
@@ -20,7 +20,14 @@ export default function NewDraftPage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
   const searchParams = useSearchParams();
 
-  const [league, setLeague] = useState<"NBA" | "NFL">("NBA");
+  const queryLeague = useMemo(
+    () => (searchParams.get("league") || "").toUpperCase(),
+    [searchParams]
+  );
+  const initialLeague: "NBA" | "NFL" =
+    queryLeague === "NFL" ? "NFL" : "NBA";
+
+  const [league, setLeague] = useState<"NBA" | "NFL">(initialLeague);
   const [title, setTitle] = useState("");
   const NFL_LINEUP = ["QB", "RB", "RB", "WR", "WR", "TE", "FLEX", "DEF"];
 
@@ -48,10 +55,16 @@ export default function NewDraftPage() {
   const [teamConstraint, setTeamConstraint] = useState("");
 
   const [participants, setParticipants] = useState(2);
-  const [playersPerTeam, setPlayersPerTeam] = useState(6);
-  const [maxPlayers, setMaxPlayers] = useState(12);
+  const initialPlayersPerTeam =
+    initialLeague === "NFL" ? NFL_LINEUP.length : 6;
+  const [playersPerTeam, setPlayersPerTeam] = useState(initialPlayersPerTeam);
+  const [maxPlayers, setMaxPlayers] = useState(
+    2 * initialPlayersPerTeam
+  );
 
-  const [requirePositions, setRequirePositions] = useState(true);
+  const [requirePositions, setRequirePositions] = useState(
+    initialLeague === "NFL" ? true : true
+  );
 
   const [scoringMethod, setScoringMethod] = useState<
     "system" | "user" | "public"
@@ -74,15 +87,18 @@ export default function NewDraftPage() {
   const [suggestionsEnabled, setSuggestionsEnabled] = useState(true);
 
   useEffect(() => {
-    const qLeague = searchParams.get("league");
-    if (qLeague && qLeague.toUpperCase() === "NFL") {
-      setLeague("NFL");
+    // When league changes (e.g., via query), reset lineup sizing
+    if (league === "NFL") {
       setPlayersPerTeam(NFL_LINEUP.length);
       recalcTotalSlots(participants, NFL_LINEUP.length);
       setRequirePositions(true);
+    } else {
+      setPlayersPerTeam(6);
+      recalcTotalSlots(participants, 6);
+      setRequirePositions(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [league]);
 
   // ------------------------------------------
   //  LOCKING LOGIC

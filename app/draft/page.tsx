@@ -129,6 +129,7 @@ export default function HomePage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {draftCategories.map((cat) => {
             const isNba = cat.id === "nba";
+            const isNfl = cat.id === "nfl";
             const locked = !cat.enabled || (cat.requirePremium && !isPremium);
             return (
               <div
@@ -185,6 +186,28 @@ export default function HomePage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push("/online");
+                        }}
+                        className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2"
+                      >
+                        Online Draft
+                      </button>
+                    </div>
+                  )}
+                  {cat.enabled && isNfl && (
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          goToNfl();
+                        }}
+                        className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2"
+                      >
+                        Offline Draft
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push("/online?league=NFL");
                         }}
                         className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2"
                       >

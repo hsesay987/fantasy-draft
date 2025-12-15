@@ -1,13 +1,14 @@
 // app/online/room/[code]/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Crown, Users, Play, X } from "lucide-react";
 import { useAuth } from "@/app/hooks/useAuth";
 import { io } from "socket.io-client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const NFL_LINEUP = ["QB", "RB", "RB", "WR", "WR", "TE", "FLEX", "DEF"];
 
 type Room = {
   id: string;
@@ -36,7 +37,16 @@ type CasualConfig = {
 export default function RoomLobbyPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, token } = useAuth();
+
+  const queryLeague = useMemo(
+    () => (searchParams.get("league") || "").toUpperCase(),
+    [searchParams]
+  );
+  const [league] = useState<"NBA" | "NFL">(
+    queryLeague === "NFL" ? "NFL" : "NBA"
+  );
 
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,7 +59,7 @@ export default function RoomLobbyPage() {
   const [cancelling, setCancelling] = useState(false);
 
   const [casualConfig, setCasualConfig] = useState<CasualConfig>({
-    playersPerTeam: 6,
+    playersPerTeam: queryLeague === "NFL" ? NFL_LINEUP.length : 6,
     pickTimerSeconds: 0,
     maxPpgCap: "",
     autoPickEnabled: false,
@@ -206,8 +216,14 @@ export default function RoomLobbyPage() {
         rules.maxPpgCap = parsedPpgCap;
       }
     } else if (mode === "classic") {
-      rules.playersPerTeam = 6;
+      rules.playersPerTeam = league === "NFL" ? NFL_LINEUP.length : 6;
       rules.statMode = "peak-era-team";
+    }
+
+    if (league === "NFL") {
+      rules.lineup = NFL_LINEUP;
+      rules.allowDefense = true;
+      rules.fantasyScoring = false;
     }
 
     setStarting(true);
@@ -222,7 +238,7 @@ export default function RoomLobbyPage() {
         },
         body: JSON.stringify({
           title: `Room ${room.code} Draft`,
-          league: "NBA",
+          league,
           mode, // "classic" or "casual" (same logic as offline, no free)
           randomEra: true,
           randomTeam: true,
