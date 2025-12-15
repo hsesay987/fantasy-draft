@@ -19,7 +19,9 @@ export async function createDraft(req: AuthedRequest, res: Response) {
     res.status(201).json(draft);
   } catch (e: any) {
     console.error(e);
-    res.status(500).json({ error: "Failed to create draft" });
+    const message = e?.message || "Failed to create draft";
+    const status = message.toLowerCase().includes("premium") ? 403 : 500;
+    res.status(status).json({ error: message });
   }
 }
 

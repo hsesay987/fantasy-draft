@@ -37,7 +37,7 @@ model User {
   gameResults         GameResult[]
   verificationTokens  VerificationToken[]
   passwordResetTokens PasswordResetToken[]
-  communityAds        CommunityAd[]     @relation("UserAds")
+  communityAds        CommunityAd[]        @relation("UserAds")
   revenueEvents       RevenueEvent[]
 }
 
@@ -144,8 +144,8 @@ model CommunityAd {
 model RevenueEvent {
   id          String   @id @default(cuid())
   userId      String?
-  source      String   // "stripe" | "adsense" | "house"
-  type        String   // "subscription" | "impression"
+  source      String // "stripe" | "adsense" | "house"
+  type        String // "subscription" | "impression"
   amountCents Int      @default(0)
   currency    String   @default("usd")
   metadata    Json?
@@ -170,6 +170,8 @@ model NBAPlayer {
   primaryEraTo      Int?
   isHallOfFamer     Boolean @default(false)
   totalTeams        Int     @default(1)
+
+  fitTopPicEligible Boolean @default(false)
 
   seasonStats NBAPlayerSeasonStat[]
   draftPicks  NBADraftPick[]
@@ -225,6 +227,53 @@ model NBAPlayerSeasonStat {
   @@index([season])
 }
 
+model NFLPlayer {
+  id        String @id @default(cuid())
+  name      String
+  firstName String
+  lastName  String
+
+  rawPosition   String?
+  normalizedPos String // QB, RB, WR, TE, OL, DL, LB, DB, K, DEF, HC
+  positionTags  String[] // EDGE, FS, SLOT, etc.
+
+  primaryEraFrom Int?
+  primaryEraTo   Int?
+  teams          String[]
+
+  hallOfFame    Boolean @default(false)
+  proBowls      Int     @default(0)
+  allPros       Int     @default(0)
+  championships Int     @default(0)
+  careerAV      Float?
+
+  fitTopPicEligible Boolean @default(false)
+
+  seasons       NFLPlayerSeasonStat[]
+  nfldraftPicks NFLDraftPick[]
+}
+
+model NFLPlayerSeasonStat {
+  id       String @id @default(cuid())
+  playerId String
+  season   Int
+  team     String
+
+  games Int?
+
+  yards            Int?
+  touchdowns       Int?
+  receptions       Int?
+  sacks            Float?
+  interceptions    Int?
+  fantasyPoints    Float?
+  approximateValue Float?
+
+  player NFLPlayer @relation(fields: [playerId], references: [id])
+
+  @@unique([playerId, season])
+}
+
 model Draft {
   id        String   @id @default(cuid())
   gameId    String
@@ -251,8 +300,9 @@ model Draft {
   ownerId String? // nullable for anonymous/offline games
   owner   User?   @relation(fields: [ownerId], references: [id])
 
-  picks NBADraftPick[]
-  votes Vote[]
+  picks    NBADraftPick[]
+  nflPicks NFLDraftPick[]
+  votes    Vote[]
 
   game Game @relation(fields: [gameId], references: [id])
 }
@@ -266,6 +316,24 @@ model NBADraftPick {
 
   draft      Draft     @relation(fields: [draftId], references: [id])
   player     NBAPlayer @relation(fields: [playerId], references: [id])
+  ownerIndex Int       @default(1)
+  seasonUsed Int?
+  teamUsed   String?
+
+  @@unique([draftId, slot])
+  @@index([draftId, ownerIndex])
+  @@index([draftId, slot])
+}
+
+model NFLDraftPick {
+  id       String @id @default(cuid())
+  draftId  String
+  playerId String
+  slot     Int
+  position String
+
+  draft      Draft     @relation(fields: [draftId], references: [id])
+  player     NFLPlayer @relation(fields: [playerId], references: [id])
   ownerIndex Int       @default(1)
   seasonUsed Int?
   teamUsed   String?

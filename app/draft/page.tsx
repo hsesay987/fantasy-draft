@@ -10,6 +10,7 @@ import foodImg from "../assets/food.jpg";
 import animeImg from "../assets/anime.jpg";
 import cartoonsImg from "../assets/cartoons.jpg";
 import fifaImg from "../assets/fifa.jpg";
+import { useAuth } from "../hooks/useAuth";
 
 // Unified Draft Box Type
 type DraftSummary = {
@@ -24,14 +25,24 @@ type DraftCategory = {
   name: string;
   image: StaticImageData;
   enabled: boolean;
+  beta?: boolean;
+  requirePremium?: boolean;
   onClick?: () => void;
 };
 
 export default function HomePage() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+  const { user } = useAuth();
 
   const [drafts, setDrafts] = useState<DraftSummary[]>([]);
+
+  const isPremium =
+    !!user?.isAdmin ||
+    !!user?.isFounder ||
+    (!!user?.subscriptionTier &&
+      (!user.subscriptionEnds ||
+        new Date(user.subscriptionEnds).getTime() > Date.now()));
 
   async function loadDrafts() {
     try {
@@ -48,6 +59,14 @@ export default function HomePage() {
     loadDrafts();
   }, []);
 
+  const goToNfl = () => {
+    if (!isPremium) {
+      router.push("/account/subscription");
+      return;
+    }
+    router.push("/draft/new?league=NFL");
+  };
+
   const draftCategories: DraftCategory[] = [
     {
       id: "nba",
@@ -58,9 +77,12 @@ export default function HomePage() {
     },
     {
       id: "nfl",
-      name: "NFL Draft",
+      name: "NFL Draft (Beta)",
       image: nflImg,
-      enabled: false,
+      enabled: true,
+      beta: true,
+      requirePremium: true,
+      onClick: goToNfl,
     },
     {
       id: "food",
@@ -107,13 +129,14 @@ export default function HomePage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {draftCategories.map((cat) => {
             const isNba = cat.id === "nba";
+            const locked = !cat.enabled || (cat.requirePremium && !isPremium);
             return (
               <div
                 key={cat.id}
-                role={cat.enabled ? "button" : undefined}
-                onClick={() => cat.enabled && cat.onClick?.()}
+                role={!locked ? "button" : undefined}
+                onClick={() => !locked && cat.onClick?.()}
                 className={`group relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-900/30 backdrop-blur-sm transition-all ${
-                  cat.enabled
+                  !locked
                     ? "hover:border-indigo-500 hover:shadow-indigo-500/30 cursor-pointer"
                     : "opacity-60 cursor-not-allowed"
                 }`}
@@ -135,9 +158,13 @@ export default function HomePage() {
                   <div className="text-xl font-semibold mb-1 text-slate-100">
                     {cat.name}
                   </div>
-                  {cat.enabled ? (
+                  {!locked ? (
                     <p className="text-sm text-indigo-400 font-medium">
-                      ✦ Start Draft
+                      ✦ {cat.beta ? "Launch Beta" : "Start Draft"}
+                    </p>
+                  ) : cat.requirePremium ? (
+                    <p className="text-sm text-orange-300">
+                      Premium members only
                     </p>
                   ) : (
                     <p className="text-sm text-slate-500">Coming Soon</p>
@@ -165,13 +192,20 @@ export default function HomePage() {
                       </button>
                     </div>
                   )}
+
+                  {cat.beta && (
+                    <div className="mt-3 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-amber-300">
+                      <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                      Beta
+                    </div>
+                  )}
                 </div>
 
                 {/* Coming Soon overlay */}
-                {!cat.enabled && (
+                {locked && (
                   <div className="absolute inset-0 bg-slate-950/50 flex items-end justify-end p-3 pointer-events-none">
                     <span className="text-[10px] uppercase tracking-wide bg-slate-700/60 text-slate-300 px-2 py-[2px] rounded">
-                      Coming Soon
+                      {cat.requirePremium ? "Premium Beta" : "Coming Soon"}
                     </span>
                   </div>
                 )}

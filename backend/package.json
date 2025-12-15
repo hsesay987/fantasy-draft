@@ -10,7 +10,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed:nba:base": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNBABase.ts",
     "seed:nba:advanced": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNBAAdvanced.ts",
-    "seed:nba": "npm run seed:nba:base && npm run seed:nba:advanced"
+    "seed:nba": "npm run seed:nba:base && npm run seed:nba:advanced",
+    "seed:nfl:base": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNFLBase.ts",
+    "seed:nfl:advanced": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scraping/seedNFLAdvanced.ts",
+    "seed:nfl": "npm run seed:nfl:base && npm run seed:nfl:advanced"
   },
   "keywords": [],
   "author": "",

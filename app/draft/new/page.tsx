@@ -1,8 +1,8 @@
 // app/draft/new/page.tsx
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   ChevronRight,
   Settings,
@@ -18,8 +18,11 @@ import {
 export default function NewDraftPage() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+  const searchParams = useSearchParams();
 
+  const [league, setLeague] = useState<"NBA" | "NFL">("NBA");
   const [title, setTitle] = useState("");
+  const NFL_LINEUP = ["QB", "RB", "RB", "WR", "WR", "TE", "FLEX", "DEF"];
 
   type StatMode =
     | "peak"
@@ -70,6 +73,17 @@ export default function NewDraftPage() {
   const [autoPickEnabled, setAutoPickEnabled] = useState(false);
   const [suggestionsEnabled, setSuggestionsEnabled] = useState(true);
 
+  useEffect(() => {
+    const qLeague = searchParams.get("league");
+    if (qLeague && qLeague.toUpperCase() === "NFL") {
+      setLeague("NFL");
+      setPlayersPerTeam(NFL_LINEUP.length);
+      recalcTotalSlots(participants, NFL_LINEUP.length);
+      setRequirePositions(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ------------------------------------------
   //  LOCKING LOGIC
   // ------------------------------------------
@@ -79,12 +93,13 @@ export default function NewDraftPage() {
 
   // On mode change → set defaults
   function applyModeDefaults(nextMode: "classic" | "casual" | "free") {
+    const leaguePlayers = league === "NFL" ? NFL_LINEUP.length : undefined;
     if (nextMode === "classic") {
       // LOCKED SETTINGS — cannot be changed
       setRandomEra(true);
       setRandomTeam(true);
       setParticipants(2);
-      setPlayersPerTeam(6);
+      setPlayersPerTeam(leaguePlayers ?? 6);
       setRequirePositions(true);
       setHallRule("any");
       setMultiTeamOnly(false);
@@ -94,7 +109,7 @@ export default function NewDraftPage() {
       setTeamConstraint("");
       setMaxPpgCap("");
       // setOverallCap("");
-      setMaxPlayers(12);
+      setMaxPlayers((leaguePlayers ?? 6) * 2);
 
       setPickTimerSeconds(60);
       setAutoPickEnabled(true);
@@ -105,9 +120,9 @@ export default function NewDraftPage() {
       setRandomEra(true);
       setRandomTeam(true);
       setParticipants(2);
-      setPlayersPerTeam(5);
+      setPlayersPerTeam(leaguePlayers ?? 5);
       setRequirePositions(true);
-      setMaxPlayers(10);
+      setMaxPlayers((leaguePlayers ?? 5) * 2);
 
       setPickTimerSeconds("");
       setAutoPickEnabled(false);
@@ -118,9 +133,9 @@ export default function NewDraftPage() {
       setRandomEra(false);
       setRandomTeam(false);
       setParticipants(1);
-      setPlayersPerTeam(10);
-      setRequirePositions(false); // locked off
-      setMaxPlayers(10);
+      setPlayersPerTeam(leaguePlayers ?? 10);
+      setRequirePositions(league === "NFL" ? true : false); // locked off
+      setMaxPlayers(leaguePlayers ?? 10);
 
       setPickTimerSeconds("");
       setAutoPickEnabled(false);
@@ -142,6 +157,10 @@ export default function NewDraftPage() {
   async function handleCreate() {
     setLoading(true);
     try {
+      const effectivePlayersPerTeam =
+        league === "NFL" ? NFL_LINEUP.length : playersPerTeam;
+      const effectiveMaxPlayers = participants * effectivePlayersPerTeam;
+
       const rules = {
         maxPpgCap: isClassic
           ? null
@@ -167,13 +186,20 @@ export default function NewDraftPage() {
             : Number(pickTimerSeconds),
         autoPickEnabled: mode === "classic" ? true : autoPickEnabled,
         suggestionsEnabled: mode === "classic" ? false : suggestionsEnabled,
+        ...(league === "NFL"
+          ? {
+              lineup: NFL_LINEUP,
+              fantasyScoring: false,
+              allowDefense: true,
+            }
+          : {}),
       };
 
       const res = await fetch(`${API_URL}/drafts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          league: "NBA",
+          league,
           mode,
           title: title || null,
           randomEra,
@@ -190,8 +216,9 @@ export default function NewDraftPage() {
             !isClassic && !randomTeam && teamConstraint
               ? teamConstraint
               : undefined,
-          maxPlayers,
-          requirePositions: isFree ? false : requirePositions,
+          maxPlayers: effectiveMaxPlayers,
+          playersPerTeam: effectivePlayersPerTeam,
+          requirePositions: league === "NFL" ? true : isFree ? false : requirePositions,
           scoringMethod,
           rules,
         }),
@@ -220,10 +247,11 @@ export default function NewDraftPage() {
       <header className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-indigo-300 tracking-tight mb-1">
-            Create a New NBA Draft
+            Create a New {league} Draft {league === "NFL" ? "(Beta)" : ""}
           </h1>
           <p className="text-slate-400 text-sm">
             Classic mode locks rules; Casual & Free let you get creative.
+            {league === "NFL" ? " NFL beta requires a premium account." : ""}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -328,7 +356,7 @@ export default function NewDraftPage() {
                   onChange={(e) => {
                     const v = Math.min(5, Math.max(1, Number(e.target.value)));
                     setParticipants(v);
-                    recalcTotalSlots(v, playersPerTeam);
+                    recalcTotalSlots(v, league === "NFL" ? NFL_LINEUP.length : playersPerTeam);
                   }}
                   className={`w-full px-3 py-2 rounded-lg ${
                     isClassic
@@ -344,10 +372,10 @@ export default function NewDraftPage() {
                 </label>
                 <input
                   type="number"
-                  disabled={isClassic}
-                  min={5}
+                  disabled={isClassic || league === "NFL"}
+                  min={league === "NFL" ? NFL_LINEUP.length : 5}
                   max={mode === "free" ? 15 : 12}
-                  value={playersPerTeam}
+                  value={league === "NFL" ? NFL_LINEUP.length : playersPerTeam}
                   onChange={(e) => {
                     const v = Math.min(
                       mode === "free" ? 15 : 12,
@@ -357,7 +385,7 @@ export default function NewDraftPage() {
                     recalcTotalSlots(participants, v);
                   }}
                   className={`w-full px-3 py-2 rounded-lg ${
-                    isClassic
+                    isClassic || league === "NFL"
                       ? "bg-slate-800 border-slate-700 text-slate-500"
                       : "bg-slate-900 border-slate-700"
                   }`}
@@ -380,14 +408,18 @@ export default function NewDraftPage() {
               <input
                 type="checkbox"
                 checked={requirePositions}
-                disabled={isFree || isClassic}
+                disabled={isFree || isClassic || league === "NFL"}
               />
               <span
                 className={`${
-                  isClassic || isFree ? "text-slate-500" : "text-slate-200"
+                  isClassic || isFree || league === "NFL"
+                    ? "text-slate-500"
+                    : "text-slate-200"
                 }`}
               >
-                Enforce PG / SG / SF / PF / C
+                {league === "NFL"
+                  ? "Enforce default NFL lineup"
+                  : "Enforce PG / SG / SF / PF / C"}
               </span>
             </label>
 
