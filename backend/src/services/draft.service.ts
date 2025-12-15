@@ -284,8 +284,8 @@ function chooseSeasonForScoring(
         ? normalizeFranchise(opts.teamOverride)
         : null
       : rules.teamLandedOn
-        ? normalizeFranchise(rules.teamLandedOn)
-        : null;
+      ? normalizeFranchise(rules.teamLandedOn)
+      : null;
 
   const eraFilter = (s: any) => {
     if (eraFromInclusive && s.season < eraFromInclusive) return false;
@@ -305,12 +305,23 @@ function chooseSeasonForScoring(
 
   // If a specific season was already locked (e.g., earlier spin), honor it
   if (opts?.seasonOverride != null) {
-    const seasonMatch = stats.find((s: any) => s.season === opts.seasonOverride);
-    if (seasonMatch && (!spunTeam || normalizeFranchise(seasonMatch.team) === spunTeam)) {
-      return { seasonUsed: seasonMatch.season, statLine: seasonMatch as NbaStatLine };
+    const seasonMatch = stats.find(
+      (s: any) => s.season === opts.seasonOverride
+    );
+    if (
+      seasonMatch &&
+      (!spunTeam || normalizeFranchise(seasonMatch.team) === spunTeam)
+    ) {
+      return {
+        seasonUsed: seasonMatch.season,
+        statLine: seasonMatch as NbaStatLine,
+      };
     }
     if (seasonMatch) {
-      return { seasonUsed: seasonMatch.season, statLine: seasonMatch as NbaStatLine };
+      return {
+        seasonUsed: seasonMatch.season,
+        statLine: seasonMatch as NbaStatLine,
+      };
     }
   }
 
@@ -377,7 +388,12 @@ export async function createDraft(data: any, userId?: string) {
     }
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { subscriptionTier: true, subscriptionEnds: true, isFounder: true, isAdmin: true },
+      select: {
+        subscriptionTier: true,
+        subscriptionEnds: true,
+        isFounder: true,
+        isAdmin: true,
+      },
     });
     const premium =
       user?.isAdmin ||
@@ -393,9 +409,7 @@ export async function createDraft(data: any, userId?: string) {
   if (data.mode === "classic") {
     // HARD LOCKED classic rules
     rules.participants = 2;
-    rules.playersPerTeam = isNfl
-      ? getNflLineup(rules).length
-      : 6;
+    rules.playersPerTeam = isNfl ? getNflLineup(rules).length : 6;
     rules.statMode = "peak-era-team";
     rules.pickTimerSeconds = 60;
     rules.autoPickEnabled = true;
@@ -450,9 +464,7 @@ export async function createDraft(data: any, userId?: string) {
 
   const rulesJson = jsonSafe(rules);
   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
-    isNfl
-      ? { ...data, playersPerTeam: rules.playersPerTeam }
-      : data,
+    isNfl ? { ...data, playersPerTeam: rules.playersPerTeam } : data,
     rules
   );
   const maxPlayers = participants * playersPerTeam;
@@ -481,8 +493,8 @@ export async function createDraft(data: any, userId?: string) {
         data.requirePositions !== undefined
           ? data.requirePositions
           : isNfl
-            ? true
-            : true,
+          ? true
+          : true,
     },
   });
 
@@ -683,6 +695,7 @@ export async function updatePick(
     teamOverride?: string | null;
     eraFromOverride?: number | null;
     eraToOverride?: number | null;
+    seasonOverride?: number | null;
   }
 ) {
   const draft = await getDraft(draftId);
@@ -698,7 +711,10 @@ export async function updatePick(
 
   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
     isNfl
-      ? { ...draft, playersPerTeam: rules.playersPerTeam || draft.playersPerTeam }
+      ? {
+          ...draft,
+          playersPerTeam: rules.playersPerTeam || draft.playersPerTeam,
+        }
       : draft,
     rules
   );
@@ -734,12 +750,8 @@ export async function updatePick(
 
     const eraCtx: NflEraContext = {
       eraFrom:
-        data.eraFromOverride ??
-        rules.eraFrom ??
-        draft.eraFrom ??
-        undefined,
-      eraTo:
-        data.eraToOverride ?? rules.eraTo ?? draft.eraTo ?? undefined,
+        data.eraFromOverride ?? rules.eraFrom ?? draft.eraFrom ?? undefined,
+      eraTo: data.eraToOverride ?? rules.eraTo ?? draft.eraTo ?? undefined,
     };
 
     const lineup = getNflLineup(rules);
@@ -755,10 +767,7 @@ export async function updatePick(
     ) {
       throw new Error(`Slot requires ${requiredPos}`);
     }
-    if (
-      requiredPos === "FLEX" &&
-      !["RB", "WR", "TE"].includes(normalizedPos)
-    ) {
+    if (requiredPos === "FLEX" && !["RB", "WR", "TE"].includes(normalizedPos)) {
       throw new Error("Flex slot only allows RB/WR/TE");
     }
     if (
@@ -793,12 +802,8 @@ export async function updatePick(
 
     const eraCtx = {
       eraFrom:
-        data.eraFromOverride ??
-        rules.eraFrom ??
-        draft.eraFrom ??
-        undefined,
-      eraTo:
-        data.eraToOverride ?? rules.eraTo ?? draft.eraTo ?? undefined,
+        data.eraFromOverride ?? rules.eraFrom ?? draft.eraFrom ?? undefined,
+      eraTo: data.eraToOverride ?? rules.eraTo ?? draft.eraTo ?? undefined,
     };
 
     const chosen = chooseSeasonForScoring(player, rules, eraCtx, {
