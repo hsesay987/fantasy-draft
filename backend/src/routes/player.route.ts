@@ -17,6 +17,7 @@ router.get("/search", async (req: Request, res: Response) => {
       multiTeamOnly,
       limit,
       offset,
+      league,
     } = req.query;
 
     const input: PlayerService.SearchPlayersInput = {
@@ -35,6 +36,7 @@ router.get("/search", async (req: Request, res: Response) => {
           : undefined,
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
+      league: typeof league === "string" ? league : undefined,
     };
 
     const players = await PlayerService.searchPlayers(input);

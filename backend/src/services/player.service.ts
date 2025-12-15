@@ -15,6 +15,7 @@ export type SearchPlayersInput = {
   offset?: number;
   eligiblePositions?: string; // NEW: filter by eligiblePositions text search
   imaegeUrl?: string; // NEW: filter by imageUrl presence
+  league?: string; // "NBA" | "NFL"
 };
 
 function stripAccents(text: string) {
@@ -117,9 +118,9 @@ function normalizeFranchise(raw: string | null | undefined): string | null {
 }
 
 /* -------------------------------------------------------
-   PICK BEST SEASON BASED ON ERA + TEAM
+   PICK BEST SEASON BASED ON ERA + TEAM (NBA)
 ------------------------------------------------------- */
-function pickBestSeasonForPlayer(
+function pickBestSeasonForNbaPlayer(
   p: {
     seasonStats: {
       season: number;
@@ -156,9 +157,63 @@ function pickBestSeasonForPlayer(
 }
 
 /* -------------------------------------------------------
-   MAIN SEARCH (with full type-safety)
+   NFL HELPERS
 ------------------------------------------------------- */
-export async function searchPlayers(input: SearchPlayersInput) {
+function normalizeNflTeam(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const t = raw.toUpperCase();
+  if (t === "TOT") return null;
+  return t;
+}
+
+function pickBestSeasonForNflPlayer(
+  p: {
+    seasons: {
+      season: number;
+      team: string;
+      yards?: number | null;
+      touchdowns?: number | null;
+      interceptions?: number | null;
+      receptions?: number | null;
+      games?: number | null;
+      fantasyPoints?: number | null;
+    }[];
+  },
+  eraFrom?: number,
+  eraTo?: number,
+  team?: string | null
+) {
+  const targetTeam = team ? normalizeNflTeam(team) : null;
+
+  const candid = p.seasons.filter((s) => {
+    if (eraFrom && s.season < eraFrom) return false;
+    if (eraTo && s.season > eraTo) return false;
+
+    if (targetTeam) {
+      const code = normalizeNflTeam(s.team);
+      if (!code || code !== targetTeam) return false;
+    }
+    return true;
+  });
+
+  if (targetTeam && !candid.length) return null;
+
+  const pool = candid.length ? candid : p.seasons;
+  if (!pool.length) return null;
+
+  const metric = (s: any) =>
+    (s.fantasyPoints ?? 0) * 100 +
+    (s.touchdowns ?? 0) * 10 +
+    (s.yards ?? 0) / 10 -
+    (s.interceptions ?? 0) * 2;
+
+  return pool.reduce((best, s) => (!best || metric(s) > metric(best) ? s : best));
+}
+
+/* -------------------------------------------------------
+   NBA SEARCH
+------------------------------------------------------- */
+async function searchNbaPlayers(input: SearchPlayersInput) {
   const {
     q,
     position,
@@ -251,7 +306,7 @@ export async function searchPlayers(input: SearchPlayersInput) {
   for (const p of players) {
     if (!p.seasonStats.length) continue;
 
-    const best = pickBestSeasonForPlayer(p, eraFrom, eraTo, team);
+    const best = pickBestSeasonForNbaPlayer(p, eraFrom, eraTo, team);
 
     if (team && !best) continue;
 
@@ -288,4 +343,134 @@ export async function searchPlayers(input: SearchPlayersInput) {
   }
 
   return results.slice(0, rawLimit);
+}
+
+/* -------------------------------------------------------
+   NFL SEARCH
+------------------------------------------------------- */
+async function searchNflPlayers(input: SearchPlayersInput) {
+  const {
+    q,
+    position,
+    eraFrom,
+    eraTo,
+    team,
+    hallRule = "any",
+    multiTeamOnly,
+    limit = 50,
+    offset = 0,
+  } = input;
+
+  const andFilters: any[] = [];
+
+  if (q) {
+    andFilters.push({
+      OR: [
+        { name: { contains: q, mode: "insensitive" } },
+        { firstName: { contains: q, mode: "insensitive" } },
+        { lastName: { contains: q, mode: "insensitive" } },
+      ],
+    });
+  }
+
+  if (position) {
+    const pos = position.toUpperCase();
+    let positionSet: string[] = [pos];
+
+    if (pos === "FLEX") {
+      positionSet = ["RB", "WR", "TE"];
+    } else if (["DST", "D/ST", "DEF"].includes(pos)) {
+      positionSet = ["DEF"];
+    }
+
+    andFilters.push({ normalizedPos: { in: positionSet } });
+  }
+
+  if (hallRule === "only") {
+    andFilters.push({ hallOfFame: true });
+  } else if (hallRule === "none") {
+    andFilters.push({ hallOfFame: false });
+  }
+
+  const where: any = andFilters.length ? { AND: andFilters } : {};
+
+  const seasonWhere: any = {};
+  if (eraFrom || eraTo) {
+    seasonWhere.season = {
+      ...(eraFrom ? { gte: eraFrom } : {}),
+      ...(eraTo ? { lte: eraTo } : {}),
+    };
+  }
+  const teamCode = normalizeNflTeam(team);
+  if (teamCode) {
+    seasonWhere.team = teamCode;
+  }
+
+  const rawLimit = Math.max(limit, 1);
+  const queryLimit = Math.min(rawLimit * 3, 300);
+
+  const players = await prisma.nFLPlayer.findMany({
+    where,
+    include: {
+      seasons: {
+        where: seasonWhere,
+      },
+    },
+    orderBy: { name: "asc" },
+    skip: offset,
+    take: queryLimit,
+  });
+
+  const results = [];
+
+  for (const p of players) {
+    if (multiTeamOnly && (p.teams?.length || 0) <= 1) continue;
+    if (!p.seasons.length) continue;
+
+    const best = pickBestSeasonForNflPlayer(p, eraFrom, eraTo, teamCode);
+    if (teamCode && !best) continue;
+
+    const yardsPerGame =
+      best && best.games ? (best.yards ?? 0) / Math.max(best.games, 1) : best?.yards ?? 0;
+
+    results.push({
+      id: p.id,
+      name: p.name,
+      position: p.normalizedPos,
+      eligiblePositions: p.positionTags?.join(",") ?? p.normalizedPos,
+      imageUrl: null,
+      primaryTeam: p.teams?.[0] ?? null,
+      primaryEraFrom: p.primaryEraFrom,
+      primaryEraTo: p.primaryEraTo,
+      isHallOfFamer: p.hallOfFame,
+      totalTeams: p.teams?.length ?? 0,
+      heightInches: null,
+      bestSeason: best
+        ? {
+            season: best.season,
+            team: best.team,
+            ppg: yardsPerGame,
+            apg: best.touchdowns ?? 0,
+            rpg: best.receptions ?? 0,
+          }
+        : null,
+    });
+  }
+
+  if (q) {
+    const normQ = stripAccents(q).toLowerCase();
+    return results
+      .filter((p) => stripAccents(p.name).toLowerCase().includes(normQ))
+      .slice(0, rawLimit);
+  }
+
+  return results.slice(0, rawLimit);
+}
+
+/* -------------------------------------------------------
+   MAIN SEARCH (with full type-safety)
+------------------------------------------------------- */
+export async function searchPlayers(input: SearchPlayersInput) {
+  const league = (input.league || "NBA").toUpperCase();
+  return league === "NFL" ? searchNflPlayers(input) : searchNbaPlayers(input);
 }

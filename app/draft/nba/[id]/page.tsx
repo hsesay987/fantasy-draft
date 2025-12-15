@@ -538,6 +538,8 @@ export default function DraftPage() {
     const params = new URLSearchParams();
     if (!draft) return params;
 
+    params.set("league", draft.league || "NBA");
+
     // name
     // name (optionally ignored)
     if (searchQuery && !extra?.ignoreName) {
