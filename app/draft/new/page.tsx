@@ -14,11 +14,13 @@ import {
   Globe,
   Lock,
 } from "lucide-react";
+import { useAuth } from "@/app/hooks/useAuth";
 
 export default function NewDraftPage() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
   const searchParams = useSearchParams();
+  const { token } = useAuth();
 
   const queryLeague = useMemo(
     () => (searchParams.get("league") || "").toUpperCase(),
@@ -220,9 +222,16 @@ export default function NewDraftPage() {
           : {}),
       };
 
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const res = await fetch(`${API_URL}/drafts`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           league,
           mode,
@@ -251,7 +260,8 @@ export default function NewDraftPage() {
       });
 
       if (!res.ok) {
-        alert("Failed to create draft");
+        const err = await res.json().catch(() => null);
+        alert(err?.error || "Failed to create draft");
         return;
       }
 

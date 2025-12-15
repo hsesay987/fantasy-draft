@@ -1,6 +1,6 @@
 // src/routes/draft.route.ts
 import { Router } from "express";
-import { authRequired, AuthedRequest } from "../middleware/auth";
+import { authOptional, authRequired, AuthedRequest } from "../middleware/auth";
 import * as DraftController from "../controllers/draft.controller";
 import * as draftService from "../services/draft.service";
 import prisma from "../lib/prisma";
@@ -9,7 +9,8 @@ const router = Router();
 
 router.get("/", DraftController.listDrafts);
 router.get("/:id", DraftController.getDraft);
-router.post("/", DraftController.createDraft);
+// use authOptional so NFL drafts can verify premium access when a token is sent
+router.post("/", authOptional, DraftController.createDraft);
 router.get("/my", authRequired, DraftController.getMyDrafts);
 router.patch("/:id", authRequired, DraftController.updatePick);
 router.post("/:id/save", authRequired, async (req: AuthedRequest, res) => {
