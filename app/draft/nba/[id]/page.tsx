@@ -5,12 +5,11 @@
 
 import type React from "react";
 import { useEffect, useMemo, useRef, useState, memo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import TEAM_DATA, { TeamData } from "../../../teamData";
 import { useAuth } from "@/app/hooks/useAuth";
 import { io as socketIo, type Socket } from "socket.io-client";
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 /* ---------------------------------- Types --------------------------------- */
@@ -91,6 +90,7 @@ type DraftRules = {
   roomCode?: string | null;
   seatDisplayNames?: string[];
   seatAssignments?: string[];
+  hostUserId?: string | null;
 };
 
 type Draft = {
@@ -249,6 +249,7 @@ function isTeamValidForEra(
 /* ================================ Component =============================== */
 export default function DraftPage() {
   const { user, token } = useAuth();
+  const router = useRouter();
   /***************************************************************************/
   /*                          STATE + LOADING                                */
   /***************************************************************************/
@@ -378,16 +379,19 @@ export default function DraftPage() {
         setDraft(updated);
       }
     });
-    socket.on("draft:cancelled", (payload: { draftId: string; roomCode?: string }) => {
-      if (payload.draftId !== id) return;
-      alert("Host cancelled this draft.");
-      localStorage.removeItem("activeRoomDraftId");
-      if (payload.roomCode) {
-        window.location.href = `/online/room/${payload.roomCode}`;
-      } else {
-        window.location.href = "/online";
+    socket.on(
+      "draft:cancelled",
+      (payload: { draftId: string; roomCode?: string }) => {
+        if (payload.draftId !== id) return;
+        alert("Host cancelled this draft.");
+        localStorage.removeItem("activeRoomDraftId");
+        if (payload.roomCode) {
+          window.location.href = `/online/room/${payload.roomCode}`;
+        } else {
+          window.location.href = "/online";
+        }
       }
-    });
+    );
 
     return () => {
       socket.off("draft:update");
