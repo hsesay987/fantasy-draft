@@ -393,7 +393,12 @@ export default function DraftPage() {
       d.rules?.lineup && d.rules.lineup.length
         ? d.rules.lineup
         : POSITION_ORDER;
-    const relative = (slot - 1) % lineup.length;
+    const perTeam = d.playersPerTeam || lineup.length;
+
+    // Map slot to its position within that team's lineup; anything past the
+    // defined lineup (e.g., the 6th slot) is treated as a bench slot.
+    const relative = (slot - 1) % perTeam;
+    if (relative >= lineup.length) return;
     return lineup[relative];
   }
 

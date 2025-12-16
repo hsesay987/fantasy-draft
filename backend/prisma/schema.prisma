@@ -13,6 +13,43 @@ datasource db {
   provider = "postgresql"
 }
 
+enum CartoonChannel {
+  Disney
+  DisneyXD
+  Nickelodeon
+  CartoonNetwork
+  AdultSwim
+  Netflix
+  Other
+}
+
+enum CartoonCategory {
+  Comedy
+  Action
+  Superhero
+  Educational
+  AnimeStyle
+  SliceOfLife
+}
+
+enum CartoonAgeRating {
+  baby
+  kids
+  adult
+}
+
+enum CartoonGender {
+  male
+  female
+  other
+  unknown
+}
+
+enum CartoonDraftEntity {
+  SHOW
+  CHARACTER
+}
+
 model User {
   id               String   @id @default(cuid())
   email            String   @unique
@@ -302,6 +339,7 @@ model Draft {
 
   picks    NBADraftPick[]
   nflPicks NFLDraftPick[]
+  cartoonPicks CartoonDraftPick[]
   votes    Vote[]
 
   game Game @relation(fields: [gameId], references: [id])
@@ -351,6 +389,59 @@ model Vote {
   draft     Draft    @relation(fields: [draftId], references: [id])
 
   @@index([draftId])
+}
+
+model CartoonShow {
+  id           String            @id @default(cuid())
+  name         String            @unique
+  channel      CartoonChannel?
+  category     CartoonCategory
+  ageRating    CartoonAgeRating
+  yearFrom     Int
+  yearTo       Int?
+  imdbRating   Float?
+  googleRating Float?
+  createdAt    DateTime          @default(now())
+
+  characters   CartoonCharacter[]
+  draftPicks   CartoonDraftPick[]
+}
+
+model CartoonCharacter {
+  id                String             @id @default(cuid())
+  name              String
+  showId            String
+  gender            CartoonGender
+  isMainCharacter   Boolean
+  isSuperhero       Boolean
+  fitTopPicEligible Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+
+  show       CartoonShow        @relation(fields: [showId], references: [id])
+  draftPicks CartoonDraftPick[]
+
+  @@index([showId])
+  @@unique([name, showId])
+}
+
+model CartoonDraftPick {
+  id          String             @id @default(cuid())
+  draftId     String
+  showId      String?
+  characterId String?
+  slot        Int
+  ownerIndex  Int                @default(1)
+  entityType  CartoonDraftEntity
+  createdAt   DateTime           @default(now())
+
+  draft     Draft           @relation(fields: [draftId], references: [id])
+  show      CartoonShow?    @relation(fields: [showId], references: [id])
+  character CartoonCharacter? @relation(fields: [characterId], references: [id])
+
+  @@unique([draftId, slot])
+  @@index([draftId])
+  @@index([showId])
+  @@index([characterId])
 }
 
 model Feedback {

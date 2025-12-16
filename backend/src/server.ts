@@ -13,6 +13,7 @@ import feedbackRoutes from "./routes/feedback.route";
 import adminRoutes from "./routes/admin.route";
 import billingRoutes from "./routes/billing.route";
 import adRoutes from "./routes/ad.route";
+import cartoonRoutes from "./routes/cartoon.route";
 import { authOptional } from "./middleware/auth";
 
 const app = express();
@@ -53,6 +54,7 @@ app.use("/feedback", feedbackRoutes);
 app.use("/billing", billingRoutes);
 app.use("/ads", adRoutes);
 app.use("/admin", adminRoutes);
+app.use("/cartoons", cartoonRoutes);
 
 app.use(
   (err: any, _req: express.Request, res: express.Response, _next: any) => {

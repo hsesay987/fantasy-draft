@@ -14,6 +14,12 @@ import {
   NflStatLine,
   defaultLineup as defaultNflLineup,
 } from "../lib/scoring/nfl";
+import {
+  applyCommunityBonus,
+  CartoonScoringMethod,
+  scoreCartoonCharacter,
+  scoreCartoonShow,
+} from "../lib/scoring/cartoon";
 import { getIo } from "../socket";
 
 /* -------------------------------------------------------------------------- */
@@ -153,6 +159,21 @@ export type DraftRules = {
   seatAssignments?: string[]; // index 0 → Player 1 userId, etc.
   seatDisplayNames?: string[]; // index 0 → label for Player 1
   hostUserId?: string;
+
+  // CARTOON DRAFTS
+  cartoonMode?: string; // classic | by-channel | adult-only | kids-only | baby-shows | era | superhero | female-only
+  cartoonDraftType?: "show" | "character";
+  cartoonChannel?: string | null;
+  cartoonAgeRating?: "baby" | "kids" | "adult";
+  cartoonEraFrom?: number;
+  cartoonEraTo?: number;
+  cartoonRequireSuperhero?: boolean;
+  cartoonGender?: "male" | "female" | "other" | "unknown";
+  cartoonScoring?: "system" | "user" | "community";
+  allowShows?: boolean;
+  allowCharacters?: boolean;
+  communityVoteEnabled?: boolean;
+  adultContentOnly?: boolean;
 };
 
 export interface ScoreResponse {
@@ -375,6 +396,7 @@ function chooseSeasonForScoring(
 export async function createDraft(data: any, userId?: string) {
   const league = (data.league || "NBA").toUpperCase();
   const isNfl = league === "NFL";
+  const isCartoon = league === "CARTOON";
   const rules: DraftRules = data.rules || {};
   rules.mode = (data.mode as DraftRules["mode"]) || rules.mode || "classic";
 
@@ -382,9 +404,11 @@ export async function createDraft(data: any, userId?: string) {
     rules.lineup = NFL_DEFAULT_LINEUP;
   }
 
-  if (isNfl) {
+  if (isNfl || isCartoon) {
     if (!userId) {
-      throw new Error("NFL beta drafts are premium-only. Please log in.");
+      throw new Error(
+        `${isNfl ? "NFL" : "Cartoon"} beta drafts are premium-only. Please log in.`
+      );
     }
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -402,78 +426,172 @@ export async function createDraft(data: any, userId?: string) {
         (!user.subscriptionEnds ||
           user.subscriptionEnds.getTime() > Date.now()));
     if (!premium) {
-      throw new Error("NFL beta is available to premium members only.");
+      throw new Error(
+        `${isNfl ? "NFL" : "Cartoon"} beta is available to premium members only.`
+      );
     }
   }
 
-  if (data.mode === "classic") {
-    // HARD LOCKED classic rules
-    rules.participants = 2;
-    rules.playersPerTeam = isNfl ? getNflLineup(rules).length : 6;
-    rules.statMode = "peak-era-team";
-    rules.pickTimerSeconds = 60;
-    rules.autoPickEnabled = true;
-    rules.suggestionsEnabled = false;
-    rules.hallRule = "any";
-    rules.multiTeamOnly = false;
-    rules.maxPpgCap = null;
-  } else if (data.mode === "casual") {
-    // Casual defaults (can be overridden by frontend)
-    if (rules.participants == null) {
-      rules.participants = data.participants ?? 2;
+  if (isCartoon) {
+    rules.cartoonMode = data.cartoonMode || rules.cartoonMode || "classic";
+    rules.cartoonDraftType =
+      (data.cartoonDraftType as DraftRules["cartoonDraftType"]) ||
+      rules.cartoonDraftType ||
+      "character";
+    rules.cartoonChannel =
+      data.cartoonChannel ??
+      data.channel ??
+      rules.cartoonChannel ??
+      null;
+    rules.cartoonAgeRating =
+      (data.cartoonAgeRating as any) ??
+      rules.cartoonAgeRating ??
+      (rules.cartoonMode === "adult-only"
+        ? "adult"
+        : rules.cartoonMode === "kids-only"
+        ? "kids"
+        : rules.cartoonMode === "baby-shows"
+        ? "baby"
+        : null);
+    rules.cartoonEraFrom =
+      data.cartoonEraFrom ?? rules.cartoonEraFrom ?? data.eraFrom ?? null;
+    rules.cartoonEraTo =
+      data.cartoonEraTo ?? rules.cartoonEraTo ?? data.eraTo ?? null;
+    if (rules.cartoonRequireSuperhero === undefined) {
+      rules.cartoonRequireSuperhero =
+        !!data.cartoonRequireSuperhero || rules.cartoonMode === "superhero";
     }
-    if (rules.playersPerTeam == null) {
-      rules.playersPerTeam = data.playersPerTeam ?? 6;
+    rules.cartoonGender =
+      (data.cartoonGender as any) ??
+      rules.cartoonGender ??
+      (rules.cartoonMode === "female-only" ? "female" : undefined);
+    rules.allowCharacters =
+      rules.allowCharacters ??
+      (rules.cartoonMode === "baby-shows" ? false : true);
+    rules.allowShows =
+      rules.allowShows ??
+      (rules.cartoonMode === "superhero" ||
+      rules.cartoonDraftType === "character"
+        ? false
+        : true);
+    rules.cartoonScoring =
+      (data.cartoonScoring as CartoonScoringMethod) ??
+      (data.scoringMethod as CartoonScoringMethod) ??
+      rules.cartoonScoring ??
+      "system";
+    rules.participants = rules.participants ?? data.participants ?? 2;
+    rules.playersPerTeam = rules.playersPerTeam ?? data.playersPerTeam ?? 5;
+
+    switch (rules.cartoonMode) {
+      case "by-channel":
+        if (!rules.cartoonChannel) {
+          throw new Error("Channel filter is required for by-channel drafts");
+        }
+        break;
+      case "adult-only":
+        rules.cartoonAgeRating = "adult";
+        break;
+      case "kids-only":
+        rules.cartoonAgeRating = "kids";
+        break;
+      case "baby-shows":
+        rules.cartoonAgeRating = "baby";
+        rules.cartoonDraftType = "show";
+        rules.allowCharacters = false;
+        rules.allowShows = true;
+        break;
+      case "era":
+        rules.cartoonEraFrom = rules.cartoonEraFrom ?? data.eraFrom ?? null;
+        rules.cartoonEraTo = rules.cartoonEraTo ?? data.eraTo ?? null;
+        break;
+      case "superhero":
+        rules.cartoonRequireSuperhero = true;
+        rules.cartoonDraftType = "character";
+        rules.allowShows = false;
+        break;
+      case "female-only":
+        rules.cartoonGender = "female";
+        rules.cartoonDraftType = "character";
+        rules.allowShows = false;
+        break;
     }
-    if (rules.pickTimerSeconds === undefined) {
-      // allow "off" by sending null from frontend
+  } else {
+    if (data.mode === "classic") {
+      // HARD LOCKED classic rules
+      rules.participants = 2;
+      rules.playersPerTeam = isNfl ? getNflLineup(rules).length : 6;
+      rules.statMode = "peak-era-team";
+      rules.pickTimerSeconds = 60;
+      rules.autoPickEnabled = true;
+      rules.suggestionsEnabled = false;
+      rules.hallRule = "any";
+      rules.multiTeamOnly = false;
+      rules.maxPpgCap = null;
+    } else if (data.mode === "casual") {
+      // Casual defaults (can be overridden by frontend)
+      if (rules.participants == null) {
+        rules.participants = data.participants ?? 2;
+      }
+      if (rules.playersPerTeam == null) {
+        rules.playersPerTeam = data.playersPerTeam ?? 6;
+      }
+      if (rules.pickTimerSeconds === undefined) {
+        // allow "off" by sending null from frontend
+        rules.pickTimerSeconds = null;
+      }
+      if (rules.autoPickEnabled === undefined) {
+        rules.autoPickEnabled = false;
+      }
+      if (rules.suggestionsEnabled === undefined) {
+        rules.suggestionsEnabled = true;
+      }
+    } else if (data.mode === "free") {
+      // Free mode: no timer by default, no suggestions
+      if (rules.participants == null) {
+        rules.participants = data.participants ?? 1;
+      }
+      if (rules.playersPerTeam == null) {
+        rules.playersPerTeam = data.playersPerTeam ?? 10;
+      }
       rules.pickTimerSeconds = null;
-    }
-    if (rules.autoPickEnabled === undefined) {
       rules.autoPickEnabled = false;
+      rules.suggestionsEnabled = false;
     }
-    if (rules.suggestionsEnabled === undefined) {
-      rules.suggestionsEnabled = true;
-    }
-  } else if (data.mode === "free") {
-    // Free mode: no timer by default, no suggestions
-    if (rules.participants == null) {
-      rules.participants = data.participants ?? 1;
-    }
-    if (rules.playersPerTeam == null) {
-      rules.playersPerTeam = data.playersPerTeam ?? 10;
-    }
-    rules.pickTimerSeconds = null;
-    rules.autoPickEnabled = false;
-    rules.suggestionsEnabled = false;
-  }
 
-  if (!rules.statMode) {
-    // peakMode from frontend or default to peak
-    rules.statMode = rules.peakMode || "peak";
-  }
+    if (!rules.statMode) {
+      // peakMode from frontend or default to peak
+      rules.statMode = rules.peakMode || "peak";
+    }
 
-  if (isNfl) {
-    // NFL beta defaults
-    rules.playersPerTeam = rules.playersPerTeam || getNflLineup(rules).length;
-    rules.allowDefense =
-      rules.allowDefense !== undefined ? rules.allowDefense : true;
-    rules.fantasyScoring =
-    rules.fantasyScoring !== undefined ? rules.fantasyScoring : false;
+    if (isNfl) {
+      // NFL beta defaults
+      rules.playersPerTeam = rules.playersPerTeam || getNflLineup(rules).length;
+      rules.allowDefense =
+        rules.allowDefense !== undefined ? rules.allowDefense : true;
+      rules.fantasyScoring =
+        rules.fantasyScoring !== undefined ? rules.fantasyScoring : false;
+    }
   }
 
   const lineup = isNfl ? getNflLineup(rules) : undefined;
   const { participants, playersPerTeam } = getParticipantsAndPlayersPerTeam(
-    isNfl ? { ...data, playersPerTeam: rules.playersPerTeam } : data,
+    isNfl
+      ? { ...data, playersPerTeam: rules.playersPerTeam }
+      : { ...data, playersPerTeam: rules.playersPerTeam },
     rules
   );
   const playersPerTeamFinal = isNfl
     ? lineup?.length ?? playersPerTeam
     : playersPerTeam;
 
-  if (isNfl) {
+  if (isNfl || isCartoon) {
     rules.playersPerTeam = playersPerTeamFinal;
   }
+
+  const scoringMethodOverride =
+    (data.scoringMethod as any) ||
+    (isCartoon ? rules.cartoonScoring : undefined) ||
+    undefined;
 
   const rulesJson = jsonSafe(rules);
   const maxPlayers = participants * playersPerTeamFinal;
@@ -482,7 +600,7 @@ export async function createDraft(data: any, userId?: string) {
   const game = await prisma.game.create({
     data: {
       type: "DRAFT",
-      category: "SPORTS",
+      category: isCartoon ? "TV" : "SPORTS",
       subtype: league,
       title: data.title ?? `${league} Draft`,
     },
@@ -495,6 +613,7 @@ export async function createDraft(data: any, userId?: string) {
       gameId: game.id,
       ownerId: userId ?? null,
       rules: rulesJson,
+      scoringMethod: scoringMethodOverride || data.scoringMethod || "system",
       participants,
       playersPerTeam: playersPerTeamFinal,
       maxPlayers,
@@ -503,6 +622,8 @@ export async function createDraft(data: any, userId?: string) {
           ? data.requirePositions
           : isNfl
           ? true
+          : isCartoon
+          ? false
           : true,
     },
   });
@@ -548,15 +669,33 @@ export async function getDraft(id: string) {
         include: { player: { include: { seasons: true } } },
         orderBy: { slot: "asc" },
       },
+      cartoonPicks: {
+        include: {
+          show: true,
+          character: {
+            include: { show: true },
+          },
+        },
+        orderBy: { slot: "asc" },
+      },
       votes: true,
     },
   });
 
-  if (draft && (draft.league || "NBA").toUpperCase() === "NFL") {
-    return {
-      ...draft,
-      picks: (draft as any).nflPicks || [],
-    };
+  if (draft) {
+    const league = (draft.league || "NBA").toUpperCase();
+    if (league === "NFL") {
+      return {
+        ...draft,
+        picks: (draft as any).nflPicks || [],
+      };
+    }
+    if (league === "CARTOON") {
+      return {
+        ...draft,
+        picks: (draft as any).cartoonPicks || [],
+      };
+    }
   }
 
   return draft;
@@ -590,6 +729,7 @@ export async function cancelDraft(id: string) {
 
   await prisma.nBADraftPick.deleteMany({ where: { draftId: id } });
   await prisma.nFLDraftPick.deleteMany({ where: { draftId: id } });
+  await prisma.cartoonDraftPick.deleteMany({ where: { draftId: id } });
   await prisma.vote.deleteMany({ where: { draftId: id } });
   await prisma.draft.delete({ where: { id } });
 
@@ -676,6 +816,10 @@ export async function saveDraftState(
         include: { player: true },
         orderBy: { slot: "asc" },
       },
+      cartoonPicks: {
+        include: { show: true, character: true },
+        orderBy: { slot: "asc" },
+      },
       votes: true,
     },
   });
@@ -698,13 +842,15 @@ export async function updatePick(
   draftId: string,
   data: {
     slot: number;
-    playerId: string;
-    position: string;
+    playerId?: string;
+    position?: string;
     userId?: string | null;
     teamOverride?: string | null;
     eraFromOverride?: number | null;
     eraToOverride?: number | null;
     seasonOverride?: number | null;
+    cartoonShowId?: string;
+    cartoonCharacterId?: string;
   }
 ) {
   const draft = await getDraft(draftId);
@@ -712,6 +858,7 @@ export async function updatePick(
 
   const league = (draft.league || "NBA").toUpperCase();
   const isNfl = league === "NFL";
+  const isCartoon = league === "CARTOON";
 
   const rules: DraftRules = {
     ...(draft.rules as any),
@@ -732,7 +879,11 @@ export async function updatePick(
     ? lineup?.length ?? playersPerTeam
     : playersPerTeam;
 
-  const picks = isNfl ? draft.nflPicks : draft.picks;
+  const picks = isNfl
+    ? (draft as any).nflPicks || []
+    : isCartoon
+    ? ((draft as any).cartoonPicks as any[]) || []
+    : draft.picks;
   const pickIndex = picks.length;
 
   const slotOwner =
@@ -762,12 +913,27 @@ export async function updatePick(
     if (slotParticipant !== ownerIndex) throw new Error("Not your turn");
   }
 
-  if (picks.some((p: any) => p.playerId === data.playerId))
+  if (isCartoon) {
+    const targetId =
+      data.cartoonCharacterId || data.cartoonShowId || data.playerId;
+    if (!targetId) throw new Error("Character or show is required");
+    if (
+      picks.some(
+        (p: any) => p.characterId === targetId || p.showId === targetId
+      )
+    ) {
+      throw new Error("Pick already drafted");
+    }
+  } else if (picks.some((p: any) => p.playerId === data.playerId)) {
     throw new Error("Player already drafted");
+  }
 
   let createdPick: any = null;
 
   if (isNfl) {
+    if (!data.playerId) {
+      throw new Error("playerId is required");
+    }
     const player = await prisma.nFLPlayer.findUnique({
       where: { id: data.playerId },
       include: { seasons: true },
@@ -819,7 +985,98 @@ export async function updatePick(
         teamUsed: null,
       },
     });
+  } else if (isCartoon) {
+    const draftType =
+      (rules.cartoonDraftType as DraftRules["cartoonDraftType"]) ||
+      "character";
+    const targetId =
+      data.cartoonCharacterId || data.cartoonShowId || data.playerId;
+    if (!targetId) throw new Error("Character or show is required");
+
+    if (draftType === "show" && rules.allowShows === false) {
+      throw new Error("Shows are disabled for this draft");
+    }
+    if (draftType === "character" && rules.allowCharacters === false) {
+      throw new Error("Characters are disabled for this draft");
+    }
+    if (draftType === "character" && data.cartoonShowId) {
+      throw new Error("This draft is character-only");
+    }
+    if (draftType === "show" && data.cartoonCharacterId) {
+      throw new Error("This draft is show-only");
+    }
+
+    let show: any = null;
+    let character: any = null;
+
+    if (draftType === "show") {
+      show = await prisma.cartoonShow.findUnique({
+        where: { id: targetId },
+      });
+      if (!show) throw new Error("Show not found");
+    } else {
+      character = await prisma.cartoonCharacter.findUnique({
+        where: { id: targetId },
+        include: { show: true },
+      });
+      if (!character) throw new Error("Character not found");
+      show = character.show;
+    }
+
+    const channelFilter = rules.cartoonChannel || null;
+    if (
+      channelFilter &&
+      show?.channel &&
+      channelFilter.toString() !== show.channel.toString()
+    ) {
+      throw new Error("Channel restricted in this draft");
+    }
+
+    const ageFilter =
+      rules.cartoonAgeRating ??
+      (rules.cartoonMode === "adult-only"
+        ? "adult"
+        : rules.cartoonMode === "kids-only"
+        ? "kids"
+        : rules.cartoonMode === "baby-shows"
+        ? "baby"
+        : null);
+    if (ageFilter && show?.ageRating && show.ageRating !== ageFilter) {
+      throw new Error("Age rating restricted in this draft");
+    }
+
+    const eraFrom = rules.cartoonEraFrom ?? rules.eraFrom ?? draft.eraFrom;
+    const eraTo = rules.cartoonEraTo ?? rules.eraTo ?? draft.eraTo;
+    if (eraFrom && (show.yearTo ?? show.yearFrom) < eraFrom) {
+      throw new Error("Selection is before the allowed era");
+    }
+    if (eraTo && show.yearFrom > eraTo) {
+      throw new Error("Selection is after the allowed era");
+    }
+
+    if (draftType === "character") {
+      if (rules.cartoonRequireSuperhero && !character.isSuperhero) {
+        throw new Error("Only superhero characters are allowed");
+      }
+      if (rules.cartoonGender && character.gender !== rules.cartoonGender) {
+        throw new Error("Character does not match gender filter");
+      }
+    }
+
+    createdPick = await prisma.cartoonDraftPick.create({
+      data: {
+        draftId,
+        slot: data.slot,
+        ownerIndex,
+        entityType: draftType === "show" ? "SHOW" : "CHARACTER",
+        showId: show.id,
+        characterId: draftType === "character" ? character.id : null,
+      },
+    });
   } else {
+    if (!data.playerId) {
+      throw new Error("playerId is required");
+    }
     const player = await prisma.nBAPlayer.findUnique({
       where: { id: data.playerId },
       include: { seasonStats: true },
@@ -916,6 +1173,7 @@ export async function undoPick(draftId: string, slot: number) {
   if (!draft) throw new Error("Draft not found");
 
   const isNfl = (draft.league || "NBA").toUpperCase() === "NFL";
+  const isCartoon = (draft.league || "NBA").toUpperCase() === "CARTOON";
   const rules: DraftRules = {
     ...(draft.rules as any),
     ...(draft.rules as any)?.savedState,
@@ -931,6 +1189,13 @@ export async function undoPick(draftId: string, slot: number) {
     });
     if (existing) {
       await prisma.nFLDraftPick.delete({ where: { id: existing.id } });
+    }
+  } else if (isCartoon) {
+    const existing = await prisma.cartoonDraftPick.findFirst({
+      where: { draftId, slot },
+    });
+    if (existing) {
+      await prisma.cartoonDraftPick.delete({ where: { id: existing.id } });
     }
   } else {
     const existing = await prisma.nBADraftPick.findFirst({
@@ -961,11 +1226,142 @@ export async function scoreDraft(draftId: string): Promise<ScoreResponse> {
 
   const league = (draft.league || "NBA").toUpperCase();
   const isNfl = league === "NFL";
+  const isCartoon = league === "CARTOON";
 
   const rules: DraftRules = {
     ...(draft.rules as any),
     ...(draft.rules as any)?.savedState,
   };
+
+  if (isCartoon) {
+    const scoringMethod: CartoonScoringMethod =
+      (rules.cartoonScoring as CartoonScoringMethod) ||
+      (draft.scoringMethod as CartoonScoringMethod) ||
+      "system";
+
+    const teams = new Map<
+      number,
+      { participant: number; picks: any[]; totalScore: number; totalPpg: number }
+    >();
+
+    const picks =
+      (draft as any).cartoonPicks ||
+      (draft as any).picks ||
+      [];
+
+    for (const pick of picks) {
+      if (!pick.ownerIndex) continue;
+      const show = pick.show ?? pick.character?.show;
+      if (!show) continue;
+
+      const entityType =
+        pick.entityType || (pick.characterId ? "CHARACTER" : "SHOW");
+
+      const pickScore =
+        scoringMethod === "system" || scoringMethod === "community"
+          ? entityType === "SHOW"
+            ? scoreCartoonShow(show)
+            : scoreCartoonCharacter({
+                ...(pick.character as any),
+                show,
+              })
+          : 0;
+
+      if (!teams.has(pick.ownerIndex)) {
+        teams.set(pick.ownerIndex, {
+          participant: pick.ownerIndex,
+          picks: [],
+          totalScore: 0,
+          totalPpg: 0,
+        });
+      }
+
+      const team = teams.get(pick.ownerIndex)!;
+      const scoredPick = {
+        pickId: pick.id,
+        playerId: pick.characterId ?? pick.showId ?? "",
+        slot: pick.slot,
+        ownerIndex: pick.ownerIndex,
+        name:
+          entityType === "SHOW"
+            ? show.name
+            : pick.character?.name ?? "Unknown",
+        position: entityType,
+        seasonUsed: undefined,
+        ppg: show.imdbRating ?? 0,
+        score: pickScore,
+        threeRate: null,
+        usgPct: null,
+        heightInches: null,
+      };
+
+      team.picks.push(scoredPick);
+      team.totalScore += pickScore;
+      team.totalPpg += scoredPick.ppg;
+    }
+
+    const voteTotal =
+      draft.votes?.reduce((sum: number, v: any) => sum + (v.value ?? 0), 0) ||
+      0;
+
+    const teamList = Array.from(teams.values());
+    if (scoringMethod === "community" && teamList.length) {
+      const leader = teamList.reduce((best, curr) =>
+        curr.totalScore > best.totalScore ? curr : best
+      );
+      leader.totalScore = applyCommunityBonus(leader.totalScore, voteTotal);
+    }
+
+    let winner: number | undefined;
+    if (teamList.length > 1 && scoringMethod !== "user") {
+      winner = teamList.reduce((best, curr) =>
+        curr.totalScore > best.totalScore ? curr : best
+      ).participant;
+    }
+
+    const allPicks = teamList.flatMap((t) => t.picks);
+    const ruleWarnings: string[] = [];
+    if (scoringMethod === "user") {
+      ruleWarnings.push(
+        "User-decided scoring: rely on votes to determine the winner."
+      );
+    }
+    if (scoringMethod === "community" && voteTotal) {
+      ruleWarnings.push(
+        "Community vote bonus applied: +1 to the top-scoring team."
+      );
+    }
+
+    if (winner && draft.gameId && draft.ownerId) {
+      await prisma.gameResult.create({
+        data: {
+          gameId: draft.gameId,
+          userId: draft.ownerId,
+          score:
+            teamList.find((t) => t.participant === winner)?.totalScore ?? 0,
+        },
+      });
+    }
+
+    return {
+      draftId,
+      teamScore: teamList.reduce((s, t) => s + t.totalScore, 0),
+      avgScore:
+        teamList.reduce((s, t) => s + t.totalScore, 0) /
+        Math.max(1, teamList.length),
+      totalPpg: teamList.reduce((s, t) => s + t.totalPpg, 0),
+      perPlayerScores: allPicks,
+      teams: teamList.map((t) => ({
+        participant: t.participant,
+        teamScore: t.totalScore,
+        totalPpg: t.totalPpg,
+        totalRating: t.totalScore / Math.max(1, t.picks.length),
+        picks: t.picks,
+      })),
+      winner,
+      ruleWarnings,
+    };
+  }
 
   if (isNfl) {
     const eraCtx: NflEraContext = {
@@ -1232,7 +1628,8 @@ export async function getDraftSuggestions(draftId: string, limit = 5) {
     ...(draft.rules as any)?.savedState,
   };
 
-  if ((draft.league || "NBA").toUpperCase() === "NFL") {
+  const league = (draft.league || "NBA").toUpperCase();
+  if (league === "NFL" || league === "CARTOON") {
     return [];
   }
 

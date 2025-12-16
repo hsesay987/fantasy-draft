@@ -70,7 +70,16 @@ export async function saveDraft(req: Request, res: Response) {
 
 export async function updatePick(req: AuthedRequest, res: Response) {
   const draftId = req.params.id;
-  const { slot, playerId, position, teamLandedOn, eraFrom, eraTo } = req.body;
+  const {
+    slot,
+    playerId,
+    position,
+    teamLandedOn,
+    eraFrom,
+    eraTo,
+    cartoonShowId,
+    cartoonCharacterId,
+  } = req.body;
   const userId = req.userId || null;
 
   try {
@@ -82,6 +91,8 @@ export async function updatePick(req: AuthedRequest, res: Response) {
       teamOverride: teamLandedOn,
       eraFromOverride: eraFrom,
       eraToOverride: eraTo,
+      cartoonShowId,
+      cartoonCharacterId,
     });
     res.json(pick);
   } catch (e: any) {
