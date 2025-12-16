@@ -367,6 +367,15 @@ function chooseSeasonForScoring(
     return { seasonUsed: undefined, statLine: avg as NbaStatLine };
   };
 
+  // 🔒 When we have an era or team context (spins/constraints), always honor it first
+  const contextualPeak =
+    peak(byEraTeam) || peak(byEra) || peak(byTeam) || null;
+  if (spunTeam || eraFromInclusive || eraTo) {
+    if (contextualPeak) {
+      return contextualPeak;
+    }
+  }
+
   if (isClassic) {
     return peak(byEraTeam) || peak(byEra) || peak(byTeam) || peak(stats);
   }
@@ -726,6 +735,7 @@ export async function cancelDraft(id: string) {
   const rules: DraftRules = (draft.rules as any) || {};
   const roomCode = (rules as any).roomCode as string | undefined;
   const hostUserId = (rules as any).hostUserId as string | undefined;
+  const io = getIo();
 
   await prisma.nBADraftPick.deleteMany({ where: { draftId: id } });
   await prisma.nFLDraftPick.deleteMany({ where: { draftId: id } });
@@ -735,37 +745,20 @@ export async function cancelDraft(id: string) {
 
   // For online drafts, reset/clean up the room as well
   if (rules.online && roomCode) {
-    const io = getIo();
-
-    // Remove non-host participants so everyone else is forced out
-    if (hostUserId) {
-      await prisma.roomParticipant.deleteMany({
-        where: { room: { code: roomCode }, NOT: { userId: hostUserId } },
-      });
-    }
-
-    // Reset room status so host can re-open, or delete if nobody left
-    const remaining = await prisma.roomParticipant.count({
+    // Tear down the room entirely so all players are ejected
+    await prisma.roomParticipant.deleteMany({
       where: { room: { code: roomCode } },
     });
+    await prisma.room.deleteMany({ where: { code: roomCode } });
 
-    if (remaining <= 1) {
-      await prisma.room.deleteMany({ where: { code: roomCode } });
-      if (io) {
-        io.to(`room:${roomCode}`).emit("room:cancelled", { code: roomCode });
-      }
-    } else {
-      await prisma.room
-        .update({
-          where: { code: roomCode },
-          data: { status: "lobby", gameId: null },
-        })
-        .catch(() => null);
-
-      if (io) {
-        io.to(`room:${roomCode}`).emit("room:returned", { code: roomCode });
-      }
+    if (io) {
+      io.to(`room:${roomCode}`).emit("room:cancelled", { code: roomCode });
     }
+  }
+
+  // Notify any connected draft clients so UIs can exit immediately
+  if (io) {
+    io.to(`draft:${id}`).emit("draft:cancelled", { draftId: id, roomCode });
   }
 
   return { ok: true };
@@ -851,6 +844,7 @@ export async function updatePick(
     seasonOverride?: number | null;
     cartoonShowId?: string;
     cartoonCharacterId?: string;
+    isAutoPick?: boolean;
   }
 ) {
   const draft = await getDraft(draftId);
@@ -902,7 +896,11 @@ export async function updatePick(
 
   if (rules.online && seatAssignments && seatAssignments.length) {
     const expectedUserId = seatAssignments[ownerIndex - 1];
-    if (expectedUserId && expectedUserId !== data.userId) {
+    const isHostAutoPick =
+      data.isAutoPick &&
+      (rules as any).hostUserId &&
+      data.userId === (rules as any).hostUserId;
+    if (expectedUserId && expectedUserId !== data.userId && !isHostAutoPick) {
       throw new Error("Not your turn");
     }
   }

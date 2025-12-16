@@ -318,9 +318,20 @@ export default function DraftPage() {
         setDraft(updated);
       }
     });
+    socket.on("draft:cancelled", (payload: { draftId: string; roomCode?: string }) => {
+      if (payload.draftId !== id) return;
+      alert("Host cancelled this draft.");
+      localStorage.removeItem("activeRoomDraftId");
+      if (payload.roomCode) {
+        window.location.href = `/online/room/${payload.roomCode}`;
+      } else {
+        window.location.href = "/online";
+      }
+    });
 
     return () => {
       socket.off("draft:update");
+      socket.off("draft:cancelled");
     };
   }, [socket, id]);
 
@@ -707,6 +718,7 @@ export default function DraftPage() {
         slot,
         playerId: player.id,
         position,
+        autopick: fromAutoPick,
         ownerIndex: activeParticipant,
         mode: draft.rules?.mode,
         teamLandedOn:

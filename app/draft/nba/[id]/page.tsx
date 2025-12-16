@@ -378,9 +378,20 @@ export default function DraftPage() {
         setDraft(updated);
       }
     });
+    socket.on("draft:cancelled", (payload: { draftId: string; roomCode?: string }) => {
+      if (payload.draftId !== id) return;
+      alert("Host cancelled this draft.");
+      localStorage.removeItem("activeRoomDraftId");
+      if (payload.roomCode) {
+        window.location.href = `/online/room/${payload.roomCode}`;
+      } else {
+        window.location.href = "/online";
+      }
+    });
 
     return () => {
       socket.off("draft:update");
+      socket.off("draft:cancelled");
     };
   }, [socket, id]);
 
@@ -764,6 +775,7 @@ export default function DraftPage() {
         slot,
         playerId: player.id,
         position,
+        autopick: fromAutoPick,
         ownerIndex: activeParticipant,
         mode: draft.rules?.mode,
         teamLandedOn:
@@ -888,6 +900,15 @@ export default function DraftPage() {
     const ok = confirm("Are you sure? This will delete the draft.");
     if (!ok) return;
 
+    if (
+      draft.rules?.online &&
+      draft.rules.hostUserId &&
+      user?.id !== draft.rules.hostUserId
+    ) {
+      alert("Only the host can cancel this online draft.");
+      return;
+    }
+
     await fetch(`${API_URL}/drafts/${draft.id}`, {
       method: "DELETE",
     });
@@ -908,12 +929,69 @@ export default function DraftPage() {
     window.location.href = "/draft/new";
   }
 
+  async function startOnlineRematch() {
+    if (!draft || !draft.rules?.online || !token) return;
+
+    const rulesForNext: any = { ...(draft.rules || {}) };
+    delete rulesForNext.savedState;
+
+    const payload = {
+      title: `Room ${draft.rules.roomCode} Draft`,
+      league: draft.league || "NBA",
+      mode: draft.mode,
+      participants:
+        rulesForNext.seatAssignments?.length ||
+        draft.participants ||
+        participants,
+      rules: rulesForNext,
+      randomEra: draft.randomEra,
+      randomTeam: draft.randomTeam,
+      eraFrom: draft.eraFrom,
+      eraTo: draft.eraTo,
+      teamConstraint: draft.teamConstraint,
+      playersPerTeam: draft.playersPerTeam,
+      requirePositions: draft.requirePositions,
+    };
+
+    const res = await fetch(`${API_URL}/drafts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || "Failed to start a new draft.");
+      return;
+    }
+
+    const nextDraft = await res.json();
+    localStorage.setItem("activeRoomDraftId", nextDraft.id);
+    localStorage.setItem(
+      "activeRoomCode",
+      draft.rules.roomCode || String(draft.id)
+    );
+    router.push(`/draft/${nextDraft.id}`);
+  }
+
   function handleNewDraft() {
     if (draft?.rules?.online && draft.rules.roomCode) {
-      const ok = draftComplete
-        ? true
-        : confirm("Return to the lobby to ready up a new draft?");
-      if (!ok) return;
+      if (
+        draft.rules.hostUserId &&
+        user &&
+        draft.rules.hostUserId === user.id
+      ) {
+        const ok = draftComplete
+          ? true
+          : confirm("Start a fresh draft in this room with the same rules?");
+        if (!ok) return;
+        startOnlineRematch();
+        return;
+      }
+
       window.location.href = `/online/room/${draft.rules.roomCode}`;
       return;
     }
@@ -924,6 +1002,12 @@ export default function DraftPage() {
     if (!ok) return;
 
     window.location.href = "/draft/new";
+  }
+
+  function handleBackToRoom() {
+    if (draft?.rules?.online && draft.rules.roomCode) {
+      window.location.href = `/online/room/${draft.rules.roomCode}`;
+    }
   }
 
   /***************************************************************************/
@@ -1383,6 +1467,15 @@ export default function DraftPage() {
                 className="px-3 py-1.5 rounded-md bg-yellow-500 hover:bg-yellow-400 text-xs font-semibold text-slate-900"
               >
                 ⏸ Pause
+              </button>
+            )}
+
+            {isOnline && (
+              <button
+                onClick={handleBackToRoom}
+                className="px-3 py-1.5 rounded-md bg-slate-700 hover:bg-slate-600 text-xs font-semibold"
+              >
+                ↩ Back to Room
               </button>
             )}
 

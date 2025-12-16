@@ -77,6 +77,7 @@ export async function updatePick(req: AuthedRequest, res: Response) {
     teamLandedOn,
     eraFrom,
     eraTo,
+    autopick,
     cartoonShowId,
     cartoonCharacterId,
   } = req.body;
@@ -93,6 +94,7 @@ export async function updatePick(req: AuthedRequest, res: Response) {
       eraToOverride: eraTo,
       cartoonShowId,
       cartoonCharacterId,
+      isAutoPick: !!autopick,
     });
     res.json(pick);
   } catch (e: any) {

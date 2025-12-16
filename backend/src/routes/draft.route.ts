@@ -22,9 +22,18 @@ router.post("/:id/save", authRequired, async (req: AuthedRequest, res) => {
     if (!draft) return res.status(404).json({ error: "Draft not found" });
 
     if (draft.ownerId && draft.ownerId !== userId) {
-      return res
-        .status(403)
-        .json({ error: "Only the owner can save this draft" });
+      const rules = (draft.rules || {}) as any;
+      const seatAssignments: string[] | undefined = rules.seatAssignments;
+      const isOnlineParticipant =
+        rules.online &&
+        seatAssignments &&
+        seatAssignments.length &&
+        seatAssignments.includes(userId);
+      if (!isOnlineParticipant) {
+        return res
+          .status(403)
+          .json({ error: "Only the owner can save this draft" });
+      }
     }
 
     // If draft has no owner but user is logged in, claim ownership
