@@ -42,3 +42,5 @@ next-env.d.ts
 
 # local NFL datasets
 backend/data/nfl/*.csv
+# local cartoon datasets
+backend/data/cartoons/
