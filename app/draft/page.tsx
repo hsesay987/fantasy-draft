@@ -68,6 +68,14 @@ export default function HomePage() {
     router.push("/draft/new?league=NFL");
   };
 
+  const goToCartoon = () => {
+    if (!isPremium) {
+      router.push("/account/subscription");
+      return;
+    }
+    router.push("/draft/new?league=CARTOON");
+  };
+
   const draftCategories: DraftCategory[] = [
     {
       id: "nba",
@@ -99,9 +107,12 @@ export default function HomePage() {
     },
     {
       id: "cartoons",
-      name: "Cartoon Characters Draft",
+      name: "Cartoon Draft (Beta)",
       image: cartoonsImg,
-      enabled: false,
+      enabled: true,
+      beta: true,
+      requirePremium: true,
+      onClick: goToCartoon,
     },
     {
       id: "epl",
