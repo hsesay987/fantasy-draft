@@ -153,6 +153,17 @@ type ScoreResponse = {
   ruleWarnings: string[];
 };
 
+type BestCandidate = {
+  name: string;
+  position: string;
+  ppg?: number | null;
+  season?: number | null;
+  score?: number | null;
+  team?: string | null;
+  eraLabel?: string | null;
+  source: "suggestion" | "search";
+};
+
 /* --------------------------------- Constants ------------------------------- */
 const POSITION_ORDER = ["PG", "SG", "SF", "PF", "C"];
 
@@ -178,13 +189,13 @@ const ERA_1960s = [
   "ATL",
   "WAS",
   "CHI",
-  "HOU",
   "OKC",
   "PHX",
-  "MIL",
 ];
 const ERA_1970s = [
   ...ERA_1960s,
+  "HOU",
+  "MIL",
   "LAC",
   "CLE",
   "POR",
@@ -195,7 +206,7 @@ const ERA_1970s = [
   "SAS",
 ];
 // Timberwolves/Heat/Mavs shouldn't appear in 1980s spins
-const ERA_1980s = [...ERA_1970s, "CHA", "ORL"];
+const ERA_1980s = [...ERA_1970s, "CHA", "ORL", "MIA"];
 const ERA_1990s = [...ERA_1980s, "DAL", "MIA", "MIN", "TOR", "MEM"];
 const ERA_2000s = [...ERA_1990s];
 const ERA_MODERN = [
@@ -275,6 +286,8 @@ export default function DraftPage() {
   const [eraSpinLabel, setEraSpinLabel] = useState("-");
   const [spinning, setSpinning] = useState(false);
   const [hasSpunThisTurn, setHasSpunThisTurn] = useState(false);
+  const [showReadyModal, setShowReadyModal] = useState(false);
+  const [readySaving, setReadySaving] = useState(false);
 
   /***************************************************************************/
   /*                           SEARCH / PENDING PICK                          */
@@ -304,6 +317,13 @@ export default function DraftPage() {
   /***************************************************************************/
   /*                         DERIVED DATA                                    */
   /***************************************************************************/
+  const isHost =
+    !!user && draft?.rules?.hostUserId && draft.rules.hostUserId === user.id;
+  const savedState = (draft?.rules?.savedState as any) || {};
+  const rematchReadyRequested = !!savedState.rematchReadyRequested;
+  const rematchReadyMap: Record<string, boolean> =
+    savedState.rematchReadyMap || {};
+
   const teamDataMap = useMemo(() => {
     const map = new Map<string, TeamData>();
     TEAM_DATA.forEach((t) => map.set(t.code, t));
@@ -484,6 +504,9 @@ export default function DraftPage() {
       seasonUsed?: number;
     }[]
   >([]);
+  const [bestCandidate, setBestCandidate] = useState<BestCandidate | null>(
+    null
+  );
 
   async function loadSuggestions() {
     if (!draft) return;
@@ -506,6 +529,74 @@ export default function DraftPage() {
 
     const data = await res.json();
     setSuggestedPicks(data);
+  }
+
+  async function persistSavedState(
+    patch: Record<string, any>,
+    opts?: { silent?: boolean }
+  ) {
+    if (!draft) return;
+    const mergedState = { ...(draft.rules?.savedState || {}), ...patch };
+
+    if (!opts?.silent) setReadySaving(true);
+    try {
+      await fetch(`${API_URL}/drafts/${draft.id}/save`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          savedState: mergedState,
+          status: draft.rules?.status || "in_progress",
+        }),
+      });
+
+      setDraft((prev) =>
+        prev
+          ? {
+              ...prev,
+              rules: { ...(prev.rules || {}), savedState: mergedState },
+            }
+          : prev
+      );
+    } finally {
+      if (!opts?.silent) setReadySaving(false);
+    }
+  }
+
+  async function markReadyForRematch() {
+    if (!draft?.rules?.online || !user) return;
+    const map = {
+      ...(rematchReadyMap || {}),
+      [user.id]: true,
+    };
+    await persistSavedState({
+      rematchReadyRequested: true,
+      rematchReadyMap: map,
+    });
+    setShowReadyModal(true);
+  }
+
+  async function requestRematch() {
+    if (!draft?.rules?.online || !isHost) return;
+    const ok = confirm(
+      draftComplete
+        ? "Start a fresh online draft for this room?"
+        : "Start a new online draft and have everyone ready up?"
+    );
+    if (!ok) return;
+
+    const map = {
+      ...(rematchReadyMap || {}),
+      ...(user?.id ? { [user.id]: true } : {}),
+    };
+
+    await persistSavedState({
+      rematchReadyRequested: true,
+      rematchReadyMap: map,
+    });
+    setShowReadyModal(true);
   }
 
   /***************************************************************************/
@@ -547,6 +638,27 @@ export default function DraftPage() {
       setEraSpinLabel(`${saved.eraFrom}-${saved.eraTo}`);
     }
   }, [draft?.rules?.savedState]);
+
+  useEffect(() => {
+    if (draft?.rules?.online && rematchReadyRequested) {
+      setShowReadyModal(true);
+    }
+  }, [draft?.rules?.online, rematchReadyRequested]);
+
+  useEffect(() => {
+    const nextDraftId = (savedState as any)?.rematchNextDraftId as
+      | string
+      | undefined;
+    if (
+      draft?.rules?.online &&
+      nextDraftId &&
+      draft.id !== nextDraftId &&
+      !isHost
+    ) {
+      localStorage.setItem("activeRoomDraftId", nextDraftId);
+      router.push(`/draft/${nextDraftId}`);
+    }
+  }, [draft?.rules?.online, savedState?.rematchNextDraftId, draft?.id, isHost, router]);
 
   /***************************************************************************/
   /*                        BUILD SEARCH PARAMS (UPDATED)                    */
@@ -619,6 +731,96 @@ export default function DraftPage() {
       setSearchResults(data);
     } finally {
       setSearchLoading(false);
+    }
+  }
+
+  async function loadBestCandidate() {
+    if (!draft) return;
+
+    const slot = selectedSlot ?? defaultSlotForActive;
+    if (!slot) {
+      setBestCandidate(null);
+      return;
+    }
+
+    const eraLabel = lockedEra
+      ? `${lockedEra.from}-${lockedEra.to}`
+      : draft.randomEra
+      ? "Random"
+      : draft.eraFrom && draft.eraTo
+      ? `${draft.eraFrom}-${draft.eraTo}`
+      : null;
+
+    const teamForDisplay =
+      lockedTeam ??
+      (savedState as any)?.teamLandedOn ??
+      draft.teamConstraint ??
+      null;
+
+    const requiredPos = getSlotPosition(slot, draft);
+
+    try {
+      const suggestionRes = await fetch(
+        `${API_URL}/drafts/${draft.id}/suggestions?limit=1`
+      );
+      if (suggestionRes.ok) {
+        const suggested = await suggestionRes.json();
+        if (Array.isArray(suggested) && suggested.length) {
+          const pick = suggested[0];
+          setBestCandidate({
+            name: pick.name,
+            position: pick.position,
+            ppg: pick.ppg,
+            season: pick.seasonUsed ?? null,
+            score: pick.score,
+            team: teamForDisplay,
+            eraLabel,
+            source: "suggestion",
+          });
+          return;
+        }
+      }
+    } catch {
+      // fall back to search-based heuristic
+    }
+
+    const params = buildSearchParams(slot, { limit: 50, ignoreName: true });
+    try {
+      const res = await fetch(`${API_URL}/players/search?${params.toString()}`);
+      if (!res.ok) {
+        setBestCandidate(null);
+        return;
+      }
+      const data: Player[] = await res.json();
+      const eligible = requiredPos
+        ? data.filter((p) => isPlayerEligible(p, requiredPos))
+        : data;
+
+      if (!eligible.length) {
+        setBestCandidate(null);
+        return;
+      }
+
+      const sorted = eligible
+        .map((p) => ({
+          player: p,
+          score: p.bestSeason?.ppg ?? 0,
+        }))
+        .sort((a, b) => b.score - a.score);
+
+      const top = sorted[0];
+      setBestCandidate({
+        name: top.player.name,
+        position: requiredPos ?? top.player.position,
+        ppg: top.player.bestSeason?.ppg ?? null,
+        season: top.player.bestSeason?.season ?? null,
+        score: top.score || null,
+        team: teamForDisplay ?? top.player.primaryTeam ?? null,
+        eraLabel,
+        source: "search",
+      });
+    } catch {
+      setBestCandidate(null);
     }
   }
 
@@ -934,7 +1136,7 @@ export default function DraftPage() {
   }
 
   async function startOnlineRematch() {
-    if (!draft || !draft.rules?.online || !token) return;
+    if (!draft || !draft.rules?.online || !token || !isHost) return;
 
     const rulesForNext: any = { ...(draft.rules || {}) };
     delete rulesForNext.savedState;
@@ -973,6 +1175,12 @@ export default function DraftPage() {
     }
 
     const nextDraft = await res.json();
+    await persistSavedState({
+      rematchReadyRequested: false,
+      rematchReadyMap: {},
+      rematchNextDraftId: nextDraft.id,
+    });
+    setShowReadyModal(false);
     localStorage.setItem("activeRoomDraftId", nextDraft.id);
     localStorage.setItem(
       "activeRoomCode",
@@ -983,20 +1191,11 @@ export default function DraftPage() {
 
   function handleNewDraft() {
     if (draft?.rules?.online && draft.rules.roomCode) {
-      if (
-        draft.rules.hostUserId &&
-        user &&
-        draft.rules.hostUserId === user.id
-      ) {
-        const ok = draftComplete
-          ? true
-          : confirm("Start a fresh draft in this room with the same rules?");
-        if (!ok) return;
-        startOnlineRematch();
+      if (isHost) {
+        requestRematch();
         return;
       }
-
-      window.location.href = `/online/room/${draft.rules.roomCode}`;
+      markReadyForRematch();
       return;
     }
 
@@ -1088,21 +1287,14 @@ export default function DraftPage() {
         setHasSpunThisTurn(true);
 
         // SAVE SPIN TO BACKEND (IMPORTANT)
-        await fetch(`${API_URL}/drafts/${draft.id}/save`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        await persistSavedState(
+          {
+            teamLandedOn: final.team,
+            eraFrom: final.era.from,
+            eraTo: final.era.to,
           },
-          body: JSON.stringify({
-            savedState: {
-              teamLandedOn: final.team,
-              eraFrom: final.era.from,
-              eraTo: final.era.to,
-            },
-            status: "in_progress",
-          }),
-        });
+          { silent: true }
+        );
 
         // refresh suggestions immediately with new era/team context
         loadSuggestions();
@@ -1275,6 +1467,18 @@ export default function DraftPage() {
     lockedEra?.to,
   ]);
 
+  useEffect(() => {
+    loadBestCandidate();
+  }, [
+    draft?.id,
+    draft?.picks.length,
+    lockedTeam,
+    lockedEra?.from,
+    lockedEra?.to,
+    selectedSlot,
+    defaultSlotForActive,
+  ]);
+
   // helpers / derived values that shouldn't change hook order
   const safeLen = (arr?: any[]) => (arr && arr.length ? arr.length : 1);
   const draftComplete = draft ? draft.picks.length >= draft.maxPlayers : false;
@@ -1298,6 +1502,17 @@ export default function DraftPage() {
       : null;
 
   const amOnClock = !!user && activeSeatUserId === user.id;
+
+  const readyParticipants =
+    draft?.rules?.seatAssignments?.map((uid, idx) => ({
+      userId: uid,
+      name:
+        draft?.rules?.seatDisplayNames?.[idx] ||
+        `Player ${idx + 1}`,
+      ready: !!rematchReadyMap[uid],
+    })) ?? [];
+
+  const totalReady = readyParticipants.filter((p) => p.ready).length;
 
   const allTeams = (score?.teams ?? []) as Array<
     NonNullable<ScoreResponse["teams"]>[number]
@@ -1408,7 +1623,92 @@ export default function DraftPage() {
   /*                           MAIN RENDER LAYOUT                            */
   /***************************************************************************/
   return (
-    <main className="min-h-screen w-full bg-slate-950 text-slate-50 overflow-x-hidden">
+    <>
+      {showReadyModal && draft.rules?.online && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm px-4">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900/95 p-4 space-y-3 shadow-xl shadow-indigo-500/20">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-50">
+                  Waiting for players to ready up
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Host will start a new draft once everyone is set.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowReadyModal(false)}
+                className="text-[11px] text-slate-400 hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="text-xs text-slate-300">
+              {totalReady}/{readyParticipants.length || participants} ready
+            </div>
+
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {readyParticipants.map((p, idx) => (
+                <div
+                  key={p.userId || idx}
+                  className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2"
+                >
+                  <span className="text-sm text-slate-100">
+                    {p.name || `Player ${idx + 1}`}
+                  </span>
+                  <span
+                    className={`text-[11px] font-semibold ${
+                      p.ready ? "text-emerald-300" : "text-slate-400"
+                    }`}
+                  >
+                    {p.ready ? "Ready" : "Waiting"}
+                  </span>
+                </div>
+              ))}
+              {readyParticipants.length === 0 && (
+                <div className="text-[11px] text-slate-400">
+                  Seats will appear once players join.
+                </div>
+              )}
+            </div>
+
+            {!isHost && (
+              <button
+                onClick={markReadyForRematch}
+                disabled={
+                  readySaving || (user?.id ? !!rematchReadyMap[user.id] : false)
+                }
+                className="w-full rounded-md bg-emerald-500 hover:bg-emerald-400 text-[12px] font-semibold text-slate-900 py-2 disabled:opacity-60"
+              >
+                {user && rematchReadyMap[user.id]
+                  ? "You're ready"
+                  : readySaving
+                  ? "Saving..."
+                  : "Ready Up"}
+              </button>
+            )}
+
+            {isHost && (
+              <button
+                onClick={startOnlineRematch}
+                disabled={readySaving}
+                className="w-full rounded-md bg-indigo-500 hover:bg-indigo-600 text-[12px] font-semibold text-slate-100 py-2 disabled:opacity-60"
+              >
+                {readySaving ? "Starting..." : "Start anyways"}
+              </button>
+            )}
+
+            {isHost && (
+              <p className="text-[10px] text-slate-500 text-center">
+                Start now or wait for more players to ready up.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      <main className="min-h-screen w-full bg-slate-950 text-slate-50 overflow-x-hidden">
       {/* FULL WIDTH HEADER */}
       <header className="px-4 py-6 border-b border-slate-800">
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -1424,6 +1724,30 @@ export default function DraftPage() {
                 ? "Random Era"
                 : `${draft.eraFrom ?? "?"}–${draft.eraTo ?? "?"}`}
             </p>
+
+            {bestCandidate && (
+              <div className="mt-3 rounded-lg border border-slate-800 bg-slate-900/70 px-3 py-2 text-xs">
+                <div className="text-[11px] uppercase tracking-[0.12em] text-slate-400">
+                  Best available
+                </div>
+                <div className="text-sm font-semibold text-emerald-200">
+                  {bestCandidate.name}
+                </div>
+                <div className="text-[11px] text-slate-300">
+                  {bestCandidate.position}
+                  {bestCandidate.team ? ` • ${bestCandidate.team}` : ""}
+                  {bestCandidate.eraLabel ? ` • ${bestCandidate.eraLabel}` : ""}
+                  {bestCandidate.season ? ` • ${bestCandidate.season}` : ""}
+                  {bestCandidate.ppg ? ` • ${bestCandidate.ppg.toFixed(1)} PPG` : ""}
+                  {bestCandidate.score
+                    ? ` • Score ${bestCandidate.score.toFixed(1)}`
+                    : ""}
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  Based on current team/era spin and open position.
+                </div>
+              </div>
+            )}
 
             {activeParticipant && (
               <p className="text-xs mt-1 text-indigo-300">
@@ -1483,12 +1807,31 @@ export default function DraftPage() {
               </button>
             )}
 
-            <button
-              onClick={handleNewDraft}
-              className="px-3 py-1.5 rounded-md bg-indigo-500 hover:bg-indigo-600 text-xs font-semibold"
-            >
-              ➕ New Draft
-            </button>
+            {isOnline ? (
+              isHost ? (
+                <button
+                  onClick={handleNewDraft}
+                  className="px-3 py-1.5 rounded-md bg-indigo-500 hover:bg-indigo-600 text-xs font-semibold"
+                >
+                  ➕ New Draft
+                </button>
+              ) : (
+                <button
+                  onClick={handleNewDraft}
+                  className="px-3 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-xs font-semibold text-slate-900 disabled:opacity-60"
+                  disabled={readySaving || (!!user && rematchReadyMap[user.id])}
+                >
+                  {user && rematchReadyMap[user.id] ? "Ready" : "Ready Up"}
+                </button>
+              )
+            ) : (
+              <button
+                onClick={handleNewDraft}
+                className="px-3 py-1.5 rounded-md bg-indigo-500 hover:bg-indigo-600 text-xs font-semibold"
+              >
+                ➕ New Draft
+              </button>
+            )}
 
             <button
               onClick={handleCancelDraft}
@@ -2130,7 +2473,8 @@ export default function DraftPage() {
           </div>
         </section>
       </div>
-    </main>
+      </main>
+    </>
   );
 }
 
