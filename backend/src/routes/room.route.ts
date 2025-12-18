@@ -12,16 +12,44 @@ function generateRoomCode() {
   return crypto.randomBytes(3).toString("hex").toUpperCase(); // "A1B2C3"
 }
 
+function isPremiumUser(user: any) {
+  return (
+    !!user?.isAdmin ||
+    !!user?.isFounder ||
+    (!!user?.subscriptionTier &&
+      (!user?.subscriptionEnds || user.subscriptionEnds.getTime() > Date.now()))
+  );
+}
+
 // CREATE ROOM
 router.post("/", authRequired, async (req: AuthedRequest, res) => {
   try {
-    const { gameType = "DRAFT", isPublic = false, name } = req.body;
+    const {
+      gameType = "DRAFT",
+      isPublic = false,
+      name,
+      league: rawLeague,
+      settings,
+    } = req.body;
     const userId = req.userId; // <— host is always the authed user
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
     // guard against stale/invalid tokens pointing to non-existent users
     const host = await prisma.user.findUnique({ where: { id: userId } });
     if (!host) return res.status(401).json({ error: "User not found" });
+
+    const league =
+      typeof rawLeague === "string" ? rawLeague.toUpperCase() : "NBA";
+    if (!["NBA", "NFL", "CARTOON"].includes(league)) {
+      return res.status(400).json({ error: "Invalid league" });
+    }
+
+    const premiumRequired = league === "NFL" || league === "CARTOON";
+    if (premiumRequired && !isPremiumUser(host)) {
+      return res
+        .status(403)
+        .json({ error: `${league} online rooms are for premium members.` });
+    }
 
     const code = generateRoomCode();
 
@@ -31,7 +59,9 @@ router.post("/", authRequired, async (req: AuthedRequest, res) => {
         hostId: userId,
         gameType,
         isPublic,
-        name: name || "Online NBA Draft",
+        league,
+        settings: settings || {},
+        name: name || `Online ${league} Draft`,
         participants: {
           create: {
             userId,
@@ -77,6 +107,44 @@ router.get("/:code", authRequired, async (req: AuthedRequest, res) => {
   }
 });
 
+// UPDATE ROOM SETTINGS (host only)
+router.patch("/:code/settings", authRequired, async (req: AuthedRequest, res) => {
+  try {
+    const { code } = req.params;
+    const userId = req.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const room = await prisma.room.findUnique({
+      where: { code },
+      include: { participants: true },
+    });
+    if (!room) return res.status(404).json({ error: "Room not found" });
+    if (room.hostId !== userId) {
+      return res.status(403).json({ error: "Only the host can edit settings" });
+    }
+
+    const updated = await prisma.room.update({
+      where: { id: room.id },
+      data: {
+        settings: req.body?.settings ?? {},
+      },
+      include: {
+        participants: { include: { user: true }, orderBy: { createdAt: "asc" } },
+      },
+    });
+
+    const io = getIo();
+    if (io) {
+      io.to(`room:${code}`).emit("room:settings", updated.settings || {});
+    }
+
+    return res.json(updated);
+  } catch (e: any) {
+    console.error(e);
+    return res.status(500).json({ error: "Failed to update room settings" });
+  }
+});
+
 // JOIN ROOM
 router.post("/:code/join", authRequired, async (req: AuthedRequest, res) => {
   try {
@@ -97,6 +165,14 @@ router.post("/:code/join", authRequired, async (req: AuthedRequest, res) => {
 
     if (!room) {
       return res.status(404).json({ error: "Room not found" });
+    }
+
+    const premiumRequired =
+      room.league === "NFL" || room.league === "CARTOON";
+    if (premiumRequired && !isPremiumUser(user)) {
+      return res
+        .status(403)
+        .json({ error: `${room.league} online rooms are for premium members.` });
     }
 
     // already in room? handle in-progress redirect

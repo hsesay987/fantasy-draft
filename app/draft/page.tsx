@@ -144,6 +144,14 @@ export default function HomePage() {
     router.push("/draft/new?league=CARTOON");
   };
 
+  const goToCartoonOnline = () => {
+    if (!isPremium) {
+      router.push("/account/subscription");
+      return;
+    }
+    router.push("/online?league=CARTOON");
+  };
+
   const openCommunityDraft = async (draftId: string) => {
     try {
       setLoadingDraftId(draftId);
@@ -371,6 +379,28 @@ export default function HomePage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push("/online");
+                        }}
+                        className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2"
+                      >
+                        Online Draft
+                      </button>
+                    </div>
+                  )}
+                  {cat.enabled && cat.id === "cartoons" && (
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          goToCartoon();
+                        }}
+                        className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2"
+                      >
+                        Offline Draft
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          goToCartoonOnline();
                         }}
                         className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2"
                       >

@@ -27,7 +27,11 @@ export default function DraftRedirectPage() {
         const draft = await res.json();
         const league = (draft.league || "NBA").toUpperCase();
         const target =
-          league === "NFL" ? `/draft/nfl/${id}` : `/draft/nba/${id}`;
+          league === "NFL"
+            ? `/draft/nfl/${id}`
+            : league === "CARTOON"
+            ? `/draft/cartoon/${id}`
+            : `/draft/nba/${id}`;
 
         if (!cancelled) {
           router.replace(target);

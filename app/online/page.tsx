@@ -1,26 +1,54 @@
 // app/online/page.tsx
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Users, PlusCircle, LogIn } from "lucide-react";
 import { useAuth } from "../hooks/useAuth"; // adjust path if needed
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+type League = "NBA" | "NFL" | "CARTOON";
 
 export default function OnlinePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, token } = useAuth();
+
+  const queryLeague = useMemo(
+    () => (searchParams.get("league") || "").toUpperCase(),
+    [searchParams]
+  );
+  const initialLeague: League =
+    queryLeague === "NFL"
+      ? "NFL"
+      : queryLeague === "CARTOON"
+      ? "CARTOON"
+      : "NBA";
 
   const [joinCode, setJoinCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [league, setLeague] = useState<League>(initialLeague);
+
+  const isPremium =
+    !!user?.isAdmin ||
+    !!user?.isFounder ||
+    (!!user?.subscriptionTier &&
+      (!user?.subscriptionEnds ||
+        new Date(user.subscriptionEnds).getTime() > Date.now()));
+
+  const requiresPremium = league === "NFL" || league === "CARTOON";
 
   /* -------------------- CREATE ROOM -------------------- */
   async function handleCreateRoom() {
     if (!token) {
       alert("Log in to create online draft rooms.");
       router.push("/login");
+      return;
+    }
+
+    if (requiresPremium && !isPremium) {
+      router.push("/account/subscription");
       return;
     }
 
@@ -37,7 +65,16 @@ export default function OnlinePage() {
         body: JSON.stringify({
           gameType: "DRAFT",
           isPublic: false,
-          name: "Online NBA Draft",
+          name: `Online ${league} Draft`,
+          league,
+          settings:
+            league === "CARTOON"
+              ? {
+                  cartoonDraftType: "character",
+                  cartoonMode: "classic",
+                  pickTimerSeconds: 60,
+                }
+              : undefined,
         }),
       });
 
@@ -49,7 +86,7 @@ export default function OnlinePage() {
       const room = await res.json();
       localStorage.setItem("activeRoomCode", room.code);
       localStorage.removeItem("activeRoomDraftId");
-      router.push(`/online/room/${room.code}`);
+      router.push(`/online/room/${room.code}?league=${room.league || league}`);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -92,7 +129,9 @@ export default function OnlinePage() {
       }
 
       localStorage.removeItem("activeRoomDraftId");
-      router.push(`/online/room/${joinCode}`);
+      const roomLeague =
+        (room.league || league || "NBA").toString().toUpperCase();
+      router.push(`/online/room/${joinCode}?league=${roomLeague}`);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -113,9 +152,33 @@ export default function OnlinePage() {
 
       {error && (
         <div className="mb-6 rounded-lg bg-red-900/30 border border-red-500/50 px-4 py-3 text-sm text-red-200">
-          ⚠ {error}
+      ⚠ {error}
+    </div>
+  )}
+
+      <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
+        <span className="text-slate-300">Choose league:</span>
+        <div className="inline-flex rounded-full bg-slate-900 border border-slate-800 p-1">
+          {(["NBA", "NFL", "CARTOON"] as League[]).map((lg) => (
+            <button
+              key={lg}
+              onClick={() => setLeague(lg)}
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
+                league === lg
+                  ? "bg-indigo-500 text-slate-900"
+                  : "text-slate-200 hover:text-white"
+              }`}
+            >
+              {lg}
+            </button>
+          ))}
         </div>
-      )}
+        {requiresPremium && !isPremium && (
+          <span className="text-xs text-amber-300">
+            Premium required for {league} online rooms.
+          </span>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
         {/* CREATE ROOM */}
@@ -126,7 +189,7 @@ export default function OnlinePage() {
           </div>
 
           <p className="text-sm text-slate-400 mb-6">
-            Host a private online NBA draft and invite others with a code.
+            Host a private online {league} draft and invite others with a code.
           </p>
 
           <button

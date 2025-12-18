@@ -19,6 +19,7 @@ import {
   ThumbsDown,
 } from "lucide-react";
 import { useAuth } from "@/app/hooks/useAuth";
+type League = "NBA" | "NFL" | "CARTOON";
 
 export default function NewDraftPage() {
   const router = useRouter();
@@ -30,10 +31,24 @@ export default function NewDraftPage() {
     () => (searchParams.get("league") || "").toUpperCase(),
     [searchParams]
   );
-  const initialLeague: "NBA" | "NFL" =
-    queryLeague === "NFL" ? "NFL" : "NBA";
+  const initialLeague: League =
+    queryLeague === "NFL"
+      ? "NFL"
+      : queryLeague === "CARTOON"
+      ? "CARTOON"
+      : "NBA";
 
-  const [league] = useState<"NBA" | "NFL">(initialLeague);
+  const [league] = useState<League>(initialLeague);
+  if (league === "CARTOON") {
+    return (
+      <CartoonDraftBuilder
+        API_URL={API_URL}
+        router={router}
+        token={token}
+        user={user}
+      />
+    );
+  }
   const [title, setTitle] = useState("");
   const NFL_LINEUP = ["QB", "RB", "WR", "WR", "TE", "FLEX", "DEF"];
 
@@ -1526,6 +1541,456 @@ export default function NewDraftPage() {
           </div>
         </div>
       )}
+    </main>
+  );
+}
+
+function CartoonDraftBuilder({
+  API_URL,
+  router,
+  token,
+  user,
+}: {
+  API_URL: string;
+  router: ReturnType<typeof useRouter>;
+  token: string | null;
+  user: any;
+}) {
+  const [title, setTitle] = useState("");
+  const [mode, setMode] = useState<"classic" | "casual">("classic");
+  const [participants, setParticipants] = useState(2);
+  const [playersPerTeam, setPlayersPerTeam] = useState(5);
+  const [pickTimerSeconds, setPickTimerSeconds] = useState<number | "">(60);
+  const [draftType, setDraftType] = useState<"character" | "show">(
+    "character"
+  );
+  const [channel, setChannel] = useState("");
+  const [ageRating, setAgeRating] = useState<"" | "baby" | "kids" | "adult">(
+    ""
+  );
+  const [randomEra, setRandomEra] = useState(true);
+  const [eraFrom, setEraFrom] = useState<number | "">("");
+  const [eraTo, setEraTo] = useState<number | "">("");
+  const [femaleOnly, setFemaleOnly] = useState(false);
+  const [superheroOnly, setSuperheroOnly] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isPremium =
+    !!user?.isAdmin ||
+    !!user?.isFounder ||
+    (!!user?.subscriptionTier &&
+      (!user?.subscriptionEnds ||
+        new Date(user.subscriptionEnds).getTime() > Date.now()));
+
+  useEffect(() => {
+    if (mode === "classic") {
+      setParticipants(2);
+      setPlayersPerTeam(5);
+      setPickTimerSeconds(60);
+      setRandomEra(true);
+    } else {
+      setPickTimerSeconds("");
+    }
+  }, [mode]);
+
+  async function handleCreateCartoon() {
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    if (!isPremium) {
+      router.push("/account/subscription");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const rules = {
+        participants,
+        playersPerTeam,
+        pickTimerSeconds:
+          mode === "classic"
+            ? 60
+            : pickTimerSeconds === ""
+            ? null
+            : Number(pickTimerSeconds),
+        autoPickEnabled: mode === "classic" ? true : false,
+        cartoonDraftType: draftType,
+        cartoonChannel: channel || null,
+        cartoonAgeRating: ageRating || null,
+        cartoonEraFrom: randomEra ? null : eraFrom === "" ? null : Number(eraFrom),
+        cartoonEraTo: randomEra ? null : eraTo === "" ? null : Number(eraTo),
+        cartoonRequireSuperhero: superheroOnly,
+        cartoonGender: femaleOnly ? "female" : undefined,
+        allowShows: draftType === "show",
+        allowCharacters: draftType === "character",
+        cartoonMode: mode,
+        cartoonScoring: "community" as const,
+        communityVoteEnabled: true,
+      };
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch(`${API_URL}/drafts`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          league: "CARTOON",
+          mode,
+          title: title || null,
+          participants,
+          playersPerTeam,
+          randomEra,
+          scoringMethod: "community",
+          cartoonDraftType: draftType,
+          cartoonChannel: channel || null,
+          cartoonAgeRating: ageRating || null,
+          cartoonEraFrom: randomEra ? null : eraFrom === "" ? null : Number(eraFrom),
+          cartoonEraTo: randomEra ? null : eraTo === "" ? null : Number(eraTo),
+          cartoonRequireSuperhero: superheroOnly,
+          cartoonGender: femaleOnly ? "female" : undefined,
+          rules,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        setError(err?.error || "Failed to create draft");
+        return;
+      }
+
+      const draft = await res.json();
+      router.push(`/draft/cartoon/${draft.id}`);
+    } catch (e: any) {
+      setError(e.message || "Backend unreachable");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="min-h-screen p-6 md:p-10 bg-slate-950 text-slate-50 space-y-8">
+      <header className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-indigo-300 tracking-tight mb-1">
+            Create a Cartoon Draft
+          </h1>
+          <p className="text-slate-400 text-sm">
+            Community-voted drafts for characters or shows. Classic is online-focused with a 60s timer.
+          </p>
+          {!isPremium && (
+            <p className="text-xs text-amber-300 mt-1">
+              Cartoon drafts are available to premium members.
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-4 py-2 text-sm font-semibold hover:bg-indigo-600"
+            onClick={() => setMode((prev) => (prev === "classic" ? "casual" : "classic"))}
+          >
+            <Zap className="h-4 w-4" /> Toggle Mode ({mode})
+          </button>
+        </div>
+      </header>
+
+      {error && (
+        <div className="rounded-xl border border-red-500/50 bg-red-900/30 px-4 py-3 text-sm text-red-200">
+          {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section className="space-y-4">
+          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+            <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
+              <Zap className="w-5 h-5 text-indigo-400" /> Draft Mode
+            </h3>
+            <div className="space-y-3">
+              {(["classic", "casual"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  className={`w-full text-left p-4 rounded-xl border transition-all ${
+                    mode === m
+                      ? "border-indigo-500 bg-indigo-500/10"
+                      : "border-slate-700 hover:border-indigo-300/50"
+                  }`}
+                >
+                  <div className="font-semibold text-slate-100 flex items-center gap-2">
+                    {m === "classic" ? "Classic (online)" : "Casual"}
+                  </div>
+                  <div className="text-xs text-slate-400">
+                    {m === "classic"
+                      ? "2 players, 5 picks each, 60s timer."
+                      : "Flexible participants and era rules."}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+            <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
+              <Users className="w-5 h-5 text-indigo-400" /> Players & Teams
+            </h3>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <label className="block mb-1 text-slate-300">
+                  Participants
+                </label>
+                <input
+                  type="number"
+                  min={2}
+                  max={10}
+                  disabled={mode === "classic"}
+                  value={participants}
+                  onChange={(e) =>
+                    setParticipants(
+                      Math.max(2, Math.min(10, Number(e.target.value)))
+                    )
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700"
+                />
+              </div>
+              <div>
+                <label className="block mb-1 text-slate-300">
+                  Picks per team
+                </label>
+                <input
+                  type="number"
+                  min={3}
+                  max={10}
+                  disabled={mode === "classic"}
+                  value={playersPerTeam}
+                  onChange={(e) =>
+                    setPlayersPerTeam(
+                      Math.max(3, Math.min(10, Number(e.target.value)))
+                    )
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700"
+                />
+              </div>
+            </div>
+            <label className="block text-sm mt-3">
+              Pick Timer (seconds)
+              <input
+                type="number"
+                min={20}
+                max={180}
+                disabled={mode === "classic"}
+                value={
+                  mode === "classic"
+                    ? 60
+                    : pickTimerSeconds === ""
+                    ? ""
+                    : pickTimerSeconds
+                }
+                onChange={(e) =>
+                  setPickTimerSeconds(
+                    e.target.value === "" ? "" : Number(e.target.value)
+                  )
+                }
+                className={`mt-1 w-full px-3 py-2 rounded-lg ${
+                  mode === "classic"
+                    ? "bg-slate-800 border-slate-700 text-slate-600"
+                    : "bg-slate-900 border-slate-700"
+                }`}
+                placeholder="Off"
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+            <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
+              <SlidersHorizontal className="w-5 h-5 text-indigo-400" /> Draft
+              Focus
+            </h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setDraftType("character")}
+                  className={`px-3 py-2 rounded-lg border ${
+                    draftType === "character"
+                      ? "border-indigo-500 bg-indigo-500/10"
+                      : "border-slate-700"
+                  }`}
+                >
+                  Characters
+                </button>
+                <button
+                  onClick={() => setDraftType("show")}
+                  className={`px-3 py-2 rounded-lg border ${
+                    draftType === "show"
+                      ? "border-indigo-500 bg-indigo-500/10"
+                      : "border-slate-700"
+                  }`}
+                >
+                  Shows
+                </button>
+              </div>
+
+              <label className="block">
+                <div className="text-xs text-slate-400 mb-1">Channel</div>
+                <select
+                  value={channel}
+                  onChange={(e) => setChannel(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                >
+                  <option value="">Any</option>
+                  <option value="Disney">Disney</option>
+                  <option value="DisneyXD">Disney XD</option>
+                  <option value="Nickelodeon">Nickelodeon</option>
+                  <option value="CartoonNetwork">Cartoon Network</option>
+                  <option value="AdultSwim">Adult Swim</option>
+                  <option value="Netflix">Netflix</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              <label className="block">
+                <div className="text-xs text-slate-400 mb-1">Age rating</div>
+                <select
+                  value={ageRating}
+                  onChange={(e) =>
+                    setAgeRating(e.target.value as typeof ageRating)
+                  }
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                >
+                  <option value="">Any</option>
+                  <option value="baby">Baby</option>
+                  <option value="kids">Kids</option>
+                  <option value="adult">Adult</option>
+                </select>
+              </label>
+
+              {draftType === "character" && (
+                <div className="space-y-2">
+                  <label className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={femaleOnly}
+                      onChange={(e) => setFemaleOnly(e.target.checked)}
+                    />
+                    Female-only characters
+                  </label>
+                  <label className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={superheroOnly}
+                      onChange={(e) => setSuperheroOnly(e.target.checked)}
+                    />
+                    Superhero-only characters
+                  </label>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+            <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
+              <SlidersHorizontal className="w-5 h-5 text-indigo-400" /> Era &
+              Title
+            </h3>
+
+            <label className="block mb-3 text-sm text-slate-300">
+              Draft Title
+              <input
+                placeholder="Optional title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="mt-1 w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm"
+              />
+            </label>
+
+            <label className="inline-flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={randomEra}
+                onChange={(e) => setRandomEra(e.target.checked)}
+              />
+              Random era spin
+            </label>
+
+            {!randomEra && (
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <input
+                  placeholder="From year"
+                  type="number"
+                  value={eraFrom}
+                  onChange={(e) =>
+                    setEraFrom(e.target.value === "" ? "" : Number(e.target.value))
+                  }
+                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                />
+                <input
+                  placeholder="To year"
+                  type="number"
+                  value={eraTo}
+                  onChange={(e) =>
+                    setEraTo(e.target.value === "" ? "" : Number(e.target.value))
+                  }
+                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                />
+              </div>
+            )}
+
+            <p className="text-[11px] text-slate-500 mt-2">
+              Scoring is community voting only. No stats or IMDb/Google data are used.
+            </p>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800 h-full">
+            <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
+              <Sparkles className="w-5 h-5 text-indigo-400" /> Summary
+            </h3>
+            <div className="space-y-2 text-sm text-slate-300">
+              <p>
+                Mode:{" "}
+                <span className="text-indigo-300">
+                  {mode === "classic"
+                    ? "Classic (online, 60s timer)"
+                    : "Casual (flexible)"}
+                </span>
+              </p>
+              <p>
+                Focus:{" "}
+                <span className="text-indigo-300">
+                  {draftType === "character" ? "Characters" : "Shows"}
+                </span>
+              </p>
+              <p>Participants: {participants}</p>
+              <p>Picks per team: {playersPerTeam}</p>
+              <p>Channel: {channel || "Any"}</p>
+              <p>Age rating: {ageRating || "Any"}</p>
+              <p>
+                Era:{" "}
+                {randomEra
+                  ? "Random spins"
+                  : `${eraFrom || "?"} - ${eraTo || "?"}`}
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <button
+        onClick={handleCreateCartoon}
+        disabled={loading}
+        className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-2"
+      >
+        {loading ? "Creating Draft..." : "Create Cartoon Draft"}{" "}
+        <ChevronRight className="w-4 h-4" />
+      </button>
     </main>
   );
 }

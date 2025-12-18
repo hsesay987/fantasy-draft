@@ -132,8 +132,10 @@ model Room {
   id       String  @id @default(cuid())
   code     String  @unique
   name     String?
+  league   String  @default("NBA")
   isPublic Boolean @default(false)
   status   String  @default("lobby") // "lobby" | "in_progress" | "completed"
+  settings Json?
 
   hostId String
   host   User   @relation("RoomHost", fields: [hostId], references: [id])

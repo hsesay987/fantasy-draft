@@ -1,7 +1,7 @@
 // app/online/room/[code]/page.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Crown, Users, Play, X } from "lucide-react";
 import { useAuth } from "@/app/hooks/useAuth";
@@ -9,6 +9,16 @@ import { io } from "socket.io-client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const NFL_LINEUP = ["QB", "RB", "RB", "WR", "WR", "TE", "FLEX", "DEF"];
+const CARTOON_CHANNELS = [
+  "Disney",
+  "DisneyXD",
+  "Nickelodeon",
+  "CartoonNetwork",
+  "AdultSwim",
+  "Netflix",
+  "Other",
+];
+type League = "NBA" | "NFL" | "CARTOON";
 
 type Room = {
   id: string;
@@ -16,6 +26,8 @@ type Room = {
   hostId: string;
   status: string;
   gameId?: string | null;
+  league?: League;
+  settings?: any;
   participants: {
     user: {
       id: string;
@@ -34,6 +46,17 @@ type CasualConfig = {
   suggestionsEnabled: boolean;
 };
 
+type CartoonConfig = {
+  draftType: "character" | "show";
+  channel: string;
+  ageRating: "" | "baby" | "kids" | "adult";
+  randomEra: boolean;
+  eraFrom: number | "";
+  eraTo: number | "";
+  superheroOnly: boolean;
+  femaleOnly: boolean;
+};
+
 export default function RoomLobbyPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
@@ -44,13 +67,27 @@ export default function RoomLobbyPage() {
     () => (searchParams.get("league") || "").toUpperCase(),
     [searchParams]
   );
-  const [league] = useState<"NBA" | "NFL">(
-    queryLeague === "NFL" ? "NFL" : "NBA"
+  const [league, setLeague] = useState<League>(
+    queryLeague === "NFL"
+      ? "NFL"
+      : queryLeague === "CARTOON"
+      ? "CARTOON"
+      : "NBA"
   );
 
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (
+      queryLeague === "NFL" ||
+      queryLeague === "CARTOON" ||
+      queryLeague === "NBA"
+    ) {
+      setLeague(queryLeague as League);
+    }
+  }, [queryLeague]);
 
   // online game mode: classic (2 players) or casual (up to 5)
   const [mode, setMode] = useState<"classic" | "casual">("classic");
@@ -58,23 +95,78 @@ export default function RoomLobbyPage() {
   const [starting, setStarting] = useState(false);
   const [cancelling, setCancelling] = useState(false);
 
+  const basePlayersPerTeam = useMemo(
+    () =>
+      league === "NFL" ? NFL_LINEUP.length : league === "CARTOON" ? 5 : 6,
+    [league]
+  );
+
   const [casualConfig, setCasualConfig] = useState<CasualConfig>({
-    playersPerTeam: queryLeague === "NFL" ? NFL_LINEUP.length : 6,
+    playersPerTeam: basePlayersPerTeam,
     pickTimerSeconds: 0,
     maxPpgCap: "",
     autoPickEnabled: false,
     suggestionsEnabled: true,
   });
+  const [cartoonConfig, setCartoonConfig] = useState<CartoonConfig>({
+    draftType: "character",
+    channel: "",
+    ageRating: "",
+    randomEra: true,
+    eraFrom: "",
+    eraTo: "",
+    superheroOnly: false,
+    femaleOnly: false,
+  });
+  const appliedSettingsRef = useRef(false);
 
   const isHost = room?.hostId === user?.id;
   const participantCount = room?.participants.length ?? 0;
-  const maxForMode = mode === "classic" ? 2 : 5;
+  const maxForMode =
+    league === "CARTOON" && mode === "casual" ? 10 : mode === "classic" ? 2 : 5;
 
   const tooFew = participantCount < 2;
   const tooMany = participantCount > maxForMode;
 
   const canStart =
     !!room && isHost && !tooFew && !tooMany && !!token && !starting;
+
+  useEffect(() => {
+    setCasualConfig((prev) => ({
+      ...prev,
+      playersPerTeam: basePlayersPerTeam,
+    }));
+    if (league !== "CARTOON") {
+      appliedSettingsRef.current = false;
+    }
+  }, [basePlayersPerTeam, league]);
+
+  function applyRoomSettings(settings: any) {
+    if (!settings || typeof settings !== "object") return;
+    if (!isHost || !appliedSettingsRef.current) {
+      if (
+        settings.mode === "classic" ||
+        settings.mode === "casual"
+      ) {
+        setMode(settings.mode);
+      }
+      if (settings.casualConfig) {
+        setCasualConfig((prev) => ({
+          ...prev,
+          ...settings.casualConfig,
+          playersPerTeam:
+            settings.casualConfig.playersPerTeam || basePlayersPerTeam,
+        }));
+      }
+      if (settings.cartoonConfig) {
+        setCartoonConfig((prev) => ({
+          ...prev,
+          ...settings.cartoonConfig,
+        }));
+      }
+      appliedSettingsRef.current = true;
+    }
+  }
 
   /* -------------------- POLL ROOM (fallback) -------------------- */
   async function fetchRoom() {
@@ -90,6 +182,10 @@ export default function RoomLobbyPage() {
       }
 
       const data = (await res.json()) as Room;
+      if (data.league) {
+        setLeague((data.league as League) || "NBA");
+      }
+      applyRoomSettings(data.settings);
       const isMember = data.participants.some((p) => p.user.id === user?.id);
       if (!isMember) {
         setError("You are not in this room.");
@@ -129,6 +225,28 @@ export default function RoomLobbyPage() {
   }
 
   useEffect(() => {
+    if (!isHost || !token || !room) return;
+    const timer = setTimeout(() => {
+      fetch(`${API_URL}/rooms/${code}/settings`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          settings: {
+            mode,
+            casualConfig,
+            cartoonConfig,
+          },
+        }),
+      }).catch(() => {});
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [cartoonConfig, casualConfig, mode, isHost, token, room, code]);
+
+  useEffect(() => {
     if (!token) {
       setLoading(false);
       setError("You must be logged in to view this room.");
@@ -155,6 +273,9 @@ export default function RoomLobbyPage() {
       localStorage.setItem("activeRoomDraftId", payload.draftId);
       router.push(`/draft/${payload.draftId}`);
     });
+    socket.on("room:settings", (settings: any) => {
+      applyRoomSettings(settings);
+    });
     socket.on("room:cancelled", () => {
       alert("Host cancelled this game. Returning to Online lobby.");
       localStorage.removeItem("activeRoomCode");
@@ -172,7 +293,7 @@ export default function RoomLobbyPage() {
     if (!room || !isHost || !token) return;
 
     const participantCount = room.participants.length;
-    const maxSeats = mode === "classic" ? 2 : 5;
+    const maxSeats = maxForMode;
 
     // Guard: require at least 2, and not exceed cap
     if (participantCount < 2) return;
@@ -187,7 +308,9 @@ export default function RoomLobbyPage() {
     );
 
     const parsedPlayersPerTeam =
-      casualConfig.playersPerTeam > 0 ? casualConfig.playersPerTeam : 6;
+      casualConfig.playersPerTeam > 0
+        ? casualConfig.playersPerTeam
+        : basePlayersPerTeam;
     const parsedTimerRaw = Number(casualConfig.pickTimerSeconds);
     const parsedPickTimer =
       Number.isFinite(parsedTimerRaw) && parsedTimerRaw > 0
@@ -197,6 +320,20 @@ export default function RoomLobbyPage() {
       casualConfig.maxPpgCap.trim() === ""
         ? null
         : Math.max(0, Number(casualConfig.maxPpgCap));
+    let playersPerTeamValue =
+      mode === "classic"
+        ? league === "NFL"
+          ? NFL_LINEUP.length
+          : league === "CARTOON"
+          ? 5
+          : 6
+        : parsedPlayersPerTeam;
+    if (league === "NFL" && playersPerTeamValue < NFL_LINEUP.length) {
+      playersPerTeamValue = NFL_LINEUP.length;
+    }
+    if (league === "CARTOON" && playersPerTeamValue < 3) {
+      playersPerTeamValue = 3;
+    }
 
     const rules: any = {
       online: true,
@@ -208,7 +345,7 @@ export default function RoomLobbyPage() {
 
     if (mode === "casual") {
       rules.participants = seatsToUse;
-      rules.playersPerTeam = parsedPlayersPerTeam;
+      rules.playersPerTeam = playersPerTeamValue;
       rules.pickTimerSeconds = parsedPickTimer;
       rules.autoPickEnabled = casualConfig.autoPickEnabled;
       rules.suggestionsEnabled = casualConfig.suggestionsEnabled;
@@ -216,14 +353,41 @@ export default function RoomLobbyPage() {
         rules.maxPpgCap = parsedPpgCap;
       }
     } else if (mode === "classic") {
-      rules.playersPerTeam = league === "NFL" ? NFL_LINEUP.length : 6;
+      rules.playersPerTeam = playersPerTeamValue;
       rules.statMode = "peak-era-team";
+      rules.pickTimerSeconds = 60;
+      rules.autoPickEnabled = true;
+      rules.suggestionsEnabled = false;
     }
 
     if (league === "NFL") {
       rules.lineup = NFL_LINEUP;
       rules.allowDefense = true;
       rules.fantasyScoring = false;
+    }
+
+    if (league === "CARTOON") {
+      rules.participants = seatsToUse;
+      rules.playersPerTeam = playersPerTeamValue;
+      rules.cartoonDraftType = cartoonConfig.draftType;
+      rules.cartoonChannel = cartoonConfig.channel || null;
+      rules.cartoonAgeRating = cartoonConfig.ageRating || null;
+      rules.cartoonEraFrom = cartoonConfig.randomEra
+        ? null
+        : cartoonConfig.eraFrom || null;
+      rules.cartoonEraTo = cartoonConfig.randomEra
+        ? null
+        : cartoonConfig.eraTo || null;
+      rules.cartoonRequireSuperhero = cartoonConfig.superheroOnly;
+      rules.cartoonGender = cartoonConfig.femaleOnly ? "female" : undefined;
+      rules.allowShows = cartoonConfig.draftType === "show";
+      rules.allowCharacters = cartoonConfig.draftType === "character";
+      rules.cartoonMode = mode;
+      rules.cartoonScoring = "community";
+      rules.communityVoteEnabled = true;
+      rules.pickTimerSeconds = mode === "classic" ? 60 : parsedPickTimer;
+      rules.autoPickEnabled =
+        mode === "classic" ? true : casualConfig.autoPickEnabled;
     }
 
     setStarting(true);
@@ -240,9 +404,31 @@ export default function RoomLobbyPage() {
           title: `Room ${room.code} Draft`,
           league,
           mode, // "classic" or "casual" (same logic as offline, no free)
-          randomEra: true,
-          randomTeam: true,
+          randomEra:
+            league === "CARTOON" ? cartoonConfig.randomEra : true,
+          randomTeam: league === "CARTOON" ? false : true,
           participants: seatsToUse,
+          scoringMethod: league === "CARTOON" ? "community" : undefined,
+          cartoonDraftType:
+            league === "CARTOON" ? cartoonConfig.draftType : undefined,
+          cartoonChannel:
+            league === "CARTOON" ? cartoonConfig.channel || null : undefined,
+          cartoonAgeRating:
+            league === "CARTOON" ? cartoonConfig.ageRating || null : undefined,
+          cartoonEraFrom:
+            league === "CARTOON" && !cartoonConfig.randomEra
+              ? cartoonConfig.eraFrom || null
+              : undefined,
+          cartoonEraTo:
+            league === "CARTOON" && !cartoonConfig.randomEra
+              ? cartoonConfig.eraTo || null
+              : undefined,
+          cartoonRequireSuperhero:
+            league === "CARTOON" ? cartoonConfig.superheroOnly : undefined,
+          cartoonGender:
+            league === "CARTOON" && cartoonConfig.femaleOnly
+              ? "female"
+              : undefined,
           rules,
         }),
       });
@@ -332,6 +518,19 @@ export default function RoomLobbyPage() {
     );
   }
 
+  const leagueLabel = (room.league || league || "NBA").toString();
+  const casualLimitLabel = maxForMode;
+  const classicSummary =
+    leagueLabel === "NFL"
+      ? `Classic locks ${NFL_LINEUP.length} NFL lineup slots with a 60s timer.`
+      : leagueLabel === "CARTOON"
+      ? "Classic locks 2 players, 5 picks each, with a 60s timer."
+      : "Classic uses exactly 2 players and 6 picks each (6v6).";
+  const casualSummary =
+    leagueLabel === "CARTOON"
+      ? `Casual supports up to ${casualLimitLabel} players with channel/era filters.`
+      : `Casual supports up to ${casualLimitLabel} players with customizable rules.`;
+
   return (
     <main className="min-h-screen bg-slate-950 text-white p-6">
       {/* HEADER */}
@@ -340,6 +539,16 @@ export default function RoomLobbyPage() {
           <h1 className="text-3xl font-extrabold text-indigo-300">
             Room {room.code}
           </h1>
+          <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
+            <span className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900 px-2 py-[2px] text-[11px] uppercase tracking-[0.08em]">
+              League: {leagueLabel}
+            </span>
+            {leagueLabel === "NFL" || leagueLabel === "CARTOON" ? (
+              <span className="text-amber-300">
+                Premium online room
+              </span>
+            ) : null}
+          </div>
           <p className="text-slate-400 text-sm">
             Waiting in lobby ({room.participants.length} players)
           </p>
@@ -360,7 +569,7 @@ export default function RoomLobbyPage() {
                     : "text-slate-300"
                 } ${!isHost ? "opacity-60 cursor-not-allowed" : ""}`}
               >
-                Classic (2)
+                Classic (2 players)
               </button>
               <button
                 type="button"
@@ -372,7 +581,7 @@ export default function RoomLobbyPage() {
                     : "text-slate-300"
                 } ${!isHost ? "opacity-60 cursor-not-allowed" : ""}`}
               >
-                Casual (up to 5)
+                Casual (up to {casualLimitLabel})
               </button>
             </div>
           </div>
@@ -403,6 +612,184 @@ export default function RoomLobbyPage() {
           )}
         </div>
       </header>
+
+      {league === "CARTOON" && (
+        <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm font-semibold text-indigo-200">
+                Cartoon draft settings
+              </p>
+              <p className="text-xs text-slate-400">
+                Community voting only. Choose character or show drafts.
+              </p>
+            </div>
+            {!isHost && (
+              <span className="text-[11px] text-slate-500">View only</span>
+            )}
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <div className="text-xs text-slate-400">Draft focus</div>
+              <div className="inline-flex rounded-full bg-slate-900 border border-slate-800 p-1">
+                {(["character", "show"] as const).map((type) => (
+                  <button
+                    key={type}
+                    disabled={!isHost}
+                    onClick={() =>
+                      isHost &&
+                      setCartoonConfig((prev) => ({ ...prev, draftType: type }))
+                    }
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      cartoonConfig.draftType === type
+                        ? "bg-indigo-500 text-slate-900"
+                        : "text-slate-200"
+                    } ${!isHost ? "opacity-60 cursor-not-allowed" : ""}`}
+                  >
+                    {type === "character" ? "Characters" : "Shows"}
+                  </button>
+                ))}
+              </div>
+              <label className="block text-xs text-slate-300 space-y-1">
+                <span>Channel filter</span>
+                <select
+                  disabled={!isHost}
+                  value={cartoonConfig.channel}
+                  onChange={(e) =>
+                    isHost &&
+                    setCartoonConfig((prev) => ({
+                      ...prev,
+                      channel: e.target.value,
+                    }))
+                  }
+                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                >
+                  <option value="">Any</option>
+                  {CARTOON_CHANNELS.map((ch) => (
+                    <option key={ch} value={ch}>
+                      {ch}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs text-slate-300 space-y-1">
+                <span>Age rating</span>
+                <select
+                  disabled={!isHost}
+                  value={cartoonConfig.ageRating}
+                  onChange={(e) =>
+                    isHost &&
+                    setCartoonConfig((prev) => ({
+                      ...prev,
+                      ageRating: e.target.value as CartoonConfig["ageRating"],
+                    }))
+                  }
+                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                >
+                  <option value="">Any</option>
+                  <option value="baby">Baby</option>
+                  <option value="kids">Kids</option>
+                  <option value="adult">Adult</option>
+                </select>
+              </label>
+
+              <label className="inline-flex items-center gap-2 text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  disabled={!isHost || cartoonConfig.draftType !== "character"}
+                  checked={cartoonConfig.superheroOnly}
+                  onChange={(e) =>
+                    isHost &&
+                    setCartoonConfig((prev) => ({
+                      ...prev,
+                      superheroOnly: e.target.checked,
+                    }))
+                  }
+                  className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                />
+                Superhero-only (characters)
+              </label>
+
+              <label className="inline-flex items-center gap-2 text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  disabled={!isHost || cartoonConfig.draftType !== "character"}
+                  checked={cartoonConfig.femaleOnly}
+                  onChange={(e) =>
+                    isHost &&
+                    setCartoonConfig((prev) => ({
+                      ...prev,
+                      femaleOnly: e.target.checked,
+                    }))
+                  }
+                  className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                />
+                Female-only (characters)
+              </label>
+            </div>
+
+            <div className="space-y-2">
+              <label className="inline-flex items-center gap-2 text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  disabled={!isHost}
+                  checked={cartoonConfig.randomEra}
+                  onChange={(e) =>
+                    isHost &&
+                    setCartoonConfig((prev) => ({
+                      ...prev,
+                      randomEra: e.target.checked,
+                    }))
+                  }
+                  className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                />
+                Random era spin
+              </label>
+
+              {!cartoonConfig.randomEra && (
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder="Era from"
+                    disabled={!isHost}
+                    value={cartoonConfig.eraFrom}
+                    onChange={(e) =>
+                      isHost &&
+                      setCartoonConfig((prev) => ({
+                        ...prev,
+                        eraFrom: e.target.value === "" ? "" : Number(e.target.value),
+                      }))
+                    }
+                    className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Era to"
+                    disabled={!isHost}
+                    value={cartoonConfig.eraTo}
+                    onChange={(e) =>
+                      isHost &&
+                      setCartoonConfig((prev) => ({
+                        ...prev,
+                        eraTo: e.target.value === "" ? "" : Number(e.target.value),
+                      }))
+                    }
+                    className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <p className="text-[11px] text-slate-500 mt-3">
+            Cartoon drafts ignore stats and rely on community voting. Classic mode uses a 60s timer and 5 picks per team.
+          </p>
+        </section>
+      )}
 
       {mode === "casual" && (
         <section className="mb-6 max-w-2xl rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
@@ -556,10 +943,8 @@ export default function RoomLobbyPage() {
       </div>
 
       <p className="text-xs text-slate-500 mt-6">
-        ℹ Classic uses exactly 2 players and 6 picks each (6v6). Casual
-        supports up to 5 players with customizable rules. Draft starts when the
-        host clicks “Start Draft”. All players will automatically be moved into
-        the draft.
+        ℹ {classicSummary} {casualSummary} Draft starts when the host clicks
+        “Start Draft”. All players will automatically be moved into the draft.
       </p>
 
       {(tooFew || tooMany) && isHost && (
@@ -567,7 +952,7 @@ export default function RoomLobbyPage() {
           {!tooFew && tooMany
             ? mode === "classic"
               ? "Classic mode supports only 2 players. Kick extra players or switch to Casual."
-              : "Casual mode supports up to 5 players. Kick extra players to start."
+              : `Casual mode supports up to ${casualLimitLabel} players. Kick extra players to start.`
             : "You need at least 2 players in the room to start a draft."}
         </p>
       )}
