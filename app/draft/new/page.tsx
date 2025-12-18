@@ -693,6 +693,145 @@ export default function NewDraftPage() {
               className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm"
             />
           </div>
+
+          {/* Community / Saved styles (left column) */}
+          <div className="space-y-3">
+            <div className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-indigo-400" />
+                  Load Community Style Draft
+                </h3>
+                <span className="text-[11px] uppercase tracking-[0.12em] text-slate-400">
+                  Casual / Free
+                </span>
+              </div>
+              <div className="space-y-3">
+                {communityLoading ? (
+                  <p className="text-sm text-slate-400">
+                    Loading community styles...
+                  </p>
+                ) : communityStyles.length === 0 ? (
+                  <p className="text-sm text-slate-500">
+                    No community styles yet. Save and publish yours!
+                  </p>
+                ) : (
+                  communityStyles.map((style) => (
+                    <div
+                      key={style.id}
+                      className={`rounded-xl border p-3 ${
+                        selectedStyleId === style.id
+                          ? "border-indigo-500 bg-indigo-500/10"
+                          : "border-slate-700 bg-slate-900/40"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="font-semibold text-slate-100">
+                            {style.name}
+                          </div>
+                          <div className="text-xs text-slate-400">
+                            {style.description}
+                          </div>
+                          <div className="text-[11px] text-slate-500 mt-1">
+                            Plays: {style.plays} • Mode:{" "}
+                            {style.settings?.mode || style.mode || "casual"}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-300">
+                          <span className="flex items-center gap-1">
+                            <ThumbsUp className="w-4 h-4" /> {style.thumbsUp}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <ThumbsDown className="w-4 h-4" /> {style.thumbsDown}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <button
+                          className="text-xs rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3 py-2 font-semibold"
+                          onClick={() => applyStyle(style)}
+                        >
+                          Load Style
+                        </button>
+                        <button
+                          className="text-[11px] text-slate-400 underline"
+                          onClick={() => handleThumb(style.id, 1)}
+                        >
+                          Thumbs up
+                        </button>
+                        <button
+                          className="text-[11px] text-slate-400 underline"
+                          onClick={() => handleThumb(style.id, -1)}
+                        >
+                          Thumbs down
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-indigo-400" />
+                  My Saved Styles
+                </h3>
+                {!isPremium && (
+                  <span className="text-[11px] text-amber-300">
+                    Premium required to save
+                  </span>
+                )}
+              </div>
+              <div className="space-y-2">
+                {savedStyles.length === 0 ? (
+                  <p className="text-sm text-slate-500">
+                    No saved styles yet. Enable &quot;Save settings&quot; before
+                    creating.
+                  </p>
+                ) : stylesLoading ? (
+                  <p className="text-sm text-slate-400">
+                    Loading your styles...
+                  </p>
+                ) : (
+                  savedStyles.map((style) => (
+                    <div
+                      key={style.id}
+                      className={`rounded-xl border p-3 ${
+                        selectedStyleId === style.id
+                          ? "border-indigo-500 bg-indigo-500/10"
+                          : "border-slate-700 bg-slate-900/40"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="font-semibold text-slate-100">
+                            {style.name}
+                          </div>
+                          <div className="text-xs text-slate-400">
+                            {style.description || "No description"}
+                          </div>
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          Plays: {style.plays || 0}
+                        </div>
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <button
+                          className="text-xs rounded-lg bg-slate-800 hover:bg-slate-700 px-3 py-2"
+                          onClick={() => applyStyle(style)}
+                        >
+                          Load
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* MIDDLE — PLAYERS */}
@@ -1226,141 +1365,6 @@ export default function NewDraftPage() {
           </div>
         </section>
       </div>
-
-      {/* COMMUNITY / SAVED STYLES */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-indigo-400" />
-              Load Community Style Draft
-            </h3>
-            <span className="text-[11px] uppercase tracking-[0.12em] text-slate-400">
-              Casual / Free
-            </span>
-          </div>
-          <div className="space-y-3">
-            {communityLoading ? (
-              <p className="text-sm text-slate-400">Loading community styles...</p>
-            ) : communityStyles.length === 0 ? (
-              <p className="text-sm text-slate-500">
-                No community styles yet. Save and publish yours!
-              </p>
-            ) : (
-              communityStyles.map((style) => (
-                <div
-                  key={style.id}
-                  className={`rounded-xl border p-3 ${
-                    selectedStyleId === style.id
-                      ? "border-indigo-500 bg-indigo-500/10"
-                      : "border-slate-700 bg-slate-900/40"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="font-semibold text-slate-100">
-                        {style.name}
-                      </div>
-                      <div className="text-xs text-slate-400">
-                        {style.description}
-                      </div>
-                      <div className="text-[11px] text-slate-500 mt-1">
-                        Plays: {style.plays} • Mode:{" "}
-                        {style.settings?.mode || style.mode || "casual"}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-300">
-                      <span className="flex items-center gap-1">
-                        <ThumbsUp className="w-4 h-4" /> {style.thumbsUp}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <ThumbsDown className="w-4 h-4" /> {style.thumbsDown}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <button
-                      className="text-xs rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3 py-2 font-semibold"
-                      onClick={() => applyStyle(style)}
-                    >
-                      Load Style
-                    </button>
-                    <button
-                      className="text-[11px] text-slate-400 underline"
-                      onClick={() => handleThumb(style.id, 1)}
-                    >
-                      Thumbs up
-                    </button>
-                    <button
-                      className="text-[11px] text-slate-400 underline"
-                      onClick={() => handleThumb(style.id, -1)}
-                    >
-                      Thumbs down
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Settings className="w-5 h-5 text-indigo-400" />
-              My Saved Styles
-            </h3>
-            {!isPremium && (
-              <span className="text-[11px] text-amber-300">
-                Premium required to save
-              </span>
-            )}
-          </div>
-          <div className="space-y-2">
-            {savedStyles.length === 0 ? (
-              <p className="text-sm text-slate-500">
-                No saved styles yet. Enable &quot;Save settings&quot; before
-                creating.
-              </p>
-            ) : stylesLoading ? (
-              <p className="text-sm text-slate-400">Loading your styles...</p>
-            ) : (
-              savedStyles.map((style) => (
-                <div
-                  key={style.id}
-                  className={`rounded-xl border p-3 ${
-                    selectedStyleId === style.id
-                      ? "border-indigo-500 bg-indigo-500/10"
-                      : "border-slate-700 bg-slate-900/40"
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="font-semibold text-slate-100">
-                        {style.name}
-                      </div>
-                      <div className="text-xs text-slate-400">
-                        {style.description || "No description"}
-                      </div>
-                    </div>
-                    <div className="text-[11px] text-slate-500">
-                      Plays: {style.plays || 0}
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <button
-                      className="text-xs rounded-lg bg-slate-800 hover:bg-slate-700 px-3 py-2"
-                      onClick={() => applyStyle(style)}
-                    >
-                      Load
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
 
       {/* SAVE SETTINGS PROMPT */}
       {!isClassic && (mode === "casual" || mode === "free") && (
