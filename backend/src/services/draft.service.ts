@@ -615,10 +615,17 @@ export async function createDraft(data: any, userId?: string) {
     },
   });
 
+  const draftMode = (data.mode as string) || rules.mode || "classic";
   const draft = await prisma.draft.create({
     data: {
-      ...data,
+      title: data.title ?? `${league} Draft`,
       league,
+      mode: draftMode,
+      randomEra: data.randomEra ?? true,
+      eraFrom: data.eraFrom ?? null,
+      eraTo: data.eraTo ?? null,
+      randomTeam: data.randomTeam ?? true,
+      teamConstraint: data.teamConstraint ?? null,
       gameId: game.id,
       ownerId: userId ?? null,
       rules: rulesJson,
