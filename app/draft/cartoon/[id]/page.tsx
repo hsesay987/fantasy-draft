@@ -5,7 +5,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { io as socketIo, type Socket } from "socket.io-client";
 import { useAuth } from "@/app/hooks/useAuth";
-import { Clock, Sparkles, Wand2 } from "lucide-react";
+import {
+  Clock,
+  Sparkles,
+  Wand2,
+  Save,
+  Pause,
+  X,
+  PlusCircle,
+  LogOut,
+} from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -53,6 +62,9 @@ type DraftRules = {
   cartoonGender?: string | null;
   cartoonScoring?: string;
   communityVoteEnabled?: boolean;
+  savedState?: Record<string, any>;
+  status?: string | null;
+  roomCode?: string | null;
 };
 
 type Draft = {
@@ -65,6 +77,11 @@ type Draft = {
   playersPerTeam: number;
   maxPlayers: number;
   picks: CartoonPick[];
+  randomEra?: boolean;
+  randomTeam?: boolean;
+  eraFrom?: number | null;
+  eraTo?: number | null;
+  teamConstraint?: string | null;
 };
 
 type SearchResult = CartoonShow | CartoonCharacter;
@@ -88,6 +105,8 @@ export default function CartoonDraftPage() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const autoPickTriggeredRef = useRef(false);
   const socketRef = useRef<Socket | null>(null);
+  const [readySaving, setReadySaving] = useState(false);
+  const [showReadyModal, setShowReadyModal] = useState(false);
 
   const participants = useMemo(() => {
     if (!draft) return 0;
@@ -130,6 +149,12 @@ export default function CartoonDraftPage() {
   const draftType = (draft?.rules?.cartoonDraftType || "character") as
     | "character"
     | "show";
+  const savedState = (draft?.rules as any)?.savedState || {};
+  const rematchReadyRequested = !!savedState.rematchReadyRequested;
+  const rematchReadyMap: Record<string, boolean> =
+    savedState.rematchReadyMap || {};
+  const readyPhaseActive = rematchReadyRequested;
+  const isOnline = !!draft?.rules?.online;
 
   const seatAssignments = draft?.rules?.seatAssignments || [];
   const seatDisplayNames = draft?.rules?.seatDisplayNames || [];
@@ -141,6 +166,14 @@ export default function CartoonDraftPage() {
     (user && activeSeatUserId === user.id);
   const isHost = user && draft?.rules?.hostUserId === user.id;
   const canPick = !!draft && (!!isSeatOwner || !draft.rules?.online);
+  const draftComplete = draft ? draft.picks.length >= draft.maxPlayers : false;
+  const readyParticipants =
+    draft?.rules?.seatAssignments?.map((uid, idx) => ({
+      userId: uid,
+      name: draft?.rules?.seatDisplayNames?.[idx] || `Player ${idx + 1}`,
+      ready: !!rematchReadyMap[uid],
+    })) ?? [];
+  const totalReady = readyParticipants.filter((p) => p.ready).length;
 
   async function loadDraft() {
     if (!id) return;
@@ -212,6 +245,21 @@ export default function CartoonDraftPage() {
     };
   }, [draft?.picks.length, draft?.rules?.pickTimerSeconds, activeParticipant]);
 
+  useEffect(() => {
+    if (!draft || !draftComplete) return;
+    if (!user) {
+      alert("Log in to save drafts.");
+      return;
+    }
+    persistSavedState({}, { status: "complete" });
+  }, [draft, draftComplete]);
+
+  useEffect(() => {
+    if (readyPhaseActive) {
+      setShowReadyModal(true);
+    }
+  }, [readyPhaseActive]);
+
   async function searchCandidates() {
     if (!draft) return;
     setSearching(true);
@@ -254,6 +302,197 @@ export default function CartoonDraftPage() {
     if (!draft) return;
     setSelectedSlot((prev) => prev ?? defaultSlotForActive);
   }, [draft, defaultSlotForActive]);
+
+  async function persistSavedState(
+    patch: Record<string, any>,
+    opts?: { silent?: boolean; status?: "saved" | "in_progress" | "complete" }
+  ) {
+    if (!draft) return;
+    const mergedState = { ...(draft.rules?.savedState || {}), ...patch };
+    if (!opts?.silent) setReadySaving(true);
+    try {
+      await fetch(`${API_URL}/drafts/${draft.id}/save`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          savedState: mergedState,
+          status: opts?.status || draft.rules?.status || "in_progress",
+        }),
+      });
+      setDraft((prev) =>
+        prev
+          ? {
+              ...prev,
+              rules: { ...(prev.rules || {}), savedState: mergedState },
+            }
+          : prev
+      );
+    } finally {
+      if (!opts?.silent) setReadySaving(false);
+    }
+  }
+
+  async function handleSaveDraft(
+    status: "saved" | "in_progress" | "complete" = "saved"
+  ) {
+    if (!draft) return;
+    if (!user) {
+      alert("Log in to save drafts.");
+      return;
+    }
+    await persistSavedState({}, { status });
+    alert("Draft saved");
+  }
+
+  async function handlePauseDraft() {
+    await handleSaveDraft("saved");
+  }
+
+  async function handleCancelDraft() {
+    if (!draft) return;
+    const ok = confirm("Cancel and delete this draft?");
+    if (!ok) return;
+
+    if (
+      draft.rules?.online &&
+      draft.rules.hostUserId &&
+      user?.id !== draft.rules.hostUserId
+    ) {
+      alert("Only the host can cancel this online draft.");
+      return;
+    }
+
+    await fetch(`${API_URL}/drafts/${draft.id}`, { method: "DELETE" }).catch(
+      () => null
+    );
+
+    if (draft.rules?.online && draft.rules.roomCode) {
+      localStorage.removeItem("activeRoomDraftId");
+      localStorage.removeItem("activeRoomCode");
+      if (token) {
+        await fetch(`${API_URL}/rooms/${draft.rules.roomCode}/leave`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }).catch(() => null);
+      }
+      router.push("/online");
+    } else {
+      router.push("/draft/new?league=CARTOON");
+    }
+  }
+
+  async function leaveDraft() {
+    if (!draft?.rules?.online) return;
+    if (token && draft.rules.roomCode) {
+      await fetch(`${API_URL}/rooms/${draft.rules.roomCode}/leave`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => null);
+    }
+    localStorage.removeItem("activeRoomDraftId");
+    localStorage.removeItem("activeRoomCode");
+    router.push("/online");
+  }
+
+  async function requestRematch() {
+    if (!draft?.rules?.online || !isHost) return;
+    const ok = confirm(
+      draftComplete
+        ? "Start a new cartoon draft and have everyone ready up?"
+        : "Start a new draft and ready up?"
+    );
+    if (!ok) return;
+    const map = {
+      ...(rematchReadyMap || {}),
+      ...(user?.id ? { [user.id]: true } : {}),
+    };
+    await persistSavedState(
+      { rematchReadyRequested: true, rematchReadyMap: map },
+      { silent: true }
+    );
+    setShowReadyModal(true);
+  }
+
+  async function markReadyForRematch() {
+    if (!draft?.rules?.online || !user) return;
+    if (!readyPhaseActive) {
+      alert("Host needs to open a new draft first.");
+      return;
+    }
+    const map = { ...(rematchReadyMap || {}), [user.id]: true };
+    await persistSavedState({
+      rematchReadyRequested: true,
+      rematchReadyMap: map,
+    });
+    setShowReadyModal(true);
+  }
+
+  async function startOnlineRematch() {
+    if (!draft || !draft.rules?.online || !token || !isHost) return;
+    const rulesForNext: any = { ...(draft.rules || {}) };
+    delete rulesForNext.savedState;
+
+    const payload = {
+      title: `Room ${draft.rules.roomCode} Draft`,
+      league: "CARTOON",
+      mode: draft.mode,
+      participants:
+        rulesForNext.seatAssignments?.length ||
+        draft.participants ||
+        participants,
+      rules: rulesForNext,
+      randomEra: draft.randomEra,
+      randomTeam: draft.randomTeam,
+      eraFrom: draft.eraFrom,
+      eraTo: draft.eraTo,
+      teamConstraint: draft.teamConstraint,
+      playersPerTeam: draft.playersPerTeam,
+      requirePositions: false,
+      scoringMethod: "community",
+      cartoonDraftType: draft.rules?.cartoonDraftType,
+      cartoonChannel: draft.rules?.cartoonChannel,
+      cartoonAgeRating: draft.rules?.cartoonAgeRating,
+      cartoonEraFrom: draft.rules?.cartoonEraFrom,
+      cartoonEraTo: draft.rules?.cartoonEraTo,
+      cartoonRequireSuperhero: draft.rules?.cartoonRequireSuperhero,
+      cartoonGender: draft.rules?.cartoonGender,
+    };
+
+    const res = await fetch(`${API_URL}/drafts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || "Failed to start a new draft.");
+      return;
+    }
+
+    const nextDraft = await res.json();
+    await persistSavedState(
+      {
+        rematchReadyRequested: false,
+        rematchReadyMap: {},
+        rematchNextDraftId: nextDraft.id,
+      },
+      { silent: true }
+    );
+    setShowReadyModal(false);
+    localStorage.setItem("activeRoomDraftId", nextDraft.id);
+    localStorage.setItem(
+      "activeRoomCode",
+      draft.rules.roomCode || String(draft.id)
+    );
+    router.push(`/draft/cartoon/${nextDraft.id}`);
+  }
 
   async function makePick(target: SearchResult, autopick = false) {
     if (!draft || !activeParticipant) return;
@@ -368,6 +607,86 @@ export default function CartoonDraftPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50 p-6 space-y-6">
+      {showReadyModal && draft.rules?.online && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm px-4">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900/95 p-4 space-y-3 shadow-xl shadow-indigo-500/20">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-50">
+                  Waiting for players to ready up
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Host will start a new draft once everyone is set.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowReadyModal(false)}
+                className="text-[11px] text-slate-400 hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="text-xs text-slate-300">
+              {totalReady}/{readyParticipants.length || participants} ready
+            </div>
+
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {readyParticipants.map((p, idx) => (
+                <div
+                  key={p.userId || idx}
+                  className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2"
+                >
+                  <span className="text-sm text-slate-100">
+                    {p.name || `Player ${idx + 1}`}
+                  </span>
+                  <span
+                    className={`text-[11px] font-semibold ${
+                      p.ready ? "text-emerald-300" : "text-slate-400"
+                    }`}
+                  >
+                    {p.ready ? "Ready" : "Waiting"}
+                  </span>
+                </div>
+              ))}
+              {readyParticipants.length === 0 && (
+                <div className="text-[11px] text-slate-400">
+                  Seats will appear once players join.
+                </div>
+              )}
+            </div>
+
+            {!isHost && (
+              <button
+                onClick={markReadyForRematch}
+                disabled={
+                  !readyPhaseActive ||
+                  readySaving ||
+                  (user?.id ? !!rematchReadyMap[user.id] : false)
+                }
+                className="w-full rounded-md bg-emerald-500 hover:bg-emerald-400 text-[12px] font-semibold text-slate-900 py-2 disabled:opacity-60"
+              >
+                {user && rematchReadyMap[user.id]
+                  ? "You're ready"
+                  : readySaving
+                  ? "Saving..."
+                  : "Ready Up"}
+              </button>
+            )}
+
+            {isHost && (
+              <button
+                onClick={startOnlineRematch}
+                disabled={readySaving}
+                className="w-full rounded-md bg-indigo-500 hover:bg-indigo-600 text-[12px] font-semibold text-slate-100 py-2 disabled:opacity-60"
+              >
+                {readySaving ? "Starting..." : "Start draft"}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <header className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <p className="text-xs uppercase tracking-[0.12em] text-indigo-300">
@@ -381,7 +700,7 @@ export default function CartoonDraftPage() {
             {draftType === "show" ? "Shows" : "Characters"} draft.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm">
             <Clock className="w-4 h-4 text-indigo-300" />
             <span>
@@ -397,6 +716,48 @@ export default function CartoonDraftPage() {
               <span>{timeLeft}s left</span>
             </div>
           )}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleSaveDraft("saved")}
+              className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs hover:border-indigo-500"
+            >
+              <Save className="w-4 h-4" /> Save
+            </button>
+            <button
+              onClick={handlePauseDraft}
+              className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs hover:border-indigo-500"
+            >
+              <Pause className="w-4 h-4" /> Pause
+            </button>
+            <button
+              onClick={handleCancelDraft}
+              className="flex items-center gap-1 rounded-lg border border-red-600 bg-red-600/10 px-3 py-2 text-xs text-red-200 hover:border-red-400"
+            >
+              <X className="w-4 h-4" /> Cancel
+            </button>
+            <button
+              onClick={() => router.push("/draft/new?league=CARTOON")}
+              className="flex items-center gap-1 rounded-lg border border-emerald-500 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200 hover:border-emerald-400"
+            >
+              <PlusCircle className="w-4 h-4" /> New Draft
+            </button>
+            {draft.rules?.online && !isHost && (
+              <button
+                onClick={leaveDraft}
+                className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs hover:border-indigo-500"
+              >
+                <LogOut className="w-4 h-4" /> Leave
+              </button>
+            )}
+            {draft.rules?.online && isHost && (
+              <button
+                onClick={requestRematch}
+                className="flex items-center gap-1 rounded-lg border border-indigo-500 bg-indigo-500/10 px-3 py-2 text-xs text-indigo-200 hover:border-indigo-400"
+              >
+                Start New Online Draft
+              </button>
+            )}
+          </div>
         </div>
       </header>
 

@@ -111,6 +111,12 @@ export default function MainHomePage() {
       route: "/draft",
     },
     {
+      id: "officialTopPic",
+      name: "TopPic",
+      image: nflImg,
+      enabled: false,
+    },
+    {
       id: "imposter",
       name: "Imposter",
       image: imposterImg,
