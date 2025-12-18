@@ -323,6 +323,7 @@ export default function DraftPage() {
   const rematchReadyRequested = !!savedState.rematchReadyRequested;
   const rematchReadyMap: Record<string, boolean> =
     savedState.rematchReadyMap || {};
+  const readyPhaseActive = rematchReadyRequested;
 
   const teamDataMap = useMemo(() => {
     const map = new Map<string, TeamData>();
@@ -567,6 +568,10 @@ export default function DraftPage() {
 
   async function markReadyForRematch() {
     if (!draft?.rules?.online || !user) return;
+    if (!readyPhaseActive) {
+      alert("Host needs to open a new draft first.");
+      return;
+    }
     const map = {
       ...(rematchReadyMap || {}),
       [user.id]: true,
@@ -1677,7 +1682,9 @@ export default function DraftPage() {
               <button
                 onClick={markReadyForRematch}
                 disabled={
-                  readySaving || (user?.id ? !!rematchReadyMap[user.id] : false)
+                  !readyPhaseActive ||
+                  readySaving ||
+                  (user?.id ? !!rematchReadyMap[user.id] : false)
                 }
                 className="w-full rounded-md bg-emerald-500 hover:bg-emerald-400 text-[12px] font-semibold text-slate-900 py-2 disabled:opacity-60"
               >
@@ -1818,10 +1825,22 @@ export default function DraftPage() {
               ) : (
                 <button
                   onClick={handleNewDraft}
-                  className="px-3 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-xs font-semibold text-slate-900 disabled:opacity-60"
-                  disabled={readySaving || (!!user && rematchReadyMap[user.id])}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold text-slate-900 disabled:opacity-60 ${
+                    readyPhaseActive
+                      ? "bg-emerald-500 hover:bg-emerald-400"
+                      : "bg-slate-700 text-slate-200"
+                  }`}
+                  disabled={
+                    !readyPhaseActive ||
+                    readySaving ||
+                    (!!user && rematchReadyMap[user.id])
+                  }
                 >
-                  {user && rematchReadyMap[user.id] ? "Ready" : "Ready Up"}
+                  {user && rematchReadyMap[user.id]
+                    ? "Ready"
+                    : readyPhaseActive
+                    ? "Ready Up"
+                    : "Waiting for host"}
                 </button>
               )
             ) : (

@@ -719,6 +719,9 @@ export async function getDraftsByOwner(ownerId: string) {
       title: true,
       mode: true,
       createdAt: true,
+      league: true,
+      participants: true,
+      playersPerTeam: true,
       rules: true,
     },
   });

@@ -1,6 +1,7 @@
 // app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
+import Link from "next/link";
 import Providers from "./providers";
 import UserMenu from "./components/UserMenu";
 import FeedbackWidget from "./components/FeedbackWidget";
@@ -38,9 +39,9 @@ export default function RootLayout({
           <div className="min-h-screen flex flex-col">
             <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
               <div className="flex items-center gap-4">
-                <h1 className="text-xl font-extrabold text-indigo-400">
+                <Link href="/" className="text-xl font-extrabold text-indigo-400">
                   TopPic
-                </h1>
+                </Link>
                 <RoomStatusBanner />
               </div>
 

@@ -3,7 +3,10 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import draftImg from "./assets/nba.jpg";
+import nflImg from "./assets/nfl.jpg";
+import cartoonsImg from "./assets/cartoons.jpg";
 import imposterImg from "./assets/imposter.jpg";
 import lineupImg from "./assets/lineup.jpg";
 import quizImg from "./assets/quiz.jpg";
@@ -17,8 +20,87 @@ type GameCard = {
   route?: string;
 };
 
+type DraftRecord = {
+  league?: string;
+  createdAt?: string;
+};
+
+type TopGame = {
+  id: string;
+  title: string;
+  subtitle: string;
+  image: any;
+  route: string;
+};
+
 export default function MainHomePage() {
   const router = useRouter();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+  const [topGame, setTopGame] = useState<TopGame | null>(null);
+
+  const topGameByLeague: Record<string, TopGame> = useMemo(
+    () => ({
+      NBA: {
+        id: "nba",
+        title: "NBA Draft",
+        subtitle: "Most created today",
+        image: draftImg,
+        route: "/draft/new",
+      },
+      NFL: {
+        id: "nfl",
+        title: "NFL Draft",
+        subtitle: "Most created today",
+        image: nflImg,
+        route: "/draft/new?league=NFL",
+      },
+      CARTOON: {
+        id: "cartoon",
+        title: "Cartoon Draft",
+        subtitle: "Most created today",
+        image: cartoonsImg,
+        route: "/draft/new?league=CARTOON",
+      },
+    }),
+    []
+  );
+
+  useEffect(() => {
+    async function loadTopGame() {
+      try {
+        const res = await fetch(`${API_URL}/drafts`);
+        if (!res.ok) return;
+
+        const drafts: DraftRecord[] = await res.json();
+        const today = new Date().toDateString();
+
+        const counts = drafts.reduce<Record<string, number>>((acc, draft) => {
+          if (!draft.createdAt) return acc;
+          const created = new Date(draft.createdAt);
+          if (created.toDateString() !== today) return acc;
+
+          const league = (draft.league || "NBA").toUpperCase();
+          acc[league] = (acc[league] || 0) + 1;
+          return acc;
+        }, {});
+
+        const topLeague =
+          Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "NBA";
+
+        setTopGame(topGameByLeague[topLeague] || topGameByLeague.NBA);
+      } catch (err) {
+        console.error("Failed to load today's top game", err);
+      }
+    }
+
+    loadTopGame();
+  }, [API_URL, topGameByLeague]);
+
+  useEffect(() => {
+    if (!topGame) {
+      setTopGame(topGameByLeague.NBA);
+    }
+  }, [topGame, topGameByLeague]);
 
   const games: GameCard[] = [
     {
@@ -64,6 +146,37 @@ export default function MainHomePage() {
           Competitive games across sports, culture, and creativity.
         </p>
       </header>
+
+      {topGame && (
+        <section className="rounded-2xl border border-indigo-500/60 bg-slate-900/60 p-5 md:p-6 flex flex-col md:flex-row gap-4 md:items-center">
+          <div className="relative h-36 w-full md:w-48 overflow-hidden rounded-xl border border-indigo-500/40">
+            <Image
+              src={topGame.image}
+              alt={topGame.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          <div className="flex-1 space-y-2">
+            <div className="text-sm uppercase tracking-[0.2em] text-indigo-300">
+              Today&apos;s Top Game
+            </div>
+            <h2 className="text-2xl font-bold text-slate-50">
+              {topGame.title}
+            </h2>
+            <p className="text-slate-300 text-sm">{topGame.subtitle}</p>
+            <div>
+              <button
+                onClick={() => router.push(topGame.route)}
+                className="mt-2 inline-flex items-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold"
+              >
+                Jump in
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
       <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {games.map((game) => {
           const isDraft = game.id === "draft";
