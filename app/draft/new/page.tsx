@@ -33,7 +33,7 @@ export default function NewDraftPage() {
   const initialLeague: "NBA" | "NFL" =
     queryLeague === "NFL" ? "NFL" : "NBA";
 
-  const [league, setLeague] = useState<"NBA" | "NFL">(initialLeague);
+  const [league] = useState<"NBA" | "NFL">(initialLeague);
   const [title, setTitle] = useState("");
   const NFL_LINEUP = ["QB", "RB", "WR", "WR", "TE", "FLEX", "DEF"];
 
@@ -77,14 +77,20 @@ export default function NewDraftPage() {
   const [requirePositions, setRequirePositions] = useState(
     initialLeague === "NFL" ? true : true
   );
-  const [positionPool, setPositionPool] = useState<
-    "all" | "guards" | "frontcourt" | "forwards" | "bigs"
-  >("all");
+  type PositionPool = "all" | "guards" | "frontcourt" | "forwards" | "bigs";
+  const [positionPool, setPositionPool] = useState<PositionPool>("all");
+
+  type ScoringWeights = {
+    offense: number;
+    defense: number;
+    playmaking: number;
+    shooting: number;
+  };
 
   const [scoringMethod, setScoringMethod] = useState<
     "system" | "user" | "public"
   >("system");
-  const [scoringWeights, setScoringWeights] = useState({
+  const [scoringWeights, setScoringWeights] = useState<ScoringWeights>({
     offense: 1,
     defense: 1,
     playmaking: 1,
@@ -125,8 +131,35 @@ export default function NewDraftPage() {
   );
   const [saveLoading, setSaveLoading] = useState(false);
   const [wantSaveBeforeCreate, setWantSaveBeforeCreate] = useState(false);
-  const [savedStyles, setSavedStyles] = useState<any[]>([]);
-  const [communityStyles, setCommunityStyles] = useState<any[]>([]);
+  type DraftStyle = {
+    id: string;
+    name: string;
+    description?: string | null;
+    visibility?: string;
+    plays?: number;
+    thumbsUp?: number;
+    thumbsDown?: number;
+    settings?: StyleSettings;
+    mode?: string;
+  };
+
+  type StyleSettings = {
+    mode?: "classic" | "casual" | "free";
+    randomEra?: boolean;
+    eraSpinMode?: "decade" | "single";
+    eraRange?: { from: number; to: number };
+    randomTeam?: boolean;
+    randomPosition?: boolean;
+    requirePositions?: boolean;
+    positionPool?: PositionPool;
+    scoringWeights?: Partial<ScoringWeights>;
+    pickTimerSeconds?: number | "";
+    autoPickEnabled?: boolean;
+    suggestionsEnabled?: boolean;
+  };
+
+  const [savedStyles, setSavedStyles] = useState<DraftStyle[]>([]);
+  const [communityStyles, setCommunityStyles] = useState<DraftStyle[]>([]);
   const [stylesLoading, setStylesLoading] = useState(false);
   const [communityLoading, setCommunityLoading] = useState(false);
   const [selectedStyleId, setSelectedStyleId] = useState<string | null>(null);
@@ -136,6 +169,8 @@ export default function NewDraftPage() {
     (!!user?.subscriptionTier &&
       (!user?.subscriptionEnds ||
         new Date(user.subscriptionEnds).getTime() > Date.now()));
+  const isClassic = mode === "classic";
+  const isFree = mode === "free";
 
   useEffect(() => {
     // When league changes (e.g., via query), reset lineup sizing
@@ -179,7 +214,7 @@ export default function NewDraftPage() {
         setSavedStyles([]);
         return;
       }
-      const data = await res.json();
+      const data: DraftStyle[] = await res.json();
       setSavedStyles(data || []);
     } catch (err) {
       console.error("Failed to load saved styles", err);
@@ -194,7 +229,7 @@ export default function NewDraftPage() {
       setCommunityLoading(true);
       const res = await fetch(`${API_URL}/drafts/styles`);
       if (!res.ok) return;
-      const data = await res.json();
+      const data: DraftStyle[] = await res.json();
       setCommunityStyles(data || []);
     } catch (err) {
       console.error("Failed to load community styles", err);
@@ -214,10 +249,6 @@ export default function NewDraftPage() {
   // ------------------------------------------
   //  LOCKING LOGIC
   // ------------------------------------------
-  const isClassic = mode === "classic";
-  const isCasual = mode === "casual";
-  const isFree = mode === "free";
-
   // On mode change → set defaults
   function applyModeDefaults(nextMode: "classic" | "casual" | "free") {
     const leaguePlayers = league === "NFL" ? NFL_LINEUP.length : undefined;
@@ -293,21 +324,52 @@ export default function NewDraftPage() {
     setMaxPlayers(nextParticipants * nextPlayersPerTeam);
   }
 
-  function applyStyle(style: any) {
+  function applyStyle(style: DraftStyle) {
     if (!style?.settings) return;
     const s = style.settings;
-    if (s.mode) setMode(s.mode);
+
+    if (s.mode && (s.mode === "classic" || s.mode === "casual" || s.mode === "free")) {
+      setMode(s.mode);
+    }
     if (typeof s.randomEra === "boolean") setRandomEra(s.randomEra);
-    if (s.eraSpinMode) setEraSpinMode(s.eraSpinMode);
-    if (s.eraRange) setEraRange(s.eraRange);
-    if (s.randomTeam !== undefined) setRandomTeam(s.randomTeam);
-    if (s.randomPosition !== undefined) setRandomPosition(s.randomPosition);
-    if (s.requirePositions !== undefined) setRequirePositions(s.requirePositions);
-    if (s.positionPool) setPositionPool(s.positionPool);
-    if (s.scoringWeights) setScoringWeights(s.scoringWeights);
-    if (s.pickTimerSeconds !== undefined) setPickTimerSeconds(s.pickTimerSeconds);
-    if (s.autoPickEnabled !== undefined) setAutoPickEnabled(s.autoPickEnabled);
-    if (s.suggestionsEnabled !== undefined) setSuggestionsEnabled(s.suggestionsEnabled);
+    if (s.eraSpinMode === "decade" || s.eraSpinMode === "single") {
+      setEraSpinMode(s.eraSpinMode);
+    }
+    if (
+      s.eraRange &&
+      typeof s.eraRange.from === "number" &&
+      typeof s.eraRange.to === "number"
+    ) {
+      setEraRange(s.eraRange);
+    }
+    if (typeof s.randomTeam === "boolean") setRandomTeam(s.randomTeam);
+    if (typeof s.randomPosition === "boolean") setRandomPosition(s.randomPosition);
+    if (typeof s.requirePositions === "boolean") setRequirePositions(s.requirePositions);
+    if (
+      s.positionPool === "all" ||
+      s.positionPool === "guards" ||
+      s.positionPool === "frontcourt" ||
+      s.positionPool === "forwards" ||
+      s.positionPool === "bigs"
+    ) {
+      setPositionPool(s.positionPool);
+    }
+    if (s.scoringWeights) {
+      const w = s.scoringWeights;
+      setScoringWeights((prev) => ({
+        ...prev,
+        ...w,
+      }));
+    }
+    if (
+      s.pickTimerSeconds !== undefined &&
+      (s.pickTimerSeconds === "" || typeof s.pickTimerSeconds === "number")
+    ) {
+      setPickTimerSeconds(s.pickTimerSeconds);
+    }
+    if (typeof s.autoPickEnabled === "boolean") setAutoPickEnabled(s.autoPickEnabled);
+    if (typeof s.suggestionsEnabled === "boolean")
+      setSuggestionsEnabled(s.suggestionsEnabled);
     setSelectedStyleId(style.id || null);
     // track play count
     if (style.id) {
@@ -756,7 +818,9 @@ export default function NewDraftPage() {
               </label>
               <select
                 value={scoringMethod}
-                onChange={(e) => setScoringMethod(e.target.value as any)}
+                onChange={(e) =>
+                  setScoringMethod(e.target.value as typeof scoringMethod)
+                }
                 className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm"
               >
                 <option value="system">System Scoring</option>
@@ -834,7 +898,6 @@ export default function NewDraftPage() {
                   <input
                     placeholder="From"
                     type="number"
-                    disabled={randomEra && mode === "classic"}
                     value={randomEra ? eraRange.from : eraFrom}
                     onChange={(e) => {
                       const v = Number(e.target.value) || eraRange.from;
@@ -849,7 +912,6 @@ export default function NewDraftPage() {
                   <input
                     placeholder="To"
                     type="number"
-                    disabled={randomEra && mode === "classic"}
                     value={randomEra ? eraRange.to : eraTo}
                     onChange={(e) => {
                       const v = Number(e.target.value) || eraRange.to;
@@ -1095,7 +1157,9 @@ export default function NewDraftPage() {
                 <select
                   disabled={isClassic}
                   value={hallRule}
-                  onChange={(e) => setHallRule(e.target.value as any)}
+                  onChange={(e) =>
+                    setHallRule(e.target.value as typeof hallRule)
+                  }
                   className={`mt-1 w-full px-3 py-2 rounded-lg ${
                     isClassic
                       ? "bg-slate-800 border-slate-700 text-slate-600"
@@ -1126,7 +1190,9 @@ export default function NewDraftPage() {
                 <select
                   disabled={false} // always allowed
                   value={statMode}
-                  onChange={(e) => setStatMode(e.target.value as any)}
+                  onChange={(e) =>
+                    setStatMode(e.target.value as typeof statMode)
+                  }
                   className="mt-1 w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700"
                 >
                   <option disabled={isClassic!} value="peak">
@@ -1320,7 +1386,7 @@ export default function NewDraftPage() {
 
       {/* CREATE BUTTON */}
       <button
-        onClick={handleCreate}
+        onClick={() => handleCreate()}
         disabled={loading}
         className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-2"
       >
