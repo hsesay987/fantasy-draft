@@ -1,7 +1,7 @@
 // app/online/page.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Users, PlusCircle, LogIn } from "lucide-react";
 import { useAuth } from "../hooks/useAuth"; // adjust path if needed
@@ -10,6 +10,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 type League = "NBA" | "NFL" | "CARTOON";
 
 export default function OnlinePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 text-slate-50 p-6">Loading…</div>}>
+      <OnlinePageInner />
+    </Suspense>
+  );
+}
+
+function OnlinePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, token } = useAuth();
