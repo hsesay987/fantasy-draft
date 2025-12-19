@@ -39,26 +39,26 @@ export default function RootLayout({
           <div className="min-h-screen flex flex-col">
             <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
               <div className="flex items-center gap-4">
-                <Link href="/" className="text-xl font-extrabold text-indigo-400">
+                <Link
+                  href="/"
+                  className="text-xl font-extrabold text-indigo-400"
+                >
                   TopPic
                 </Link>
                 <RoomStatusBanner />
               </div>
 
               <nav className="flex gap-6 text-sm text-slate-300">
-              <a href="/draft" className="hover:text-indigo-400">
-                Drafts
-              </a>
-              <a href="/toppic" className="hover:text-indigo-400">
-                TopPic
-              </a>
-              <a href="/toppic" className="hover:text-indigo-400">
-                FTP
-              </a>
-              <a href="/online" className="hover:text-indigo-400">
-                Online
-              </a>
-            </nav>
+                <a href="/draft" className="hover:text-indigo-400">
+                  Drafts
+                </a>
+                <a href="/toppic" className="hover:text-indigo-400">
+                  TopPic
+                </a>
+                <a href="/online" className="hover:text-indigo-400">
+                  Online
+                </a>
+              </nav>
 
               <UserMenu />
             </header>
