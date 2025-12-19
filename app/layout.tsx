@@ -46,13 +46,19 @@ export default function RootLayout({
               </div>
 
               <nav className="flex gap-6 text-sm text-slate-300">
-                <a href="/draft" className="hover:text-indigo-400">
-                  Drafts
-                </a>
-                <a href="/online" className="hover:text-indigo-400">
-                  Online
-                </a>
-              </nav>
+              <a href="/draft" className="hover:text-indigo-400">
+                Drafts
+              </a>
+              <a href="/toppic" className="hover:text-indigo-400">
+                TopPic
+              </a>
+              <a href="/toppic" className="hover:text-indigo-400">
+                FTP
+              </a>
+              <a href="/online" className="hover:text-indigo-400">
+                Online
+              </a>
+            </nav>
 
               <UserMenu />
             </header>

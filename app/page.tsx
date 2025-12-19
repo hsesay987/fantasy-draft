@@ -11,6 +11,7 @@ import imposterImg from "./assets/imposter.jpg";
 import lineupImg from "./assets/lineup.jpg";
 import quizImg from "./assets/quiz.jpg";
 import auxImg from "./assets/music.jpg";
+import topPicImg from "./assets/toppic.png";
 
 type GameCard = {
   id: string;
@@ -113,8 +114,9 @@ export default function MainHomePage() {
     {
       id: "officialTopPic",
       name: "TopPic",
-      image: nflImg,
-      enabled: false,
+      image: topPicImg,
+      enabled: true,
+      route: "/toppic",
     },
     {
       id: "imposter",

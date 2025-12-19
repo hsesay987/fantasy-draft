@@ -16,6 +16,7 @@ export type SearchPlayersInput = {
   eligiblePositions?: string; // NEW: filter by eligiblePositions text search
   imaegeUrl?: string; // NEW: filter by imageUrl presence
   league?: string; // "NBA" | "NFL"
+  fitTopPicEligible?: boolean;
 };
 
 function stripAccents(text: string) {
@@ -220,10 +221,11 @@ async function searchNbaPlayers(input: SearchPlayersInput) {
     eraFrom,
     eraTo,
     team,
-    hallRule = "any",
-    multiTeamOnly,
-    limit = 50,
-    offset = 0,
+  hallRule = "any",
+  multiTeamOnly,
+  fitTopPicEligible,
+  limit = 50,
+  offset = 0,
   } = input;
 
   const andFilters: any[] = []; // or fully type it manually
@@ -263,6 +265,9 @@ async function searchNbaPlayers(input: SearchPlayersInput) {
     andFilters.push({ totalTeams: { gt: 1 } });
   }
 
+  if (fitTopPicEligible !== undefined) {
+    andFilters.push({ fitTopPicEligible });
+  }
   if (hallRule === "only") {
     andFilters.push({ isHallOfFamer: true });
   } else if (hallRule === "none") {
@@ -355,10 +360,11 @@ async function searchNflPlayers(input: SearchPlayersInput) {
     eraFrom,
     eraTo,
     team,
-    hallRule = "any",
-    multiTeamOnly,
-    limit = 50,
-    offset = 0,
+  hallRule = "any",
+  multiTeamOnly,
+  fitTopPicEligible,
+  limit = 50,
+  offset = 0,
   } = input;
 
   const andFilters: any[] = [];
@@ -390,6 +396,10 @@ async function searchNflPlayers(input: SearchPlayersInput) {
     andFilters.push({ hallOfFame: true });
   } else if (hallRule === "none") {
     andFilters.push({ hallOfFame: false });
+  }
+
+  if (fitTopPicEligible !== undefined) {
+    andFilters.push({ fitTopPicEligible });
   }
 
   const where: any = andFilters.length ? { AND: andFilters } : {};

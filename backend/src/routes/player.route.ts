@@ -18,6 +18,7 @@ router.get("/search", async (req: Request, res: Response) => {
       limit,
       offset,
       league,
+      fitTopPicEligible,
     } = req.query;
 
     const input: PlayerService.SearchPlayersInput = {
@@ -37,6 +38,10 @@ router.get("/search", async (req: Request, res: Response) => {
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
       league: typeof league === "string" ? league : undefined,
+      fitTopPicEligible:
+        typeof fitTopPicEligible === "string"
+          ? fitTopPicEligible !== "false"
+          : undefined,
     };
 
     const players = await PlayerService.searchPlayers(input);

@@ -21,6 +21,13 @@ function isPremiumUser(user: any) {
   );
 }
 
+const MAX_ROOM_PLAYERS = 20;
+type RoomSettings = {
+  toppicState?: any;
+  maxPlayers?: number;
+  [key: string]: any;
+};
+
 // CREATE ROOM
 router.post("/", authRequired, async (req: AuthedRequest, res) => {
   try {
@@ -53,6 +60,14 @@ router.post("/", authRequired, async (req: AuthedRequest, res) => {
 
     const code = generateRoomCode();
 
+    const baseSettings: RoomSettings =
+      typeof settings === "object" && settings
+        ? { ...(settings as RoomSettings) }
+        : {};
+    if (!baseSettings.maxPlayers) {
+      baseSettings.maxPlayers = MAX_ROOM_PLAYERS;
+    }
+
     const room = await prisma.room.create({
       data: {
         code,
@@ -60,7 +75,7 @@ router.post("/", authRequired, async (req: AuthedRequest, res) => {
         gameType,
         isPublic,
         league,
-        settings: settings || {},
+        settings: baseSettings,
         name: name || `Online ${league} Draft`,
         participants: {
           create: {
@@ -182,6 +197,17 @@ router.post("/:code/join", authRequired, async (req: AuthedRequest, res) => {
         return res.json({ ...room, activeDraftId: room.gameId });
       }
       return res.json(room);
+    }
+
+    const currentSettings = (room.settings as RoomSettings) || {};
+    const maxPlayers =
+      currentSettings?.maxPlayers && typeof currentSettings.maxPlayers === "number"
+        ? currentSettings.maxPlayers
+        : MAX_ROOM_PLAYERS;
+    if (room.participants.length >= maxPlayers) {
+      return res
+        .status(403)
+        .json({ error: `Room is full (max ${maxPlayers} players).` });
     }
 
     // If a draft is already running, block new joins
@@ -337,5 +363,159 @@ router.delete("/:code", authRequired, async (req: AuthedRequest, res) => {
     return res.status(500).json({ error: "Failed to cancel room" });
   }
 });
+
+// 🔹 Update TopPic state (host only, stored under settings.toppicState)
+router.patch(
+  "/:code/toppic/state",
+  authRequired,
+  async (req: AuthedRequest, res) => {
+    try {
+      const { code } = req.params;
+      const userId = req.userId;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const room = await prisma.room.findUnique({
+        where: { code },
+        include: { participants: { include: { user: true } } },
+      });
+
+      if (!room) return res.status(404).json({ error: "Room not found" });
+      if (room.hostId !== userId) {
+        return res.status(403).json({ error: "Only host can update state" });
+      }
+
+      const toppicState = req.body?.toppicState;
+      if (!toppicState) {
+        return res.status(400).json({ error: "Missing toppicState payload" });
+      }
+
+      const updatedSettings: RoomSettings = {
+        ...(room.settings as RoomSettings),
+        toppicState,
+      };
+
+      const updated = await prisma.room.update({
+        where: { id: room.id },
+        data: { settings: updatedSettings },
+        include: { participants: { include: { user: true } } },
+      });
+
+      const io = getIo();
+      if (io) {
+        io.to(`room:${code}`).emit("room:toppicState", toppicState);
+      }
+
+      const updatedSettingsJson = (updated.settings as RoomSettings) || {};
+      return res.json(updatedSettingsJson.toppicState || toppicState);
+    } catch (e: any) {
+      console.error(e);
+      return res.status(500).json({ error: "Failed to update TopPic state" });
+    }
+  }
+);
+
+// 🔹 Submit a TopPic card (any participant)
+router.post(
+  "/:code/toppic/submit",
+  authRequired,
+  async (req: AuthedRequest, res) => {
+    try {
+      const { code } = req.params;
+      const userId = req.userId;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const { cardId, cardText } = req.body || {};
+      if (!cardId || typeof cardId !== "string") {
+        return res.status(400).json({ error: "cardId is required" });
+      }
+
+      const room = await prisma.room.findUnique({
+        where: { code },
+        include: { participants: true },
+      });
+      if (!room) return res.status(404).json({ error: "Room not found" });
+
+      const isMember = room.participants.some((p) => p.userId === userId);
+      if (!isMember) {
+        return res
+          .status(403)
+          .json({ error: "You are not a participant in this room" });
+      }
+
+      const settings = (room.settings as RoomSettings) || {};
+      const state = settings.toppicState;
+      if (!state || !state.hands) {
+        return res.status(400).json({ error: "TopPic game not initialized" });
+      }
+      if (state.status === "ended") {
+        return res.status(409).json({ error: "Game already ended" });
+      }
+
+      const currentPrompt =
+        state.promptDeck && typeof state.promptIndex === "number"
+          ? state.promptDeck[state.promptIndex]
+          : null;
+      const requiresApproval = state?.moderation?.requireApproval;
+      const approved =
+        requiresApproval && currentPrompt
+          ? (state?.moderation?.approvedPromptIds || []).includes(
+              currentPrompt.id
+            )
+          : true;
+      if (requiresApproval && !approved) {
+        return res.status(409).json({ error: "Prompt not approved yet" });
+      }
+
+      const existingHand = Array.isArray(state.hands[userId])
+        ? [...state.hands[userId]]
+        : [];
+      const cardIdx = existingHand.findIndex((c: any) => c?.id === cardId);
+
+      if (cardIdx === -1) {
+        return res.status(404).json({ error: "Card not in your hand" });
+      }
+
+      const [played] = existingHand.splice(cardIdx, 1);
+      const submissions = {
+        ...(state.submissions || {}),
+        [userId]: {
+          userId,
+          cardId: played?.id || cardId,
+          cardText: cardText || played?.text || "",
+          submittedAt: new Date().toISOString(),
+        },
+      };
+
+      const nextState = {
+        ...state,
+        submissions,
+        hands: {
+          ...(state.hands || {}),
+          [userId]: existingHand,
+        },
+      };
+
+      const updatedSettings: RoomSettings = {
+        ...settings,
+        toppicState: nextState,
+      };
+
+      await prisma.room.update({
+        where: { id: room.id },
+        data: { settings: updatedSettings },
+      });
+
+      const io = getIo();
+      if (io) {
+        io.to(`room:${code}`).emit("room:toppicState", nextState);
+      }
+
+      return res.json(nextState);
+    } catch (e: any) {
+      console.error(e);
+      return res.status(500).json({ error: "Failed to submit card" });
+    }
+  }
+);
 
 export default router;
