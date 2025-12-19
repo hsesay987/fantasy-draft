@@ -190,7 +190,7 @@ export default function TopPicRoomPage() {
         `${room.code}-responses`
       );
 
-      const seededResponses =
+      const seededResponses: TopPicResponseCard[] =
         shuffledResponses.length > 0
           ? shuffledResponses
           : [
@@ -199,12 +199,14 @@ export default function TopPicRoomPage() {
                 text: "Wildcard Hero",
                 pool: "MULTI",
                 source: "System",
+                rating: "family",
               },
               {
                 id: "fallback-villain",
                 text: "Chaos Villain",
                 pool: "MULTI",
                 source: "System",
+                rating: "family",
               },
             ];
 
