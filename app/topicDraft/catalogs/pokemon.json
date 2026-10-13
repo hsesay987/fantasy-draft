@@ -1,0 +1,770 @@
+[
+ {
+  "id": "charizard",
+  "name": "Charizard",
+  "universe": "Fire",
+  "archetype": "Flyer",
+  "stats": {
+   "power": 90,
+   "intellect": 70,
+   "speed": 88,
+   "durability": 78,
+   "combat": 85,
+   "teamwork": 60
+  },
+  "tags": [
+   "fire",
+   "flyer"
+  ]
+ },
+ {
+  "id": "blastoise",
+  "name": "Blastoise",
+  "universe": "Water",
+  "archetype": "Tank",
+  "stats": {
+   "power": 80,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 95,
+   "combat": 75,
+   "teamwork": 60
+  },
+  "tags": [
+   "water",
+   "tank"
+  ]
+ },
+ {
+  "id": "venusaur",
+  "name": "Venusaur",
+  "universe": "Grass",
+  "archetype": "Tank",
+  "stats": {
+   "power": 82,
+   "intellect": 80,
+   "speed": 60,
+   "durability": 82,
+   "combat": 75,
+   "teamwork": 65
+  },
+  "tags": [
+   "nature",
+   "tank"
+  ]
+ },
+ {
+  "id": "pikachu",
+  "name": "Pikachu",
+  "universe": "Electric",
+  "archetype": "Speedster",
+  "stats": {
+   "power": 70,
+   "intellect": 60,
+   "speed": 92,
+   "durability": 50,
+   "combat": 70,
+   "teamwork": 90
+  },
+  "tags": [
+   "electric",
+   "speedster"
+  ]
+ },
+ {
+  "id": "raichu",
+  "name": "Raichu",
+  "universe": "Electric",
+  "archetype": "Speedster",
+  "stats": {
+   "power": 82,
+   "intellect": 68,
+   "speed": 95,
+   "durability": 60,
+   "combat": 78,
+   "teamwork": 70
+  },
+  "tags": [
+   "electric",
+   "speedster"
+  ]
+ },
+ {
+  "id": "gengar",
+  "name": "Gengar",
+  "universe": "Ghost",
+  "archetype": "Trickster",
+  "stats": {
+   "power": 88,
+   "intellect": 85,
+   "speed": 92,
+   "durability": 55,
+   "combat": 75,
+   "teamwork": 50
+  },
+  "tags": [
+   "ghost",
+   "trickster"
+  ]
+ },
+ {
+  "id": "alakazam",
+  "name": "Alakazam",
+  "universe": "Psychic",
+  "archetype": "Mage",
+  "stats": {
+   "power": 95,
+   "intellect": 98,
+   "speed": 88,
+   "durability": 45,
+   "combat": 50,
+   "teamwork": 55
+  },
+  "tags": [
+   "psychic",
+   "mage"
+  ]
+ },
+ {
+  "id": "machamp",
+  "name": "Machamp",
+  "universe": "Fighting",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 90,
+   "intellect": 50,
+   "speed": 50,
+   "durability": 85,
+   "combat": 95,
+   "teamwork": 55
+  },
+  "tags": [
+   "fighting",
+   "tank"
+  ]
+ },
+ {
+  "id": "gyarados",
+  "name": "Gyarados",
+  "universe": "Water",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 90,
+   "intellect": 55,
+   "speed": 78,
+   "durability": 80,
+   "combat": 88,
+   "teamwork": 35
+  },
+  "tags": [
+   "water",
+   "flyer"
+  ]
+ },
+ {
+  "id": "dragonite",
+  "name": "Dragonite",
+  "universe": "Dragon",
+  "archetype": "Flyer",
+  "stats": {
+   "power": 92,
+   "intellect": 78,
+   "speed": 70,
+   "durability": 88,
+   "combat": 90,
+   "teamwork": 85
+  },
+  "tags": [
+   "dragon",
+   "flyer"
+  ]
+ },
+ {
+  "id": "snorlax",
+  "name": "Snorlax",
+  "universe": "Normal",
+  "archetype": "Tank",
+  "stats": {
+   "power": 85,
+   "intellect": 45,
+   "speed": 25,
+   "durability": 98,
+   "combat": 70,
+   "teamwork": 70
+  },
+  "tags": [
+   "normal",
+   "tank"
+  ]
+ },
+ {
+  "id": "lapras",
+  "name": "Lapras",
+  "universe": "Water",
+  "archetype": "Support",
+  "stats": {
+   "power": 78,
+   "intellect": 75,
+   "speed": 60,
+   "durability": 85,
+   "combat": 60,
+   "teamwork": 90
+  },
+  "tags": [
+   "water",
+   "ice",
+   "support"
+  ]
+ },
+ {
+  "id": "eevee",
+  "name": "Eevee",
+  "universe": "Normal",
+  "archetype": "Support",
+  "stats": {
+   "power": 45,
+   "intellect": 55,
+   "speed": 60,
+   "durability": 50,
+   "combat": 50,
+   "teamwork": 92
+  },
+  "tags": [
+   "normal",
+   "support"
+  ]
+ },
+ {
+  "id": "vaporeon",
+  "name": "Vaporeon",
+  "universe": "Water",
+  "archetype": "Support",
+  "stats": {
+   "power": 75,
+   "intellect": 78,
+   "speed": 60,
+   "durability": 90,
+   "combat": 60,
+   "teamwork": 70
+  },
+  "tags": [
+   "water",
+   "support"
+  ]
+ },
+ {
+  "id": "jolteon",
+  "name": "Jolteon",
+  "universe": "Electric",
+  "archetype": "Speedster",
+  "stats": {
+   "power": 78,
+   "intellect": 75,
+   "speed": 96,
+   "durability": 50,
+   "combat": 70,
+   "teamwork": 60
+  },
+  "tags": [
+   "electric",
+   "speedster"
+  ]
+ },
+ {
+  "id": "flareon",
+  "name": "Flareon",
+  "universe": "Fire",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 88,
+   "intellect": 68,
+   "speed": 65,
+   "durability": 60,
+   "combat": 80,
+   "teamwork": 55
+  },
+  "tags": [
+   "fire"
+  ]
+ },
+ {
+  "id": "mewtwo",
+  "name": "Mewtwo",
+  "universe": "Psychic",
+  "archetype": "Legendary",
+  "stats": {
+   "power": 100,
+   "intellect": 100,
+   "speed": 92,
+   "durability": 82,
+   "combat": 85,
+   "teamwork": 20
+  },
+  "tags": [
+   "psychic",
+   "legendary"
+  ]
+ },
+ {
+  "id": "mew",
+  "name": "Mew",
+  "universe": "Psychic",
+  "archetype": "Legendary",
+  "stats": {
+   "power": 90,
+   "intellect": 92,
+   "speed": 88,
+   "durability": 85,
+   "combat": 80,
+   "teamwork": 90
+  },
+  "tags": [
+   "psychic",
+   "legendary"
+  ]
+ },
+ {
+  "id": "articuno",
+  "name": "Articuno",
+  "universe": "Ice",
+  "archetype": "Legendary",
+  "stats": {
+   "power": 90,
+   "intellect": 85,
+   "speed": 80,
+   "durability": 85,
+   "combat": 70,
+   "teamwork": 60
+  },
+  "tags": [
+   "ice",
+   "legendary",
+   "flyer"
+  ]
+ },
+ {
+  "id": "zapdos",
+  "name": "Zapdos",
+  "universe": "Electric",
+  "archetype": "Legendary",
+  "stats": {
+   "power": 92,
+   "intellect": 80,
+   "speed": 92,
+   "durability": 75,
+   "combat": 75,
+   "teamwork": 55
+  },
+  "tags": [
+   "electric",
+   "legendary",
+   "flyer"
+  ]
+ },
+ {
+  "id": "moltres",
+  "name": "Moltres",
+  "universe": "Fire",
+  "archetype": "Legendary",
+  "stats": {
+   "power": 92,
+   "intellect": 82,
+   "speed": 80,
+   "durability": 78,
+   "combat": 75,
+   "teamwork": 55
+  },
+  "tags": [
+   "fire",
+   "legendary",
+   "flyer"
+  ]
+ },
+ {
+  "id": "lucario",
+  "name": "Lucario",
+  "universe": "Fighting",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 88,
+   "intellect": 82,
+   "speed": 82,
+   "durability": 70,
+   "combat": 95,
+   "teamwork": 92
+  },
+  "tags": [
+   "fighting",
+   "steel"
+  ]
+ },
+ {
+  "id": "garchomp",
+  "name": "Garchomp",
+  "universe": "Dragon",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 95,
+   "intellect": 70,
+   "speed": 88,
+   "durability": 85,
+   "combat": 95,
+   "teamwork": 65
+  },
+  "tags": [
+   "dragon",
+   "ground"
+  ]
+ },
+ {
+  "id": "metagross",
+  "name": "Metagross",
+  "universe": "Steel",
+  "archetype": "Tank",
+  "stats": {
+   "power": 92,
+   "intellect": 92,
+   "speed": 60,
+   "durability": 95,
+   "combat": 88,
+   "teamwork": 70
+  },
+  "tags": [
+   "steel",
+   "psychic",
+   "tank"
+  ]
+ },
+ {
+  "id": "tyranitar",
+  "name": "Tyranitar",
+  "universe": "Rock",
+  "archetype": "Tank",
+  "stats": {
+   "power": 95,
+   "intellect": 70,
+   "speed": 50,
+   "durability": 92,
+   "combat": 92,
+   "teamwork": 60
+  },
+  "tags": [
+   "rock",
+   "dark",
+   "tank"
+  ]
+ },
+ {
+  "id": "scizor",
+  "name": "Scizor",
+  "universe": "Bug",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 85,
+   "intellect": 72,
+   "speed": 70,
+   "durability": 85,
+   "combat": 92,
+   "teamwork": 65
+  },
+  "tags": [
+   "bug",
+   "steel"
+  ]
+ },
+ {
+  "id": "umbreon",
+  "name": "Umbreon",
+  "universe": "Dark",
+  "archetype": "Tank",
+  "stats": {
+   "power": 62,
+   "intellect": 75,
+   "speed": 50,
+   "durability": 95,
+   "combat": 60,
+   "teamwork": 75
+  },
+  "tags": [
+   "dark",
+   "tank"
+  ]
+ },
+ {
+  "id": "espeon",
+  "name": "Espeon",
+  "universe": "Psychic",
+  "archetype": "Mage",
+  "stats": {
+   "power": 82,
+   "intellect": 92,
+   "speed": 92,
+   "durability": 50,
+   "combat": 55,
+   "teamwork": 65
+  },
+  "tags": [
+   "psychic",
+   "mage"
+  ]
+ },
+ {
+  "id": "greninja",
+  "name": "Greninja",
+  "universe": "Water",
+  "archetype": "Assassin",
+  "stats": {
+   "power": 85,
+   "intellect": 85,
+   "speed": 98,
+   "durability": 60,
+   "combat": 92,
+   "teamwork": 70
+  },
+  "tags": [
+   "water",
+   "dark",
+   "assassin"
+  ]
+ },
+ {
+  "id": "blaziken",
+  "name": "Blaziken",
+  "universe": "Fire",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 92,
+   "intellect": 72,
+   "speed": 82,
+   "durability": 75,
+   "combat": 95,
+   "teamwork": 70
+  },
+  "tags": [
+   "fire",
+   "fighting"
+  ]
+ },
+ {
+  "id": "gardevoir",
+  "name": "Gardevoir",
+  "universe": "Psychic",
+  "archetype": "Support",
+  "stats": {
+   "power": 88,
+   "intellect": 95,
+   "speed": 70,
+   "durability": 55,
+   "combat": 50,
+   "teamwork": 92
+  },
+  "tags": [
+   "psychic",
+   "fairy",
+   "support"
+  ]
+ },
+ {
+  "id": "salamence",
+  "name": "Salamence",
+  "universe": "Dragon",
+  "archetype": "Flyer",
+  "stats": {
+   "power": 94,
+   "intellect": 68,
+   "speed": 85,
+   "durability": 82,
+   "combat": 90,
+   "teamwork": 60
+  },
+  "tags": [
+   "dragon",
+   "flyer"
+  ]
+ },
+ {
+  "id": "rayquaza",
+  "name": "Rayquaza",
+  "universe": "Dragon",
+  "archetype": "Legendary",
+  "stats": {
+   "power": 100,
+   "intellect": 85,
+   "speed": 92,
+   "durability": 90,
+   "combat": 92,
+   "teamwork": 40
+  },
+  "tags": [
+   "dragon",
+   "legendary",
+   "flyer"
+  ]
+ },
+ {
+  "id": "kyogre",
+  "name": "Kyogre",
+  "universe": "Water",
+  "archetype": "Legendary",
+  "stats": {
+   "power": 100,
+   "intellect": 82,
+   "speed": 80,
+   "durability": 92,
+   "combat": 80,
+   "teamwork": 35
+  },
+  "tags": [
+   "water",
+   "legendary"
+  ]
+ },
+ {
+  "id": "groudon",
+  "name": "Groudon",
+  "universe": "Ground",
+  "archetype": "Legendary",
+  "stats": {
+   "power": 100,
+   "intellect": 80,
+   "speed": 72,
+   "durability": 95,
+   "combat": 92,
+   "teamwork": 35
+  },
+  "tags": [
+   "ground",
+   "legendary",
+   "tank"
+  ]
+ },
+ {
+  "id": "arceus",
+  "name": "Arceus",
+  "universe": "Normal",
+  "archetype": "Legendary",
+  "stats": {
+   "power": 100,
+   "intellect": 100,
+   "speed": 90,
+   "durability": 98,
+   "combat": 90,
+   "teamwork": 50
+  },
+  "tags": [
+   "normal",
+   "legendary"
+  ]
+ },
+ {
+  "id": "mimikyu",
+  "name": "Mimikyu",
+  "universe": "Ghost",
+  "archetype": "Trickster",
+  "stats": {
+   "power": 75,
+   "intellect": 78,
+   "speed": 70,
+   "durability": 70,
+   "combat": 85,
+   "teamwork": 60
+  },
+  "tags": [
+   "ghost",
+   "fairy",
+   "trickster"
+  ]
+ },
+ {
+  "id": "togekiss",
+  "name": "Togekiss",
+  "universe": "Fairy",
+  "archetype": "Support",
+  "stats": {
+   "power": 80,
+   "intellect": 88,
+   "speed": 70,
+   "durability": 78,
+   "combat": 55,
+   "teamwork": 95
+  },
+  "tags": [
+   "fairy",
+   "flyer",
+   "support"
+  ]
+ },
+ {
+  "id": "charmander",
+  "name": "Charmander",
+  "universe": "Fire",
+  "archetype": "Starter",
+  "stats": {
+   "power": 55,
+   "intellect": 55,
+   "speed": 65,
+   "durability": 45,
+   "combat": 60,
+   "teamwork": 75
+  },
+  "tags": [
+   "fire",
+   "starter"
+  ]
+ },
+ {
+  "id": "squirtle",
+  "name": "Squirtle",
+  "universe": "Water",
+  "archetype": "Starter",
+  "stats": {
+   "power": 50,
+   "intellect": 55,
+   "speed": 50,
+   "durability": 70,
+   "combat": 55,
+   "teamwork": 80
+  },
+  "tags": [
+   "water",
+   "starter"
+  ]
+ },
+ {
+  "id": "bulbasaur",
+  "name": "Bulbasaur",
+  "universe": "Grass",
+  "archetype": "Starter",
+  "stats": {
+   "power": 52,
+   "intellect": 60,
+   "speed": 48,
+   "durability": 60,
+   "combat": 58,
+   "teamwork": 80
+  },
+  "tags": [
+   "nature",
+   "starter"
+  ]
+ },
+ {
+  "id": "jigglypuff",
+  "name": "Jigglypuff",
+  "universe": "Normal",
+  "archetype": "Support",
+  "stats": {
+   "power": 45,
+   "intellect": 50,
+   "speed": 40,
+   "durability": 50,
+   "combat": 35,
+   "teamwork": 80
+  },
+  "tags": [
+   "normal",
+   "fairy",
+   "support"
+  ]
+ }
+]

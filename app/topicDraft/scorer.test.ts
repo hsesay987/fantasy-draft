@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { scoreTeam, itemScore } from "./scorer";
 import { SCENARIOS } from "./scenarios";
-import { getCatalog } from "./catalogs";
+import { getCatalog, CATALOG_IDS } from "./catalogs";
 import type { Item } from "./types";
 
 const mk = (id: string, stats: Record<string, number>, archetype = "a", tags: string[] = []): Item => ({
@@ -46,6 +46,21 @@ describe("superhero catalog", () => {
     for (const i of c) for (const v of Object.values(i.stats)) {
       expect(v).toBeGreaterThanOrEqual(0);
       expect(v).toBeLessThanOrEqual(100);
+    }
+  });
+});
+
+describe("all catalogs", () => {
+  it.each(CATALOG_IDS)("%s has valid unique items with the shared stat keys", (id) => {
+    const c = getCatalog(id);
+    expect(c.length).toBeGreaterThanOrEqual(40);
+    expect(new Set(c.map((i) => i.id)).size).toBe(c.length);
+    for (const i of c) {
+      expect(Object.keys(i.stats).sort()).toEqual(["combat", "durability", "intellect", "power", "speed", "teamwork"]);
+      for (const v of Object.values(i.stats)) {
+        expect(v).toBeGreaterThanOrEqual(0);
+        expect(v).toBeLessThanOrEqual(100);
+      }
     }
   });
 });

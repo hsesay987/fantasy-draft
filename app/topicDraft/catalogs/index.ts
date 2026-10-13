@@ -1,5 +1,9 @@
 import type { Item } from "../types";
 import superheroes from "./superheroes.json";
+import villains from "./villains.json";
+import anime from "./anime.json";
+import videogames from "./videogames.json";
+import pokemon from "./pokemon.json";
 
 export type CatalogMeta = {
   id: string;
@@ -10,8 +14,14 @@ export type CatalogMeta = {
   live: boolean;
 };
 
+export const CATALOG_IDS = ["superheroes", "villains", "anime", "videogames", "pokemon"];
+
 const DATA: Record<string, Item[]> = {
   superheroes: superheroes as Item[],
+  villains: villains as Item[],
+  anime: anime as Item[],
+  videogames: videogames as Item[],
+  pokemon: pokemon as Item[],
 };
 
 export function getCatalog(id: string): Item[] {
