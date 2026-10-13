@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "motion/react";
-import { Crown, Bot, RotateCcw } from "lucide-react";
+import { Crown, Bot, RotateCcw, Share2, Repeat } from "lucide-react";
 import { Button, Card } from "../../components/ui";
-import type { Verdict } from "../judge";
+import type { Verdict } from "../../play/judging";
 
-export function VerdictView({ verdict, loading, onAgain }: { verdict: Verdict | null; loading: boolean; onAgain: () => void }) {
+export function VerdictView({ verdict, loading, onAgain, onRematch, extra, shareText, mission }: { verdict: Verdict | null; loading: boolean; onAgain: () => void; onRematch?: () => void; extra?: React.ReactNode; shareText?: string; mission?: string }) {
+  const [copied, setCopied] = useState(false);
   if (loading || !verdict) {
     return (
       <Card className="space-y-4" >
@@ -57,8 +59,15 @@ export function VerdictView({ verdict, loading, onAgain }: { verdict: Verdict | 
           </motion.div>
         ))}
       </div>
-      <div className="flex justify-center">
-        <Button onClick={onAgain}><RotateCcw className="h-4 w-4" aria-hidden /> Draft again</Button>
+      {extra}
+      <div className="flex flex-wrap justify-center gap-3">
+        {onRematch && <Button onClick={onRematch}><Repeat className="h-4 w-4" aria-hidden /> Rematch</Button>}
+        <Button variant="ghost" onClick={onAgain}><RotateCcw className="h-4 w-4" aria-hidden /> New game</Button>
+        {shareText && (
+          <Button variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(shareText); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* clipboard blocked */ } }}>
+            <Share2 className="h-4 w-4" aria-hidden /> {copied ? "Copied!" : "Copy result"}
+          </Button>
+        )}
       </div>
     </div>
   );
