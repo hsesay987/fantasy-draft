@@ -15,7 +15,7 @@ import { useAuth } from "../hooks/useAuth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-type Pool = "NBA" | "NFL" | "CARTOON" | "MULTI";
+type Pool = "NBA" | "NFL" | "CARTOON" | "SUPERHERO" | "MULTI";
 type ScoringMode = "cpu" | "vote" | "judge";
 
 export default function TopPicLandingPage() {
@@ -35,7 +35,7 @@ export default function TopPicLandingPage() {
 
   const baseLeague = useMemo(() => {
     const first = selectedPools.find((p) => p !== "MULTI");
-    return (first || "NBA") as "NBA" | "NFL" | "CARTOON";
+    return (first || "NBA") as "NBA" | "NFL" | "CARTOON" | "SUPERHERO";
   }, [selectedPools]);
 
   function togglePool(pool: Pool) {
@@ -128,18 +128,18 @@ export default function TopPicLandingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 p-6 md:p-10">
+    <main className="min-h-screen text-foreground p-6 md:p-10">
       <header className="mb-10 space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-400/40 px-3 py-1 text-xs text-amber-200">
           <Sparkles className="w-4 h-4" />
           Online-only · Up to 20 players ·
         </div>
-        <h1 className="text-4xl md:text-5xl font-extrabold text-indigo-300">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-secondary">
           TopPic
         </h1>
-        <p className="text-slate-400 max-w-3xl">
+        <p className="text-muted-foreground max-w-3xl">
           Play a live, online-only party game (no offline mode) built around
-          NBA, NFL, and cartoon universes. Everyone draws 7 cards and drops
+          NBA, NFL, cartoon and superhero universes. Everyone draws 7 cards and drops
           their best character to complete the prompt. FitTopPic eligibility
           enforced for sports pools.
         </p>
@@ -152,14 +152,14 @@ export default function TopPicLandingPage() {
       )}
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-        <div className="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-5">
+        <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-card/70 p-6 space-y-5">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-indigo-300" />
+                <Trophy className="w-5 h-5 text-secondary" />
                 Room setup
               </h2>
-              <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                 <Users className="w-4 h-4" />
                 Online-only rooms cap at 20 players per lobby.
               </div>
@@ -172,28 +172,28 @@ export default function TopPicLandingPage() {
           </div>
 
           <div className="space-y-3">
-            <div className="text-xs text-slate-400 uppercase tracking-[0.2em]">
+            <div className="text-xs text-muted-foreground uppercase tracking-[0.2em]">
               Card pools (multi-select)
             </div>
             <div className="flex flex-wrap gap-2">
-              {(["NBA", "NFL", "CARTOON", "MULTI"] as Pool[]).map((pool) => (
+              {(["NBA", "NFL", "CARTOON", "SUPERHERO", "MULTI"] as Pool[]).map((pool) => (
                 <button
                   key={pool}
                   onClick={() => togglePool(pool)}
                   className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${
                     selectedPools.includes(pool)
-                      ? "border-indigo-400 bg-indigo-500/20 text-indigo-100"
-                      : "border-slate-700 text-slate-300 hover:border-slate-500"
+                      ? "border-secondary bg-primary/25 text-secondary"
+                      : "border-white/10 text-muted-foreground hover:border-white/30"
                   }`}
                 >
-                  {pool === "MULTI" ? "Mix everything" : pool}
+                  {pool === "MULTI" ? "Mix everything" : pool === "SUPERHERO" ? "Superheroes" : pool}
                 </button>
               ))}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="block text-sm text-slate-300 font-semibold">
+                <label className="block text-sm text-muted-foreground font-semibold">
                   Scoring mode
                 </label>
                 <select
@@ -201,20 +201,20 @@ export default function TopPicLandingPage() {
                   onChange={(e) =>
                     setScoringMode(e.target.value as ScoringMode)
                   }
-                  className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm"
+                  className="w-full rounded-lg bg-card border border-white/10 px-3 py-2 text-sm"
                 >
-                  <option value="cpu">CPU / AI picks winner</option>
+                  <option value="cpu">AI judge picks winner</option>
                   <option value="vote">Players vote winner</option>
                   <option value="judge">Rotating judge per round</option>
                 </select>
-                <p className="text-xs text-slate-400">
-                  CPU mode will auto-pick using deterministic seed so everyone
-                  sees the same call.
+                <p className="text-xs text-muted-foreground">
+                  The AI judge reads every submission and crowns the funniest or
+                  most fitting card, with a one-line reason.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm text-slate-300 font-semibold">
+                <label className="block text-sm text-muted-foreground font-semibold">
                   Score to win
                 </label>
                 <div className="flex items-center gap-3">
@@ -226,14 +226,14 @@ export default function TopPicLandingPage() {
                       setTargetScore(Number(e.target.value) || 1)
                     }
                     disabled={unlimited}
-                    className="w-28 rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm disabled:opacity-50"
+                    className="w-28 rounded-lg bg-card border border-white/10 px-3 py-2 text-sm disabled:opacity-50"
                   />
-                  <label className="flex items-center gap-2 text-sm text-slate-300">
+                  <label className="flex items-center gap-2 text-sm text-muted-foreground">
                     <input
                       type="checkbox"
                       checked={unlimited}
                       onChange={(e) => setUnlimited(e.target.checked)}
-                      className="accent-indigo-500"
+                      className="accent-[var(--primary)]"
                     />
                     Unlimited / manual end
                   </label>
@@ -242,46 +242,46 @@ export default function TopPicLandingPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <label className="flex items-center gap-3 rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-3 text-sm">
+              <label className="flex items-center gap-3 rounded-lg border border-white/10 bg-card/70 px-3 py-3 text-sm">
                 <input
                   type="checkbox"
-                  className="accent-indigo-500"
+                  className="accent-[var(--primary)]"
                   checked={adultMode}
                   onChange={(e) => setAdultMode(e.target.checked)}
                 />
                 <div>
                   <div className="font-semibold">18+ prompts & rooms</div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-muted-foreground">
                     Toggle adult-only prompts & cartoons.
                   </div>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-3 text-sm">
+              <label className="flex items-center gap-3 rounded-lg border border-white/10 bg-card/70 px-3 py-3 text-sm">
                 <input
                   type="checkbox"
-                  className="accent-indigo-500"
+                  className="accent-[var(--primary)]"
                   checked={moderationRequired}
                   onChange={(e) => setModerationRequired(e.target.checked)}
                 />
                 <div>
                   <div className="font-semibold">Prompt moderation</div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-muted-foreground">
                     Host must approve prompts before play.
                   </div>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-3 text-sm">
+              <label className="flex items-center gap-3 rounded-lg border border-white/10 bg-card/70 px-3 py-3 text-sm">
                 <input
                   type="checkbox"
-                  className="accent-indigo-500"
+                  className="accent-[var(--primary)]"
                   checked={communityReview}
                   onChange={(e) => setCommunityReview(e.target.checked)}
                 />
                 <div>
                   <div className="font-semibold">Community review</div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-muted-foreground">
                     Enable card reviews & reporting.
                   </div>
                 </div>
@@ -293,7 +293,7 @@ export default function TopPicLandingPage() {
             <button
               onClick={handleCreateRoom}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary hover:bg-[#8b5cf6] px-4 py-2 text-sm font-semibold disabled:opacity-50"
             >
               <Zap className="w-4 h-4" />
               Create online room
@@ -304,12 +304,12 @@ export default function TopPicLandingPage() {
                 placeholder="Enter join code"
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                className="w-32 rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm"
+                className="w-32 rounded-lg bg-card border border-white/10 px-3 py-2 text-sm"
               />
               <button
                 onClick={handleJoinRoom}
                 disabled={loading}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-700 hover:border-indigo-400 px-3 py-2 text-sm"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 hover:border-secondary px-3 py-2 text-sm"
               >
                 Join room
               </button>
@@ -317,12 +317,12 @@ export default function TopPicLandingPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-indigo-500/50 bg-slate-900/60 p-6 space-y-4">
-          <div className="flex items-center gap-2 text-sm text-indigo-200">
+        <div className="rounded-2xl border border-secondary/50 bg-card/70 p-6 space-y-4">
+          <div className="flex items-center gap-2 text-sm text-secondary">
             <ShieldCheck className="w-4 h-4" />
             Safeguards baked-in
           </div>
-          <ul className="space-y-3 text-sm text-slate-300">
+          <ul className="space-y-3 text-sm text-muted-foreground">
             <li className="flex gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-300 mt-1" />
               Prompt moderation (admin/host approval) plus optional adult-only
@@ -334,7 +334,7 @@ export default function TopPicLandingPage() {
               clean.
             </li>
             <li className="flex gap-2">
-              <Trophy className="w-4 h-4 text-indigo-300 mt-1" />
+              <Trophy className="w-4 h-4 text-secondary mt-1" />
               Scoring options: CPU winner, player vote, or rotating judge; cap
               score or run unlimited.
             </li>

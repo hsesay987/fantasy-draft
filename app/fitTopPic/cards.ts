@@ -1,4 +1,4 @@
-export type TopPicPool = "NBA" | "NFL" | "CARTOON" | "MULTI";
+export type TopPicPool = "NBA" | "NFL" | "CARTOON" | "SUPERHERO" | "MULTI";
 
 export type TopPicPromptCard = {
   id: string;
