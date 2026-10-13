@@ -39,7 +39,7 @@ export function localVerdict(teams: JudgeTeamInput[], mission: { title: string }
     };
   });
   const winner = [...scored].sort((a, b) => b.score - a.score)[0]?.player ?? "";
-  return { winner, teams: scored, summary: `${winner} comes out on top for "${mission.title}".`, source: "fallback" };
+  return { winner, teams: scored, summary: scored.length === 1 ? `${winner} scored ${Math.round(scored[0]!.score)} on "${mission.title}".` : `${winner} comes out on top for "${mission.title}".`, source: "fallback" };
 }
 
 export async function fetchVerdict(

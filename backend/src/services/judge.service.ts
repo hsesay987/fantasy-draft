@@ -112,9 +112,11 @@ export function fallbackVerdict(req: JudgeReq): Verdict {
   return {
     winner,
     teams,
-    summary: winner
-      ? `${winner} built the strongest team for "${req.scenario.title}" on the numbers.`
-      : "No teams to judge.",
+    summary: !winner
+      ? "No teams to judge."
+      : teams.length === 1
+        ? `${winner} scored ${Math.round(teams[0]!.score)} on "${req.scenario.title}".`
+        : `${winner} built the strongest team for "${req.scenario.title}" on the numbers.`,
     source: "fallback",
   };
 }

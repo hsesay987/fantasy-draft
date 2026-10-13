@@ -32,8 +32,8 @@ export function GameTile({
         soon ? "opacity-55" : ""
       }`}
     >
-      <div className="mb-8 grid h-12 w-12 place-items-center rounded-xl bg-black/30">
-        <Icon className="h-6 w-6 text-secondary" aria-hidden />
+      <div className="mb-8 grid h-14 w-14 place-items-center rounded-xl bg-black/30">
+        <Icon className="h-8 w-8 text-secondary" aria-hidden />
       </div>
       <h3 className="text-lg">{title}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{blurb}</p>
