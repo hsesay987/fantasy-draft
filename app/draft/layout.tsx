@@ -6,7 +6,7 @@ export default function DraftLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-slate-100 overflow-x-hidden">
+    <div className="min-h-screen w-full text-foreground overflow-x-hidden">
       {children}
     </div>
   );

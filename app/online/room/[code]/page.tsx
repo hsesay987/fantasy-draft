@@ -504,7 +504,7 @@ export default function RoomLobbyPage() {
   /* -------------------- RENDER -------------------- */
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-slate-400">
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
         Loading room…
       </div>
     );
@@ -532,15 +532,15 @@ export default function RoomLobbyPage() {
       : `Casual supports up to ${casualLimitLabel} players with customizable rules.`;
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white p-6">
+    <main className="min-h-screen bg-background text-white p-6">
       {/* HEADER */}
       <header className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-indigo-300">
+          <h1 className="text-3xl font-extrabold text-secondary">
             Room {room.code}
           </h1>
-          <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
-            <span className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900 px-2 py-[2px] text-[11px] uppercase tracking-[0.08em]">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-card px-2 py-[2px] text-[11px] uppercase tracking-[0.08em]">
               League: {leagueLabel}
             </span>
             {leagueLabel === "NFL" || leagueLabel === "CARTOON" ? (
@@ -549,7 +549,7 @@ export default function RoomLobbyPage() {
               </span>
             ) : null}
           </div>
-          <p className="text-slate-400 text-sm">
+          <p className="text-muted-foreground text-sm">
             Waiting in lobby ({room.participants.length} players)
           </p>
         </div>
@@ -557,16 +557,16 @@ export default function RoomLobbyPage() {
         <div className="flex flex-col items-end gap-2">
           {/* Mode toggle (host chooses, others see it disabled) */}
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-400">Mode:</span>
-            <div className="inline-flex rounded-full bg-slate-900 border border-slate-700 p-1">
+            <span className="text-muted-foreground">Mode:</span>
+            <div className="inline-flex rounded-full bg-card border border-white/10 p-1">
               <button
                 type="button"
                 disabled={!isHost}
                 onClick={() => isHost && setMode("classic")}
                 className={`px-3 py-1 rounded-full text-xs ${
                   mode === "classic"
-                    ? "bg-indigo-500 text-slate-900"
-                    : "text-slate-300"
+                    ? "bg-primary text-slate-900"
+                    : "text-muted-foreground"
                 } ${!isHost ? "opacity-60 cursor-not-allowed" : ""}`}
               >
                 Classic (2 players)
@@ -577,8 +577,8 @@ export default function RoomLobbyPage() {
                 onClick={() => isHost && setMode("casual")}
                 className={`px-3 py-1 rounded-full text-xs ${
                   mode === "casual"
-                    ? "bg-indigo-500 text-slate-900"
-                    : "text-slate-300"
+                    ? "bg-primary text-slate-900"
+                    : "text-muted-foreground"
                 } ${!isHost ? "opacity-60 cursor-not-allowed" : ""}`}
               >
                 Casual (up to {casualLimitLabel})
@@ -614,25 +614,25 @@ export default function RoomLobbyPage() {
       </header>
 
       {league === "CARTOON" && (
-        <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+        <section className="mb-6 rounded-2xl border border-white/10 bg-card/70 p-4">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-sm font-semibold text-indigo-200">
+              <p className="text-sm font-semibold text-secondary">
                 Cartoon draft settings
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 Community voting only. Choose character or show drafts.
               </p>
             </div>
             {!isHost && (
-              <span className="text-[11px] text-slate-500">View only</span>
+              <span className="text-[11px] text-muted-foreground">View only</span>
             )}
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <div className="text-xs text-slate-400">Draft focus</div>
-              <div className="inline-flex rounded-full bg-slate-900 border border-slate-800 p-1">
+              <div className="text-xs text-muted-foreground">Draft focus</div>
+              <div className="inline-flex rounded-full bg-card border border-white/10 p-1">
                 {(["character", "show"] as const).map((type) => (
                   <button
                     key={type}
@@ -643,15 +643,15 @@ export default function RoomLobbyPage() {
                     }
                     className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       cartoonConfig.draftType === type
-                        ? "bg-indigo-500 text-slate-900"
-                        : "text-slate-200"
+                        ? "bg-primary text-slate-900"
+                        : "text-foreground"
                     } ${!isHost ? "opacity-60 cursor-not-allowed" : ""}`}
                   >
                     {type === "character" ? "Characters" : "Shows"}
                   </button>
                 ))}
               </div>
-              <label className="block text-xs text-slate-300 space-y-1">
+              <label className="block text-xs text-muted-foreground space-y-1">
                 <span>Channel filter</span>
                 <select
                   disabled={!isHost}
@@ -663,7 +663,7 @@ export default function RoomLobbyPage() {
                       channel: e.target.value,
                     }))
                   }
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                  className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
                 >
                   <option value="">Any</option>
                   {CARTOON_CHANNELS.map((ch) => (
@@ -676,7 +676,7 @@ export default function RoomLobbyPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs text-slate-300 space-y-1">
+              <label className="block text-xs text-muted-foreground space-y-1">
                 <span>Age rating</span>
                 <select
                   disabled={!isHost}
@@ -688,7 +688,7 @@ export default function RoomLobbyPage() {
                       ageRating: e.target.value as CartoonConfig["ageRating"],
                     }))
                   }
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                  className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
                 >
                   <option value="">Any</option>
                   <option value="baby">Baby</option>
@@ -697,7 +697,7 @@ export default function RoomLobbyPage() {
                 </select>
               </label>
 
-              <label className="inline-flex items-center gap-2 text-xs text-slate-300">
+              <label className="inline-flex items-center gap-2 text-xs text-muted-foreground">
                 <input
                   type="checkbox"
                   disabled={!isHost || cartoonConfig.draftType !== "character"}
@@ -709,12 +709,12 @@ export default function RoomLobbyPage() {
                       superheroOnly: e.target.checked,
                     }))
                   }
-                  className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                  className="h-4 w-4 rounded border-white/10 bg-card"
                 />
                 Superhero-only (characters)
               </label>
 
-              <label className="inline-flex items-center gap-2 text-xs text-slate-300">
+              <label className="inline-flex items-center gap-2 text-xs text-muted-foreground">
                 <input
                   type="checkbox"
                   disabled={!isHost || cartoonConfig.draftType !== "character"}
@@ -726,14 +726,14 @@ export default function RoomLobbyPage() {
                       femaleOnly: e.target.checked,
                     }))
                   }
-                  className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                  className="h-4 w-4 rounded border-white/10 bg-card"
                 />
                 Female-only (characters)
               </label>
             </div>
 
             <div className="space-y-2">
-              <label className="inline-flex items-center gap-2 text-xs text-slate-300">
+              <label className="inline-flex items-center gap-2 text-xs text-muted-foreground">
                 <input
                   type="checkbox"
                   disabled={!isHost}
@@ -745,7 +745,7 @@ export default function RoomLobbyPage() {
                       randomEra: e.target.checked,
                     }))
                   }
-                  className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                  className="h-4 w-4 rounded border-white/10 bg-card"
                 />
                 Random era spin
               </label>
@@ -764,7 +764,7 @@ export default function RoomLobbyPage() {
                         eraFrom: e.target.value === "" ? "" : Number(e.target.value),
                       }))
                     }
-                    className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                    className="rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
                   />
                   <input
                     type="number"
@@ -778,37 +778,37 @@ export default function RoomLobbyPage() {
                         eraTo: e.target.value === "" ? "" : Number(e.target.value),
                       }))
                     }
-                    className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                    className="rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
                   />
                 </div>
               )}
             </div>
           </div>
 
-          <p className="text-[11px] text-slate-500 mt-3">
+          <p className="text-[11px] text-muted-foreground mt-3">
             Cartoon drafts ignore stats and rely on community voting. Classic mode uses a 60s timer and 5 picks per team.
           </p>
         </section>
       )}
 
       {mode === "casual" && (
-        <section className="mb-6 max-w-2xl rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+        <section className="mb-6 max-w-2xl rounded-2xl border border-white/10 bg-card/70 p-4">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-sm font-semibold text-indigo-200">
+              <p className="text-sm font-semibold text-secondary">
                 Casual settings
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 Configure rules before starting. Host only.
               </p>
             </div>
             {!isHost && (
-              <span className="text-[11px] text-slate-500">View only</span>
+              <span className="text-[11px] text-muted-foreground">View only</span>
             )}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="text-xs text-slate-300 space-y-1">
+            <label className="text-xs text-muted-foreground space-y-1">
               <span>Players per team</span>
               <input
                 type="number"
@@ -823,11 +823,11 @@ export default function RoomLobbyPage() {
                   }))
                 }
                 disabled={!isHost}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
               />
             </label>
 
-            <label className="text-xs text-slate-300 space-y-1">
+            <label className="text-xs text-muted-foreground space-y-1">
               <span>Pick timer (seconds, 0/off)</span>
               <input
                 type="number"
@@ -842,11 +842,11 @@ export default function RoomLobbyPage() {
                   }))
                 }
                 disabled={!isHost}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
               />
             </label>
 
-            <label className="text-xs text-slate-300 space-y-1">
+            <label className="text-xs text-muted-foreground space-y-1">
               <span>PPG cap (optional)</span>
               <input
                 type="number"
@@ -862,11 +862,11 @@ export default function RoomLobbyPage() {
                   }))
                 }
                 disabled={!isHost}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
               />
             </label>
 
-            <div className="flex flex-col gap-2 text-xs text-slate-300">
+            <div className="flex flex-col gap-2 text-xs text-muted-foreground">
               <label className="inline-flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -879,7 +879,7 @@ export default function RoomLobbyPage() {
                     }))
                   }
                   disabled={!isHost}
-                  className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                  className="h-4 w-4 rounded border-white/10 bg-card"
                 />
                 Enable auto-pick when timer ends
               </label>
@@ -896,7 +896,7 @@ export default function RoomLobbyPage() {
                     }))
                   }
                   disabled={!isHost}
-                  className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                  className="h-4 w-4 rounded border-white/10 bg-card"
                 />
                 Show system suggestions
               </label>
@@ -913,10 +913,10 @@ export default function RoomLobbyPage() {
           return (
             <div
               key={p.user.id}
-              className="flex justify-between items-center rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-3"
+              className="flex justify-between items-center rounded-xl border border-white/10 bg-card/70 px-4 py-3"
             >
               <div className="flex items-center gap-3">
-                <Users className="w-4 h-4 text-slate-500" />
+                <Users className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm">
                   {p.user.name || p.user.email}
                   {isSelf && " (you)"}
@@ -924,7 +924,7 @@ export default function RoomLobbyPage() {
                 {p.isHost && <Crown className="w-4 h-4 text-yellow-400" />}
 
                 {/* Simple seat index indicator */}
-                <span className="text-[11px] text-slate-500 ml-2">
+                <span className="text-[11px] text-muted-foreground ml-2">
                   Seat {index + 1}
                 </span>
               </div>
@@ -942,7 +942,7 @@ export default function RoomLobbyPage() {
         })}
       </div>
 
-      <p className="text-xs text-slate-500 mt-6">
+      <p className="text-xs text-muted-foreground mt-6">
         ℹ {classicSummary} {casualSummary} Draft starts when the host clicks
         “Start Draft”. All players will automatically be moved into the draft.
       </p>

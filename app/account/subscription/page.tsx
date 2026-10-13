@@ -103,14 +103,14 @@ export default function SubscriptionPage() {
 
   if (!token) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100 p-6">
+      <main className="min-h-screen flex items-center justify-center text-foreground p-6">
         <div className="max-w-md text-center space-y-3">
           <p className="text-lg font-semibold">
             You need an account to manage subscriptions.
           </p>
           <button
             onClick={() => router.push("/login")}
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-700"
+            className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold hover:bg-[#8b5cf6]"
           >
             Go to login
           </button>
@@ -126,15 +126,15 @@ export default function SubscriptionPage() {
       new Date(status.user.subscriptionEnds).getTime() > Date.now());
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 p-6 flex justify-center">
+    <main className="min-h-screen text-foreground p-6 flex justify-center">
       <div className="w-full max-w-5xl space-y-6">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="rounded-2xl border border-white/10 bg-card/70 p-6 shadow-xl flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
-            <p className="text-xs uppercase tracking-wider text-slate-500">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">
               Account
             </p>
-            <h1 className="text-3xl font-bold text-indigo-100">Subscription</h1>
-            <p className="text-sm text-slate-400">
+            <h1 className="text-3xl font-bold text-secondary">Subscription</h1>
+            <p className="text-sm text-muted-foreground">
               Manage ads, trials, and supporter perks. Founders are ad-free for
               life.
             </p>
@@ -181,17 +181,17 @@ export default function SubscriptionPage() {
           />
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl grid gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-white/10 bg-card/70 p-6 shadow-xl grid gap-4 md:grid-cols-2">
           <div className="space-y-3">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-emerald-300" /> Current
               status
             </h2>
             {loading && (
-              <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             )}
             {status && (
-              <ul className="space-y-2 text-sm text-slate-300">
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
                   Ads:{" "}
                   {isFounder || isActive
@@ -219,9 +219,9 @@ export default function SubscriptionPage() {
 
           <div className="space-y-3">
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Rocket className="h-5 w-5 text-indigo-300" /> Perks
+              <Rocket className="h-5 w-5 text-secondary" /> Perks
             </h2>
-            <ul className="text-sm text-slate-300 space-y-2">
+            <ul className="text-sm text-muted-foreground space-y-2">
               <li>🛡️ No ads across the experience</li>
               <li>🚀 Priority access to new draft and quiz modes</li>
               <li>🎟️ Unlimited game creation + early beta invites</li>
@@ -230,20 +230,20 @@ export default function SubscriptionPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="rounded-2xl border border-white/10 bg-card/70 p-6 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="space-y-1">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Trophy className="h-5 w-5 text-amber-300" />
               Want to feature your brand?
             </h3>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-muted-foreground">
               Submit a tasteful community ad. Admins approve everything to keep
               it clean.
             </p>
           </div>
           <button
             onClick={() => router.push("/ads/submit")}
-            className="rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold hover:bg-slate-700"
+            className="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold hover:bg-muted"
           >
             Submit community ad
           </button>
@@ -273,20 +273,20 @@ function PlanCard({
   return (
     <div
       className={`rounded-2xl border ${
-        highlight ? "border-indigo-500/60" : "border-slate-800"
-      } bg-slate-900/70 p-5 shadow-lg`}
+        highlight ? "border-secondary/60" : "border-white/10"
+      } bg-card/70 p-5 shadow-lg`}
     >
-      <p className="text-xs uppercase tracking-widest text-slate-500">
+      <p className="text-xs uppercase tracking-widest text-muted-foreground">
         {label}
       </p>
       <div className="mt-2 flex items-baseline gap-1">
-        <span className="text-3xl font-bold text-slate-50">{price}</span>
-        <span className="text-sm text-slate-400">{subtext}</span>
+        <span className="text-3xl font-bold text-foreground">{price}</span>
+        <span className="text-sm text-muted-foreground">{subtext}</span>
       </div>
       <button
         onClick={onClick}
         disabled={disabled}
-        className="mt-4 w-full rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-700 disabled:opacity-60"
+        className="mt-4 w-full rounded-xl bg-primary px-4 py-2 text-sm font-semibold hover:bg-[#8b5cf6] disabled:opacity-60"
       >
         {cta}
       </button>

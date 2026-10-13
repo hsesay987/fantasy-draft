@@ -28,7 +28,7 @@ export default function UserMenu() {
     return (
       <button
         onClick={() => router.push("/login")}
-        className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white"
       >
         <LogIn className="w-4 h-4" />
         <span>Log in</span>
@@ -40,7 +40,7 @@ export default function UserMenu() {
     <div ref={containerRef} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white"
       >
         <User className="w-4 h-4" />
         <span className="max-w-[140px] truncate">
@@ -49,10 +49,10 @@ export default function UserMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-56 rounded-xl bg-slate-900 border border-slate-700 shadow-lg z-50">
-          <div className="px-4 py-3 border-b border-slate-700">
-            <p className="text-xs text-slate-400">Signed in as</p>
-            <p className="text-sm font-medium text-slate-100 truncate">
+        <div className="absolute right-0 mt-2 w-56 rounded-xl bg-card border border-white/10 shadow-lg z-50">
+          <div className="px-4 py-3 border-b border-white/10">
+            <p className="text-xs text-muted-foreground">Signed in as</p>
+            <p className="text-sm font-medium text-foreground truncate">
               {user.email}
             </p>
           </div>
@@ -62,7 +62,7 @@ export default function UserMenu() {
               router.push("/account");
               setOpen(false);
             }}
-            className="block w-full px-4 py-2 text-left text-sm text-slate-200 hover:bg-slate-800"
+            className="block w-full px-4 py-2 text-left text-sm text-foreground hover:bg-white/10"
           >
             Account settings
           </button>
@@ -71,7 +71,7 @@ export default function UserMenu() {
               router.push("/account/subscription");
               setOpen(false);
             }}
-            className="block w-full px-4 py-2 text-left text-sm text-slate-200 hover:bg-slate-800"
+            className="block w-full px-4 py-2 text-left text-sm text-foreground hover:bg-white/10"
           >
             Subscription
           </button>
@@ -82,7 +82,7 @@ export default function UserMenu() {
                 router.push("/admin");
                 setOpen(false);
               }}
-              className="block w-full px-4 py-2 text-left text-sm text-indigo-200 hover:bg-slate-800"
+              className="block w-full px-4 py-2 text-left text-sm text-secondary hover:bg-white/10"
             >
               Admin
             </button>
@@ -94,7 +94,7 @@ export default function UserMenu() {
               setOpen(false);
               router.push("/");
             }}
-            className="block w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-slate-800"
+            className="block w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-white/10"
           >
             <LogOut className="w-3 h-3 inline mr-1" />
             Logout
@@ -118,7 +118,7 @@ export default function UserMenu() {
 //     return (
 //       <button
 //         onClick={() => router.push("/login")}
-//         className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+//         className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white"
 //       >
 //         <LogIn className="w-4 h-4" />
 //         Login
@@ -128,15 +128,15 @@ export default function UserMenu() {
 
 //   return (
 //     <div className="relative group">
-//       <button className="flex items-center gap-2 text-sm text-slate-300 hover:text-white">
+//       <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white">
 //         <User className="w-4 h-4" />
 //         {user.name || user.email}
 //       </button>
 
-//       <div className="absolute right-0 mt-2 w-40 rounded-xl bg-slate-900 border border-slate-700 hidden group-hover:block">
+//       <div className="absolute right-0 mt-2 w-40 rounded-xl bg-card border border-white/10 hidden group-hover:block">
 //         <button
 //           onClick={() => router.push("/my-drafts")}
-//           className="block w-full px-4 py-2 text-left text-sm hover:bg-slate-800"
+//           className="block w-full px-4 py-2 text-left text-sm hover:bg-white/10"
 //         >
 //           My Drafts
 //         </button>
@@ -146,7 +146,7 @@ export default function UserMenu() {
 //             setAuth(null, null);
 //             router.push("/");
 //           }}
-//           className="block w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-slate-800"
+//           className="block w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-white/10"
 //         >
 //           <LogOut className="w-3 h-3 inline mr-1" />
 //           Logout

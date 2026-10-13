@@ -24,14 +24,14 @@ export default function SubmitAdPage() {
 
   if (!token) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100 p-6">
+      <main className="min-h-screen flex items-center justify-center text-foreground p-6">
         <div className="max-w-md text-center space-y-3">
           <p className="text-lg font-semibold">
             Log in to submit a community ad.
           </p>
           <button
             onClick={() => router.push("/login")}
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-700"
+            className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold hover:bg-[#8b5cf6]"
           >
             Go to login
           </button>
@@ -77,22 +77,22 @@ export default function SubmitAdPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 p-6 flex justify-center">
+    <main className="min-h-screen text-foreground p-6 flex justify-center">
       <div className="w-full max-w-3xl space-y-6">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
+        <div className="rounded-2xl border border-white/10 bg-card/70 p-6 shadow-xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-wider text-slate-500">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">
                 Community
               </p>
-              <h1 className="text-2xl font-semibold text-indigo-200">
+              <h1 className="text-2xl font-semibold text-secondary">
                 Submit an ad
               </h1>
-              <p className="text-sm text-slate-400 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Keep it clean and relevant. We manually review every placement.
               </p>
             </div>
-            <div className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-300">
+            <div className="rounded-full bg-white/10 px-3 py-1 text-xs text-muted-foreground">
               Ads are reviewed within 24h
             </div>
           </div>
@@ -110,7 +110,7 @@ export default function SubmitAdPage() {
           </div>
         )}
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl space-y-4">
+        <div className="rounded-2xl border border-white/10 bg-card/70 p-6 shadow-xl space-y-4">
           <div className="grid gap-3 md:grid-cols-2">
             <Field
               label="Title"
@@ -146,13 +146,13 @@ export default function SubmitAdPage() {
               placeholder="Podcast, league, etc."
             />
             <div className="space-y-1">
-              <label className="text-xs text-slate-400">Placement</label>
+              <label className="text-xs text-muted-foreground">Placement</label>
               <select
                 value={placement}
                 onChange={(e) =>
                   setPlacement(e.target.value as "rail" | "footer")
                 }
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+                className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm text-foreground"
               >
                 <option value="rail">Sidebar rail</option>
                 <option value="footer">Mobile footer</option>
@@ -163,7 +163,7 @@ export default function SubmitAdPage() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-700 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold hover:bg-[#8b5cf6] disabled:opacity-60"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -193,13 +193,13 @@ function Field({
 }) {
   return (
     <div className="space-y-1">
-      <label className="text-xs text-slate-400">{label}</label>
+      <label className="text-xs text-muted-foreground">{label}</label>
       {multiline ? (
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+          className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm text-foreground"
           rows={3}
         />
       ) : (
@@ -207,7 +207,7 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+          className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm text-foreground"
         />
       )}
     </div>

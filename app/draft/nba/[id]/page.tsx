@@ -1546,7 +1546,7 @@ export default function DraftPage() {
   /***************************************************************************/
   if (loading || !draft) {
     return (
-      <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
+      <main className="min-h-screen text-foreground flex items-center justify-center">
         <p className="text-lg">Loading draft...</p>
       </main>
     );
@@ -1608,13 +1608,13 @@ export default function DraftPage() {
   }) {
     return (
       <div className="space-y-1">
-        <div className="flex justify-between text-[10px] text-slate-400">
+        <div className="flex justify-between text-[10px] text-muted-foreground">
           <span>{label}</span>
           <span className={good ? "text-emerald-300" : "text-orange-300"}>
             {value.toFixed(0)}
           </span>
         </div>
-        <div className="h-1.5 rounded bg-slate-800 overflow-hidden">
+        <div className="h-1.5 rounded bg-white/10 overflow-hidden">
           <div
             className={`h-full ${good ? "bg-emerald-500" : "bg-orange-400"}`}
             style={{ width: `${Math.min(100, value)}%` }}
@@ -1630,26 +1630,26 @@ export default function DraftPage() {
   return (
     <>
       {showReadyModal && draft.rules?.online && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900/95 p-4 space-y-3 shadow-xl shadow-indigo-500/20">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
+          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-card/95 p-4 space-y-3 shadow-xl shadow-indigo-500/20">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-semibold text-slate-50">
+                <h3 className="text-lg font-semibold text-foreground">
                   Waiting for players to ready up
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-muted-foreground">
                   Host will start a new draft once everyone is set.
                 </p>
               </div>
               <button
                 onClick={() => setShowReadyModal(false)}
-                className="text-[11px] text-slate-400 hover:text-white"
+                className="text-[11px] text-muted-foreground hover:text-white"
               >
                 Close
               </button>
             </div>
 
-            <div className="text-xs text-slate-300">
+            <div className="text-xs text-muted-foreground">
               {totalReady}/{readyParticipants.length || participants} ready
             </div>
 
@@ -1657,14 +1657,14 @@ export default function DraftPage() {
               {readyParticipants.map((p, idx) => (
                 <div
                   key={p.userId || idx}
-                  className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2"
+                  className="flex items-center justify-between rounded-lg border border-white/10 bg-background/60 px-3 py-2"
                 >
-                  <span className="text-sm text-slate-100">
+                  <span className="text-sm text-foreground">
                     {p.name || `Player ${idx + 1}`}
                   </span>
                   <span
                     className={`text-[11px] font-semibold ${
-                      p.ready ? "text-emerald-300" : "text-slate-400"
+                      p.ready ? "text-emerald-300" : "text-muted-foreground"
                     }`}
                   >
                     {p.ready ? "Ready" : "Waiting"}
@@ -1672,7 +1672,7 @@ export default function DraftPage() {
                 </div>
               ))}
               {readyParticipants.length === 0 && (
-                <div className="text-[11px] text-slate-400">
+                <div className="text-[11px] text-muted-foreground">
                   Seats will appear once players join.
                 </div>
               )}
@@ -1700,14 +1700,14 @@ export default function DraftPage() {
               <button
                 onClick={startOnlineRematch}
                 disabled={readySaving}
-                className="w-full rounded-md bg-indigo-500 hover:bg-indigo-600 text-[12px] font-semibold text-slate-100 py-2 disabled:opacity-60"
+                className="w-full rounded-md bg-primary hover:bg-primary text-[12px] font-semibold text-foreground py-2 disabled:opacity-60"
               >
                 {readySaving ? "Starting..." : "Start anyways"}
               </button>
             )}
 
             {isHost && (
-              <p className="text-[10px] text-slate-500 text-center">
+              <p className="text-[10px] text-muted-foreground text-center">
                 Start now or wait for more players to ready up.
               </p>
             )}
@@ -1715,17 +1715,17 @@ export default function DraftPage() {
         </div>
       )}
 
-      <main className="min-h-screen w-full bg-slate-950 text-slate-50 overflow-x-hidden">
+      <main className="min-h-screen w-full text-foreground overflow-x-hidden">
       {/* FULL WIDTH HEADER */}
-      <header className="px-4 py-6 border-b border-slate-800">
+      <header className="px-4 py-6 border-b border-white/10">
         <div className="flex flex-wrap items-start justify-between gap-4">
           {/* Left: Title */}
           <div className="flex-1 min-w-[260px]">
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-indigo-300">
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-secondary">
               {draft.title || "NBA Era Fantasy Draft"}
             </h1>
-            <p className="text-xs text-slate-400 mt-1">Mode: {draft.mode}</p>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-muted-foreground mt-1">Mode: {draft.mode}</p>
+            <p className="text-xs text-muted-foreground">
               Era:{" "}
               {draft.randomEra
                 ? "Random Era"
@@ -1733,14 +1733,14 @@ export default function DraftPage() {
             </p>
 
             {bestCandidate && (
-              <div className="mt-3 rounded-lg border border-slate-800 bg-slate-900/70 px-3 py-2 text-xs">
-                <div className="text-[11px] uppercase tracking-[0.12em] text-slate-400">
+              <div className="mt-3 rounded-lg border border-white/10 bg-card/70 px-3 py-2 text-xs">
+                <div className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
                   Best available
                 </div>
                 <div className="text-sm font-semibold text-emerald-200">
                   {bestCandidate.name}
                 </div>
-                <div className="text-[11px] text-slate-300">
+                <div className="text-[11px] text-muted-foreground">
                   {bestCandidate.position}
                   {bestCandidate.team ? ` • ${bestCandidate.team}` : ""}
                   {bestCandidate.eraLabel ? ` • ${bestCandidate.eraLabel}` : ""}
@@ -1750,19 +1750,19 @@ export default function DraftPage() {
                     ? ` • Score ${bestCandidate.score.toFixed(1)}`
                     : ""}
                 </div>
-                <div className="text-[10px] text-slate-500">
+                <div className="text-[10px] text-muted-foreground">
                   Based on current team/era spin and open position.
                 </div>
               </div>
             )}
 
             {activeParticipant && (
-              <p className="text-xs mt-1 text-indigo-300">
+              <p className="text-xs mt-1 text-secondary">
                 On the clock:{" "}
                 {activeSeatName ? (
                   <>
                     {activeSeatName}{" "}
-                    <span className="text-slate-400">
+                    <span className="text-muted-foreground">
                       (Player {activeParticipant})
                     </span>
                   </>
@@ -1774,7 +1774,7 @@ export default function DraftPage() {
             )}
 
             {draft.rules?.online && user && (
-              <p className="text-[11px] mt-1 text-slate-400">
+              <p className="text-[11px] mt-1 text-muted-foreground">
                 You are{" "}
                 {isSpectator ? (
                   <span className="text-amber-300">spectating this draft</span>
@@ -1808,7 +1808,7 @@ export default function DraftPage() {
             {isOnline && (
               <button
                 onClick={handleBackToRoom}
-                className="px-3 py-1.5 rounded-md bg-slate-700 hover:bg-slate-600 text-xs font-semibold"
+                className="px-3 py-1.5 rounded-md bg-muted hover:bg-muted text-xs font-semibold"
               >
                 ↩ Back to Room
               </button>
@@ -1818,7 +1818,7 @@ export default function DraftPage() {
               isHost ? (
                 <button
                   onClick={handleNewDraft}
-                  className="px-3 py-1.5 rounded-md bg-indigo-500 hover:bg-indigo-600 text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-md bg-primary hover:bg-primary text-xs font-semibold"
                 >
                   ➕ New Draft
                 </button>
@@ -1828,7 +1828,7 @@ export default function DraftPage() {
                   className={`px-3 py-1.5 rounded-md text-xs font-semibold text-slate-900 disabled:opacity-60 ${
                     readyPhaseActive
                       ? "bg-emerald-500 hover:bg-emerald-400"
-                      : "bg-slate-700 text-slate-200"
+                      : "bg-muted text-foreground"
                   }`}
                   disabled={
                     !readyPhaseActive ||
@@ -1846,7 +1846,7 @@ export default function DraftPage() {
             ) : (
               <button
                 onClick={handleNewDraft}
-                className="px-3 py-1.5 rounded-md bg-indigo-500 hover:bg-indigo-600 text-xs font-semibold"
+                className="px-3 py-1.5 rounded-md bg-primary hover:bg-primary text-xs font-semibold"
               >
                 ➕ New Draft
               </button>
@@ -1861,7 +1861,7 @@ export default function DraftPage() {
           </div>
 
           {isOnline && (
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-muted-foreground">
               Online drafts auto-save after each pick. Cancel will end the room
               for everyone.
             </p>
@@ -1869,9 +1869,9 @@ export default function DraftPage() {
 
           {/* Score & Leaders Summary */}
           {score && (
-            <div className="rounded-2xl bg-slate-900 border border-slate-700 px-4 py-3 text-xs flex flex-col gap-2 min-w-[260px] max-w-[360px]">
+            <div className="rounded-2xl bg-card border border-white/10 px-4 py-3 text-xs flex flex-col gap-2 min-w-[260px] max-w-[360px]">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-200">
+                <span className="font-semibold text-foreground">
                   Draft status
                 </span>
                 {leaderTeam && (
@@ -1889,16 +1889,16 @@ export default function DraftPage() {
                   {teamsWithChemistry.map((t) => (
                     <div
                       key={t.participant}
-                      className="rounded-lg bg-slate-800 px-2 py-1 flex items-center justify-between"
+                      className="rounded-lg bg-white/10 px-2 py-1 flex items-center justify-between"
                     >
-                      <div className="text-[10px] text-slate-300">
+                      <div className="text-[10px] text-muted-foreground">
                         Team {t.participant}
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-semibold text-emerald-300">
                           {t.teamScore.toFixed(1)}
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className="text-[10px] text-muted-foreground">
                           {t.totalPpg.toFixed(1)} PPG
                         </div>
                       </div>
@@ -1909,14 +1909,14 @@ export default function DraftPage() {
 
               {/* Category leaders */}
               {teamsWithChemistry.length > 1 && (
-                <div className="mt-3 border-t border-slate-700 pt-2 text-[10px] space-y-1">
-                  <div className="font-semibold text-slate-200 mb-1">
+                <div className="mt-3 border-t border-white/10 pt-2 text-[10px] space-y-1">
+                  <div className="font-semibold text-foreground mb-1">
                     Category leaders
                   </div>
                   {leaderBy("teamScore") && (
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Highest score</span>
-                      <span className="text-slate-100">
+                      <span className="text-muted-foreground">Highest score</span>
+                      <span className="text-foreground">
                         Team {leaderBy("teamScore")!.participant} (
                         {leaderBy("teamScore")!.teamScore.toFixed(1)})
                       </span>
@@ -1924,8 +1924,8 @@ export default function DraftPage() {
                   )}
                   {leaderBy("totalPpg") && (
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Most PPG</span>
-                      <span className="text-slate-100">
+                      <span className="text-muted-foreground">Most PPG</span>
+                      <span className="text-foreground">
                         Team {leaderBy("totalPpg")!.participant} (
                         {leaderBy("totalPpg")!.totalPpg.toFixed(1)})
                       </span>
@@ -1933,8 +1933,8 @@ export default function DraftPage() {
                   )}
                   {leaderBy("totalRating") && (
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Best avg score</span>
-                      <span className="text-slate-100">
+                      <span className="text-muted-foreground">Best avg score</span>
+                      <span className="text-foreground">
                         Team {leaderBy("totalRating")!.participant} (
                         {leaderBy("totalRating")!.totalRating.toFixed(1)})
                       </span>
@@ -1942,8 +1942,8 @@ export default function DraftPage() {
                   )}
                   {leaderBy("spacing") && (
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Best spacing</span>
-                      <span className="text-slate-100">
+                      <span className="text-muted-foreground">Best spacing</span>
+                      <span className="text-foreground">
                         Team {leaderBy("spacing")!.participant} (
                         {leaderBy("spacing")!.spacing!.toFixed(0)}%)
                       </span>
@@ -1951,8 +1951,8 @@ export default function DraftPage() {
                   )}
                   {leaderBy("size") && (
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Best size</span>
-                      <span className="text-slate-100">
+                      <span className="text-muted-foreground">Best size</span>
+                      <span className="text-foreground">
                         Team {leaderBy("size")!.participant} (
                         {leaderBy("size")!.size!.toFixed(0)})
                       </span>
@@ -1960,8 +1960,8 @@ export default function DraftPage() {
                   )}
                   {leaderBy("usageBalance") && (
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Best usage balance</span>
-                      <span className="text-slate-100">
+                      <span className="text-muted-foreground">Best usage balance</span>
+                      <span className="text-foreground">
                         Team {leaderBy("usageBalance")!.participant} (
                         {leaderBy("usageBalance")!.usageBalance!.toFixed(0)})
                       </span>
@@ -1996,7 +1996,7 @@ export default function DraftPage() {
         <section className="px-4 lg:px-6">
           <div className="flex items-center justify-between mb-2 px-1">
             <h2 className="text-xl font-semibold">Lineup Board</h2>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-muted-foreground">
               {participants} teams • {playersPerTeam} slots each
             </span>
           </div>
@@ -2028,38 +2028,38 @@ export default function DraftPage() {
                       flex flex-col
                       rounded-2xl
                       border-[1.5px]
-                      bg-slate-900/80
+                      bg-card/80
                       p-3
                       w-[240px] sm:w-[240px] md:w-[250px]
                       transition-all
                       ${
                         isCurrent
-                          ? "border-indigo-400 shadow-lg shadow-indigo-500/30"
-                          : "border-slate-700"
+                          ? "border-secondary shadow-lg shadow-indigo-500/30"
+                          : "border-white/10"
                       }
                     `}
                   >
                     {/* Team Header + Score + Chemistry */}
                     <div className="flex items-start justify-between mb-1.5">
                       <div className="flex flex-col">
-                        <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                        <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
                           Team {pNum}
                         </span>
                         <span className="text-sm font-semibold">
                           {isCurrent ? "On the clock" : "Lineup"}
                         </span>
-                        <span className="text-[10px] text-slate-500">
+                        <span className="text-[10px] text-muted-foreground">
                           {filledCount}/{slots.length} filled
                         </span>
                       </div>
 
                       {teamScore && (
                         <div className="text-right text-[10px] leading-tight">
-                          <div className="text-slate-400">Score</div>
+                          <div className="text-muted-foreground">Score</div>
                           <div className="text-sm font-semibold text-emerald-300">
                             {teamScore.teamScore.toFixed(1)}
                           </div>
-                          <div className="text-[10px] text-slate-500">
+                          <div className="text-[10px] text-muted-foreground">
                             {teamScore.totalPpg.toFixed(1)} PPG
                           </div>
                         </div>
@@ -2154,7 +2154,7 @@ export default function DraftPage() {
             </div>
           </div>
 
-          <p className="text-[10px] text-slate-500 text-right pr-4">
+          <p className="text-[10px] text-muted-foreground text-right pr-4">
             Swipe/scroll horizontally →
           </p>
         </section>
@@ -2162,16 +2162,16 @@ export default function DraftPage() {
         {/* =========================== RIGHT SIDE =========================== */}
         <section className="px-4 lg:px-0 space-y-6">
           {/* Spin Controls */}
-          <div className="rounded-2xl border border-slate-700 bg-slate-900/80 p-4 space-y-3">
+          <div className="rounded-2xl border border-white/10 bg-card/80 p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-slate-50">Spin</h2>
-                <p className="text-xs text-slate-400">Lock a team + era</p>
+                <h2 className="text-lg font-semibold text-foreground">Spin</h2>
+                <p className="text-xs text-muted-foreground">Lock a team + era</p>
               </div>
               <button
                 onClick={clearLocks}
                 disabled={!lockedEra && !lockedTeam}
-                className="text-[11px] underline text-slate-300 hover:text-white disabled:opacity-50"
+                className="text-[11px] underline text-muted-foreground hover:text-white disabled:opacity-50"
               >
                 Clear
               </button>
@@ -2179,13 +2179,13 @@ export default function DraftPage() {
 
             <div className="grid grid-cols-2 gap-3">
               {/* TEAM */}
-              <div className="rounded-xl bg-slate-900 border border-slate-700 p-3">
+              <div className="rounded-xl bg-card border border-white/10 p-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] text-slate-400">Team</span>
+                  <span className="text-[11px] text-muted-foreground">Team</span>
                   <button
                     onClick={handleSpinEraTeam}
                     disabled={spinning}
-                    className="px-2 py-[2px] rounded-md bg-indigo-500 hover:bg-indigo-600 text-[10px] font-semibold disabled:opacity-60"
+                    className="px-2 py-[2px] rounded-md bg-primary hover:bg-primary text-[10px] font-semibold disabled:opacity-60"
                   >
                     {spinning ? "..." : "Spin"}
                   </button>
@@ -2194,7 +2194,7 @@ export default function DraftPage() {
                 <div className="flex flex-col items-center justify-center h-20">
                   {currentSpinTeam ? (
                     <>
-                      <div className="h-14 w-14 rounded-full bg-slate-950 flex items-center justify-center">
+                      <div className="h-14 w-14 rounded-full bg-background flex items-center justify-center">
                         <Image
                           src={
                             teamDataMap.get(currentSpinTeam)?.logoUrl ||
@@ -2210,13 +2210,13 @@ export default function DraftPage() {
                       </span>
                     </>
                   ) : (
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-muted-foreground">
                       No team yet
                     </span>
                   )}
                 </div>
 
-                <div className="mt-1 text-[11px] text-slate-400">
+                <div className="mt-1 text-[11px] text-muted-foreground">
                   Locked:{" "}
                   <span className="font-semibold">
                     {lockedTeam || draft.teamConstraint || "Any"}
@@ -2225,13 +2225,13 @@ export default function DraftPage() {
               </div>
 
               {/* ERA */}
-              <div className="rounded-xl bg-slate-900 border border-slate-700 p-3">
+              <div className="rounded-xl bg-card border border-white/10 p-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] text-slate-400">Era</span>
+                  <span className="text-[11px] text-muted-foreground">Era</span>
                   <button
                     onClick={handleSpinEraTeam}
                     disabled={spinning}
-                    className="px-2 py-[2px] rounded-md bg-indigo-500 hover:bg-indigo-600 text-[10px] font-semibold disabled:opacity-60"
+                    className="px-2 py-[2px] rounded-md bg-primary hover:bg-primary text-[10px] font-semibold disabled:opacity-60"
                   >
                     {spinning ? "..." : "Spin"}
                   </button>
@@ -2243,7 +2243,7 @@ export default function DraftPage() {
                   </span>
                 </div>
 
-                <div className="mt-1 text-[11px] text-slate-400">
+                <div className="mt-1 text-[11px] text-muted-foreground">
                   Locked:{" "}
                   <span className="font-semibold">
                     {lockedEra
@@ -2259,8 +2259,8 @@ export default function DraftPage() {
 
           {/* Suggested Picks */}
           {suggestedPicks.length > 0 && (
-            <div className="rounded-2xl border border-slate-700 bg-slate-900/80 p-4 space-y-2">
-              <h2 className="text-sm font-semibold text-indigo-300">
+            <div className="rounded-2xl border border-white/10 bg-card/80 p-4 space-y-2">
+              <h2 className="text-sm font-semibold text-secondary">
                 Suggested Picks
               </h2>
 
@@ -2274,11 +2274,11 @@ export default function DraftPage() {
                       position: p.position,
                     } as Player)
                   }
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-800/60 text-xs"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10/60 text-xs"
                 >
                   <div className="flex flex-col text-left">
                     <span className="font-semibold">{p.name}</span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-muted-foreground">
                       {p.position} • {p.seasonUsed ?? "—"} • {p.ppg.toFixed(1)}{" "}
                       PPG
                     </span>
@@ -2292,7 +2292,7 @@ export default function DraftPage() {
           )}
 
           {/* Search */}
-          <div className="rounded-2xl border border-slate-700 bg-slate-900/80 p-4 space-y-3">
+          <div className="rounded-2xl border border-white/10 bg-card/80 p-4 space-y-3">
             {pickError && (
               <div className="mb-2 rounded-lg bg-red-900/30 border border-red-500/50 px-3 py-2 text-xs text-red-200">
                 ⚠ {pickError}
@@ -2300,10 +2300,10 @@ export default function DraftPage() {
             )}
 
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-50">
+              <h2 className="text-lg font-semibold text-foreground">
                 Search Player
               </h2>
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-muted-foreground">
                 {activeParticipant
                   ? `Player ${activeParticipant} • Slot ${
                       selectedSlot ?? defaultSlotForActive ?? "–"
@@ -2318,20 +2318,20 @@ export default function DraftPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search name..."
-                className="flex-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-50 placeholder:text-slate-500"
+                className="flex-1 rounded-lg border border-white/10 bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground"
               />
               <button
                 onClick={searchPlayers}
                 disabled={
                   searchLoading || (!selectedSlot && !defaultSlotForActive)
                 }
-                className="px-3 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-xs font-semibold disabled:opacity-50"
+                className="px-3 py-2 rounded-lg bg-primary hover:bg-primary text-xs font-semibold disabled:opacity-50"
               >
                 {searchLoading ? "..." : "Search"}
               </button>
             </div>
 
-            <div className="text-[10px] text-slate-400">
+            <div className="text-[10px] text-muted-foreground">
               Filters:{" "}
               <span className="font-medium">
                 {lockedTeam || draft.teamConstraint || "Any"}
@@ -2352,9 +2352,9 @@ export default function DraftPage() {
               </span>
             </div>
             {/* Search results */}
-            <div className="max-h-72 overflow-y-auto border border-slate-800 rounded-xl">
+            <div className="max-h-72 overflow-y-auto border border-white/10 rounded-xl">
               {searchResults.length === 0 && !searchLoading && (
-                <div className="px-3 py-3 text-[11px] text-slate-500">
+                <div className="px-3 py-3 text-[11px] text-muted-foreground">
                   No players yet.
                 </div>
               )}
@@ -2375,8 +2375,8 @@ export default function DraftPage() {
                   <button
                     key={player.id}
                     onClick={() => setPendingPlayer(player)}
-                    className={`w-full flex items-center justify-between px-3 py-2 text-xs border-b border-slate-800 last:border-0 ${
-                      isPending ? "bg-indigo-600/30" : "hover:bg-slate-800/60"
+                    className={`w-full flex items-center justify-between px-3 py-2 text-xs border-b border-white/10 last:border-0 ${
+                      isPending ? "bg-primary/30" : "hover:bg-white/10/60"
                     }`}
                     style={{
                       borderLeft: isPending
@@ -2387,7 +2387,7 @@ export default function DraftPage() {
                     }}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full overflow-hidden border border-slate-700">
+                      <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10">
                         <Image
                           src={
                             player.imageUrl ||
@@ -2402,10 +2402,10 @@ export default function DraftPage() {
                       </div>
 
                       <div className="flex flex-col text-left">
-                        <span className="font-semibold text-slate-50">
+                        <span className="font-semibold text-foreground">
                           {player.name}
                         </span>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[10px] text-muted-foreground">
                           {player.position} • {player.primaryTeam || "N/A"}
                           {player.bestSeason &&
                             ` • Best ${
@@ -2439,19 +2439,19 @@ export default function DraftPage() {
 
                 <div className="grid grid-cols-2 gap-2 text-[11px]">
                   <div>
-                    <span className="text-slate-400">Primary:</span>{" "}
+                    <span className="text-muted-foreground">Primary:</span>{" "}
                     {pendingPlayer.position}
                   </div>
                   <div>
-                    <span className="text-slate-400">Eligible:</span>{" "}
+                    <span className="text-muted-foreground">Eligible:</span>{" "}
                     {pendingPlayer.eligiblePositions || pendingPlayer.position}
                   </div>
                   <div>
-                    <span className="text-slate-400">Best PPG:</span>{" "}
+                    <span className="text-muted-foreground">Best PPG:</span>{" "}
                     {pendingPlayer.bestSeason?.ppg.toFixed(1) ?? "—"}
                   </div>
                   <div>
-                    <span className="text-slate-400">Season:</span>{" "}
+                    <span className="text-muted-foreground">Season:</span>{" "}
                     {pendingPlayer.bestSeason?.season ?? "—"}
                   </div>
                 </div>
@@ -2470,7 +2470,7 @@ export default function DraftPage() {
                         onChange={(e) =>
                           setSelectedPositionForPick(e.target.value)
                         }
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-[11px]"
+                        className="w-full rounded-md border border-white/10 bg-background px-2 py-1 text-[11px]"
                       >
                         {getEligiblePositions(pendingPlayer).map((pos) => (
                           <option key={pos} value={pos}>
@@ -2533,8 +2533,8 @@ const PlayerCard = memo(
         className={`relative flex flex-col rounded-xl border-[1.5px] overflow-hidden cursor-pointer transition-all duration-200
           ${
             isSelected
-              ? "border-indigo-400 shadow-lg shadow-indigo-500/40 scale-[1.01]"
-              : "border-slate-700 hover:border-slate-500"
+              ? "border-secondary shadow-lg shadow-indigo-500/40 scale-[1.01]"
+              : "border-white/10 hover:border-white/30"
           }
         `}
         style={{
@@ -2545,7 +2545,7 @@ const PlayerCard = memo(
       >
         <div className="flex items-center justify-between px-2 pt-1.5 pb-1">
           <div className="flex flex-col">
-            <span className="text-[8.5px] uppercase tracking-[0.16em] text-slate-400">
+            <span className="text-[8.5px] uppercase tracking-[0.16em] text-muted-foreground">
               Slot {slot} {positionLabel ? `• ${positionLabel}` : "• Bench"}
             </span>
             <span className="text-xs font-semibold text-white truncate max-w-[150px]">
@@ -2555,7 +2555,7 @@ const PlayerCard = memo(
 
           {pick && teamData && (
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-semibold text-slate-100">
+              <span className="text-[10px] font-semibold text-foreground">
                 {teamData.code}
               </span>
               <Image
@@ -2572,7 +2572,7 @@ const PlayerCard = memo(
         {pick ? (
           <div className="relative flex items-end px-2 pb-2.5 pt-1 min-h-[72px]">
             <div className="flex flex-col gap-0.5 z-10 pr-12">
-              <span className="text-[10px] text-slate-200">
+              <span className="text-[10px] text-foreground">
                 {pick.player.position}
                 {seasonUsed ? ` • ${seasonUsed}` : ""}
               </span>
@@ -2582,11 +2582,11 @@ const PlayerCard = memo(
                   <span className="inline-flex items-center rounded-full px-1.5 py-[1px] text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
                     Score {playerScore.score.toFixed(1)}
                   </span>
-                  <span className="text-[9px] text-slate-300">
+                  <span className="text-[9px] text-muted-foreground">
                     {playerScore.ppg.toFixed(1)} PPG
                   </span>
                   {playerScore?.seasonUsed && (
-                    <span className="text-[9px] text-slate-300">
+                    <span className="text-[9px] text-muted-foreground">
                       • {playerScore.seasonUsed}
                     </span>
                   )}
@@ -2611,7 +2611,7 @@ const PlayerCard = memo(
             {canUndo && onUndo && (
               <button
                 onClick={(e) => onUndo(slot, e)}
-                className="absolute top-1 right-1 z-20 rounded-full bg-slate-950/80 px-1.5 py-[1px] text-[8px] font-semibold text-red-300 hover:text-red-100 hover:bg-red-700/60 border border-red-500/40"
+                className="absolute top-1 right-1 z-20 rounded-full bg-background/80 px-1.5 py-[1px] text-[8px] font-semibold text-red-300 hover:text-red-100 hover:bg-red-700/60 border border-red-500/40"
               >
                 Undo
               </button>
@@ -2620,7 +2620,7 @@ const PlayerCard = memo(
             <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-[#020617dd] to-transparent" />
           </div>
         ) : (
-          <div className="px-2 pb-2.5 pt-1 text-[10px] text-slate-500 italic">
+          <div className="px-2 pb-2.5 pt-1 text-[10px] text-muted-foreground italic">
             Awaiting pick...
           </div>
         )}
@@ -3382,21 +3382,21 @@ const PlayerCard = memo(
 
 //   if (loading || !draft) {
 //     return (
-//       <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
+//       <main className="min-h-screen text-foreground flex items-center justify-center">
 //         <p>Loading draft...</p>
 //       </main>
 //     );
 //   }
 
 //   return (
-//     <main className="min-h-screen bg-slate-950 text-slate-50 p-4 md:p-8 space-y-6">
+//     <main className="min-h-screen text-foreground p-4 md:p-8 space-y-6">
 //       {/* HEADER */}
 //       <header className="flex flex-wrap items-center justify-between gap-4">
 //         <div>
 //           <h1 className="text-2xl md:text-3xl font-bold">
 //             {draft.title || "NBA Hypothetical Lineup Draft"}
 //           </h1>
-//           <p className="text-xs text-slate-300 mt-1">
+//           <p className="text-xs text-muted-foreground mt-1">
 //             Era:{" "}
 //             {draft.randomEra
 //               ? "Random"
@@ -3405,7 +3405,7 @@ const PlayerCard = memo(
 //               `| Team Constraint: ${draft.teamConstraint}`}
 //           </p>
 //           {activeParticipant && (
-//             <p className="text-xs text-indigo-300 mt-1">
+//             <p className="text-xs text-secondary mt-1">
 //               On the clock: Player {activeParticipant}
 //               {timerActive && timeLeft !== null && ` • ${timeLeft}s`}
 //             </p>
@@ -3413,13 +3413,13 @@ const PlayerCard = memo(
 //         </div>
 
 //         <div className="flex flex-col items-end gap-1 text-xs">
-//           <div className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 min-w-[180px]">
+//           <div className="rounded-lg bg-card border border-white/10 px-3 py-2 min-w-[180px]">
 //             <div className="flex justify-between">
 //               <span className="font-semibold">Team Score</span>
 //               <span>{score ? score.teamScore.toFixed(1) : "—"}</span>
 //             </div>
 //             {score && (
-//               <div className="flex justify-between text-[11px] text-slate-400 mt-1">
+//               <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
 //                 <span>Avg: {score.avgScore.toFixed(1)}</span>
 //                 <span>PPG: {score.totalPpg.toFixed(1)}</span>
 //               </div>
@@ -3439,13 +3439,13 @@ const PlayerCard = memo(
 //       <div className="flex flex-wrap items-center gap-2 text-xs">
 //         <button
 //           onClick={() => setShowRules(true)}
-//           className="px-3 py-2 rounded-md border border-slate-700 hover:border-indigo-400"
+//           className="px-3 py-2 rounded-md border border-white/10 hover:border-secondary"
 //         >
 //           Rules
 //         </button>
 //         <button
 //           onClick={handleGoBack}
-//           className="px-3 py-2 rounded-md border border-slate-700 hover:border-slate-500"
+//           className="px-3 py-2 rounded-md border border-white/10 hover:border-white/30"
 //         >
 //           Go Back
 //         </button>
@@ -3474,7 +3474,7 @@ const PlayerCard = memo(
 //         {isDraftComplete && (
 //           <button
 //             onClick={handleExitDraft}
-//             className="px-3 py-2 rounded-md border border-slate-700 hover:border-emerald-400"
+//             className="px-3 py-2 rounded-md border border-white/10 hover:border-emerald-400"
 //           >
 //             Exit Draft
 //           </button>
@@ -3485,7 +3485,7 @@ const PlayerCard = memo(
 //       {score && (
 //         <section className="space-y-2">
 //           {score.teams && score.teams.length > 1 && (
-//             <div className="rounded-lg bg-slate-900 border border-slate-700 p-3 text-xs">
+//             <div className="rounded-lg bg-card border border-white/10 p-3 text-xs">
 //               <div className="flex items-center justify-between mb-2">
 //                 <span className="font-semibold">Scoreboard</span>
 //                 {score.winner && (
@@ -3501,18 +3501,18 @@ const PlayerCard = memo(
 //                     className={`rounded border px-3 py-2 ${
 //                       score.winner === t.participant
 //                         ? "border-emerald-500 bg-emerald-900/15"
-//                         : "border-slate-700"
+//                         : "border-white/10"
 //                     }`}
 //                   >
 //                     <div className="flex justify-between text-xs">
 //                       <span className="font-semibold">
 //                         Player {t.participant}
 //                       </span>
-//                       <span className="text-slate-400">
+//                       <span className="text-muted-foreground">
 //                         Picks {t.picks.length}
 //                       </span>
 //                     </div>
-//                     <div className="text-[11px] text-slate-300 mt-1">
+//                     <div className="text-[11px] text-muted-foreground mt-1">
 //                       Score {t.teamScore.toFixed(1)} • PPG{" "}
 //                       {t.totalPpg.toFixed(1)}
 //                     </div>
@@ -3534,10 +3534,10 @@ const PlayerCard = memo(
 //       {/* MAIN LAYOUT */}
 //       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.1fr)]">
 //         {/* LINEUP TABLE */}
-//         <div className="rounded-lg bg-slate-900 border border-slate-800 p-3 space-y-3">
+//         <div className="rounded-lg bg-card border border-white/10 p-3 space-y-3">
 //           <div className="flex justify-between items-center mb-1">
 //             <h2 className="text-sm font-semibold">Lineups</h2>
-//             <span className="text-[11px] text-slate-400">
+//             <span className="text-[11px] text-muted-foreground">
 //               Players: {participants} • Slots per player: {playersPerTeam}
 //             </span>
 //           </div>
@@ -3551,17 +3551,17 @@ const PlayerCard = memo(
 //                 return (
 //                   <div
 //                     key={pNum}
-//                     className={`rounded border px-3 py-2 bg-slate-950/60 ${
+//                     className={`rounded border px-3 py-2 bg-background/60 ${
 //                       isCurrent
-//                         ? "border-indigo-500 shadow-md shadow-indigo-500/25"
-//                         : "border-slate-700"
+//                         ? "border-secondary shadow-md shadow-indigo-500/25"
+//                         : "border-white/10"
 //                     }`}
 //                   >
 //                     <div className="flex justify-between items-center mb-1">
 //                       <span className="text-xs font-semibold">
 //                         Player {pNum} {isCurrent && "(On the clock)"}
 //                       </span>
-//                       <span className="text-[10px] text-slate-400">
+//                       <span className="text-[10px] text-muted-foreground">
 //                         {
 //                           slots.filter((s) =>
 //                             draft.picks.some((p) => p.slot === s)
@@ -3570,7 +3570,7 @@ const PlayerCard = memo(
 //                         / {slots.length} filled
 //                       </span>
 //                     </div>
-//                     <div className="divide-y divide-slate-800">
+//                     <div className="divide-y divide-white/10">
 //                       {slots.map((slot) => {
 //                         const pick = draft.picks.find((p) => p.slot === slot);
 //                         const pos = getSlotPosition(slot, draft);
@@ -3596,20 +3596,20 @@ const PlayerCard = memo(
 //                             }}
 //                             className={`w-full flex items-center justify-between gap-2 px-1 py-1.5 text-xs text-left rounded ${
 //                               isSelected
-//                                 ? "bg-indigo-600/15"
-//                                 : "hover:bg-slate-800/70"
+//                                 ? "bg-primary/15"
+//                                 : "hover:bg-white/10/70"
 //                             }`}
 //                           >
 //                             <div className="flex items-center gap-2 min-w-0">
 //                               <div className="flex flex-col items-center w-10">
-//                                 <span className="text-[10px] text-slate-400">
+//                                 <span className="text-[10px] text-muted-foreground">
 //                                   {pos || "BN"}
 //                                 </span>
-//                                 <span className="text-[10px] text-slate-500">
+//                                 <span className="text-[10px] text-muted-foreground">
 //                                   #{slot}
 //                                 </span>
 //                               </div>
-//                               <div className="relative h-8 w-8 rounded-full overflow-hidden bg-slate-900 border border-slate-700 flex-shrink-0">
+//                               <div className="relative h-8 w-8 rounded-full overflow-hidden bg-card border border-white/10 flex-shrink-0">
 //                                 {pick && (
 //                                   <Image
 //                                     src={
@@ -3627,7 +3627,7 @@ const PlayerCard = memo(
 //                                 <span className="truncate font-medium">
 //                                   {pick ? pick.player.name : "Empty"}
 //                                 </span>
-//                                 <span className="text-[10px] text-slate-400 truncate">
+//                                 <span className="text-[10px] text-muted-foreground truncate">
 //                                   {pick
 //                                     ? `${pick.player.position}${
 //                                         pick.player.primaryTeam
@@ -3650,10 +3650,10 @@ const PlayerCard = memo(
 
 //                               )}
 //                               {playerScore && (
-//                                 <div className="text-right text-[10px] text-slate-300">
+//                                 <div className="text-right text-[10px] text-muted-foreground">
 //                                   <div>{playerScore.ppg.toFixed(1)} PPG</div>
 // {playerScore?.seasonUsed && (
-//   <span className="text-[9px] text-slate-300">
+//   <span className="text-[9px] text-muted-foreground">
 //     • {playerScore.seasonUsed}
 //   </span>
 // )}
@@ -3686,29 +3686,29 @@ const PlayerCard = memo(
 //         {/* RIGHT: Constraints + Player Search */}
 //         <div className="space-y-4">
 //           {/* SPIN CONSTRAINTS */}
-//           <div className="rounded-lg bg-slate-900 border border-slate-800 p-3 space-y-3">
+//           <div className="rounded-lg bg-card border border-white/10 p-3 space-y-3">
 //             <div className="flex items-center justify-between">
 //               <div>
 //                 <h2 className="text-sm font-semibold">Constraints</h2>
-//                 <p className="text-[11px] text-slate-400">
+//                 <p className="text-[11px] text-muted-foreground">
 //                   Spin once per turn (default mode) to lock team & decade.
 //                 </p>
 //               </div>
 //               <button
 //                 onClick={clearLocks}
-//                 className="text-[11px] text-slate-300 underline hover:text-white"
+//                 className="text-[11px] text-muted-foreground underline hover:text-white"
 //               >
 //                 Clear
 //               </button>
 //             </div>
 //             <div className="grid grid-cols-2 gap-3 text-xs">
-//               <div className="rounded bg-slate-950 border border-slate-800 p-2">
+//               <div className="rounded bg-background border border-white/10 p-2">
 //                 <div className="flex items-center justify-between mb-2">
-//                   <span className="text-[11px] text-slate-400">Team</span>
+//                   <span className="text-[11px] text-muted-foreground">Team</span>
 //                   <button
 //                     onClick={handleSpinEraTeam}
 //                     disabled={spinning}
-//                     className="px-2 py-[2px] rounded bg-indigo-500 hover:bg-indigo-600 text-[10px] font-semibold disabled:opacity-60"
+//                     className="px-2 py-[2px] rounded bg-primary hover:bg-primary text-[10px] font-semibold disabled:opacity-60"
 //                   >
 //                     {spinning ? "..." : "Spin"}
 //                   </button>
@@ -3716,7 +3716,7 @@ const PlayerCard = memo(
 //                 <div className="flex items-center gap-2 h-10">
 //                   {currentSpinTeam ? (
 //                     <>
-//                       <div className="h-7 w-7 rounded-full bg-slate-900 flex items-center justify-center">
+//                       <div className="h-7 w-7 rounded-full bg-card flex items-center justify-center">
 //                         <Image
 //                           src={
 //                             teamDataMap.get(currentSpinTeam)?.logoUrl ||
@@ -3733,26 +3733,26 @@ const PlayerCard = memo(
 //                       </span>
 //                     </>
 //                   ) : (
-//                     <span className="text-[11px] text-slate-500">
+//                     <span className="text-[11px] text-muted-foreground">
 //                       No team yet
 //                     </span>
 //                   )}
 //                 </div>
-//                 <div className="mt-2 text-[11px] text-slate-400">
+//                 <div className="mt-2 text-[11px] text-muted-foreground">
 //                   Locked:{" "}
-//                   <span className="font-semibold text-slate-100">
+//                   <span className="font-semibold text-foreground">
 //                     {lockedTeam ? lockedTeam : draft.teamConstraint || "Any"}
 //                   </span>
 //                 </div>
 //               </div>
 
-//               <div className="rounded bg-slate-950 border border-slate-800 p-2">
+//               <div className="rounded bg-background border border-white/10 p-2">
 //                 <div className="flex items-center justify-between mb-2">
-//                   <span className="text-[11px] text-slate-400">Decade</span>
+//                   <span className="text-[11px] text-muted-foreground">Decade</span>
 //                   <button
 //                     onClick={handleSpinEraTeam}
 //                     disabled={spinning}
-//                     className="px-2 py-[2px] rounded bg-indigo-500 hover:bg-indigo-600 text-[10px] font-semibold disabled:opacity-60"
+//                     className="px-2 py-[2px] rounded bg-primary hover:bg-primary text-[10px] font-semibold disabled:opacity-60"
 //                   >
 //                     {spinning ? "..." : "Spin"}
 //                   </button>
@@ -3762,9 +3762,9 @@ const PlayerCard = memo(
 //                     {eraSpinLabel !== "-" ? eraSpinLabel : "—"}
 //                   </span>
 //                 </div>
-//                 <div className="mt-2 text-[11px] text-slate-400">
+//                 <div className="mt-2 text-[11px] text-muted-foreground">
 //                   Locked:{" "}
-//                   <span className="font-semibold text-slate-100">
+//                   <span className="font-semibold text-foreground">
 //                     {lockedEra
 //                       ? `${lockedEra.from}-${lockedEra.to}`
 //                       : draft.randomEra
@@ -3777,10 +3777,10 @@ const PlayerCard = memo(
 //           </div>
 
 //           {/* PLAYER SEARCH & PICK */}
-//           <div className="rounded-lg bg-slate-900 border border-slate-800 p-3 space-y-3">
+//           <div className="rounded-lg bg-card border border-white/10 p-3 space-y-3">
 //             <div className="flex items-center justify-between">
 //               <h2 className="text-sm font-semibold">Select Player</h2>
-//               <span className="text-[11px] text-slate-400">
+//               <span className="text-[11px] text-muted-foreground">
 //                 {activeParticipant
 //                   ? `Active: Player ${activeParticipant}${
 //                       selectedSlot
@@ -3794,7 +3794,7 @@ const PlayerCard = memo(
 //                   : "Draft complete"}
 //               </span>
 //             </div>
-//             <p className="text-[11px] text-slate-400">
+//             <p className="text-[11px] text-muted-foreground">
 //               Filters: {lockedTeam ? `Team ${lockedTeam}` : "Any team"},{" "}
 //               {lockedEra
 //                 ? `${lockedEra.from}-${lockedEra.to}`
@@ -3809,12 +3809,12 @@ const PlayerCard = memo(
 //                 placeholder="Search by name (LeBron, Curry, Wilt)..."
 //                 value={searchQuery}
 //                 onChange={(e) => setSearchQuery(e.target.value)}
-//                 className="flex-1 rounded bg-slate-950 border border-slate-800 px-2 py-1.5 text-xs"
+//                 className="flex-1 rounded bg-background border border-white/10 px-2 py-1.5 text-xs"
 //               />
 //               <button
 //                 onClick={searchPlayers}
 //                 disabled={searchLoading || !selectedSlot || !activeParticipant}
-//                 className="px-3 py-1.5 rounded bg-indigo-500 hover:bg-indigo-600 text-[11px] font-semibold disabled:opacity-50"
+//                 className="px-3 py-1.5 rounded bg-primary hover:bg-primary text-[11px] font-semibold disabled:opacity-50"
 //               >
 //                 {searchLoading ? "Searching..." : "Search"}
 //               </button>
@@ -3841,12 +3841,12 @@ const PlayerCard = memo(
 //                     onClick={() => setPendingPlayer(p)}
 //                     className={`w-full flex items-center justify-between rounded border px-2 py-1.5 text-xs ${
 //                       isPending
-//                         ? "border-indigo-500 bg-indigo-600/15"
-//                         : "border-slate-800 bg-slate-950 hover:border-indigo-500/60"
+//                         ? "border-secondary bg-primary/15"
+//                         : "border-white/10 bg-background hover:border-secondary/60"
 //                     }`}
 //                   >
 //                     <div className="flex items-center gap-2">
-//                       <div className="h-8 w-8 rounded-full overflow-hidden bg-slate-900 border border-slate-700">
+//                       <div className="h-8 w-8 rounded-full overflow-hidden bg-card border border-white/10">
 //                         <Image
 //                           src={p.imageUrl || getPlayerImage(p.id)}
 //                           alt={p.name}
@@ -3857,7 +3857,7 @@ const PlayerCard = memo(
 //                       </div>
 //                       <div className="flex flex-col text-left">
 //                         <span className="font-medium truncate">{p.name}</span>
-//                         <span className="text-[10px] text-slate-400 truncate">
+//                         <span className="text-[10px] text-muted-foreground truncate">
 //                           {p.position} {p.primaryTeam && `• ${p.primaryTeam}`}{" "}
 //                           {p.bestSeason &&
 //                             `• Best ${
@@ -3875,7 +3875,7 @@ const PlayerCard = memo(
 //                 );
 //               })}
 //               {searchResults.length === 0 && !searchLoading && (
-//                 <p className="text-[11px] text-slate-500">
+//                 <p className="text-[11px] text-muted-foreground">
 //                   No players found yet. Try spinning or a different name.
 //                 </p>
 //               )}
@@ -3883,13 +3883,13 @@ const PlayerCard = memo(
 
 //             {/* Confirm pick */}
 //             {pendingPlayer && selectedSlot && (
-//               <div className="space-y-2 pt-2 border-t border-slate-800 text-[11px]">
+//               <div className="space-y-2 pt-2 border-t border-white/10 text-[11px]">
 //                 <div className="flex flex-wrap items-center justify-between gap-2">
 //                   <div>
 //                     <span className="font-semibold">
 //                       Draft {pendingPlayer.name}
 //                     </span>
-//                     <span className="text-slate-400">
+//                     <span className="text-muted-foreground">
 //                       {" "}
 //                       into slot {selectedSlot}{" "}
 //                       {getSlotPosition(selectedSlot, draft) &&
@@ -3898,26 +3898,26 @@ const PlayerCard = memo(
 //                   </div>
 //                   <button
 //                     onClick={() => setPendingPlayer(null)}
-//                     className="text-[10px] px-2 py-[2px] rounded border border-slate-600 text-slate-200 hover:bg-slate-800"
+//                     className="text-[10px] px-2 py-[2px] rounded border border-white/10 text-foreground hover:bg-white/10"
 //                   >
 //                     Clear pending
 //                   </button>
 //                 </div>
-//                 <div className="grid grid-cols-2 gap-2 text-slate-200">
+//                 <div className="grid grid-cols-2 gap-2 text-foreground">
 //                   <div>
-//                     <span className="text-slate-400">Primary:</span>{" "}
+//                     <span className="text-muted-foreground">Primary:</span>{" "}
 //                     {pendingPlayer.position}
 //                   </div>
 //                   <div>
-//                     <span className="text-slate-400">Eligible:</span>{" "}
+//                     <span className="text-muted-foreground">Eligible:</span>{" "}
 //                     {pendingPlayer.eligiblePositions || pendingPlayer.position}
 //                   </div>
 //                   <div>
-//                     <span className="text-slate-400">Best PPG:</span>{" "}
+//                     <span className="text-muted-foreground">Best PPG:</span>{" "}
 //                     {pendingPlayer.bestSeason?.ppg.toFixed(1) ?? "—"}
 //                   </div>
 //                   <div>
-//                     <span className="text-slate-400">Best Season:</span>{" "}
+//                     <span className="text-muted-foreground">Best Season:</span>{" "}
 //                     {pendingPlayer.bestSeason?.season ?? "—"}
 //                   </div>
 //                 </div>
@@ -3925,7 +3925,7 @@ const PlayerCard = memo(
 //                 {!getSlotPosition(selectedSlot, draft) &&
 //                   getEligiblePositions(pendingPlayer).length > 1 && (
 //                     <div className="pt-1">
-//                       <label className="block text-slate-200 mb-1">
+//                       <label className="block text-foreground mb-1">
 //                         Bench slot position:
 //                       </label>
 //                       <select
@@ -3935,7 +3935,7 @@ const PlayerCard = memo(
 //                         onChange={(e) =>
 //                           setSelectedPositionForPick(e.target.value)
 //                         }
-//                         className="w-full rounded bg-slate-950 border border-slate-700 px-2 py-1 text-[11px]"
+//                         className="w-full rounded bg-background border border-white/10 px-2 py-1 text-[11px]"
 //                       >
 //                         {getEligiblePositions(pendingPlayer).map((pos) => (
 //                           <option key={pos} value={pos}>
@@ -3960,12 +3960,12 @@ const PlayerCard = memo(
 
 //       {showRules && (
 //         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-//           <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 w-full max-w-xl space-y-4">
+//           <div className="bg-card border border-white/10 rounded-xl p-5 w-full max-w-xl space-y-4">
 //             <div className="flex items-center justify-between">
 //               <h3 className="text-lg font-semibold">Draft Rules</h3>
 //               <button
 //                 onClick={() => setShowRules(false)}
-//                 className="text-sm text-slate-300 hover:text-white"
+//                 className="text-sm text-muted-foreground hover:text-white"
 //               >
 //                 Close
 //               </button>
@@ -3978,8 +3978,8 @@ const PlayerCard = memo(
 //                   onClick={() => setRulesTab(tab)}
 //                   className={`px-3 py-1 rounded border ${
 //                     rulesTab === tab
-//                       ? "border-indigo-400 bg-indigo-500/20 text-indigo-200"
-//                       : "border-slate-700 text-slate-300"
+//                       ? "border-secondary bg-primary/25 text-secondary"
+//                       : "border-white/10 text-muted-foreground"
 //                   }`}
 //                 >
 //                   {tab[0].toUpperCase() + tab.slice(1)}
@@ -3988,14 +3988,14 @@ const PlayerCard = memo(
 //             </div>
 
 //             {rulesTab === "classic" && (
-//               <ul className="text-sm text-slate-200 space-y-2">
+//               <ul className="text-sm text-foreground space-y-2">
 //                 <li>• Random era + team; one spin per turn.</li>
 //                 <li>• Unique players only, positions enforced.</li>
 //                 <li>• Scoring uses best season for that team in the era.</li>
 //               </ul>
 //             )}
 //             {rulesTab === "casual" && (
-//               <ul className="text-sm text-slate-200 space-y-2">
+//               <ul className="text-sm text-foreground space-y-2">
 //                 <li>
 //                   • Tweak era/team, allow duplicate versions across teams.
 //                 </li>
@@ -4007,7 +4007,7 @@ const PlayerCard = memo(
 //               </ul>
 //             )}
 //             {rulesTab === "free" && (
-//               <ul className="text-sm text-slate-200 space-y-2">
+//               <ul className="text-sm text-foreground space-y-2">
 //                 <li>• No position enforcement; sandbox picks.</li>
 //                 <li>• Up to 5 participants, any lineup size.</li>
 //                 <li>• You decide ordering and scoring.</li>

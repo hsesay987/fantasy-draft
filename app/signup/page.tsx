@@ -81,12 +81,12 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900/60 p-6">
-        <h1 className="text-3xl font-extrabold text-indigo-300 mb-2">
+    <main className="min-h-screen text-foreground flex items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-card/70 p-6">
+        <h1 className="text-3xl font-extrabold text-secondary mb-2">
           Sign Up
         </h1>
-        <p className="text-sm text-slate-400 mb-6">
+        <p className="text-sm text-muted-foreground mb-6">
           Create an account to save drafts and play online.
         </p>
 
@@ -106,7 +106,7 @@ export default function SignupPage() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Name (optional)"
-          className="w-full mb-3 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+          className="w-full mb-3 rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
         />
 
         <input
@@ -114,7 +114,7 @@ export default function SignupPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="w-full mb-3 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+          className="w-full mb-3 rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
         />
 
         <div className="relative mb-3">
@@ -123,12 +123,12 @@ export default function SignupPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 pr-10 text-sm"
+            className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 pr-10 text-sm"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white"
           >
             {showPassword ? (
               <EyeOff className="w-4 h-4" />
@@ -143,13 +143,13 @@ export default function SignupPage() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Confirm password"
-          className="w-full mb-4 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+          className="w-full mb-4 rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
         />
 
         <button
           onClick={handleSignup}
           disabled={loading}
-          className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 py-3 text-sm font-semibold disabled:opacity-60"
+          className="w-full rounded-xl bg-primary hover:bg-[#8b5cf6] py-3 text-sm font-semibold disabled:opacity-60"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -163,10 +163,10 @@ export default function SignupPage() {
 
         {hasGoogle && (
           <>
-            <div className="my-4 flex items-center gap-3 text-xs text-slate-500">
-              <div className="h-px flex-1 bg-slate-800" />
+            <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="h-px flex-1 bg-white/10" />
               <span>or</span>
-              <div className="h-px flex-1 bg-slate-800" />
+              <div className="h-px flex-1 bg-white/10" />
             </div>
 
             <div className="flex justify-center">
@@ -180,7 +180,7 @@ export default function SignupPage() {
           </>
         )}
 
-        <p className="mt-4 text-xs text-slate-400">
+        <p className="mt-4 text-xs text-muted-foreground">
           Already have an account?{" "}
           <button
             onClick={() => router.push("/login")}

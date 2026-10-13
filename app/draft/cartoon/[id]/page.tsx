@@ -589,7 +589,7 @@ export default function CartoonDraftPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-200">
+      <main className="min-h-screen flex items-center justify-center bg-background text-foreground">
         Loading draft...
       </main>
     );
@@ -597,7 +597,7 @@ export default function CartoonDraftPage() {
 
   if (error || !draft) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-slate-950 text-red-300">
+      <main className="min-h-screen flex items-center justify-center bg-background text-red-300">
         {error || "Draft not found"}
       </main>
     );
@@ -606,28 +606,28 @@ export default function CartoonDraftPage() {
   const currentSlot = selectedSlot ?? defaultSlotForActive;
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 p-6 space-y-6">
+    <main className="min-h-screen text-foreground p-6 space-y-6">
       {showReadyModal && draft.rules?.online && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900/95 p-4 space-y-3 shadow-xl shadow-indigo-500/20">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
+          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-card/95 p-4 space-y-3 shadow-xl shadow-indigo-500/20">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-semibold text-slate-50">
+                <h3 className="text-lg font-semibold text-foreground">
                   Waiting for players to ready up
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-muted-foreground">
                   Host will start a new draft once everyone is set.
                 </p>
               </div>
               <button
                 onClick={() => setShowReadyModal(false)}
-                className="text-[11px] text-slate-400 hover:text-white"
+                className="text-[11px] text-muted-foreground hover:text-white"
               >
                 Close
               </button>
             </div>
 
-            <div className="text-xs text-slate-300">
+            <div className="text-xs text-muted-foreground">
               {totalReady}/{readyParticipants.length || participants} ready
             </div>
 
@@ -635,14 +635,14 @@ export default function CartoonDraftPage() {
               {readyParticipants.map((p, idx) => (
                 <div
                   key={p.userId || idx}
-                  className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2"
+                  className="flex items-center justify-between rounded-lg border border-white/10 bg-background/60 px-3 py-2"
                 >
-                  <span className="text-sm text-slate-100">
+                  <span className="text-sm text-foreground">
                     {p.name || `Player ${idx + 1}`}
                   </span>
                   <span
                     className={`text-[11px] font-semibold ${
-                      p.ready ? "text-emerald-300" : "text-slate-400"
+                      p.ready ? "text-emerald-300" : "text-muted-foreground"
                     }`}
                   >
                     {p.ready ? "Ready" : "Waiting"}
@@ -650,7 +650,7 @@ export default function CartoonDraftPage() {
                 </div>
               ))}
               {readyParticipants.length === 0 && (
-                <div className="text-[11px] text-slate-400">
+                <div className="text-[11px] text-muted-foreground">
                   Seats will appear once players join.
                 </div>
               )}
@@ -678,7 +678,7 @@ export default function CartoonDraftPage() {
               <button
                 onClick={startOnlineRematch}
                 disabled={readySaving}
-                className="w-full rounded-md bg-indigo-500 hover:bg-indigo-600 text-[12px] font-semibold text-slate-100 py-2 disabled:opacity-60"
+                className="w-full rounded-md bg-primary hover:bg-primary text-[12px] font-semibold text-foreground py-2 disabled:opacity-60"
               >
                 {readySaving ? "Starting..." : "Start draft"}
               </button>
@@ -689,20 +689,20 @@ export default function CartoonDraftPage() {
 
       <header className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <p className="text-xs uppercase tracking-[0.12em] text-indigo-300">
+          <p className="text-xs uppercase tracking-[0.12em] text-secondary">
             Cartoon Draft • {draft.mode}
           </p>
-          <h1 className="text-3xl font-extrabold text-indigo-200">
+          <h1 className="text-3xl font-extrabold text-secondary">
             {draft.title || "Cartoon Draft"}
           </h1>
-          <p className="text-slate-400 text-sm">
+          <p className="text-muted-foreground text-sm">
             Community voting only.{" "}
             {draftType === "show" ? "Shows" : "Characters"} draft.
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm">
-            <Clock className="w-4 h-4 text-indigo-300" />
+          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-card px-3 py-2 text-sm">
+            <Clock className="w-4 h-4 text-secondary" />
             <span>
               Timer:{" "}
               {draft.rules?.pickTimerSeconds
@@ -711,7 +711,7 @@ export default function CartoonDraftPage() {
             </span>
           </div>
           {timeLeft !== null && (
-            <div className="flex items-center gap-2 rounded-xl border border-indigo-500/50 bg-indigo-500/10 px-3 py-2 text-sm text-indigo-100">
+            <div className="flex items-center gap-2 rounded-xl border border-secondary/50 bg-primary/15 px-3 py-2 text-sm text-secondary">
               <Sparkles className="w-4 h-4" />
               <span>{timeLeft}s left</span>
             </div>
@@ -719,13 +719,13 @@ export default function CartoonDraftPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleSaveDraft("saved")}
-              className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs hover:border-indigo-500"
+              className="flex items-center gap-1 rounded-lg border border-white/10 bg-card px-3 py-2 text-xs hover:border-secondary"
             >
               <Save className="w-4 h-4" /> Save
             </button>
             <button
               onClick={handlePauseDraft}
-              className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs hover:border-indigo-500"
+              className="flex items-center gap-1 rounded-lg border border-white/10 bg-card px-3 py-2 text-xs hover:border-secondary"
             >
               <Pause className="w-4 h-4" /> Pause
             </button>
@@ -744,7 +744,7 @@ export default function CartoonDraftPage() {
             {draft.rules?.online && !isHost && (
               <button
                 onClick={leaveDraft}
-                className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs hover:border-indigo-500"
+                className="flex items-center gap-1 rounded-lg border border-white/10 bg-card px-3 py-2 text-xs hover:border-secondary"
               >
                 <LogOut className="w-4 h-4" /> Leave
               </button>
@@ -752,7 +752,7 @@ export default function CartoonDraftPage() {
             {draft.rules?.online && isHost && (
               <button
                 onClick={requestRematch}
-                className="flex items-center gap-1 rounded-lg border border-indigo-500 bg-indigo-500/10 px-3 py-2 text-xs text-indigo-200 hover:border-indigo-400"
+                className="flex items-center gap-1 rounded-lg border border-secondary bg-primary/15 px-3 py-2 text-xs text-secondary hover:border-secondary"
               >
                 Start New Online Draft
               </button>
@@ -769,13 +769,13 @@ export default function CartoonDraftPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2 space-y-4">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+          <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-indigo-200">
+              <div className="text-sm font-semibold text-secondary">
                 Draft Board
               </div>
               {currentSlot && activeParticipant && (
-                <div className="text-xs text-slate-400">
+                <div className="text-xs text-muted-foreground">
                   Current slot: #{currentSlot} • Team {activeParticipant}
                 </div>
               )}
@@ -786,16 +786,16 @@ export default function CartoonDraftPage() {
                   key={team.name}
                   className={`rounded-xl border ${
                     activeParticipant === idx + 1
-                      ? "border-indigo-500 bg-indigo-500/5"
-                      : "border-slate-800 bg-slate-900/40"
+                      ? "border-secondary bg-primary/5"
+                      : "border-white/10 bg-card/40"
                   } p-3`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-semibold text-slate-100">
+                    <div className="text-sm font-semibold text-foreground">
                       {team.name}
                     </div>
                     {activeParticipant === idx + 1 && (
-                      <span className="text-[11px] text-indigo-300">
+                      <span className="text-[11px] text-secondary">
                         On clock
                       </span>
                     )}
@@ -814,15 +814,15 @@ export default function CartoonDraftPage() {
                           onClick={() => setSelectedSlot(slotNumber)}
                           className={`w-full text-left rounded-lg border px-3 py-2 text-sm ${
                             pick
-                              ? "border-slate-700 bg-slate-900/60"
-                              : "border-dashed border-slate-800 bg-slate-950/40"
-                          } ${isSelected ? "ring-2 ring-indigo-500" : ""}`}
+                              ? "border-white/10 bg-card/70"
+                              : "border-dashed border-white/10 bg-background/40"
+                          } ${isSelected ? "ring-2 ring-secondary" : ""}`}
                         >
-                          <div className="text-slate-100">
+                          <div className="text-foreground">
                             {display || "Empty slot"}
                           </div>
                           {pick?.show?.channel && (
-                            <div className="text-[11px] text-slate-400">
+                            <div className="text-[11px] text-muted-foreground">
                               {pick.show.channel}
                             </div>
                           )}
@@ -837,15 +837,15 @@ export default function CartoonDraftPage() {
         </section>
 
         <section className="space-y-3">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+          <div className="rounded-2xl border border-white/10 bg-card/70 p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold text-indigo-200">
+              <div className="text-sm font-semibold text-secondary">
                 Search {draftType === "show" ? "Shows" : "Characters"}
               </div>
               <button
                 onClick={searchCandidates}
                 disabled={searching}
-                className="rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3 py-2 text-xs font-semibold disabled:opacity-60"
+                className="rounded-lg bg-primary hover:bg-[#8b5cf6] px-3 py-2 text-xs font-semibold disabled:opacity-60"
               >
                 {searching ? "Searching..." : "Search"}
               </button>
@@ -856,17 +856,17 @@ export default function CartoonDraftPage() {
               placeholder={`Search ${
                 draftType === "show" ? "shows" : "characters"
               }`}
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
             />
-            <div className="text-[11px] text-slate-500">
+            <div className="text-[11px] text-muted-foreground">
               Filters: {draft.rules?.cartoonChannel || "Any channel"} •{" "}
               {draft.rules?.cartoonAgeRating || "Any rating"}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 space-y-2 max-h-[32rem] overflow-y-auto">
+          <div className="rounded-2xl border border-white/10 bg-card/70 p-4 space-y-2 max-h-[32rem] overflow-y-auto">
             {searchResults.length === 0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-muted-foreground">
                 {searching
                   ? "Loading..."
                   : "No results yet. Try searching for a show or character."}
@@ -880,20 +880,20 @@ export default function CartoonDraftPage() {
                 return (
                   <div
                     key={result.id}
-                    className="rounded-lg border border-slate-800 bg-slate-950/50 px-3 py-2"
+                    className="rounded-lg border border-white/10 bg-black/30 px-3 py-2"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="text-sm font-semibold text-slate-100">
+                        <div className="text-sm font-semibold text-foreground">
                           {result.name}
                         </div>
                         {show?.name && (
-                          <div className="text-[11px] text-slate-400">
+                          <div className="text-[11px] text-muted-foreground">
                             {show.name}
                           </div>
                         )}
                         {show?.channel && (
-                          <div className="text-[11px] text-slate-500">
+                          <div className="text-[11px] text-muted-foreground">
                             Channel: {show.channel}
                           </div>
                         )}
@@ -911,7 +911,7 @@ export default function CartoonDraftPage() {
               })
             )}
           </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2 text-xs text-slate-400 flex items-center gap-2">
+          <div className="rounded-xl border border-white/10 bg-card/70 px-3 py-2 text-xs text-muted-foreground flex items-center gap-2">
             <Wand2 className="w-4 h-4" />
             Auto-pick selects the top filtered result when the timer expires.
           </div>

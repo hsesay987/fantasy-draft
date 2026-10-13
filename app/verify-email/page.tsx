@@ -29,7 +29,7 @@ function VerifyEmailContent() {
   }, [token, router]);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-50">
+    <main className="min-h-screen flex items-center justify-center text-foreground">
       <div className="max-w-md text-center">
         {status === "verifying" && <p>🔄 Verifying your email…</p>}
         {status === "success" && (
@@ -49,8 +49,8 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-50">
-          <div className="max-w-md text-center text-sm text-slate-300">
+        <main className="min-h-screen flex items-center justify-center text-foreground">
+          <div className="max-w-md text-center text-sm text-muted-foreground">
             Loading verification screen...
           </div>
         </main>

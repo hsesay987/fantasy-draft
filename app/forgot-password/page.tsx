@@ -35,12 +35,12 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900/60 p-6">
-        <h1 className="text-2xl font-bold text-indigo-300 mb-2">
+    <main className="min-h-screen text-foreground flex items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-card/70 p-6">
+        <h1 className="text-2xl font-bold text-secondary mb-2">
           Forgot password
         </h1>
-        <p className="text-sm text-slate-400 mb-6">
+        <p className="text-sm text-muted-foreground mb-6">
           Enter your email to receive a reset link.
         </p>
 
@@ -61,13 +61,13 @@ export default function ForgotPasswordPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="w-full mb-4 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+          className="w-full mb-4 rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
         />
 
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 py-3 text-sm font-semibold disabled:opacity-60"
+          className="w-full rounded-xl bg-primary hover:bg-[#8b5cf6] py-3 text-sm font-semibold disabled:opacity-60"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -79,7 +79,7 @@ export default function ForgotPasswordPage() {
           )}
         </button>
 
-        <p className="mt-4 text-xs text-slate-400 text-center">
+        <p className="mt-4 text-xs text-muted-foreground text-center">
           Remembered your password?{" "}
           <button
             onClick={() => router.push("/login")}
