@@ -8,6 +8,7 @@ import { TeamPanel } from "../../topicDraft/components/TeamPanel";
 import { RollRow, rollMs } from "../../topicDraft/components/RollRow";
 import { currentTurn, previewAuto, type SnakeRun } from "../../topicDraft/core";
 import { useSound } from "../../components/SoundProvider";
+import { AiQuip } from "../../components/AiQuip";
 import { GameFrame } from "../GameFrame";
 import { PickBar } from "../PickBar";
 import type { GameCtl } from "../useGame";
@@ -89,6 +90,7 @@ export function SnakeView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
         right={timerOn ? <TimerRing seconds={draft.config.timerSeconds!} resetKey={draft.turn} onExpire={() => player && ctl.dispatch({ type: "auto", by: player })} /> : undefined}
       >
         {error && <p role="alert" className="rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm">{error}</p>}
+        {ai && player && <AiQuip who={player} seed={draft.turn} />}
 
         {offer && (
           <div className="space-y-3">

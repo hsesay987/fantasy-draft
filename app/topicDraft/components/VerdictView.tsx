@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Confetti } from "../../components/Confetti";
+import { useCountUp } from "../../components/useCountUp";
+import { useSound } from "../../components/SoundProvider";
 import { motion } from "motion/react";
 import { Crown, Bot, RotateCcw, Share2, Repeat } from "lucide-react";
 import { Button, Card } from "../../components/ui";
@@ -8,6 +11,11 @@ import type { Verdict } from "../../play/judging";
 
 export function VerdictView({ verdict, loading, onAgain, onRematch, extra, shareText, mission }: { verdict: Verdict | null; loading: boolean; onAgain: () => void; onRematch?: () => void; extra?: React.ReactNode; shareText?: string; mission?: string }) {
   const [copied, setCopied] = useState(false);
+  const { play } = useSound();
+  useEffect(() => {
+    if (verdict) play("win");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!verdict]);
   if (loading || !verdict) {
     return (
       <Card className="space-y-4" >
@@ -25,6 +33,7 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
   const solo = sorted.length === 1;
   return (
     <div className="space-y-4">
+      <Confetti />
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -33,7 +42,7 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
       >
         <Crown className="mx-auto h-10 w-10 text-accent" aria-hidden />
         <p className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">{solo ? "Your score" : "Winner"}</p>
-        <h2 className="text-4xl">{solo ? Math.round(sorted[0]!.score) : verdict.winner}</h2>
+        <h2 className="text-4xl">{solo ? <Score value={Math.round(sorted[0]!.score)} delay={200} plain /> : verdict.winner}</h2>
         <p className="mx-auto mt-3 max-w-xl text-muted-foreground">{verdict.summary}</p>
         {verdict.source === "fallback" && (
           <p className="mt-2 text-xs text-muted-foreground">AI judge unavailable — scored by the numbers.</p>
@@ -50,7 +59,7 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
             <Card className="h-full">
               <div className="flex items-baseline justify-between">
                 <h3 className="text-xl">#{i + 1} {t.player}</h3>
-                <span className="font-display text-3xl text-secondary">{Math.round(t.score)}</span>
+                <Score value={Math.round(t.score)} delay={400 + i * 250} />
               </div>
               <ul className="mt-3 list-disc space-y-1 pl-5 text-sm">
                 {t.highlights.map((h, k) => <li key={k}>{h}</li>)}
@@ -72,4 +81,9 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
       </div>
     </div>
   );
+}
+
+function Score({ value, delay, plain }: { value: number; delay: number; plain?: boolean }) {
+  const v = useCountUp(value, 1000, delay);
+  return plain ? <>{v}</> : <span className="font-display text-3xl text-secondary tabular-nums">{v}</span>;
 }

@@ -12,3 +12,10 @@ snake (existing engine), auction, loadout (multi-slot budget vs a boss/mission),
 **Judge:** `/judge` accepts optional per-team `baseline` (client-computed deterministic score) and item `role` label.
 
 **Tasks:** A core(types/rng/catalogs/missions/scorer) · B engines+tests · C judge generalisation · D UI (hub, setup, shell, six game views, persistence) · E redirects/cleanup · F verify (tests, build, browser).
+
+## Round 3 addendum — online play, pictures, roll animation, auction turns
+- `app/topicDraft/core.ts`: one `applyAction(setup, state, action, now)` for all six formats, used by the browser (`useLocalGame`) and the server.
+- `scripts/sync-shared.mjs` copies the pure rules into `backend/src/shared` (guarded by `app/shared.sync.test.ts`; run `npm run sync:shared` after changing `app/topicDraft` or `app/play/{types,judging}.ts`).
+- Online rooms: `backend/src/services/playRooms.ts` (in-memory, token seats, server clock/timers, bots for players who leave) + `/play-rooms` routes + `/room/[code]` UI. No DB writes, no accounts.
+- Auction: opening bid rotates per lot; "I'm out" ends a lot immediately when every other player has passed.
+- Pictures: `app/lib/characterImages.ts` (PokeAPI, AniList, akabab hero DB, Wikipedia for history); `NEXT_PUBLIC_CHARACTER_IMAGES=off` disables them.

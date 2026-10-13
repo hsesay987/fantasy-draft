@@ -8,6 +8,7 @@ import { RollRow, rollMs } from "../../topicDraft/components/RollRow";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import * as L from "../../topicDraft/formats/loadout";
 import { useSound } from "../../components/SoundProvider";
+import { AiQuip } from "../../components/AiQuip";
 import { GameFrame } from "../GameFrame";
 import { PickBar } from "../PickBar";
 import type { GameCtl } from "../useGame";
@@ -110,6 +111,7 @@ export function LoadoutView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10" aria-hidden><div className="h-full rounded-full bg-secondary transition-[width]" style={{ width: `${((player ? s.spent[player]! : 0) / mission.budget) * 100}%` }} /></div>
         </div>
 
+        {ai && player && <AiQuip who={player} seed={s.turn} />}
         {ai && plan && aiSlot && aiItem ? (
           <div className="space-y-3 rounded-2xl border border-secondary/40 bg-primary/10 p-4">
             <p className="flex items-center gap-2 text-sm"><Dices className="h-4 w-4 text-secondary" aria-hidden /> {player} {s.roll ? `rolls for ${aiSlot.label}` : `is choosing a ${aiSlot.label}`}</p>

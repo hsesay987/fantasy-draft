@@ -166,10 +166,10 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
 
         <AnimatePresence>
           {sold && (
-            <motion.p key={`${sold.itemId}-${a.index}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mx-auto max-w-md rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center text-sm">
-              <Gavel className="mr-1 inline h-4 w-4 text-accent" aria-hidden />
-              {sold.by ? `${ctl.byId(sold.itemId)?.name} sold to ${sold.by} for $${sold.price}` : `${ctl.byId(sold.itemId)?.name} went unsold`}
-            </motion.p>
+            <motion.div key={`${sold.itemId}-${a.index}`} initial={{ opacity: 0, scale: 2.2, rotate: -14 }} animate={{ opacity: 1, scale: 1, rotate: -6 }} exit={{ opacity: 0, y: 10 }} transition={{ type: "spring", stiffness: 320, damping: 16 }} className="mx-auto max-w-md rounded-2xl border-4 border-double px-4 py-3 text-center" style={{ borderColor: sold.by ? "var(--accent)" : "var(--muted-foreground)" }}>
+              <p className="font-display text-3xl" style={{ color: sold.by ? "var(--accent)" : "var(--muted-foreground)" }}><Gavel className="mr-2 inline h-6 w-6" aria-hidden />{sold.by ? "SOLD!" : "NO SALE"}</p>
+              <p className="text-sm text-muted-foreground">{sold.by ? `${ctl.byId(sold.itemId)?.name} → ${sold.by} for $${sold.price}` : `${ctl.byId(sold.itemId)?.name} went unsold`}</p>
+            </motion.div>
           )}
         </AnimatePresence>
       </GameFrame>
