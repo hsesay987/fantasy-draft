@@ -67,16 +67,17 @@ export const BasketballIcon: IconType = (p) => (
   </svg>
 );
 
-/** Superman shield: solid shield with the S cut out. */
+/** Superman shield: wide solid shield with the stylised S cut out (after the reference). */
 export const SupermanIcon: IconType = (p) => {
   const id = useId();
   return (
     <svg {...base({ ...p, fill: "none", stroke: "none" })}>
       <mask id={`${id}-m`} maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
         <rect width="24" height="24" fill="#fff" />
-        <path d="M16 7.3c-.9-1-2.2-1.4-3.6-1.4-2 0-3.3 1-3.3 2.4 0 3.1 6.6 1.6 6.6 5 0 1.6-1.6 2.7-3.8 2.7-1.6 0-3-.5-4-1.5" fill="none" stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        {/* S: upper hook, spine, lower hook */}
+        <path d="M17.6 7.2c-1.2-1.3-3-1.9-5-1.6-2.4.3-3.6 1.4-3.2 2.8.5 1.7 3 1.9 5 2.3 2.1.4 3.4 1.2 3.1 2.8-.3 1.6-2.2 2.5-4.6 2.6-1.9.1-3.6-.4-4.9-1.4" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </mask>
-      <path mask={`url(#${id}-m)`} d="M12 22.4 1.8 9.4 4.8 2.6c.1-.3.4-.5.7-.5h13c.3 0 .6.2.7.5l3 6.8z" fill="currentColor" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path mask={`url(#${id}-m)`} d="M12 21.9 1.2 9.6c-.2-.2-.2-.5-.1-.7l1.2-3.4c.2-.5.6-.9 1.2-1h15.4c.6.1 1 .5 1.2 1l1.2 3.4c.1.2.1.5-.1.7z" fill="currentColor" />
     </svg>
   );
 };

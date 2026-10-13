@@ -5,11 +5,11 @@
   "universe": "DC",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 99,
-   "intellect": 85,
-   "speed": 98,
-   "durability": 98,
-   "combat": 85,
+   "power": 95,
+   "intellect": 80,
+   "speed": 95,
+   "durability": 95,
+   "combat": 80,
    "teamwork": 80
   },
   "tags": [
@@ -24,12 +24,12 @@
   "universe": "DC",
   "archetype": "Strategist",
   "stats": {
-   "power": 55,
-   "intellect": 90,
-   "speed": 45,
-   "durability": 52,
-   "combat": 93,
-   "teamwork": 85
+   "power": 30,
+   "intellect": 100,
+   "speed": 30,
+   "durability": 30,
+   "combat": 95,
+   "teamwork": 70
   },
   "tags": [
    "hero",
@@ -43,12 +43,12 @@
   "universe": "DC",
   "archetype": "Warrior",
   "stats": {
-   "power": 94,
-   "intellect": 83,
+   "power": 90,
+   "intellect": 80,
    "speed": 80,
-   "durability": 92,
-   "combat": 98,
-   "teamwork": 82
+   "durability": 90,
+   "combat": 95,
+   "teamwork": 85
   },
   "tags": [
    "hero",
@@ -63,10 +63,10 @@
   "archetype": "Speedster",
   "stats": {
    "power": 70,
-   "intellect": 74,
+   "intellect": 75,
    "speed": 100,
    "durability": 60,
-   "combat": 72,
+   "combat": 70,
    "teamwork": 80
   },
   "tags": [
@@ -80,11 +80,11 @@
   "universe": "DC",
   "archetype": "Cosmic",
   "stats": {
-   "power": 90,
-   "intellect": 70,
-   "speed": 75,
-   "durability": 70,
-   "combat": 75,
+   "power": 85,
+   "intellect": 65,
+   "speed": 70,
+   "durability": 60,
+   "combat": 70,
    "teamwork": 75
   },
   "tags": [
@@ -99,11 +99,11 @@
   "universe": "DC",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 87,
-   "intellect": 73,
-   "speed": 74,
-   "durability": 82,
-   "combat": 82,
+   "power": 80,
+   "intellect": 65,
+   "speed": 70,
+   "durability": 85,
+   "combat": 80,
    "teamwork": 75
   },
   "tags": [
@@ -117,12 +117,12 @@
   "universe": "DC",
   "archetype": "Tech",
   "stats": {
-   "power": 68,
-   "intellect": 82,
-   "speed": 51,
-   "durability": 82,
-   "combat": 67,
-   "teamwork": 85
+   "power": 70,
+   "intellect": 80,
+   "speed": 50,
+   "durability": 75,
+   "combat": 65,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -135,11 +135,11 @@
   "universe": "DC",
   "archetype": "Psychic",
   "stats": {
-   "power": 94,
-   "intellect": 92,
-   "speed": 86,
-   "durability": 95,
-   "combat": 82,
+   "power": 90,
+   "intellect": 80,
+   "speed": 80,
+   "durability": 90,
+   "combat": 80,
    "teamwork": 85
   },
   "tags": [
@@ -156,10 +156,10 @@
   "archetype": "Powerhouse",
   "stats": {
    "power": 90,
-   "intellect": 60,
+   "intellect": 50,
    "speed": 85,
-   "durability": 88,
-   "combat": 75,
+   "durability": 90,
+   "combat": 70,
    "teamwork": 70
   },
   "tags": [
@@ -174,12 +174,12 @@
   "universe": "DC",
   "archetype": "Marksman",
   "stats": {
-   "power": 33,
-   "intellect": 80,
-   "speed": 45,
-   "durability": 34,
-   "combat": 88,
-   "teamwork": 80
+   "power": 25,
+   "intellect": 70,
+   "speed": 50,
+   "durability": 30,
+   "combat": 80,
+   "teamwork": 70
   },
   "tags": [
    "hero",
@@ -193,11 +193,11 @@
   "archetype": "Brawler",
   "stats": {
    "power": 40,
-   "intellect": 66,
-   "speed": 46,
+   "intellect": 60,
+   "speed": 55,
    "durability": 35,
-   "combat": 82,
-   "teamwork": 80
+   "combat": 85,
+   "teamwork": 75
   },
   "tags": [
    "hero",
@@ -210,12 +210,12 @@
   "universe": "DC",
   "archetype": "Acrobat",
   "stats": {
-   "power": 32,
-   "intellect": 86,
-   "speed": 46,
-   "durability": 36,
-   "combat": 95,
-   "teamwork": 92
+   "power": 30,
+   "intellect": 75,
+   "speed": 60,
+   "durability": 35,
+   "combat": 90,
+   "teamwork": 90
   },
   "tags": [
    "hero",
@@ -228,12 +228,12 @@
   "universe": "DC",
   "archetype": "Acrobat",
   "stats": {
-   "power": 31,
-   "intellect": 83,
-   "speed": 44,
-   "durability": 36,
-   "combat": 86,
-   "teamwork": 65
+   "power": 25,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 30,
+   "combat": 85,
+   "teamwork": 50
   },
   "tags": [
    "hero",
@@ -246,12 +246,12 @@
   "universe": "DC",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 96,
-   "intellect": 82,
-   "speed": 96,
-   "durability": 96,
-   "combat": 78,
-   "teamwork": 78
+   "power": 90,
+   "intellect": 70,
+   "speed": 90,
+   "durability": 90,
+   "combat": 70,
+   "teamwork": 75
   },
   "tags": [
    "hero",
@@ -265,12 +265,12 @@
   "universe": "DC",
   "archetype": "Hacker",
   "stats": {
-   "power": 29,
-   "intellect": 89,
-   "speed": 44,
-   "durability": 40,
-   "combat": 85,
-   "teamwork": 88
+   "power": 25,
+   "intellect": 80,
+   "speed": 50,
+   "durability": 30,
+   "combat": 75,
+   "teamwork": 90
   },
   "tags": [
    "hero",
@@ -284,12 +284,12 @@
   "universe": "DC",
   "archetype": "Mystic",
   "stats": {
-   "power": 68,
-   "intellect": 68,
-   "speed": 42,
-   "durability": 65,
-   "combat": 50,
-   "teamwork": 75
+   "power": 80,
+   "intellect": 75,
+   "speed": 40,
+   "durability": 50,
+   "combat": 40,
+   "teamwork": 70
   },
   "tags": [
    "hero",
@@ -303,12 +303,12 @@
   "universe": "DC",
   "archetype": "Cosmic",
   "stats": {
-   "power": 77,
-   "intellect": 55,
-   "speed": 54,
+   "power": 80,
+   "intellect": 45,
+   "speed": 70,
    "durability": 80,
-   "combat": 72,
-   "teamwork": 78
+   "combat": 70,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -322,12 +322,12 @@
   "universe": "DC",
   "archetype": "Shapeshifter",
   "stats": {
-   "power": 59,
-   "intellect": 58,
+   "power": 55,
+   "intellect": 50,
    "speed": 60,
-   "durability": 68,
-   "combat": 55,
-   "teamwork": 88
+   "durability": 60,
+   "combat": 50,
+   "teamwork": 90
   },
   "tags": [
    "hero",
@@ -340,11 +340,11 @@
   "universe": "DC",
   "archetype": "Mystic",
   "stats": {
-   "power": 72,
-   "intellect": 83,
-   "speed": 36,
-   "durability": 36,
-   "combat": 53,
+   "power": 80,
+   "intellect": 70,
+   "speed": 40,
+   "durability": 30,
+   "combat": 40,
    "teamwork": 75
   },
   "tags": [
@@ -358,11 +358,11 @@
   "universe": "DC",
   "archetype": "Mystic",
   "stats": {
-   "power": 78,
-   "intellect": 88,
-   "speed": 42,
-   "durability": 88,
-   "combat": 52,
+   "power": 90,
+   "intellect": 90,
+   "speed": 50,
+   "durability": 90,
+   "combat": 40,
    "teamwork": 60
   },
   "tags": [
@@ -376,11 +376,11 @@
   "universe": "DC",
   "archetype": "Warrior",
   "stats": {
-   "power": 66,
-   "intellect": 58,
-   "speed": 64,
-   "durability": 82,
-   "combat": 78,
+   "power": 60,
+   "intellect": 50,
+   "speed": 70,
+   "durability": 70,
+   "combat": 80,
    "teamwork": 80
   },
   "tags": [
@@ -394,10 +394,10 @@
   "universe": "DC",
   "archetype": "Tech",
   "stats": {
-   "power": 74,
-   "intellect": 62,
-   "speed": 62,
-   "durability": 82,
+   "power": 70,
+   "intellect": 60,
+   "speed": 60,
+   "durability": 75,
    "combat": 50,
    "teamwork": 80
   },
@@ -413,12 +413,12 @@
   "universe": "DC",
   "archetype": "Tech",
   "stats": {
-   "power": 70,
-   "intellect": 60,
-   "speed": 65,
-   "durability": 70,
-   "combat": 65,
-   "teamwork": 55
+   "power": 60,
+   "intellect": 50,
+   "speed": 60,
+   "durability": 60,
+   "combat": 50,
+   "teamwork": 50
   },
   "tags": [
    "hero",
@@ -432,11 +432,11 @@
   "universe": "DC",
   "archetype": "Elemental",
   "stats": {
-   "power": 94,
-   "intellect": 79,
-   "speed": 32,
-   "durability": 98,
-   "combat": 60,
+   "power": 85,
+   "intellect": 70,
+   "speed": 25,
+   "durability": 90,
+   "combat": 50,
    "teamwork": 50
   },
   "tags": [
@@ -450,11 +450,11 @@
   "universe": "DC",
   "archetype": "Mystic",
   "stats": {
-   "power": 46,
-   "intellect": 74,
-   "speed": 22,
-   "durability": 38,
-   "combat": 60,
+   "power": 45,
+   "intellect": 80,
+   "speed": 30,
+   "durability": 30,
+   "combat": 50,
    "teamwork": 35
   },
   "tags": [
@@ -468,12 +468,12 @@
   "universe": "DC",
   "archetype": "Shapeshifter",
   "stats": {
-   "power": 73,
-   "intellect": 58,
-   "speed": 42,
-   "durability": 90,
-   "combat": 63,
-   "teamwork": 70
+   "power": 50,
+   "intellect": 50,
+   "speed": 45,
+   "durability": 80,
+   "combat": 60,
+   "teamwork": 60
   },
   "tags": [
    "hero",
@@ -486,10 +486,10 @@
   "universe": "DC",
   "archetype": "Elemental",
   "stats": {
-   "power": 58,
-   "intellect": 74,
-   "speed": 54,
-   "durability": 50,
+   "power": 60,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 40,
    "combat": 50,
    "teamwork": 75
   },
@@ -504,12 +504,12 @@
   "universe": "DC",
   "archetype": "Scientist",
   "stats": {
-   "power": 60,
+   "power": 40,
    "intellect": 95,
-   "speed": 60,
-   "durability": 55,
-   "combat": 65,
-   "teamwork": 78
+   "speed": 50,
+   "durability": 35,
+   "combat": 45,
+   "teamwork": 75
   },
   "tags": [
    "hero",
@@ -523,12 +523,12 @@
   "universe": "DC",
   "archetype": "Cosmic",
   "stats": {
-   "power": 96,
+   "power": 90,
    "intellect": 80,
-   "speed": 82,
-   "durability": 91,
-   "combat": 72,
-   "teamwork": 70
+   "speed": 80,
+   "durability": 85,
+   "combat": 60,
+   "teamwork": 65
   },
   "tags": [
    "hero",
@@ -541,12 +541,12 @@
   "universe": "DC",
   "archetype": "Marksman",
   "stats": {
-   "power": 28,
-   "intellect": 70,
-   "speed": 39,
-   "durability": 34,
-   "combat": 90,
-   "teamwork": 55
+   "power": 25,
+   "intellect": 60,
+   "speed": 50,
+   "durability": 30,
+   "combat": 80,
+   "teamwork": 45
   },
   "tags": [
    "antihero",
@@ -559,12 +559,12 @@
   "universe": "DC",
   "archetype": "Brawler",
   "stats": {
-   "power": 32,
-   "intellect": 75,
-   "speed": 39,
-   "durability": 36,
-   "combat": 92,
-   "teamwork": 50
+   "power": 30,
+   "intellect": 65,
+   "speed": 50,
+   "durability": 40,
+   "combat": 85,
+   "teamwork": 45
   },
   "tags": [
    "antihero",
@@ -577,12 +577,12 @@
   "universe": "DC",
   "archetype": "Acrobat",
   "stats": {
-   "power": 27,
-   "intellect": 72,
-   "speed": 49,
-   "durability": 34,
-   "combat": 85,
-   "teamwork": 40
+   "power": 25,
+   "intellect": 70,
+   "speed": 65,
+   "durability": 30,
+   "combat": 80,
+   "teamwork": 30
   },
   "tags": [
    "antihero",
@@ -596,11 +596,11 @@
   "archetype": "Acrobat",
   "stats": {
    "power": 70,
-   "intellect": 91,
-   "speed": 76,
-   "durability": 72,
-   "combat": 86,
-   "teamwork": 88
+   "intellect": 85,
+   "speed": 80,
+   "durability": 65,
+   "combat": 80,
+   "teamwork": 85
   },
   "tags": [
    "hero",
@@ -613,12 +613,12 @@
   "universe": "Marvel",
   "archetype": "Acrobat",
   "stats": {
-   "power": 72,
-   "intellect": 85,
-   "speed": 82,
-   "durability": 68,
-   "combat": 85,
-   "teamwork": 85
+   "power": 70,
+   "intellect": 75,
+   "speed": 75,
+   "durability": 60,
+   "combat": 75,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -631,12 +631,12 @@
   "universe": "Marvel",
   "archetype": "Tech",
   "stats": {
-   "power": 89,
-   "intellect": 99,
-   "speed": 64,
-   "durability": 80,
-   "combat": 78,
-   "teamwork": 80
+   "power": 80,
+   "intellect": 95,
+   "speed": 65,
+   "durability": 75,
+   "combat": 65,
+   "teamwork": 75
   },
   "tags": [
    "hero",
@@ -650,12 +650,12 @@
   "universe": "Marvel",
   "archetype": "Leader",
   "stats": {
-   "power": 58,
-   "intellect": 74,
-   "speed": 50,
-   "durability": 70,
-   "combat": 98,
-   "teamwork": 98
+   "power": 55,
+   "intellect": 70,
+   "speed": 55,
+   "durability": 60,
+   "combat": 95,
+   "teamwork": 95
   },
   "tags": [
    "hero",
@@ -669,11 +669,11 @@
   "universe": "Marvel",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 99,
-   "intellect": 70,
-   "speed": 84,
-   "durability": 98,
-   "combat": 95,
+   "power": 95,
+   "intellect": 60,
+   "speed": 85,
+   "durability": 95,
+   "combat": 90,
    "teamwork": 80
   },
   "tags": [
@@ -689,11 +689,11 @@
   "archetype": "Powerhouse",
   "stats": {
    "power": 100,
-   "intellect": 55,
-   "speed": 59,
+   "intellect": 35,
+   "speed": 55,
    "durability": 100,
-   "combat": 85,
-   "teamwork": 45
+   "combat": 80,
+   "teamwork": 40
   },
   "tags": [
    "hero",
@@ -706,11 +706,11 @@
   "universe": "Marvel",
   "archetype": "Spy",
   "stats": {
-   "power": 35,
-   "intellect": 80,
-   "speed": 46,
+   "power": 25,
+   "intellect": 75,
+   "speed": 60,
    "durability": 35,
-   "combat": 96,
+   "combat": 90,
    "teamwork": 85
   },
   "tags": [
@@ -725,12 +725,12 @@
   "universe": "Marvel",
   "archetype": "Marksman",
   "stats": {
-   "power": 28,
-   "intellect": 66,
-   "speed": 36,
-   "durability": 25,
-   "combat": 82,
-   "teamwork": 85
+   "power": 20,
+   "intellect": 60,
+   "speed": 55,
+   "durability": 30,
+   "combat": 80,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -743,11 +743,11 @@
   "universe": "Marvel",
   "archetype": "Mystic",
   "stats": {
-   "power": 76,
-   "intellect": 98,
-   "speed": 34,
-   "durability": 77,
-   "combat": 62,
+   "power": 85,
+   "intellect": 90,
+   "speed": 50,
+   "durability": 55,
+   "combat": 60,
    "teamwork": 70
   },
   "tags": [
@@ -761,11 +761,11 @@
   "universe": "Marvel",
   "archetype": "Strategist",
   "stats": {
-   "power": 52,
-   "intellect": 92,
-   "speed": 50,
-   "durability": 70,
-   "combat": 96,
+   "power": 55,
+   "intellect": 90,
+   "speed": 65,
+   "durability": 60,
+   "combat": 90,
    "teamwork": 85
   },
   "tags": [
@@ -780,12 +780,12 @@
   "universe": "Marvel",
   "archetype": "Mystic",
   "stats": {
-   "power": 78,
-   "intellect": 85,
-   "speed": 44,
-   "durability": 68,
-   "combat": 68,
-   "teamwork": 60
+   "power": 90,
+   "intellect": 60,
+   "speed": 50,
+   "durability": 55,
+   "combat": 45,
+   "teamwork": 65
   },
   "tags": [
    "hero",
@@ -798,11 +798,11 @@
   "universe": "Marvel",
   "archetype": "Tech",
   "stats": {
-   "power": 88,
-   "intellect": 99,
-   "speed": 64,
-   "durability": 92,
-   "combat": 70,
+   "power": 80,
+   "intellect": 95,
+   "speed": 70,
+   "durability": 85,
+   "combat": 65,
    "teamwork": 80
   },
   "tags": [
@@ -817,12 +817,12 @@
   "universe": "Marvel",
   "archetype": "Scientist",
   "stats": {
-   "power": 40,
-   "intellect": 94,
-   "speed": 39,
-   "durability": 42,
-   "combat": 51,
-   "teamwork": 78
+   "power": 30,
+   "intellect": 85,
+   "speed": 40,
+   "durability": 35,
+   "combat": 50,
+   "teamwork": 75
   },
   "tags": [
    "hero",
@@ -836,12 +836,12 @@
   "universe": "Marvel",
   "archetype": "Acrobat",
   "stats": {
-   "power": 39,
-   "intellect": 72,
-   "speed": 66,
-   "durability": 56,
-   "combat": 58,
-   "teamwork": 82
+   "power": 35,
+   "intellect": 65,
+   "speed": 70,
+   "durability": 40,
+   "combat": 55,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -855,12 +855,12 @@
   "universe": "Marvel",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 98,
-   "intellect": 83,
+   "power": 90,
+   "intellect": 60,
    "speed": 90,
-   "durability": 92,
-   "combat": 80,
-   "teamwork": 75
+   "durability": 85,
+   "combat": 75,
+   "teamwork": 70
   },
   "tags": [
    "hero",
@@ -874,11 +874,11 @@
   "universe": "Marvel",
   "archetype": "Flyer",
   "stats": {
-   "power": 36,
-   "intellect": 54,
-   "speed": 62,
-   "durability": 42,
-   "combat": 72,
+   "power": 35,
+   "intellect": 50,
+   "speed": 70,
+   "durability": 40,
+   "combat": 65,
    "teamwork": 85
   },
   "tags": [
@@ -893,12 +893,12 @@
   "universe": "Marvel",
   "archetype": "Spy",
   "stats": {
-   "power": 56,
+   "power": 50,
    "intellect": 60,
-   "speed": 48,
-   "durability": 68,
+   "speed": 60,
+   "durability": 60,
    "combat": 90,
-   "teamwork": 55
+   "teamwork": 50
   },
   "tags": [
    "antihero",
@@ -911,12 +911,12 @@
   "universe": "Marvel",
   "archetype": "Tech",
   "stats": {
-   "power": 84,
-   "intellect": 72,
-   "speed": 64,
-   "durability": 88,
-   "combat": 82,
-   "teamwork": 85
+   "power": 70,
+   "intellect": 65,
+   "speed": 60,
+   "durability": 75,
+   "combat": 70,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -930,11 +930,11 @@
   "universe": "Marvel",
   "archetype": "Brawler",
   "stats": {
-   "power": 65,
-   "intellect": 66,
-   "speed": 58,
-   "durability": 92,
-   "combat": 98,
+   "power": 55,
+   "intellect": 60,
+   "speed": 60,
+   "durability": 85,
+   "combat": 95,
    "teamwork": 60
   },
   "tags": [
@@ -949,12 +949,12 @@
   "universe": "Marvel",
   "archetype": "Elemental",
   "stats": {
-   "power": 70,
-   "intellect": 75,
-   "speed": 58,
-   "durability": 45,
-   "combat": 72,
-   "teamwork": 82
+   "power": 80,
+   "intellect": 70,
+   "speed": 70,
+   "durability": 50,
+   "combat": 70,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -969,11 +969,11 @@
   "universe": "Marvel",
   "archetype": "Leader",
   "stats": {
-   "power": 62,
-   "intellect": 78,
-   "speed": 36,
-   "durability": 48,
-   "combat": 80,
+   "power": 65,
+   "intellect": 75,
+   "speed": 45,
+   "durability": 45,
+   "combat": 75,
    "teamwork": 90
   },
   "tags": [
@@ -988,11 +988,11 @@
   "universe": "Marvel",
   "archetype": "Psychic",
   "stats": {
-   "power": 92,
-   "intellect": 91,
-   "speed": 40,
-   "durability": 42,
-   "combat": 65,
+   "power": 95,
+   "intellect": 80,
+   "speed": 50,
+   "durability": 50,
+   "combat": 50,
    "teamwork": 75
   },
   "tags": [
@@ -1007,11 +1007,11 @@
   "universe": "Marvel",
   "archetype": "Psychic",
   "stats": {
-   "power": 74,
-   "intellect": 99,
-   "speed": 21,
+   "power": 80,
+   "intellect": 100,
+   "speed": 20,
    "durability": 20,
-   "combat": 36,
+   "combat": 30,
    "teamwork": 85
   },
   "tags": [
@@ -1027,11 +1027,11 @@
   "universe": "Marvel",
   "archetype": "Scientist",
   "stats": {
-   "power": 55,
-   "intellect": 94,
-   "speed": 54,
-   "durability": 65,
-   "combat": 82,
+   "power": 45,
+   "intellect": 95,
+   "speed": 65,
+   "durability": 60,
+   "combat": 75,
    "teamwork": 85
   },
   "tags": [
@@ -1047,10 +1047,10 @@
   "archetype": "Tank",
   "stats": {
    "power": 70,
-   "intellect": 59,
-   "speed": 36,
-   "durability": 98,
-   "combat": 80,
+   "intellect": 50,
+   "speed": 40,
+   "durability": 90,
+   "combat": 75,
    "teamwork": 80
   },
   "tags": [
@@ -1065,11 +1065,11 @@
   "universe": "Marvel",
   "archetype": "Acrobat",
   "stats": {
-   "power": 52,
-   "intellect": 60,
-   "speed": 66,
-   "durability": 32,
-   "combat": 82,
+   "power": 50,
+   "intellect": 65,
+   "speed": 80,
+   "durability": 35,
+   "combat": 80,
    "teamwork": 80
   },
   "tags": [
@@ -1084,11 +1084,11 @@
   "universe": "Marvel",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 66,
-   "intellect": 68,
-   "speed": 46,
-   "durability": 54,
-   "combat": 78,
+   "power": 75,
+   "intellect": 55,
+   "speed": 70,
+   "durability": 80,
+   "combat": 70,
    "teamwork": 70
   },
   "tags": [
@@ -1103,12 +1103,12 @@
   "universe": "Marvel",
   "archetype": "Marksman",
   "stats": {
-   "power": 46,
-   "intellect": 66,
-   "speed": 44,
-   "durability": 39,
-   "combat": 82,
-   "teamwork": 65
+   "power": 55,
+   "intellect": 65,
+   "speed": 55,
+   "durability": 35,
+   "combat": 75,
+   "teamwork": 60
   },
   "tags": [
    "antihero",
@@ -1121,12 +1121,12 @@
   "universe": "Marvel",
   "archetype": "Brawler",
   "stats": {
-   "power": 63,
-   "intellect": 57,
-   "speed": 55,
-   "durability": 90,
-   "combat": 96,
-   "teamwork": 35
+   "power": 40,
+   "intellect": 50,
+   "speed": 60,
+   "durability": 85,
+   "combat": 90,
+   "teamwork": 30
   },
   "tags": [
    "antihero",
@@ -1139,11 +1139,11 @@
   "universe": "Marvel",
   "archetype": "Brawler",
   "stats": {
-   "power": 41,
+   "power": 30,
    "intellect": 75,
-   "speed": 42,
-   "durability": 45,
-   "combat": 97,
+   "speed": 65,
+   "durability": 40,
+   "combat": 90,
    "teamwork": 60
   },
   "tags": [
@@ -1157,12 +1157,12 @@
   "universe": "Marvel",
   "archetype": "Marksman",
   "stats": {
-   "power": 30,
-   "intellect": 70,
-   "speed": 33,
-   "durability": 45,
-   "combat": 94,
-   "teamwork": 25
+   "power": 20,
+   "intellect": 65,
+   "speed": 45,
+   "durability": 30,
+   "combat": 80,
+   "teamwork": 20
   },
   "tags": [
    "antihero",
@@ -1175,12 +1175,12 @@
   "universe": "Marvel",
   "archetype": "Tank",
   "stats": {
-   "power": 62,
-   "intellect": 55,
-   "speed": 34,
-   "durability": 94,
-   "combat": 76,
-   "teamwork": 78
+   "power": 65,
+   "intellect": 50,
+   "speed": 40,
+   "durability": 90,
+   "combat": 70,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -1193,11 +1193,11 @@
   "universe": "Marvel",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 53,
-   "intellect": 63,
-   "speed": 52,
-   "durability": 72,
-   "combat": 62,
+   "power": 65,
+   "intellect": 60,
+   "speed": 40,
+   "durability": 60,
+   "combat": 55,
    "teamwork": 50
   },
   "tags": [
@@ -1211,11 +1211,11 @@
   "universe": "Marvel",
   "archetype": "Warrior",
   "stats": {
-   "power": 70,
-   "intellect": 70,
-   "speed": 52,
-   "durability": 58,
-   "combat": 96,
+   "power": 55,
+   "intellect": 60,
+   "speed": 65,
+   "durability": 55,
+   "combat": 90,
    "teamwork": 70
   },
   "tags": [
@@ -1229,12 +1229,12 @@
   "universe": "Marvel",
   "archetype": "Brawler",
   "stats": {
-   "power": 48,
+   "power": 45,
    "intellect": 60,
-   "speed": 42,
-   "durability": 56,
-   "combat": 82,
-   "teamwork": 40
+   "speed": 50,
+   "durability": 60,
+   "combat": 80,
+   "teamwork": 35
   },
   "tags": [
    "antihero",
@@ -1247,11 +1247,11 @@
   "universe": "Marvel",
   "archetype": "Mystic",
   "stats": {
-   "power": 83,
-   "intellect": 58,
-   "speed": 45,
-   "durability": 95,
-   "combat": 68,
+   "power": 80,
+   "intellect": 50,
+   "speed": 65,
+   "durability": 90,
+   "combat": 60,
    "teamwork": 35
   },
   "tags": [
@@ -1266,11 +1266,11 @@
   "universe": "Marvel",
   "archetype": "Cosmic",
   "stats": {
-   "power": 99,
-   "intellect": 70,
-   "speed": 99,
-   "durability": 92,
-   "combat": 51,
+   "power": 95,
+   "intellect": 80,
+   "speed": 95,
+   "durability": 90,
+   "combat": 60,
    "teamwork": 40
   },
   "tags": [
@@ -1285,12 +1285,12 @@
   "universe": "Marvel",
   "archetype": "Scientist",
   "stats": {
-   "power": 48,
+   "power": 50,
    "intellect": 100,
-   "speed": 39,
-   "durability": 75,
-   "combat": 62,
-   "teamwork": 82
+   "speed": 45,
+   "durability": 70,
+   "combat": 50,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -1304,12 +1304,12 @@
   "universe": "Marvel",
   "archetype": "Psychic",
   "stats": {
-   "power": 67,
-   "intellect": 83,
-   "speed": 41,
-   "durability": 78,
-   "combat": 58,
-   "teamwork": 88
+   "power": 70,
+   "intellect": 75,
+   "speed": 40,
+   "durability": 70,
+   "combat": 40,
+   "teamwork": 85
   },
   "tags": [
    "hero",
@@ -1322,12 +1322,12 @@
   "universe": "Marvel",
   "archetype": "Elemental",
   "stats": {
-   "power": 64,
-   "intellect": 62,
-   "speed": 74,
-   "durability": 70,
-   "combat": 56,
-   "teamwork": 82
+   "power": 70,
+   "intellect": 50,
+   "speed": 80,
+   "durability": 60,
+   "combat": 50,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -1341,11 +1341,11 @@
   "universe": "Marvel",
   "archetype": "Tank",
   "stats": {
-   "power": 70,
-   "intellect": 65,
-   "speed": 30,
-   "durability": 98,
-   "combat": 82,
+   "power": 75,
+   "intellect": 50,
+   "speed": 35,
+   "durability": 95,
+   "combat": 75,
    "teamwork": 85
   },
   "tags": [
@@ -1360,11 +1360,11 @@
   "archetype": "Powerhouse",
   "stats": {
    "power": 80,
-   "intellect": 80,
-   "speed": 48,
-   "durability": 96,
-   "combat": 78,
-   "teamwork": 75
+   "intellect": 70,
+   "speed": 45,
+   "durability": 85,
+   "combat": 70,
+   "teamwork": 70
   },
   "tags": [
    "hero",
@@ -1377,11 +1377,11 @@
   "universe": "Marvel",
   "archetype": "Marksman",
   "stats": {
-   "power": 36,
-   "intellect": 70,
-   "speed": 44,
-   "durability": 48,
-   "combat": 72,
+   "power": 30,
+   "intellect": 65,
+   "speed": 50,
+   "durability": 35,
+   "combat": 65,
    "teamwork": 80
   },
   "tags": [
@@ -1396,11 +1396,11 @@
   "universe": "Marvel",
   "archetype": "Warrior",
   "stats": {
-   "power": 62,
-   "intellect": 75,
-   "speed": 56,
-   "durability": 72,
-   "combat": 98,
+   "power": 50,
+   "intellect": 60,
+   "speed": 70,
+   "durability": 60,
+   "combat": 90,
    "teamwork": 70
   },
   "tags": [
@@ -1414,12 +1414,12 @@
   "universe": "Marvel",
   "archetype": "Tank",
   "stats": {
-   "power": 86,
-   "intellect": 60,
-   "speed": 36,
+   "power": 75,
+   "intellect": 40,
+   "speed": 30,
    "durability": 80,
-   "combat": 70,
-   "teamwork": 92
+   "combat": 60,
+   "teamwork": 90
   },
   "tags": [
    "hero",
@@ -1433,12 +1433,12 @@
   "universe": "Marvel",
   "archetype": "Tech",
   "stats": {
-   "power": 31,
-   "intellect": 70,
-   "speed": 42,
-   "durability": 36,
-   "combat": 72,
-   "teamwork": 80
+   "power": 30,
+   "intellect": 80,
+   "speed": 50,
+   "durability": 35,
+   "combat": 70,
+   "teamwork": 85
   },
   "tags": [
    "hero",
@@ -1451,12 +1451,12 @@
   "universe": "Marvel",
   "archetype": "Brawler",
   "stats": {
-   "power": 69,
-   "intellect": 50,
-   "speed": 38,
-   "durability": 85,
-   "combat": 78,
-   "teamwork": 70
+   "power": 70,
+   "intellect": 35,
+   "speed": 40,
+   "durability": 80,
+   "combat": 85,
+   "teamwork": 60
   },
   "tags": [
    "hero",
@@ -1469,12 +1469,12 @@
   "universe": "Marvel",
   "archetype": "Cosmic",
   "stats": {
-   "power": 87,
-   "intellect": 85,
-   "speed": 78,
-   "durability": 90,
-   "combat": 78,
-   "teamwork": 70
+   "power": 75,
+   "intellect": 60,
+   "speed": 75,
+   "durability": 75,
+   "combat": 60,
+   "teamwork": 75
   },
   "tags": [
    "hero",
@@ -1488,12 +1488,12 @@
   "universe": "Marvel",
   "archetype": "Warrior",
   "stats": {
-   "power": 50,
-   "intellect": 66,
-   "speed": 52,
-   "durability": 62,
-   "combat": 91,
-   "teamwork": 45
+   "power": 45,
+   "intellect": 60,
+   "speed": 65,
+   "durability": 70,
+   "combat": 90,
+   "teamwork": 50
   },
   "tags": [
    "antihero",
@@ -1506,11 +1506,11 @@
   "universe": "Marvel",
   "archetype": "Warrior",
   "stats": {
-   "power": 44,
-   "intellect": 68,
-   "speed": 52,
-   "durability": 58,
-   "combat": 98,
+   "power": 40,
+   "intellect": 65,
+   "speed": 75,
+   "durability": 50,
+   "combat": 95,
    "teamwork": 70
   },
   "tags": [
@@ -1525,10 +1525,10 @@
   "archetype": "Shapeshifter",
   "stats": {
    "power": 65,
-   "intellect": 72,
-   "speed": 65,
-   "durability": 65,
-   "combat": 65,
+   "intellect": 60,
+   "speed": 55,
+   "durability": 70,
+   "combat": 55,
    "teamwork": 85
   },
   "tags": [
@@ -1542,12 +1542,12 @@
   "universe": "Marvel",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 95,
-   "intellect": 59,
-   "speed": 53,
+   "power": 85,
+   "intellect": 40,
+   "speed": 50,
    "durability": 90,
-   "combat": 95,
-   "teamwork": 65
+   "combat": 85,
+   "teamwork": 60
   },
   "tags": [
    "hero",
@@ -1560,11 +1560,11 @@
   "universe": "Indie",
   "archetype": "Mystic",
   "stats": {
-   "power": 86,
-   "intellect": 75,
-   "speed": 58,
-   "durability": 90,
-   "combat": 92,
+   "power": 80,
+   "intellect": 65,
+   "speed": 60,
+   "durability": 85,
+   "combat": 80,
    "teamwork": 25
   },
   "tags": [
@@ -1579,10 +1579,10 @@
   "archetype": "Brawler",
   "stats": {
    "power": 70,
-   "intellect": 64,
-   "speed": 36,
-   "durability": 94,
-   "combat": 80,
+   "intellect": 55,
+   "speed": 40,
+   "durability": 85,
+   "combat": 75,
    "teamwork": 65
   },
   "tags": [
@@ -1596,11 +1596,11 @@
   "universe": "Indie",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 92,
-   "intellect": 70,
-   "speed": 88,
-   "durability": 90,
-   "combat": 82,
+   "power": 85,
+   "intellect": 65,
+   "speed": 85,
+   "durability": 85,
+   "combat": 75,
    "teamwork": 75
   },
   "tags": [
@@ -1614,12 +1614,12 @@
   "universe": "Indie",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 98,
-   "intellect": 78,
-   "speed": 92,
-   "durability": 98,
-   "combat": 92,
-   "teamwork": 35
+   "power": 95,
+   "intellect": 70,
+   "speed": 90,
+   "durability": 95,
+   "combat": 90,
+   "teamwork": 30
   },
   "tags": [
    "antihero",
@@ -1633,11 +1633,11 @@
   "universe": "Indie",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 85,
-   "intellect": 82,
-   "speed": 75,
-   "durability": 70,
-   "combat": 60,
+   "power": 80,
+   "intellect": 85,
+   "speed": 70,
+   "durability": 60,
+   "combat": 50,
    "teamwork": 85
   },
   "tags": [
@@ -1653,9 +1653,9 @@
   "stats": {
    "power": 75,
    "intellect": 25,
-   "speed": 50,
-   "durability": 92,
-   "combat": 60,
+   "speed": 40,
+   "durability": 90,
+   "combat": 40,
    "teamwork": 60
   },
   "tags": [
@@ -1669,11 +1669,11 @@
   "universe": "Indie",
   "archetype": "Brawler",
   "stats": {
-   "power": 73,
-   "intellect": 59,
-   "speed": 57,
-   "durability": 88,
-   "combat": 78,
+   "power": 70,
+   "intellect": 50,
+   "speed": 50,
+   "durability": 85,
+   "combat": 70,
    "teamwork": 60
   },
   "tags": [
@@ -1687,12 +1687,12 @@
   "universe": "Indie",
   "archetype": "Warrior",
   "stats": {
-   "power": 21,
-   "intellect": 66,
-   "speed": 44,
-   "durability": 28,
-   "combat": 78,
-   "teamwork": 40
+   "power": 20,
+   "intellect": 60,
+   "speed": 60,
+   "durability": 30,
+   "combat": 90,
+   "teamwork": 30
   },
   "tags": [
    "antihero",
@@ -1705,11 +1705,11 @@
   "universe": "Indie",
   "archetype": "Brawler",
   "stats": {
-   "power": 21,
-   "intellect": 80,
-   "speed": 37,
-   "durability": 30,
-   "combat": 81,
+   "power": 20,
+   "intellect": 75,
+   "speed": 40,
+   "durability": 35,
+   "combat": 80,
    "teamwork": 15
   },
   "tags": [
@@ -1724,10 +1724,10 @@
   "archetype": "Cosmic",
   "stats": {
    "power": 100,
-   "intellect": 94,
-   "speed": 64,
+   "intellect": 95,
+   "speed": 70,
    "durability": 100,
-   "combat": 51,
+   "combat": 30,
    "teamwork": 10
   },
   "tags": [
@@ -1741,12 +1741,12 @@
   "universe": "Indie",
   "archetype": "Strategist",
   "stats": {
-   "power": 39,
+   "power": 35,
    "intellect": 100,
-   "speed": 52,
+   "speed": 70,
    "durability": 35,
-   "combat": 92,
-   "teamwork": 50
+   "combat": 90,
+   "teamwork": 40
   },
   "tags": [
    "antihero",
@@ -1759,11 +1759,11 @@
   "universe": "Indie",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 97,
-   "intellect": 70,
-   "speed": 92,
+   "power": 95,
+   "intellect": 60,
+   "speed": 90,
    "durability": 95,
-   "combat": 88,
+   "combat": 80,
    "teamwork": 10
   },
   "tags": [
@@ -1777,12 +1777,12 @@
   "universe": "Indie",
   "archetype": "Strategist",
   "stats": {
-   "power": 35,
-   "intellect": 85,
+   "power": 25,
+   "intellect": 75,
    "speed": 40,
-   "durability": 45,
-   "combat": 85,
-   "teamwork": 45
+   "durability": 40,
+   "combat": 80,
+   "teamwork": 40
   },
   "tags": [
    "antihero",
@@ -1795,12 +1795,12 @@
   "universe": "Indie",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 75,
-   "intellect": 65,
-   "speed": 65,
-   "durability": 65,
-   "combat": 65,
-   "teamwork": 85
+   "power": 60,
+   "intellect": 55,
+   "speed": 55,
+   "durability": 55,
+   "combat": 50,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -1813,12 +1813,12 @@
   "universe": "Indie",
   "archetype": "Speedster",
   "stats": {
-   "power": 70,
-   "intellect": 50,
-   "speed": 98,
-   "durability": 60,
-   "combat": 65,
-   "teamwork": 50
+   "power": 60,
+   "intellect": 40,
+   "speed": 95,
+   "durability": 50,
+   "combat": 50,
+   "teamwork": 45
   },
   "tags": [
    "hero",
@@ -1831,12 +1831,12 @@
   "universe": "Indie",
   "archetype": "Tank",
   "stats": {
-   "power": 69,
-   "intellect": 52,
-   "speed": 42,
-   "durability": 92,
-   "combat": 62,
-   "teamwork": 92
+   "power": 65,
+   "intellect": 40,
+   "speed": 35,
+   "durability": 80,
+   "combat": 60,
+   "teamwork": 85
   },
   "tags": [
    "hero",
@@ -1849,12 +1849,12 @@
   "universe": "Indie",
   "archetype": "Shapeshifter",
   "stats": {
-   "power": 55,
-   "intellect": 66,
-   "speed": 46,
-   "durability": 85,
-   "combat": 72,
-   "teamwork": 95
+   "power": 45,
+   "intellect": 60,
+   "speed": 45,
+   "durability": 70,
+   "combat": 65,
+   "teamwork": 90
   },
   "tags": [
    "hero",
@@ -1867,12 +1867,12 @@
   "universe": "Indie",
   "archetype": "Elemental",
   "stats": {
-   "power": 78,
-   "intellect": 65,
-   "speed": 65,
-   "durability": 60,
-   "combat": 65,
-   "teamwork": 85
+   "power": 65,
+   "intellect": 55,
+   "speed": 60,
+   "durability": 50,
+   "combat": 50,
+   "teamwork": 80
   },
   "tags": [
    "hero",
@@ -1886,10 +1886,10 @@
   "archetype": "Cosmic",
   "stats": {
    "power": 60,
-   "intellect": 40,
+   "intellect": 35,
    "speed": 70,
    "durability": 60,
-   "combat": 55,
+   "combat": 40,
    "teamwork": 50
   },
   "tags": [
@@ -1903,12 +1903,12 @@
   "universe": "DC",
   "archetype": "Mastermind",
   "stats": {
-   "power": 23,
-   "intellect": 98,
-   "speed": 26,
-   "durability": 50,
-   "combat": 70,
-   "teamwork": 5
+   "power": 20,
+   "intellect": 90,
+   "speed": 40,
+   "durability": 30,
+   "combat": 60,
+   "teamwork": 20
   },
   "tags": [
    "villain",
@@ -1921,11 +1921,11 @@
   "universe": "DC",
   "archetype": "Mastermind",
   "stats": {
-   "power": 53,
+   "power": 35,
    "intellect": 100,
    "speed": 30,
-   "durability": 55,
-   "combat": 60,
+   "durability": 35,
+   "combat": 40,
    "teamwork": 40
   },
   "tags": [
@@ -1940,12 +1940,12 @@
   "universe": "DC",
   "archetype": "Brawler",
   "stats": {
-   "power": 34,
-   "intellect": 79,
-   "speed": 46,
-   "durability": 58,
-   "combat": 80,
-   "teamwork": 60
+   "power": 30,
+   "intellect": 60,
+   "speed": 60,
+   "durability": 50,
+   "combat": 75,
+   "teamwork": 50
   },
   "tags": [
    "antihero",
@@ -1959,11 +1959,11 @@
   "archetype": "Tyrant",
   "stats": {
    "power": 100,
-   "intellect": 92,
-   "speed": 84,
-   "durability": 99,
-   "combat": 92,
-   "teamwork": 35
+   "intellect": 90,
+   "speed": 70,
+   "durability": 100,
+   "combat": 85,
+   "teamwork": 30
   },
   "tags": [
    "villain",
@@ -1976,12 +1976,12 @@
   "universe": "DC",
   "archetype": "Warrior",
   "stats": {
-   "power": 47,
+   "power": 35,
    "intellect": 80,
-   "speed": 52,
-   "durability": 82,
-   "combat": 92,
-   "teamwork": 40
+   "speed": 60,
+   "durability": 60,
+   "combat": 95,
+   "teamwork": 30
   },
   "tags": [
    "villain",
@@ -1994,12 +1994,12 @@
   "universe": "DC",
   "archetype": "Brawler",
   "stats": {
-   "power": 61,
-   "intellect": 84,
-   "speed": 36,
+   "power": 60,
+   "intellect": 75,
+   "speed": 35,
    "durability": 70,
-   "combat": 94,
-   "teamwork": 45
+   "combat": 85,
+   "teamwork": 40
   },
   "tags": [
    "villain",
@@ -2012,11 +2012,11 @@
   "universe": "DC",
   "archetype": "Cosmic",
   "stats": {
-   "power": 91,
-   "intellect": 78,
-   "speed": 64,
-   "durability": 67,
-   "combat": 65,
+   "power": 85,
+   "intellect": 70,
+   "speed": 70,
+   "durability": 60,
+   "combat": 70,
    "teamwork": 40
   },
   "tags": [
@@ -2030,12 +2030,12 @@
   "universe": "DC",
   "archetype": "Mystic",
   "stats": {
-   "power": 64,
-   "intellect": 86,
-   "speed": 33,
+   "power": 60,
+   "intellect": 80,
+   "speed": 35,
    "durability": 50,
-   "combat": 48,
-   "teamwork": 40
+   "combat": 50,
+   "teamwork": 35
   },
   "tags": [
    "villain",
@@ -2049,11 +2049,11 @@
   "archetype": "Mastermind",
   "stats": {
    "power": 20,
-   "intellect": 85,
-   "speed": 28,
+   "intellect": 80,
+   "speed": 40,
    "durability": 30,
-   "combat": 52,
-   "teamwork": 25
+   "combat": 60,
+   "teamwork": 30
   },
   "tags": [
    "villain",
@@ -2066,12 +2066,12 @@
   "universe": "DC",
   "archetype": "Speedster",
   "stats": {
-   "power": 78,
-   "intellect": 88,
+   "power": 65,
+   "intellect": 80,
    "speed": 100,
-   "durability": 70,
-   "combat": 75,
-   "teamwork": 15
+   "durability": 60,
+   "combat": 60,
+   "teamwork": 20
   },
   "tags": [
    "villain",
@@ -2084,12 +2084,12 @@
   "universe": "DC",
   "archetype": "Powerhouse",
   "stats": {
-   "power": 98,
-   "intellect": 79,
-   "speed": 92,
-   "durability": 98,
-   "combat": 72,
-   "teamwork": 25
+   "power": 95,
+   "intellect": 60,
+   "speed": 90,
+   "durability": 95,
+   "combat": 70,
+   "teamwork": 30
   },
   "tags": [
    "antihero",
@@ -2103,12 +2103,12 @@
   "universe": "DC",
   "archetype": "Strategist",
   "stats": {
-   "power": 39,
-   "intellect": 99,
-   "speed": 38,
-   "durability": 51,
-   "combat": 96,
-   "teamwork": 55
+   "power": 35,
+   "intellect": 95,
+   "speed": 40,
+   "durability": 50,
+   "combat": 90,
+   "teamwork": 50
   },
   "tags": [
    "villain",
@@ -2121,12 +2121,12 @@
   "universe": "DC",
   "archetype": "Mastermind",
   "stats": {
-   "power": 84,
+   "power": 80,
    "intellect": 100,
-   "speed": 69,
-   "durability": 90,
-   "combat": 72,
-   "teamwork": 10
+   "speed": 70,
+   "durability": 85,
+   "combat": 50,
+   "teamwork": 15
   },
   "tags": [
    "villain",
@@ -2139,11 +2139,11 @@
   "universe": "DC",
   "archetype": "Brawler",
   "stats": {
-   "power": 98,
-   "intellect": 50,
-   "speed": 74,
+   "power": 95,
+   "intellect": 15,
+   "speed": 70,
    "durability": 100,
-   "combat": 90,
+   "combat": 85,
    "teamwork": 5
   },
   "tags": [
@@ -2157,11 +2157,11 @@
   "universe": "DC",
   "archetype": "Mastermind",
   "stats": {
-   "power": 27,
-   "intellect": 86,
-   "speed": 26,
-   "durability": 24,
-   "combat": 52,
+   "power": 20,
+   "intellect": 80,
+   "speed": 30,
+   "durability": 25,
+   "combat": 40,
    "teamwork": 20
   },
   "tags": [
@@ -2175,11 +2175,11 @@
   "universe": "DC",
   "archetype": "Brawler",
   "stats": {
-   "power": 42,
-   "intellect": 46,
-   "speed": 67,
-   "durability": 40,
-   "combat": 78,
+   "power": 50,
+   "intellect": 40,
+   "speed": 80,
+   "durability": 50,
+   "combat": 80,
    "teamwork": 20
   },
   "tags": [
@@ -2193,12 +2193,12 @@
   "universe": "DC",
   "archetype": "Tank",
   "stats": {
-   "power": 64,
-   "intellect": 30,
+   "power": 65,
+   "intellect": 25,
    "speed": 40,
-   "durability": 91,
-   "combat": 68,
-   "teamwork": 25
+   "durability": 90,
+   "combat": 70,
+   "teamwork": 20
   },
   "tags": [
    "villain",
@@ -2211,12 +2211,12 @@
   "universe": "DC",
   "archetype": "Elemental",
   "stats": {
-   "power": 42,
+   "power": 50,
    "intellect": 60,
-   "speed": 36,
-   "durability": 38,
-   "combat": 42,
-   "teamwork": 45
+   "speed": 40,
+   "durability": 45,
+   "combat": 50,
+   "teamwork": 40
   },
   "tags": [
    "villain",
@@ -2229,11 +2229,11 @@
   "universe": "Marvel",
   "archetype": "Tyrant",
   "stats": {
-   "power": 100,
-   "intellect": 98,
-   "speed": 55,
-   "durability": 99,
-   "combat": 86,
+   "power": 95,
+   "intellect": 95,
+   "speed": 50,
+   "durability": 95,
+   "combat": 80,
    "teamwork": 20
   },
   "tags": [
@@ -2247,11 +2247,11 @@
   "universe": "Marvel",
   "archetype": "Mastermind",
   "stats": {
-   "power": 81,
-   "intellect": 92,
-   "speed": 53,
-   "durability": 82,
-   "combat": 65,
+   "power": 75,
+   "intellect": 90,
+   "speed": 55,
+   "durability": 70,
+   "combat": 60,
    "teamwork": 30
   },
   "tags": [
@@ -2266,12 +2266,12 @@
   "universe": "Marvel",
   "archetype": "Mastermind",
   "stats": {
-   "power": 81,
+   "power": 85,
    "intellect": 100,
-   "speed": 38,
-   "durability": 96,
-   "combat": 80,
-   "teamwork": 10
+   "speed": 45,
+   "durability": 85,
+   "combat": 70,
+   "teamwork": 15
   },
   "tags": [
    "villain",
@@ -2285,11 +2285,11 @@
   "universe": "Marvel",
   "archetype": "Tyrant",
   "stats": {
-   "power": 91,
-   "intellect": 88,
-   "speed": 44,
-   "durability": 82,
-   "combat": 75,
+   "power": 90,
+   "intellect": 85,
+   "speed": 50,
+   "durability": 75,
+   "combat": 60,
    "teamwork": 45
   },
   "tags": [
@@ -2304,11 +2304,11 @@
   "universe": "Marvel",
   "archetype": "Mastermind",
   "stats": {
-   "power": 52,
-   "intellect": 92,
-   "speed": 52,
+   "power": 55,
+   "intellect": 90,
+   "speed": 60,
    "durability": 60,
-   "combat": 60,
+   "combat": 65,
    "teamwork": 15
   },
   "tags": [
@@ -2323,12 +2323,12 @@
   "universe": "Marvel",
   "archetype": "Brawler",
   "stats": {
-   "power": 76,
-   "intellect": 68,
-   "speed": 70,
-   "durability": 84,
-   "combat": 84,
-   "teamwork": 35
+   "power": 70,
+   "intellect": 50,
+   "speed": 75,
+   "durability": 80,
+   "combat": 80,
+   "teamwork": 30
   },
   "tags": [
    "antihero",
@@ -2341,12 +2341,12 @@
   "universe": "Marvel",
   "archetype": "Mastermind",
   "stats": {
-   "power": 35,
-   "intellect": 84,
+   "power": 50,
+   "intellect": 85,
    "speed": 30,
-   "durability": 58,
-   "combat": 78,
-   "teamwork": 40
+   "durability": 75,
+   "combat": 80,
+   "teamwork": 30
   },
   "tags": [
    "villain",
@@ -2359,11 +2359,11 @@
   "universe": "Marvel",
   "archetype": "Mastermind",
   "stats": {
-   "power": 90,
-   "intellect": 93,
-   "speed": 58,
-   "durability": 95,
-   "combat": 72,
+   "power": 85,
+   "intellect": 95,
+   "speed": 65,
+   "durability": 90,
+   "combat": 70,
    "teamwork": 10
   },
   "tags": [
@@ -2378,12 +2378,12 @@
   "universe": "Marvel",
   "archetype": "Mastermind",
   "stats": {
-   "power": 30,
-   "intellect": 84,
-   "speed": 26,
-   "durability": 32,
-   "combat": 78,
-   "teamwork": 35
+   "power": 35,
+   "intellect": 85,
+   "speed": 35,
+   "durability": 35,
+   "combat": 70,
+   "teamwork": 30
   },
   "tags": [
    "villain",
@@ -2396,11 +2396,11 @@
   "universe": "Marvel",
   "archetype": "Tyrant",
   "stats": {
-   "power": 98,
-   "intellect": 74,
-   "speed": 58,
-   "durability": 98,
-   "combat": 68,
+   "power": 95,
+   "intellect": 75,
+   "speed": 60,
+   "durability": 95,
+   "combat": 90,
    "teamwork": 15
   },
   "tags": [
@@ -2416,10 +2416,10 @@
   "archetype": "Tyrant",
   "stats": {
    "power": 100,
-   "intellect": 96,
-   "speed": 76,
+   "intellect": 95,
+   "speed": 60,
    "durability": 100,
-   "combat": 45,
+   "combat": 30,
    "teamwork": 5
   },
   "tags": [
@@ -2433,12 +2433,12 @@
   "universe": "Marvel",
   "archetype": "Spy",
   "stats": {
-   "power": 49,
-   "intellect": 78,
-   "speed": 46,
-   "durability": 62,
+   "power": 35,
+   "intellect": 80,
+   "speed": 60,
+   "durability": 50,
    "combat": 80,
-   "teamwork": 45
+   "teamwork": 40
   },
   "tags": [
    "villain",
@@ -2452,12 +2452,12 @@
   "universe": "Marvel",
   "archetype": "Brawler",
   "stats": {
-   "power": 58,
-   "intellect": 53,
-   "speed": 54,
-   "durability": 86,
-   "combat": 95,
-   "teamwork": 25
+   "power": 55,
+   "intellect": 40,
+   "speed": 65,
+   "durability": 85,
+   "combat": 85,
+   "teamwork": 20
   },
   "tags": [
    "villain",
@@ -2471,11 +2471,11 @@
   "universe": "Marvel",
   "archetype": "Tyrant",
   "stats": {
-   "power": 98,
-   "intellect": 96,
-   "speed": 52,
-   "durability": 98,
-   "combat": 72,
+   "power": 95,
+   "intellect": 90,
+   "speed": 60,
+   "durability": 95,
+   "combat": 75,
    "teamwork": 20
   },
   "tags": [
@@ -2489,11 +2489,11 @@
   "universe": "Marvel",
   "archetype": "Tyrant",
   "stats": {
-   "power": 98,
-   "intellect": 89,
-   "speed": 72,
-   "durability": 98,
-   "combat": 70,
+   "power": 100,
+   "intellect": 80,
+   "speed": 50,
+   "durability": 95,
+   "combat": 40,
    "teamwork": 10
   },
   "tags": [
@@ -2507,12 +2507,12 @@
   "universe": "Marvel",
   "archetype": "Scientist",
   "stats": {
-   "power": 58,
-   "intellect": 95,
-   "speed": 44,
-   "durability": 52,
-   "combat": 70,
-   "teamwork": 25
+   "power": 60,
+   "intellect": 90,
+   "speed": 45,
+   "durability": 60,
+   "combat": 65,
+   "teamwork": 20
   },
   "tags": [
    "villain",
@@ -2525,12 +2525,12 @@
   "universe": "Marvel",
   "archetype": "Tank",
   "stats": {
-   "power": 85,
-   "intellect": 50,
+   "power": 80,
+   "intellect": 45,
    "speed": 50,
    "durability": 90,
-   "combat": 62,
-   "teamwork": 40
+   "combat": 55,
+   "teamwork": 35
   },
   "tags": [
    "villain",
@@ -2543,12 +2543,12 @@
   "universe": "Marvel",
   "archetype": "Mastermind",
   "stats": {
-   "power": 38,
-   "intellect": 86,
-   "speed": 31,
-   "durability": 38,
-   "combat": 62,
-   "teamwork": 25
+   "power": 25,
+   "intellect": 85,
+   "speed": 30,
+   "durability": 30,
+   "combat": 45,
+   "teamwork": 20
   },
   "tags": [
    "villain",
@@ -2561,12 +2561,12 @@
   "universe": "Marvel",
   "archetype": "Tech",
   "stats": {
-   "power": 57,
-   "intellect": 74,
-   "speed": 45,
-   "durability": 78,
-   "combat": 74,
-   "teamwork": 55
+   "power": 60,
+   "intellect": 75,
+   "speed": 50,
+   "durability": 80,
+   "combat": 75,
+   "teamwork": 40
   },
   "tags": [
    "antihero",
