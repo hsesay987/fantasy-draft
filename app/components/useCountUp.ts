@@ -15,7 +15,12 @@ export function useCountUp(target: number, ms = 900, delay = 0) {
       if (p < 1) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
+    // Backgrounded tabs pause animation frames; make sure the final number always lands.
+    const done = setTimeout(() => setV(target), ms + delay + 300);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(done);
+    };
   }, [target, ms, delay]);
   return v;
 }

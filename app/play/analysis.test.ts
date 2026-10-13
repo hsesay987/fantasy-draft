@@ -47,4 +47,17 @@ describe("analysis", () => {
     expect(e.analysis[0]).toContain("razor-thin");
     expect(e.statsTable).toEqual([]);
   });
+
+  it("shared-pool games (Blind Rank) talk about judgement, not stat bars", () => {
+    const mk = (p: string, order: string[], notes: string) => team(p, order.map((n, i) => item(n, { power: 50 }, { role: `Rank ${i + 1}` })), 0, notes);
+    const a = mk("Ann", ["X", "Y", "Z"], "Ranking accuracy 90%. Biggest misses: Z (placed #3, really #2).");
+    const b = mk("Bob", ["Z", "Y", "X"], "Ranking accuracy 40%. Biggest misses: X (placed #3, really #1).");
+    const r = analyze([a, b], { title: "Rank by strongest", weights: { power: 1 } }, { Ann: 90, Bob: 40 });
+    expect(r.statsTable).toEqual([]);
+    const text = r.analysis.join(" ");
+    expect(text).toContain("same 3 characters");
+    expect(text).toContain("Ranking accuracy 90%");
+    expect(text).not.toContain("Biggest single swing");
+    expect(text).not.toContain("standout pick");
+  });
 });

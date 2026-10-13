@@ -211,7 +211,14 @@ export function buildTeams(setup: GameSetup, s: GameState): { teams: JudgeTeamIn
         teams: b.players.map((player) => {
           const order = b.ranks[player]!;
           const acc = B.accuracy(order, truth);
-          return { player, baseline: acc, notes: `Ranking accuracy ${acc}% vs the true order`, items: order.map((id, i) => toJudgeItem(get(id!)!, { role: `Rank ${i + 1}` })) };
+          const misses = order
+            .map((id, i) => ({ name: get(id!)?.name ?? "?", placed: i + 1, actual: truth.indexOf(id!) + 1 }))
+            .filter((m) => m.actual > 0)
+            .sort((a, b) => Math.abs(b.placed - b.actual) - Math.abs(a.placed - a.actual))
+            .slice(0, 2)
+            .filter((m) => m.placed !== m.actual);
+          const missText = misses.length ? ` Biggest misses: ${misses.map((m) => `${m.name} (placed #${m.placed}, really #${m.actual})`).join("; ")}.` : " A perfect ranking.";
+          return { player, baseline: acc, notes: `Ranking accuracy ${acc}%.${missText}`, items: order.map((id, i) => toJudgeItem(get(id!)!, { role: `Rank ${i + 1}` })) };
         }),
       };
     }

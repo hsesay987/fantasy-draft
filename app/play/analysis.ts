@@ -33,6 +33,10 @@ export function analyze(teams: JudgeTeamInput[], mission: { title: string; weigh
   const perTeam: Analysis["perTeam"] = Object.fromEntries(teams.map((t) => [t.player, { strengths: [], weaknesses: [], highlights: [] }]));
   if (!win) return { analysis: ["No teams to judge."], statsTable: [], perTeam };
 
+  // Everyone ranked the same characters (Blind Rank): stats and role swings say nothing, the calls do.
+  const names = (t: JudgeTeamInput) => t.items.map((i) => i.name).sort().join("|");
+  const shared = teams.length > 1 && teams.every((t) => t.items.length > 0 && names(t) === names(teams[0]!));
+
   // Average stat per team, restricted to stats most picks actually have.
   const keyCount = new Map<string, number>();
   for (const t of teams) for (const k of new Set(t.items.flatMap((i) => Object.keys(i.stats)))) keyCount.set(k, (keyCount.get(k) ?? 0) + 1);
@@ -40,7 +44,8 @@ export function analyze(teams: JudgeTeamInput[], mission: { title: string; weigh
     .filter(([k, n]) => n === teams.length && teams.every((t) => t.items.filter((i) => typeof i.stats[k] === "number").length >= Math.max(1, t.items.length / 2)))
     .map(([k]) => k)
     .sort((a, b) => (w[b] ?? 0) - (w[a] ?? 0) || a.localeCompare(b))
-    .slice(0, 6);
+    .slice(0, 6)
+    .filter(() => !shared);
   const avgOf = (t: JudgeTeamInput, k: string) => avg(t.items.map((i) => i.stats[k]).filter((v): v is number => typeof v === "number"));
   const statsTable: StatRow[] = keys.map((k) => ({ key: k, values: Object.fromEntries(teams.map((t) => [t.player, r0(avgOf(t, k))])) }));
 
@@ -51,6 +56,10 @@ export function analyze(teams: JudgeTeamInput[], mission: { title: string; weigh
     const worst = [...diffs].sort((a, b) => a.d - b.d).slice(0, 2).filter((x) => x.d < -1);
     perTeam[t.player]!.strengths = best.map((x) => `${cap(x.k)} ${r0(x.v)} (${x.d > 0 ? "+" : ""}${r0(x.d)} vs ${others.length ? "rivals" : "average"})`);
     perTeam[t.player]!.weaknesses = worst.map((x) => `${cap(x.k)} ${r0(x.v)} (${r0(x.d)} vs ${others.length ? "rivals" : "average"})`);
+    if (shared) {
+      if (t.notes) perTeam[t.player]!.highlights.push(t.notes);
+      continue;
+    }
     const byVal = [...t.items].sort((a, b) => itemValue(b, w) - itemValue(a, w));
     if (byVal[0]) perTeam[t.player]!.highlights.push(`${byVal[0].name}${byVal[0].role ? ` (${byVal[0].role})` : ""} was the standout pick`);
     if (byVal.length > 2) perTeam[t.player]!.highlights.push(`${byVal[byVal.length - 1]!.name} was the weakest link`);
@@ -75,6 +84,13 @@ export function analyze(teams: JudgeTeamInput[], mission: { title: string; weigh
   const rs = r0(scores[run.player] ?? 0);
   const gap = ws - rs;
   out.push(`${win.player} wins ${ws}–${rs} on "${mission.title}" — ${margin(gap)} victory${teams.length > 2 ? ` over a field of ${teams.length}` : ` over ${run.player}`}.`);
+
+  if (shared) {
+    out.push(`Everyone ranked the same ${win.items.length} characters, so this came down to judgement rather than picks.`);
+    for (const t of ranked) out.push(`${t.player} (${r0(scores[t.player] ?? 0)}): ${t.notes ?? "no notes"}`);
+    out.push(`Rematch advice for ${run.player}: the characters that swung it were the ones ranked furthest from where they belonged — trust the stat that defines the category.`);
+    return { analysis: out, statsTable, perTeam };
+  }
 
   // Where the game was won: biggest per-stat leads for the winner, and any stat the runner-up led.
   const leads = keys.map((k) => ({ k, d: avgOf(win, k) - avgOf(run, k) }));
