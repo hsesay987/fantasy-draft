@@ -16,6 +16,8 @@ import adRoutes from "./routes/ad.route";
 import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
 import judgeRoutes from "./routes/judge.route";
+import playRoomRoutes from "./routes/playRooms.route";
+import { startTicker } from "./services/playRooms";
 import { authOptional } from "./middleware/auth";
 
 const app = express();
@@ -59,6 +61,7 @@ app.use("/admin", adminRoutes);
 app.use("/cartoons", cartoonRoutes);
 app.use("/toppic", toppicRoutes);
 app.use("/judge", judgeRoutes);
+app.use("/play-rooms", playRoomRoutes);
 
 app.use(
   (err: any, _req: express.Request, res: express.Response, _next: any) => {
@@ -72,6 +75,7 @@ const server = http.createServer(app);
 
 /* 🔹 Socket.IO must match CORS */
 initSocket(server, corsOrigin);
+startTicker();
 
 server.listen(PORT, "127.0.0.1", () => {
   console.log(`API server running on localhost:${PORT}`);

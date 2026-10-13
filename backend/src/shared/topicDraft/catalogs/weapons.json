@@ -1,0 +1,508 @@
+[
+ {
+  "id": "batarang",
+  "name": "Batarang",
+  "universe": "Gadget Arsenal",
+  "archetype": "Thrown",
+  "stats": {
+   "damage": 35,
+   "range": 60,
+   "speed": 80,
+   "durability": 50,
+   "utility": 60
+  },
+  "tags": [
+   "ranged",
+   "fast",
+   "stealth"
+  ]
+ },
+ {
+  "id": "kryptonite-spear",
+  "name": "Kryptonite Spear",
+  "universe": "Rare",
+  "archetype": "Special",
+  "stats": {
+   "damage": 85,
+   "range": 30,
+   "speed": 50,
+   "durability": 60,
+   "utility": 40
+  },
+  "tags": [
+   "magic",
+   "piercing",
+   "alien"
+  ]
+ },
+ {
+  "id": "lightsaber",
+  "name": "Lightsaber",
+  "universe": "Sci-Fi",
+  "archetype": "Blade",
+  "stats": {
+   "damage": 88,
+   "range": 10,
+   "speed": 90,
+   "durability": 80,
+   "utility": 50
+  },
+  "tags": [
+   "blade",
+   "energy",
+   "fast"
+  ]
+ },
+ {
+  "id": "mjolnir",
+  "name": "Mjolnir",
+  "universe": "Mythic",
+  "archetype": "Blunt",
+  "stats": {
+   "damage": 95,
+   "range": 50,
+   "speed": 70,
+   "durability": 100,
+   "utility": 60
+  },
+  "tags": [
+   "magic",
+   "blunt",
+   "electric"
+  ]
+ },
+ {
+  "id": "adamantium-claws",
+  "name": "Adamantium Claws",
+  "universe": "Marvel",
+  "archetype": "Blade",
+  "stats": {
+   "damage": 82,
+   "range": 5,
+   "speed": 75,
+   "durability": 98,
+   "utility": 30
+  },
+  "tags": [
+   "blade",
+   "piercing"
+  ]
+ },
+ {
+  "id": "vibranium-shield",
+  "name": "Vibranium Shield",
+  "universe": "Marvel",
+  "archetype": "Shield",
+  "stats": {
+   "damage": 50,
+   "range": 40,
+   "speed": 60,
+   "durability": 100,
+   "utility": 80
+  },
+  "tags": [
+   "shield",
+   "blunt"
+  ]
+ },
+ {
+  "id": "excalibur",
+  "name": "Excalibur",
+  "universe": "Mythic",
+  "archetype": "Blade",
+  "stats": {
+   "damage": 88,
+   "range": 10,
+   "speed": 70,
+   "durability": 92,
+   "utility": 40
+  },
+  "tags": [
+   "magic",
+   "blade"
+  ]
+ },
+ {
+  "id": "plasma-rifle",
+  "name": "Plasma Rifle",
+  "universe": "Sci-Fi",
+  "archetype": "Firearm",
+  "stats": {
+   "damage": 85,
+   "range": 80,
+   "speed": 60,
+   "durability": 60,
+   "utility": 40
+  },
+  "tags": [
+   "energy",
+   "ranged",
+   "explosive"
+  ]
+ },
+ {
+  "id": "sniper-rifle",
+  "name": "Sniper Rifle",
+  "universe": "Modern",
+  "archetype": "Firearm",
+  "stats": {
+   "damage": 90,
+   "range": 98,
+   "speed": 25,
+   "durability": 55,
+   "utility": 30
+  },
+  "tags": [
+   "ranged",
+   "piercing"
+  ]
+ },
+ {
+  "id": "rocket-launcher",
+  "name": "Rocket Launcher",
+  "universe": "Modern",
+  "archetype": "Explosive",
+  "stats": {
+   "damage": 98,
+   "range": 85,
+   "speed": 35,
+   "durability": 60,
+   "utility": 25
+  },
+  "tags": [
+   "explosive",
+   "ranged"
+  ]
+ },
+ {
+  "id": "katana",
+  "name": "Katana",
+  "universe": "Classic",
+  "archetype": "Blade",
+  "stats": {
+   "damage": 70,
+   "range": 5,
+   "speed": 88,
+   "durability": 70,
+   "utility": 35
+  },
+  "tags": [
+   "blade",
+   "fast"
+  ]
+ },
+ {
+  "id": "crossbow",
+  "name": "Crossbow",
+  "universe": "Classic",
+  "archetype": "Ranged",
+  "stats": {
+   "damage": 60,
+   "range": 75,
+   "speed": 50,
+   "durability": 60,
+   "utility": 55
+  },
+  "tags": [
+   "ranged",
+   "piercing"
+  ]
+ },
+ {
+  "id": "flamethrower",
+  "name": "Flamethrower",
+  "universe": "Modern",
+  "archetype": "Elemental",
+  "stats": {
+   "damage": 75,
+   "range": 30,
+   "speed": 50,
+   "durability": 55,
+   "utility": 60
+  },
+  "tags": [
+   "fire",
+   "area"
+  ]
+ },
+ {
+  "id": "shotgun",
+  "name": "Shotgun",
+  "universe": "Modern",
+  "archetype": "Firearm",
+  "stats": {
+   "damage": 80,
+   "range": 20,
+   "speed": 55,
+   "durability": 65,
+   "utility": 30
+  },
+  "tags": [
+   "ranged",
+   "blunt"
+  ]
+ },
+ {
+  "id": "chain-gun",
+  "name": "Chain Gun",
+  "universe": "Modern",
+  "archetype": "Firearm",
+  "stats": {
+   "damage": 85,
+   "range": 60,
+   "speed": 70,
+   "durability": 60,
+   "utility": 30
+  },
+  "tags": [
+   "ranged",
+   "area"
+  ]
+ },
+ {
+  "id": "sonic-cannon",
+  "name": "Sonic Cannon",
+  "universe": "Sci-Fi",
+  "archetype": "Energy",
+  "stats": {
+   "damage": 70,
+   "range": 70,
+   "speed": 55,
+   "durability": 60,
+   "utility": 70
+  },
+  "tags": [
+   "energy",
+   "sonic",
+   "area"
+  ]
+ },
+ {
+  "id": "poison-dart-gun",
+  "name": "Poison Dart Gun",
+  "universe": "Stealth",
+  "archetype": "Ranged",
+  "stats": {
+   "damage": 40,
+   "range": 70,
+   "speed": 60,
+   "durability": 40,
+   "utility": 75
+  },
+  "tags": [
+   "poison",
+   "ranged",
+   "stealth"
+  ]
+ },
+ {
+  "id": "gas-grenades",
+  "name": "Gas Grenades",
+  "universe": "Stealth",
+  "archetype": "Explosive",
+  "stats": {
+   "damage": 45,
+   "range": 50,
+   "speed": 55,
+   "durability": 35,
+   "utility": 90
+  },
+  "tags": [
+   "gas",
+   "area",
+   "poison"
+  ]
+ },
+ {
+  "id": "emp-blaster",
+  "name": "EMP Blaster",
+  "universe": "Sci-Fi",
+  "archetype": "Energy",
+  "stats": {
+   "damage": 35,
+   "range": 60,
+   "speed": 60,
+   "durability": 55,
+   "utility": 95
+  },
+  "tags": [
+   "emp",
+   "tech-counter",
+   "energy"
+  ]
+ },
+ {
+  "id": "trident",
+  "name": "Trident",
+  "universe": "Mythic",
+  "archetype": "Polearm",
+  "stats": {
+   "damage": 78,
+   "range": 25,
+   "speed": 60,
+   "durability": 85,
+   "utility": 50
+  },
+  "tags": [
+   "water",
+   "piercing"
+  ]
+ },
+ {
+  "id": "whip-of-binding",
+  "name": "Whip of Binding",
+  "universe": "Classic",
+  "archetype": "Whip",
+  "stats": {
+   "damage": 40,
+   "range": 30,
+   "speed": 70,
+   "durability": 55,
+   "utility": 85
+  },
+  "tags": [
+   "control",
+   "fast"
+  ]
+ },
+ {
+  "id": "nanite-swarm",
+  "name": "Nanite Swarm",
+  "universe": "Sci-Fi",
+  "archetype": "Special",
+  "stats": {
+   "damage": 70,
+   "range": 50,
+   "speed": 75,
+   "durability": 50,
+   "utility": 92
+  },
+  "tags": [
+   "tech-counter",
+   "area",
+   "swarm"
+  ]
+ },
+ {
+  "id": "magic-staff",
+  "name": "Magic Staff",
+  "universe": "Mythic",
+  "archetype": "Focus",
+  "stats": {
+   "damage": 80,
+   "range": 60,
+   "speed": 50,
+   "durability": 70,
+   "utility": 95
+  },
+  "tags": [
+   "magic",
+   "energy",
+   "control"
+  ]
+ },
+ {
+  "id": "war-hammer",
+  "name": "War Hammer",
+  "universe": "Classic",
+  "archetype": "Blunt",
+  "stats": {
+   "damage": 78,
+   "range": 5,
+   "speed": 45,
+   "durability": 95,
+   "utility": 25
+  },
+  "tags": [
+   "blunt"
+  ]
+ },
+ {
+  "id": "throwing-knives",
+  "name": "Throwing Knives",
+  "universe": "Classic",
+  "archetype": "Thrown",
+  "stats": {
+   "damage": 50,
+   "range": 55,
+   "speed": 85,
+   "durability": 40,
+   "utility": 40
+  },
+  "tags": [
+   "ranged",
+   "fast",
+   "stealth"
+  ]
+ },
+ {
+  "id": "cosmic-gauntlet",
+  "name": "Cosmic Gauntlet",
+  "universe": "Mythic",
+  "archetype": "Artifact",
+  "stats": {
+   "damage": 98,
+   "range": 70,
+   "speed": 70,
+   "durability": 98,
+   "utility": 98
+  },
+  "tags": [
+   "magic",
+   "energy",
+   "area"
+  ]
+ },
+ {
+  "id": "fear-gas-canisters",
+  "name": "Fear Gas Canisters",
+  "universe": "Stealth",
+  "archetype": "Explosive",
+  "stats": {
+   "damage": 40,
+   "range": 40,
+   "speed": 50,
+   "durability": 40,
+   "utility": 92
+  },
+  "tags": [
+   "fear",
+   "gas",
+   "area"
+  ]
+ },
+ {
+  "id": "stun-baton",
+  "name": "Stun Baton",
+  "universe": "Modern",
+  "archetype": "Blunt",
+  "stats": {
+   "damage": 45,
+   "range": 5,
+   "speed": 70,
+   "durability": 70,
+   "utility": 85
+  },
+  "tags": [
+   "electric",
+   "control"
+  ]
+ },
+ {
+  "id": "grappling-gun",
+  "name": "Grappling Gun",
+  "universe": "Gadget Arsenal",
+  "archetype": "Utility",
+  "stats": {
+   "damage": 20,
+   "range": 70,
+   "speed": 75,
+   "durability": 60,
+   "utility": 90
+  },
+  "tags": [
+   "ranged",
+   "mobility"
+  ]
+ }
+]

@@ -1,0 +1,714 @@
+[
+ {
+  "id": "napoleon-bonaparte",
+  "name": "Napoleon Bonaparte",
+  "universe": "Military",
+  "archetype": "Emperor",
+  "stats": {
+   "leadership": 98,
+   "intellect": 92,
+   "courage": 90,
+   "influence": 95,
+   "charisma": 85,
+   "strategy": 100
+  },
+  "tags": [
+   "military",
+   "leader"
+  ]
+ },
+ {
+  "id": "cleopatra",
+  "name": "Cleopatra",
+  "universe": "Ancient",
+  "archetype": "Ruler",
+  "stats": {
+   "leadership": 85,
+   "intellect": 90,
+   "courage": 80,
+   "influence": 88,
+   "charisma": 98,
+   "strategy": 92
+  },
+  "tags": [
+   "ruler",
+   "diplomat"
+  ]
+ },
+ {
+  "id": "julius-caesar",
+  "name": "Julius Caesar",
+  "universe": "Ancient",
+  "archetype": "Emperor",
+  "stats": {
+   "leadership": 96,
+   "intellect": 90,
+   "courage": 92,
+   "influence": 95,
+   "charisma": 88,
+   "strategy": 95
+  },
+  "tags": [
+   "military",
+   "leader"
+  ]
+ },
+ {
+  "id": "alexander-the-great",
+  "name": "Alexander the Great",
+  "universe": "Ancient",
+  "archetype": "Conqueror",
+  "stats": {
+   "leadership": 98,
+   "intellect": 85,
+   "courage": 100,
+   "influence": 95,
+   "charisma": 92,
+   "strategy": 98
+  },
+  "tags": [
+   "military",
+   "leader"
+  ]
+ },
+ {
+  "id": "genghis-khan",
+  "name": "Genghis Khan",
+  "universe": "Military",
+  "archetype": "Conqueror",
+  "stats": {
+   "leadership": 98,
+   "intellect": 80,
+   "courage": 95,
+   "influence": 98,
+   "charisma": 70,
+   "strategy": 98
+  },
+  "tags": [
+   "military",
+   "leader"
+  ]
+ },
+ {
+  "id": "leonardo-da-vinci",
+  "name": "Leonardo da Vinci",
+  "universe": "Renaissance",
+  "archetype": "Genius",
+  "stats": {
+   "leadership": 45,
+   "intellect": 100,
+   "courage": 70,
+   "influence": 80,
+   "charisma": 85,
+   "strategy": 75
+  },
+  "tags": [
+   "inventor",
+   "genius"
+  ]
+ },
+ {
+  "id": "albert-einstein",
+  "name": "Albert Einstein",
+  "universe": "Science",
+  "archetype": "Genius",
+  "stats": {
+   "leadership": 35,
+   "intellect": 100,
+   "courage": 60,
+   "influence": 92,
+   "charisma": 75,
+   "strategy": 60
+  },
+  "tags": [
+   "scientist",
+   "genius"
+  ]
+ },
+ {
+  "id": "isaac-newton",
+  "name": "Isaac Newton",
+  "universe": "Science",
+  "archetype": "Genius",
+  "stats": {
+   "leadership": 30,
+   "intellect": 100,
+   "courage": 55,
+   "influence": 85,
+   "charisma": 35,
+   "strategy": 60
+  },
+  "tags": [
+   "scientist",
+   "genius"
+  ]
+ },
+ {
+  "id": "marie-curie",
+  "name": "Marie Curie",
+  "universe": "Science",
+  "archetype": "Genius",
+  "stats": {
+   "leadership": 55,
+   "intellect": 98,
+   "courage": 92,
+   "influence": 85,
+   "charisma": 70,
+   "strategy": 70
+  },
+  "tags": [
+   "scientist",
+   "genius"
+  ]
+ },
+ {
+  "id": "nikola-tesla",
+  "name": "Nikola Tesla",
+  "universe": "Science",
+  "archetype": "Inventor",
+  "stats": {
+   "leadership": 35,
+   "intellect": 100,
+   "courage": 65,
+   "influence": 80,
+   "charisma": 70,
+   "strategy": 70
+  },
+  "tags": [
+   "inventor",
+   "genius"
+  ]
+ },
+ {
+  "id": "abraham-lincoln",
+  "name": "Abraham Lincoln",
+  "universe": "Politics",
+  "archetype": "Statesman",
+  "stats": {
+   "leadership": 95,
+   "intellect": 90,
+   "courage": 92,
+   "influence": 98,
+   "charisma": 92,
+   "strategy": 90
+  },
+  "tags": [
+   "politician",
+   "leader"
+  ]
+ },
+ {
+  "id": "winston-churchill",
+  "name": "Winston Churchill",
+  "universe": "Politics",
+  "archetype": "Statesman",
+  "stats": {
+   "leadership": 95,
+   "intellect": 88,
+   "courage": 95,
+   "influence": 95,
+   "charisma": 95,
+   "strategy": 92
+  },
+  "tags": [
+   "politician",
+   "leader"
+  ]
+ },
+ {
+  "id": "joan-of-arc",
+  "name": "Joan of Arc",
+  "universe": "Military",
+  "archetype": "Icon",
+  "stats": {
+   "leadership": 92,
+   "intellect": 60,
+   "courage": 100,
+   "influence": 92,
+   "charisma": 90,
+   "strategy": 85
+  },
+  "tags": [
+   "military",
+   "leader"
+  ]
+ },
+ {
+  "id": "sun-tzu",
+  "name": "Sun Tzu",
+  "universe": "Military",
+  "archetype": "Strategist",
+  "stats": {
+   "leadership": 70,
+   "intellect": 98,
+   "courage": 70,
+   "influence": 85,
+   "charisma": 60,
+   "strategy": 100
+  },
+  "tags": [
+   "military",
+   "strategist"
+  ]
+ },
+ {
+  "id": "queen-elizabeth-i",
+  "name": "Queen Elizabeth I",
+  "universe": "Politics",
+  "archetype": "Ruler",
+  "stats": {
+   "leadership": 92,
+   "intellect": 90,
+   "courage": 85,
+   "influence": 95,
+   "charisma": 92,
+   "strategy": 90
+  },
+  "tags": [
+   "ruler",
+   "leader"
+  ]
+ },
+ {
+  "id": "mahatma-gandhi",
+  "name": "Mahatma Gandhi",
+  "universe": "Politics",
+  "archetype": "Icon",
+  "stats": {
+   "leadership": 95,
+   "intellect": 92,
+   "courage": 98,
+   "influence": 100,
+   "charisma": 98,
+   "strategy": 90
+  },
+  "tags": [
+   "politician",
+   "icon"
+  ]
+ },
+ {
+  "id": "martin-luther-king-jr",
+  "name": "Martin Luther King Jr.",
+  "universe": "Politics",
+  "archetype": "Icon",
+  "stats": {
+   "leadership": 96,
+   "intellect": 92,
+   "courage": 100,
+   "influence": 100,
+   "charisma": 100,
+   "strategy": 90
+  },
+  "tags": [
+   "politician",
+   "icon"
+  ]
+ },
+ {
+  "id": "nelson-mandela",
+  "name": "Nelson Mandela",
+  "universe": "Politics",
+  "archetype": "Icon",
+  "stats": {
+   "leadership": 95,
+   "intellect": 90,
+   "courage": 100,
+   "influence": 98,
+   "charisma": 95,
+   "strategy": 88
+  },
+  "tags": [
+   "politician",
+   "icon"
+  ]
+ },
+ {
+  "id": "harriet-tubman",
+  "name": "Harriet Tubman",
+  "universe": "Politics",
+  "archetype": "Icon",
+  "stats": {
+   "leadership": 88,
+   "intellect": 80,
+   "courage": 100,
+   "influence": 92,
+   "charisma": 85,
+   "strategy": 92
+  },
+  "tags": [
+   "icon",
+   "leader"
+  ]
+ },
+ {
+  "id": "aristotle",
+  "name": "Aristotle",
+  "universe": "Ancient",
+  "archetype": "Philosopher",
+  "stats": {
+   "leadership": 50,
+   "intellect": 100,
+   "courage": 55,
+   "influence": 95,
+   "charisma": 75,
+   "strategy": 85
+  },
+  "tags": [
+   "philosopher",
+   "genius"
+  ]
+ },
+ {
+  "id": "socrates",
+  "name": "Socrates",
+  "universe": "Ancient",
+  "archetype": "Philosopher",
+  "stats": {
+   "leadership": 40,
+   "intellect": 98,
+   "courage": 95,
+   "influence": 90,
+   "charisma": 80,
+   "strategy": 70
+  },
+  "tags": [
+   "philosopher"
+  ]
+ },
+ {
+  "id": "william-shakespeare",
+  "name": "William Shakespeare",
+  "universe": "Arts",
+  "archetype": "Artist",
+  "stats": {
+   "leadership": 25,
+   "intellect": 98,
+   "courage": 70,
+   "influence": 98,
+   "charisma": 95,
+   "strategy": 60
+  },
+  "tags": [
+   "artist",
+   "genius"
+  ]
+ },
+ {
+  "id": "mozart",
+  "name": "Mozart",
+  "universe": "Arts",
+  "archetype": "Artist",
+  "stats": {
+   "leadership": 20,
+   "intellect": 98,
+   "courage": 60,
+   "influence": 95,
+   "charisma": 92,
+   "strategy": 45
+  },
+  "tags": [
+   "artist",
+   "genius"
+  ]
+ },
+ {
+  "id": "pablo-picasso",
+  "name": "Pablo Picasso",
+  "universe": "Arts",
+  "archetype": "Artist",
+  "stats": {
+   "leadership": 35,
+   "intellect": 92,
+   "courage": 70,
+   "influence": 92,
+   "charisma": 85,
+   "strategy": 50
+  },
+  "tags": [
+   "artist"
+  ]
+ },
+ {
+  "id": "amelia-earhart",
+  "name": "Amelia Earhart",
+  "universe": "Explorer",
+  "archetype": "Pioneer",
+  "stats": {
+   "leadership": 60,
+   "intellect": 75,
+   "courage": 98,
+   "influence": 88,
+   "charisma": 90,
+   "strategy": 60
+  },
+  "tags": [
+   "explorer",
+   "pioneer"
+  ]
+ },
+ {
+  "id": "neil-armstrong",
+  "name": "Neil Armstrong",
+  "universe": "Explorer",
+  "archetype": "Pioneer",
+  "stats": {
+   "leadership": 75,
+   "intellect": 90,
+   "courage": 98,
+   "influence": 92,
+   "charisma": 70,
+   "strategy": 92
+  },
+  "tags": [
+   "explorer",
+   "pioneer"
+  ]
+ },
+ {
+  "id": "christopher-columbus",
+  "name": "Christopher Columbus",
+  "universe": "Explorer",
+  "archetype": "Explorer",
+  "stats": {
+   "leadership": 65,
+   "intellect": 60,
+   "courage": 85,
+   "influence": 75,
+   "charisma": 60,
+   "strategy": 55
+  },
+  "tags": [
+   "explorer"
+  ]
+ },
+ {
+  "id": "marco-polo",
+  "name": "Marco Polo",
+  "universe": "Explorer",
+  "archetype": "Explorer",
+  "stats": {
+   "leadership": 55,
+   "intellect": 80,
+   "courage": 85,
+   "influence": 80,
+   "charisma": 85,
+   "strategy": 70
+  },
+  "tags": [
+   "explorer"
+  ]
+ },
+ {
+  "id": "charles-darwin",
+  "name": "Charles Darwin",
+  "universe": "Science",
+  "archetype": "Genius",
+  "stats": {
+   "leadership": 40,
+   "intellect": 98,
+   "courage": 75,
+   "influence": 95,
+   "charisma": 60,
+   "strategy": 60
+  },
+  "tags": [
+   "scientist",
+   "genius"
+  ]
+ },
+ {
+  "id": "galileo-galilei",
+  "name": "Galileo Galilei",
+  "universe": "Science",
+  "archetype": "Genius",
+  "stats": {
+   "leadership": 50,
+   "intellect": 98,
+   "courage": 92,
+   "influence": 92,
+   "charisma": 65,
+   "strategy": 60
+  },
+  "tags": [
+   "scientist",
+   "genius"
+  ]
+ },
+ {
+  "id": "steve-jobs",
+  "name": "Steve Jobs",
+  "universe": "Modern",
+  "archetype": "Founder",
+  "stats": {
+   "leadership": 92,
+   "intellect": 95,
+   "courage": 80,
+   "influence": 98,
+   "charisma": 92,
+   "strategy": 85
+  },
+  "tags": [
+   "founder",
+   "leader"
+  ]
+ },
+ {
+  "id": "henry-ford",
+  "name": "Henry Ford",
+  "universe": "Modern",
+  "archetype": "Founder",
+  "stats": {
+   "leadership": 85,
+   "intellect": 85,
+   "courage": 70,
+   "influence": 90,
+   "charisma": 70,
+   "strategy": 88
+  },
+  "tags": [
+   "founder"
+  ]
+ },
+ {
+  "id": "bruce-lee",
+  "name": "Bruce Lee",
+  "universe": "Modern",
+  "archetype": "Fighter",
+  "stats": {
+   "leadership": 60,
+   "intellect": 88,
+   "courage": 95,
+   "influence": 95,
+   "charisma": 98,
+   "strategy": 70
+  },
+  "tags": [
+   "fighter",
+   "icon"
+  ]
+ },
+ {
+  "id": "muhammad-ali",
+  "name": "Muhammad Ali",
+  "universe": "Modern",
+  "archetype": "Fighter",
+  "stats": {
+   "leadership": 75,
+   "intellect": 80,
+   "courage": 98,
+   "influence": 98,
+   "charisma": 100,
+   "strategy": 70
+  },
+  "tags": [
+   "fighter",
+   "icon"
+  ]
+ },
+ {
+  "id": "rosa-parks",
+  "name": "Rosa Parks",
+  "universe": "Politics",
+  "archetype": "Icon",
+  "stats": {
+   "leadership": 70,
+   "intellect": 70,
+   "courage": 100,
+   "influence": 95,
+   "charisma": 85,
+   "strategy": 75
+  },
+  "tags": [
+   "icon"
+  ]
+ },
+ {
+  "id": "confucius",
+  "name": "Confucius",
+  "universe": "Ancient",
+  "archetype": "Philosopher",
+  "stats": {
+   "leadership": 70,
+   "intellect": 98,
+   "courage": 70,
+   "influence": 98,
+   "charisma": 80,
+   "strategy": 90
+  },
+  "tags": [
+   "philosopher"
+  ]
+ },
+ {
+  "id": "hannibal-barca",
+  "name": "Hannibal Barca",
+  "universe": "Military",
+  "archetype": "Strategist",
+  "stats": {
+   "leadership": 95,
+   "intellect": 92,
+   "courage": 95,
+   "influence": 90,
+   "charisma": 80,
+   "strategy": 98
+  },
+  "tags": [
+   "military",
+   "strategist"
+  ]
+ },
+ {
+  "id": "queen-victoria",
+  "name": "Queen Victoria",
+  "universe": "Politics",
+  "archetype": "Ruler",
+  "stats": {
+   "leadership": 88,
+   "intellect": 70,
+   "courage": 75,
+   "influence": 95,
+   "charisma": 80,
+   "strategy": 78
+  },
+  "tags": [
+   "ruler"
+  ]
+ },
+ {
+  "id": "catherine-the-great",
+  "name": "Catherine the Great",
+  "universe": "Politics",
+  "archetype": "Ruler",
+  "stats": {
+   "leadership": 92,
+   "intellect": 92,
+   "courage": 85,
+   "influence": 92,
+   "charisma": 88,
+   "strategy": 95
+  },
+  "tags": [
+   "ruler",
+   "leader"
+  ]
+ },
+ {
+  "id": "benjamin-franklin",
+  "name": "Benjamin Franklin",
+  "universe": "Politics",
+  "archetype": "Inventor",
+  "stats": {
+   "leadership": 75,
+   "intellect": 98,
+   "courage": 80,
+   "influence": 95,
+   "charisma": 98,
+   "strategy": 90
+  },
+  "tags": [
+   "inventor",
+   "diplomat"
+  ]
+ }
+]

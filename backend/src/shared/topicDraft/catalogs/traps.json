@@ -1,0 +1,436 @@
+[
+ {
+  "id": "pit-of-spikes",
+  "name": "Pit of Spikes",
+  "universe": "Trap",
+  "archetype": "Classic",
+  "stats": {
+   "power": 70,
+   "stealth": 70,
+   "utility": 30,
+   "range": 10,
+   "durability": 80
+  },
+  "tags": [
+   "piercing",
+   "trap"
+  ]
+ },
+ {
+  "id": "pressure-plate-bombs",
+  "name": "Pressure Plate Bombs",
+  "universe": "Trap",
+  "archetype": "Explosive",
+  "stats": {
+   "power": 95,
+   "stealth": 85,
+   "utility": 40,
+   "range": 20,
+   "durability": 30
+  },
+  "tags": [
+   "explosive",
+   "trap",
+   "area"
+  ]
+ },
+ {
+  "id": "sleeping-gas-vents",
+  "name": "Sleeping Gas Vents",
+  "universe": "Trap",
+  "archetype": "Gas",
+  "stats": {
+   "power": 40,
+   "stealth": 90,
+   "utility": 92,
+   "range": 40,
+   "durability": 60
+  },
+  "tags": [
+   "gas",
+   "trap",
+   "area"
+  ]
+ },
+ {
+  "id": "mirror-maze",
+  "name": "Mirror Maze",
+  "universe": "Location",
+  "archetype": "Illusion",
+  "stats": {
+   "power": 20,
+   "stealth": 60,
+   "utility": 95,
+   "range": 15,
+   "durability": 80
+  },
+  "tags": [
+   "illusion",
+   "mind"
+  ]
+ },
+ {
+  "id": "abandoned-factory",
+  "name": "Abandoned Factory",
+  "universe": "Location",
+  "archetype": "Terrain",
+  "stats": {
+   "power": 30,
+   "stealth": 70,
+   "utility": 60,
+   "range": 10,
+   "durability": 90
+  },
+  "tags": [
+   "terrain",
+   "industrial"
+  ]
+ },
+ {
+  "id": "collapsing-bridge",
+  "name": "Collapsing Bridge",
+  "universe": "Trap",
+  "archetype": "Terrain",
+  "stats": {
+   "power": 80,
+   "stealth": 75,
+   "utility": 40,
+   "range": 20,
+   "durability": 50
+  },
+  "tags": [
+   "terrain",
+   "trap"
+  ]
+ },
+ {
+  "id": "electrified-floor",
+  "name": "Electrified Floor",
+  "universe": "Trap",
+  "archetype": "Electric",
+  "stats": {
+   "power": 75,
+   "stealth": 80,
+   "utility": 50,
+   "range": 10,
+   "durability": 60
+  },
+  "tags": [
+   "electric",
+   "trap"
+  ]
+ },
+ {
+  "id": "lava-cavern",
+  "name": "Lava Cavern",
+  "universe": "Location",
+  "archetype": "Hazard",
+  "stats": {
+   "power": 88,
+   "stealth": 40,
+   "utility": 40,
+   "range": 20,
+   "durability": 92
+  },
+  "tags": [
+   "fire",
+   "terrain"
+  ]
+ },
+ {
+  "id": "frozen-warehouse",
+  "name": "Frozen Warehouse",
+  "universe": "Location",
+  "archetype": "Hazard",
+  "stats": {
+   "power": 50,
+   "stealth": 50,
+   "utility": 60,
+   "range": 15,
+   "durability": 70
+  },
+  "tags": [
+   "ice",
+   "terrain"
+  ]
+ },
+ {
+  "id": "magic-rune-circle",
+  "name": "Magic Rune Circle",
+  "universe": "Trap",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 85,
+   "stealth": 65,
+   "utility": 90,
+   "range": 15,
+   "durability": 70
+  },
+  "tags": [
+   "magic",
+   "trap",
+   "control"
+  ]
+ },
+ {
+  "id": "kryptonite-laced-room",
+  "name": "Kryptonite-Laced Room",
+  "universe": "Trap",
+  "archetype": "Special",
+  "stats": {
+   "power": 92,
+   "stealth": 60,
+   "utility": 50,
+   "range": 10,
+   "durability": 50
+  },
+  "tags": [
+   "alien",
+   "trap"
+  ]
+ },
+ {
+  "id": "sound-proof-cell",
+  "name": "Sound-Proof Cell",
+  "universe": "Location",
+  "archetype": "Prison",
+  "stats": {
+   "power": 20,
+   "stealth": 70,
+   "utility": 85,
+   "range": 5,
+   "durability": 95
+  },
+  "tags": [
+   "prison",
+   "sonic-counter"
+  ]
+ },
+ {
+  "id": "net-launchers",
+  "name": "Net Launchers",
+  "universe": "Trap",
+  "archetype": "Control",
+  "stats": {
+   "power": 35,
+   "stealth": 60,
+   "utility": 90,
+   "range": 60,
+   "durability": 40
+  },
+  "tags": [
+   "control",
+   "trap",
+   "numbers"
+  ]
+ },
+ {
+  "id": "hall-of-mirrors",
+  "name": "Hall of Mirrors",
+  "universe": "Location",
+  "archetype": "Illusion",
+  "stats": {
+   "power": 25,
+   "stealth": 55,
+   "utility": 90,
+   "range": 10,
+   "durability": 60
+  },
+  "tags": [
+   "illusion",
+   "fear"
+  ]
+ },
+ {
+  "id": "collapsing-ceiling",
+  "name": "Collapsing Ceiling",
+  "universe": "Trap",
+  "archetype": "Terrain",
+  "stats": {
+   "power": 85,
+   "stealth": 50,
+   "utility": 30,
+   "range": 10,
+   "durability": 40
+  },
+  "tags": [
+   "terrain",
+   "trap",
+   "blunt"
+  ]
+ },
+ {
+  "id": "poison-garden",
+  "name": "Poison Garden",
+  "universe": "Location",
+  "archetype": "Hazard",
+  "stats": {
+   "power": 65,
+   "stealth": 80,
+   "utility": 70,
+   "range": 25,
+   "durability": 50
+  },
+  "tags": [
+   "poison",
+   "gas",
+   "terrain"
+  ]
+ },
+ {
+  "id": "quicksand-pit",
+  "name": "Quicksand Pit",
+  "universe": "Trap",
+  "archetype": "Terrain",
+  "stats": {
+   "power": 45,
+   "stealth": 85,
+   "utility": 70,
+   "range": 10,
+   "durability": 40
+  },
+  "tags": [
+   "terrain",
+   "trap"
+  ]
+ },
+ {
+  "id": "fear-chamber",
+  "name": "Fear Chamber",
+  "universe": "Location",
+  "archetype": "Mind",
+  "stats": {
+   "power": 55,
+   "stealth": 60,
+   "utility": 92,
+   "range": 10,
+   "durability": 85
+  },
+  "tags": [
+   "fear",
+   "mind",
+   "gas"
+  ]
+ },
+ {
+  "id": "underwater-vault",
+  "name": "Underwater Vault",
+  "universe": "Location",
+  "archetype": "Prison",
+  "stats": {
+   "power": 40,
+   "stealth": 65,
+   "utility": 80,
+   "range": 10,
+   "durability": 95
+  },
+  "tags": [
+   "water",
+   "prison"
+  ]
+ },
+ {
+  "id": "rooftop-ambush",
+  "name": "Rooftop Ambush",
+  "universe": "Location",
+  "archetype": "Terrain",
+  "stats": {
+   "power": 50,
+   "stealth": 75,
+   "utility": 55,
+   "range": 60,
+   "durability": 30
+  },
+  "tags": [
+   "terrain",
+   "ranged"
+  ]
+ },
+ {
+  "id": "magnetic-floor",
+  "name": "Magnetic Floor",
+  "universe": "Trap",
+  "archetype": "Control",
+  "stats": {
+   "power": 60,
+   "stealth": 75,
+   "utility": 75,
+   "range": 10,
+   "durability": 55
+  },
+  "tags": [
+   "magnet",
+   "control",
+   "trap"
+  ]
+ },
+ {
+  "id": "smoke-filled-alley",
+  "name": "Smoke-Filled Alley",
+  "universe": "Location",
+  "archetype": "Terrain",
+  "stats": {
+   "power": 25,
+   "stealth": 92,
+   "utility": 60,
+   "range": 20,
+   "durability": 40
+  },
+  "tags": [
+   "gas",
+   "stealth"
+  ]
+ },
+ {
+  "id": "cursed-cemetery",
+  "name": "Cursed Cemetery",
+  "universe": "Location",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 75,
+   "stealth": 55,
+   "utility": 70,
+   "range": 15,
+   "durability": 80
+  },
+  "tags": [
+   "magic",
+   "fear"
+  ]
+ },
+ {
+  "id": "flood-gates",
+  "name": "Flood Gates",
+  "universe": "Trap",
+  "archetype": "Terrain",
+  "stats": {
+   "power": 75,
+   "stealth": 70,
+   "utility": 60,
+   "range": 35,
+   "durability": 60
+  },
+  "tags": [
+   "water",
+   "terrain",
+   "trap"
+  ]
+ },
+ {
+  "id": "sonic-wall",
+  "name": "Sonic Wall",
+  "universe": "Trap",
+  "archetype": "Sonic",
+  "stats": {
+   "power": 65,
+   "stealth": 65,
+   "utility": 80,
+   "range": 50,
+   "durability": 50
+  },
+  "tags": [
+   "sonic",
+   "trap"
+  ]
+ }
+]

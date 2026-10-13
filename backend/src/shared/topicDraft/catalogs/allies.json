@@ -1,0 +1,470 @@
+[
+ {
+  "id": "alfred-style-butler",
+  "name": "Alfred-Style Butler",
+  "universe": "Sidekick",
+  "archetype": "Support",
+  "stats": {
+   "power": 10,
+   "intellect": 92,
+   "loyalty": 100,
+   "speed": 25,
+   "combat": 40
+  },
+  "tags": [
+   "support",
+   "intel",
+   "loyal"
+  ]
+ },
+ {
+  "id": "teen-sidekick",
+  "name": "Teen Sidekick",
+  "universe": "Sidekick",
+  "archetype": "Fighter",
+  "stats": {
+   "power": 45,
+   "intellect": 70,
+   "loyalty": 90,
+   "speed": 80,
+   "combat": 75
+  },
+  "tags": [
+   "acrobat",
+   "loyal"
+  ]
+ },
+ {
+  "id": "reformed-rogue",
+  "name": "Reformed Rogue",
+  "universe": "Villain Ally",
+  "archetype": "Thief",
+  "stats": {
+   "power": 40,
+   "intellect": 78,
+   "loyalty": 45,
+   "speed": 80,
+   "combat": 70
+  },
+  "tags": [
+   "stealth",
+   "thief"
+  ]
+ },
+ {
+  "id": "mad-scientist",
+  "name": "Mad Scientist",
+  "universe": "Villain Ally",
+  "archetype": "Genius",
+  "stats": {
+   "power": 35,
+   "intellect": 98,
+   "loyalty": 35,
+   "speed": 30,
+   "combat": 15
+  },
+  "tags": [
+   "tech",
+   "genius",
+   "gas"
+  ]
+ },
+ {
+  "id": "mercenary-sharpshooter",
+  "name": "Mercenary Sharpshooter",
+  "universe": "Villain Ally",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 40,
+   "intellect": 70,
+   "loyalty": 35,
+   "speed": 60,
+   "combat": 92
+  },
+  "tags": [
+   "ranged",
+   "mercenary"
+  ]
+ },
+ {
+  "id": "mind-reader-rogue",
+  "name": "Mind-Reader Rogue",
+  "universe": "Villain Ally",
+  "archetype": "Psychic",
+  "stats": {
+   "power": 85,
+   "intellect": 88,
+   "loyalty": 30,
+   "speed": 35,
+   "combat": 30
+  },
+  "tags": [
+   "telepath",
+   "mind"
+  ]
+ },
+ {
+  "id": "crime-boss-fixer",
+  "name": "Crime Boss Fixer",
+  "universe": "Villain Ally",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 20,
+   "intellect": 90,
+   "loyalty": 40,
+   "speed": 35,
+   "combat": 50
+  },
+  "tags": [
+   "intel",
+   "money"
+  ]
+ },
+ {
+  "id": "shadow-assassin",
+  "name": "Shadow Assassin",
+  "universe": "Villain Ally",
+  "archetype": "Assassin",
+  "stats": {
+   "power": 55,
+   "intellect": 70,
+   "loyalty": 40,
+   "speed": 92,
+   "combat": 95
+  },
+  "tags": [
+   "stealth",
+   "assassin",
+   "fast"
+  ]
+ },
+ {
+  "id": "ice-queen",
+  "name": "Ice Queen",
+  "universe": "Villain Ally",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 82,
+   "intellect": 65,
+   "loyalty": 30,
+   "speed": 45,
+   "combat": 70
+  },
+  "tags": [
+   "ice",
+   "area"
+  ]
+ },
+ {
+  "id": "giant-brute",
+  "name": "Giant Brute",
+  "universe": "Villain Ally",
+  "archetype": "Tank",
+  "stats": {
+   "power": 92,
+   "intellect": 25,
+   "loyalty": 40,
+   "speed": 35,
+   "combat": 85
+  },
+  "tags": [
+   "blunt",
+   "tank"
+  ]
+ },
+ {
+  "id": "poison-specialist",
+  "name": "Poison Specialist",
+  "universe": "Villain Ally",
+  "archetype": "Specialist",
+  "stats": {
+   "power": 40,
+   "intellect": 85,
+   "loyalty": 35,
+   "speed": 50,
+   "combat": 70
+  },
+  "tags": [
+   "poison",
+   "gas"
+  ]
+ },
+ {
+  "id": "pyromaniac",
+  "name": "Pyromaniac",
+  "universe": "Villain Ally",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 78,
+   "intellect": 40,
+   "loyalty": 25,
+   "speed": 55,
+   "combat": 65
+  },
+  "tags": [
+   "fire",
+   "area",
+   "explosive"
+  ]
+ },
+ {
+  "id": "stage-magician",
+  "name": "Stage Magician",
+  "universe": "Villain Ally",
+  "archetype": "Trickster",
+  "stats": {
+   "power": 50,
+   "intellect": 82,
+   "loyalty": 45,
+   "speed": 65,
+   "combat": 50
+  },
+  "tags": [
+   "trickster",
+   "fear",
+   "magic"
+  ]
+ },
+ {
+  "id": "cyborg-enforcer",
+  "name": "Cyborg Enforcer",
+  "universe": "Villain Ally",
+  "archetype": "Tech",
+  "stats": {
+   "power": 85,
+   "intellect": 60,
+   "loyalty": 35,
+   "speed": 60,
+   "combat": 85
+  },
+  "tags": [
+   "tech",
+   "tank"
+  ]
+ },
+ {
+  "id": "hacker-collective",
+  "name": "Hacker Collective",
+  "universe": "Villain Ally",
+  "archetype": "Hacker",
+  "stats": {
+   "power": 15,
+   "intellect": 98,
+   "loyalty": 55,
+   "speed": 40,
+   "combat": 10
+  },
+  "tags": [
+   "hacker",
+   "tech"
+  ]
+ },
+ {
+  "id": "loyal-wolf-pack",
+  "name": "Loyal Wolf Pack",
+  "universe": "Sidekick",
+  "archetype": "Beast",
+  "stats": {
+   "power": 60,
+   "intellect": 30,
+   "loyalty": 100,
+   "speed": 85,
+   "combat": 80
+  },
+  "tags": [
+   "beast",
+   "swarm",
+   "loyal"
+  ]
+ },
+ {
+  "id": "rookie-cop",
+  "name": "Rookie Cop",
+  "universe": "Sidekick",
+  "archetype": "Human",
+  "stats": {
+   "power": 15,
+   "intellect": 50,
+   "loyalty": 95,
+   "speed": 40,
+   "combat": 45
+  },
+  "tags": [
+   "human",
+   "loyal"
+  ]
+ },
+ {
+  "id": "sorcerer-mentor",
+  "name": "Sorcerer Mentor",
+  "universe": "Sidekick",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 90,
+   "intellect": 95,
+   "loyalty": 80,
+   "speed": 40,
+   "combat": 50
+  },
+  "tags": [
+   "magic",
+   "mentor",
+   "telepath"
+  ]
+ },
+ {
+  "id": "speed-courier",
+  "name": "Speed Courier",
+  "universe": "Sidekick",
+  "archetype": "Speedster",
+  "stats": {
+   "power": 40,
+   "intellect": 55,
+   "loyalty": 75,
+   "speed": 98,
+   "combat": 50
+  },
+  "tags": [
+   "speed",
+   "fast"
+  ]
+ },
+ {
+  "id": "robo-buddy",
+  "name": "Robo-Buddy",
+  "universe": "Sidekick",
+  "archetype": "Tech",
+  "stats": {
+   "power": 65,
+   "intellect": 78,
+   "loyalty": 92,
+   "speed": 60,
+   "combat": 60
+  },
+  "tags": [
+   "tech",
+   "loyal"
+  ]
+ },
+ {
+  "id": "rival-detective",
+  "name": "Rival Detective",
+  "universe": "Sidekick",
+  "archetype": "Detective",
+  "stats": {
+   "power": 20,
+   "intellect": 95,
+   "loyalty": 55,
+   "speed": 35,
+   "combat": 50
+  },
+  "tags": [
+   "intel",
+   "human"
+  ]
+ },
+ {
+  "id": "fear-specialist",
+  "name": "Fear Specialist",
+  "universe": "Villain Ally",
+  "archetype": "Specialist",
+  "stats": {
+   "power": 50,
+   "intellect": 85,
+   "loyalty": 30,
+   "speed": 40,
+   "combat": 35
+  },
+  "tags": [
+   "fear",
+   "gas",
+   "mind"
+  ]
+ },
+ {
+  "id": "swarm-queen",
+  "name": "Swarm Queen",
+  "universe": "Villain Ally",
+  "archetype": "Beast",
+  "stats": {
+   "power": 70,
+   "intellect": 60,
+   "loyalty": 50,
+   "speed": 60,
+   "combat": 60
+  },
+  "tags": [
+   "swarm",
+   "beast"
+  ]
+ },
+ {
+  "id": "demon-contract",
+  "name": "Demon Contract",
+  "universe": "Villain Ally",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 95,
+   "intellect": 80,
+   "loyalty": 10,
+   "speed": 60,
+   "combat": 80
+  },
+  "tags": [
+   "magic",
+   "demon"
+  ]
+ },
+ {
+  "id": "bounty-hunter",
+  "name": "Bounty Hunter",
+  "universe": "Villain Ally",
+  "archetype": "Hunter",
+  "stats": {
+   "power": 50,
+   "intellect": 65,
+   "loyalty": 35,
+   "speed": 70,
+   "combat": 90
+  },
+  "tags": [
+   "ranged",
+   "mercenary"
+  ]
+ },
+ {
+  "id": "gang-of-thugs",
+  "name": "Gang of Thugs",
+  "universe": "Villain Ally",
+  "archetype": "Crowd",
+  "stats": {
+   "power": 45,
+   "intellect": 25,
+   "loyalty": 40,
+   "speed": 40,
+   "combat": 55
+  },
+  "tags": [
+   "numbers",
+   "crowd"
+  ]
+ },
+ {
+  "id": "rogue-ai",
+  "name": "Rogue AI",
+  "universe": "Villain Ally",
+  "archetype": "Tech",
+  "stats": {
+   "power": 70,
+   "intellect": 100,
+   "loyalty": 20,
+   "speed": 60,
+   "combat": 40
+  },
+  "tags": [
+   "tech",
+   "hacker",
+   "intel"
+  ]
+ }
+]

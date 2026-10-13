@@ -1,0 +1,2576 @@
+[
+ {
+  "id": "superman",
+  "name": "Superman",
+  "universe": "DC",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 98,
+   "intellect": 80,
+   "speed": 96,
+   "durability": 95,
+   "combat": 85,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "alien"
+  ]
+ },
+ {
+  "id": "batman",
+  "name": "Batman",
+  "universe": "DC",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 45,
+   "intellect": 98,
+   "speed": 40,
+   "durability": 50,
+   "combat": 96,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "gadgets",
+   "human"
+  ]
+ },
+ {
+  "id": "wonder-woman",
+  "name": "Wonder Woman",
+  "universe": "DC",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 88,
+   "intellect": 78,
+   "speed": 80,
+   "durability": 85,
+   "combat": 95,
+   "teamwork": 82
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "amazon"
+  ]
+ },
+ {
+  "id": "the-flash",
+  "name": "The Flash",
+  "universe": "DC",
+  "archetype": "Speedster",
+  "stats": {
+   "power": 78,
+   "intellect": 85,
+   "speed": 100,
+   "durability": 70,
+   "combat": 80,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "speedster"
+  ]
+ },
+ {
+  "id": "green-lantern-hal-jordan",
+  "name": "Green Lantern (Hal Jordan)",
+  "universe": "DC",
+  "archetype": "Cosmic",
+  "stats": {
+   "power": 90,
+   "intellect": 70,
+   "speed": 75,
+   "durability": 70,
+   "combat": 75,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "aquaman",
+  "name": "Aquaman",
+  "universe": "DC",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 82,
+   "intellect": 65,
+   "speed": 70,
+   "durability": 85,
+   "combat": 85,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "water"
+  ]
+ },
+ {
+  "id": "cyborg",
+  "name": "Cyborg",
+  "universe": "DC",
+  "archetype": "Tech",
+  "stats": {
+   "power": 75,
+   "intellect": 88,
+   "speed": 60,
+   "durability": 80,
+   "combat": 70,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "tech"
+  ]
+ },
+ {
+  "id": "martian-manhunter",
+  "name": "Martian Manhunter",
+  "universe": "DC",
+  "archetype": "Psychic",
+  "stats": {
+   "power": 90,
+   "intellect": 85,
+   "speed": 80,
+   "durability": 90,
+   "combat": 80,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "alien",
+   "telepath"
+  ]
+ },
+ {
+  "id": "shazam",
+  "name": "Shazam",
+  "universe": "DC",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 90,
+   "intellect": 60,
+   "speed": 85,
+   "durability": 88,
+   "combat": 75,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "magic"
+  ]
+ },
+ {
+  "id": "green-arrow",
+  "name": "Green Arrow",
+  "universe": "DC",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 40,
+   "intellect": 80,
+   "speed": 55,
+   "durability": 40,
+   "combat": 85,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "human"
+  ]
+ },
+ {
+  "id": "black-canary",
+  "name": "Black Canary",
+  "universe": "DC",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 50,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 50,
+   "combat": 85,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "human"
+  ]
+ },
+ {
+  "id": "nightwing",
+  "name": "Nightwing",
+  "universe": "DC",
+  "archetype": "Acrobat",
+  "stats": {
+   "power": 40,
+   "intellect": 85,
+   "speed": 60,
+   "durability": 45,
+   "combat": 90,
+   "teamwork": 92
+  },
+  "tags": [
+   "hero",
+   "human"
+  ]
+ },
+ {
+  "id": "robin-damian-wayne",
+  "name": "Robin (Damian Wayne)",
+  "universe": "DC",
+  "archetype": "Acrobat",
+  "stats": {
+   "power": 40,
+   "intellect": 78,
+   "speed": 60,
+   "durability": 45,
+   "combat": 88,
+   "teamwork": 65
+  },
+  "tags": [
+   "hero",
+   "human"
+  ]
+ },
+ {
+  "id": "supergirl",
+  "name": "Supergirl",
+  "universe": "DC",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 92,
+   "intellect": 70,
+   "speed": 92,
+   "durability": 92,
+   "combat": 80,
+   "teamwork": 78
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "alien"
+  ]
+ },
+ {
+  "id": "batgirl",
+  "name": "Batgirl",
+  "universe": "DC",
+  "archetype": "Hacker",
+  "stats": {
+   "power": 35,
+   "intellect": 90,
+   "speed": 55,
+   "durability": 40,
+   "combat": 80,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "human",
+   "tech"
+  ]
+ },
+ {
+  "id": "raven",
+  "name": "Raven",
+  "universe": "DC",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 88,
+   "intellect": 85,
+   "speed": 55,
+   "durability": 60,
+   "combat": 60,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "magic",
+   "telepath"
+  ]
+ },
+ {
+  "id": "starfire",
+  "name": "Starfire",
+  "universe": "DC",
+  "archetype": "Cosmic",
+  "stats": {
+   "power": 85,
+   "intellect": 60,
+   "speed": 75,
+   "durability": 75,
+   "combat": 75,
+   "teamwork": 78
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "alien"
+  ]
+ },
+ {
+  "id": "beast-boy",
+  "name": "Beast Boy",
+  "universe": "DC",
+  "archetype": "Shapeshifter",
+  "stats": {
+   "power": 65,
+   "intellect": 65,
+   "speed": 70,
+   "durability": 65,
+   "combat": 70,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "zatanna",
+  "name": "Zatanna",
+  "universe": "DC",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 90,
+   "intellect": 85,
+   "speed": 50,
+   "durability": 45,
+   "combat": 50,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "magic"
+  ]
+ },
+ {
+  "id": "doctor-fate",
+  "name": "Doctor Fate",
+  "universe": "DC",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 97,
+   "intellect": 95,
+   "speed": 60,
+   "durability": 95,
+   "combat": 55,
+   "teamwork": 60
+  },
+  "tags": [
+   "hero",
+   "magic"
+  ]
+ },
+ {
+  "id": "hawkgirl",
+  "name": "Hawkgirl",
+  "universe": "DC",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 70,
+   "intellect": 65,
+   "speed": 75,
+   "durability": 65,
+   "combat": 85,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "flyer"
+  ]
+ },
+ {
+  "id": "blue-beetle",
+  "name": "Blue Beetle",
+  "universe": "DC",
+  "archetype": "Tech",
+  "stats": {
+   "power": 82,
+   "intellect": 75,
+   "speed": 65,
+   "durability": 85,
+   "combat": 70,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "flyer"
+  ]
+ },
+ {
+  "id": "booster-gold",
+  "name": "Booster Gold",
+  "universe": "DC",
+  "archetype": "Tech",
+  "stats": {
+   "power": 70,
+   "intellect": 60,
+   "speed": 65,
+   "durability": 70,
+   "combat": 65,
+   "teamwork": 55
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "flyer"
+  ]
+ },
+ {
+  "id": "swamp-thing",
+  "name": "Swamp Thing",
+  "universe": "DC",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 90,
+   "intellect": 70,
+   "speed": 40,
+   "durability": 95,
+   "combat": 65,
+   "teamwork": 50
+  },
+  "tags": [
+   "hero",
+   "nature"
+  ]
+ },
+ {
+  "id": "constantine",
+  "name": "Constantine",
+  "universe": "DC",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 60,
+   "intellect": 85,
+   "speed": 35,
+   "durability": 35,
+   "combat": 55,
+   "teamwork": 35
+  },
+  "tags": [
+   "antihero",
+   "magic"
+  ]
+ },
+ {
+  "id": "plastic-man",
+  "name": "Plastic Man",
+  "universe": "DC",
+  "archetype": "Shapeshifter",
+  "stats": {
+   "power": 65,
+   "intellect": 65,
+   "speed": 60,
+   "durability": 80,
+   "combat": 70,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "static",
+  "name": "Static",
+  "universe": "DC",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 68,
+   "intellect": 80,
+   "speed": 65,
+   "durability": 50,
+   "combat": 60,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "electric"
+  ]
+ },
+ {
+  "id": "atom-ray-palmer",
+  "name": "Atom (Ray Palmer)",
+  "universe": "DC",
+  "archetype": "Scientist",
+  "stats": {
+   "power": 60,
+   "intellect": 95,
+   "speed": 60,
+   "durability": 55,
+   "combat": 65,
+   "teamwork": 78
+  },
+  "tags": [
+   "hero",
+   "human",
+   "tech"
+  ]
+ },
+ {
+  "id": "captain-atom",
+  "name": "Captain Atom",
+  "universe": "DC",
+  "archetype": "Cosmic",
+  "stats": {
+   "power": 95,
+   "intellect": 80,
+   "speed": 80,
+   "durability": 92,
+   "combat": 65,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "flyer"
+  ]
+ },
+ {
+  "id": "huntress",
+  "name": "Huntress",
+  "universe": "DC",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 35,
+   "intellect": 70,
+   "speed": 55,
+   "durability": 40,
+   "combat": 85,
+   "teamwork": 55
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "red-hood",
+  "name": "Red Hood",
+  "universe": "DC",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 40,
+   "intellect": 75,
+   "speed": 55,
+   "durability": 45,
+   "combat": 90,
+   "teamwork": 50
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "catwoman",
+  "name": "Catwoman",
+  "universe": "DC",
+  "archetype": "Acrobat",
+  "stats": {
+   "power": 35,
+   "intellect": 75,
+   "speed": 65,
+   "durability": 40,
+   "combat": 85,
+   "teamwork": 40
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "spider-man-peter-parker",
+  "name": "Spider-Man (Peter Parker)",
+  "universe": "Marvel",
+  "archetype": "Acrobat",
+  "stats": {
+   "power": 75,
+   "intellect": 92,
+   "speed": 85,
+   "durability": 70,
+   "combat": 88,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "climber"
+  ]
+ },
+ {
+  "id": "miles-morales",
+  "name": "Miles Morales",
+  "universe": "Marvel",
+  "archetype": "Acrobat",
+  "stats": {
+   "power": 72,
+   "intellect": 85,
+   "speed": 82,
+   "durability": 68,
+   "combat": 85,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "climber"
+  ]
+ },
+ {
+  "id": "iron-man",
+  "name": "Iron Man",
+  "universe": "Marvel",
+  "archetype": "Tech",
+  "stats": {
+   "power": 85,
+   "intellect": 98,
+   "speed": 70,
+   "durability": 75,
+   "combat": 80,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "flyer"
+  ]
+ },
+ {
+  "id": "captain-america",
+  "name": "Captain America",
+  "universe": "Marvel",
+  "archetype": "Leader",
+  "stats": {
+   "power": 60,
+   "intellect": 80,
+   "speed": 55,
+   "durability": 70,
+   "combat": 95,
+   "teamwork": 98
+  },
+  "tags": [
+   "hero",
+   "leader",
+   "human"
+  ]
+ },
+ {
+  "id": "thor",
+  "name": "Thor",
+  "universe": "Marvel",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 98,
+   "intellect": 70,
+   "speed": 85,
+   "durability": 95,
+   "combat": 90,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "god"
+  ]
+ },
+ {
+  "id": "hulk",
+  "name": "Hulk",
+  "universe": "Marvel",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 100,
+   "intellect": 60,
+   "speed": 55,
+   "durability": 100,
+   "combat": 85,
+   "teamwork": 45
+  },
+  "tags": [
+   "hero",
+   "rage"
+  ]
+ },
+ {
+  "id": "black-widow",
+  "name": "Black Widow",
+  "universe": "Marvel",
+  "archetype": "Spy",
+  "stats": {
+   "power": 35,
+   "intellect": 85,
+   "speed": 60,
+   "durability": 40,
+   "combat": 92,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "spy",
+   "human"
+  ]
+ },
+ {
+  "id": "hawkeye",
+  "name": "Hawkeye",
+  "universe": "Marvel",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 35,
+   "intellect": 75,
+   "speed": 50,
+   "durability": 40,
+   "combat": 85,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "human"
+  ]
+ },
+ {
+  "id": "doctor-strange",
+  "name": "Doctor Strange",
+  "universe": "Marvel",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 98,
+   "intellect": 96,
+   "speed": 55,
+   "durability": 70,
+   "combat": 65,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "magic"
+  ]
+ },
+ {
+  "id": "black-panther",
+  "name": "Black Panther",
+  "universe": "Marvel",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 75,
+   "intellect": 95,
+   "speed": 70,
+   "durability": 80,
+   "combat": 92,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "leader"
+  ]
+ },
+ {
+  "id": "scarlet-witch",
+  "name": "Scarlet Witch",
+  "universe": "Marvel",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 100,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 65,
+   "combat": 55,
+   "teamwork": 60
+  },
+  "tags": [
+   "hero",
+   "magic"
+  ]
+ },
+ {
+  "id": "vision",
+  "name": "Vision",
+  "universe": "Marvel",
+  "archetype": "Tech",
+  "stats": {
+   "power": 90,
+   "intellect": 98,
+   "speed": 75,
+   "durability": 90,
+   "combat": 70,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "flyer"
+  ]
+ },
+ {
+  "id": "ant-man",
+  "name": "Ant-Man",
+  "universe": "Marvel",
+  "archetype": "Scientist",
+  "stats": {
+   "power": 55,
+   "intellect": 88,
+   "speed": 55,
+   "durability": 55,
+   "combat": 70,
+   "teamwork": 78
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "shrink"
+  ]
+ },
+ {
+  "id": "wasp",
+  "name": "Wasp",
+  "universe": "Marvel",
+  "archetype": "Acrobat",
+  "stats": {
+   "power": 55,
+   "intellect": 80,
+   "speed": 75,
+   "durability": 60,
+   "combat": 75,
+   "teamwork": 82
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "shrink"
+  ]
+ },
+ {
+  "id": "captain-marvel",
+  "name": "Captain Marvel",
+  "universe": "Marvel",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 97,
+   "intellect": 78,
+   "speed": 92,
+   "durability": 90,
+   "combat": 85,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "falcon",
+  "name": "Falcon",
+  "universe": "Marvel",
+  "archetype": "Flyer",
+  "stats": {
+   "power": 55,
+   "intellect": 70,
+   "speed": 75,
+   "durability": 55,
+   "combat": 80,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "human"
+  ]
+ },
+ {
+  "id": "winter-soldier",
+  "name": "Winter Soldier",
+  "universe": "Marvel",
+  "archetype": "Spy",
+  "stats": {
+   "power": 65,
+   "intellect": 65,
+   "speed": 60,
+   "durability": 70,
+   "combat": 95,
+   "teamwork": 55
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "war-machine",
+  "name": "War Machine",
+  "universe": "Marvel",
+  "archetype": "Tech",
+  "stats": {
+   "power": 78,
+   "intellect": 82,
+   "speed": 65,
+   "durability": 75,
+   "combat": 80,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "flyer"
+  ]
+ },
+ {
+  "id": "wolverine",
+  "name": "Wolverine",
+  "universe": "Marvel",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 70,
+   "intellect": 70,
+   "speed": 65,
+   "durability": 85,
+   "combat": 95,
+   "teamwork": 60
+  },
+  "tags": [
+   "antihero",
+   "regen",
+   "mutant"
+  ]
+ },
+ {
+  "id": "storm",
+  "name": "Storm",
+  "universe": "Marvel",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 92,
+   "intellect": 75,
+   "speed": 70,
+   "durability": 60,
+   "combat": 70,
+   "teamwork": 82
+  },
+  "tags": [
+   "hero",
+   "mutant",
+   "flyer",
+   "weather"
+  ]
+ },
+ {
+  "id": "cyclops",
+  "name": "Cyclops",
+  "universe": "Marvel",
+  "archetype": "Leader",
+  "stats": {
+   "power": 80,
+   "intellect": 80,
+   "speed": 50,
+   "durability": 55,
+   "combat": 80,
+   "teamwork": 90
+  },
+  "tags": [
+   "hero",
+   "mutant",
+   "leader"
+  ]
+ },
+ {
+  "id": "jean-grey",
+  "name": "Jean Grey",
+  "universe": "Marvel",
+  "archetype": "Psychic",
+  "stats": {
+   "power": 98,
+   "intellect": 88,
+   "speed": 60,
+   "durability": 65,
+   "combat": 60,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "mutant",
+   "telepath"
+  ]
+ },
+ {
+  "id": "professor-x",
+  "name": "Professor X",
+  "universe": "Marvel",
+  "archetype": "Psychic",
+  "stats": {
+   "power": 95,
+   "intellect": 98,
+   "speed": 30,
+   "durability": 25,
+   "combat": 40,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "mutant",
+   "telepath",
+   "leader"
+  ]
+ },
+ {
+  "id": "beast",
+  "name": "Beast",
+  "universe": "Marvel",
+  "archetype": "Scientist",
+  "stats": {
+   "power": 65,
+   "intellect": 95,
+   "speed": 70,
+   "durability": 70,
+   "combat": 80,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "mutant",
+   "scientist"
+  ]
+ },
+ {
+  "id": "colossus",
+  "name": "Colossus",
+  "universe": "Marvel",
+  "archetype": "Tank",
+  "stats": {
+   "power": 75,
+   "intellect": 55,
+   "speed": 40,
+   "durability": 95,
+   "combat": 80,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "mutant",
+   "tank"
+  ]
+ },
+ {
+  "id": "nightcrawler",
+  "name": "Nightcrawler",
+  "universe": "Marvel",
+  "archetype": "Acrobat",
+  "stats": {
+   "power": 60,
+   "intellect": 70,
+   "speed": 85,
+   "durability": 50,
+   "combat": 85,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "mutant",
+   "teleport"
+  ]
+ },
+ {
+  "id": "rogue",
+  "name": "Rogue",
+  "universe": "Marvel",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 88,
+   "intellect": 60,
+   "speed": 80,
+   "durability": 80,
+   "combat": 75,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "mutant",
+   "flyer"
+  ]
+ },
+ {
+  "id": "gambit",
+  "name": "Gambit",
+  "universe": "Marvel",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 60,
+   "intellect": 70,
+   "speed": 65,
+   "durability": 50,
+   "combat": 80,
+   "teamwork": 65
+  },
+  "tags": [
+   "antihero",
+   "mutant"
+  ]
+ },
+ {
+  "id": "deadpool",
+  "name": "Deadpool",
+  "universe": "Marvel",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 60,
+   "intellect": 45,
+   "speed": 60,
+   "durability": 80,
+   "combat": 92,
+   "teamwork": 35
+  },
+  "tags": [
+   "antihero",
+   "regen"
+  ]
+ },
+ {
+  "id": "daredevil",
+  "name": "Daredevil",
+  "universe": "Marvel",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 45,
+   "intellect": 75,
+   "speed": 60,
+   "durability": 55,
+   "combat": 94,
+   "teamwork": 60
+  },
+  "tags": [
+   "hero",
+   "human"
+  ]
+ },
+ {
+  "id": "punisher",
+  "name": "Punisher",
+  "universe": "Marvel",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 30,
+   "intellect": 70,
+   "speed": 45,
+   "durability": 45,
+   "combat": 88,
+   "teamwork": 25
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "luke-cage",
+  "name": "Luke Cage",
+  "universe": "Marvel",
+  "archetype": "Tank",
+  "stats": {
+   "power": 70,
+   "intellect": 60,
+   "speed": 40,
+   "durability": 92,
+   "combat": 82,
+   "teamwork": 78
+  },
+  "tags": [
+   "hero",
+   "tank"
+  ]
+ },
+ {
+  "id": "jessica-jones",
+  "name": "Jessica Jones",
+  "universe": "Marvel",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 75,
+   "intellect": 70,
+   "speed": 55,
+   "durability": 75,
+   "combat": 70,
+   "teamwork": 50
+  },
+  "tags": [
+   "hero",
+   "flyer"
+  ]
+ },
+ {
+  "id": "iron-fist",
+  "name": "Iron Fist",
+  "universe": "Marvel",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 65,
+   "intellect": 65,
+   "speed": 70,
+   "durability": 65,
+   "combat": 92,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "martial"
+  ]
+ },
+ {
+  "id": "moon-knight",
+  "name": "Moon Knight",
+  "universe": "Marvel",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 65,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 70,
+   "combat": 88,
+   "teamwork": 40
+  },
+  "tags": [
+   "antihero",
+   "mystic"
+  ]
+ },
+ {
+  "id": "ghost-rider",
+  "name": "Ghost Rider",
+  "universe": "Marvel",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 88,
+   "intellect": 65,
+   "speed": 65,
+   "durability": 90,
+   "combat": 75,
+   "teamwork": 35
+  },
+  "tags": [
+   "antihero",
+   "magic",
+   "fire"
+  ]
+ },
+ {
+  "id": "silver-surfer",
+  "name": "Silver Surfer",
+  "universe": "Marvel",
+  "archetype": "Cosmic",
+  "stats": {
+   "power": 98,
+   "intellect": 85,
+   "speed": 98,
+   "durability": 95,
+   "combat": 70,
+   "teamwork": 40
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "mr-fantastic",
+  "name": "Mr. Fantastic",
+  "universe": "Marvel",
+  "archetype": "Scientist",
+  "stats": {
+   "power": 75,
+   "intellect": 100,
+   "speed": 60,
+   "durability": 80,
+   "combat": 60,
+   "teamwork": 82
+  },
+  "tags": [
+   "hero",
+   "scientist",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "invisible-woman",
+  "name": "Invisible Woman",
+  "universe": "Marvel",
+  "archetype": "Psychic",
+  "stats": {
+   "power": 82,
+   "intellect": 78,
+   "speed": 55,
+   "durability": 70,
+   "combat": 60,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "field"
+  ]
+ },
+ {
+  "id": "human-torch",
+  "name": "Human Torch",
+  "universe": "Marvel",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 78,
+   "intellect": 60,
+   "speed": 85,
+   "durability": 70,
+   "combat": 70,
+   "teamwork": 82
+  },
+  "tags": [
+   "hero",
+   "fire",
+   "flyer"
+  ]
+ },
+ {
+  "id": "the-thing",
+  "name": "The Thing",
+  "universe": "Marvel",
+  "archetype": "Tank",
+  "stats": {
+   "power": 78,
+   "intellect": 55,
+   "speed": 40,
+   "durability": 95,
+   "combat": 85,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "tank"
+  ]
+ },
+ {
+  "id": "she-hulk",
+  "name": "She-Hulk",
+  "universe": "Marvel",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 90,
+   "intellect": 80,
+   "speed": 55,
+   "durability": 92,
+   "combat": 85,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "rage"
+  ]
+ },
+ {
+  "id": "star-lord",
+  "name": "Star-Lord",
+  "universe": "Marvel",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 50,
+   "intellect": 70,
+   "speed": 55,
+   "durability": 45,
+   "combat": 75,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "human"
+  ]
+ },
+ {
+  "id": "gamora",
+  "name": "Gamora",
+  "universe": "Marvel",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 55,
+   "intellect": 75,
+   "speed": 70,
+   "durability": 60,
+   "combat": 95,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "alien"
+  ]
+ },
+ {
+  "id": "groot",
+  "name": "Groot",
+  "universe": "Marvel",
+  "archetype": "Tank",
+  "stats": {
+   "power": 80,
+   "intellect": 45,
+   "speed": 40,
+   "durability": 90,
+   "combat": 75,
+   "teamwork": 92
+  },
+  "tags": [
+   "hero",
+   "nature",
+   "tank"
+  ]
+ },
+ {
+  "id": "rocket-raccoon",
+  "name": "Rocket Raccoon",
+  "universe": "Marvel",
+  "archetype": "Tech",
+  "stats": {
+   "power": 45,
+   "intellect": 90,
+   "speed": 60,
+   "durability": 45,
+   "combat": 80,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "tech"
+  ]
+ },
+ {
+  "id": "drax",
+  "name": "Drax",
+  "universe": "Marvel",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 75,
+   "intellect": 45,
+   "speed": 50,
+   "durability": 85,
+   "combat": 90,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "alien"
+  ]
+ },
+ {
+  "id": "nova",
+  "name": "Nova",
+  "universe": "Marvel",
+  "archetype": "Cosmic",
+  "stats": {
+   "power": 82,
+   "intellect": 70,
+   "speed": 80,
+   "durability": 80,
+   "combat": 75,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "blade",
+  "name": "Blade",
+  "universe": "Marvel",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 65,
+   "intellect": 70,
+   "speed": 65,
+   "durability": 75,
+   "combat": 92,
+   "teamwork": 45
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "shang-chi",
+  "name": "Shang-Chi",
+  "universe": "Marvel",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 68,
+   "intellect": 72,
+   "speed": 75,
+   "durability": 65,
+   "combat": 95,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "martial"
+  ]
+ },
+ {
+  "id": "ms-marvel-kamala-khan",
+  "name": "Ms. Marvel (Kamala Khan)",
+  "universe": "Marvel",
+  "archetype": "Shapeshifter",
+  "stats": {
+   "power": 65,
+   "intellect": 72,
+   "speed": 65,
+   "durability": 65,
+   "combat": 65,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "hercules",
+  "name": "Hercules",
+  "universe": "Marvel",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 95,
+   "intellect": 55,
+   "speed": 60,
+   "durability": 95,
+   "combat": 90,
+   "teamwork": 65
+  },
+  "tags": [
+   "hero",
+   "god"
+  ]
+ },
+ {
+  "id": "spawn",
+  "name": "Spawn",
+  "universe": "Indie",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 92,
+   "intellect": 75,
+   "speed": 65,
+   "durability": 90,
+   "combat": 88,
+   "teamwork": 25
+  },
+  "tags": [
+   "antihero",
+   "magic"
+  ]
+ },
+ {
+  "id": "hellboy",
+  "name": "Hellboy",
+  "universe": "Indie",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 78,
+   "intellect": 65,
+   "speed": 50,
+   "durability": 92,
+   "combat": 85,
+   "teamwork": 65
+  },
+  "tags": [
+   "antihero",
+   "tank"
+  ]
+ },
+ {
+  "id": "invincible",
+  "name": "Invincible",
+  "universe": "Indie",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 92,
+   "intellect": 70,
+   "speed": 88,
+   "durability": 90,
+   "combat": 82,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "flyer"
+  ]
+ },
+ {
+  "id": "omni-man",
+  "name": "Omni-Man",
+  "universe": "Indie",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 98,
+   "intellect": 78,
+   "speed": 92,
+   "durability": 98,
+   "combat": 92,
+   "teamwork": 35
+  },
+  "tags": [
+   "antihero",
+   "flyer",
+   "alien"
+  ]
+ },
+ {
+  "id": "atom-eve",
+  "name": "Atom Eve",
+  "universe": "Indie",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 85,
+   "intellect": 82,
+   "speed": 75,
+   "durability": 70,
+   "combat": 60,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "flyer"
+  ]
+ },
+ {
+  "id": "the-tick",
+  "name": "The Tick",
+  "universe": "Indie",
+  "archetype": "Tank",
+  "stats": {
+   "power": 75,
+   "intellect": 25,
+   "speed": 50,
+   "durability": 92,
+   "combat": 60,
+   "teamwork": 60
+  },
+  "tags": [
+   "hero",
+   "tank"
+  ]
+ },
+ {
+  "id": "savage-dragon",
+  "name": "Savage Dragon",
+  "universe": "Indie",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 78,
+   "intellect": 55,
+   "speed": 60,
+   "durability": 92,
+   "combat": 85,
+   "teamwork": 60
+  },
+  "tags": [
+   "hero",
+   "regen"
+  ]
+ },
+ {
+  "id": "hit-girl",
+  "name": "Hit-Girl",
+  "universe": "Indie",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 25,
+   "intellect": 75,
+   "speed": 60,
+   "durability": 35,
+   "combat": 92,
+   "teamwork": 40
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "rorschach",
+  "name": "Rorschach",
+  "universe": "Indie",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 25,
+   "intellect": 85,
+   "speed": 45,
+   "durability": 40,
+   "combat": 82,
+   "teamwork": 15
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "dr-manhattan",
+  "name": "Dr. Manhattan",
+  "universe": "Indie",
+  "archetype": "Cosmic",
+  "stats": {
+   "power": 100,
+   "intellect": 100,
+   "speed": 85,
+   "durability": 100,
+   "combat": 60,
+   "teamwork": 10
+  },
+  "tags": [
+   "antihero",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "ozymandias",
+  "name": "Ozymandias",
+  "universe": "Indie",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 45,
+   "intellect": 100,
+   "speed": 70,
+   "durability": 50,
+   "combat": 90,
+   "teamwork": 50
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "homelander",
+  "name": "Homelander",
+  "universe": "Indie",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 97,
+   "intellect": 70,
+   "speed": 92,
+   "durability": 95,
+   "combat": 88,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "flyer"
+  ]
+ },
+ {
+  "id": "billy-butcher",
+  "name": "Billy Butcher",
+  "universe": "Indie",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 35,
+   "intellect": 85,
+   "speed": 40,
+   "durability": 45,
+   "combat": 85,
+   "teamwork": 45
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "starlight",
+  "name": "Starlight",
+  "universe": "Indie",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 75,
+   "intellect": 65,
+   "speed": 65,
+   "durability": 65,
+   "combat": 65,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "flyer"
+  ]
+ },
+ {
+  "id": "a-train",
+  "name": "A-Train",
+  "universe": "Indie",
+  "archetype": "Speedster",
+  "stats": {
+   "power": 70,
+   "intellect": 50,
+   "speed": 98,
+   "durability": 60,
+   "combat": 65,
+   "teamwork": 50
+  },
+  "tags": [
+   "hero",
+   "speedster"
+  ]
+ },
+ {
+  "id": "mr-incredible",
+  "name": "Mr. Incredible",
+  "universe": "Indie",
+  "archetype": "Tank",
+  "stats": {
+   "power": 82,
+   "intellect": 55,
+   "speed": 50,
+   "durability": 88,
+   "combat": 85,
+   "teamwork": 92
+  },
+  "tags": [
+   "hero",
+   "tank"
+  ]
+ },
+ {
+  "id": "elastigirl",
+  "name": "Elastigirl",
+  "universe": "Indie",
+  "archetype": "Shapeshifter",
+  "stats": {
+   "power": 68,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 75,
+   "combat": 75,
+   "teamwork": 95
+  },
+  "tags": [
+   "hero",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "frozone",
+  "name": "Frozone",
+  "universe": "Indie",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 78,
+   "intellect": 65,
+   "speed": 65,
+   "durability": 60,
+   "combat": 65,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "ice"
+  ]
+ },
+ {
+  "id": "mothra",
+  "name": "Mothra",
+  "universe": "Indie",
+  "archetype": "Cosmic",
+  "stats": {
+   "power": 60,
+   "intellect": 40,
+   "speed": 70,
+   "durability": 60,
+   "combat": 55,
+   "teamwork": 50
+  },
+  "tags": [
+   "hero",
+   "flyer"
+  ]
+ },
+ {
+  "id": "joker",
+  "name": "Joker",
+  "universe": "DC",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 20,
+   "intellect": 95,
+   "speed": 40,
+   "durability": 40,
+   "combat": 70,
+   "teamwork": 5
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "lex-luthor",
+  "name": "Lex Luthor",
+  "universe": "DC",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 45,
+   "intellect": 100,
+   "speed": 35,
+   "durability": 45,
+   "combat": 50,
+   "teamwork": 40
+  },
+  "tags": [
+   "villain",
+   "tech",
+   "human"
+  ]
+ },
+ {
+  "id": "harley-quinn",
+  "name": "Harley Quinn",
+  "universe": "DC",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 35,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 50,
+   "combat": 80,
+   "teamwork": 60
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "darkseid",
+  "name": "Darkseid",
+  "universe": "DC",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 99,
+   "intellect": 95,
+   "speed": 85,
+   "durability": 98,
+   "combat": 90,
+   "teamwork": 35
+  },
+  "tags": [
+   "villain",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "deathstroke",
+  "name": "Deathstroke",
+  "universe": "DC",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 55,
+   "intellect": 85,
+   "speed": 70,
+   "durability": 65,
+   "combat": 95,
+   "teamwork": 40
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "bane",
+  "name": "Bane",
+  "universe": "DC",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 78,
+   "intellect": 80,
+   "speed": 50,
+   "durability": 85,
+   "combat": 92,
+   "teamwork": 45
+  },
+  "tags": [
+   "villain",
+   "tank"
+  ]
+ },
+ {
+  "id": "sinestro",
+  "name": "Sinestro",
+  "universe": "DC",
+  "archetype": "Cosmic",
+  "stats": {
+   "power": 90,
+   "intellect": 80,
+   "speed": 75,
+   "durability": 70,
+   "combat": 75,
+   "teamwork": 40
+  },
+  "tags": [
+   "villain",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "poison-ivy",
+  "name": "Poison Ivy",
+  "universe": "DC",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 70,
+   "intellect": 92,
+   "speed": 45,
+   "durability": 60,
+   "combat": 55,
+   "teamwork": 40
+  },
+  "tags": [
+   "villain",
+   "nature"
+  ]
+ },
+ {
+  "id": "two-face",
+  "name": "Two-Face",
+  "universe": "DC",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 30,
+   "intellect": 82,
+   "speed": 45,
+   "durability": 45,
+   "combat": 75,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "reverse-flash",
+  "name": "Reverse-Flash",
+  "universe": "DC",
+  "archetype": "Speedster",
+  "stats": {
+   "power": 78,
+   "intellect": 88,
+   "speed": 100,
+   "durability": 70,
+   "combat": 75,
+   "teamwork": 15
+  },
+  "tags": [
+   "villain",
+   "speedster"
+  ]
+ },
+ {
+  "id": "black-adam",
+  "name": "Black Adam",
+  "universe": "DC",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 97,
+   "intellect": 70,
+   "speed": 92,
+   "durability": 95,
+   "combat": 88,
+   "teamwork": 25
+  },
+  "tags": [
+   "antihero",
+   "flyer",
+   "magic"
+  ]
+ },
+ {
+  "id": "ra-s-al-ghul",
+  "name": "Ra's al Ghul",
+  "universe": "DC",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 50,
+   "intellect": 98,
+   "speed": 45,
+   "durability": 60,
+   "combat": 92,
+   "teamwork": 55
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "brainiac",
+  "name": "Brainiac",
+  "universe": "DC",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 90,
+   "intellect": 100,
+   "speed": 75,
+   "durability": 90,
+   "combat": 70,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "doomsday",
+  "name": "Doomsday",
+  "universe": "DC",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 95,
+   "intellect": 25,
+   "speed": 80,
+   "durability": 100,
+   "combat": 90,
+   "teamwork": 5
+  },
+  "tags": [
+   "villain",
+   "tank"
+  ]
+ },
+ {
+  "id": "scarecrow",
+  "name": "Scarecrow",
+  "universe": "DC",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 25,
+   "intellect": 92,
+   "speed": 40,
+   "durability": 35,
+   "combat": 55,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "cheetah",
+  "name": "Cheetah",
+  "universe": "DC",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 65,
+   "intellect": 55,
+   "speed": 92,
+   "durability": 60,
+   "combat": 85,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "speedster"
+  ]
+ },
+ {
+  "id": "killer-croc",
+  "name": "Killer Croc",
+  "universe": "DC",
+  "archetype": "Tank",
+  "stats": {
+   "power": 75,
+   "intellect": 40,
+   "speed": 45,
+   "durability": 92,
+   "combat": 75,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "tank"
+  ]
+ },
+ {
+  "id": "captain-cold",
+  "name": "Captain Cold",
+  "universe": "DC",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 65,
+   "intellect": 70,
+   "speed": 55,
+   "durability": 55,
+   "combat": 65,
+   "teamwork": 45
+  },
+  "tags": [
+   "villain",
+   "ice"
+  ]
+ },
+ {
+  "id": "thanos",
+  "name": "Thanos",
+  "universe": "Marvel",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 100,
+   "intellect": 95,
+   "speed": 70,
+   "durability": 98,
+   "combat": 92,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "loki",
+  "name": "Loki",
+  "universe": "Marvel",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 80,
+   "intellect": 95,
+   "speed": 60,
+   "durability": 80,
+   "combat": 70,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "magic",
+   "god"
+  ]
+ },
+ {
+  "id": "doctor-doom",
+  "name": "Doctor Doom",
+  "universe": "Marvel",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 96,
+   "intellect": 100,
+   "speed": 55,
+   "durability": 92,
+   "combat": 75,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "tech",
+   "magic"
+  ]
+ },
+ {
+  "id": "magneto",
+  "name": "Magneto",
+  "universe": "Marvel",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 97,
+   "intellect": 88,
+   "speed": 60,
+   "durability": 80,
+   "combat": 70,
+   "teamwork": 45
+  },
+  "tags": [
+   "villain",
+   "mutant",
+   "flyer"
+  ]
+ },
+ {
+  "id": "green-goblin",
+  "name": "Green Goblin",
+  "universe": "Marvel",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 55,
+   "intellect": 85,
+   "speed": 65,
+   "durability": 60,
+   "combat": 70,
+   "teamwork": 15
+  },
+  "tags": [
+   "villain",
+   "tech",
+   "flyer"
+  ]
+ },
+ {
+  "id": "venom",
+  "name": "Venom",
+  "universe": "Marvel",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 80,
+   "intellect": 60,
+   "speed": 75,
+   "durability": 85,
+   "combat": 85,
+   "teamwork": 35
+  },
+  "tags": [
+   "antihero",
+   "climber"
+  ]
+ },
+ {
+  "id": "kingpin",
+  "name": "Kingpin",
+  "universe": "Marvel",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 55,
+   "intellect": 92,
+   "speed": 35,
+   "durability": 75,
+   "combat": 85,
+   "teamwork": 40
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "ultron",
+  "name": "Ultron",
+  "universe": "Marvel",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 88,
+   "intellect": 98,
+   "speed": 75,
+   "durability": 90,
+   "combat": 80,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "tech",
+   "flyer"
+  ]
+ },
+ {
+  "id": "red-skull",
+  "name": "Red Skull",
+  "universe": "Marvel",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 45,
+   "intellect": 92,
+   "speed": 40,
+   "durability": 50,
+   "combat": 75,
+   "teamwork": 35
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "hela",
+  "name": "Hela",
+  "universe": "Marvel",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 96,
+   "intellect": 85,
+   "speed": 70,
+   "durability": 95,
+   "combat": 92,
+   "teamwork": 15
+  },
+  "tags": [
+   "villain",
+   "magic",
+   "god"
+  ]
+ },
+ {
+  "id": "galactus",
+  "name": "Galactus",
+  "universe": "Marvel",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 100,
+   "intellect": 92,
+   "speed": 70,
+   "durability": 100,
+   "combat": 40,
+   "teamwork": 5
+  },
+  "tags": [
+   "villain",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "mystique",
+  "name": "Mystique",
+  "universe": "Marvel",
+  "archetype": "Spy",
+  "stats": {
+   "power": 60,
+   "intellect": 80,
+   "speed": 70,
+   "durability": 60,
+   "combat": 85,
+   "teamwork": 45
+  },
+  "tags": [
+   "villain",
+   "mutant",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "sabretooth",
+  "name": "Sabretooth",
+  "universe": "Marvel",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 68,
+   "intellect": 50,
+   "speed": 70,
+   "durability": 82,
+   "combat": 90,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "mutant",
+   "regen"
+  ]
+ },
+ {
+  "id": "apocalypse",
+  "name": "Apocalypse",
+  "universe": "Marvel",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 97,
+   "intellect": 92,
+   "speed": 70,
+   "durability": 95,
+   "combat": 85,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "mutant"
+  ]
+ },
+ {
+  "id": "dormammu",
+  "name": "Dormammu",
+  "universe": "Marvel",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 99,
+   "intellect": 90,
+   "speed": 60,
+   "durability": 95,
+   "combat": 60,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "doctor-octopus",
+  "name": "Doctor Octopus",
+  "universe": "Marvel",
+  "archetype": "Scientist",
+  "stats": {
+   "power": 65,
+   "intellect": 96,
+   "speed": 55,
+   "durability": 65,
+   "combat": 75,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "sandman",
+  "name": "Sandman",
+  "universe": "Marvel",
+  "archetype": "Tank",
+  "stats": {
+   "power": 82,
+   "intellect": 55,
+   "speed": 55,
+   "durability": 90,
+   "combat": 65,
+   "teamwork": 40
+  },
+  "tags": [
+   "villain",
+   "elemental"
+  ]
+ },
+ {
+  "id": "mysterio",
+  "name": "Mysterio",
+  "universe": "Marvel",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 30,
+   "intellect": 92,
+   "speed": 45,
+   "durability": 35,
+   "combat": 55,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "deathlok",
+  "name": "Deathlok",
+  "universe": "Marvel",
+  "archetype": "Tech",
+  "stats": {
+   "power": 78,
+   "intellect": 78,
+   "speed": 60,
+   "durability": 85,
+   "combat": 88,
+   "teamwork": 55
+  },
+  "tags": [
+   "antihero",
+   "tech"
+  ]
+ }
+]

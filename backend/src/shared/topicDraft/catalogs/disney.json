@@ -1,0 +1,669 @@
+[
+ {
+  "id": "mickey-mouse",
+  "name": "Mickey Mouse",
+  "universe": "Disney",
+  "archetype": "Leader",
+  "stats": {
+   "power": 40,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 40,
+   "combat": 40,
+   "teamwork": 100
+  },
+  "tags": [
+   "hero",
+   "leader"
+  ]
+ },
+ {
+  "id": "elsa",
+  "name": "Elsa",
+  "universe": "Disney",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 92,
+   "intellect": 75,
+   "speed": 60,
+   "durability": 70,
+   "combat": 55,
+   "teamwork": 70
+  },
+  "tags": [
+   "ice",
+   "magic"
+  ]
+ },
+ {
+  "id": "simba",
+  "name": "Simba",
+  "universe": "Disney",
+  "archetype": "Leader",
+  "stats": {
+   "power": 75,
+   "intellect": 60,
+   "speed": 75,
+   "durability": 75,
+   "combat": 80,
+   "teamwork": 85
+  },
+  "tags": [
+   "leader",
+   "beast"
+  ]
+ },
+ {
+  "id": "aladdin",
+  "name": "Aladdin",
+  "universe": "Disney",
+  "archetype": "Rogue",
+  "stats": {
+   "power": 45,
+   "intellect": 80,
+   "speed": 85,
+   "durability": 50,
+   "combat": 65,
+   "teamwork": 80
+  },
+  "tags": [
+   "rogue",
+   "acrobat"
+  ]
+ },
+ {
+  "id": "genie",
+  "name": "Genie",
+  "universe": "Disney",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 98,
+   "intellect": 85,
+   "speed": 70,
+   "durability": 80,
+   "combat": 50,
+   "teamwork": 85
+  },
+  "tags": [
+   "magic"
+  ]
+ },
+ {
+  "id": "mulan",
+  "name": "Mulan",
+  "universe": "Disney",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 60,
+   "intellect": 92,
+   "speed": 80,
+   "durability": 60,
+   "combat": 88,
+   "teamwork": 90
+  },
+  "tags": [
+   "warrior",
+   "leader"
+  ]
+ },
+ {
+  "id": "hercules",
+  "name": "Hercules",
+  "universe": "Disney",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 95,
+   "intellect": 55,
+   "speed": 70,
+   "durability": 92,
+   "combat": 90,
+   "teamwork": 70
+  },
+  "tags": [
+   "god",
+   "strength"
+  ]
+ },
+ {
+  "id": "moana",
+  "name": "Moana",
+  "universe": "Disney",
+  "archetype": "Explorer",
+  "stats": {
+   "power": 60,
+   "intellect": 75,
+   "speed": 75,
+   "durability": 65,
+   "combat": 70,
+   "teamwork": 92
+  },
+  "tags": [
+   "water",
+   "leader"
+  ]
+ },
+ {
+  "id": "maui",
+  "name": "Maui",
+  "universe": "Disney",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 90,
+   "intellect": 55,
+   "speed": 75,
+   "durability": 88,
+   "combat": 85,
+   "teamwork": 55
+  },
+  "tags": [
+   "god",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "rapunzel",
+  "name": "Rapunzel",
+  "universe": "Disney",
+  "archetype": "Support",
+  "stats": {
+   "power": 45,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 55,
+   "combat": 55,
+   "teamwork": 80
+  },
+  "tags": [
+   "healing",
+   "hair"
+  ]
+ },
+ {
+  "id": "tarzan",
+  "name": "Tarzan",
+  "universe": "Disney",
+  "archetype": "Survivor",
+  "stats": {
+   "power": 70,
+   "intellect": 55,
+   "speed": 92,
+   "durability": 75,
+   "combat": 85,
+   "teamwork": 70
+  },
+  "tags": [
+   "beast",
+   "acrobat"
+  ]
+ },
+ {
+  "id": "stitch",
+  "name": "Stitch",
+  "universe": "Disney",
+  "archetype": "Chaos",
+  "stats": {
+   "power": 75,
+   "intellect": 60,
+   "speed": 85,
+   "durability": 92,
+   "combat": 85,
+   "teamwork": 60
+  },
+  "tags": [
+   "alien",
+   "chaos"
+  ]
+ },
+ {
+  "id": "baymax",
+  "name": "Baymax",
+  "universe": "Disney",
+  "archetype": "Support",
+  "stats": {
+   "power": 55,
+   "intellect": 85,
+   "speed": 35,
+   "durability": 92,
+   "combat": 40,
+   "teamwork": 100
+  },
+  "tags": [
+   "healing",
+   "tech",
+   "tank"
+  ]
+ },
+ {
+  "id": "woody",
+  "name": "Woody",
+  "universe": "Pixar",
+  "archetype": "Leader",
+  "stats": {
+   "power": 30,
+   "intellect": 70,
+   "speed": 55,
+   "durability": 40,
+   "combat": 50,
+   "teamwork": 100
+  },
+  "tags": [
+   "leader",
+   "toy"
+  ]
+ },
+ {
+  "id": "buzz-lightyear",
+  "name": "Buzz Lightyear",
+  "universe": "Pixar",
+  "archetype": "Hero",
+  "stats": {
+   "power": 50,
+   "intellect": 60,
+   "speed": 65,
+   "durability": 60,
+   "combat": 65,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "toy",
+   "flyer"
+  ]
+ },
+ {
+  "id": "mike-wazowski",
+  "name": "Mike Wazowski",
+  "universe": "Pixar",
+  "archetype": "Support",
+  "stats": {
+   "power": 25,
+   "intellect": 75,
+   "speed": 50,
+   "durability": 45,
+   "combat": 25,
+   "teamwork": 95
+  },
+  "tags": [
+   "support",
+   "monster"
+  ]
+ },
+ {
+  "id": "sulley",
+  "name": "Sulley",
+  "universe": "Pixar",
+  "archetype": "Tank",
+  "stats": {
+   "power": 80,
+   "intellect": 50,
+   "speed": 55,
+   "durability": 85,
+   "combat": 75,
+   "teamwork": 90
+  },
+  "tags": [
+   "tank",
+   "monster"
+  ]
+ },
+ {
+  "id": "nemo-s-dory",
+  "name": "Nemo's Dory",
+  "universe": "Pixar",
+  "archetype": "Chaos",
+  "stats": {
+   "power": 25,
+   "intellect": 35,
+   "speed": 70,
+   "durability": 45,
+   "combat": 20,
+   "teamwork": 100
+  },
+  "tags": [
+   "water",
+   "chaos"
+  ]
+ },
+ {
+  "id": "lightning-mcqueen",
+  "name": "Lightning McQueen",
+  "universe": "Pixar",
+  "archetype": "Racer",
+  "stats": {
+   "power": 70,
+   "intellect": 50,
+   "speed": 98,
+   "durability": 60,
+   "combat": 55,
+   "teamwork": 75
+  },
+  "tags": [
+   "fast",
+   "car"
+  ]
+ },
+ {
+  "id": "wall-e",
+  "name": "WALL-E",
+  "universe": "Pixar",
+  "archetype": "Support",
+  "stats": {
+   "power": 45,
+   "intellect": 85,
+   "speed": 40,
+   "durability": 92,
+   "combat": 25,
+   "teamwork": 95
+  },
+  "tags": [
+   "tech",
+   "support"
+  ]
+ },
+ {
+  "id": "remy",
+  "name": "Remy",
+  "universe": "Pixar",
+  "archetype": "Chef",
+  "stats": {
+   "power": 20,
+   "intellect": 92,
+   "speed": 70,
+   "durability": 25,
+   "combat": 30,
+   "teamwork": 85
+  },
+  "tags": [
+   "chef",
+   "rat"
+  ]
+ },
+ {
+  "id": "mr-incredible",
+  "name": "Mr. Incredible",
+  "universe": "Pixar",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 85,
+   "intellect": 55,
+   "speed": 50,
+   "durability": 90,
+   "combat": 85,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "tank"
+  ]
+ },
+ {
+  "id": "elastigirl",
+  "name": "Elastigirl",
+  "universe": "Pixar",
+  "archetype": "Fighter",
+  "stats": {
+   "power": 65,
+   "intellect": 80,
+   "speed": 70,
+   "durability": 75,
+   "combat": 75,
+   "teamwork": 95
+  },
+  "tags": [
+   "hero",
+   "stretch"
+  ]
+ },
+ {
+  "id": "jack-jack",
+  "name": "Jack-Jack",
+  "universe": "Pixar",
+  "archetype": "Chaos",
+  "stats": {
+   "power": 95,
+   "intellect": 40,
+   "speed": 85,
+   "durability": 75,
+   "combat": 60,
+   "teamwork": 60
+  },
+  "tags": [
+   "chaos",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "merida",
+  "name": "Merida",
+  "universe": "Disney",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 50,
+   "intellect": 70,
+   "speed": 75,
+   "durability": 55,
+   "combat": 85,
+   "teamwork": 60
+  },
+  "tags": [
+   "ranged",
+   "archer"
+  ]
+ },
+ {
+  "id": "scar",
+  "name": "Scar",
+  "universe": "Disney",
+  "archetype": "Villain",
+  "stats": {
+   "power": 50,
+   "intellect": 90,
+   "speed": 60,
+   "durability": 55,
+   "combat": 70,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "leader"
+  ]
+ },
+ {
+  "id": "maleficent",
+  "name": "Maleficent",
+  "universe": "Disney",
+  "archetype": "Villain",
+  "stats": {
+   "power": 95,
+   "intellect": 90,
+   "speed": 55,
+   "durability": 75,
+   "combat": 60,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "ursula",
+  "name": "Ursula",
+  "universe": "Disney",
+  "archetype": "Villain",
+  "stats": {
+   "power": 88,
+   "intellect": 85,
+   "speed": 50,
+   "durability": 70,
+   "combat": 55,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "captain-hook",
+  "name": "Captain Hook",
+  "universe": "Disney",
+  "archetype": "Villain",
+  "stats": {
+   "power": 35,
+   "intellect": 70,
+   "speed": 50,
+   "durability": 50,
+   "combat": 75,
+   "teamwork": 45
+  },
+  "tags": [
+   "villain"
+  ]
+ },
+ {
+  "id": "hades",
+  "name": "Hades",
+  "universe": "Disney",
+  "archetype": "Villain",
+  "stats": {
+   "power": 92,
+   "intellect": 82,
+   "speed": 55,
+   "durability": 92,
+   "combat": 60,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "god",
+   "magic"
+  ]
+ },
+ {
+  "id": "gaston",
+  "name": "Gaston",
+  "universe": "Disney",
+  "archetype": "Villain",
+  "stats": {
+   "power": 45,
+   "intellect": 40,
+   "speed": 55,
+   "durability": 65,
+   "combat": 80,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain"
+  ]
+ },
+ {
+  "id": "jafar",
+  "name": "Jafar",
+  "universe": "Disney",
+  "archetype": "Villain",
+  "stats": {
+   "power": 88,
+   "intellect": 92,
+   "speed": 50,
+   "durability": 55,
+   "combat": 45,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "syndrome",
+  "name": "Syndrome",
+  "universe": "Pixar",
+  "archetype": "Villain",
+  "stats": {
+   "power": 55,
+   "intellect": 95,
+   "speed": 60,
+   "durability": 55,
+   "combat": 65,
+   "teamwork": 15
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "lotso",
+  "name": "Lotso",
+  "universe": "Pixar",
+  "archetype": "Villain",
+  "stats": {
+   "power": 25,
+   "intellect": 80,
+   "speed": 35,
+   "durability": 50,
+   "combat": 50,
+   "teamwork": 50
+  },
+  "tags": [
+   "villain",
+   "leader"
+  ]
+ },
+ {
+  "id": "stitch-s-cousin-experiment-626",
+  "name": "Stitch's Cousin Experiment 626",
+  "universe": "Disney",
+  "archetype": "Chaos",
+  "stats": {
+   "power": 70,
+   "intellect": 55,
+   "speed": 75,
+   "durability": 85,
+   "combat": 80,
+   "teamwork": 35
+  },
+  "tags": [
+   "alien",
+   "chaos"
+  ]
+ },
+ {
+  "id": "olaf",
+  "name": "Olaf",
+  "universe": "Disney",
+  "archetype": "Support",
+  "stats": {
+   "power": 20,
+   "intellect": 40,
+   "speed": 35,
+   "durability": 30,
+   "combat": 15,
+   "teamwork": 100
+  },
+  "tags": [
+   "ice",
+   "support"
+  ]
+ },
+ {
+  "id": "mushu",
+  "name": "Mushu",
+  "universe": "Disney",
+  "archetype": "Support",
+  "stats": {
+   "power": 40,
+   "intellect": 65,
+   "speed": 60,
+   "durability": 35,
+   "combat": 45,
+   "teamwork": 92
+  },
+  "tags": [
+   "support",
+   "fire",
+   "dragon"
+  ]
+ }
+]

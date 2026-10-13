@@ -1,0 +1,793 @@
+[
+ {
+  "id": "mario",
+  "name": "Mario",
+  "universe": "Nintendo",
+  "archetype": "Platformer",
+  "stats": {
+   "power": 60,
+   "intellect": 60,
+   "speed": 75,
+   "durability": 60,
+   "combat": 75,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "leader"
+  ]
+ },
+ {
+  "id": "luigi",
+  "name": "Luigi",
+  "universe": "Nintendo",
+  "archetype": "Platformer",
+  "stats": {
+   "power": 58,
+   "intellect": 55,
+   "speed": 72,
+   "durability": 58,
+   "combat": 70,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero"
+  ]
+ },
+ {
+  "id": "link",
+  "name": "Link",
+  "universe": "Nintendo",
+  "archetype": "Swordsman",
+  "stats": {
+   "power": 75,
+   "intellect": 75,
+   "speed": 75,
+   "durability": 70,
+   "combat": 92,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "swordsman",
+   "leader"
+  ]
+ },
+ {
+  "id": "samus-aran",
+  "name": "Samus Aran",
+  "universe": "Nintendo",
+  "archetype": "Soldier",
+  "stats": {
+   "power": 85,
+   "intellect": 85,
+   "speed": 80,
+   "durability": 85,
+   "combat": 88,
+   "teamwork": 50
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "flyer"
+  ]
+ },
+ {
+  "id": "kirby",
+  "name": "Kirby",
+  "universe": "Nintendo",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 80,
+   "intellect": 50,
+   "speed": 70,
+   "durability": 70,
+   "combat": 75,
+   "teamwork": 90
+  },
+  "tags": [
+   "hero",
+   "flyer"
+  ]
+ },
+ {
+  "id": "donkey-kong",
+  "name": "Donkey Kong",
+  "universe": "Nintendo",
+  "archetype": "Tank",
+  "stats": {
+   "power": 82,
+   "intellect": 40,
+   "speed": 55,
+   "durability": 88,
+   "combat": 80,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "tank"
+  ]
+ },
+ {
+  "id": "pikachu",
+  "name": "Pikachu",
+  "universe": "Nintendo",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 68,
+   "intellect": 60,
+   "speed": 85,
+   "durability": 50,
+   "combat": 70,
+   "teamwork": 90
+  },
+  "tags": [
+   "hero",
+   "electric"
+  ]
+ },
+ {
+  "id": "fox-mccloud",
+  "name": "Fox McCloud",
+  "universe": "Nintendo",
+  "archetype": "Pilot",
+  "stats": {
+   "power": 55,
+   "intellect": 80,
+   "speed": 88,
+   "durability": 55,
+   "combat": 75,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "leader"
+  ]
+ },
+ {
+  "id": "sonic",
+  "name": "Sonic",
+  "universe": "Sega",
+  "archetype": "Speedster",
+  "stats": {
+   "power": 65,
+   "intellect": 55,
+   "speed": 100,
+   "durability": 60,
+   "combat": 70,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "speedster"
+  ]
+ },
+ {
+  "id": "tails",
+  "name": "Tails",
+  "universe": "Sega",
+  "archetype": "Tech",
+  "stats": {
+   "power": 45,
+   "intellect": 92,
+   "speed": 80,
+   "durability": 50,
+   "combat": 40,
+   "teamwork": 92
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "flyer"
+  ]
+ },
+ {
+  "id": "knuckles",
+  "name": "Knuckles",
+  "universe": "Sega",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 78,
+   "intellect": 50,
+   "speed": 75,
+   "durability": 75,
+   "combat": 88,
+   "teamwork": 65
+  },
+  "tags": [
+   "hero",
+   "martial"
+  ]
+ },
+ {
+  "id": "mega-man",
+  "name": "Mega Man",
+  "universe": "Capcom",
+  "archetype": "Soldier",
+  "stats": {
+   "power": 72,
+   "intellect": 75,
+   "speed": 80,
+   "durability": 65,
+   "combat": 80,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "tech"
+  ]
+ },
+ {
+  "id": "ryu",
+  "name": "Ryu",
+  "universe": "Capcom",
+  "archetype": "Martial",
+  "stats": {
+   "power": 80,
+   "intellect": 70,
+   "speed": 80,
+   "durability": 70,
+   "combat": 98,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "martial"
+  ]
+ },
+ {
+  "id": "chun-li",
+  "name": "Chun-Li",
+  "universe": "Capcom",
+  "archetype": "Martial",
+  "stats": {
+   "power": 72,
+   "intellect": 75,
+   "speed": 90,
+   "durability": 62,
+   "combat": 95,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "martial"
+  ]
+ },
+ {
+  "id": "cloud-strife",
+  "name": "Cloud Strife",
+  "universe": "Final Fantasy",
+  "archetype": "Swordsman",
+  "stats": {
+   "power": 88,
+   "intellect": 70,
+   "speed": 82,
+   "durability": 75,
+   "combat": 92,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "swordsman"
+  ]
+ },
+ {
+  "id": "tifa-lockhart",
+  "name": "Tifa Lockhart",
+  "universe": "Final Fantasy",
+  "archetype": "Martial",
+  "stats": {
+   "power": 78,
+   "intellect": 70,
+   "speed": 85,
+   "durability": 70,
+   "combat": 92,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "martial"
+  ]
+ },
+ {
+  "id": "aerith",
+  "name": "Aerith",
+  "universe": "Final Fantasy",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 75,
+   "intellect": 88,
+   "speed": 60,
+   "durability": 40,
+   "combat": 35,
+   "teamwork": 92
+  },
+  "tags": [
+   "hero",
+   "magic",
+   "healer"
+  ]
+ },
+ {
+  "id": "lara-croft",
+  "name": "Lara Croft",
+  "universe": "Adventure",
+  "archetype": "Explorer",
+  "stats": {
+   "power": 45,
+   "intellect": 88,
+   "speed": 75,
+   "durability": 55,
+   "combat": 85,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "human",
+   "explorer"
+  ]
+ },
+ {
+  "id": "nathan-drake",
+  "name": "Nathan Drake",
+  "universe": "Adventure",
+  "archetype": "Explorer",
+  "stats": {
+   "power": 50,
+   "intellect": 78,
+   "speed": 75,
+   "durability": 60,
+   "combat": 85,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "human",
+   "explorer"
+  ]
+ },
+ {
+  "id": "kratos",
+  "name": "Kratos",
+  "universe": "Action",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 96,
+   "intellect": 75,
+   "speed": 75,
+   "durability": 95,
+   "combat": 98,
+   "teamwork": 40
+  },
+  "tags": [
+   "antihero",
+   "god",
+   "tank"
+  ]
+ },
+ {
+  "id": "master-chief",
+  "name": "Master Chief",
+  "universe": "Shooter",
+  "archetype": "Soldier",
+  "stats": {
+   "power": 88,
+   "intellect": 82,
+   "speed": 75,
+   "durability": 92,
+   "combat": 95,
+   "teamwork": 92
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "leader"
+  ]
+ },
+ {
+  "id": "doomguy",
+  "name": "Doomguy",
+  "universe": "Shooter",
+  "archetype": "Soldier",
+  "stats": {
+   "power": 90,
+   "intellect": 60,
+   "speed": 75,
+   "durability": 95,
+   "combat": 100,
+   "teamwork": 10
+  },
+  "tags": [
+   "hero",
+   "tank"
+  ]
+ },
+ {
+  "id": "solid-snake",
+  "name": "Solid Snake",
+  "universe": "Stealth",
+  "archetype": "Spy",
+  "stats": {
+   "power": 55,
+   "intellect": 92,
+   "speed": 70,
+   "durability": 62,
+   "combat": 92,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "spy",
+   "human"
+  ]
+ },
+ {
+  "id": "geralt-of-rivia",
+  "name": "Geralt of Rivia",
+  "universe": "RPG",
+  "archetype": "Monster Hunter",
+  "stats": {
+   "power": 78,
+   "intellect": 85,
+   "speed": 78,
+   "durability": 75,
+   "combat": 95,
+   "teamwork": 50
+  },
+  "tags": [
+   "antihero",
+   "swordsman",
+   "magic"
+  ]
+ },
+ {
+  "id": "ezio-auditore",
+  "name": "Ezio Auditore",
+  "universe": "Stealth",
+  "archetype": "Assassin",
+  "stats": {
+   "power": 55,
+   "intellect": 85,
+   "speed": 85,
+   "durability": 60,
+   "combat": 92,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "assassin",
+   "human"
+  ]
+ },
+ {
+  "id": "joel-miller",
+  "name": "Joel Miller",
+  "universe": "Survival",
+  "archetype": "Survivor",
+  "stats": {
+   "power": 40,
+   "intellect": 72,
+   "speed": 55,
+   "durability": 55,
+   "combat": 80,
+   "teamwork": 70
+  },
+  "tags": [
+   "antihero",
+   "human"
+  ]
+ },
+ {
+  "id": "ellie",
+  "name": "Ellie",
+  "universe": "Survival",
+  "archetype": "Survivor",
+  "stats": {
+   "power": 38,
+   "intellect": 78,
+   "speed": 65,
+   "durability": 45,
+   "combat": 75,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "human"
+  ]
+ },
+ {
+  "id": "steve",
+  "name": "Steve",
+  "universe": "Sandbox",
+  "archetype": "Builder",
+  "stats": {
+   "power": 50,
+   "intellect": 85,
+   "speed": 60,
+   "durability": 50,
+   "combat": 65,
+   "teamwork": 90
+  },
+  "tags": [
+   "hero",
+   "builder",
+   "human"
+  ]
+ },
+ {
+  "id": "pac-man",
+  "name": "Pac-Man",
+  "universe": "Arcade",
+  "archetype": "Platformer",
+  "stats": {
+   "power": 40,
+   "intellect": 40,
+   "speed": 80,
+   "durability": 50,
+   "combat": 40,
+   "teamwork": 60
+  },
+  "tags": [
+   "hero",
+   "speedster"
+  ]
+ },
+ {
+  "id": "crash-bandicoot",
+  "name": "Crash Bandicoot",
+  "universe": "Platformer",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 58,
+   "intellect": 45,
+   "speed": 82,
+   "durability": 60,
+   "combat": 70,
+   "teamwork": 60
+  },
+  "tags": [
+   "hero"
+  ]
+ },
+ {
+  "id": "spyro",
+  "name": "Spyro",
+  "universe": "Platformer",
+  "archetype": "Flyer",
+  "stats": {
+   "power": 70,
+   "intellect": 50,
+   "speed": 78,
+   "durability": 70,
+   "combat": 65,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "fire"
+  ]
+ },
+ {
+  "id": "ratchet",
+  "name": "Ratchet",
+  "universe": "Platformer",
+  "archetype": "Tech",
+  "stats": {
+   "power": 65,
+   "intellect": 82,
+   "speed": 75,
+   "durability": 62,
+   "combat": 80,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "tech"
+  ]
+ },
+ {
+  "id": "gordon-freeman",
+  "name": "Gordon Freeman",
+  "universe": "Shooter",
+  "archetype": "Scientist",
+  "stats": {
+   "power": 60,
+   "intellect": 98,
+   "speed": 65,
+   "durability": 65,
+   "combat": 85,
+   "teamwork": 75
+  },
+  "tags": [
+   "hero",
+   "scientist"
+  ]
+ },
+ {
+  "id": "commander-shepard",
+  "name": "Commander Shepard",
+  "universe": "RPG",
+  "archetype": "Leader",
+  "stats": {
+   "power": 75,
+   "intellect": 88,
+   "speed": 65,
+   "durability": 75,
+   "combat": 90,
+   "teamwork": 98
+  },
+  "tags": [
+   "hero",
+   "leader"
+  ]
+ },
+ {
+  "id": "geralt-s-ciri",
+  "name": "Geralt's Ciri",
+  "universe": "RPG",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 88,
+   "intellect": 85,
+   "speed": 95,
+   "durability": 65,
+   "combat": 90,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "magic",
+   "teleport"
+  ]
+ },
+ {
+  "id": "bayonetta",
+  "name": "Bayonetta",
+  "universe": "Action",
+  "archetype": "Witch",
+  "stats": {
+   "power": 90,
+   "intellect": 85,
+   "speed": 85,
+   "durability": 80,
+   "combat": 98,
+   "teamwork": 50
+  },
+  "tags": [
+   "antihero",
+   "magic"
+  ]
+ },
+ {
+  "id": "jill-valentine",
+  "name": "Jill Valentine",
+  "universe": "Survival",
+  "archetype": "Soldier",
+  "stats": {
+   "power": 50,
+   "intellect": 82,
+   "speed": 75,
+   "durability": 60,
+   "combat": 88,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "human"
+  ]
+ },
+ {
+  "id": "leon-kennedy",
+  "name": "Leon Kennedy",
+  "universe": "Survival",
+  "archetype": "Soldier",
+  "stats": {
+   "power": 60,
+   "intellect": 80,
+   "speed": 80,
+   "durability": 70,
+   "combat": 92,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "human"
+  ]
+ },
+ {
+  "id": "dante",
+  "name": "Dante",
+  "universe": "Action",
+  "archetype": "Swordsman",
+  "stats": {
+   "power": 92,
+   "intellect": 75,
+   "speed": 92,
+   "durability": 90,
+   "combat": 98,
+   "teamwork": 35
+  },
+  "tags": [
+   "antihero",
+   "swordsman",
+   "magic"
+  ]
+ },
+ {
+  "id": "isaac-clarke",
+  "name": "Isaac Clarke",
+  "universe": "Survival",
+  "archetype": "Engineer",
+  "stats": {
+   "power": 55,
+   "intellect": 92,
+   "speed": 55,
+   "durability": 70,
+   "combat": 70,
+   "teamwork": 50
+  },
+  "tags": [
+   "hero",
+   "tech"
+  ]
+ },
+ {
+  "id": "tracer",
+  "name": "Tracer",
+  "universe": "Overwatch",
+  "archetype": "Speedster",
+  "stats": {
+   "power": 60,
+   "intellect": 65,
+   "speed": 98,
+   "durability": 45,
+   "combat": 80,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "speedster",
+   "tech"
+  ]
+ },
+ {
+  "id": "mercy",
+  "name": "Mercy",
+  "universe": "Overwatch",
+  "archetype": "Healer",
+  "stats": {
+   "power": 45,
+   "intellect": 85,
+   "speed": 70,
+   "durability": 45,
+   "combat": 25,
+   "teamwork": 98
+  },
+  "tags": [
+   "hero",
+   "healer",
+   "flyer"
+  ]
+ },
+ {
+  "id": "reinhardt",
+  "name": "Reinhardt",
+  "universe": "Overwatch",
+  "archetype": "Tank",
+  "stats": {
+   "power": 75,
+   "intellect": 60,
+   "speed": 40,
+   "durability": 95,
+   "combat": 88,
+   "teamwork": 98
+  },
+  "tags": [
+   "hero",
+   "tank",
+   "leader"
+  ]
+ }
+]
