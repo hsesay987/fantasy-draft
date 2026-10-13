@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { Check, Ban } from "lucide-react";
 import type { Item } from "../types";
+import { CharacterAvatar } from "../../components/CharacterAvatar";
 
 const SHORT: Record<string, string> = {
   power: "PWR", intellect: "INT", speed: "SPD", durability: "DUR", combat: "CMB", teamwork: "TMW",
@@ -36,8 +37,9 @@ export function HeroCard({
         selected ? "border-secondary bg-primary/25 shadow-[0_0_24px_-8px_var(--secondary)]" : "border-white/10 bg-card/80 hover:border-white/25"
       } ${disabled ? "opacity-35" : ""}`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
+      <div className="flex items-start gap-3">
+        <CharacterAvatar name={item.name} query={item.q} size={compact ? 40 : 56} />
+        <div className="min-w-0 flex-1">
           <div className="truncate font-semibold leading-tight">{item.name}</div>
           <div className="mt-0.5 text-xs text-muted-foreground">
             {item.universe} · {item.archetype}

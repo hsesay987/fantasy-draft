@@ -1,19 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Gavel } from "lucide-react";
-import { Button, Card } from "../../components/ui";
+import { Gavel, HandMetal } from "lucide-react";
+import { Button, Card, PageShell } from "../../components/ui";
 import { HeroCard } from "../../topicDraft/components/HeroCard";
+import { CharacterAvatar } from "../../components/CharacterAvatar";
 import * as A from "../../topicDraft/formats/auction";
-import { itemScore, scoreTeam } from "../../topicDraft/scorer";
+import { itemScore } from "../../topicDraft/scorer";
 import { useSound } from "../../components/SoundProvider";
-import { PageShell } from "../../components/ui";
 import { GameFrame } from "../GameFrame";
-import { useRunState } from "../useRunState";
-import { toJudgeItem, type JudgeTeamInput } from "../judging";
+import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
-import type { Item } from "../../topicDraft/types";
 
 const hash = (s: string) => {
   let h = 2166136261;
@@ -21,100 +19,67 @@ const hash = (s: string) => {
   return (h >>> 0) / 4294967296;
 };
 
-export function AuctionView({ setup, basePool, onFinish }: { setup: GameSetup; basePool: Item[]; onFinish: (t: JudgeTeamInput[]) => void }) {
+export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
-  const o = setup.opts;
-  const pool = useMemo(
-    () => [...basePool, ...o.customItems].filter((i) => !o.bans.includes(i.id) && (!o.universes.length || o.universes.includes(i.universe))),
-    [basePool, o.customItems, o.bans, o.universes]
-  );
-  const byId = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
-  const humans = setup.players.filter((p) => !setup.aiPlayers.includes(p));
-
-  const [a, setA, markFinished] = useRunState<A.AuctionState>(setup.id, () =>
-    A.init({ players: setup.players, budget: o.budget, teamSize: o.teamSize, poolIds: pool.map((i) => i.id), seed: setup.seed, baseMs: o.lotSeconds * 1000, bumpMs: Math.min(8000, o.lotSeconds * 500) })
-  );
+  const a = ctl.state as A.AuctionState;
   const [now, setNow] = useState(() => Date.now());
-  const lotStart = useRef(Date.now());
-  const lastBidAt = useRef(0);
   const [error, setError] = useState<string | null>(null);
+  const lastAct = useRef(0);
+  const lotStart = useRef(Date.now());
 
-  useEffect(() => {
-    if (a.deadline == null && !a.done) setA((s) => A.open(s, Date.now()));
-  }, [a.deadline, a.done, setA]);
+  const humans = setup.players.filter((p) => ctl.controls(p));
+  const aiPlayers = setup.players.filter((p) => ctl.isAi(p));
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 200);
     return () => clearInterval(id);
   }, []);
 
+  // Local games run the clock here; online rooms are ticked by the server.
   useEffect(() => {
-    if (a.deadline != null && now >= a.deadline) setA((s) => A.settle(s, Date.now()));
-  }, [now, a.deadline, setA]);
+    if (!ctl.online && a.deadline != null && now >= a.deadline) ctl.dispatch({ type: "tick" });
+  }, [now, a.deadline, ctl]);
 
   useEffect(() => {
     lotStart.current = Date.now();
-    lastBidAt.current = Date.now();
-  }, [a.index]);
+    lastAct.current = Date.now();
+  }, [a.index, a.openTurn]);
 
-  // AI bidders
+  // Bots: open on their turn, raise while the price is right, otherwise step aside.
   useEffect(() => {
-    if (a.done) return;
+    if (ctl.online || a.done || !aiPlayers.length) return;
     const id = setInterval(() => {
       const t = Date.now();
-      if (t - lotStart.current < 1500 || t - lastBidAt.current < 900) return;
-      setA((s) => {
-        const itemId = A.currentItem(s);
-        const item = itemId ? byId.get(itemId) : null;
-        if (!item || s.deadline == null) return s;
-        const bots = setup.aiPlayers.filter((p) => A.slotsLeft(s, p) > 0).sort(() => Math.random() - 0.5);
-        for (const p of bots) {
-          const value = (itemScore(item, setup.mission.weights) / 100) * (s.budget / s.teamSize) * 1.9 * (0.75 + 0.55 * hash(p + item.id));
-          const b = A.aiBid(s, p, value);
-          if (b && Math.random() < 0.6) {
-            lastBidAt.current = t;
-            return A.placeBid({ ...s, seed: b.seed }, p, b.amount, t);
-          }
-        }
-        return s;
-      });
-    }, 500);
+      if (t - lotStart.current < 1400 || t - lastAct.current < 1000) return;
+      const itemId = A.currentItem(a);
+      const item = itemId ? ctl.byId(itemId) : null;
+      if (!item) return;
+      for (const p of [...aiPlayers].sort(() => Math.random() - 0.5)) {
+        const value = (itemScore(item, setup.mission.weights) / 100) * (a.budget / a.teamSize) * 1.9 * (0.75 + 0.55 * hash(p + item.id));
+        const m = A.aiAct(a, p, value);
+        if (!m) continue;
+        lastAct.current = t;
+        ctl.dispatch(m.type === "bid" ? { type: "bid", by: p, amount: m.amount, seed: m.seed } : { type: "pass", by: p });
+        return;
+      }
+    }, 450);
     return () => clearInterval(id);
-  }, [a.done, byId, setup.aiPlayers, setup.mission.weights, setA]);
+  }, [a, ctl, aiPlayers, setup.mission.weights]);
 
   const secs = a.deadline ? Math.max(0, Math.ceil((a.deadline - now) / 1000)) : 0;
   useEffect(() => {
     if (secs > 0 && secs <= 3) play("tick");
   }, [secs, play]);
-
   const sold = a.lastSold;
   useEffect(() => {
     if (sold) play(sold.by ? "pick" : "click");
   }, [sold, play]);
 
-  useEffect(() => {
-    if (!a.done) return;
-    markFinished();
-    play("reveal");
-    onFinish(
-      setup.players.map((player) => {
-        const roster = a.rosters[player]!;
-        const items = roster.map((r) => byId.get(r.itemId)!).filter(Boolean);
-        return {
-          player,
-          baseline: scoreTeam(items, setup.mission).total,
-          notes: `Spent $${A.spent(a, player)} of $${a.budget}`,
-          items: roster.map((r) => toJudgeItem(byId.get(r.itemId)!, { price: r.price })),
-        };
-      })
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [a.done]);
-
   const lotId = A.currentItem(a);
-  const lot = lotId ? byId.get(lotId) : null;
-  const span = Math.max(a.baseMs, a.bumpMs);
+  const lot = lotId ? ctl.byId(lotId) : null;
+  const span = a.bid.by ? Math.max(a.baseMs, a.bumpMs) : a.openMs;
   const frac = a.deadline ? Math.max(0, Math.min(1, (a.deadline - now) / span)) : 0;
+  const opening = A.opener(a);
 
   const bid = (p: string, amount: number) => {
     const v = A.validateBid(a, p, amount);
@@ -124,67 +89,86 @@ export function AuctionView({ setup, basePool, onFinish }: { setup: GameSetup; b
       return;
     }
     setError(null);
-    lastBidAt.current = Date.now();
-    setA((s) => A.placeBid(s, p, amount, Date.now()));
+    lastAct.current = Date.now();
+    ctl.dispatch({ type: "bid", by: p, amount });
     play("click");
     if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(8);
   };
+  const out = (p: string) => {
+    lastAct.current = Date.now();
+    ctl.dispatch({ type: "pass", by: p });
+    play("click");
+  };
+
+  const headline = !lot ? "Auction over" : a.bid.by ? `${a.bid.by} leads at $${a.bid.amount}` : opening ? `${opening} opens the bidding` : "Bidding is open";
 
   return (
     <PageShell width="lg" layout="sidebar">
       <GameFrame
         kicker={`Auction · Lot ${Math.min(a.index + 1, a.queue.length)}/${a.queue.length}`}
-        headline={lot ? "Bidding is open" : "Auction over"}
+        headline={headline}
         mission={setup.mission}
         mystery={setup.mystery}
-        right={
-          <div className="text-right">
-            <div className={`font-display text-4xl ${secs <= 3 ? "text-accent" : ""}`} role="timer" aria-label={`${secs} seconds left`}>{secs}s</div>
-          </div>
-        }
+        right={<div className={`font-display text-4xl ${secs <= 3 ? "text-accent" : ""}`} role="timer" aria-label={`${secs} seconds left`}>{secs}s</div>}
       >
         <div className="h-1.5 overflow-hidden rounded-full bg-white/10" aria-hidden>
           <div className="h-full rounded-full bg-secondary transition-[width] duration-200" style={{ width: `${frac * 100}%`, background: secs <= 3 ? "var(--accent)" : undefined }} />
         </div>
 
         {lot && (
-            <motion.div key={lot.id} initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 26 }} className="space-y-4">
-              <div className="mx-auto max-w-md"><HeroCard item={lot} /></div>
-              <Card className="mx-auto flex max-w-md items-center justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-muted-foreground">High bid</p>
-                  <p className="font-display text-4xl text-secondary">${a.bid.amount}</p>
-                </div>
-                <p className="text-right text-sm">{a.bid.by ? <><span className="text-muted-foreground">held by</span><br /><span className="font-semibold">{a.bid.by}</span></> : <span className="text-muted-foreground">No bids yet</span>}</p>
-              </Card>
-            </motion.div>
-          )}
+          <motion.div key={lot.id} initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 26 }} className="mx-auto max-w-md space-y-4">
+            <div className="flex justify-center"><CharacterAvatar name={lot.name} query={lot.q} size={140} className="!rounded-3xl shadow-[0_0_40px_-10px_var(--primary)]" /></div>
+            <HeroCard item={lot} compact />
+            <Card className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">High bid</p>
+                <p className="font-display text-4xl text-secondary">${a.bid.amount}</p>
+              </div>
+              <p className="text-right text-sm">{a.bid.by ? <><span className="text-muted-foreground">held by</span><br /><span className="font-semibold">{a.bid.by}</span></> : <span className="text-muted-foreground">Opening turn:<br /><span className="font-semibold text-foreground">{opening ?? "—"}</span></span>}</p>
+            </Card>
+          </motion.div>
+        )}
 
         {error && <p role="alert" className="mx-auto max-w-md rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm">{error}</p>}
 
         <div className="mx-auto max-w-md space-y-3">
           {humans.map((p) => {
             const max = A.maxBid(a, p);
+            const leading = a.bid.by === p;
+            const opens = a.bid.by == null && opening === p;
+            const waiting = a.bid.by == null && opening !== p;
             const base = a.bid.amount;
+            const incs = a.bid.by == null ? [1, 2, 3] : [1, 2, 5];
+            const full = A.slotsLeft(a, p) <= 0;
             return (
-              <Card key={p} className="space-y-2">
-                <div className="flex items-baseline justify-between"><span className="font-semibold">{p}</span><span className="text-sm text-muted-foreground">${a.budgets[p]} left · max bid ${max}</span></div>
-                <div className="grid grid-cols-4 gap-2">
-                  {[1, 2, 5].map((inc) => (
-                    <Button key={inc} variant="primary" disabled={!A.validateBid(a, p, base + inc).ok} onClick={() => bid(p, base + inc)}>+${inc}</Button>
-                  ))}
-                  <Button variant="accent" disabled={!A.validateBid(a, p, max).ok} onClick={() => bid(p, max)}>Max</Button>
-                </div>
+              <Card key={p} className="space-y-3">
+                <div className="flex items-baseline justify-between"><span className="font-semibold">{p}{ctl.me === p ? " (you)" : ""}</span><span className="text-sm text-muted-foreground">${a.budgets[p]} left · max ${max}</span></div>
+                {full ? <p className="text-sm text-muted-foreground">Your team is full.</p>
+                : leading ? <p className="text-sm text-secondary">You&apos;re winning this lot — others can still bid or step aside.</p>
+                : a.passed[p] ? <p className="text-sm text-muted-foreground">You&apos;re out on this lot.</p>
+                : waiting ? <p className="text-sm text-muted-foreground">Waiting for {opening} to open…</p>
+                : (
+                  <>
+                    <div className="grid grid-cols-4 gap-2">
+                      {incs.map((inc) => <Button key={inc} variant="primary" disabled={!A.validateBid(a, p, base + inc).ok} onClick={() => bid(p, base + inc)}>{opens ? `$${base + inc}` : `+$${inc}`}</Button>)}
+                      <Button variant="accent" disabled={!A.validateBid(a, p, max).ok} onClick={() => bid(p, max)}>Max</Button>
+                    </div>
+                    <Button variant="ghost" className="w-full" onClick={() => out(p)}>
+                      <HandMetal className="h-4 w-4" aria-hidden /> {opens ? "Pass — let the next player open" : "I'm out — let them have it"}
+                    </Button>
+                  </>
+                )}
               </Card>
             );
           })}
+          {!humans.length && ctl.online && <p className="text-center text-sm text-muted-foreground">Spectating…</p>}
         </div>
 
         <AnimatePresence>
           {sold && (
             <motion.p key={`${sold.itemId}-${a.index}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mx-auto max-w-md rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center text-sm">
               <Gavel className="mr-1 inline h-4 w-4 text-accent" aria-hidden />
-              {sold.by ? `${byId.get(sold.itemId)?.name} sold to ${sold.by} for $${sold.price}` : `${byId.get(sold.itemId)?.name} went unsold`}
+              {sold.by ? `${ctl.byId(sold.itemId)?.name} sold to ${sold.by} for $${sold.price}` : `${ctl.byId(sold.itemId)?.name} went unsold`}
             </motion.p>
           )}
         </AnimatePresence>
@@ -193,10 +177,16 @@ export function AuctionView({ setup, basePool, onFinish }: { setup: GameSetup; b
       <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
         {setup.players.map((p) => (
           <div key={p} className={`rounded-xl border p-3 ${a.bid.by === p ? "border-secondary bg-primary/15" : "border-white/10 bg-card/60"}`}>
-            <div className="mb-2 flex items-center justify-between"><span className="font-semibold">{p}</span><span className="font-display text-lg text-secondary">${a.budgets[p]}</span></div>
+            <div className="mb-2 flex items-center justify-between">
+              <span className="font-semibold">{p}{a.passed[p] && <span className="ml-2 text-xs text-muted-foreground">out</span>}{a.bid.by == null && opening === p && <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-black">OPENS</span>}</span>
+              <span className="font-display text-lg text-secondary">${a.budgets[p]}</span>
+            </div>
             <ul className="space-y-1">
               {a.rosters[p]!.map((r) => (
-                <li key={r.itemId} className="flex justify-between rounded-lg bg-white/5 px-2.5 py-1.5 text-sm"><span className="truncate">{byId.get(r.itemId)?.name}</span><span className="ml-2 text-accent">${r.price}</span></li>
+                <li key={r.itemId} className="flex items-center justify-between rounded-lg bg-white/5 px-2.5 py-1.5 text-sm">
+                  <span className="flex min-w-0 items-center gap-2"><CharacterAvatar name={ctl.byId(r.itemId)?.name ?? "?"} query={ctl.byId(r.itemId)?.q} size={24} className="!rounded-md" /><span className="truncate">{ctl.byId(r.itemId)?.name}</span></span>
+                  <span className="ml-2 text-accent">${r.price}</span>
+                </li>
               ))}
               {Array.from({ length: A.slotsLeft(a, p) }).map((_, i) => <li key={i} className="rounded-lg border border-dashed border-white/10 px-2.5 py-1.5 text-sm text-muted-foreground/60">Empty slot</li>)}
             </ul>

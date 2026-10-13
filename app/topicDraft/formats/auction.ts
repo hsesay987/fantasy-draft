@@ -10,9 +10,14 @@ export type AuctionState = {
   leftover: string[];
   index: number;
   bid: { amount: number; by: string | null };
+  /** Players who said "I'm out" on the current lot (final for that lot). */
+  passed: Record<string, boolean>;
+  /** How many players already passed the opening turn on this lot. */
+  openTurn: number;
   deadline: number | null;
   baseMs: number;
   bumpMs: number;
+  openMs: number;
   lastSold: { itemId: string; by: string | null; price: number } | null;
   done: boolean;
   seed: number;
@@ -26,6 +31,7 @@ export function init(o: {
   seed: number;
   baseMs?: number;
   bumpMs?: number;
+  openMs?: number;
 }): AuctionState {
   const need = o.players.length * o.teamSize;
   const [shuffled, seed] = shuffle(o.poolIds, o.seed);
@@ -40,9 +46,12 @@ export function init(o: {
     leftover: shuffled.slice(take),
     index: 0,
     bid: { amount: 0, by: null },
+    passed: {},
+    openTurn: 0,
     deadline: null,
     baseMs: o.baseMs ?? 15000,
     bumpMs: o.bumpMs ?? 6000,
+    openMs: o.openMs ?? 9000,
     lastSold: null,
     done: false,
     seed,
@@ -59,14 +68,33 @@ export function maxBid(s: AuctionState, p: string): number {
   return s.budgets[p]! - (left - 1);
 }
 
+/** Players who can still win this lot (roster not full). */
+export const activePlayers = (s: AuctionState) => s.players.filter((p) => slotsLeft(s, p) > 0);
+
+/** Whose turn it is to make the opening bid; rotates each lot and skips full rosters. */
+export function opener(s: AuctionState): string | null {
+  const n = s.players.length;
+  let seen = 0;
+  for (let i = 0; i < n; i++) {
+    const p = s.players[(s.index + i) % n]!;
+    if (slotsLeft(s, p) > 0) {
+      if (seen === s.openTurn) return p;
+      seen++;
+    }
+  }
+  return null;
+}
+
 export function open(s: AuctionState, now: number): AuctionState {
-  return s.deadline == null && !s.done ? { ...s, deadline: now + s.baseMs } : s;
+  return s.deadline == null && !s.done ? { ...s, deadline: now + s.openMs } : s;
 }
 
 export function validateBid(s: AuctionState, p: string, amount: number): { ok: true } | { ok: false; reason: string } {
   if (s.done || s.deadline == null) return { ok: false, reason: "No lot open" };
   if (!Number.isInteger(amount)) return { ok: false, reason: "Whole dollars only" };
   if (slotsLeft(s, p) <= 0) return { ok: false, reason: "Your team is full" };
+  if (s.passed[p]) return { ok: false, reason: "You passed on this lot" };
+  if (s.bid.by == null && opener(s) !== p) return { ok: false, reason: `Waiting on ${opener(s)} to open` };
   if (amount <= s.bid.amount) return { ok: false, reason: `Bid must beat $${s.bid.amount}` };
   if (amount < 1) return { ok: false, reason: "Minimum bid is $1" };
   if (amount > maxBid(s, p)) return { ok: false, reason: `Max bid is $${maxBid(s, p)}` };
@@ -76,8 +104,9 @@ export function validateBid(s: AuctionState, p: string, amount: number): { ok: t
 
 export function placeBid(s: AuctionState, p: string, amount: number, now: number): AuctionState {
   if (!validateBid(s, p, amount).ok) return s;
+  const first = s.bid.by == null;
   const remaining = Math.max(0, (s.deadline ?? now) - now);
-  return { ...s, bid: { amount, by: p }, deadline: now + Math.max(remaining, s.bumpMs) };
+  return { ...s, bid: { amount, by: p }, deadline: first ? now + s.baseMs : now + Math.max(remaining, s.bumpMs) };
 }
 
 function fillRemaining(s: AuctionState): AuctionState {
@@ -98,9 +127,8 @@ function fillRemaining(s: AuctionState): AuctionState {
   return { ...s, rosters, done: true, deadline: null };
 }
 
-/** Resolve the current lot if its timer has expired. */
-export function settle(s: AuctionState, now: number): AuctionState {
-  if (s.done || s.deadline == null || now < s.deadline) return s;
+/** Close the current lot (sold to the high bidder, or unsold) and move to the next. */
+function closeLot(s: AuctionState, now: number): AuctionState {
   const itemId = s.queue[s.index]!;
   const by = s.bid.by;
   let rosters = s.rosters;
@@ -109,29 +137,62 @@ export function settle(s: AuctionState, now: number): AuctionState {
     rosters = { ...rosters, [by]: [...rosters[by]!, { itemId, price: s.bid.amount }] };
     budgets = { ...budgets, [by]: budgets[by]! - s.bid.amount };
   }
-  let n: AuctionState = {
+  const n: AuctionState = {
     ...s,
     rosters,
     budgets,
     index: s.index + 1,
     bid: { amount: 0, by: null },
+    passed: {},
+    openTurn: 0,
     lastSold: { itemId, by, price: by ? s.bid.amount : 0 },
     deadline: null,
   };
-  const allFull = n.players.every((p) => slotsLeft(n, p) <= 0);
-  if (allFull) return { ...n, done: true };
+  if (n.players.every((p) => slotsLeft(n, p) <= 0)) return { ...n, done: true };
   if (n.index >= n.queue.length) return fillRemaining(n);
-  return { ...n, deadline: now + n.baseMs };
+  return { ...n, deadline: now + n.openMs };
 }
 
-/** AI decision: returns a bid amount, or null to pass. `value` is the $ this bot thinks the lot is worth. */
-export function aiBid(s: AuctionState, p: string, value: number): { amount: number; seed: number } | null {
+/** "I'm out": concede the lot (or skip your opening turn) so the others can take it. */
+export function pass(s: AuctionState, p: string, now: number): AuctionState {
+  if (s.done || s.deadline == null || slotsLeft(s, p) <= 0 || s.bid.by === p || s.passed[p]) return s;
+  if (s.bid.by == null) {
+    if (opener(s) !== p) return s;
+    const openTurn = s.openTurn + 1;
+    if (openTurn >= activePlayers(s).length) return closeLot({ ...s, openTurn }, now); // nobody wanted it
+    return { ...s, openTurn, deadline: now + s.openMs };
+  }
+  const passed = { ...s.passed, [p]: true };
+  const out = activePlayers(s).filter((x) => x !== s.bid.by).every((x) => passed[x]);
+  const n = { ...s, passed };
+  return out ? closeLot(n, now) : n;
+}
+
+/** Resolve the current lot if its timer has expired. */
+export function settle(s: AuctionState, now: number): AuctionState {
+  if (s.done || s.deadline == null || now < s.deadline) return s;
+  if (s.bid.by == null) {
+    const o = opener(s);
+    return o ? pass(s, o, now) : closeLot(s, now);
+  }
+  return closeLot(s, now);
+}
+
+export type AiMove = { type: "bid"; amount: number; seed: number } | { type: "pass" };
+
+/** AI decision. `value` is the $ this bot thinks the lot is worth. null = keep waiting. */
+export function aiAct(s: AuctionState, p: string, value: number): AiMove | null {
   const [r, seed] = next(s.seed);
-  if (s.bid.by === p || slotsLeft(s, p) <= 0) return null;
-  const target = Math.min(Math.round(value), maxBid(s, p));
+  if (s.done || s.deadline == null || slotsLeft(s, p) <= 0 || s.passed[p] || s.bid.by === p) return null;
+  const cap = Math.min(Math.round(value), maxBid(s, p));
+  if (s.bid.by == null) {
+    if (opener(s) !== p) return null;
+    if (cap < 1) return { type: "pass" };
+    return { type: "bid", amount: Math.max(1, Math.min(cap, Math.round(cap * (0.25 + r * 0.25)))), seed };
+  }
   const want = s.bid.amount + 1 + (r > 0.8 ? 1 : 0);
-  if (want > target) return null;
-  return { amount: Math.min(want, maxBid(s, p)), seed };
+  if (want > cap) return { type: "pass" };
+  return { type: "bid", amount: Math.min(want, maxBid(s, p)), seed };
 }
 
 export const spent = (s: AuctionState, p: string) => s.budget - s.budgets[p]!;

@@ -1,68 +1,46 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Lock, RefreshCw, Wand2 } from "lucide-react";
-import { Button } from "../../components/ui";
+import { Button, PageShell } from "../../components/ui";
 import { HeroCard } from "../../topicDraft/components/HeroCard";
 import * as P from "../../topicDraft/formats/position";
 import { useSound } from "../../components/SoundProvider";
-import { PageShell } from "../../components/ui";
 import { GameFrame } from "../GameFrame";
-import { useRunState } from "../useRunState";
-import { toJudgeItem, type JudgeTeamInput } from "../judging";
+import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 import type { Item } from "../../topicDraft/types";
 
-export function PositionView({ setup, basePool, onFinish }: { setup: GameSetup; basePool: Item[]; onFinish: (t: JudgeTeamInput[]) => void }) {
+export function PositionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
-  const o = setup.opts;
-  const pool = useMemo(
-    () => [...basePool, ...o.customItems].filter((i) => !o.bans.includes(i.id) && (!o.universes.length || o.universes.includes(i.universe))),
-    [basePool, o.customItems, o.bans, o.universes]
-  );
-  const byId = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
-  const get = (id: string) => byId.get(id);
-  const humans = setup.players.filter((p) => !setup.aiPlayers.includes(p));
-
-  const [s, setS, markFinished] = useRunState<P.PositionState>(setup.id, () =>
-    P.init({ players: setup.players, roles: setup.roles, poolIds: pool.map((i) => i.id), handSize: setup.roles.length + o.handExtra, rerolls: o.rerolls, seed: setup.seed })
-  );
+  const s = ctl.state as P.PositionState;
+  const humans = setup.players.filter((p) => ctl.controls(p));
   const current = humans.find((h) => !s.locked[h]) ?? null;
-  const [revealed, setRevealed] = useState<string | null>(humans.length > 1 ? null : humans[0] ?? null);
+  const [revealed, setRevealed] = useState<string | null>(humans.length > 1 && !ctl.online ? null : humans[0] ?? null);
   const [selected, setSelected] = useState<string | null>(null);
 
-  // AI lineups are decided up front.
+  // AI lineups are decided up front (local games only).
   useEffect(() => {
-    setS((st) => {
-      let n = st;
-      for (const p of setup.aiPlayers) if (!n.locked[p]) n = P.lock(P.autoAssign(n, p, get), p);
-      return n;
-    });
+    if (ctl.online) return;
+    for (const p of setup.players.filter((x) => ctl.isAi(x) && !s.locked[x])) {
+      ctl.dispatch({ type: "autoAssign", by: p });
+      ctl.dispatch({ type: "lock", by: p });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (!s.done) return;
-    markFinished();
-    play("reveal");
-    onFinish(
-      s.players.map((p) => {
-        const assigned = Object.fromEntries(s.roles.map((r) => [r.id, get(s.assign[p]![r.id]!)]));
-        const sc = P.scorePosition(s.roles, assigned);
-        return {
-          player: p,
-          baseline: sc.total,
-          notes: "Role fit: " + s.roles.map((r) => `${r.label} ${sc.perRole[r.id]}`).join(", "),
-          items: s.roles.filter((r) => assigned[r.id]).map((r) => toJudgeItem(assigned[r.id]!, { role: r.label })),
-        };
-      })
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [s.done]);
-
   if (s.done) return null;
 
-  if (current && revealed !== current) {
+  if (!current) {
+    const waiting = setup.players.filter((p) => !s.locked[p]);
+    return (
+      <PageShell width="sm" className="py-20 text-center">
+        <h1 className="text-3xl">Lineup locked</h1>
+        <p className="mt-2 text-muted-foreground">Waiting for {waiting.join(", ")}…</p>
+      </PageShell>
+    );
+  }
+  if (revealed !== current) {
     return (
       <PageShell width="sm" className="py-20 text-center">
         <h1 className="text-3xl">Pass to {current}</h1>
@@ -71,16 +49,15 @@ export function PositionView({ setup, basePool, onFinish }: { setup: GameSetup; 
       </PageShell>
     );
   }
-  if (!current) return null;
 
-  const hand = s.hands[current]!.map(get).filter(Boolean) as Item[];
+  const hand = s.hands[current]!.map((id) => ctl.byId(id)).filter(Boolean) as Item[];
   const assigned = s.assign[current]!;
   const usedIds = new Set(Object.values(assigned));
-  const sel = selected ? get(selected) : null;
+  const sel = selected ? ctl.byId(selected) : null;
   const complete = P.complete(s, current);
 
   const putIn = (roleId: string, id: string) => {
-    setS((st) => P.assign(st, current, roleId, id));
+    ctl.dispatch({ type: "assign", by: current, roleId, itemId: id });
     setSelected(null);
     play("pick");
   };
@@ -90,13 +67,13 @@ export function PositionView({ setup, basePool, onFinish }: { setup: GameSetup; 
       <GameFrame kicker="Positions" headline={`${current}: assign your lineup`} mission={setup.mission} mystery={setup.mystery}>
         <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
           <section aria-label="Your hand" className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg">Your hand <span className="text-sm text-muted-foreground">tap a card, then a role</span></h2>
               <div className="flex gap-2">
-                <Button variant="ghost" disabled={s.rerolls[current]! <= 0 || Object.keys(assigned).length > 0} onClick={() => { setS((st) => P.reroll(st, current)); setSelected(null); play("click"); }}>
+                <Button variant="ghost" disabled={s.rerolls[current]! <= 0 || Object.keys(assigned).length > 0} onClick={() => { ctl.dispatch({ type: "reroll", by: current }); setSelected(null); play("click"); }}>
                   <RefreshCw className="h-4 w-4" aria-hidden /> Reroll ({s.rerolls[current]})
                 </Button>
-                <Button variant="ghost" onClick={() => { setS((st) => P.autoAssign(st, current, get)); setSelected(null); play("steal"); }}>
+                <Button variant="ghost" onClick={() => { ctl.dispatch({ type: "autoAssign", by: current }); setSelected(null); play("steal"); }}>
                   <Wand2 className="h-4 w-4" aria-hidden /> Best fit
                 </Button>
               </div>
@@ -113,25 +90,19 @@ export function PositionView({ setup, basePool, onFinish }: { setup: GameSetup; 
             <h2 className="text-lg">Roles</h2>
             <ul className="space-y-2">
               {s.roles.map((r) => {
-                const it = assigned[r.id] ? get(assigned[r.id]!) : null;
+                const it = assigned[r.id] ? ctl.byId(assigned[r.id]!) : null;
                 return (
                   <li key={r.id}>
-                    <button
-                      type="button"
-                      onClick={() => (sel ? putIn(r.id, sel.id) : it ? setS((st) => P.unassign(st, current, r.id)) : undefined)}
-                      className={`flex min-h-16 w-full items-center justify-between gap-3 rounded-xl border px-4 py-2 text-left transition-colors ${it ? "border-secondary/50 bg-primary/15" : sel ? "border-dashed border-secondary hover:bg-primary/15" : "border-dashed border-white/15"}`}
-                    >
-                      <div>
-                        <div className="text-xs uppercase tracking-wider text-muted-foreground">{r.label}</div>
-                        <div className="font-semibold">{it ? it.name : sel ? `Place ${sel.name} here` : "Empty"}</div>
-                      </div>
+                    <button type="button" onClick={() => (sel ? putIn(r.id, sel.id) : it ? ctl.dispatch({ type: "unassign", by: current, roleId: r.id }) : undefined)}
+                      className={`flex min-h-16 w-full items-center justify-between gap-3 rounded-xl border px-4 py-2 text-left transition-colors ${it ? "border-secondary/50 bg-primary/15" : sel ? "border-dashed border-secondary hover:bg-primary/15" : "border-dashed border-white/15"}`}>
+                      <div><div className="text-xs uppercase tracking-wider text-muted-foreground">{r.label}</div><div className="font-semibold">{it ? it.name : sel ? `Place ${sel.name} here` : "Empty"}</div></div>
                       <div className="font-display text-xl text-secondary">{it ? Math.round(P.roleFit(it, r)) : sel ? Math.round(P.roleFit(sel, r)) : ""}</div>
                     </button>
                   </li>
                 );
               })}
             </ul>
-            <Button variant="accent" className="w-full" disabled={!complete} onClick={() => { setS((st) => P.lock(st, current)); setSelected(null); setRevealed(null); play("win"); }}>
+            <Button variant="accent" className="w-full" disabled={!complete} onClick={() => { ctl.dispatch({ type: "lock", by: current }); setSelected(null); setRevealed(null); play("win"); }}>
               <Lock className="h-4 w-4" aria-hidden /> Lock in lineup
             </Button>
           </section>

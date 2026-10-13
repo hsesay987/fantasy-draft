@@ -1,6 +1,6 @@
-import { Skull, Swords, Gamepad2, Castle, Clapperboard, Landmark, Tv } from "lucide-react";
+import { Swords, Gamepad2, Castle, Clapperboard, Landmark, Tv } from "lucide-react";
 import type { ComponentType } from "react";
-import { DragonBallIcon, PokeballIcon, SupermanIcon, FootballIcon, BasketballIcon } from "../components/icons";
+import { DragonBallIcon, PokeballIcon, SupermanIcon, FootballIcon, BasketballIcon, VaderIcon } from "../components/icons";
 import type { FormatId } from "./types";
 
 export type CategoryDefaults = {
@@ -30,7 +30,7 @@ export const CATEGORIES: Category[] = [
     defaults: { teamSize: 5, missionId: "alien-invasion", rankSize: 6, timerSeconds: 30, budget: 25 },
   },
   {
-    id: "villains", title: "Villains", blurb: "The deadliest rogues gallery.", icon: Skull, gradient: "from-rose-700/40 to-primary/20",
+    id: "villains", title: "Villains", blurb: "The deadliest rogues gallery.", icon: VaderIcon, gradient: "from-rose-700/40 to-primary/20",
     recommended: [{ format: "auction", why: "Bid for the biggest threats" }, { format: "snake", why: "Draft your crime syndicate" }],
     defaults: { teamSize: 5, missionId: "tournament", rankSize: 6, timerSeconds: 30, budget: 25 },
   },

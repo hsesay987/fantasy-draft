@@ -1,105 +1,137 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
-import { Button, TimerRing } from "../../components/ui";
+import { Button, PageShell, TimerRing } from "../../components/ui";
 import { PoolGrid } from "../../topicDraft/components/PoolGrid";
 import { TeamPanel } from "../../topicDraft/components/TeamPanel";
-import { HeroCard } from "../../topicDraft/components/HeroCard";
-import { scoreTeam } from "../../topicDraft/scorer";
-import { PageShell } from "../../components/ui";
+import { RollRow, rollMs } from "../../topicDraft/components/RollRow";
+import { currentTurn, previewAuto, type SnakeRun } from "../../topicDraft/core";
+import { useSound } from "../../components/SoundProvider";
 import { GameFrame } from "../GameFrame";
 import { PickBar } from "../PickBar";
-import { useSnakeLike } from "../useSnakeLike";
-import { toJudgeItem, type JudgeTeamInput } from "../judging";
+import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
-import type { Item } from "../../topicDraft/types";
 
-export function SnakeView({ setup, basePool, onFinish }: { setup: GameSetup; basePool: Item[]; onFinish: (t: JudgeTeamInput[]) => void }) {
-  const g = useSnakeLike(setup, basePool);
+export function SnakeView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
+  const { play } = useSound();
+  const run = ctl.state as SnakeRun;
+  const draft = run.kind === "spin" ? run.spin.draft : run.draft;
+  const offer = run.kind === "spin" ? run.spin.offer : null;
+  const rerolls = run.kind === "spin" ? run.spin.rerolls : null;
+  const player = currentTurn(setup, ctl.state);
+  const ai = ctl.isAi(player);
+  const mine = ctl.controls(player);
+
   const [selected, setSelected] = useState<string | null>(null);
   const [role, setRole] = useState<string | undefined>();
+  const [error, setError] = useState<string | null>(null);
+  const [pickHint, setPickHint] = useState<string | null>(null); // AI's chosen card, shown before it lands
+  const landedFor = useRef<string>("");
+  const [landedKey, setLandedKey] = useState("");
 
-  const roles = g.draft.config.roles;
-  const mine = g.player ? g.draft.picks.filter((p) => p.player === g.player) : [];
-  const freeRoles = roles.filter((r) => !mine.some((m) => m.role === r));
+  const roles = draft.config.roles;
+  const mineSoFar = player ? draft.picks.filter((p) => p.player === player) : [];
+  const freeRoles = roles.filter((r) => !mineSoFar.some((m) => m.role === r));
   const firstFree = freeRoles[0];
-  const item = selected ? g.pool.find((i) => i.id === selected) : null;
+  const rollKey = `${draft.turn}:${offer?.join(",") ?? ""}`;
+  const offerItems = useMemo(() => (offer ?? []).map((id) => ctl.byId(id)!).filter(Boolean), [offer, ctl]);
+  const item = selected ? ctl.byId(selected) : null;
 
   useEffect(() => {
     setSelected(null);
     setRole(undefined);
-  }, [g.draft.turn]);
+    setPickHint(null);
+    setError(null);
+  }, [draft.turn]);
   useEffect(() => {
     if (roles.length && !role && firstFree) setRole(firstFree);
   }, [roles.length, role, firstFree]);
 
+  // The AI "thinks": its roll spins and lands, its choice lights up, then the pick goes through.
   useEffect(() => {
-    if (!g.draft.done) return;
-    const byId = new Map(g.pool.map((i) => [i.id, i]));
-    onFinish(
-      g.draft.config.players.map((player) => {
-        const picks = g.draft.picks.filter((p) => p.player === player);
-        const items = picks.map((p) => byId.get(p.itemId)!).filter(Boolean);
-        return { player, baseline: scoreTeam(items, setup.mission).total, items: picks.map((p) => toJudgeItem(byId.get(p.itemId)!, { role: p.role })) };
-      })
-    );
+    if (!ai || !player || draft.done) return;
+    const rolled = !!offer;
+    if (rolled && landedKey !== rollKey) return;
+    const t1 = setTimeout(() => {
+      const p = previewAuto(setup, ctl.state);
+      if (p) setPickHint(p.itemId);
+      const t2 = setTimeout(() => {
+        if (p) ctl.dispatch({ type: "pick", by: player, itemId: p.itemId, role: p.role });
+        else ctl.dispatch({ type: "auto", by: player });
+        play("pick");
+      }, rolled ? 1000 : 150);
+      cleanup.push(() => clearTimeout(t2));
+    }, rolled ? 450 : 900);
+    const cleanup: (() => void)[] = [() => clearTimeout(t1)];
+    return () => cleanup.forEach((f) => f());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [g.draft.done]);
+  }, [ai, player, draft.turn, landedKey, rollKey, draft.done]);
 
-  const total = g.draft.config.players.length * g.draft.config.teamSize;
-  const confirm = () => item && g.choose(item.id, role);
+  const total = draft.config.players.length * draft.config.teamSize;
+  const choose = (id: string) => {
+    if (!mine || !player) return;
+    const r = roles.length ? role : undefined;
+    ctl.dispatch({ type: "pick", by: player, itemId: id, role: r });
+    play("pick");
+    if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(10);
+  };
+  const timerOn = !!draft.config.timerSeconds && !!player && mine && !ctl.online;
+  void landedFor;
 
   return (
     <PageShell width="lg" layout="sidebar" stickyBar>
       <GameFrame
-        kicker={`${g.offer ? (setup.format === "spin" ? "Spin Draft" : "Random Roll") : "Classic Draft"} · Pick ${Math.min(g.draft.picks.length + 1, total)}/${total}`}
-        headline={g.isAi ? `${g.player} is picking…` : `${g.player}, you're up`}
+        kicker={`${offer ? (setup.format === "spin" ? "Spin Draft" : "Random Roll") : "Classic Draft"} · Pick ${Math.min(draft.picks.length + 1, total)}/${total}`}
+        headline={ai || !mine ? `${player} is ${offer ? "rolling" : "picking"}…` : `${player}, you're up`}
         mission={setup.mission}
         mystery={setup.mystery}
-        right={g.draft.config.timerSeconds && !g.isAi && g.player ? <TimerRing seconds={g.draft.config.timerSeconds} resetKey={g.draft.turn} onExpire={g.auto} /> : undefined}
+        right={timerOn ? <TimerRing seconds={draft.config.timerSeconds!} resetKey={draft.turn} onExpire={() => player && ctl.dispatch({ type: "auto", by: player })} /> : undefined}
       >
-        {g.error && <p role="alert" className="rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm text-rose-100">{g.error}</p>}
+        {error && <p role="alert" className="rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm">{error}</p>}
 
-        {g.offer && !g.draft.done && (
+        {offer && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Pick one of these {g.offer.length}</p>
-              {g.player && (
-                <Button variant="ghost" disabled={g.isAi || (g.rerolls?.[g.player] ?? 0) <= 0} onClick={g.reroll}>
-                  <RefreshCw className="h-4 w-4" aria-hidden /> Reroll ({g.rerolls?.[g.player] ?? 0})
+              <p className="text-sm text-muted-foreground">{mine ? `Pick one of these ${offer.length}` : `${player}'s roll`}</p>
+              {player && mine && (
+                <Button variant="ghost" disabled={(rerolls?.[player] ?? 0) <= 0} onClick={() => { ctl.dispatch({ type: "reroll", by: player }); play("click"); }}>
+                  <RefreshCw className="h-4 w-4" aria-hidden /> Reroll ({rerolls?.[player] ?? 0})
                 </Button>
               )}
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {g.offer.map((id) => {
-                const it = g.pool.find((i) => i.id === id)!;
-                return <HeroCard key={id} item={it} selected={selected === id} onClick={() => !g.isAi && setSelected(id)} onDoubleClick={() => !g.isAi && g.choose(id, role)} />;
-              })}
-            </div>
+            <RollRow
+              items={offerItems}
+              shuffleFrom={ctl.pool}
+              rollKey={rollKey}
+              selectedId={selected}
+              highlightId={pickHint}
+              onAllLanded={() => setLandedKey(rollKey)}
+              onSelect={mine ? (id) => setSelected(id) : undefined}
+              onQuickPick={mine ? choose : undefined}
+            />
           </div>
         )}
 
-        {!g.offer && (
+        {!offer && (
           <PoolGrid
-            state={g.draft}
+            state={draft}
+            pool={ctl.pool}
             selectedId={selected}
-            disabled={g.isAi}
-            onSelect={(id) => {
-              g.setError(null);
-              setSelected(id);
-            }}
-            onQuickPick={(id) => g.choose(id, role)}
+            highlightId={pickHint}
+            disabled={!mine}
+            onSelect={(id) => { setError(null); setSelected(id); }}
+            onQuickPick={choose}
           />
         )}
       </GameFrame>
 
       <aside className="lg:sticky lg:top-24 lg:self-start">
-        <TeamPanel state={g.draft} pool={g.pool} activePlayer={g.player} />
+        <TeamPanel state={draft} pool={ctl.pool} activePlayer={player} me={ctl.me} />
       </aside>
 
-      {item && !g.isAi && (
-        <PickBar label={item.name} sub={`${item.universe} · ${item.archetype}`} cta={`Draft ${item.name.split(" ")[0]}`} onConfirm={confirm} onCancel={() => setSelected(null)}>
+      {item && mine && (
+        <PickBar label={item.name} sub={`${item.universe} · ${item.archetype}`} cta={`Draft ${item.name.split(" ")[0]}`} onConfirm={() => choose(item.id)} onCancel={() => setSelected(null)}>
           {roles.length > 0 && (
             <select aria-label="Role" value={role} onChange={(e) => setRole(e.target.value)} className="min-h-11 rounded-lg border border-white/10 bg-card px-2 text-sm">
               {freeRoles.map((r) => <option key={r}>{r}</option>)}

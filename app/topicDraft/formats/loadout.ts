@@ -220,23 +220,26 @@ export function itemFor(s: LoadoutState, player: string, slotId: string): Item |
   return id && slot ? poolItems(slot.pool).find((i) => i.id === id) : undefined;
 }
 
-/** Best-value pick for the AI (or timeout): maximise slot score per dollar with a quality bias. */
-export function autoPick(s: LoadoutState): LoadoutState {
-  if (s.done) return s;
+export type AiPlan = { slot: string; item: string; seed: number; offers: Record<string, string[]> };
+
+/** What the AI would do right now, including the random rolls it saw (so the UI can show them). */
+export function planAuto(s: LoadoutState): AiPlan | null {
+  if (s.done) return null;
   const player = turnPlayer(s);
+  const bare: LoadoutState = { ...s, roll: s.roll ? { ...s.roll, offers: {} } : undefined };
   let best: { slot: string; item: string; value: number } | null = null;
   let seed = s.roll?.seed ?? 0;
+  const offers: Record<string, string[]> = {};
   for (const slot of openSlots(s, player)) {
     let candidates = poolItems(slot.pool);
     if (s.roll) {
-      // The bot only gets to see a random roll too (ignores any offer already on screen).
-      const bare: LoadoutState = { ...s, roll: { ...s.roll, offers: {} } };
       const [ids, ns] = sampleOffer(bare, slot.id, seed);
       seed = ns;
+      offers[slot.id] = ids;
       candidates = candidates.filter((i) => ids.includes(i.id));
     }
     for (const item of candidates) {
-      const v = validate({ ...s, roll: s.roll ? { ...s.roll, offers: {} } : undefined }, slot.id, item.id);
+      const v = validate(bare, slot.id, item.id);
       if (!v.ok) continue;
       const q = itemScore(item, slot.scoreWeights);
       const wants = s.mission.boss.weaknesses.filter((w) => item.tags.includes(w)).length;
@@ -244,8 +247,14 @@ export function autoPick(s: LoadoutState): LoadoutState {
       if (!best || value > best.value) best = { slot: slot.id, item: item.id, value };
     }
   }
-  if (!best) return { ...s, done: true };
-  return pick({ ...s, roll: s.roll ? { ...s.roll, seed, offers: {} } : undefined }, best.slot, best.item);
+  return best ? { slot: best.slot, item: best.item, seed, offers } : null;
+}
+
+/** Best-value pick for the AI (or timeout): maximise slot score per dollar with a quality bias. */
+export function autoPick(s: LoadoutState): LoadoutState {
+  const plan = planAuto(s);
+  if (!plan) return { ...s, done: true };
+  return pick({ ...s, roll: s.roll ? { ...s.roll, seed: plan.seed, offers: {} } : undefined }, plan.slot, plan.item);
 }
 
 export function scoreLoadout(mission: LoadoutMission, items: { slot: LoadoutSlot; item: Item }[]) {

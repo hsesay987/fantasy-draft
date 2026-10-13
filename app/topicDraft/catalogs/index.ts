@@ -31,25 +31,35 @@ const dedupe = (...lists: Item[][]): Item[] => {
   return out;
 };
 
-const all = superheroesAll as Item[];
-const villainsOnly = (villainsRaw as Item[]);
+const SUFFIX: Record<string, string> = {
+  superheroes: "comics character", villains: "comics character", "heroes-villains": "comics character", anime: "anime character",
+  videogames: "video game character", pokemon: "Pokémon", disney: "animated character", movies: "film character", history: "",
+  weapons: "weapon", gadgets: "gadget", allies: "character", vehicles: "vehicle", traps: "",
+};
+
+/** Attach an image search query to every item so pictures can be looked up lazily. */
+const withQuery = (list: Item[], suffix: string): Item[] =>
+  list.map((i) => ({ ...i, q: [i.name, ["DC", "Marvel"].includes(i.universe) ? `${i.universe} Comics` : suffix].filter(Boolean).join(" ") }));
+
+const all = withQuery(superheroesAll as Item[], SUFFIX.superheroes!);
+const villainsOnly = withQuery(villainsRaw as Item[], SUFFIX.villains!);
 const heroesOnly = all.filter((i) => !i.tags.includes("villain"));
 
 const DATA: Record<string, Item[]> = {
   superheroes: heroesOnly,
   villains: dedupe(villainsOnly, all.filter((i) => i.tags.includes("villain"))),
   "heroes-villains": dedupe(all, villainsOnly),
-  anime: anime as Item[],
-  videogames: videogames as Item[],
-  pokemon: pokemon as Item[],
-  disney: disney as Item[],
-  movies: movies as Item[],
-  history: history as Item[],
-  weapons: weapons as Item[],
-  gadgets: gadgets as Item[],
-  allies: allies as Item[],
-  vehicles: vehicles as Item[],
-  traps: traps as Item[],
+  anime: withQuery(anime as Item[], SUFFIX.anime!),
+  videogames: withQuery(videogames as Item[], SUFFIX.videogames!),
+  pokemon: withQuery(pokemon as Item[], SUFFIX.pokemon!),
+  disney: withQuery(disney as Item[], SUFFIX.disney!),
+  movies: withQuery(movies as Item[], SUFFIX.movies!),
+  history: withQuery(history as Item[], SUFFIX.history!),
+  weapons: withQuery(weapons as Item[], SUFFIX.weapons!),
+  gadgets: withQuery(gadgets as Item[], SUFFIX.gadgets!),
+  allies: withQuery(allies as Item[], SUFFIX.allies!),
+  vehicles: withQuery(vehicles as Item[], SUFFIX.vehicles!),
+  traps: withQuery(traps as Item[], SUFFIX.traps!),
 };
 
 const keysOf = (id: string) => Object.keys(DATA[id]![0]!.stats);

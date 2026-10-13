@@ -4,12 +4,15 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Chip } from "../../components/ui";
 import { HeroCard } from "./HeroCard";
-import type { State } from "../types";
+import type { Item, State } from "../types";
 
 export function PoolGrid({
-  state, selectedId, onSelect, onQuickPick, disabled, only,
+  state, selectedId, onSelect, onQuickPick, disabled, only, highlightId, pool,
 }: {
   state: State;
+  /** All items (includes custom) — defaults to the draft pool. */
+  pool?: Item[];
+  highlightId?: string | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
   /** Double-click / double-tap drafts straight away. */
@@ -39,11 +42,11 @@ export function PoolGrid({
 
   const items = useMemo(() => {
     const t = q.trim().toLowerCase();
-    return state.pool
+    return (pool ?? state.pool)
       .filter((i) => !only || only.includes(i.id))
       .filter((i) => (!uni || i.universe === uni) && (!t || i.name.toLowerCase().includes(t) || i.archetype.toLowerCase().includes(t) || i.tags.some((x) => x.includes(t))))
       .sort((a, b) => (sort === "name" ? a.name.localeCompare(b.name) : (b.stats.power ?? 0) - (a.stats.power ?? 0)));
-  }, [state.pool, q, uni, sort, only]);
+  }, [pool, state.pool, q, uni, sort, only]);
 
   return (
     <div className="space-y-3">
@@ -75,7 +78,7 @@ export function PoolGrid({
           <HeroCard
             key={i.id}
             item={i}
-            selected={selectedId === i.id}
+            selected={selectedId === i.id || highlightId === i.id}
             taken={taken.has(i.id)}
             banned={state.banned.includes(i.id)}
             onClick={() => onSelect(i.id)}

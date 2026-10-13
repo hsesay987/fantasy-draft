@@ -6,6 +6,8 @@ export type Item = {
   stats: Record<string, number>;
   tags: string[];
   custom?: boolean;
+  /** Image search query (set when a catalog loads). */
+  q?: string;
 };
 
 export type Config = {
