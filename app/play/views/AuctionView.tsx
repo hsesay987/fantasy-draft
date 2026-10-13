@@ -146,9 +146,8 @@ export function AuctionView({ setup, basePool, onFinish }: { setup: GameSetup; b
           <div className="h-full rounded-full bg-secondary transition-[width] duration-200" style={{ width: `${frac * 100}%`, background: secs <= 3 ? "var(--accent)" : undefined }} />
         </div>
 
-        <AnimatePresence mode="wait">
-          {lot && (
-            <motion.div key={lot.id} initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -16 }} transition={{ type: "spring", stiffness: 300, damping: 26 }} className="space-y-4">
+        {lot && (
+            <motion.div key={lot.id} initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 26 }} className="space-y-4">
               <div className="mx-auto max-w-md"><HeroCard item={lot} /></div>
               <Card className="mx-auto flex max-w-md items-center justify-between">
                 <div>
@@ -159,7 +158,6 @@ export function AuctionView({ setup, basePool, onFinish }: { setup: GameSetup; b
               </Card>
             </motion.div>
           )}
-        </AnimatePresence>
 
         {error && <p role="alert" className="mx-auto max-w-md rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm">{error}</p>}
 

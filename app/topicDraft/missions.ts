@@ -22,3 +22,18 @@ export function customMission(poolId: string, title: string, blurb: string): Sce
   const base = missionsFor(poolId).at(-1)!;
   return { id: "custom", title: title.trim() || "Custom mission", blurb: blurb.trim(), weights: base.weights };
 }
+
+const METRIC_LABEL: Record<string, string> = {
+  power: "Strongest", intellect: "Smartest", speed: "Fastest", durability: "Toughest", combat: "Best fighter", teamwork: "Best teammate",
+  leadership: "Best leader", courage: "Bravest", influence: "Most influential", charisma: "Most charming", strategy: "Best strategist",
+};
+
+/** Single-stat ranking categories for Blind Rank. */
+export function metricsFor(poolId: string): Scenario[] {
+  return (catalogMeta(poolId)?.statKeys ?? []).map((k) => ({
+    id: `metric-${k}`,
+    title: `Rank by: ${METRIC_LABEL[k] ?? k}`,
+    blurb: `Who ranks highest for ${k}?`,
+    weights: { [k]: 1 },
+  }));
+}

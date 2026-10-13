@@ -7,7 +7,7 @@ import { motion } from "motion/react";
 import { ChevronLeft, Play, RotateCcw, X } from "lucide-react";
 import { Button, Chip } from "../components/ui";
 import { CHARACTER_POOLS, catalogMeta, getCatalog, universesOf } from "../topicDraft/catalogs";
-import { customMission, missionsFor } from "../topicDraft/missions";
+import { customMission, metricsFor, missionsFor } from "../topicDraft/missions";
 import { LOADOUT_PRESETS, type LoadoutMission } from "../topicDraft/formats/loadout";
 import { rolesFor, type Role } from "../topicDraft/formats/position";
 import { newSeed } from "../topicDraft/rng";
@@ -61,7 +61,7 @@ export default function SetupScreen() {
     if (q && catalogMeta(q)?.kind === "character") setPool(q);
   }, [q]);
 
-  const missions = useMemo(() => missionsFor(pool), [pool]);
+  const missions = useMemo(() => (format === "blind" ? metricsFor(pool) : missionsFor(pool)), [pool, format]);
   useEffect(() => {
     setMissionId(missions[0]!.id);
     setRoles(rolesFor(pool));
@@ -159,10 +159,10 @@ export default function SetupScreen() {
               <p className="text-xs text-muted-foreground">{catalogMeta(pool)?.blurb} · {getCatalog(pool).length} to choose from</p>
             </Section>
           )}
-          <Section title="Mission" hint={format === "blind" ? "The category you rank by." : "What the AI judge scores you on."}>
+          <Section title={format === "blind" ? "Rank by" : "Mission"} hint={format === "blind" ? "The category you rank by." : "What the AI judge scores you on."}>
             <div className="flex flex-wrap gap-2">
               {missions.map((m) => <Chip key={m.id} selected={missionId === m.id} onClick={() => setMissionId(m.id)}>{m.title}</Chip>)}
-              <Chip selected={missionId === "custom"} onClick={() => setMissionId("custom")}>Write your own</Chip>
+              {format !== "blind" && <Chip selected={missionId === "custom"} onClick={() => setMissionId("custom")}>Write your own</Chip>}
             </div>
             {missionId === "custom" && (
               <div className="grid gap-3 sm:grid-cols-2">

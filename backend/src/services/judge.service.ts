@@ -104,7 +104,7 @@ export function fallbackVerdict(req: JudgeReq): Verdict {
     return {
       player: t.player,
       score,
-      highlights: best ? [`${best.name} carries the squad`] : ["No picks made"],
+      highlights: [...(best ? [`${best.name} carries the squad`] : ["No picks made"]), ...(t.notes ? [t.notes] : [])],
       roast: score >= 70 ? "Annoyingly solid." : score >= 50 ? "Respectable. Not scary." : "Bold strategy. Bold.",
     };
   });
