@@ -15,6 +15,7 @@ import billingRoutes from "./routes/billing.route";
 import adRoutes from "./routes/ad.route";
 import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
+import judgeRoutes from "./routes/judge.route";
 import { authOptional } from "./middleware/auth";
 
 const app = express();
@@ -57,6 +58,7 @@ app.use("/ads", adRoutes);
 app.use("/admin", adminRoutes);
 app.use("/cartoons", cartoonRoutes);
 app.use("/toppic", toppicRoutes);
+app.use("/judge", judgeRoutes);
 
 app.use(
   (err: any, _req: express.Request, res: express.Response, _next: any) => {
