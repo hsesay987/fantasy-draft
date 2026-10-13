@@ -14,9 +14,10 @@ import { formatMeta } from "./formats";
 import { CATEGORIES, category, formatsFor } from "./categories";
 import { DEFAULT_OPTS, type FormatId, type GameSetup, type Opts } from "./types";
 import { loadPrefs, resumable, saveSetup, savePrefs } from "./storage";
+import { createRoom, saveToken } from "./onlineApi";
 import { Collapse, CustomItems, Field, LoadoutEditor, RolesEditor, Stepper, inputCls } from "./setupParts";
 
-type Mode = "solo" | "ai" | "local";
+type Mode = "solo" | "ai" | "local" | "online";
 const SOLO_FORMATS = new Set<FormatId>(["blind", "loadout", "position"]);
 
 /** Topic-specific starting point for a format. */
@@ -69,6 +70,8 @@ export default function SetupScreen() {
   const [roles, setRoles] = useState<Role[]>(() => rolesFor(initialPool));
   const [preset, setPreset] = useState("quick");
   const [resume, setResume] = useState<GameSetup | null>(null);
+  const [netError, setNetError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     const p = loadPrefs();
@@ -97,7 +100,7 @@ export default function SetupScreen() {
   const set = <K extends keyof Opts>(k: K, v: Opts[K]) => setOpts((o) => ({ ...o, [k]: v }));
 
   const players =
-    mode === "solo" ? [name.trim() || "You"]
+    mode === "solo" || mode === "online" ? [name.trim() || "You"]
     : mode === "ai" ? [name.trim() || "You", ...Array.from({ length: rivals }, (_, i) => (rivals === 1 ? "Rival AI" : `Rival AI ${i + 1}`))]
     : localNames.map((n) => n.trim());
   const uniquePlayers = new Set(players).size === players.length && players.every(Boolean);
@@ -114,7 +117,7 @@ export default function SetupScreen() {
     setMystery(!!r.mystery);
   };
 
-  function start() {
+  async function start() {
     if (problem) return;
     const mission = missionId === "custom" ? customMission(pool, cTitle, cBlurb) : missions.find((m) => m.id === missionId) ?? missions[0]!;
     const lm = format === "loadout" ? loadout : null;
@@ -132,6 +135,16 @@ export default function SetupScreen() {
       seed: newSeed(),
     };
     savePrefs({ pool, name });
+    if (mode === "online") {
+      setCreating(true);
+      setNetError(null);
+      const r = await createRoom(setup, name.trim() || "Host");
+      setCreating(false);
+      if (!r.ok) return setNetError(r.data.error ?? "Couldn't create the room");
+      saveToken(r.data.code, r.data.token);
+      router.push(`/room/${r.data.code}`);
+      return;
+    }
     saveSetup(setup);
     router.push(`/play/${format}/game`);
   }
@@ -206,7 +219,9 @@ export default function SetupScreen() {
           {soloOk && <Chip selected={mode === "solo"} onClick={() => setMode("solo")}>Just me</Chip>}
           <Chip selected={mode === "ai"} onClick={() => setMode("ai")}>Vs AI</Chip>
           <Chip selected={mode === "local"} onClick={() => setMode("local")}>Pass &amp; play</Chip>
+          <Chip selected={mode === "online"} onClick={() => setMode("online")}>Online</Chip>
         </div>
+        {mode === "online" && <p className="text-sm text-muted-foreground">You&apos;ll get a room code to share. Friends join from any device — 2 to 6 players.</p>}
         {mode !== "local" ? (
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Your name"><input className={inputCls} maxLength={20} value={name} onChange={(e) => setName(e.target.value)} aria-label="Your name" /></Field>
@@ -296,9 +311,9 @@ export default function SetupScreen() {
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-1 md:px-3">
           <div className="min-w-0 flex-1 text-sm">
             <div className="truncate font-semibold">{meta.title} · {format === "loadout" ? loadout.title : catMeta?.title}</div>
-            <div className={`truncate ${problem ? "text-accent" : "text-muted-foreground"}`}>{problem ?? `${players.length === 1 ? "Solo" : `${players.length} players`}${mystery ? " · mystery" : ""}${opts.roll || format === "spin" ? " · random roll" : ""}`}</div>
+            <div className={`truncate ${problem || netError ? "text-accent" : "text-muted-foreground"}`}>{problem ?? netError ?? `${mode === "online" ? "Online" : players.length === 1 ? "Solo" : `${players.length} players`}${mystery ? " · mystery" : ""}${opts.roll || format === "spin" ? " · random roll" : ""}`}</div>
           </div>
-          <Button variant="accent" className="px-8 text-lg" disabled={!!problem} onClick={start}><Play className="h-5 w-5" aria-hidden /> Start</Button>
+          <Button variant="accent" className="px-8 text-lg" disabled={!!problem || creating} onClick={start}><Play className="h-5 w-5" aria-hidden /> {mode === "online" ? (creating ? "Creating…" : "Create room") : "Start"}</Button>
         </div>
       </div>
     </PageShell>

@@ -22,7 +22,7 @@ const hash = (s: string) => {
 export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const a = ctl.state as A.AuctionState;
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState(() => Date.now() + ctl.offset);
   const [error, setError] = useState<string | null>(null);
   const lastAct = useRef(0);
   const lotStart = useRef(Date.now());
@@ -31,9 +31,9 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
   const aiPlayers = setup.players.filter((p) => ctl.isAi(p));
 
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 200);
+    const id = setInterval(() => setNow(Date.now() + ctl.offset), 200);
     return () => clearInterval(id);
-  }, []);
+  }, [ctl.offset]);
 
   // Local games run the clock here; online rooms are ticked by the server.
   useEffect(() => {

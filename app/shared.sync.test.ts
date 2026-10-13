@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-// @ts-expect-error plain JS module
 import { build } from "../scripts/sync-shared.mjs";
 
 describe("backend shared copy", () => {

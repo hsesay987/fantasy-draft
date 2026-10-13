@@ -14,6 +14,8 @@ export type GameCtl = {
   me: string | null;
   online: boolean;
   finish: () => void;
+  /** Server clock minus this device clock (ms); 0 for local games. */
+  offset: number;
   pool: Item[];
   byId: (id: string) => Item | undefined;
   /** Can this device act for `player`? (online: only your seat; local: any human.) */
@@ -27,5 +29,5 @@ export function useLocalGame(setup: GameSetup): GameCtl {
   const map = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
   const dispatch = useCallback((a: Action) => setState((s) => applyAction(setup, s, a, Date.now())), [setState, setup]);
   const isAi = useCallback((p: string | null) => !!p && setup.aiPlayers.includes(p), [setup.aiPlayers]);
-  return { state, dispatch, me: null, online: false, finish, pool, byId: (id) => map.get(id), controls: (p) => !!p && !setup.aiPlayers.includes(p), isAi };
+  return { state, dispatch, me: null, online: false, finish, offset: 0, pool, byId: (id) => map.get(id), controls: (p) => !!p && !setup.aiPlayers.includes(p), isAi };
 }

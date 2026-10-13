@@ -2,9 +2,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { Sparkles, Bot, RotateCcw } from "lucide-react";
+import { Sparkles, Bot, RotateCcw, LogIn } from "lucide-react";
 import { GameTile, PageShell } from "./components/ui";
 import { PARTY } from "./topicDraft/games";
 import { CATEGORIES, LEAGUES } from "./play/categories";
@@ -27,7 +28,9 @@ function Group({ title, sub, children }: { title: string; sub: string; children:
 }
 
 export default function Home() {
+  const router = useRouter();
   const [resume, setResume] = useState<GameSetup | null>(null);
+  const [joinCode, setJoinCode] = useState("");
   useEffect(() => setResume(resumable()?.setup ?? null), []);
 
   return (
@@ -40,6 +43,11 @@ export default function Home() {
           <Link href="/category/superheroes" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-6 font-semibold text-black shadow-[0_0_30px_-6px_var(--accent)] transition-transform hover:-translate-y-0.5"><Sparkles className="h-5 w-5" aria-hidden /> Quick play</Link>
           <Link href="/toppic" className="inline-flex min-h-12 items-center rounded-xl border border-white/15 bg-white/5 px-6 font-semibold hover:bg-white/10">Play party mode</Link>
         </div>
+        <form onSubmit={(e) => { e.preventDefault(); if (joinCode.trim()) router.push(`/room/${joinCode.trim().toUpperCase()}`); }} className="flex max-w-sm gap-2">
+          <label className="sr-only" htmlFor="join-code">Room code</label>
+          <input id="join-code" value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))} placeholder="Friend's room code" className="min-h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 font-display uppercase tracking-widest outline-none focus:border-secondary" />
+          <button type="submit" disabled={!joinCode.trim()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 font-semibold hover:bg-white/10 disabled:opacity-50"><LogIn className="h-4 w-4" aria-hidden /> Join</button>
+        </form>
         {resume && (
           <Link href={`/play/${resume.format}/game`} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-secondary/50 bg-primary/15 px-4 text-sm font-semibold">
             <RotateCcw className="h-4 w-4" aria-hidden /> Resume your {formatMeta(resume.format)?.title}
