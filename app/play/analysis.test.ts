@@ -60,4 +60,14 @@ describe("analysis", () => {
     expect(text).not.toContain("Biggest single swing");
     expect(text).not.toContain("standout pick");
   });
+
+  it("solo Blind Rank gives the ranking notes, not a fake 'standout pick'", () => {
+    const solo = team("Me", ["X", "Y", "Z"].map((n, i) => item(n, { power: 50 }, { role: `Rank ${i + 1}` })), 0, "Ranking accuracy 62%. Biggest misses: Z (placed #3, really #1).");
+    const r = analyze([solo], { title: "Rank by strongest" }, { Me: 62 });
+    const text = r.analysis.join(" ");
+    expect(r.analysis[0]).toContain("Me scores 62");
+    expect(text).toContain("Biggest misses: Z");
+    expect(text).not.toContain("standout");
+    expect(r.statsTable).toEqual([]);
+  });
 });

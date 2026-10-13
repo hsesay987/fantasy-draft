@@ -35,7 +35,8 @@ export function analyze(teams: JudgeTeamInput[], mission: { title: string; weigh
 
   // Everyone ranked the same characters (Blind Rank): stats and role swings say nothing, the calls do.
   const names = (t: JudgeTeamInput) => t.items.map((i) => i.name).sort().join("|");
-  const shared = teams.length > 1 && teams.every((t) => t.items.length > 0 && names(t) === names(teams[0]!));
+  const rankMode = teams.length > 0 && teams.every((t) => t.items.length > 0 && t.items.every((i) => /^Rank \d+$/.test(i.role ?? "")));
+  const shared = rankMode || (teams.length > 1 && teams.every((t) => t.items.length > 0 && names(t) === names(teams[0]!)));
 
   // Average stat per team, restricted to stats most picks actually have.
   const keyCount = new Map<string, number>();
@@ -74,6 +75,11 @@ export function analyze(teams: JudgeTeamInput[], mission: { title: string; weigh
     const weak = perTeam[win.player]!.weaknesses;
     const rating = ws >= 85 ? "an elite" : ws >= 70 ? "a strong" : ws >= 55 ? "a solid but beatable" : "a shaky";
     out.push(`${win.player} scores ${ws} on "${mission.title}" — ${rating} result.`);
+    if (shared) {
+      if (win.notes) out.push(win.notes);
+      out.push("Trust the stat that defines the category — the characters ranked furthest from where they belong cost the most points.");
+      return { analysis: out, statsTable, perTeam };
+    }
     if (best.length) out.push(`What worked: ${list(best)}.`);
     if (weak.length) out.push(`What held it back: ${list(weak)}.`);
     out.push(...perTeam[win.player]!.highlights.map((h) => cap(h) + "."));

@@ -126,7 +126,7 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
     play("click");
   };
 
-  const headline = offer ? `${nom} nominates a lot` : !lot ? "Auction over" : a.bid.by ? `${a.bid.by} leads at $${a.bid.amount}` : opening ? `${opening} opens the bidding` : "Bidding is open";
+  const headline = offer ? (nom && ctl.controls(nom) ? "Your turn to nominate a lot" : `${nom} nominates a lot`) : !lot ? "Auction over" : a.bid.by ? `${a.bid.by} leads at $${a.bid.amount}` : opening ? `${opening} opens the bidding` : "Bidding is open";
 
   return (
     <PageShell width="lg" layout="sidebar">
