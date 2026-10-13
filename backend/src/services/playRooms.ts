@@ -199,7 +199,7 @@ export function leaveRoom(room: Room, token: unknown) {
   bump(room);
 }
 
-const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place"]);
+const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
   const seat = seatFor(room, token);
@@ -246,6 +246,7 @@ function autoplay(room: Room, name: string): Action | null {
   const { format } = room.setup;
   if (format === "auction") {
     const a = s as A.AuctionState;
+    if (a.nominate?.offer) return A.nominator(a) === name ? { type: "nominate", by: name, itemId: a.nominate.offer[0]! } : null;
     if (A.slotsLeft(a, name) <= 0 || a.passed[name] || a.bid.by === name) return null;
     if (a.bid.by == null && A.opener(a) !== name) return null;
     return { type: "pass", by: name };
@@ -312,7 +313,7 @@ function redact(room: Room, me: string | null): GameState | null {
   if (room.status === "done") return s;
   if (room.setup.format === "position") {
     const p = s as P.PositionState;
-    return { ...p, hands: Object.fromEntries(Object.entries(p.hands).map(([k, v]) => [k, k === me ? v : v.map(() => "?")])), assign: Object.fromEntries(Object.entries(p.assign).map(([k, v]) => [k, k === me ? v : {}])), unused: [] };
+    return { ...p, hands: Object.fromEntries(Object.entries(p.hands).map(([k, v]) => [k, k === me ? v : v.map(() => "?")])), assign: Object.fromEntries(Object.entries(p.assign).map(([k, v]) => [k, k === me ? v : {}])), unused: [], roll: p.roll ? { ...p.roll, pool: [], offers: Object.fromEntries(Object.entries(p.roll.offers).map(([k, v]) => [k, k === me ? v : {}])) } : undefined };
   }
   if (room.setup.format === "blind") {
     const b = s as B.BlindState;

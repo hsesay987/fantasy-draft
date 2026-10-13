@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Gavel, HandMetal } from "lucide-react";
+import { Dices, Gavel, HandMetal } from "lucide-react";
 import { Button, Card, PageShell } from "../../components/ui";
 import { HeroCard } from "../../topicDraft/components/HeroCard";
+import { RollRow, rollMs } from "../../topicDraft/components/RollRow";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import * as A from "../../topicDraft/formats/auction";
 import { itemScore } from "../../topicDraft/scorer";
@@ -18,6 +19,9 @@ const hash = (s: string) => {
   for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
   return (h >>> 0) / 4294967296;
 };
+
+const valueOf = (setup: GameSetup, a: A.AuctionState, p: string, item: { id: string; stats: Record<string, number> }) =>
+  (itemScore(item as never, setup.mission.weights) / 100) * (a.budget / a.teamSize) * 1.9 * (0.75 + 0.55 * hash(p + item.id));
 
 export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
@@ -55,7 +59,7 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
       const item = itemId ? ctl.byId(itemId) : null;
       if (!item) return;
       for (const p of [...aiPlayers].sort(() => Math.random() - 0.5)) {
-        const value = (itemScore(item, setup.mission.weights) / 100) * (a.budget / a.teamSize) * 1.9 * (0.75 + 0.55 * hash(p + item.id));
+        const value = valueOf(setup, a, p, item);
         const m = A.aiAct(a, p, value);
         if (!m) continue;
         lastAct.current = t;
@@ -65,6 +69,28 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
     }, 450);
     return () => clearInterval(id);
   }, [a, ctl, aiPlayers, setup.mission.weights]);
+
+  // Random-roll mode: the nominator picks which rolled lot goes up. AI shows its roll, lights up its pick, then nominates.
+  const nom = A.nominator(a);
+  const offer = a.nominate?.offer ?? null;
+  const [landed, setLanded] = useState("");
+  const offerKey = `${a.index}-${offer?.join(",") ?? ""}`;
+  const [aiPick, setAiPick] = useState<string | null>(null);
+  useEffect(() => {
+    setAiPick(null);
+  }, [offerKey]);
+  useEffect(() => {
+    if (ctl.online || !offer || !nom || !ctl.isAi(nom) || landed !== offerKey) return;
+    const t1 = setTimeout(() => {
+      const pick = A.aiNominate(a, nom, (id) => (ctl.byId(id) ? valueOf(setup, a, nom, ctl.byId(id)!) : 0));
+      if (pick) setAiPick(pick);
+      const t2 = setTimeout(() => pick && ctl.dispatch({ type: "nominate", by: nom, itemId: pick }), 1000);
+      cleanup.push(() => clearTimeout(t2));
+    }, 450);
+    const cleanup: (() => void)[] = [() => clearTimeout(t1)];
+    return () => cleanup.forEach((f) => f());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [landed, offerKey]);
 
   const secs = a.deadline ? Math.max(0, Math.ceil((a.deadline - now) / 1000)) : 0;
   useEffect(() => {
@@ -100,7 +126,7 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
     play("click");
   };
 
-  const headline = !lot ? "Auction over" : a.bid.by ? `${a.bid.by} leads at $${a.bid.amount}` : opening ? `${opening} opens the bidding` : "Bidding is open";
+  const headline = offer ? `${nom} nominates a lot` : !lot ? "Auction over" : a.bid.by ? `${a.bid.by} leads at $${a.bid.amount}` : opening ? `${opening} opens the bidding` : "Bidding is open";
 
   return (
     <PageShell width="lg" layout="sidebar">
@@ -114,6 +140,21 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
         <div className="h-1.5 overflow-hidden rounded-full bg-white/10" aria-hidden>
           <div className="h-full rounded-full bg-secondary transition-[width] duration-200" style={{ width: `${frac * 100}%`, background: secs <= 3 ? "var(--accent)" : undefined }} />
         </div>
+
+        {offer && nom && (
+          <div className="space-y-3 rounded-2xl border border-secondary/40 bg-primary/10 p-4">
+            <p className="flex items-center gap-2 text-sm"><Dices className="h-4 w-4 text-secondary" aria-hidden /> {ctl.controls(nom) ? "Your roll — pick the lot that goes up for bid" : `${nom} rolled ${offer.length} lots`}</p>
+            <RollRow
+              items={offer.map((id) => ctl.byId(id)!).filter(Boolean)}
+              shuffleFrom={ctl.pool}
+              rollKey={offerKey}
+              highlightId={aiPick}
+              onAllLanded={() => setLanded(offerKey)}
+              onSelect={ctl.controls(nom) ? (id) => { ctl.dispatch({ type: "nominate", by: nom, itemId: id }); play("pick"); } : undefined}
+              onQuickPick={ctl.controls(nom) ? (id) => { ctl.dispatch({ type: "nominate", by: nom, itemId: id }); play("pick"); } : undefined}
+            />
+          </div>
+        )}
 
         {lot && (
           <motion.div key={lot.id} initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 26 }} className="mx-auto max-w-md space-y-4">
@@ -136,6 +177,7 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
             const max = A.maxBid(a, p);
             const leading = a.bid.by === p;
             const opens = a.bid.by == null && opening === p;
+            const choosing = !!offer;
             const waiting = a.bid.by == null && opening !== p;
             const base = a.bid.amount;
             const incs = a.bid.by == null ? [1, 2, 3] : [1, 2, 5];
@@ -146,6 +188,7 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
                 {full ? <p className="text-sm text-muted-foreground">Your team is full.</p>
                 : leading ? <p className="text-sm text-secondary">You&apos;re winning this lot — others can still bid or step aside.</p>
                 : a.passed[p] ? <p className="text-sm text-muted-foreground">You&apos;re out on this lot.</p>
+                : choosing ? <p className="text-sm text-muted-foreground">Waiting for the nomination…</p>
                 : waiting ? <p className="text-sm text-muted-foreground">Waiting for {opening} to open…</p>
                 : (
                   <>

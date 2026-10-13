@@ -36,6 +36,10 @@ function play(setup: GameSetup): GameState {
       s = applyAction(setup, s, { type: "place", by: who!, rank: B.freeRanks(b, who!)[0]! }, now);
     } else if (setup.format === "auction") {
       const a = s as A.AuctionState;
+      if (a.nominate?.offer) {
+        s = applyAction(setup, s, { type: "nominate", by: A.nominator(a)!, itemId: a.nominate.offer[0]! }, now);
+        continue;
+      }
       const o = A.opener(a)!;
       s = applyAction(setup, s, Math.random() < 0.5 ? { type: "bid", by: o, amount: 1 } : { type: "pass", by: o }, now);
       s = applyAction(setup, s, { type: "tick" }, a.deadline ?? now + 99999);
@@ -61,7 +65,7 @@ describe("game core", () => {
   });
 
   it("random roll Classic and roll Loadout also complete", () => {
-    for (const [f, o] of [["snake", { roll: true }], ["loadout", { roll: true, options: 3, rerolls: 0 }]] as const) {
+    for (const [f, o] of [["snake", { roll: true }], ["loadout", { roll: true, options: 3, rerolls: 0 }], ["position", { roll: true, options: 3, rerolls: 1 }], ["auction", { roll: true, options: 3 }], ["blind", { roll: true }]] as const) {
       const setup = setupFor(f, ["Ann", "Bob"], o);
       expect(isDone(setup, play(setup))).toBe(true);
     }

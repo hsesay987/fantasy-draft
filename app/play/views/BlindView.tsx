@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Check } from "lucide-react";
 import { PageShell } from "../../components/ui";
 import { HeroCard } from "../../topicDraft/components/HeroCard";
+import { RollRow, rollMs } from "../../topicDraft/components/RollRow";
 import * as B from "../../topicDraft/formats/blind";
 import { useSound } from "../../components/SoundProvider";
 import { GameFrame } from "../GameFrame";
@@ -25,7 +26,7 @@ export function BlindView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
       const { rank, seed } = B.aiPlace(s, item);
       ctl.dispatch({ type: "place", by: player, rank, seed });
       play("click");
-    }, 900);
+    }, setup.opts.roll ? rollMs(1) + 600 : 900);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ai, s.turn, item?.id, s.done]);
@@ -45,7 +46,7 @@ export function BlindView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
         <div className="grid gap-6 md:grid-cols-[320px_1fr]">
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">Next up — no take-backs</p>
-            <HeroCard key={item.id} item={item} />
+            {setup.opts.roll ? <RollRow items={[item]} shuffleFrom={ctl.pool} rollKey={`${B.revealIndex(s)}`} /> : <HeroCard key={item.id} item={item} />}
           </div>
           <ol className="space-y-2" aria-label="Your ranking">
             {row.map((id, i) => {

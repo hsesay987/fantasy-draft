@@ -23,6 +23,8 @@ export type AuctionState = {
   lastSold: { itemId: string; by: string | null; price: number } | null;
   done: boolean;
   seed: number;
+  /** Random-roll mode: each lot, the next nominator picks which of N rolled characters goes up for bid. */
+  nominate?: { n: number; offer: string[] | null };
 };
 
 export function init(o: {
@@ -34,6 +36,7 @@ export function init(o: {
   baseMs?: number;
   bumpMs?: number;
   openMs?: number;
+  nominate?: { n: number };
 }): AuctionState {
   const need = o.players.length * o.teamSize;
   const [shuffled, seed] = shuffle(o.poolIds, o.seed);
@@ -57,10 +60,14 @@ export function init(o: {
     lastSold: null,
     done: false,
     seed,
+    nominate: o.nominate ? { n: o.nominate.n, offer: null } : undefined,
   };
 }
 
-export const currentItem = (s: AuctionState) => (s.done ? null : (s.queue[s.index] ?? null));
+/** The lot being bid on (null while a nominator is still choosing it). */
+export const currentItem = (s: AuctionState) => (s.done || s.nominate?.offer ? null : (s.queue[s.index] ?? null));
+
+const rollOffer = (s: AuctionState): string[] => s.queue.slice(s.index, s.index + (s.nominate?.n ?? 0));
 export const slotsLeft = (s: AuctionState, p: string) => s.teamSize - s.rosters[p]!.length;
 
 /** Most this player can bid: must keep $1 for every other empty slot. */
@@ -88,11 +95,25 @@ export function opener(s: AuctionState): string | null {
 }
 
 export function open(s: AuctionState, now: number): AuctionState {
-  return s.deadline == null && !s.done ? { ...s, deadline: now + s.openMs } : s;
+  if (s.deadline != null || s.done) return s;
+  return { ...s, deadline: now + s.openMs, nominate: s.nominate ? { ...s.nominate, offer: rollOffer(s) } : undefined };
+}
+
+/** Who chooses the lot in nominate mode (same rotation as the opening bid). */
+export const nominator = (s: AuctionState) => (s.nominate?.offer ? opener({ ...s, openTurn: 0 }) : null);
+
+export function nominate(s: AuctionState, p: string, itemId: string, now: number): AuctionState {
+  const offer = s.nominate?.offer;
+  if (s.done || !offer || nominator(s) !== p || !offer.includes(itemId)) return s;
+  const queue = [...s.queue];
+  const at = queue.indexOf(itemId, s.index);
+  [queue[s.index], queue[at]] = [queue[at]!, queue[s.index]!];
+  return { ...s, queue, nominate: { ...s.nominate!, offer: null }, deadline: now + s.openMs };
 }
 
 export function validateBid(s: AuctionState, p: string, amount: number): { ok: true } | { ok: false; reason: string } {
   if (s.done || s.deadline == null) return { ok: false, reason: "No lot open" };
+  if (s.nominate?.offer) return { ok: false, reason: `Waiting for ${nominator(s)} to nominate a lot` };
   if (!Number.isInteger(amount)) return { ok: false, reason: "Whole dollars only" };
   if (slotsLeft(s, p) <= 0) return { ok: false, reason: "Your team is full" };
   if (s.passed[p]) return { ok: false, reason: "You passed on this lot" };
@@ -152,11 +173,12 @@ function closeLot(s: AuctionState, now: number): AuctionState {
   };
   if (n.players.every((p) => slotsLeft(n, p) <= 0)) return { ...n, done: true };
   if (n.index >= n.queue.length) return fillRemaining(n);
-  return { ...n, deadline: now + n.openMs };
+  return { ...n, deadline: now + n.openMs, nominate: n.nominate ? { ...n.nominate, offer: rollOffer(n) } : undefined };
 }
 
 /** "I'm out": concede the lot (or skip your opening turn) so the others can take it. */
 export function pass(s: AuctionState, p: string, now: number): AuctionState {
+  if (s.nominate?.offer) return s;
   if (s.done || s.deadline == null || slotsLeft(s, p) <= 0 || s.bid.by === p || s.passed[p]) return s;
   if (s.bid.by == null) {
     if (opener(s) !== p) return s;
@@ -173,6 +195,10 @@ export function pass(s: AuctionState, p: string, now: number): AuctionState {
 /** Resolve the current lot if its timer has expired. */
 export function settle(s: AuctionState, now: number): AuctionState {
   if (s.done || s.deadline == null || now < s.deadline) return s;
+  if (s.nominate?.offer) {
+    const who = nominator(s);
+    return who ? nominate(s, who, s.nominate.offer[0]!, now) : s;
+  }
   if (s.bid.by == null) {
     const o = opener(s);
     return o ? pass(s, o, now) : closeLot(s, now);
@@ -195,6 +221,13 @@ export function aiAct(s: AuctionState, p: string, value: number): AiMove | null 
   const want = s.bid.amount + 1 + (r > 0.8 ? 1 : 0);
   if (want > cap) return { type: "pass" };
   return { type: "bid", amount: Math.min(want, maxBid(s, p)), seed };
+}
+
+/** AI nominator: puts up whichever rolled character it values most. */
+export function aiNominate(s: AuctionState, p: string, valueOf: (id: string) => number): string | null {
+  const offer = s.nominate?.offer;
+  if (!offer || nominator(s) !== p) return null;
+  return [...offer].sort((a, b) => valueOf(b) - valueOf(a))[0] ?? null;
 }
 
 export const spent = (s: AuctionState, p: string) => s.budget - s.budgets[p]!;

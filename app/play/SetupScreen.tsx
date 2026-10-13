@@ -18,6 +18,14 @@ import { createRoom, saveToken } from "./onlineApi";
 import { BossPicker, Collapse, CustomItems, Field, LoadoutEditor, RolesEditor, Stepper, inputCls } from "./setupParts";
 
 type Mode = "solo" | "ai" | "local" | "online";
+const ROLL_COPY: Record<FormatId, string> = {
+  snake: "see a few random options each pick, not the whole pool",
+  spin: "",
+  loadout: "roll a few random options for each slot",
+  position: "roll options for each role instead of a dealt hand",
+  auction: "the opener picks which of a few rolled lots goes up",
+  blind: "each reveal spins in with a slot-machine roll",
+};
 const SOLO_FORMATS = new Set<FormatId>(["blind", "loadout", "position"]);
 
 /** Topic-specific starting point for a format. */
@@ -182,6 +190,9 @@ export default function SetupScreen() {
             </button>
           ))}
         </div>
+        {ROLL_COPY[format] && format !== "spin" && (
+          <Chip selected={opts.roll} onClick={() => set("roll", !opts.roll)}>🎲 Random roll — {ROLL_COPY[format]}</Chip>
+        )}
       </Panel>
 
       {format === "loadout" ? (
@@ -253,7 +264,8 @@ export default function SetupScreen() {
             <Field label="Roles" hint="Name each role and pick the stats it rewards."><RolesEditor pool={pool} roles={roles} onChange={setRoles} /></Field>
             <div className="grid gap-5 sm:grid-cols-2">
               <Field label="Bench size (extra cards in hand)"><Stepper value={opts.handExtra} min={0} max={4} onChange={(n) => set("handExtra", n)} label="Bench" /></Field>
-              <Field label="Hand rerolls"><Stepper value={opts.rerolls} min={0} max={3} onChange={(n) => set("rerolls", n)} label="Rerolls" /></Field>
+              <Field label={opts.roll ? "Rerolls per player" : "Hand rerolls"}><Stepper value={opts.rerolls} min={0} max={4} onChange={(n) => set("rerolls", n)} label="Rerolls" /></Field>
+              {opts.roll && <Field label="Options per roll"><Stepper value={opts.options} min={2} max={5} onChange={(n) => set("options", n)} label="Options" /></Field>}
             </div>
           </>
         )}
@@ -265,6 +277,7 @@ export default function SetupScreen() {
               <>
                 <Field label={`Budget: $${opts.budget}`}><input type="range" min={10} max={100} step={5} value={opts.budget} onChange={(e) => set("budget", +e.target.value)} className="w-full accent-[var(--primary)]" aria-label="Budget" /></Field>
                 <Field label="Seconds per lot"><div className="flex gap-2">{[8, 15, 25].map((n) => <Chip key={n} selected={opts.lotSeconds === n} onClick={() => set("lotSeconds", n)}>{n}s</Chip>)}</div></Field>
+                {opts.roll && <Field label="Lots rolled per nomination"><Stepper value={opts.options} min={2} max={4} onChange={(n) => set("options", n)} label="Lots" /></Field>}
               </>
             ) : (
               <>
@@ -282,7 +295,7 @@ export default function SetupScreen() {
               <>
                 <Field label="Power cap (team total)"><div className="flex flex-wrap gap-2">{[null, 300, 400, 500].map((c) => <Chip key={String(c)} selected={opts.powerCap === c} onClick={() => set("powerCap", c)}>{c ?? "None"}</Chip>)}</div></Field>
                 <div className="flex flex-wrap gap-2 sm:col-span-2">
-                  {format === "snake" && <Chip selected={opts.roll} onClick={() => set("roll", !opts.roll)}>Random roll — see a few random options, not the whole pool</Chip>}
+                  
                   <Chip selected={opts.useRoles} onClick={() => set("useRoles", !opts.useRoles)}>Roles (Leader, Tank, Brain…)</Chip>
                   <Chip selected={opts.noDupUniverse} onClick={() => set("noDupUniverse", !opts.noDupUniverse)}>No repeat universe</Chip>
                 </div>
@@ -293,7 +306,6 @@ export default function SetupScreen() {
         {format === "loadout" && (
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Pick timer"><div className="flex flex-wrap gap-2">{[20, 30, 60, null].map((t) => <Chip key={String(t)} selected={opts.timerSeconds === t} onClick={() => set("timerSeconds", t)}>{t ? `${t}s` : "Off"}</Chip>)}</div></Field>
-            <Field label="Item choices"><div className="flex gap-2"><Chip selected={!opts.roll} onClick={() => set("roll", false)}>Browse all</Chip><Chip selected={opts.roll} onClick={() => set("roll", true)}>Random roll</Chip></div></Field>
             {opts.roll && (
               <>
                 <Field label="Options per roll"><Stepper value={opts.options} min={2} max={6} onChange={(n) => set("options", n)} label="Options" /></Field>

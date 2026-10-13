@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { init, open, placeBid, settle, pass, validateBid, maxBid, aiAct, currentItem, slotsLeft, opener } from "./auction";
+import { init, open, placeBid, settle, pass, validateBid, maxBid, aiAct, currentItem, slotsLeft, opener, nominate, nominator, aiNominate } from "./auction";
 
 const ids = Array.from({ length: 30 }, (_, i) => `i${i}`);
 const mk = (players = ["A", "B"]) => init({ players, budget: 20, teamSize: 3, poolIds: ids, seed: 7 });
@@ -125,5 +125,65 @@ describe("auction", () => {
       expect(s.budgets[p]!).toBeGreaterThanOrEqual(0);
       expect(slotsLeft(s, p)).toBe(0);
     }
+  });
+
+  describe("nominate (random roll) mode", () => {
+    const mkN = (players = ["A", "B"]) => open(init({ players, budget: 20, teamSize: 3, poolIds: ids, seed: 7, nominate: { n: 3 } }), 0);
+
+    it("rolls N lots for the nominator; nothing is biddable until one is chosen", () => {
+      const s = mkN();
+      expect(s.nominate!.offer!.length).toBe(3);
+      expect(currentItem(s)).toBeNull();
+      expect(nominator(s)).toBe("A");
+      expect(validateBid(s, "A", 1)).toMatchObject({ ok: false });
+      expect(pass(s, "A", 5)).toBe(s);
+    });
+
+    it("only the nominator can choose, and only from the roll; the choice goes up for bid", () => {
+      let s = mkN();
+      const [a, b] = s.nominate!.offer!;
+      expect(nominate(s, "B", a!, 1)).toBe(s);
+      expect(nominate(s, "A", "i-not-offered", 1)).toBe(s);
+      s = nominate(s, "A", b!, 1);
+      expect(currentItem(s)).toBe(b);
+      expect(s.nominate!.offer).toBeNull();
+      expect(s.deadline).toBe(1 + s.openMs);
+      expect(new Set(s.queue).size).toBe(s.queue.length); // swap, never duplicate
+      s = placeBid(s, "A", 2, 2);
+      expect(s.bid.by).toBe("A");
+    });
+
+    it("an idle nominator is auto-nominated on timeout; the next lot rolls a fresh offer for the next player", () => {
+      let s = mkN();
+      const first = s.nominate!.offer![0]!;
+      s = settle(s, s.deadline! + 1);
+      expect(currentItem(s)).toBe(first);
+      s = placeBid(s, "A", 1, s.deadline! - 100);
+      s = pass(s, "B", s.deadline! - 50); // sold to A
+      expect(s.nominate!.offer!.length).toBe(3);
+      expect(nominator(s)).toBe("B");
+      const pick = aiNominate(s, "B", (id) => (id === s.nominate!.offer![2] ? 9 : 1));
+      expect(pick).toBe(s.nominate!.offer![2]);
+      expect(aiNominate(s, "A", () => 1)).toBeNull();
+    });
+
+    it("full game with bots in nominate mode ends with full rosters", () => {
+      let s = mkN(["A", "B", "C"]);
+      let t = 0;
+      let guard = 0;
+      while (!s.done && guard++ < 3000) {
+        t += 300;
+        const nom = nominator(s);
+        if (nom) s = nominate(s, nom, aiNominate(s, nom, () => 1)!, t);
+        for (const p of s.players) {
+          const m = aiAct(s, p, 6);
+          if (!m) continue;
+          s = m.type === "bid" ? placeBid({ ...s, seed: m.seed }, p, m.amount, t) : pass(s, p, t);
+        }
+        s = settle(s, t);
+      }
+      expect(s.done).toBe(true);
+      for (const p of s.players) expect(slotsLeft(s, p)).toBe(0);
+    });
   });
 });

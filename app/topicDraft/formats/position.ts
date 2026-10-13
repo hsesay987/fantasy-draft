@@ -78,15 +78,17 @@ export type PositionState = {
   handSize: number;
   seed: number;
   done: boolean;
+  /** Random-roll mode: no dealt hand; each role rolls a few options to pick from. */
+  roll?: { n: number; pool: string[]; rerolls: Record<string, number>; offers: Record<string, Record<string, string[]>> };
 };
 
-export function init(o: { players: string[]; roles: Role[]; poolIds: string[]; handSize?: number; rerolls?: number; seed: number }): PositionState {
+export function init(o: { players: string[]; roles: Role[]; poolIds: string[]; handSize?: number; rerolls?: number; seed: number; roll?: { n: number } }): PositionState {
   const handSize = Math.max(o.roles.length, o.handSize ?? o.roles.length + 2);
   let [shuffled, seed] = shuffle(o.poolIds, o.seed);
   const hands: Record<string, string[]> = {};
   for (const p of o.players) {
-    hands[p] = shuffled.slice(0, handSize);
-    shuffled = shuffled.slice(handSize);
+    hands[p] = o.roll ? [] : shuffled.slice(0, handSize);
+    if (!o.roll) shuffled = shuffled.slice(handSize);
   }
   return {
     players: o.players,
@@ -99,11 +101,43 @@ export function init(o: { players: string[]; roles: Role[]; poolIds: string[]; h
     handSize,
     seed,
     done: false,
+    roll: o.roll ? { n: o.roll.n, pool: o.poolIds, rerolls: Object.fromEntries(o.players.map((p) => [p, o.rerolls ?? 1])), offers: Object.fromEntries(o.players.map((p) => [p, {}])) } : undefined,
   };
+}
+
+const assignedBySomeone = (s: PositionState, id: string) => Object.values(s.assign).some((a) => Object.values(a).includes(id));
+
+function sampleRoleOffer(s: PositionState, exclude: string[], seed: number): [string[], number] {
+  const free = s.roll!.pool.filter((id) => !assignedBySomeone(s, id));
+  const fresh = free.filter((id) => !exclude.includes(id));
+  const [shuffled, next] = shuffle(fresh.length >= s.roll!.n ? fresh : free, seed);
+  return [shuffled.slice(0, s.roll!.n), next];
+}
+
+const withHand = (s: PositionState, p: string, ids: string[]) => ({ ...s.hands, [p]: [...new Set([...s.hands[p]!, ...ids])] });
+
+/** Roll options for a role (free the first time; idempotent). */
+export function rollRole(s: PositionState, p: string, roleId: string): PositionState {
+  if (!s.roll || s.done || s.locked[p] || !s.roles.some((r) => r.id === roleId) || s.assign[p]![roleId] || s.roll.offers[p]![roleId]) return s;
+  const [offer, seed] = sampleRoleOffer(s, [], s.seed);
+  return { ...s, seed, hands: withHand(s, p, offer), roll: { ...s.roll, offers: { ...s.roll.offers, [p]: { ...s.roll.offers[p], [roleId]: offer } } } };
+}
+
+/** Spend a reroll token to redraw a role's options (they differ from the previous roll when possible). */
+export function rerollRole(s: PositionState, p: string, roleId: string): PositionState {
+  if (!s.roll || s.done || s.locked[p] || s.assign[p]![roleId] || (s.roll.rerolls[p] ?? 0) <= 0) return s;
+  const prev = s.roll.offers[p]![roleId] ?? [];
+  const [offer, seed] = sampleRoleOffer(s, prev, s.seed);
+  return { ...s, seed, hands: withHand(s, p, offer), roll: { ...s.roll, rerolls: { ...s.roll.rerolls, [p]: s.roll.rerolls[p]! - 1 }, offers: { ...s.roll.offers, [p]: { ...s.roll.offers[p], [roleId]: offer } } } };
 }
 
 export function assign(s: PositionState, p: string, roleId: string, itemId: string): PositionState {
   if (s.done || s.locked[p] || !s.hands[p]!.includes(itemId) || !s.roles.some((r) => r.id === roleId)) return s;
+  if (s.roll) {
+    // Rolled mode: pick from this role's offer, one character per player, nobody can share a pick.
+    if (!s.roll.offers[p]![roleId]?.includes(itemId) || assignedBySomeone(s, itemId) || s.assign[p]![roleId]) return s;
+    return { ...s, assign: { ...s.assign, [p]: { ...s.assign[p], [roleId]: itemId } }, roll: { ...s.roll, offers: { ...s.roll.offers, [p]: { ...s.roll.offers[p], [roleId]: undefined as never } } } };
+  }
   const cur = { ...s.assign[p]! };
   for (const [r, id] of Object.entries(cur)) if (id === itemId) delete cur[r];
   cur[roleId] = itemId;
@@ -114,12 +148,14 @@ export function unassign(s: PositionState, p: string, roleId: string): PositionS
   if (s.done || s.locked[p]) return s;
   const cur = { ...s.assign[p]! };
   delete cur[roleId];
+  if (s.roll) return { ...s, assign: { ...s.assign, [p]: cur }, roll: { ...s.roll, offers: { ...s.roll.offers, [p]: { ...s.roll.offers[p], [roleId]: undefined as never } } } };
   return { ...s, assign: { ...s.assign, [p]: cur } };
 }
 
 export const complete = (s: PositionState, p: string) => s.roles.every((r) => s.assign[p]![r.id]);
 
 export function reroll(s: PositionState, p: string): PositionState {
+  if (s.roll) return s;
   if (s.done || s.locked[p] || s.rerolls[p]! <= 0 || Object.keys(s.assign[p]!).length > 0) return s;
   const [pool, seed] = shuffle([...s.unused, ...s.hands[p]!], s.seed);
   return {
@@ -167,6 +203,21 @@ export function bestAssignment(roles: Role[], hand: Item[]): Record<string, stri
 
 export function autoAssign(s: PositionState, p: string, itemsById: (id: string) => Item | undefined): PositionState {
   if (s.done || s.locked[p]) return s;
+  if (s.roll) {
+    // Rolled mode: roll each open role, take the best fit on offer.
+    let n = s;
+    for (const r of s.roles) {
+      if (n.assign[p]![r.id]) continue;
+      n = rollRole(n, p, r.id);
+      const best = (n.roll!.offers[p]![r.id] ?? [])
+        .filter((id) => !assignedBySomeone(n, id))
+        .map((id) => itemsById(id))
+        .filter((i): i is Item => !!i)
+        .sort((a, b) => roleFit(b, r) - roleFit(a, r))[0];
+      if (best) n = assign(n, p, r.id, best.id);
+    }
+    return n;
+  }
   const hand = s.hands[p]!.map(itemsById).filter(Boolean) as Item[];
   return { ...s, assign: { ...s.assign, [p]: bestAssignment(s.roles, hand) } };
 }

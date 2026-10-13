@@ -25,6 +25,7 @@ export type Action =
   | { type: "auto"; by: string }
   | { type: "bid"; by: string; amount: number; seed?: number }
   | { type: "pass"; by: string }
+  | { type: "nominate"; by: string; itemId: string }
   | { type: "tick" }
   | { type: "buy"; by: string; slotId: string; itemId: string; seed?: number }
   | { type: "rollFor"; by: string; slotId: string }
@@ -56,13 +57,14 @@ export function initGame(setup: GameSetup, now: number): GameState {
         A.init({
           players: setup.players, budget: o.budget, teamSize: o.teamSize, poolIds: pool.map((i) => i.id), seed: setup.seed,
           baseMs: o.lotSeconds * 1000, bumpMs: Math.min(8000, o.lotSeconds * 500), openMs: Math.min(12000, Math.max(6000, o.lotSeconds * 600)),
+          nominate: o.roll ? { n: Math.max(2, Math.min(4, o.options)) } : undefined,
         }),
         now
       );
     case "loadout":
       return L.init(setup.loadout!, setup.players, o.order, o.roll ? { n: o.options, rerolls: o.rerolls, seed: setup.seed } : undefined);
     case "position":
-      return P.init({ players: setup.players, roles: setup.roles, poolIds: pool.map((i) => i.id), handSize: setup.roles.length + o.handExtra, rerolls: o.rerolls, seed: setup.seed });
+      return P.init({ players: setup.players, roles: setup.roles, poolIds: pool.map((i) => i.id), handSize: setup.roles.length + o.handExtra, rerolls: o.rerolls, seed: setup.seed, roll: o.roll ? { n: o.options } : undefined });
     case "blind":
       return B.init({ players: setup.players, poolIds: pool.map((i) => i.id), size: o.rankSize, weights: setup.mission.weights, seed: setup.seed });
     default:
@@ -128,6 +130,7 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       const x = s as A.AuctionState;
       if (a.type === "bid") return A.placeBid(a.seed != null ? { ...x, seed: a.seed } : x, a.by, a.amount, now);
       if (a.type === "pass") return A.pass(x, a.by, now);
+      if (a.type === "nominate") return A.nominate(x, a.by, a.itemId, now);
       if (a.type === "tick") return A.settle(x, now);
       return s;
     }
@@ -146,6 +149,8 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       if (a.type === "unassign") return P.unassign(x, a.by, a.roleId);
       if (a.type === "reroll") return P.reroll(x, a.by);
       if (a.type === "autoAssign") return P.autoAssign(x, a.by, itemsById(setup));
+      if (a.type === "rollFor") return P.rollRole(x, a.by, a.slotId);
+      if (a.type === "rerollSlot") return P.rerollRole(x, a.by, a.slotId);
       if (a.type === "lock") return P.lock(x, a.by);
       return s;
     }

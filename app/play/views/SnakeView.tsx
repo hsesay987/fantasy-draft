@@ -119,6 +119,7 @@ export function SnakeView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <PoolGrid
             state={draft}
             pool={ctl.pool}
+            weights={setup.mystery ? undefined : setup.mission.weights}
             selectedId={selected}
             highlightId={pickHint}
             disabled={!mine}
