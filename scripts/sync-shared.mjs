@@ -28,7 +28,7 @@ export function build() {
   const files = {};
   const td = path.join(root, "app/topicDraft");
   for (const r of walk(td)) files[path.join("topicDraft", r)] = fs.readFileSync(path.join(td, r), "utf8");
-  for (const f of ["types.ts", "judging.ts"]) files[path.join("play", f)] = fs.readFileSync(path.join(root, "app/play", f), "utf8");
+  for (const f of ["types.ts", "judging.ts", "analysis.ts"]) files[path.join("play", f)] = fs.readFileSync(path.join(root, "app/play", f), "utf8");
   for (const k of Object.keys(files)) if (k.endsWith(".ts")) files[k] = HEADER + files[k];
   return files;
 }

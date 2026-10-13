@@ -111,4 +111,24 @@ describe("judge", () => {
     expect(user).toContain('"price":4');
     expect(user).toContain("Covered 3/7");
   });
+
+  it("fallback verdict carries a detailed written analysis and comparison table", async () => {
+    const v = await judge(req, null);
+    expect(v.summary).toContain("Ann wins");
+    expect(v.analysis!.length).toBeGreaterThanOrEqual(2);
+    expect(v.analysis!.join(" ")).toMatch(/Head to head|Rematch advice/);
+    expect(v.statsTable!.some((r) => r.key === "intellect")).toBe(true);
+    expect(v.teams[0]!.strengths).toBeDefined();
+  });
+
+  it("AI verdicts keep the model's analysis paragraphs and a deterministic comparison table", async () => {
+    const v = await judge(req, {
+      complete: async () =>
+        '{"teams":[{"player":"Ann","score":88,"highlights":["a"],"roast":"r","strengths":["Brains"],"weaknesses":["Brawn"]},{"player":"Bob","score":40,"highlights":["b"],"roast":"r"}],"summary":"Ann outthinks Bob.","analysis":["Para one.","Para two."]}',
+    });
+    expect(v.source).toBe("ai");
+    expect(v.analysis).toEqual(["Para one.", "Para two."]);
+    expect(v.teams[0]!.strengths).toEqual(["Brains"]);
+    expect(v.statsTable!.length).toBeGreaterThan(0);
+  });
 });

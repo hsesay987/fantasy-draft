@@ -1,4 +1,5 @@
 import type { Item, Scenario } from "../topicDraft/types";
+import { analyze } from "./analysis";
 
 export type JudgeItem = {
   name: string;
@@ -11,10 +12,16 @@ export type JudgeItem = {
 };
 export type JudgeTeamInput = { player: string; items: JudgeItem[]; baseline: number; notes?: string };
 
+export type StatRow = { key: string; values: Record<string, number> };
+
 export type Verdict = {
   winner: string;
-  teams: { player: string; score: number; highlights: string[]; roast: string }[];
+  teams: { player: string; score: number; highlights: string[]; roast: string; strengths?: string[]; weaknesses?: string[] }[];
   summary: string;
+  /** Detailed written breakdown: why it went this way, head-to-head, key picks, advice. */
+  analysis?: string[];
+  /** Average stat per team for the comparison bars. */
+  statsTable?: StatRow[];
   source: "ai" | "fallback";
 };
 
@@ -28,18 +35,19 @@ export const toJudgeItem = (i: Item, extra?: { role?: string; price?: number }):
   tags: i.tags,
 });
 
-export function localVerdict(teams: JudgeTeamInput[], mission: { title: string }): Verdict {
-  const scored = teams.map((t) => {
-    const best = [...t.items].sort((a, b) => (b.stats.power ?? Object.values(b.stats)[0] ?? 0) - (a.stats.power ?? Object.values(a.stats)[0] ?? 0))[0];
-    return {
-      player: t.player,
-      score: t.baseline,
-      highlights: [best ? `${best.name} carries the squad` : "No picks", ...(t.notes ? [t.notes] : [])],
-      roast: t.baseline >= 75 ? "Annoyingly solid." : t.baseline >= 50 ? "Respectable. Not scary." : "Bold strategy. Bold.",
-    };
-  });
-  const winner = [...scored].sort((a, b) => b.score - a.score)[0]?.player ?? "";
-  return { winner, teams: scored, summary: scored.length === 1 ? `${winner} scored ${Math.round(scored[0]!.score)} on "${mission.title}".` : `${winner} comes out on top for "${mission.title}".`, source: "fallback" };
+export function localVerdict(teams: JudgeTeamInput[], mission: { title: string; weights?: Record<string, number> }): Verdict {
+  const scores = Object.fromEntries(teams.map((t) => [t.player, t.baseline]));
+  const a = analyze(teams, mission, scores);
+  const scored = teams.map((t) => ({
+    player: t.player,
+    score: t.baseline,
+    highlights: a.perTeam[t.player]?.highlights ?? [],
+    roast: t.baseline >= 75 ? "Annoyingly solid." : t.baseline >= 50 ? "Respectable. Not scary." : "Bold strategy. Bold.",
+    strengths: a.perTeam[t.player]?.strengths,
+    weaknesses: a.perTeam[t.player]?.weaknesses,
+  }));
+  const winner = [...scored].sort((x, y) => y.score - x.score)[0]?.player ?? "";
+  return { winner, teams: scored, summary: a.analysis[0] ?? "", analysis: a.analysis.slice(1), statsTable: a.statsTable, source: "fallback" };
 }
 
 export async function fetchVerdict(

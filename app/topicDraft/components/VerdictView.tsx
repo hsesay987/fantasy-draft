@@ -43,9 +43,9 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
         <Crown className="mx-auto h-10 w-10 text-accent" aria-hidden />
         <p className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">{solo ? "Your score" : "Winner"}</p>
         <h2 className="text-4xl">{solo ? <Score value={Math.round(sorted[0]!.score)} delay={200} plain /> : verdict.winner}</h2>
-        <p className="mx-auto mt-3 max-w-xl text-muted-foreground">{verdict.summary}</p>
+        <p className="mx-auto mt-3 max-w-2xl text-balance text-foreground/90">{verdict.summary}</p>
         {verdict.source === "fallback" && (
-          <p className="mt-2 text-xs text-muted-foreground">AI judge unavailable — scored by the numbers.</p>
+          <p className="mt-2 text-xs text-muted-foreground">AI judge unavailable — analysis generated from the numbers.</p>
         )}
       </motion.div>
       <div className="grid gap-3 md:grid-cols-2">
@@ -64,11 +64,45 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
               <ul className="mt-3 list-disc space-y-1 pl-5 text-sm">
                 {t.highlights.map((h, k) => <li key={k}>{h}</li>)}
               </ul>
+              {(t.strengths?.length || t.weaknesses?.length) ? (
+                <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+                  {t.strengths?.length ? <div><p className="text-xs uppercase tracking-wider text-success">Strengths</p><ul className="mt-1 space-y-1">{t.strengths.map((x, k) => <li key={k}>{x}</li>)}</ul></div> : null}
+                  {t.weaknesses?.length ? <div><p className="text-xs uppercase tracking-wider text-accent">Weak spots</p><ul className="mt-1 space-y-1">{t.weaknesses.map((x, k) => <li key={k}>{x}</li>)}</ul></div> : null}
+                </div>
+              ) : null}
               {t.roast && <p className="mt-3 border-l-2 border-accent pl-3 text-sm italic text-muted-foreground">“{t.roast}”</p>}
             </Card>
           </motion.div>
         ))}
       </div>
+      {(verdict.analysis?.length || verdict.statsTable?.length) ? (
+        <Card className="space-y-5">
+          <h3 className="text-xl">Judge&apos;s analysis</h3>
+          {verdict.statsTable?.length ? (
+            <div className="space-y-3" aria-label="Stat comparison">
+              {verdict.statsTable.map((row) => (
+                <div key={row.key}>
+                  <p className="mb-1 text-xs uppercase tracking-wider text-muted-foreground">{row.key}</p>
+                  <div className="space-y-1">
+                    {sorted.map((t, i) => (
+                      <div key={t.player} className="flex items-center gap-2 text-sm">
+                        <span className="w-24 shrink-0 truncate">{t.player}</span>
+                        <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+                          <motion.div className="h-full rounded-full" style={{ background: i === 0 ? "var(--accent)" : "var(--secondary)" }} initial={{ width: 0 }} animate={{ width: `${row.values[t.player] ?? 0}%` }} transition={{ duration: 0.8, delay: 0.3 + i * 0.1 }} />
+                        </div>
+                        <span className="w-8 text-right tabular-nums text-muted-foreground">{row.values[t.player] ?? 0}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          <div className="space-y-3 text-[15px] leading-relaxed text-foreground/90">
+            {verdict.analysis?.map((p, i) => <p key={i}>{p}</p>)}
+          </div>
+        </Card>
+      ) : null}
       {extra}
       <div className="flex flex-wrap justify-center gap-3">
         {onRematch && <Button onClick={onRematch}><Repeat className="h-4 w-4" aria-hidden /> Rematch</Button>}
