@@ -8,6 +8,10 @@ import FeedbackWidget from "./components/FeedbackWidget";
 import AdShell from "./components/AdShell";
 import Script from "next/script";
 import RoomStatusBanner from "./components/RoomStatusBanner";
+import { Russo_One, Chakra_Petch } from "next/font/google";
+
+const russo = Russo_One({ weight: "400", subsets: ["latin"], variable: "--font-russo", display: "swap" });
+const chakra = Chakra_Petch({ weight: ["400", "500", "600", "700"], subsets: ["latin"], variable: "--font-chakra", display: "swap" });
 
 export const metadata: Metadata = {
   title: "TopPic",
@@ -24,7 +28,7 @@ export default function RootLayout({
     process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-3005130388684291";
 
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className={`h-full ${russo.variable} ${chakra.variable}`}>
       {adsenseClient && (
         <Script
           id="adsense-loader"
@@ -34,7 +38,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       )}
-      <body className="h-full bg-slate-950 text-slate-100">
+      <body className="h-full">
         <Providers>
           <div className="min-h-screen flex flex-col">
             <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
@@ -120,8 +124,8 @@ export default function RootLayout({
 //   );
 
 //   return (
-//     <html lang="en" className="h-full">
-//       <body className="h-full bg-slate-950 text-slate-100">
+//     <html lang="en" className={`h-full ${russo.variable} ${chakra.variable}`}>
+//       <body className="h-full">
 //         {googleClientId ? (
 //           <GoogleOAuthProvider clientId={googleClientId}>
 //             {shell}

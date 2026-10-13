@@ -3,7 +3,14 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Trophy, Sparkles, ShieldCheck, AlertTriangle, Zap, Users } from "lucide-react";
+import {
+  Trophy,
+  Sparkles,
+  ShieldCheck,
+  AlertTriangle,
+  Zap,
+  Users,
+} from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -125,13 +132,16 @@ export default function TopPicLandingPage() {
       <header className="mb-10 space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-400/40 px-3 py-1 text-xs text-amber-200">
           <Sparkles className="w-4 h-4" />
-          Online-only · Up to 20 players · Cards Against Humanity meets drafts
+          Online-only · Up to 20 players ·
         </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-indigo-300">
-          TopPic: Cards Against Humanity mode
+          TopPic
         </h1>
         <p className="text-slate-400 max-w-3xl">
-          Play a live, online-only party game (no offline mode) built around NBA, NFL, and cartoon universes. Everyone draws 7 cards and drops their best character to complete the prompt. FitTopPic eligibility enforced for sports pools.
+          Play a live, online-only party game (no offline mode) built around
+          NBA, NFL, and cartoon universes. Everyone draws 7 cards and drops
+          their best character to complete the prompt. FitTopPic eligibility
+          enforced for sports pools.
         </p>
       </header>
 
@@ -188,7 +198,9 @@ export default function TopPicLandingPage() {
                 </label>
                 <select
                   value={scoringMode}
-                  onChange={(e) => setScoringMode(e.target.value as ScoringMode)}
+                  onChange={(e) =>
+                    setScoringMode(e.target.value as ScoringMode)
+                  }
                   className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm"
                 >
                   <option value="cpu">CPU / AI picks winner</option>
@@ -196,7 +208,8 @@ export default function TopPicLandingPage() {
                   <option value="judge">Rotating judge per round</option>
                 </select>
                 <p className="text-xs text-slate-400">
-                  CPU mode will auto-pick using deterministic seed so everyone sees the same call.
+                  CPU mode will auto-pick using deterministic seed so everyone
+                  sees the same call.
                 </p>
               </div>
 
@@ -209,7 +222,9 @@ export default function TopPicLandingPage() {
                     type="number"
                     min={1}
                     value={targetScore}
-                    onChange={(e) => setTargetScore(Number(e.target.value) || 1)}
+                    onChange={(e) =>
+                      setTargetScore(Number(e.target.value) || 1)
+                    }
                     disabled={unlimited}
                     className="w-28 rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm disabled:opacity-50"
                   />
@@ -236,7 +251,9 @@ export default function TopPicLandingPage() {
                 />
                 <div>
                   <div className="font-semibold">18+ prompts & rooms</div>
-                  <div className="text-xs text-slate-400">Toggle adult-only prompts & cartoons.</div>
+                  <div className="text-xs text-slate-400">
+                    Toggle adult-only prompts & cartoons.
+                  </div>
                 </div>
               </label>
 
@@ -249,7 +266,9 @@ export default function TopPicLandingPage() {
                 />
                 <div>
                   <div className="font-semibold">Prompt moderation</div>
-                  <div className="text-xs text-slate-400">Host must approve prompts before play.</div>
+                  <div className="text-xs text-slate-400">
+                    Host must approve prompts before play.
+                  </div>
                 </div>
               </label>
 
@@ -262,7 +281,9 @@ export default function TopPicLandingPage() {
                 />
                 <div>
                   <div className="font-semibold">Community review</div>
-                  <div className="text-xs text-slate-400">Enable card reviews & reporting.</div>
+                  <div className="text-xs text-slate-400">
+                    Enable card reviews & reporting.
+                  </div>
                 </div>
               </label>
             </div>
@@ -304,19 +325,23 @@ export default function TopPicLandingPage() {
           <ul className="space-y-3 text-sm text-slate-300">
             <li className="flex gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-300 mt-1" />
-              Prompt moderation (admin/host approval) plus optional adult-only toggle for 18+ rooms.
+              Prompt moderation (admin/host approval) plus optional adult-only
+              toggle for 18+ rooms.
             </li>
             <li className="flex gap-2">
               <Users className="w-4 h-4 text-emerald-300 mt-1" />
-              Community review + report buttons on every card to keep the deck clean.
+              Community review + report buttons on every card to keep the deck
+              clean.
             </li>
             <li className="flex gap-2">
               <Trophy className="w-4 h-4 text-indigo-300 mt-1" />
-              Scoring options: CPU winner, player vote, or rotating judge; cap score or run unlimited.
+              Scoring options: CPU winner, player vote, or rotating judge; cap
+              score or run unlimited.
             </li>
             <li className="flex gap-2">
               <Sparkles className="w-4 h-4 text-pink-300 mt-1" />
-              500 unique prompts mapped to NBA, NFL, cartoon, or blended pools—fitTopPic eligibility enforced for sports.
+              500 unique prompts mapped to NBA, NFL, cartoon, or blended
+              pools—fitTopPic eligibility enforced for sports.
             </li>
           </ul>
         </div>
