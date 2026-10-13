@@ -1,0 +1,142 @@
+import type { Item } from "../types";
+import { itemScore } from "../scorer";
+import { shuffle } from "../rng";
+import { catalogMeta, STD_KEYS } from "../catalogs";
+
+export type Role = { id: string; label: string; weights: Record<string, number> };
+
+export const STD_ROLES: Role[] = [
+  { id: "captain", label: "Captain", weights: { teamwork: 2, intellect: 2, power: 1, combat: 0.5 } },
+  { id: "vice", label: "Vice Captain", weights: { teamwork: 1.5, intellect: 1.5, combat: 1, speed: 0.5 } },
+  { id: "healer", label: "Healer", weights: { intellect: 2.5, teamwork: 2, durability: 0.5 } },
+  { id: "support", label: "Support", weights: { teamwork: 2, speed: 1.5, intellect: 1 } },
+  { id: "tank", label: "Tank", weights: { durability: 3, power: 1.5, combat: 1 } },
+];
+
+export const HISTORY_ROLES: Role[] = [
+  { id: "ruler", label: "Ruler", weights: { leadership: 3, influence: 2, strategy: 1 } },
+  { id: "general", label: "General", weights: { strategy: 3, courage: 2, leadership: 1.5 } },
+  { id: "advisor", label: "Advisor", weights: { intellect: 3, strategy: 1.5, charisma: 0.5 } },
+  { id: "diplomat", label: "Diplomat", weights: { charisma: 3, influence: 2, intellect: 1 } },
+  { id: "champion", label: "Champion", weights: { courage: 3, leadership: 1, charisma: 1 } },
+];
+
+export const rolesFor = (poolId: string): Role[] =>
+  (catalogMeta(poolId)?.statKeys ?? STD_KEYS).includes("leadership") ? HISTORY_ROLES : STD_ROLES;
+
+/** Build role weights from emphasised stats (chosen ones weigh 3, the rest a small 0.3). */
+export function weightsFromStats(statKeys: string[], chosen: string[]): Record<string, number> {
+  const w: Record<string, number> = {};
+  for (const k of statKeys) w[k] = chosen.includes(k) ? 3 : 0.3;
+  return w;
+}
+
+export type PositionState = {
+  players: string[];
+  roles: Role[];
+  hands: Record<string, string[]>;
+  assign: Record<string, Record<string, string>>;
+  locked: Record<string, boolean>;
+  rerolls: Record<string, number>;
+  unused: string[];
+  handSize: number;
+  seed: number;
+  done: boolean;
+};
+
+export function init(o: { players: string[]; roles: Role[]; poolIds: string[]; handSize?: number; rerolls?: number; seed: number }): PositionState {
+  const handSize = Math.max(o.roles.length, o.handSize ?? o.roles.length + 2);
+  let [shuffled, seed] = shuffle(o.poolIds, o.seed);
+  const hands: Record<string, string[]> = {};
+  for (const p of o.players) {
+    hands[p] = shuffled.slice(0, handSize);
+    shuffled = shuffled.slice(handSize);
+  }
+  return {
+    players: o.players,
+    roles: o.roles,
+    hands,
+    assign: Object.fromEntries(o.players.map((p) => [p, {}])),
+    locked: Object.fromEntries(o.players.map((p) => [p, false])),
+    rerolls: Object.fromEntries(o.players.map((p) => [p, o.rerolls ?? 1])),
+    unused: shuffled,
+    handSize,
+    seed,
+    done: false,
+  };
+}
+
+export function assign(s: PositionState, p: string, roleId: string, itemId: string): PositionState {
+  if (s.done || s.locked[p] || !s.hands[p]!.includes(itemId) || !s.roles.some((r) => r.id === roleId)) return s;
+  const cur = { ...s.assign[p]! };
+  for (const [r, id] of Object.entries(cur)) if (id === itemId) delete cur[r];
+  cur[roleId] = itemId;
+  return { ...s, assign: { ...s.assign, [p]: cur } };
+}
+
+export function unassign(s: PositionState, p: string, roleId: string): PositionState {
+  if (s.done || s.locked[p]) return s;
+  const cur = { ...s.assign[p]! };
+  delete cur[roleId];
+  return { ...s, assign: { ...s.assign, [p]: cur } };
+}
+
+export const complete = (s: PositionState, p: string) => s.roles.every((r) => s.assign[p]![r.id]);
+
+export function reroll(s: PositionState, p: string): PositionState {
+  if (s.done || s.locked[p] || s.rerolls[p]! <= 0 || Object.keys(s.assign[p]!).length > 0) return s;
+  const [pool, seed] = shuffle([...s.unused, ...s.hands[p]!], s.seed);
+  return {
+    ...s,
+    hands: { ...s.hands, [p]: pool.slice(0, s.handSize) },
+    unused: pool.slice(s.handSize),
+    rerolls: { ...s.rerolls, [p]: s.rerolls[p]! - 1 },
+    seed,
+  };
+}
+
+export function lock(s: PositionState, p: string): PositionState {
+  if (!complete(s, p)) return s;
+  const locked = { ...s.locked, [p]: true };
+  return { ...s, locked, done: s.players.every((x) => locked[x]) };
+}
+
+export const roleFit = (item: Item, role: Role) => itemScore(item, role.weights);
+
+/** Best assignment (exhaustive: hands and roles are small). */
+export function bestAssignment(roles: Role[], hand: Item[]): Record<string, string> {
+  let best = -1;
+  let bestMap: Record<string, string> = {};
+  const used = new Set<number>();
+  const cur: Record<string, string> = {};
+  const go = (ri: number, sum: number) => {
+    if (ri === roles.length) {
+      if (sum > best) {
+        best = sum;
+        bestMap = { ...cur };
+      }
+      return;
+    }
+    for (let i = 0; i < hand.length; i++) {
+      if (used.has(i)) continue;
+      used.add(i);
+      cur[roles[ri]!.id] = hand[i]!.id;
+      go(ri + 1, sum + roleFit(hand[i]!, roles[ri]!));
+      used.delete(i);
+    }
+  };
+  go(0, 0);
+  return bestMap;
+}
+
+export function autoAssign(s: PositionState, p: string, itemsById: (id: string) => Item | undefined): PositionState {
+  if (s.done || s.locked[p]) return s;
+  const hand = s.hands[p]!.map(itemsById).filter(Boolean) as Item[];
+  return { ...s, assign: { ...s.assign, [p]: bestAssignment(s.roles, hand) } };
+}
+
+export function scorePosition(roles: Role[], assigned: Record<string, Item | undefined>) {
+  const per = roles.map((r) => (assigned[r.id] ? roleFit(assigned[r.id]!, r) : 0));
+  const total = per.reduce((a, b) => a + b, 0) / Math.max(1, roles.length);
+  return { total: Math.round(total * 10) / 10, perRole: Object.fromEntries(roles.map((r, i) => [r.id, Math.round(per[i]!)])) };
+}
