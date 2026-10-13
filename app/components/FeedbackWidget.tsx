@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { Bug, Loader2, MessageCircle, Send, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "../hooks/useAuth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -10,6 +11,9 @@ type FeedbackType = "feedback" | "bug";
 
 export default function FeedbackWidget() {
   const { token, user } = useAuth();
+  const pathname = usePathname() || "";
+  // Sticky action bars live at the bottom of /play pages; keep the button clear of them.
+  const lifted = pathname.startsWith("/play");
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<FeedbackType>("feedback");
   const [category, setCategory] = useState("idea");
@@ -57,7 +61,7 @@ export default function FeedbackWidget() {
   }
 
   return (
-    <div className="fixed bottom-20 right-4 z-50 md:bottom-4 flex flex-col items-end gap-3">
+    <div className={`fixed ${lifted ? "bottom-40 md:bottom-24" : "bottom-20 md:bottom-4"} right-4 z-50 flex flex-col items-end gap-3`}>
       {open && (
         <div className="w-80 rounded-2xl border border-white/10 bg-card/95 shadow-2xl backdrop-blur">
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
