@@ -143,6 +143,8 @@ describe("judge", () => {
     expect(bad.source).toBe("fallback");
     expect(bad.weaknesses).toContain("emp");
     expect((await bossIdeas("Zombie King", null)).weaknesses).toContain("fire");
+    expect((await bossIdeas("Godzilla", null)).weaknesses).not.toContain("cosmic"); // "god" inside a word is not a god
+    expect((await bossIdeas("Skynet AI", null)).weaknesses).toContain("emp");
     expect(fallbackBoss("Some Unknown Thing").weaknesses.length).toBeGreaterThan(2);
     expect((await bossIdeas("", null)).weaknesses.length).toBeGreaterThan(0);
   });

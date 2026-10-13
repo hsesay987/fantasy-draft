@@ -242,7 +242,7 @@ const RULES: [RegExp, string[]][] = [
   [/alien|invasion|mothership|martian/i, ["emp", "tech-counter", "energy", "flyer"]],
   [/vampire|dracula/i, ["fire", "blade", "piercing", "magic"]],
   [/ghost|spirit|phantom|wraith/i, ["magic", "sonic", "fear"]],
-  [/god|titan|thanos|cosmic|galactus/i, ["magic", "cosmic", "numbers", "energy"]],
+  [/\bgods?\b|titan|thanos|cosmic|galactus/i, ["magic", "cosmic", "numbers", "energy"]],
   [/heist|vault|bank|museum/i, ["stealth", "hacker", "tech", "gas", "teleport"]],
   [/batman|detective|spy|assassin/i, ["magic", "fear", "gas", "numbers", "explosive"]],
 ];
