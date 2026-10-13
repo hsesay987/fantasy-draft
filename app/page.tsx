@@ -1,283 +1,104 @@
-// app/page.tsx
+// app/page.tsx — TopPic hub
 "use client";
 
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import draftImg from "./assets/nba.jpg";
-import nflImg from "./assets/nfl.jpg";
-import cartoonsImg from "./assets/cartoons.jpg";
-import imposterImg from "./assets/imposter.jpg";
-import lineupImg from "./assets/lineup.jpg";
-import quizImg from "./assets/quiz.jpg";
-import auxImg from "./assets/music.jpg";
-import topPicImg from "./assets/toppic.png";
+import { motion } from "motion/react";
+import Link from "next/link";
+import { Sparkles, Bot } from "lucide-react";
+import { GameTile } from "./components/ui";
+import { TOPIC_GAMES, CLASSIC, PARTY } from "./topicDraft/games";
 
-type GameCard = {
-  id: string;
-  name: string;
-  image: any;
-  enabled: boolean;
-  route?: string;
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
+const item = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 320, damping: 28 } },
 };
 
-type DraftRecord = {
-  league?: string;
-  createdAt?: string;
-};
-
-type TopGame = {
-  id: string;
-  title: string;
-  subtitle: string;
-  image: any;
-  route: string;
-};
-
-export default function MainHomePage() {
-  const router = useRouter();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-  const [topGame, setTopGame] = useState<TopGame | null>(null);
-
-  const topGameByLeague: Record<string, TopGame> = useMemo(
-    () => ({
-      NBA: {
-        id: "nba",
-        title: "NBA Draft",
-        subtitle: "Most created today",
-        image: draftImg,
-        route: "/draft/new",
-      },
-      NFL: {
-        id: "nfl",
-        title: "NFL Draft",
-        subtitle: "Most created today",
-        image: nflImg,
-        route: "/draft/new?league=NFL",
-      },
-      CARTOON: {
-        id: "cartoon",
-        title: "Cartoon Draft",
-        subtitle: "Most created today",
-        image: cartoonsImg,
-        route: "/draft/new?league=CARTOON",
-      },
-    }),
-    []
+function Section({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-4">
+      <div>
+        <h2 className="text-2xl">{title}</h2>
+        <p className="text-sm text-muted-foreground">{sub}</p>
+      </div>
+      <motion.div
+        variants={container}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-40px" }}
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      >
+        {children}
+      </motion.div>
+    </section>
   );
+}
 
-  useEffect(() => {
-    async function loadTopGame() {
-      try {
-        const res = await fetch(`${API_URL}/drafts`);
-        if (!res.ok) return;
-
-        const drafts: DraftRecord[] = await res.json();
-        const today = new Date().toDateString();
-
-        const counts = drafts.reduce<Record<string, number>>((acc, draft) => {
-          if (!draft.createdAt) return acc;
-          const created = new Date(draft.createdAt);
-          if (created.toDateString() !== today) return acc;
-
-          const league = (draft.league || "NBA").toUpperCase();
-          acc[league] = (acc[league] || 0) + 1;
-          return acc;
-        }, {});
-
-        const topLeague =
-          Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "NBA";
-
-        setTopGame(topGameByLeague[topLeague] || topGameByLeague.NBA);
-      } catch (err) {
-        console.error("Failed to load today's top game", err);
-      }
-    }
-
-    loadTopGame();
-  }, [API_URL, topGameByLeague]);
-
-  useEffect(() => {
-    if (!topGame) {
-      setTopGame(topGameByLeague.NBA);
-    }
-  }, [topGame, topGameByLeague]);
-
-  const games: GameCard[] = [
-    {
-      id: "draft",
-      name: "Drafts",
-      image: draftImg,
-      enabled: true,
-      route: "/draft",
-    },
-    {
-      id: "officialTopPic",
-      name: "TopPic",
-      image: topPicImg,
-      enabled: true,
-      route: "/toppic",
-    },
-    {
-      id: "imposter",
-      name: "Imposter",
-      image: imposterImg,
-      enabled: false,
-    },
-    {
-      id: "lineup",
-      name: "Lineup Builder",
-      image: lineupImg,
-      enabled: false,
-    },
-    {
-      id: "quiz",
-      name: "Quizzes",
-      image: quizImg,
-      enabled: false,
-    },
-    {
-      id: "aux",
-      name: "Aux Battles",
-      image: auxImg,
-      enabled: false,
-    },
-  ];
+export default function Home() {
+  const live = TOPIC_GAMES.filter((g) => g.live);
+  const soon = TOPIC_GAMES.filter((g) => !g.live);
 
   return (
-    <main className="min-h-screen bg-slate-950 p-8 text-slate-50 space-y-10">
-      <header>
-        <h1 className="text-5xl font-extrabold text-indigo-400 mb-2">
-          GameHub
+    <main className="mx-auto max-w-7xl space-y-14 px-4 py-10 md:px-6 md:py-16">
+      <motion.header
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 200, damping: 26 }}
+        className="max-w-3xl space-y-5"
+      >
+        <span className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-primary/15 px-3 py-1 text-xs font-semibold text-secondary">
+          <Bot className="h-4 w-4" aria-hidden /> Drafts judged by AI
+        </span>
+        <h1 className="text-5xl leading-[1.05] md:text-7xl">
+          Draft <span className="text-accent">anything.</span>
+          <br />
+          Take the <span className="text-secondary">top pic.</span>
         </h1>
-        <p className="text-slate-400">
-          Competitive games across sports, culture, and creativity.
+        <p className="max-w-xl text-lg text-muted-foreground">
+          Pick a topic, build your squad for a mission, and let an AI judge crown the winner. Solo, pass-and-play, or
+          live with friends.
         </p>
-      </header>
-
-      {topGame && (
-        <section className="rounded-2xl border border-indigo-500/60 bg-slate-900/60 p-5 md:p-6 flex flex-col md:flex-row gap-4 md:items-center">
-          <div className="relative h-36 w-full md:w-48 overflow-hidden rounded-xl border border-indigo-500/40">
-            <Image
-              src={topGame.image}
-              alt={topGame.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-          <div className="flex-1 space-y-2">
-            <div className="text-sm uppercase tracking-[0.2em] text-indigo-300">
-              Today&apos;s Top Game
-            </div>
-            <h2 className="text-2xl font-bold text-slate-50">
-              {topGame.title}
-            </h2>
-            <p className="text-slate-300 text-sm">{topGame.subtitle}</p>
-            <div>
-              <button
-                onClick={() => router.push(topGame.route)}
-                className="mt-2 inline-flex items-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold"
-              >
-                Jump in
-              </button>
-            </div>
-          </div>
-        </section>
-      )}
-      <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {games.map((game) => {
-          const isDraft = game.id === "draft";
-
-          return (
-            <div
-              key={game.id}
-              className={`relative overflow-hidden rounded-2xl border transition-all ${
-                game.enabled
-                  ? "border-indigo-500 hover:shadow-indigo-500/40"
-                  : "border-slate-700 opacity-60 cursor-not-allowed"
-              }`}
-            >
-              <div
-                className={`relative h-48 ${
-                  game.enabled ? "cursor-pointer" : "cursor-not-allowed"
-                }`}
-                onClick={() =>
-                  game.enabled && game.route && router.push(game.route)
-                }
-              >
-                <Image
-                  src={game.image}
-                  alt={game.name}
-                  fill
-                  className={`object-cover ${!game.enabled ? "grayscale" : ""}`}
-                />
-              </div>
-
-              <div className="p-4 text-left">
-                <h3 className="text-xl font-semibold">{game.name}</h3>
-                <p className="text-sm text-slate-400 mb-3">
-                  {game.enabled ? "Choose your mode" : "Coming soon"}
-                </p>
-
-                {isDraft && (
-                  <button
-                    onClick={() => router.push("/draft")}
-                    className="w-full rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2 font-semibold"
-                  >
-                    Explore Drafts
-                  </button>
-                )}
-              </div>
-
-              {!game.enabled && (
-                <span className="absolute top-2 right-2 bg-slate-800 text-xs px-2 py-1 rounded">
-                  Soon
-                </span>
-              )}
-            </div>
-          );
-        })}
-      </section>
-
-      {/* <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {games.map((game) => (
-          <button
-            key={game.id}
-            onClick={() =>
-              game.enabled && game.route && router.push(game.route)
-            }
-            disabled={!game.enabled}
-            className={`relative overflow-hidden rounded-2xl border transition-all ${
-              game.enabled
-                ? "border-indigo-500 hover:shadow-indigo-500/40"
-                : "border-slate-700 opacity-60 cursor-not-allowed"
-            }`}
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/topic/superheroes"
+            className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-6 font-semibold text-black shadow-[0_0_30px_-6px_var(--accent)] transition-transform hover:-translate-y-0.5"
           >
-            <div className="relative h-48">
-              <Image
-                src={game.image}
-                alt={game.name}
-                fill
-                className={`object-cover ${!game.enabled ? "grayscale" : ""}`}
-              />
-            </div>
+            <Sparkles className="h-5 w-5" aria-hidden /> Start a Superhero draft
+          </Link>
+          <Link
+            href="/toppic"
+            className="inline-flex min-h-12 items-center rounded-xl border border-white/15 bg-white/5 px-6 font-semibold hover:bg-white/10"
+          >
+            Play party mode
+          </Link>
+        </div>
+      </motion.header>
 
-            <div className="p-4 text-left">
-              <h3 className="text-xl font-semibold">{game.name}</h3>
-              <p className="text-sm text-slate-400">
-                {game.enabled ? "Play now" : "Coming soon"}
-              </p>
-            </div>
-
-            {!game.enabled && (
-              <span className="absolute top-2 right-2 bg-slate-800 text-xs px-2 py-1 rounded">
-                Soon
-              </span>
-            )}
-          </button>
+      <Section title="Topic Drafts" sub="Pick a topic. Set the rules. Beat your friends or the AI.">
+        {live.map((g) => (
+          <motion.div key={g.id} variants={item}>
+            <GameTile title={g.title} blurb={g.blurb} icon={g.icon} gradient={g.gradient} href={`/topic/${g.id}`} badge="New" />
+          </motion.div>
         ))}
-      </section> */}
+        {soon.map((g) => (
+          <motion.div key={g.id} variants={item}>
+            <GameTile title={g.title} blurb={g.blurb} icon={g.icon} gradient={g.gradient} soon />
+          </motion.div>
+        ))}
+      </Section>
+
+      <Section title="Classic Drafts" sub="Stat-based drafts with real players and characters.">
+        {CLASSIC.map((g) => (
+          <motion.div key={g.id} variants={item}>
+            <GameTile title={g.title} blurb={g.blurb} icon={g.icon} gradient={g.gradient} href={g.href} />
+          </motion.div>
+        ))}
+      </Section>
+
+      <Section title="Party" sub="Online-only. Everyone plays their best card.">
+        <motion.div variants={item}>
+          <GameTile title={PARTY.title} blurb={PARTY.blurb} icon={PARTY.icon} gradient={PARTY.gradient} href={PARTY.href} />
+        </motion.div>
+      </Section>
     </main>
   );
 }
