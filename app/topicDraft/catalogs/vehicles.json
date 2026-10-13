@@ -1,0 +1,428 @@
+[
+ {
+  "id": "armored-truck",
+  "name": "Armored Truck",
+  "universe": "Ground",
+  "archetype": "Tank",
+  "stats": {
+   "speed": 45,
+   "durability": 90,
+   "firepower": 55,
+   "range": 60,
+   "stealth": 10
+  },
+  "tags": [
+   "armor",
+   "ground"
+  ]
+ },
+ {
+  "id": "stealth-jet",
+  "name": "Stealth Jet",
+  "universe": "Air",
+  "archetype": "Fighter",
+  "stats": {
+   "speed": 95,
+   "durability": 50,
+   "firepower": 75,
+   "range": 95,
+   "stealth": 92
+  },
+  "tags": [
+   "stealth",
+   "flyer",
+   "fast"
+  ]
+ },
+ {
+  "id": "battle-tank",
+  "name": "Battle Tank",
+  "universe": "Ground",
+  "archetype": "Tank",
+  "stats": {
+   "speed": 35,
+   "durability": 98,
+   "firepower": 95,
+   "range": 60,
+   "stealth": 10
+  },
+  "tags": [
+   "armor",
+   "explosive"
+  ]
+ },
+ {
+  "id": "hover-bike",
+  "name": "Hover Bike",
+  "universe": "Ground",
+  "archetype": "Bike",
+  "stats": {
+   "speed": 90,
+   "durability": 30,
+   "firepower": 40,
+   "range": 60,
+   "stealth": 45
+  },
+  "tags": [
+   "fast",
+   "mobility"
+  ]
+ },
+ {
+  "id": "submarine",
+  "name": "Submarine",
+  "universe": "Water",
+  "archetype": "Sub",
+  "stats": {
+   "speed": 45,
+   "durability": 85,
+   "firepower": 70,
+   "range": 85,
+   "stealth": 88
+  },
+  "tags": [
+   "water",
+   "stealth"
+  ]
+ },
+ {
+  "id": "helicopter",
+  "name": "Helicopter",
+  "universe": "Air",
+  "archetype": "Chopper",
+  "stats": {
+   "speed": 70,
+   "durability": 45,
+   "firepower": 70,
+   "range": 75,
+   "stealth": 30
+  },
+  "tags": [
+   "flyer",
+   "ranged"
+  ]
+ },
+ {
+  "id": "motorcycle",
+  "name": "Motorcycle",
+  "universe": "Ground",
+  "archetype": "Bike",
+  "stats": {
+   "speed": 85,
+   "durability": 25,
+   "firepower": 15,
+   "range": 50,
+   "stealth": 50
+  },
+  "tags": [
+   "fast"
+  ]
+ },
+ {
+  "id": "pirate-ship",
+  "name": "Pirate Ship",
+  "universe": "Water",
+  "archetype": "Ship",
+  "stats": {
+   "speed": 40,
+   "durability": 70,
+   "firepower": 80,
+   "range": 70,
+   "stealth": 30
+  },
+  "tags": [
+   "water",
+   "ranged"
+  ]
+ },
+ {
+  "id": "rocket-ship",
+  "name": "Rocket Ship",
+  "universe": "Space",
+  "archetype": "Ship",
+  "stats": {
+   "speed": 98,
+   "durability": 60,
+   "firepower": 60,
+   "range": 100,
+   "stealth": 50
+  },
+  "tags": [
+   "flyer",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "muscle-car",
+  "name": "Muscle Car",
+  "universe": "Ground",
+  "archetype": "Car",
+  "stats": {
+   "speed": 80,
+   "durability": 50,
+   "firepower": 25,
+   "range": 55,
+   "stealth": 25
+  },
+  "tags": [
+   "fast"
+  ]
+ },
+ {
+  "id": "mech-walker",
+  "name": "Mech Walker",
+  "universe": "Ground",
+  "archetype": "Mech",
+  "stats": {
+   "speed": 35,
+   "durability": 92,
+   "firepower": 92,
+   "range": 45,
+   "stealth": 15
+  },
+  "tags": [
+   "armor",
+   "tech"
+  ]
+ },
+ {
+  "id": "cargo-plane",
+  "name": "Cargo Plane",
+  "universe": "Air",
+  "archetype": "Transport",
+  "stats": {
+   "speed": 60,
+   "durability": 60,
+   "firepower": 25,
+   "range": 100,
+   "stealth": 25
+  },
+  "tags": [
+   "flyer",
+   "numbers"
+  ]
+ },
+ {
+  "id": "jet-ski",
+  "name": "Jet Ski",
+  "universe": "Water",
+  "archetype": "Bike",
+  "stats": {
+   "speed": 75,
+   "durability": 15,
+   "firepower": 10,
+   "range": 40,
+   "stealth": 55
+  },
+  "tags": [
+   "fast",
+   "water"
+  ]
+ },
+ {
+  "id": "monster-truck",
+  "name": "Monster Truck",
+  "universe": "Ground",
+  "archetype": "Truck",
+  "stats": {
+   "speed": 50,
+   "durability": 92,
+   "firepower": 45,
+   "range": 40,
+   "stealth": 5
+  },
+  "tags": [
+   "blunt",
+   "ground"
+  ]
+ },
+ {
+  "id": "hot-air-balloon",
+  "name": "Hot-Air Balloon",
+  "universe": "Air",
+  "archetype": "Balloon",
+  "stats": {
+   "speed": 10,
+   "durability": 20,
+   "firepower": 5,
+   "range": 70,
+   "stealth": 60
+  },
+  "tags": [
+   "flyer",
+   "stealth"
+  ]
+ },
+ {
+  "id": "gunship",
+  "name": "Gunship",
+  "universe": "Air",
+  "archetype": "Fighter",
+  "stats": {
+   "speed": 75,
+   "durability": 70,
+   "firepower": 98,
+   "range": 70,
+   "stealth": 25
+  },
+  "tags": [
+   "flyer",
+   "ranged",
+   "explosive"
+  ]
+ },
+ {
+  "id": "hovercraft",
+  "name": "Hovercraft",
+  "universe": "Water",
+  "archetype": "Ship",
+  "stats": {
+   "speed": 65,
+   "durability": 45,
+   "firepower": 45,
+   "range": 60,
+   "stealth": 40
+  },
+  "tags": [
+   "water",
+   "mobility"
+  ]
+ },
+ {
+  "id": "invisible-van",
+  "name": "Invisible Van",
+  "universe": "Ground",
+  "archetype": "Van",
+  "stats": {
+   "speed": 55,
+   "durability": 45,
+   "firepower": 10,
+   "range": 80,
+   "stealth": 90
+  },
+  "tags": [
+   "stealth",
+   "ground"
+  ]
+ },
+ {
+  "id": "snow-cat",
+  "name": "Snow Cat",
+  "universe": "Ground",
+  "archetype": "Truck",
+  "stats": {
+   "speed": 40,
+   "durability": 70,
+   "firepower": 20,
+   "range": 60,
+   "stealth": 35
+  },
+  "tags": [
+   "ice",
+   "ground"
+  ]
+ },
+ {
+  "id": "train-engine",
+  "name": "Train Engine",
+  "universe": "Ground",
+  "archetype": "Train",
+  "stats": {
+   "speed": 55,
+   "durability": 95,
+   "firepower": 60,
+   "range": 95,
+   "stealth": 5
+  },
+  "tags": [
+   "armor",
+   "numbers"
+  ]
+ },
+ {
+  "id": "space-shuttle",
+  "name": "Space Shuttle",
+  "universe": "Space",
+  "archetype": "Ship",
+  "stats": {
+   "speed": 90,
+   "durability": 55,
+   "firepower": 35,
+   "range": 98,
+   "stealth": 35
+  },
+  "tags": [
+   "flyer",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "dune-buggy",
+  "name": "Dune Buggy",
+  "universe": "Ground",
+  "archetype": "Car",
+  "stats": {
+   "speed": 75,
+   "durability": 40,
+   "firepower": 20,
+   "range": 50,
+   "stealth": 40
+  },
+  "tags": [
+   "fast",
+   "ground"
+  ]
+ },
+ {
+  "id": "zeppelin",
+  "name": "Zeppelin",
+  "universe": "Air",
+  "archetype": "Balloon",
+  "stats": {
+   "speed": 25,
+   "durability": 55,
+   "firepower": 40,
+   "range": 85,
+   "stealth": 30
+  },
+  "tags": [
+   "flyer",
+   "numbers"
+  ]
+ },
+ {
+  "id": "chariot-of-fire",
+  "name": "Chariot of Fire",
+  "universe": "Mythic",
+  "archetype": "Mythic",
+  "stats": {
+   "speed": 85,
+   "durability": 60,
+   "firepower": 70,
+   "range": 60,
+   "stealth": 30
+  },
+  "tags": [
+   "magic",
+   "fire",
+   "flyer"
+  ]
+ },
+ {
+  "id": "tunnel-borer",
+  "name": "Tunnel Borer",
+  "universe": "Ground",
+  "archetype": "Mech",
+  "stats": {
+   "speed": 20,
+   "durability": 85,
+   "firepower": 35,
+   "range": 50,
+   "stealth": 80
+  },
+  "tags": [
+   "stealth",
+   "ground"
+  ]
+ }
+]

@@ -1,0 +1,702 @@
+[
+ {
+  "id": "john-wick",
+  "name": "John Wick",
+  "universe": "Action",
+  "archetype": "Assassin",
+  "stats": {
+   "power": 55,
+   "intellect": 85,
+   "speed": 80,
+   "durability": 70,
+   "combat": 100,
+   "teamwork": 40
+  },
+  "tags": [
+   "assassin",
+   "human"
+  ]
+ },
+ {
+  "id": "indiana-jones",
+  "name": "Indiana Jones",
+  "universe": "Adventure",
+  "archetype": "Explorer",
+  "stats": {
+   "power": 45,
+   "intellect": 90,
+   "speed": 70,
+   "durability": 60,
+   "combat": 80,
+   "teamwork": 70
+  },
+  "tags": [
+   "explorer",
+   "human"
+  ]
+ },
+ {
+  "id": "james-bond",
+  "name": "James Bond",
+  "universe": "Spy",
+  "archetype": "Spy",
+  "stats": {
+   "power": 50,
+   "intellect": 90,
+   "speed": 75,
+   "durability": 65,
+   "combat": 92,
+   "teamwork": 55
+  },
+  "tags": [
+   "spy",
+   "human"
+  ]
+ },
+ {
+  "id": "ethan-hunt",
+  "name": "Ethan Hunt",
+  "universe": "Spy",
+  "archetype": "Spy",
+  "stats": {
+   "power": 55,
+   "intellect": 88,
+   "speed": 85,
+   "durability": 70,
+   "combat": 92,
+   "teamwork": 90
+  },
+  "tags": [
+   "spy",
+   "leader",
+   "human"
+  ]
+ },
+ {
+  "id": "ellen-ripley",
+  "name": "Ellen Ripley",
+  "universe": "Sci-Fi",
+  "archetype": "Survivor",
+  "stats": {
+   "power": 60,
+   "intellect": 90,
+   "speed": 70,
+   "durability": 70,
+   "combat": 85,
+   "teamwork": 80
+  },
+  "tags": [
+   "survivor",
+   "leader"
+  ]
+ },
+ {
+  "id": "neo",
+  "name": "Neo",
+  "universe": "Sci-Fi",
+  "archetype": "Chosen One",
+  "stats": {
+   "power": 95,
+   "intellect": 85,
+   "speed": 95,
+   "durability": 90,
+   "combat": 98,
+   "teamwork": 70
+  },
+  "tags": [
+   "chosen",
+   "tech"
+  ]
+ },
+ {
+  "id": "sarah-connor",
+  "name": "Sarah Connor",
+  "universe": "Sci-Fi",
+  "archetype": "Survivor",
+  "stats": {
+   "power": 50,
+   "intellect": 85,
+   "speed": 60,
+   "durability": 60,
+   "combat": 85,
+   "teamwork": 65
+  },
+  "tags": [
+   "survivor"
+  ]
+ },
+ {
+  "id": "rocky-balboa",
+  "name": "Rocky Balboa",
+  "universe": "Sports",
+  "archetype": "Fighter",
+  "stats": {
+   "power": 75,
+   "intellect": 45,
+   "speed": 55,
+   "durability": 90,
+   "combat": 92,
+   "teamwork": 75
+  },
+  "tags": [
+   "fighter",
+   "human"
+  ]
+ },
+ {
+  "id": "maximus",
+  "name": "Maximus",
+  "universe": "Epic",
+  "archetype": "Gladiator",
+  "stats": {
+   "power": 70,
+   "intellect": 75,
+   "speed": 65,
+   "durability": 80,
+   "combat": 95,
+   "teamwork": 85
+  },
+  "tags": [
+   "warrior",
+   "leader"
+  ]
+ },
+ {
+  "id": "jack-sparrow",
+  "name": "Jack Sparrow",
+  "universe": "Adventure",
+  "archetype": "Trickster",
+  "stats": {
+   "power": 40,
+   "intellect": 90,
+   "speed": 70,
+   "durability": 55,
+   "combat": 75,
+   "teamwork": 45
+  },
+  "tags": [
+   "trickster",
+   "pirate"
+  ]
+ },
+ {
+  "id": "aragorn",
+  "name": "Aragorn",
+  "universe": "Fantasy",
+  "archetype": "Leader",
+  "stats": {
+   "power": 75,
+   "intellect": 85,
+   "speed": 70,
+   "durability": 80,
+   "combat": 92,
+   "teamwork": 95
+  },
+  "tags": [
+   "leader",
+   "swordsman"
+  ]
+ },
+ {
+  "id": "gandalf",
+  "name": "Gandalf",
+  "universe": "Fantasy",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 95,
+   "intellect": 98,
+   "speed": 50,
+   "durability": 85,
+   "combat": 70,
+   "teamwork": 90
+  },
+  "tags": [
+   "magic",
+   "leader"
+  ]
+ },
+ {
+  "id": "legolas",
+  "name": "Legolas",
+  "universe": "Fantasy",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 75,
+   "intellect": 80,
+   "speed": 98,
+   "durability": 70,
+   "combat": 95,
+   "teamwork": 85
+  },
+  "tags": [
+   "ranged",
+   "archer"
+  ]
+ },
+ {
+  "id": "gimli",
+  "name": "Gimli",
+  "universe": "Fantasy",
+  "archetype": "Tank",
+  "stats": {
+   "power": 70,
+   "intellect": 55,
+   "speed": 45,
+   "durability": 92,
+   "combat": 88,
+   "teamwork": 85
+  },
+  "tags": [
+   "tank",
+   "axe"
+  ]
+ },
+ {
+  "id": "darth-vader",
+  "name": "Darth Vader",
+  "universe": "Sci-Fi",
+  "archetype": "Villain",
+  "stats": {
+   "power": 95,
+   "intellect": 85,
+   "speed": 65,
+   "durability": 90,
+   "combat": 95,
+   "teamwork": 40
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "han-solo",
+  "name": "Han Solo",
+  "universe": "Sci-Fi",
+  "archetype": "Rogue",
+  "stats": {
+   "power": 45,
+   "intellect": 70,
+   "speed": 80,
+   "durability": 55,
+   "combat": 80,
+   "teamwork": 80
+  },
+  "tags": [
+   "rogue",
+   "pilot"
+  ]
+ },
+ {
+  "id": "princess-leia",
+  "name": "Princess Leia",
+  "universe": "Sci-Fi",
+  "archetype": "Leader",
+  "stats": {
+   "power": 45,
+   "intellect": 85,
+   "speed": 60,
+   "durability": 50,
+   "combat": 60,
+   "teamwork": 95
+  },
+  "tags": [
+   "leader"
+  ]
+ },
+ {
+  "id": "yoda",
+  "name": "Yoda",
+  "universe": "Sci-Fi",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 98,
+   "intellect": 98,
+   "speed": 75,
+   "durability": 50,
+   "combat": 90,
+   "teamwork": 90
+  },
+  "tags": [
+   "magic",
+   "mentor"
+  ]
+ },
+ {
+  "id": "luke-skywalker",
+  "name": "Luke Skywalker",
+  "universe": "Sci-Fi",
+  "archetype": "Chosen One",
+  "stats": {
+   "power": 85,
+   "intellect": 75,
+   "speed": 80,
+   "durability": 75,
+   "combat": 88,
+   "teamwork": 92
+  },
+  "tags": [
+   "chosen",
+   "magic"
+  ]
+ },
+ {
+  "id": "katniss-everdeen",
+  "name": "Katniss Everdeen",
+  "universe": "Dystopia",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 55,
+   "intellect": 80,
+   "speed": 80,
+   "durability": 60,
+   "combat": 88,
+   "teamwork": 70
+  },
+  "tags": [
+   "ranged",
+   "survivor"
+  ]
+ },
+ {
+  "id": "harry-potter",
+  "name": "Harry Potter",
+  "universe": "Fantasy",
+  "archetype": "Wizard",
+  "stats": {
+   "power": 85,
+   "intellect": 75,
+   "speed": 70,
+   "durability": 65,
+   "combat": 70,
+   "teamwork": 92
+  },
+  "tags": [
+   "magic",
+   "leader"
+  ]
+ },
+ {
+  "id": "hermione-granger",
+  "name": "Hermione Granger",
+  "universe": "Fantasy",
+  "archetype": "Wizard",
+  "stats": {
+   "power": 82,
+   "intellect": 98,
+   "speed": 65,
+   "durability": 50,
+   "combat": 75,
+   "teamwork": 100
+  },
+  "tags": [
+   "magic",
+   "intel"
+  ]
+ },
+ {
+  "id": "gollum",
+  "name": "Gollum",
+  "universe": "Fantasy",
+  "archetype": "Trickster",
+  "stats": {
+   "power": 35,
+   "intellect": 65,
+   "speed": 70,
+   "durability": 50,
+   "combat": 50,
+   "teamwork": 10
+  },
+  "tags": [
+   "trickster"
+  ]
+ },
+ {
+  "id": "optimus-prime",
+  "name": "Optimus Prime",
+  "universe": "Sci-Fi",
+  "archetype": "Leader",
+  "stats": {
+   "power": 90,
+   "intellect": 80,
+   "speed": 60,
+   "durability": 92,
+   "combat": 90,
+   "teamwork": 100
+  },
+  "tags": [
+   "leader",
+   "tech",
+   "tank"
+  ]
+ },
+ {
+  "id": "the-terminator",
+  "name": "The Terminator",
+  "universe": "Sci-Fi",
+  "archetype": "Machine",
+  "stats": {
+   "power": 75,
+   "intellect": 70,
+   "speed": 55,
+   "durability": 92,
+   "combat": 90,
+   "teamwork": 40
+  },
+  "tags": [
+   "tech",
+   "tank"
+  ]
+ },
+ {
+  "id": "ghostface",
+  "name": "Ghostface",
+  "universe": "Horror",
+  "archetype": "Stalker",
+  "stats": {
+   "power": 20,
+   "intellect": 55,
+   "speed": 50,
+   "durability": 40,
+   "combat": 60,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "stalker"
+  ]
+ },
+ {
+  "id": "hannibal-lecter",
+  "name": "Hannibal Lecter",
+  "universe": "Thriller",
+  "archetype": "Villain",
+  "stats": {
+   "power": 20,
+   "intellect": 100,
+   "speed": 40,
+   "durability": 35,
+   "combat": 70,
+   "teamwork": 15
+  },
+  "tags": [
+   "villain",
+   "mind"
+  ]
+ },
+ {
+  "id": "mad-max",
+  "name": "Mad Max",
+  "universe": "Action",
+  "archetype": "Survivor",
+  "stats": {
+   "power": 55,
+   "intellect": 70,
+   "speed": 70,
+   "durability": 70,
+   "combat": 88,
+   "teamwork": 55
+  },
+  "tags": [
+   "survivor",
+   "driver"
+  ]
+ },
+ {
+  "id": "jason-bourne",
+  "name": "Jason Bourne",
+  "universe": "Spy",
+  "archetype": "Spy",
+  "stats": {
+   "power": 55,
+   "intellect": 92,
+   "speed": 80,
+   "durability": 75,
+   "combat": 98,
+   "teamwork": 45
+  },
+  "tags": [
+   "spy",
+   "human"
+  ]
+ },
+ {
+  "id": "hans-gruber",
+  "name": "Hans Gruber",
+  "universe": "Action",
+  "archetype": "Villain",
+  "stats": {
+   "power": 35,
+   "intellect": 92,
+   "speed": 55,
+   "durability": 45,
+   "combat": 70,
+   "teamwork": 60
+  },
+  "tags": [
+   "villain",
+   "mind"
+  ]
+ },
+ {
+  "id": "forrest-gump",
+  "name": "Forrest Gump",
+  "universe": "Drama",
+  "archetype": "Heart",
+  "stats": {
+   "power": 35,
+   "intellect": 50,
+   "speed": 85,
+   "durability": 70,
+   "combat": 25,
+   "teamwork": 95
+  },
+  "tags": [
+   "heart",
+   "runner"
+  ]
+ },
+ {
+  "id": "ferris-bueller",
+  "name": "Ferris Bueller",
+  "universe": "Comedy",
+  "archetype": "Trickster",
+  "stats": {
+   "power": 15,
+   "intellect": 92,
+   "speed": 60,
+   "durability": 35,
+   "combat": 20,
+   "teamwork": 85
+  },
+  "tags": [
+   "trickster"
+  ]
+ },
+ {
+  "id": "shrek",
+  "name": "Shrek",
+  "universe": "Animated",
+  "archetype": "Tank",
+  "stats": {
+   "power": 75,
+   "intellect": 55,
+   "speed": 45,
+   "durability": 92,
+   "combat": 80,
+   "teamwork": 75
+  },
+  "tags": [
+   "tank",
+   "ogre"
+  ]
+ },
+ {
+  "id": "donkey",
+  "name": "Donkey",
+  "universe": "Animated",
+  "archetype": "Support",
+  "stats": {
+   "power": 20,
+   "intellect": 40,
+   "speed": 50,
+   "durability": 45,
+   "combat": 20,
+   "teamwork": 100
+  },
+  "tags": [
+   "support",
+   "comedy"
+  ]
+ },
+ {
+  "id": "jaws-shark",
+  "name": "Jaws Shark",
+  "universe": "Thriller",
+  "archetype": "Monster",
+  "stats": {
+   "power": 85,
+   "intellect": 25,
+   "speed": 80,
+   "durability": 90,
+   "combat": 95,
+   "teamwork": 5
+  },
+  "tags": [
+   "monster",
+   "water"
+  ]
+ },
+ {
+  "id": "king-kong",
+  "name": "King Kong",
+  "universe": "Monster",
+  "archetype": "Monster",
+  "stats": {
+   "power": 98,
+   "intellect": 40,
+   "speed": 55,
+   "durability": 98,
+   "combat": 92,
+   "teamwork": 45
+  },
+  "tags": [
+   "monster",
+   "tank"
+  ]
+ },
+ {
+  "id": "godzilla",
+  "name": "Godzilla",
+  "universe": "Monster",
+  "archetype": "Monster",
+  "stats": {
+   "power": 100,
+   "intellect": 45,
+   "speed": 50,
+   "durability": 100,
+   "combat": 92,
+   "teamwork": 35
+  },
+  "tags": [
+   "monster",
+   "tank"
+  ]
+ },
+ {
+  "id": "rambo",
+  "name": "Rambo",
+  "universe": "Action",
+  "archetype": "Soldier",
+  "stats": {
+   "power": 70,
+   "intellect": 70,
+   "speed": 70,
+   "durability": 80,
+   "combat": 98,
+   "teamwork": 50
+  },
+  "tags": [
+   "soldier",
+   "survivor"
+  ]
+ },
+ {
+  "id": "wednesday-addams",
+  "name": "Wednesday Addams",
+  "universe": "Horror",
+  "archetype": "Trickster",
+  "stats": {
+   "power": 35,
+   "intellect": 92,
+   "speed": 60,
+   "durability": 40,
+   "combat": 60,
+   "teamwork": 30
+  },
+  "tags": [
+   "trickster",
+   "mind"
+  ]
+ }
+]

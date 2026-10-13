@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { scoreTeam, itemScore } from "./scorer";
 import { SCENARIOS } from "./scenarios";
-import { getCatalog, CATALOG_IDS } from "./catalogs";
+import { getCatalog, CATALOG_IDS, catalogMeta } from "./catalogs";
 import type { Item } from "./types";
 
 const mk = (id: string, stats: Record<string, number>, archetype = "a", tags: string[] = []): Item => ({
@@ -41,7 +41,7 @@ describe("scorer", () => {
 describe("superhero catalog", () => {
   it("is large, unique and in range", () => {
     const c = getCatalog("superheroes");
-    expect(c.length).toBeGreaterThanOrEqual(120);
+    expect(c.length).toBeGreaterThanOrEqual(100);
     expect(new Set(c.map((i) => i.id)).size).toBe(c.length);
     for (const i of c) for (const v of Object.values(i.stats)) {
       expect(v).toBeGreaterThanOrEqual(0);
@@ -50,13 +50,24 @@ describe("superhero catalog", () => {
   });
 });
 
+describe("derived pools", () => {
+  it("superheroes has no villains; villains and mixed pool are deduped", () => {
+    expect(getCatalog("superheroes").some((i) => i.tags.includes("villain"))).toBe(false);
+    expect(getCatalog("villains").every((i) => i.tags.includes("villain"))).toBe(true);
+    const mixed = getCatalog("heroes-villains");
+    expect(new Set(mixed.map((i) => i.id)).size).toBe(mixed.length);
+    expect(mixed.some((i) => i.tags.includes("villain"))).toBe(true);
+    expect(mixed.some((i) => i.tags.includes("hero"))).toBe(true);
+  });
+});
+
 describe("all catalogs", () => {
   it.each(CATALOG_IDS)("%s has valid unique items with the shared stat keys", (id) => {
     const c = getCatalog(id);
-    expect(c.length).toBeGreaterThanOrEqual(40);
+    expect(c.length).toBeGreaterThanOrEqual(25);
     expect(new Set(c.map((i) => i.id)).size).toBe(c.length);
     for (const i of c) {
-      expect(Object.keys(i.stats).sort()).toEqual(["combat", "durability", "intellect", "power", "speed", "teamwork"]);
+      expect(Object.keys(i.stats).sort()).toEqual([...catalogMeta(id)!.statKeys].sort());
       for (const v of Object.values(i.stats)) {
         expect(v).toBeGreaterThanOrEqual(0);
         expect(v).toBeLessThanOrEqual(100);
