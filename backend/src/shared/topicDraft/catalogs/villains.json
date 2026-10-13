@@ -5,11 +5,11 @@
   "universe": "Star Wars",
   "archetype": "Tyrant",
   "stats": {
-   "power": 92,
-   "intellect": 85,
-   "speed": 60,
-   "durability": 88,
-   "combat": 95,
+   "power": 83,
+   "intellect": 77,
+   "speed": 46,
+   "durability": 62,
+   "combat": 98,
    "teamwork": 40
   },
   "tags": [
@@ -42,11 +42,11 @@
   "universe": "Fantasy",
   "archetype": "Tyrant",
   "stats": {
-   "power": 99,
-   "intellect": 95,
-   "speed": 50,
-   "durability": 95,
-   "combat": 90,
+   "power": 96,
+   "intellect": 92,
+   "speed": 42,
+   "durability": 98,
+   "combat": 80,
    "teamwork": 30
   },
   "tags": [
@@ -223,11 +223,11 @@
   "universe": "Sci-Fi",
   "archetype": "Machine",
   "stats": {
-   "power": 78,
-   "intellect": 80,
-   "speed": 70,
-   "durability": 95,
-   "combat": 88,
+   "power": 72,
+   "intellect": 78,
+   "speed": 52,
+   "durability": 98,
+   "combat": 82,
    "teamwork": 35
   },
   "tags": [
@@ -479,10 +479,10 @@
   "universe": "DC",
   "archetype": "Mastermind",
   "stats": {
-   "power": 20,
-   "intellect": 95,
-   "speed": 40,
-   "durability": 40,
+   "power": 23,
+   "intellect": 98,
+   "speed": 26,
+   "durability": 50,
    "combat": 70,
    "teamwork": 5
   },
@@ -497,11 +497,11 @@
   "universe": "DC",
   "archetype": "Mastermind",
   "stats": {
-   "power": 45,
+   "power": 53,
    "intellect": 100,
-   "speed": 35,
-   "durability": 45,
-   "combat": 50,
+   "speed": 30,
+   "durability": 55,
+   "combat": 60,
    "teamwork": 40
   },
   "tags": [
@@ -516,11 +516,11 @@
   "universe": "DC",
   "archetype": "Tyrant",
   "stats": {
-   "power": 99,
-   "intellect": 95,
-   "speed": 85,
-   "durability": 98,
-   "combat": 90,
+   "power": 100,
+   "intellect": 92,
+   "speed": 84,
+   "durability": 99,
+   "combat": 92,
    "teamwork": 35
   },
   "tags": [
@@ -535,10 +535,10 @@
   "archetype": "Tyrant",
   "stats": {
    "power": 100,
-   "intellect": 95,
-   "speed": 70,
-   "durability": 98,
-   "combat": 92,
+   "intellect": 98,
+   "speed": 55,
+   "durability": 99,
+   "combat": 86,
    "teamwork": 20
   },
   "tags": [
@@ -552,11 +552,11 @@
   "universe": "Marvel",
   "archetype": "Mastermind",
   "stats": {
-   "power": 80,
-   "intellect": 95,
-   "speed": 60,
-   "durability": 80,
-   "combat": 70,
+   "power": 81,
+   "intellect": 92,
+   "speed": 53,
+   "durability": 82,
+   "combat": 65,
    "teamwork": 30
   },
   "tags": [
@@ -571,11 +571,11 @@
   "universe": "Marvel",
   "archetype": "Mastermind",
   "stats": {
-   "power": 96,
+   "power": 81,
    "intellect": 100,
-   "speed": 55,
-   "durability": 92,
-   "combat": 75,
+   "speed": 38,
+   "durability": 96,
+   "combat": 80,
    "teamwork": 10
   },
   "tags": [
@@ -590,11 +590,11 @@
   "universe": "Marvel",
   "archetype": "Tyrant",
   "stats": {
-   "power": 97,
+   "power": 91,
    "intellect": 88,
-   "speed": 60,
-   "durability": 80,
-   "combat": 70,
+   "speed": 44,
+   "durability": 82,
+   "combat": 75,
    "teamwork": 45
   },
   "tags": [
@@ -608,11 +608,11 @@
   "universe": "Marvel",
   "archetype": "Mastermind",
   "stats": {
-   "power": 55,
-   "intellect": 92,
-   "speed": 35,
-   "durability": 75,
-   "combat": 85,
+   "power": 35,
+   "intellect": 84,
+   "speed": 30,
+   "durability": 58,
+   "combat": 78,
    "teamwork": 40
   },
   "tags": [

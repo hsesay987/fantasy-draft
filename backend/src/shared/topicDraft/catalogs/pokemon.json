@@ -5,11 +5,11 @@
   "universe": "Fire",
   "archetype": "Flyer",
   "stats": {
-   "power": 90,
-   "intellect": 70,
-   "speed": 88,
-   "durability": 78,
-   "combat": 85,
+   "power": 73,
+   "intellect": 65,
+   "speed": 67,
+   "durability": 53,
+   "combat": 64,
    "teamwork": 60
   },
   "tags": [
@@ -23,11 +23,11 @@
   "universe": "Water",
   "archetype": "Tank",
   "stats": {
-   "power": 80,
-   "intellect": 70,
-   "speed": 60,
-   "durability": 95,
-   "combat": 75,
+   "power": 57,
+   "intellect": 63,
+   "speed": 52,
+   "durability": 62,
+   "combat": 56,
    "teamwork": 60
   },
   "tags": [
@@ -41,11 +41,11 @@
   "universe": "Grass",
   "archetype": "Tank",
   "stats": {
-   "power": 82,
-   "intellect": 80,
-   "speed": 60,
-   "durability": 82,
-   "combat": 75,
+   "power": 67,
+   "intellect": 67,
+   "speed": 53,
+   "durability": 58,
+   "combat": 61,
    "teamwork": 65
   },
   "tags": [
@@ -59,11 +59,11 @@
   "universe": "Electric",
   "archetype": "Speedster",
   "stats": {
-   "power": 70,
-   "intellect": 60,
-   "speed": 92,
-   "durability": 50,
-   "combat": 70,
+   "power": 37,
+   "intellect": 33,
+   "speed": 60,
+   "durability": 27,
+   "combat": 35,
    "teamwork": 90
   },
   "tags": [
@@ -77,11 +77,11 @@
   "universe": "Electric",
   "archetype": "Speedster",
   "stats": {
-   "power": 82,
-   "intellect": 68,
-   "speed": 95,
-   "durability": 60,
-   "combat": 78,
+   "power": 60,
+   "intellect": 57,
+   "speed": 73,
+   "durability": 43,
+   "combat": 60,
    "teamwork": 70
   },
   "tags": [
@@ -95,11 +95,11 @@
   "universe": "Ghost",
   "archetype": "Trickster",
   "stats": {
-   "power": 88,
-   "intellect": 85,
-   "speed": 92,
-   "durability": 55,
-   "combat": 75,
+   "power": 87,
+   "intellect": 68,
+   "speed": 73,
+   "durability": 43,
+   "combat": 65,
    "teamwork": 50
   },
   "tags": [
@@ -113,11 +113,11 @@
   "universe": "Psychic",
   "archetype": "Mage",
   "stats": {
-   "power": 95,
-   "intellect": 98,
-   "speed": 88,
-   "durability": 45,
-   "combat": 50,
+   "power": 90,
+   "intellect": 77,
+   "speed": 80,
+   "durability": 43,
+   "combat": 62,
    "teamwork": 55
   },
   "tags": [
@@ -131,11 +131,11 @@
   "universe": "Fighting",
   "archetype": "Brawler",
   "stats": {
-   "power": 90,
+   "power": 87,
    "intellect": 50,
-   "speed": 50,
-   "durability": 85,
-   "combat": 95,
+   "speed": 37,
+   "durability": 57,
+   "combat": 65,
    "teamwork": 55
   },
   "tags": [
@@ -149,11 +149,11 @@
   "universe": "Water",
   "archetype": "Brawler",
   "stats": {
-   "power": 90,
-   "intellect": 55,
-   "speed": 78,
-   "durability": 80,
-   "combat": 88,
+   "power": 83,
+   "intellect": 53,
+   "speed": 54,
+   "durability": 61,
+   "combat": 62,
    "teamwork": 35
   },
   "tags": [
@@ -167,11 +167,11 @@
   "universe": "Dragon",
   "archetype": "Flyer",
   "stats": {
-   "power": 92,
-   "intellect": 78,
-   "speed": 70,
-   "durability": 88,
-   "combat": 90,
+   "power": 89,
+   "intellect": 67,
+   "speed": 53,
+   "durability": 63,
+   "combat": 78,
    "teamwork": 85
   },
   "tags": [
@@ -185,11 +185,11 @@
   "universe": "Normal",
   "archetype": "Tank",
   "stats": {
-   "power": 85,
-   "intellect": 45,
-   "speed": 25,
-   "durability": 98,
-   "combat": 70,
+   "power": 73,
+   "intellect": 58,
+   "speed": 20,
+   "durability": 78,
+   "combat": 58,
    "teamwork": 70
   },
   "tags": [
@@ -203,11 +203,11 @@
   "universe": "Water",
   "archetype": "Support",
   "stats": {
-   "power": 78,
-   "intellect": 75,
-   "speed": 60,
-   "durability": 85,
-   "combat": 60,
+   "power": 57,
+   "intellect": 60,
+   "speed": 40,
+   "durability": 70,
+   "combat": 57,
    "teamwork": 90
   },
   "tags": [
@@ -222,11 +222,11 @@
   "universe": "Normal",
   "archetype": "Support",
   "stats": {
-   "power": 45,
-   "intellect": 55,
-   "speed": 60,
-   "durability": 50,
-   "combat": 50,
+   "power": 37,
+   "intellect": 37,
+   "speed": 37,
+   "durability": 38,
+   "combat": 33,
    "teamwork": 92
   },
   "tags": [
@@ -240,11 +240,11 @@
   "universe": "Water",
   "archetype": "Support",
   "stats": {
-   "power": 75,
-   "intellect": 78,
-   "speed": 60,
-   "durability": 90,
-   "combat": 60,
+   "power": 73,
+   "intellect": 68,
+   "speed": 43,
+   "durability": 66,
+   "combat": 58,
    "teamwork": 70
   },
   "tags": [
@@ -258,11 +258,11 @@
   "universe": "Electric",
   "archetype": "Speedster",
   "stats": {
-   "power": 78,
-   "intellect": 75,
-   "speed": 96,
-   "durability": 50,
-   "combat": 70,
+   "power": 73,
+   "intellect": 68,
+   "speed": 87,
+   "durability": 48,
+   "combat": 58,
    "teamwork": 60
   },
   "tags": [
@@ -276,11 +276,11 @@
   "universe": "Fire",
   "archetype": "Brawler",
   "stats": {
-   "power": 88,
+   "power": 87,
    "intellect": 68,
-   "speed": 65,
-   "durability": 60,
-   "combat": 80,
+   "speed": 43,
+   "durability": 51,
+   "combat": 75,
    "teamwork": 55
   },
   "tags": [
@@ -294,10 +294,10 @@
   "archetype": "Legendary",
   "stats": {
    "power": 100,
-   "intellect": 100,
-   "speed": 92,
-   "durability": 82,
-   "combat": 85,
+   "intellect": 81,
+   "speed": 87,
+   "durability": 64,
+   "combat": 88,
    "teamwork": 20
   },
   "tags": [
@@ -311,11 +311,11 @@
   "universe": "Psychic",
   "archetype": "Legendary",
   "stats": {
-   "power": 90,
-   "intellect": 92,
-   "speed": 88,
-   "durability": 85,
-   "combat": 80,
+   "power": 67,
+   "intellect": 67,
+   "speed": 67,
+   "durability": 67,
+   "combat": 67,
    "teamwork": 90
   },
   "tags": [
@@ -329,11 +329,11 @@
   "universe": "Ice",
   "archetype": "Legendary",
   "stats": {
-   "power": 90,
-   "intellect": 85,
-   "speed": 80,
-   "durability": 85,
-   "combat": 70,
+   "power": 63,
+   "intellect": 73,
+   "speed": 57,
+   "durability": 69,
+   "combat": 60,
    "teamwork": 60
   },
   "tags": [
@@ -348,11 +348,11 @@
   "universe": "Electric",
   "archetype": "Legendary",
   "stats": {
-   "power": 92,
-   "intellect": 80,
-   "speed": 92,
-   "durability": 75,
-   "combat": 75,
+   "power": 83,
+   "intellect": 72,
+   "speed": 67,
+   "durability": 59,
+   "combat": 72,
    "teamwork": 55
   },
   "tags": [
@@ -367,10 +367,10 @@
   "universe": "Fire",
   "archetype": "Legendary",
   "stats": {
-   "power": 92,
-   "intellect": 82,
-   "speed": 80,
-   "durability": 78,
+   "power": 83,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 59,
    "combat": 75,
    "teamwork": 55
   },
@@ -386,11 +386,11 @@
   "universe": "Fighting",
   "archetype": "Warrior",
   "stats": {
-   "power": 88,
-   "intellect": 82,
-   "speed": 82,
-   "durability": 70,
-   "combat": 95,
+   "power": 77,
+   "intellect": 62,
+   "speed": 60,
+   "durability": 47,
+   "combat": 75,
    "teamwork": 92
   },
   "tags": [
@@ -404,11 +404,11 @@
   "universe": "Dragon",
   "archetype": "Brawler",
   "stats": {
-   "power": 95,
-   "intellect": 70,
-   "speed": 88,
-   "durability": 85,
-   "combat": 95,
+   "power": 87,
+   "intellect": 55,
+   "speed": 68,
+   "durability": 65,
+   "combat": 70,
    "teamwork": 65
   },
   "tags": [
@@ -422,11 +422,11 @@
   "universe": "Steel",
   "archetype": "Tank",
   "stats": {
-   "power": 92,
-   "intellect": 92,
-   "speed": 60,
-   "durability": 95,
-   "combat": 88,
+   "power": 90,
+   "intellect": 62,
+   "speed": 47,
+   "durability": 65,
+   "combat": 77,
    "teamwork": 70
   },
   "tags": [
@@ -441,11 +441,11 @@
   "universe": "Rock",
   "archetype": "Tank",
   "stats": {
-   "power": 95,
-   "intellect": 70,
-   "speed": 50,
-   "durability": 92,
-   "combat": 92,
+   "power": 89,
+   "intellect": 65,
+   "speed": 41,
+   "durability": 69,
+   "combat": 76,
    "teamwork": 60
   },
   "tags": [
@@ -460,11 +460,11 @@
   "universe": "Bug",
   "archetype": "Warrior",
   "stats": {
-   "power": 85,
-   "intellect": 72,
-   "speed": 70,
-   "durability": 85,
-   "combat": 92,
+   "power": 87,
+   "intellect": 45,
+   "speed": 43,
+   "durability": 55,
+   "combat": 62,
    "teamwork": 65
   },
   "tags": [
@@ -478,11 +478,11 @@
   "universe": "Dark",
   "archetype": "Tank",
   "stats": {
-   "power": 62,
-   "intellect": 75,
-   "speed": 50,
-   "durability": 95,
-   "combat": 60,
+   "power": 43,
+   "intellect": 63,
+   "speed": 43,
+   "durability": 73,
+   "combat": 42,
    "teamwork": 75
   },
   "tags": [
@@ -496,11 +496,11 @@
   "universe": "Psychic",
   "archetype": "Mage",
   "stats": {
-   "power": 82,
-   "intellect": 92,
-   "speed": 92,
-   "durability": 50,
-   "combat": 55,
+   "power": 87,
+   "intellect": 75,
+   "speed": 73,
+   "durability": 48,
+   "combat": 65,
    "teamwork": 65
   },
   "tags": [
@@ -514,11 +514,11 @@
   "universe": "Water",
   "archetype": "Assassin",
   "stats": {
-   "power": 85,
-   "intellect": 85,
-   "speed": 98,
-   "durability": 60,
-   "combat": 92,
+   "power": 69,
+   "intellect": 58,
+   "speed": 81,
+   "durability": 47,
+   "combat": 66,
    "teamwork": 70
   },
   "tags": [
@@ -533,11 +533,11 @@
   "universe": "Fire",
   "archetype": "Brawler",
   "stats": {
-   "power": 92,
-   "intellect": 72,
-   "speed": 82,
-   "durability": 75,
-   "combat": 95,
+   "power": 80,
+   "intellect": 60,
+   "speed": 53,
+   "durability": 49,
+   "combat": 77,
    "teamwork": 70
   },
   "tags": [
@@ -551,11 +551,11 @@
   "universe": "Psychic",
   "archetype": "Support",
   "stats": {
-   "power": 88,
-   "intellect": 95,
-   "speed": 70,
-   "durability": 55,
-   "combat": 50,
+   "power": 83,
+   "intellect": 80,
+   "speed": 53,
+   "durability": 54,
+   "combat": 63,
    "teamwork": 92
   },
   "tags": [
@@ -570,11 +570,11 @@
   "universe": "Dragon",
   "archetype": "Flyer",
   "stats": {
-   "power": 94,
-   "intellect": 68,
-   "speed": 85,
-   "durability": 82,
-   "combat": 90,
+   "power": 90,
+   "intellect": 63,
+   "speed": 67,
+   "durability": 57,
+   "combat": 82,
    "teamwork": 60
   },
   "tags": [
@@ -589,10 +589,10 @@
   "archetype": "Legendary",
   "stats": {
    "power": 100,
-   "intellect": 85,
-   "speed": 92,
-   "durability": 90,
-   "combat": 92,
+   "intellect": 80,
+   "speed": 63,
+   "durability": 64,
+   "combat": 100,
    "teamwork": 40
   },
   "tags": [
@@ -608,10 +608,10 @@
   "archetype": "Legendary",
   "stats": {
    "power": 100,
-   "intellect": 82,
-   "speed": 80,
-   "durability": 92,
-   "combat": 80,
+   "intellect": 97,
+   "speed": 60,
+   "durability": 73,
+   "combat": 83,
    "teamwork": 35
   },
   "tags": [
@@ -626,10 +626,10 @@
   "archetype": "Legendary",
   "stats": {
    "power": 100,
-   "intellect": 80,
-   "speed": 72,
-   "durability": 95,
-   "combat": 92,
+   "intellect": 63,
+   "speed": 60,
+   "durability": 73,
+   "combat": 83,
    "teamwork": 35
   },
   "tags": [
@@ -644,11 +644,11 @@
   "universe": "Normal",
   "archetype": "Legendary",
   "stats": {
-   "power": 100,
-   "intellect": 100,
-   "speed": 90,
-   "durability": 98,
-   "combat": 90,
+   "power": 80,
+   "intellect": 80,
+   "speed": 80,
+   "durability": 80,
+   "combat": 80,
    "teamwork": 50
   },
   "tags": [
@@ -682,10 +682,10 @@
   "archetype": "Support",
   "stats": {
    "power": 80,
-   "intellect": 88,
-   "speed": 70,
-   "durability": 78,
-   "combat": 55,
+   "intellect": 78,
+   "speed": 53,
+   "durability": 65,
+   "combat": 57,
    "teamwork": 95
   },
   "tags": [
@@ -700,11 +700,11 @@
   "universe": "Fire",
   "archetype": "Starter",
   "stats": {
-   "power": 55,
-   "intellect": 55,
-   "speed": 65,
-   "durability": 45,
-   "combat": 60,
+   "power": 40,
+   "intellect": 37,
+   "speed": 43,
+   "durability": 29,
+   "combat": 37,
    "teamwork": 75
   },
   "tags": [
@@ -718,11 +718,11 @@
   "universe": "Water",
   "archetype": "Starter",
   "stats": {
-   "power": 50,
-   "intellect": 55,
-   "speed": 50,
-   "durability": 70,
-   "combat": 55,
+   "power": 33,
+   "intellect": 38,
+   "speed": 29,
+   "durability": 38,
+   "combat": 33,
    "teamwork": 80
   },
   "tags": [
@@ -736,11 +736,11 @@
   "universe": "Grass",
   "archetype": "Starter",
   "stats": {
-   "power": 52,
-   "intellect": 60,
-   "speed": 48,
-   "durability": 60,
-   "combat": 58,
+   "power": 43,
+   "intellect": 43,
+   "speed": 30,
+   "durability": 35,
+   "combat": 38,
    "teamwork": 80
   },
   "tags": [
@@ -754,11 +754,11 @@
   "universe": "Normal",
   "archetype": "Support",
   "stats": {
-   "power": 45,
-   "intellect": 50,
-   "speed": 40,
-   "durability": 50,
-   "combat": 35,
+   "power": 30,
+   "intellect": 23,
+   "speed": 13,
+   "durability": 40,
+   "combat": 30,
    "teamwork": 80
   },
   "tags": [
