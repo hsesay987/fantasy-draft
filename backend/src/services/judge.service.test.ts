@@ -97,4 +97,18 @@ describe("judge", () => {
     expect(s.teams[0]!.items.length).toBe(12);
     expect(s.scenario.title).not.toMatch(/[\u0000\n]/);
   });
+
+  it("uses a client-supplied baseline (clamped) and keeps role/price/notes in the data block", async () => {
+    let user = "";
+    const r: JudgeReq = {
+      scenario: { title: "Beat Batman" },
+      teams: [{ player: "A", baseline: 9999, notes: "Covered 3/7 weaknesses", items: [{ name: "Batarang", role: "Weapon", price: 4 }] }],
+    };
+    const v = await judge(r, { complete: async (_s, u) => ((user = u), "nope") });
+    expect(v.source).toBe("fallback");
+    expect(v.teams[0]!.score).toBe(100);
+    expect(user).toContain('"role":"Weapon"');
+    expect(user).toContain('"price":4');
+    expect(user).toContain("Covered 3/7");
+  });
 });

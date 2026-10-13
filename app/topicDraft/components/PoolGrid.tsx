@@ -1,19 +1,35 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Chip } from "../../components/ui";
 import { HeroCard } from "./HeroCard";
 import type { State } from "../types";
 
 export function PoolGrid({
-  state, selectedId, onSelect, disabled,
+  state, selectedId, onSelect, onQuickPick, disabled, only,
 }: {
   state: State;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** Double-click / double-tap drafts straight away. */
+  onQuickPick?: (id: string) => void;
   disabled?: boolean;
+  /** Restrict the visible cards to these ids (Spin offers). */
+  only?: string[];
 }) {
+  const searchRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if (e.key === "/" && !["INPUT", "SELECT", "TEXTAREA"].includes(t.tagName)) {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   const [q, setQ] = useState("");
   const [uni, setUni] = useState<string | null>(null);
   const [sort, setSort] = useState<"name" | "power">("power");
@@ -24,9 +40,10 @@ export function PoolGrid({
   const items = useMemo(() => {
     const t = q.trim().toLowerCase();
     return state.pool
+      .filter((i) => !only || only.includes(i.id))
       .filter((i) => (!uni || i.universe === uni) && (!t || i.name.toLowerCase().includes(t) || i.archetype.toLowerCase().includes(t) || i.tags.some((x) => x.includes(t))))
       .sort((a, b) => (sort === "name" ? a.name.localeCompare(b.name) : (b.stats.power ?? 0) - (a.stats.power ?? 0)));
-  }, [state.pool, q, uni, sort]);
+  }, [state.pool, q, uni, sort, only]);
 
   return (
     <div className="space-y-3">
@@ -35,9 +52,10 @@ export function PoolGrid({
           <span className="sr-only">Search the pool</span>
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
           <input
+            ref={searchRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search name, archetype or tag"
+            placeholder="Search name, type or tag  ( / )"
             className="min-h-11 w-full rounded-xl border border-white/10 bg-white/5 pl-9 pr-3 outline-none focus:border-secondary"
           />
         </label>
@@ -61,6 +79,7 @@ export function PoolGrid({
             taken={taken.has(i.id)}
             banned={state.banned.includes(i.id)}
             onClick={() => onSelect(i.id)}
+            onDoubleClick={onQuickPick ? () => onQuickPick(i.id) : undefined}
           />
         ))}
       </div>

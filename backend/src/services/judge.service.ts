@@ -4,10 +4,12 @@ export type JudgeItem = {
   name: string;
   universe?: string;
   archetype?: string;
+  role?: string;
+  price?: number;
   stats?: Record<string, number>;
   tags?: string[];
 };
-export type JudgeTeam = { player: string; items: JudgeItem[] };
+export type JudgeTeam = { player: string; items: JudgeItem[]; baseline?: number; notes?: string };
 export type JudgeReq = {
   game?: string;
   scenario: { title: string; blurb?: string; weights?: Record<string, number> };
@@ -53,10 +55,14 @@ export function sanitize(req: JudgeReq): JudgeReq {
     },
     teams: (req.teams ?? []).slice(0, MAX_TEAMS).map((t, ti) => ({
       player: clean(t.player, 40) || `Player ${ti + 1}`,
+      baseline: t.baseline == null ? undefined : clamp(t.baseline),
+      notes: clean(t.notes, 200) || undefined,
       items: (t.items ?? []).slice(0, MAX_ITEMS).map((i) => ({
         name: clean(i.name, 60) || "Unknown",
         universe: clean(i.universe, 40),
         archetype: clean(i.archetype, 40),
+        role: clean(i.role, 40) || undefined,
+        price: Number.isFinite(Number(i.price)) ? Math.max(0, Math.min(999, Number(i.price))) : undefined,
         tags: (i.tags ?? []).slice(0, 8).map((x) => clean(x, 24)),
         stats: Object.fromEntries(
           Object.entries(i.stats ?? {})
@@ -69,6 +75,7 @@ export function sanitize(req: JudgeReq): JudgeReq {
 }
 
 export function baseline(team: JudgeTeam, weights: Record<string, number>): number {
+  if (team.baseline != null) return team.baseline;
   if (!team.items.length) return 0;
   const keys = Object.keys(weights).length ? weights : null;
   const per = team.items.map((i) => {

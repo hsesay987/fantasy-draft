@@ -9,14 +9,16 @@ const SHORT: Record<string, string> = {
 };
 
 export function HeroCard({
-  item, selected, taken, banned, onClick, compact,
+  item, selected, taken, banned, onClick, onDoubleClick, compact, price,
 }: {
   item: Item;
   selected?: boolean;
   taken?: boolean;
   banned?: boolean;
   onClick?: () => void;
+  onDoubleClick?: () => void;
   compact?: boolean;
+  price?: number;
 }) {
   const disabled = taken || banned;
   return (
@@ -25,6 +27,7 @@ export function HeroCard({
       type="button"
       disabled={disabled}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
       aria-pressed={!!selected}
       whileHover={disabled ? undefined : { y: -3 }}
       whileTap={disabled ? undefined : { scale: 0.97 }}
@@ -41,6 +44,7 @@ export function HeroCard({
             {item.custom && <span className="ml-1 text-accent">· custom</span>}
           </div>
         </div>
+        {price != null && <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 font-display text-sm text-black">${price}</span>}
         {taken && <Check className="h-4 w-4 shrink-0 text-success" aria-label="Drafted" />}
         {banned && <Ban className="h-4 w-4 shrink-0 text-accent" aria-label="Banned" />}
       </div>
