@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authRequired, AuthedRequest } from "../middleware/auth";
+import { AuthedRequest } from "../middleware/auth";
 import { judge } from "../services/judge.service";
 
 const router = Router();
@@ -20,8 +20,9 @@ function limited(userId: string): boolean {
   return false;
 }
 
-router.post("/", authRequired, async (req: AuthedRequest, res) => {
-  if (limited(req.userId!)) return res.status(429).json({ error: "Slow down — try again in a minute" });
+// Guests can play solo; rate limit per user or IP instead of requiring login.
+router.post("/", async (req: AuthedRequest, res) => {
+  if (limited(req.userId ?? req.ip ?? "anon")) return res.status(429).json({ error: "Slow down — try again in a minute" });
   const body = req.body;
   if (!body?.scenario || !Array.isArray(body?.teams)) {
     return res.status(400).json({ error: "scenario and teams are required" });
