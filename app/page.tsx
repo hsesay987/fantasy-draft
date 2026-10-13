@@ -40,7 +40,7 @@ export default function Home() {
         <h1 className="text-5xl leading-[1.05] md:text-7xl">Draft <span className="text-accent">anything.</span><br />Take the <span className="text-secondary">top pic.</span></h1>
         <p className="max-w-xl text-lg text-muted-foreground">Pick a topic, choose how to draft it, and let the AI judge crown the winner.</p>
         <div className="flex flex-wrap gap-3">
-          <Link href="/category/superheroes" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-6 font-semibold text-black shadow-[0_0_30px_-6px_var(--accent)] transition-transform hover:-translate-y-0.5"><Sparkles className="h-5 w-5" aria-hidden /> Quick play</Link>
+          <Link href="/play/spin?pool=superheroes" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-6 font-semibold text-black shadow-[0_0_30px_-6px_var(--accent)] transition-transform hover:-translate-y-0.5"><Sparkles className="h-5 w-5" aria-hidden /> Quick play</Link>
           <Link href="/toppic" className="inline-flex min-h-12 items-center rounded-xl border border-white/15 bg-white/5 px-6 font-semibold hover:bg-white/10">Play party mode</Link>
         </div>
         <form onSubmit={(e) => { e.preventDefault(); if (joinCode.trim()) router.push(`/room/${joinCode.trim().toUpperCase()}`); }} className="flex max-w-sm gap-2">

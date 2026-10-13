@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { AuthedRequest } from "../middleware/auth";
-import { judge } from "../services/judge.service";
+import { bossIdeas, judge } from "../services/judge.service";
 
 const router = Router();
 
@@ -29,6 +29,11 @@ router.post("/", async (req: AuthedRequest, res) => {
   }
   const verdict = await judge(body);
   res.json(verdict);
+});
+
+router.post("/boss", async (req: AuthedRequest, res) => {
+  if (limited(req.userId ?? req.ip ?? "anon")) return res.status(429).json({ error: "Slow down — try again in a minute" });
+  res.json(await bossIdeas(String(req.body?.name ?? "")));
 });
 
 export default router;

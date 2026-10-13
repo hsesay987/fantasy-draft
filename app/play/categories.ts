@@ -26,7 +26,7 @@ export type Category = {
 export const CATEGORIES: Category[] = [
   {
     id: "superheroes", title: "Superheroes", blurb: "Marvel, DC and indie heroes.", icon: SupermanIcon, gradient: "from-primary/50 to-accent/20",
-    recommended: [{ format: "loadout", why: "Build a kit to beat Batman" }, { format: "snake", why: "Classic squad draft" }],
+    recommended: [{ format: "loadout", why: "Build a kit to beat any boss you name" }, { format: "snake", why: "Classic squad draft" }],
     defaults: { teamSize: 5, missionId: "alien-invasion", rankSize: 6, timerSeconds: 30, budget: 25 },
   },
   {
@@ -70,6 +70,12 @@ export const CATEGORIES: Category[] = [
     defaults: { teamSize: 5, missionId: "dinner-party", rankSize: 6, timerSeconds: 30, budget: 25 },
   },
 ];
+
+/** Spin Draft is the default way in for every topic; each topic's other best fits follow it. */
+for (const c of CATEGORIES) {
+  const spin = c.recommended.find((r) => r.format === "spin");
+  c.recommended = [spin ?? { format: "spin", why: "Roll random options and pick — the fastest way in" }, ...c.recommended.filter((r) => r.format !== "spin")];
+}
 
 export const category = (id: string) => CATEGORIES.find((c) => c.id === id);
 

@@ -29,17 +29,17 @@ export const priceOf = (item: Item, stat: string) => Math.max(MIN_PRICE, Math.ro
 
 export const LOADOUT_PRESETS: LoadoutMission[] = [
   {
-    id: "beat-batman",
-    title: "Beat Batman",
-    blurb: "He plans for everything. Out-prepare the Dark Knight.",
-    boss: { name: "Batman", blurb: "No powers, endless prep.", weaknesses: ["magic", "telepath-counter", "fear", "gas", "numbers", "explosive", "tech-counter"] },
-    budget: 32,
+    id: "alien-invasion",
+    title: "Repel an Alien Invasion",
+    blurb: "The mothership is in orbit.",
+    boss: { name: "The Mothership", blurb: "Advanced tech, big guns.", weaknesses: ["emp", "tech-counter", "energy", "flyer", "cosmic", "explosive"] },
+    budget: 34,
     slots: [
-      { id: "weapon", label: "Weapon", pool: "weapons", priceStat: "damage", scoreWeights: { damage: 2, range: 1, speed: 1, durability: 1 } },
-      { id: "gadget", label: "Gadget", pool: "gadgets", priceStat: "utility", scoreWeights: { utility: 2, tech: 1.5, stealth: 1 } },
-      { id: "villain", label: "Villain Help", pool: "allies", priceStat: "power", scoreWeights: { power: 1.5, intellect: 1.5, combat: 1.5, speed: 1 } },
-      { id: "sidekick", label: "Sidekick", pool: "allies", priceStat: "loyalty", scoreWeights: { loyalty: 2, combat: 1, intellect: 1 } },
-      { id: "trap", label: "Trap / Location", pool: "traps", priceStat: "power", scoreWeights: { power: 2, stealth: 1.5, utility: 1.5 } },
+      { id: "weapon", label: "Heavy Weapon", pool: "weapons", priceStat: "damage", scoreWeights: { damage: 2.5, range: 1.5, utility: 1 } },
+      { id: "ship", label: "Ship", pool: "vehicles", priceStat: "firepower", scoreWeights: { firepower: 2, speed: 1.5, durability: 1.5 } },
+      { id: "gadget", label: "Tech", pool: "gadgets", priceStat: "tech", scoreWeights: { tech: 2, utility: 1.5, power: 1 } },
+      { id: "ally", label: "Champion", pool: "allies", priceStat: "power", scoreWeights: { power: 2, combat: 1.5, intellect: 1 } },
+      { id: "base", label: "Defensive Position", pool: "traps", priceStat: "durability", scoreWeights: { durability: 2, power: 1.5, range: 1 } },
     ],
   },
   {
@@ -70,20 +70,36 @@ export const LOADOUT_PRESETS: LoadoutMission[] = [
     ],
   },
   {
-    id: "alien-invasion",
-    title: "Repel an Alien Invasion",
-    blurb: "The mothership is in orbit.",
-    boss: { name: "The Mothership", blurb: "Advanced tech, big guns.", weaknesses: ["emp", "tech-counter", "energy", "flyer", "cosmic", "explosive"] },
-    budget: 34,
+    id: "beat-batman",
+    title: "Beat Batman",
+    blurb: "He plans for everything. Out-prepare the Dark Knight.",
+    boss: { name: "Batman", blurb: "No powers, endless prep.", weaknesses: ["magic", "telepath-counter", "fear", "gas", "numbers", "explosive", "tech-counter"] },
+    budget: 32,
     slots: [
-      { id: "weapon", label: "Heavy Weapon", pool: "weapons", priceStat: "damage", scoreWeights: { damage: 2.5, range: 1.5, utility: 1 } },
-      { id: "ship", label: "Ship", pool: "vehicles", priceStat: "firepower", scoreWeights: { firepower: 2, speed: 1.5, durability: 1.5 } },
-      { id: "gadget", label: "Tech", pool: "gadgets", priceStat: "tech", scoreWeights: { tech: 2, utility: 1.5, power: 1 } },
-      { id: "ally", label: "Champion", pool: "allies", priceStat: "power", scoreWeights: { power: 2, combat: 1.5, intellect: 1 } },
-      { id: "base", label: "Defensive Position", pool: "traps", priceStat: "durability", scoreWeights: { durability: 2, power: 1.5, range: 1 } },
+      { id: "weapon", label: "Weapon", pool: "weapons", priceStat: "damage", scoreWeights: { damage: 2, range: 1, speed: 1, durability: 1 } },
+      { id: "gadget", label: "Gadget", pool: "gadgets", priceStat: "utility", scoreWeights: { utility: 2, tech: 1.5, stealth: 1 } },
+      { id: "villain", label: "Villain Help", pool: "allies", priceStat: "power", scoreWeights: { power: 1.5, intellect: 1.5, combat: 1.5, speed: 1 } },
+      { id: "sidekick", label: "Sidekick", pool: "allies", priceStat: "loyalty", scoreWeights: { loyalty: 2, combat: 1, intellect: 1 } },
+      { id: "trap", label: "Trap / Location", pool: "traps", priceStat: "power", scoreWeights: { power: 2, stealth: 1.5, utility: 1.5 } },
     ],
   },
 ];
+
+/** A blank challenge: the player names the opponent; slots and weaknesses are theirs to edit. */
+export const CUSTOM_CHALLENGE: LoadoutMission = {
+  id: "custom",
+  title: "Your own challenge",
+  blurb: "Name any opponent or mission.",
+  boss: { name: "", blurb: "", weaknesses: [] },
+  budget: 30,
+  slots: [
+    { id: "weapon", label: "Weapon", pool: "weapons", priceStat: "damage", scoreWeights: { damage: 2, range: 1, speed: 1, durability: 1 } },
+    { id: "gadget", label: "Gadget", pool: "gadgets", priceStat: "utility", scoreWeights: { utility: 2, tech: 1.5, stealth: 1 } },
+    { id: "ally", label: "Ally", pool: "allies", priceStat: "power", scoreWeights: { power: 1.5, intellect: 1.5, combat: 1.5, speed: 1 } },
+    { id: "vehicle", label: "Vehicle", pool: "vehicles", priceStat: "speed", scoreWeights: { speed: 1.5, durability: 1.5, firepower: 1, range: 1 } },
+    { id: "place", label: "Location", pool: "traps", priceStat: "power", scoreWeights: { power: 2, stealth: 1.5, utility: 1.5 } },
+  ],
+};
 
 export const loadoutPreset = (id: string) => LOADOUT_PRESETS.find((p) => p.id === id) ?? LOADOUT_PRESETS[0]!;
 

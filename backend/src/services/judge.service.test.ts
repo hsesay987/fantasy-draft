@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { judge, sanitize, type JudgeReq, type LLM } from "./judge.service";
+import { judge, sanitize, bossIdeas, fallbackBoss, loadoutTags, type JudgeReq, type LLM } from "./judge.service";
 
 const req: JudgeReq = {
   scenario: { title: "Heist", weights: { intellect: 3, power: 1 } },
@@ -130,5 +130,20 @@ describe("judge", () => {
     expect(v.analysis).toEqual(["Para one.", "Para two."]);
     expect(v.teams[0]!.strengths).toEqual(["Brains"]);
     expect(v.statsTable!.length).toBeGreaterThan(0);
+  });
+
+  it("boss ideas: weaknesses always come from real item tags (AI or fallback)", async () => {
+    const vocab = loadoutTags();
+    expect(vocab).toContain("emp");
+    const ai = await bossIdeas("Skynet", { complete: async () => '{"blurb":"Break the machine.","weaknesses":["emp","hacker","not-a-tag","tech-counter","fire"]}' });
+    expect(ai.source).toBe("ai");
+    expect(ai.weaknesses.every((w) => vocab.includes(w))).toBe(true);
+    expect(ai.weaknesses).not.toContain("not-a-tag");
+    const bad = await bossIdeas("Skynet", { complete: async () => '{"weaknesses":["nope"]}' });
+    expect(bad.source).toBe("fallback");
+    expect(bad.weaknesses).toContain("emp");
+    expect((await bossIdeas("Zombie King", null)).weaknesses).toContain("fire");
+    expect(fallbackBoss("Some Unknown Thing").weaknesses.length).toBeGreaterThan(2);
+    expect((await bossIdeas("", null)).weaknesses.length).toBeGreaterThan(0);
   });
 });

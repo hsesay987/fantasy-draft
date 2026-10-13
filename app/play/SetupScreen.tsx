@@ -7,7 +7,7 @@ import { Play, RotateCcw, X } from "lucide-react";
 import { Button, Chip, PageHeader, PageShell, Panel } from "../components/ui";
 import { catalogMeta, getCatalog, universesOf } from "../topicDraft/catalogs";
 import { customMission, metricsFor, missionsFor } from "../topicDraft/missions";
-import { LOADOUT_PRESETS, type LoadoutMission } from "../topicDraft/formats/loadout";
+import { CUSTOM_CHALLENGE, LOADOUT_PRESETS, type LoadoutMission } from "../topicDraft/formats/loadout";
 import { rolesFor, type Role } from "../topicDraft/formats/position";
 import { newSeed } from "../topicDraft/rng";
 import { formatMeta } from "./formats";
@@ -15,7 +15,7 @@ import { CATEGORIES, category, formatsFor } from "./categories";
 import { DEFAULT_OPTS, type FormatId, type GameSetup, type Opts } from "./types";
 import { loadPrefs, resumable, saveSetup, savePrefs } from "./storage";
 import { createRoom, saveToken } from "./onlineApi";
-import { Collapse, CustomItems, Field, LoadoutEditor, RolesEditor, Stepper, inputCls } from "./setupParts";
+import { BossPicker, Collapse, CustomItems, Field, LoadoutEditor, RolesEditor, Stepper, inputCls } from "./setupParts";
 
 type Mode = "solo" | "ai" | "local" | "online";
 const SOLO_FORMATS = new Set<FormatId>(["blind", "loadout", "position"]);
@@ -107,7 +107,8 @@ export default function SetupScreen() {
   const catalogSize = getCatalog(pool).length + opts.customItems.length;
   const perPlayer = format === "position" ? roles.length + opts.handExtra : opts.teamSize * (format === "auction" ? 2 : 1);
   const need = format === "blind" ? opts.rankSize : players.length * perPlayer;
-  const problem = !uniquePlayers ? "Every player needs a unique name." : meta?.usesPool && catalogSize - opts.bans.length < need ? `Pool too small (${catalogSize - opts.bans.length}) — need ${need}.` : null;
+  const needsBoss = format === "loadout" && loadout.id === "custom" && !loadout.boss.name.trim();
+  const problem = needsBoss ? "Name your opponent to start." : !uniquePlayers ? "Every player needs a unique name." : meta?.usesPool && catalogSize - opts.bans.length < need ? `Pool too small (${catalogSize - opts.bans.length}) — need ${need}.` : null;
 
   const applyPreset = (id: string) => {
     const p = PRESETS.find((x) => x.id === id)!;
@@ -184,14 +185,18 @@ export default function SetupScreen() {
       </Panel>
 
       {format === "loadout" ? (
-        <Panel title="Challenge" hint="Pick a boss, then customize the slots below.">
+        <Panel title="Challenge" hint="Pick a ready-made challenge or name your own — any boss, any mission.">
           <div className="grid gap-3 sm:grid-cols-2">
+            <button type="button" aria-pressed={loadout.id === "custom"} onClick={() => setLoadout(loadout.id === "custom" ? loadout : CUSTOM_CHALLENGE)} className={`min-h-16 rounded-xl border p-3 text-left transition-colors sm:col-span-2 ${loadout.id === "custom" ? "border-secondary bg-primary/25" : "border-dashed border-white/20 bg-white/5 hover:bg-white/10"}`}>
+              <div className="font-semibold">✦ Your own challenge</div><div className="text-xs text-muted-foreground">Name an opponent and the AI suggests what beats it.</div>
+            </button>
             {LOADOUT_PRESETS.map((m) => (
               <button key={m.id} type="button" aria-pressed={loadout.id === m.id} onClick={() => setLoadout(m)} className={`min-h-16 rounded-xl border p-3 text-left transition-colors ${loadout.id === m.id ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
                 <div className="font-semibold">{m.title}</div><div className="text-xs text-muted-foreground">{m.blurb}</div>
               </button>
             ))}
           </div>
+          {loadout.id === "custom" && <BossPicker mission={loadout} onChange={setLoadout} />}
         </Panel>
       ) : (
         <>

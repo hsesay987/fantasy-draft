@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Plus, X } from "lucide-react";
+import { ChevronDown, Plus, Sparkles, X } from "lucide-react";
 import { Button, Chip } from "../components/ui";
 import type { Item } from "../topicDraft/types";
 import { CATALOG_META, catalogMeta, getCatalog } from "../topicDraft/catalogs";
@@ -82,6 +82,40 @@ export function CustomItems({ pool, items, onChange }: { pool: string; items: It
         <Button variant="ghost" onClick={add} disabled={!name.trim() || spent > budget}><Plus className="h-4 w-4" aria-hidden /> Add</Button>
       </div>
       <div className="flex flex-wrap gap-2">{items.map((c) => <Chip key={c.id} selected onClick={() => onChange(items.filter((x) => x.id !== c.id))}>{c.name} <X className="h-3 w-3" aria-hidden /></Chip>)}</div>
+    </div>
+  );
+}
+
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+/** Name any opponent; the judge suggests which tags counter it (AI when available, keyword rules otherwise). */
+export function BossPicker({ mission, onChange }: { mission: LoadoutMission; onChange: (m: LoadoutMission) => void }) {
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const name = mission.boss.name;
+  const suggest = async () => {
+    if (!name.trim()) return;
+    setBusy(true);
+    setNote(null);
+    try {
+      const r = await fetch(`${API}/judge/boss`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
+      if (!r.ok) throw new Error(String(r.status));
+      const d = (await r.json()) as { blurb: string; weaknesses: string[]; source: string };
+      onChange({ ...mission, title: `Beat ${name.trim()}`, blurb: d.blurb, boss: { ...mission.boss, blurb: d.blurb, weaknesses: d.weaknesses } });
+      setNote(d.source === "ai" ? "Suggested by the AI judge — tweak freely." : "Suggested from keyword rules — tweak freely.");
+    } catch {
+      setNote("Couldn't reach the server — pick weaknesses yourself below.");
+    }
+    setBusy(false);
+  };
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <input className={inputCls} placeholder="Who or what are you up against? (Godzilla, a vault, the zombie horde…)" maxLength={40} value={name} aria-label="Opponent name"
+          onChange={(e) => onChange({ ...mission, title: e.target.value.trim() ? `Beat ${e.target.value.trim()}` : "Your own challenge", boss: { ...mission.boss, name: e.target.value } })} />
+        <Button variant="ghost" disabled={!name.trim() || busy} onClick={suggest} className="shrink-0"><Sparkles className="h-4 w-4" aria-hidden /> {busy ? "Thinking…" : "Suggest weaknesses"}</Button>
+      </div>
+      {note && <p className="text-xs text-muted-foreground">{note}</p>}
     </div>
   );
 }
