@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { LOADOUT_PRESETS, init, turnPlayer, validate, pick, autoPick, maxSpend, scoreLoadout, poolItems, priceOf, itemFor } from "./loadout";
+import { LOADOUT_PRESETS, rollFor, rerollSlot, init, turnPlayer, validate, pick, autoPick, maxSpend, scoreLoadout, poolItems, priceOf, itemFor } from "./loadout";
 
 const mission = LOADOUT_PRESETS[0]!;
 
@@ -68,6 +68,34 @@ describe("loadout", () => {
         expect(Object.keys(s.picks[p]!).length).toBe(m.slots.length);
         expect(s.spent[p]!).toBeLessThanOrEqual(m.budget);
       }
+    }
+  });
+
+  it("roll mode: offers N valid options, locks picks to them, rerolls cost a token", () => {
+    let s = init(mission, ["A", "B"], "linear", { n: 3, rerolls: 1, seed: 4 });
+    s = rollFor(s, "weapon");
+    const offer = s.roll!.offers.weapon!;
+    expect(offer.length).toBe(3);
+    expect(new Set(offer).size).toBe(3);
+    const outside = poolItems("weapons").find((i) => !offer.includes(i.id) && validate({ ...s, roll: undefined }, "weapon", i.id).ok)!;
+    expect(validate(s, "weapon", outside.id).ok).toBe(false);
+    const again = rollFor(s, "weapon");
+    expect(again.roll!.offers.weapon).toEqual(offer); // idempotent
+    const re = rerollSlot(s, "weapon");
+    expect(re.roll!.offers.weapon).not.toEqual(offer);
+    expect(re.roll!.rerolls.A).toBe(0);
+    expect(rerollSlot(re, "weapon")).toBe(re);
+    const cheap = offer.find((id) => validate(s, "weapon", id).ok)!;
+    const after = pick(s, "weapon", cheap);
+    expect(after.roll!.offers).toEqual({});
+  });
+
+  it("roll mode: autoPick still completes every preset", () => {
+    for (const m of LOADOUT_PRESETS) {
+      let s = init(m, ["A", "B"], "snake", { n: 3, rerolls: 0, seed: 9 });
+      let guard = 0;
+      while (!s.done && guard++ < 60) s = autoPick(s);
+      for (const p of ["A", "B"]) expect(Object.keys(s.picks[p]!).length).toBe(m.slots.length);
     }
   });
 });

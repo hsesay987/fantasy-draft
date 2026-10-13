@@ -7,6 +7,7 @@ import { PoolGrid } from "../../topicDraft/components/PoolGrid";
 import { TeamPanel } from "../../topicDraft/components/TeamPanel";
 import { HeroCard } from "../../topicDraft/components/HeroCard";
 import { scoreTeam } from "../../topicDraft/scorer";
+import { PageShell } from "../../components/ui";
 import { GameFrame } from "../GameFrame";
 import { PickBar } from "../PickBar";
 import { useSnakeLike } from "../useSnakeLike";
@@ -50,9 +51,9 @@ export function SnakeView({ setup, basePool, onFinish }: { setup: GameSetup; bas
   const confirm = () => item && g.choose(item.id, role);
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-32 lg:grid-cols-[1fr_320px]">
+    <PageShell width="lg" layout="sidebar" stickyBar>
       <GameFrame
-        kicker={`${setup.format === "spin" ? "Spin Draft" : "Classic Draft"} · Pick ${Math.min(g.draft.picks.length + 1, total)}/${total}`}
+        kicker={`${g.offer ? (setup.format === "spin" ? "Spin Draft" : "Random Roll") : "Classic Draft"} · Pick ${Math.min(g.draft.picks.length + 1, total)}/${total}`}
         headline={g.isAi ? `${g.player} is picking…` : `${g.player}, you're up`}
         mission={setup.mission}
         mystery={setup.mystery}
@@ -106,6 +107,6 @@ export function SnakeView({ setup, basePool, onFinish }: { setup: GameSetup; bas
           )}
         </PickBar>
       )}
-    </div>
+    </PageShell>
   );
 }

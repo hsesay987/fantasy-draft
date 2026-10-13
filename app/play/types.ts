@@ -14,7 +14,8 @@ export type Opts = {
   bans: string[];
   universes: string[];
   customItems: Item[];
-  // spin
+  // random roll (Spin Draft always rolls; Classic and Loadout can opt in)
+  roll: boolean;
   options: number;
   rerolls: number;
   // auction
@@ -50,6 +51,7 @@ export const DEFAULT_OPTS: Opts = {
   bans: [],
   universes: [],
   customItems: [],
+  roll: false,
   options: 3,
   rerolls: 1,
   budget: 20,

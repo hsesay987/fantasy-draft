@@ -14,7 +14,7 @@ export function useSnakeLike(setup: GameSetup, basePool: Item[]) {
   const { play } = useSound();
   const pool = useMemo(() => [...basePool, ...setup.opts.customItems], [basePool, setup.opts.customItems]);
   const [run, setRun, markFinished] = useRunState<Run>(setup.id, () =>
-    setup.format === "spin"
+    setup.format === "spin" || setup.opts.roll
       ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, setup.opts.options, setup.opts.rerolls, setup.seed) }
       : { kind: "snake", draft: initSnake(snakeConfig(setup), pool) }
   );

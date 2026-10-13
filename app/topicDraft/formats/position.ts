@@ -21,8 +21,44 @@ export const HISTORY_ROLES: Role[] = [
   { id: "champion", label: "Champion", weights: { courage: 3, leadership: 1, charisma: 1 } },
 ];
 
-export const rolesFor = (poolId: string): Role[] =>
-  (catalogMeta(poolId)?.statKeys ?? STD_KEYS).includes("leadership") ? HISTORY_ROLES : STD_ROLES;
+const R = (id: string, label: string, weights: Record<string, number>): Role => ({ id, label, weights });
+
+/** Role sets that suit each topic. Anything not listed uses the standard Captain/Healer/Tank set. */
+export const POOL_ROLES: Record<string, Role[]> = {
+  pokemon: [
+    R("lead", "Lead", { speed: 2.5, teamwork: 1, intellect: 1 }),
+    R("sweeper", "Sweeper", { power: 3, speed: 2.5, combat: 1 }),
+    R("wall", "Wall", { durability: 3, intellect: 1, teamwork: 1 }),
+    R("support", "Support", { teamwork: 2.5, intellect: 2, speed: 0.5 }),
+    R("breaker", "Wallbreaker", { power: 2.5, combat: 2.5 }),
+  ],
+  anime: [
+    R("hero", "Hero", { power: 2, teamwork: 2, combat: 1.5 }),
+    R("rival", "Rival", { combat: 3, speed: 2, intellect: 1 }),
+    R("mentor", "Mentor", { intellect: 3, teamwork: 2, power: 0.5 }),
+    R("sidekick", "Sidekick", { teamwork: 3, speed: 1.5 }),
+    R("wild", "Wildcard", { power: 2, speed: 2, combat: 1 }),
+  ],
+  villains: [
+    R("mastermind", "Mastermind", { intellect: 3, teamwork: 1, power: 1 }),
+    R("enforcer", "Enforcer", { power: 2.5, durability: 2, combat: 2 }),
+    R("assassin", "Assassin", { speed: 2.5, combat: 2.5, intellect: 0.5 }),
+    R("lieutenant", "Lieutenant", { teamwork: 2.5, combat: 1.5, intellect: 1 }),
+    R("wild", "Wildcard", { power: 2, speed: 1.5, intellect: 1.5 }),
+  ],
+  videogames: [
+    R("leader", "Party Leader", { teamwork: 2.5, intellect: 2, power: 1 }),
+    R("tank", "Tank", { durability: 3, power: 1.5 }),
+    R("dps", "Damage", { power: 2.5, combat: 2.5, speed: 1 }),
+    R("healer", "Healer", { intellect: 2.5, teamwork: 2.5 }),
+    R("scout", "Scout", { speed: 3, intellect: 1.5 }),
+  ],
+};
+
+export const rolesFor = (poolId: string): Role[] => {
+  if (POOL_ROLES[poolId]) return POOL_ROLES[poolId]!;
+  return (catalogMeta(poolId)?.statKeys ?? STD_KEYS).includes("leadership") ? HISTORY_ROLES : STD_ROLES;
+};
 
 /** Build role weights from emphasised stats (chosen ones weigh 3, the rest a small 0.3). */
 export function weightsFromStats(statKeys: string[], chosen: string[]): Record<string, number> {

@@ -8,6 +8,7 @@ import { HeroCard } from "../../topicDraft/components/HeroCard";
 import * as A from "../../topicDraft/formats/auction";
 import { itemScore, scoreTeam } from "../../topicDraft/scorer";
 import { useSound } from "../../components/SoundProvider";
+import { PageShell } from "../../components/ui";
 import { GameFrame } from "../GameFrame";
 import { useRunState } from "../useRunState";
 import { toJudgeItem, type JudgeTeamInput } from "../judging";
@@ -130,7 +131,7 @@ export function AuctionView({ setup, basePool, onFinish }: { setup: GameSetup; b
   };
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-28 lg:grid-cols-[1fr_340px]">
+    <PageShell width="lg" layout="sidebar">
       <GameFrame
         kicker={`Auction · Lot ${Math.min(a.index + 1, a.queue.length)}/${a.queue.length}`}
         headline={lot ? "Bidding is open" : "Auction over"}
@@ -189,7 +190,7 @@ export function AuctionView({ setup, basePool, onFinish }: { setup: GameSetup; b
         </AnimatePresence>
       </GameFrame>
 
-      <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
+      <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
         {setup.players.map((p) => (
           <div key={p} className={`rounded-xl border p-3 ${a.bid.by === p ? "border-secondary bg-primary/15" : "border-white/10 bg-card/60"}`}>
             <div className="mb-2 flex items-center justify-between"><span className="font-semibold">{p}</span><span className="font-display text-lg text-secondary">${a.budgets[p]}</span></div>
@@ -202,6 +203,6 @@ export function AuctionView({ setup, basePool, onFinish }: { setup: GameSetup; b
           </div>
         ))}
       </aside>
-    </div>
+    </PageShell>
   );
 }

@@ -618,7 +618,7 @@ export default function NewDraftPage() {
   //  UI START
   // ------------------------------------------
   return (
-    <main className="min-h-screen p-6 md:p-10 text-foreground space-y-10">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground space-y-10">
       {/* HEADER */}
       <header className="flex items-start justify-between gap-4 flex-wrap">
         <div>
@@ -1674,7 +1674,7 @@ function CartoonDraftBuilder({
   }
 
   return (
-    <main className="min-h-screen p-6 md:p-10 text-foreground space-y-8">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground space-y-8">
       <header className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-secondary tracking-tight mb-1">

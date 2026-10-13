@@ -5,3 +5,4 @@ export { Modal } from "./Modal";
 export { TimerRing } from "./TimerRing";
 export { GameTile } from "./GameTile";
 export { Toast } from "./Toast";
+export { PageShell, PageHeader, Panel, controlCls } from "./PageShell";

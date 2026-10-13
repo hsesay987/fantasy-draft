@@ -1,0 +1,97 @@
+import { Skull, Swords, Gamepad2, Castle, Clapperboard, Landmark, Tv } from "lucide-react";
+import type { ComponentType } from "react";
+import { DragonBallIcon, PokeballIcon, SupermanIcon, FootballIcon, BasketballIcon } from "../components/icons";
+import type { FormatId } from "./types";
+
+export type CategoryDefaults = {
+  teamSize: number;
+  missionId: string;
+  rankSize: number;
+  timerSeconds: number;
+  /** Default auction budget: ~$5 per slot, tuned per category. */
+  budget: number;
+};
+
+export type Category = {
+  id: string;
+  title: string;
+  blurb: string;
+  icon: ComponentType<{ className?: string }>;
+  gradient: string;
+  /** Best draft types for this topic, first is the one-tap default. */
+  recommended: { format: FormatId; why: string }[];
+  defaults: CategoryDefaults;
+};
+
+export const CATEGORIES: Category[] = [
+  {
+    id: "superheroes", title: "Superheroes", blurb: "Marvel, DC and indie heroes.", icon: SupermanIcon, gradient: "from-primary/50 to-accent/20",
+    recommended: [{ format: "loadout", why: "Build a kit to beat Batman" }, { format: "snake", why: "Classic squad draft" }],
+    defaults: { teamSize: 5, missionId: "alien-invasion", rankSize: 6, timerSeconds: 30, budget: 25 },
+  },
+  {
+    id: "villains", title: "Villains", blurb: "The deadliest rogues gallery.", icon: Skull, gradient: "from-rose-700/40 to-primary/20",
+    recommended: [{ format: "auction", why: "Bid for the biggest threats" }, { format: "snake", why: "Draft your crime syndicate" }],
+    defaults: { teamSize: 5, missionId: "tournament", rankSize: 6, timerSeconds: 30, budget: 25 },
+  },
+  {
+    id: "heroes-villains", title: "Heroes & Villains", blurb: "One big pool, both sides.", icon: Swords, gradient: "from-fuchsia-600/40 to-primary/20",
+    recommended: [{ format: "spin", why: "Anything can show up" }, { format: "position", why: "Mix sides across roles" }],
+    defaults: { teamSize: 6, missionId: "all-around", rankSize: 8, timerSeconds: 20, budget: 30 },
+  },
+  {
+    id: "anime", title: "Anime", blurb: "Fighters, rivals and sidekicks.", icon: DragonBallIcon, gradient: "from-orange-500/45 to-accent/20",
+    recommended: [{ format: "blind", why: "Rank who hits hardest" }, { format: "position", why: "Hero, Rival, Mentor, Sidekick" }],
+    defaults: { teamSize: 5, missionId: "tournament", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
+  {
+    id: "pokemon", title: "Pokémon", blurb: "Build a team of six.", icon: PokeballIcon, gradient: "from-red-600/40 to-primary/20",
+    recommended: [{ format: "spin", why: "Roll your party" }, { format: "snake", why: "Draft a champion six" }],
+    defaults: { teamSize: 6, missionId: "tournament", rankSize: 8, timerSeconds: 20, budget: 30 },
+  },
+  {
+    id: "videogames", title: "Video Game Icons", blurb: "Mascots, heroes and bosses.", icon: Gamepad2, gradient: "from-emerald-600/40 to-primary/20",
+    recommended: [{ format: "spin", why: "Quick-fire random picks" }, { format: "snake", why: "Draft your co-op squad" }],
+    defaults: { teamSize: 4, missionId: "space-war", rankSize: 6, timerSeconds: 20, budget: 20 },
+  },
+  {
+    id: "disney", title: "Disney & Pixar", blurb: "Magic, heart and a few villains.", icon: Castle, gradient: "from-indigo-600/40 to-primary/20",
+    recommended: [{ format: "blind", why: "Rank the most magical" }, { format: "position", why: "Cast your fairy-tale crew" }],
+    defaults: { teamSize: 4, missionId: "all-around", rankSize: 6, timerSeconds: 25, budget: 20 },
+  },
+  {
+    id: "movies", title: "Movie Icons", blurb: "Action stars to monsters.", icon: Clapperboard, gradient: "from-amber-500/40 to-accent/20",
+    recommended: [{ format: "auction", why: "Bid like a studio head" }, { format: "position", why: "Cast the perfect heist crew" }],
+    defaults: { teamSize: 5, missionId: "heist", rankSize: 8, timerSeconds: 30, budget: 25 },
+  },
+  {
+    id: "history", title: "Historical Figures", blurb: "Leaders, geniuses and icons.", icon: Landmark, gradient: "from-stone-500/40 to-primary/20",
+    recommended: [{ format: "position", why: "Fill a cabinet" }, { format: "blind", why: "Rank the greatest minds" }],
+    defaults: { teamSize: 5, missionId: "dinner-party", rankSize: 6, timerSeconds: 30, budget: 25 },
+  },
+];
+
+export const category = (id: string) => CATEGORIES.find((c) => c.id === id);
+
+/** Classic stat drafts that have their own pages. */
+export const LEAGUES = [
+  { id: "nba", title: "NBA", blurb: "All-time players, your lineup.", href: "/draft/new", icon: BasketballIcon, gradient: "from-orange-600/40 to-primary/20" },
+  { id: "nfl", title: "NFL", blurb: "Gridiron greats, positions and all.", href: "/draft/new?league=NFL", icon: FootballIcon, gradient: "from-emerald-700/40 to-primary/20" },
+  { id: "cartoon", title: "Cartoons", blurb: "Shows and characters from every era.", href: "/draft/new?league=CARTOON", icon: Tv, gradient: "from-sky-600/40 to-accent/20" },
+];
+
+export const FORMAT_WHY: Record<FormatId, string> = {
+  snake: "Take turns picking",
+  spin: "Pick 1 of a few random options",
+  auction: "Bid on random characters",
+  loadout: "Build a kit to beat a boss",
+  position: "Assign a random hand to roles",
+  blind: "Rank each reveal on the spot",
+};
+
+/** Formats that make sense for a category (Loadout needs hero-ish items). */
+export const LOADOUT_CATEGORIES = new Set(["superheroes", "villains", "heroes-villains", "anime", "movies", "videogames"]);
+export function formatsFor(pool: string): FormatId[] {
+  const all: FormatId[] = ["snake", "spin", "auction", "position", "blind"];
+  return LOADOUT_CATEGORIES.has(pool) ? [...all, "loadout"] : all;
+}

@@ -148,7 +148,7 @@ function OnlinePageInner() {
   }
 
   return (
-    <main className="min-h-screen text-foreground p-6 md:p-10">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground">
       <header className="mb-10">
         <h1 className="text-4xl font-extrabold text-secondary">
           Online Drafts

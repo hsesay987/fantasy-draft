@@ -1,6 +1,7 @@
 import type { Item } from "../types";
 import { itemScore } from "../scorer";
 import { getCatalog } from "../catalogs";
+import { shuffle } from "../rng";
 
 export type LoadoutSlot = {
   id: string;
@@ -92,6 +93,8 @@ export type LoadoutState = {
   spent: Record<string, number>;
   turn: number;
   done: boolean;
+  /** Random-roll mode: show a few random options per slot instead of the whole pool. */
+  roll?: { n: number; seed: number; rerolls: Record<string, number>; offers: Record<string, string[]> };
 };
 
 export function poolItems(pool: string): Item[] {
@@ -100,8 +103,9 @@ export function poolItems(pool: string): Item[] {
 
 const total = (s: LoadoutState) => s.players.length * s.mission.slots.length;
 
-export function init(mission: LoadoutMission, players: string[], order: "snake" | "linear" = "snake"): LoadoutState {
+export function init(mission: LoadoutMission, players: string[], order: "snake" | "linear" = "snake", roll?: { n: number; rerolls: number; seed: number }): LoadoutState {
   return {
+    roll: roll ? { n: roll.n, seed: roll.seed, rerolls: Object.fromEntries(players.map((p) => [p, roll.rerolls])), offers: {} } : undefined,
     mission,
     players,
     order,
@@ -162,6 +166,8 @@ export function validate(s: LoadoutState, slotId: string, itemId: string): { ok:
   const item = poolItems(slot.pool).find((i) => i.id === itemId);
   if (!item) return { ok: false, reason: "Not in this slot's pool" };
   if (takenItems(s).has(itemId)) return { ok: false, reason: "Already taken" };
+  const offered = s.roll?.offers[slotId];
+  if (s.roll && offered && !offered.includes(itemId)) return { ok: false, reason: "Not one of your rolled options" };
   const price = priceOf(item, slot.priceStat);
   const cap = maxSpend(s, player, slotId);
   if (price > cap) return { ok: false, reason: `Too expensive — max $${Math.max(0, cap)}` };
@@ -179,7 +185,33 @@ export function pick(s: LoadoutState, slotId: string, itemId: string): LoadoutSt
     spent: { ...s.spent, [player]: s.spent[player]! + v.price },
     turn,
     done: turn >= total(s),
+    roll: s.roll ? { ...s.roll, offers: {} } : undefined,
   };
+}
+
+/** Random affordable options for a slot, never empty while anything is affordable. */
+function sampleOffer(s: LoadoutState, slotId: string, seed: number): [string[], number] {
+  const slot = s.mission.slots.find((x) => x.id === slotId)!;
+  const bare: LoadoutState = { ...s, roll: { ...s.roll!, offers: {} } };
+  const ok = poolItems(slot.pool).filter((i) => validate(bare, slotId, i.id).ok).map((i) => i.id);
+  const [shuffled, next] = shuffle(ok, seed);
+  return [shuffled.slice(0, s.roll!.n), next];
+}
+
+/** Make sure an offer exists for this slot (free the first time). */
+export function rollFor(s: LoadoutState, slotId: string): LoadoutState {
+  if (!s.roll || s.done || s.roll.offers[slotId] || s.picks[turnPlayer(s)]![slotId]) return s;
+  const [offer, seed] = sampleOffer(s, slotId, s.roll.seed);
+  return { ...s, roll: { ...s.roll, seed, offers: { ...s.roll.offers, [slotId]: offer } } };
+}
+
+/** Spend a reroll token to redraw this slot's options. */
+export function rerollSlot(s: LoadoutState, slotId: string): LoadoutState {
+  if (!s.roll || s.done) return s;
+  const p = turnPlayer(s);
+  if ((s.roll.rerolls[p] ?? 0) <= 0 || s.picks[p]![slotId]) return s;
+  const [offer, seed] = sampleOffer(s, slotId, s.roll.seed);
+  return { ...s, roll: { ...s.roll, seed, offers: { ...s.roll.offers, [slotId]: offer }, rerolls: { ...s.roll.rerolls, [p]: s.roll.rerolls[p]! - 1 } } };
 }
 
 export function itemFor(s: LoadoutState, player: string, slotId: string): Item | undefined {
@@ -193,9 +225,18 @@ export function autoPick(s: LoadoutState): LoadoutState {
   if (s.done) return s;
   const player = turnPlayer(s);
   let best: { slot: string; item: string; value: number } | null = null;
+  let seed = s.roll?.seed ?? 0;
   for (const slot of openSlots(s, player)) {
-    for (const item of poolItems(slot.pool)) {
-      const v = validate(s, slot.id, item.id);
+    let candidates = poolItems(slot.pool);
+    if (s.roll) {
+      // The bot only gets to see a random roll too (ignores any offer already on screen).
+      const bare: LoadoutState = { ...s, roll: { ...s.roll, offers: {} } };
+      const [ids, ns] = sampleOffer(bare, slot.id, seed);
+      seed = ns;
+      candidates = candidates.filter((i) => ids.includes(i.id));
+    }
+    for (const item of candidates) {
+      const v = validate({ ...s, roll: s.roll ? { ...s.roll, offers: {} } : undefined }, slot.id, item.id);
       if (!v.ok) continue;
       const q = itemScore(item, slot.scoreWeights);
       const wants = s.mission.boss.weaknesses.filter((w) => item.tags.includes(w)).length;
@@ -204,7 +245,7 @@ export function autoPick(s: LoadoutState): LoadoutState {
     }
   }
   if (!best) return { ...s, done: true };
-  return pick(s, best.slot, best.item);
+  return pick({ ...s, roll: s.roll ? { ...s.roll, seed, offers: {} } : undefined }, best.slot, best.item);
 }
 
 export function scoreLoadout(mission: LoadoutMission, items: { slot: LoadoutSlot; item: Item }[]) {

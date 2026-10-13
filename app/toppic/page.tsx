@@ -128,7 +128,7 @@ export default function TopPicLandingPage() {
   }
 
   return (
-    <main className="min-h-screen text-foreground p-6 md:p-10">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground">
       <header className="mb-10 space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-400/40 px-3 py-1 text-xs text-amber-200">
           <Sparkles className="w-4 h-4" />

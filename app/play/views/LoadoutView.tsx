@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ShieldAlert, Search } from "lucide-react";
-import { Chip, TimerRing } from "../../components/ui";
+import { ShieldAlert, Search, Dices } from "lucide-react";
+import { Button, Chip, TimerRing } from "../../components/ui";
 import { HeroCard } from "../../topicDraft/components/HeroCard";
 import * as L from "../../topicDraft/formats/loadout";
 import { useSound } from "../../components/SoundProvider";
+import { PageShell } from "../../components/ui";
 import { GameFrame } from "../GameFrame";
 import { PickBar } from "../PickBar";
 import { useRunState } from "../useRunState";
@@ -15,7 +16,7 @@ import type { GameSetup } from "../types";
 export function LoadoutView({ setup, onFinish }: { setup: GameSetup; onFinish: (t: JudgeTeamInput[]) => void }) {
   const { play } = useSound();
   const mission = setup.loadout!;
-  const [s, setS, markFinished] = useRunState<L.LoadoutState>(setup.id, () => L.init(mission, setup.players, setup.opts.order));
+  const [s, setS, markFinished] = useRunState<L.LoadoutState>(setup.id, () => L.init(mission, setup.players, setup.opts.order, setup.opts.roll ? { n: setup.opts.options, rerolls: setup.opts.rerolls, seed: setup.seed } : undefined));
   const [slotId, setSlotId] = useState<string>(mission.slots[0]!.id);
   const [selected, setSelected] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -36,6 +37,10 @@ export function LoadoutView({ setup, onFinish }: { setup: GameSetup; onFinish: (
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.turn]);
+
+  useEffect(() => {
+    if (s.roll && player && !isAi && !s.done) setS((x) => L.rollFor(x, slotId));
+  }, [s.roll, s.turn, slotId, player, isAi, s.done, setS]);
 
   useEffect(() => {
     if (!isAi || s.done) return;
@@ -67,14 +72,16 @@ export function LoadoutView({ setup, onFinish }: { setup: GameSetup; onFinish: (
 
   const items = useMemo(() => {
     const t = q.trim().toLowerCase();
+    const offered = s.roll?.offers[slotId];
     return L.poolItems(slot.pool)
+      .filter((i) => !s.roll || (offered ? offered.includes(i.id) : false))
       .filter((i) => !t || i.name.toLowerCase().includes(t) || i.tags.some((x) => x.includes(t)))
       .sort((a, b) =>
         sort === "price"
           ? L.priceOf(a, slot.priceStat) - L.priceOf(b, slot.priceStat)
           : L.priceOf(b, slot.priceStat) - L.priceOf(a, slot.priceStat)
       );
-  }, [slot, q, sort]);
+  }, [slot, q, sort, s.roll, slotId]);
 
   const mine = player ? s.picks[player]! : {};
   const myTags = new Set(Object.entries(mine).flatMap(([sid, id]) => (L.poolItems(mission.slots.find((x) => x.id === sid)!.pool).find((i) => i.id === id)?.tags ?? [])));
@@ -98,7 +105,7 @@ export function LoadoutView({ setup, onFinish }: { setup: GameSetup; onFinish: (
   const total = s.players.length * mission.slots.length;
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-32 lg:grid-cols-[1fr_320px]">
+    <PageShell width="lg" layout="sidebar" stickyBar>
       <GameFrame
         kicker={`Loadout · Pick ${Math.min(s.turn + 1, total)}/${total}`}
         headline={isAi ? `${player} is shopping…` : `${player}: build your kit`}
@@ -139,7 +146,15 @@ export function LoadoutView({ setup, onFinish }: { setup: GameSetup; onFinish: (
 
         {error && <p role="alert" className="rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm">{error}</p>}
 
-        <div className="flex flex-col gap-2 sm:flex-row">
+        {s.roll && player && (
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-secondary/40 bg-primary/10 px-4 py-2">
+            <span className="flex items-center gap-2 text-sm"><Dices className="h-4 w-4 text-secondary" aria-hidden /> Random roll — pick from {s.roll.n}</span>
+            <Button variant="ghost" disabled={isAi || (s.roll.rerolls[player] ?? 0) <= 0} onClick={() => { setS((x) => L.rerollSlot(x, slotId)); setSelected(null); play("click"); }}>
+              Reroll ({s.roll.rerolls[player] ?? 0})
+            </Button>
+          </div>
+        )}
+        <div className={`flex flex-col gap-2 sm:flex-row ${s.roll ? "hidden" : ""}`}>
           <label className="relative flex-1"><span className="sr-only">Search</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${slot.label.toLowerCase()}s`} className="min-h-11 w-full rounded-xl border border-white/10 bg-white/5 pl-9 pr-3 outline-none focus:border-secondary" /></label>
           <div className="flex gap-2"><Chip selected={sort === "quality"} onClick={() => setSort("quality")}>Priciest</Chip><Chip selected={sort === "price"} onClick={() => setSort("price")}>Cheapest</Chip></div>
@@ -154,7 +169,7 @@ export function LoadoutView({ setup, onFinish }: { setup: GameSetup; onFinish: (
         </div>
       </GameFrame>
 
-      <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
+      <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
         {s.players.map((p) => (
           <div key={p} className={`rounded-xl border p-3 ${p === player ? "border-secondary bg-primary/15" : "border-white/10 bg-card/60"}`}>
             <div className="mb-2 flex items-center justify-between"><span className="font-semibold">{p}</span><span className="font-display text-lg text-secondary">${mission.budget - s.spent[p]!}</span></div>
@@ -171,6 +186,6 @@ export function LoadoutView({ setup, onFinish }: { setup: GameSetup; onFinish: (
       {selItem && !isAi && (
         <PickBar label={selItem.name} sub={`${slot.label} · $${selPrice}`} cta={`Buy $${selPrice}`} onConfirm={() => buy(selItem.id)} onCancel={() => setSelected(null)} />
       )}
-    </div>
+    </PageShell>
   );
 }

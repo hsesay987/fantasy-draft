@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import type { LucideIcon } from "lucide-react";
+import type { ComponentType } from "react";
+
+type IconLike = ComponentType<{ className?: string }>;
 
 export function GameTile({
   title,
@@ -16,7 +18,7 @@ export function GameTile({
   title: string;
   blurb: string;
   href?: string;
-  icon: LucideIcon;
+  icon: IconLike;
   badge?: string;
   soon?: boolean;
   gradient?: string;

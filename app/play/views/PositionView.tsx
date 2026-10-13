@@ -6,6 +6,7 @@ import { Button } from "../../components/ui";
 import { HeroCard } from "../../topicDraft/components/HeroCard";
 import * as P from "../../topicDraft/formats/position";
 import { useSound } from "../../components/SoundProvider";
+import { PageShell } from "../../components/ui";
 import { GameFrame } from "../GameFrame";
 import { useRunState } from "../useRunState";
 import { toJudgeItem, type JudgeTeamInput } from "../judging";
@@ -63,11 +64,11 @@ export function PositionView({ setup, basePool, onFinish }: { setup: GameSetup; 
 
   if (current && revealed !== current) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
+      <PageShell width="sm" className="py-20 text-center">
         <h1 className="text-3xl">Pass to {current}</h1>
         <p className="mt-2 text-muted-foreground">Keep your hand hidden until it&apos;s your turn.</p>
         <Button className="mt-6" onClick={() => setRevealed(current)}>I&apos;m {current} — show my hand</Button>
-      </div>
+      </PageShell>
     );
   }
   if (!current) return null;
@@ -85,7 +86,7 @@ export function PositionView({ setup, basePool, onFinish }: { setup: GameSetup; 
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 pb-28">
+    <PageShell width="lg">
       <GameFrame kicker="Positions" headline={`${current}: assign your lineup`} mission={setup.mission} mystery={setup.mystery}>
         <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
           <section aria-label="Your hand" className="space-y-3">
@@ -136,6 +137,6 @@ export function PositionView({ setup, basePool, onFinish }: { setup: GameSetup; 
           </section>
         </div>
       </GameFrame>
-    </div>
+    </PageShell>
   );
 }

@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { HeroCard } from "../../topicDraft/components/HeroCard";
 import * as B from "../../topicDraft/formats/blind";
 import { useSound } from "../../components/SoundProvider";
+import { PageShell } from "../../components/ui";
 import { GameFrame } from "../GameFrame";
 import { useRunState } from "../useRunState";
 import { toJudgeItem, type JudgeTeamInput } from "../judging";
@@ -76,7 +77,7 @@ export function BlindView({ setup, basePool, onFinish }: { setup: GameSetup; bas
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 pb-24">
+    <PageShell width="md">
       <GameFrame kicker={`Blind Rank · Reveal ${B.revealIndex(s) + 1}/${s.size}`} headline={isAi ? `${player} is ranking…` : `${player}: where does it go?`} mission={setup.mission} mystery={setup.mystery}>
         <div className="grid gap-6 md:grid-cols-[320px_1fr]">
           <div className="space-y-2">
@@ -100,6 +101,6 @@ export function BlindView({ setup, basePool, onFinish }: { setup: GameSetup; bas
           </ol>
         </div>
       </GameFrame>
-    </div>
+    </PageShell>
   );
 }

@@ -22,6 +22,7 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
     );
   }
   const sorted = [...verdict.teams].sort((a, b) => b.score - a.score);
+  const solo = sorted.length === 1;
   return (
     <div className="space-y-4">
       <motion.div
@@ -31,8 +32,8 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
         className="rounded-2xl border border-accent/50 bg-gradient-to-br from-accent/20 to-primary/20 p-6 text-center"
       >
         <Crown className="mx-auto h-10 w-10 text-accent" aria-hidden />
-        <p className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">Winner</p>
-        <h2 className="text-4xl">{verdict.winner}</h2>
+        <p className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">{solo ? "Your score" : "Winner"}</p>
+        <h2 className="text-4xl">{solo ? Math.round(sorted[0]!.score) : verdict.winner}</h2>
         <p className="mx-auto mt-3 max-w-xl text-muted-foreground">{verdict.summary}</p>
         {verdict.source === "fallback" && (
           <p className="mt-2 text-xs text-muted-foreground">AI judge unavailable — scored by the numbers.</p>

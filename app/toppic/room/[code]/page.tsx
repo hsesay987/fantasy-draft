@@ -554,7 +554,7 @@ export default function TopPicRoomPage() {
   }
 
   return (
-    <main className="min-h-screen text-foreground p-6 md:p-10 space-y-6">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground space-y-6">
       <header className="flex flex-wrap items-center gap-3 justify-between">
         <div>
           <div className="text-xs uppercase tracking-[0.25em] text-secondary">

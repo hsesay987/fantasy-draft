@@ -8,19 +8,11 @@ import { CATALOG_META, catalogMeta, getCatalog } from "../topicDraft/catalogs";
 import type { LoadoutMission, LoadoutSlot } from "../topicDraft/formats/loadout";
 import { weightsFromStats, type Role } from "../topicDraft/formats/position";
 
-export const inputCls = "min-h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 outline-none focus:border-secondary";
+import { controlCls, Panel } from "../components/ui";
 
-export function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-3 rounded-2xl border border-white/10 bg-card/70 p-5">
-      <div>
-        <h2 className="text-xl">{title}</h2>
-        {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
-      </div>
-      {children}
-    </section>
-  );
-}
+export const inputCls = controlCls;
+
+export const Section = ({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) => <Panel title={title} hint={hint}>{children}</Panel>;
 
 export function Collapse({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../hooks/useAuth";
+import { PageShell } from "../components/ui";
 import { getCatalog } from "../topicDraft/catalogs";
 import { VerdictView } from "../topicDraft/components/VerdictView";
 import { loadSetup, saveSetup, clearRun } from "./storage";
@@ -50,7 +51,7 @@ export default function GameScreen() {
   if (result) {
     const lines = verdict ? [`TopPic · ${setup.mission.title}`, ...[...verdict.teams].sort((a, b) => b.score - a.score).map((t, i) => `${i + 1}. ${t.player} — ${Math.round(t.score)}`), "Play at toppicgames.com"].join("\n") : undefined;
     return (
-      <main className="mx-auto max-w-4xl space-y-4 px-4 py-8 pb-24">
+      <PageShell width="md">
         <h1 className="text-3xl">{setup.mission.title}</h1>
         <VerdictView
           verdict={verdict}
@@ -65,7 +66,7 @@ export default function GameScreen() {
             window.location.assign(`/play/${setup.format}/game`);
           }}
         />
-      </main>
+      </PageShell>
     );
   }
 
