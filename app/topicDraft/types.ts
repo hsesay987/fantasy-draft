@@ -37,6 +37,7 @@ export type Scenario = {
   title: string;
   blurb: string;
   weights: Record<string, number>;
+  wantTags?: string[];
 };
 
 export type Validation = { ok: true } | { ok: false; reason: string };
