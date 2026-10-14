@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import type { ComponentType } from "react";
+import { IconBadge } from "./IconBadge";
 
 const WIDTH = { sm: "max-w-3xl", md: "max-w-4xl", lg: "max-w-7xl" } as const;
 
@@ -32,6 +33,7 @@ export function PageHeader({
   subtitle,
   back,
   icon: Icon,
+  iconSrc,
   gradient = "from-primary/50 to-accent/20",
   children,
 }: {
@@ -39,6 +41,7 @@ export function PageHeader({
   subtitle?: string;
   back?: { href: string; label: string };
   icon?: ComponentType<{ className?: string }>;
+  iconSrc?: string;
   gradient?: string;
   children?: React.ReactNode;
 }) {
@@ -50,10 +53,14 @@ export function PageHeader({
         </Link>
       )}
       <div className="flex items-center gap-4">
-        {Icon && (
-          <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${gradient}`}>
-            <Icon className="h-7 w-7 text-white" />
-          </span>
+        {iconSrc ? (
+          <IconBadge src={iconSrc} />
+        ) : (
+          Icon && (
+            <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${gradient}`}>
+              <Icon className="h-7 w-7 text-white" />
+            </span>
+          )
         )}
         <div className="min-w-0">
           <h1 className="text-3xl md:text-4xl">{title}</h1>

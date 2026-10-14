@@ -1,4 +1,7 @@
 import "dotenv/config";
+import dotenv from "dotenv";
+// backend/.env.local (git-ignored) overrides .env, e.g. to use a local Postgres when the remote database is down.
+dotenv.config({ path: ".env.local", override: true });
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
@@ -28,7 +31,16 @@ const wantsNoVerify =
   process.env.PGSSL_NO_VERIFY === "1" ||
   (databaseUrl && /accept_invalid_certs/i.test(databaseUrl));
 
-const ssl = wantsNoVerify ? { rejectUnauthorized: false } : undefined;
+const isLocalDb = (() => {
+  try {
+    return ["localhost", "127.0.0.1", "::1"].includes(new URL(databaseUrl).hostname);
+  } catch {
+    return false;
+  }
+})();
+
+// Local Postgres has no TLS; remote ones (Supabase) need it.
+const ssl = isLocalDb ? undefined : wantsNoVerify ? { rejectUnauthorized: false } : undefined;
 
 const pool = new Pool({ connectionString: databaseUrl, ssl });
 const adapter = new PrismaPg(pool);
@@ -40,5 +52,18 @@ const prisma = globalThis.prisma || new PrismaClient({ adapter });
 if (process.env.NODE_ENV !== "production") {
   globalThis.prisma = prisma;
 }
+
+// Fail loudly and helpfully at startup instead of with an opaque 500 on the first request.
+pool.query("select 1").catch((e: Error & { code?: string; hostname?: string }) => {
+  const host = (() => {
+    try {
+      return new URL(databaseUrl).host;
+    } catch {
+      return "the database";
+    }
+  })();
+  const hint = e.code === "ENOTFOUND" ? " (the hostname does not resolve — a paused Supabase project is the usual cause)" : "";
+  console.error(`⚠ Database unreachable at ${host}: ${e.message}${hint}. Drafts will not work until it is back. For local dev, point DATABASE_URL at a local Postgres in backend/.env.local.`);
+});
 
 export default prisma;

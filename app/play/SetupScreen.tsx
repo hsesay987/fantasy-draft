@@ -254,7 +254,7 @@ export default function SetupScreen() {
             {localNames.length < 6 && <Button variant="ghost" onClick={() => setLocalNames([...localNames, `Player ${localNames.length + 1}`])}>+ Add player</Button>}
           </div>
         )}
-        <Chip selected={mystery} onClick={() => setMystery(!mystery)}>Mystery mission — hide it until the verdict</Chip>
+        <Chip selected={mystery} onClick={() => setMystery(!mystery)}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/icons/mystery-block.png" alt="" width={18} height={18} className="h-[18px] w-[18px]" /> Mystery mission — hide it until the verdict</Chip>
       </Panel>
 
       <Collapse title="Customize rules">

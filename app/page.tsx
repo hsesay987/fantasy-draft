@@ -57,13 +57,13 @@ export default function Home() {
 
       <Group title="Pick a topic" sub="Auctions, loadouts, blind rankings and more for every one.">
         {CATEGORIES.map((c) => (
-          <motion.div key={c.id} variants={item}><GameTile title={c.title} blurb={c.blurb} icon={c.icon} gradient={c.gradient} href={`/category/${c.id}`} /></motion.div>
+          <motion.div key={c.id} variants={item}><GameTile title={c.title} blurb={c.blurb} iconSrc={c.iconSrc} gradient={c.gradient} href={`/category/${c.id}`} /></motion.div>
         ))}
       </Group>
 
       <Group title="Stat drafts" sub="Real players and shows with career stats.">
         {LEAGUES.map((g) => (
-          <motion.div key={g.id} variants={item}><GameTile title={g.title} blurb={g.blurb} icon={g.icon} gradient={g.gradient} href={g.href} /></motion.div>
+          <motion.div key={g.id} variants={item}><GameTile title={g.title} blurb={g.blurb} iconSrc={g.iconSrc} gradient={g.gradient} href={g.href} /></motion.div>
         ))}
         <motion.div variants={item}><GameTile title={PARTY.title} blurb={PARTY.blurb} icon={PARTY.icon} gradient={PARTY.gradient} href={PARTY.href} /></motion.div>
       </Group>

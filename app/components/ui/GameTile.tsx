@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import type { ComponentType } from "react";
+import { IconBadge } from "./IconBadge";
 
 type IconLike = ComponentType<{ className?: string }>;
 
@@ -11,6 +12,7 @@ export function GameTile({
   blurb,
   href,
   icon: Icon,
+  iconSrc,
   badge,
   soon,
   gradient = "from-primary/40 to-accent/20",
@@ -18,7 +20,9 @@ export function GameTile({
   title: string;
   blurb: string;
   href?: string;
-  icon: IconLike;
+  icon?: IconLike;
+  /** Flat image icon; shown on a light badge so dark line art stays readable. */
+  iconSrc?: string;
   badge?: string;
   soon?: boolean;
   gradient?: string;
@@ -32,9 +36,7 @@ export function GameTile({
         soon ? "opacity-55" : ""
       }`}
     >
-      <div className="mb-8 grid h-14 w-14 place-items-center rounded-xl bg-black/30">
-        <Icon className="h-8 w-8 text-secondary" aria-hidden />
-      </div>
+      <IconBadge icon={Icon} src={iconSrc} className="mb-8" />
       <h3 className="text-lg">{title}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{blurb}</p>
       {(badge || soon) && (

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Providers from "./providers";
 import TopBar from "./components/TopBar";
 import BottomNav from "./components/BottomNav";
+import SiteFooter from "./components/SiteFooter";
 import FeedbackWidget from "./components/FeedbackWidget";
 import AdShell from "./components/AdShell";
 import Script from "next/script";
@@ -45,6 +46,7 @@ export default function RootLayout({
             <div className="flex-1 pb-20 md:pb-0">
               <AdShell>{children}</AdShell>
             </div>
+            <SiteFooter />
             <BottomNav />
 
             <FeedbackWidget />

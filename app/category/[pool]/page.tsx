@@ -22,7 +22,7 @@ export default function CategoryPage() {
 
   return (
     <PageShell>
-      <PageHeader title={cat.title} subtitle={`${cat.blurb} · ${getCatalog(pool).length} to choose from`} icon={cat.icon} gradient={cat.gradient} back={{ href: "/", label: "All topics" }} />
+      <PageHeader title={cat.title} subtitle={`${cat.blurb} · ${getCatalog(pool).length} to choose from`} iconSrc={cat.iconSrc} gradient={cat.gradient} back={{ href: "/", label: "All topics" }} />
 
       <Link
         href={`/play/${quick.format}?pool=${pool}`}
