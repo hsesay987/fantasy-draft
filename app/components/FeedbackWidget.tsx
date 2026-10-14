@@ -13,7 +13,7 @@ export default function FeedbackWidget() {
   const { token, user } = useAuth();
   const pathname = usePathname() || "";
   // Sticky action bars live at the bottom of /play pages; keep the button clear of them.
-  const lifted = pathname.startsWith("/play");
+  const lifted = pathname.startsWith("/play") || pathname.startsWith("/draft/new");
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<FeedbackType>("feedback");
   const [category, setCategory] = useState("idea");

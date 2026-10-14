@@ -921,6 +921,12 @@ export default function DraftPage() {
     }, 1400);
   }
 
+  // After a spin lands (or the slot / player changes) show matching players straight away — no extra Search click.
+  useEffect(() => {
+    if (draft && (lockedTeam || lockedEra) && (selectedSlot ?? defaultSlotForActive)) void searchPlayers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lockedTeam, lockedEra, selectedSlot, activeParticipant]);
+
   function handleSpinEraTeam() {
     if (!draft) return;
     if (draft.rules?.online && !amOnClock) {
@@ -1660,6 +1666,13 @@ export default function DraftPage() {
                 <h2 className="text-lg font-semibold text-foreground">Spin</h2>
                 <p className="text-xs text-muted-foreground">Lock a team + season</p>
               </div>
+              <button
+                onClick={handleSpinEraTeam}
+                disabled={spinning}
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-black shadow-[0_0_24px_-8px_var(--accent)] disabled:opacity-60"
+              >
+                🎲 {spinning ? "Spinning…" : "Spin team + era"}
+              </button>
               <button
                 onClick={clearLocks}
                 disabled={!lockedEra && !lockedTeam}
