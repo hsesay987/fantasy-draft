@@ -35,3 +35,14 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 # fantasy-draft
+
+## Local database (when the remote Supabase project is paused or unreachable)
+
+`backend/.env.local` (git-ignored) overrides `DATABASE_URL` from `backend/.env`. To create one from scratch with Homebrew Postgres:
+
+```bash
+cd backend && npm run db:local:setup   # creates toppic_dev, applies migrations, seeds NBA from data/nba/*.csv
+```
+
+Delete `backend/.env.local` to use the remote database again. NFL and cartoon seeds need CSV files that are not in the repo
+(`yearly_player_stats_*.csv`, `data/cartoons/*.csv`), so those drafts stay empty locally.
