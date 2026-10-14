@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ChevronRight,
+  Play,
   Settings,
   Users,
   Zap,
@@ -18,6 +19,8 @@ import {
   ThumbsUp,
   ThumbsDown,
 } from "lucide-react";
+import { IconBadge, Panel, Button } from "../../components/ui";
+import { Collapse, Field, Stepper } from "../../play/setupParts";
 import { useAuth } from "@/app/hooks/useAuth";
 type League = "NBA" | "NFL" | "CARTOON";
 
@@ -618,34 +621,53 @@ export default function NewDraftPage() {
   //  UI START
   // ------------------------------------------
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground space-y-10">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 pb-40 md:px-6 md:py-12 md:pb-32 text-foreground space-y-10">
       {/* HEADER */}
       <header className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-secondary tracking-tight mb-1">
-            Create a New {league} Draft {league === "NFL" ? "(Beta)" : ""}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Classic mode locks rules; Casual & Free let you get creative.
-            {league === "NFL" ? " NFL beta requires a premium account." : ""}
-          </p>
+        <div className="flex items-center gap-4">
+          <IconBadge src={league === "NFL" ? "/icons/football.png" : "/icons/basketball.png"} />
+          <div>
+            <h1 className="text-3xl md:text-4xl">
+              {league} Draft {league === "NFL" ? "(Beta)" : ""}
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Pick how you want to play, then jump in. {league === "NFL" ? "NFL beta requires a premium account." : ""}
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowRules(true)}
-            className="text-xs underline text-muted-foreground hover:text-white"
-          >
-            View rules
-          </button>
-          <button
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold hover:bg-primary"
-            onClick={() => applyModeDefaults(mode)}
-          >
-            <Zap className="h-4 w-4" /> Quick Defaults
-          </button>
-        </div>
+        <button onClick={() => setShowRules(true)} className="min-h-11 text-sm underline text-muted-foreground hover:text-white">
+          View rules
+        </button>
       </header>
 
+      {/* QUICK START: the common path in one card; every detailed rule lives under Customize */}
+      <Panel title="Quick start" hint="Choose a mode and go. Classic locks the rules; Casual and Free open them up.">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {([
+            { id: "classic", label: "Classic", desc: "Locked rules, true era/team randomizer" },
+            { id: "casual", label: "Casual", desc: "Tweak caps and constraints" },
+            { id: "free", label: "Free", desc: "Total creative control" },
+          ] as const).map((m) => (
+            <button key={m.id} type="button" aria-pressed={mode === m.id} onClick={() => applyModeDefaults(m.id)}
+              className={`min-h-16 rounded-xl border p-3 text-left transition-colors ${mode === m.id ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+              <div className="flex items-center gap-2 font-semibold">{m.label}{m.id === "classic" && <Lock className="h-4 w-4 text-muted-foreground" aria-hidden />}</div>
+              <div className="text-xs text-muted-foreground">{m.desc}</div>
+            </button>
+          ))}
+        </div>
+        {mode !== "classic" && (
+          <div className="flex flex-wrap items-center gap-6">
+            <Field label="Players">
+              <Stepper value={participants} min={2} max={6} label="Players" onChange={(n) => { setParticipants(n); setMaxPlayers(n * (league === "NFL" ? NFL_LINEUP.length : playersPerTeam)); }} />
+            </Field>
+            <button type="button" onClick={() => applyModeDefaults(mode)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm font-semibold hover:bg-white/10">
+              <Zap className="h-4 w-4" aria-hidden /> Reset to defaults
+            </button>
+          </div>
+        )}
+      </Panel>
+
+      <Collapse title="Customize rules">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT — MODES */}
         <section className="space-y-4">
@@ -1380,6 +1402,8 @@ export default function NewDraftPage() {
           </div>
         </section>
       </div>
+      </Collapse>
+
 
       {/* SAVE SETTINGS PROMPT */}
       {!isClassic && (mode === "casual" || mode === "free") && (
@@ -1403,15 +1427,18 @@ export default function NewDraftPage() {
         </div>
       )}
 
-      {/* CREATE BUTTON */}
-      <button
-        onClick={() => handleCreate()}
-        disabled={loading}
-        className="px-6 py-3 rounded-xl bg-primary hover:bg-[#8b5cf6] text-sm font-semibold shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-2"
-      >
-        {loading ? "Creating Draft..." : "Create Draft"}{" "}
-        <ChevronRight className="w-4 h-4" />
-      </button>
+      {/* CREATE BAR (always reachable) */}
+      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-white/10 bg-background/90 p-3 backdrop-blur-xl md:bottom-0">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-1 md:px-3">
+          <div className="min-w-0 flex-1 text-sm">
+            <div className="truncate font-semibold">{league} · {mode === "classic" ? "Classic" : mode === "casual" ? "Casual" : "Free"}</div>
+            <div className="truncate text-muted-foreground">{participants} players · {league === "NFL" ? NFL_LINEUP.length : playersPerTeam} each</div>
+          </div>
+          <Button variant="accent" className="px-8 text-lg" onClick={() => handleCreate()} disabled={loading}>
+            <Play className="h-5 w-5" aria-hidden /> {loading ? "Creating…" : "Start draft"}
+          </Button>
+        </div>
+      </div>
 
       {showSaveModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
@@ -1674,30 +1701,28 @@ function CartoonDraftBuilder({
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground space-y-8">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 pb-40 md:px-6 md:py-12 md:pb-32 text-foreground space-y-8">
       <header className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-secondary tracking-tight mb-1">
-            Create a Cartoon Draft
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Community-voted drafts for characters or shows. Classic is online-focused with a 60s timer.
-          </p>
-          {!isPremium && (
-            <p className="text-xs text-amber-300 mt-1">
-              Cartoon drafts are available to premium members.
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold hover:bg-primary"
-            onClick={() => setMode((prev) => (prev === "classic" ? "casual" : "classic"))}
-          >
-            <Zap className="h-4 w-4" /> Toggle Mode ({mode})
-          </button>
+        <div className="flex items-center gap-4">
+          <IconBadge src="/icons/turtle.png" />
+          <div>
+            <h1 className="text-3xl md:text-4xl">Cartoon Draft</h1>
+            <p className="text-muted-foreground text-sm">Community-voted drafts for characters or shows. Classic is online-focused with a 60s timer.</p>
+            {!isPremium && <p className="mt-1 text-xs text-amber-300">Cartoon drafts are available to premium members.</p>}
+          </div>
         </div>
       </header>
+
+      <Panel title="Quick start" hint="Classic is the fastest way in; Casual opens the rules.">
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(["classic", "casual"] as const).map((m) => (
+            <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)} className={`min-h-16 rounded-xl border p-3 text-left transition-colors ${mode === m ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+              <div className="font-semibold capitalize">{m}</div>
+              <div className="text-xs text-muted-foreground">{m === "classic" ? "Online-focused, 60s timer" : "Tweak the rules"}</div>
+            </button>
+          ))}
+        </div>
+      </Panel>
 
       {error && (
         <div className="rounded-xl border border-red-500/50 bg-red-900/30 px-4 py-3 text-sm text-red-200">
@@ -1705,6 +1730,7 @@ function CartoonDraftBuilder({
         </div>
       )}
 
+      <Collapse title="Customize rules" defaultOpen>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section className="space-y-4">
           <div className="p-5 rounded-2xl bg-card/40 border border-white/10">
@@ -1982,15 +2008,14 @@ function CartoonDraftBuilder({
           </div>
         </section>
       </div>
+      </Collapse>
 
-      <button
-        onClick={handleCreateCartoon}
-        disabled={loading}
-        className="px-6 py-3 rounded-xl bg-primary hover:bg-[#8b5cf6] text-sm font-semibold shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-2"
-      >
-        {loading ? "Creating Draft..." : "Create Cartoon Draft"}{" "}
-        <ChevronRight className="w-4 h-4" />
-      </button>
+      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-white/10 bg-background/90 p-3 backdrop-blur-xl md:bottom-0">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-1 md:px-3">
+          <div className="min-w-0 flex-1 text-sm"><div className="truncate font-semibold">Cartoon · {mode === "classic" ? "Classic" : "Casual"}</div></div>
+          <Button variant="accent" className="px-8 text-lg" onClick={handleCreateCartoon} disabled={loading}><Play className="h-5 w-5" aria-hidden /> {loading ? "Creating…" : "Start draft"}</Button>
+        </div>
+      </div>
     </main>
   );
 }
