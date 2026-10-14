@@ -269,14 +269,13 @@ export default function HomePage() {
                   <IconBadge src={cat.icon} />
                   <div className="min-w-0">
                     <h3 className="text-xl">{cat.title}</h3>
-                    <p className="text-sm text-muted-foreground">{locked ? "Premium beta" : cat.premium ? "Beta" : "Classic, Casual & Free modes"}</p>
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">{locked ? <span className="rounded-full bg-accent/20 px-2 py-0.5 text-xs font-semibold text-accent">Premium</span> : null}{locked ? "Beta" : cat.premium ? "Beta" : "Classic, Casual & Free modes"}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <button onClick={cat.offline} className="min-h-11 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold hover:bg-white/10">Offline</button>
                   <button onClick={cat.online} className="min-h-11 rounded-xl bg-primary text-sm font-semibold hover:bg-[#8b5cf6]">Online</button>
                 </div>
-                {locked && <span className="absolute right-4 top-4 rounded-full bg-black/40 px-2.5 py-1 text-xs font-semibold text-secondary">Premium</span>}
               </div>
             );
           })}

@@ -17,11 +17,11 @@ router.post("/", authOptional, DraftController.createDraft);
 router.post("/styles", authRequired, DraftStyleController.createStyle);
 router.post("/styles/:id/thumb", authOptional, DraftStyleController.thumbStyle);
 router.post("/styles/:id/play", DraftStyleController.markPlayed);
-router.patch("/:id", authRequired, DraftController.updatePick);
-router.post("/:id/save", authRequired, async (req: AuthedRequest, res) => {
+router.patch("/:id", authOptional, DraftController.updatePick);
+router.post("/:id/save", authOptional, async (req: AuthedRequest, res) => {
   try {
     const draftId = req.params.id;
-    const userId = req.userId!;
+    const userId = req.userId ?? null;
 
     const draft = await prisma.draft.findUnique({ where: { id: draftId } });
     if (!draft) return res.status(404).json({ error: "Draft not found" });
@@ -30,6 +30,7 @@ router.post("/:id/save", authRequired, async (req: AuthedRequest, res) => {
       const rules = (draft.rules || {}) as any;
       const seatAssignments: string[] | undefined = rules.seatAssignments;
       const isOnlineParticipant =
+        !!userId &&
         rules.online &&
         seatAssignments &&
         seatAssignments.length &&
@@ -42,7 +43,7 @@ router.post("/:id/save", authRequired, async (req: AuthedRequest, res) => {
     }
 
     // If draft has no owner but user is logged in, claim ownership
-    if (!draft.ownerId) {
+    if (!draft.ownerId && userId) {
       await prisma.draft.update({
         where: { id: draftId },
         data: { ownerId: userId },
@@ -63,7 +64,7 @@ router.post("/:id/save", authRequired, async (req: AuthedRequest, res) => {
 });
 router.get("/:id/suggestions", DraftController.getDraftSuggestions);
 router.get("/:id/score", DraftController.scoreDraft);
-router.delete("/:id/picks/:slot", DraftController.undoPick);
+router.delete("/:id/picks/:slot", authOptional, DraftController.undoPick);
 router.delete("/:id", DraftController.cancelDraft);
 router.post("/:id/vote", DraftController.voteDraft);
 
