@@ -3,14 +3,8 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Image, { type StaticImageData } from "next/image";
-import nbaImg from "../assets/nba.jpg";
-import nflImg from "../assets/nfl.jpg";
-import foodImg from "../assets/food.jpg";
-import animeImg from "../assets/anime.jpg";
-import cartoonsImg from "../assets/cartoons.jpg";
-import fifaImg from "../assets/fifa.jpg";
 import { useAuth } from "../hooks/useAuth";
+import { IconBadge } from "../components/ui";
 
 // Unified Draft Box Type
 type DraftSummary = {
@@ -22,16 +16,6 @@ type DraftSummary = {
   rules?: DraftRules;
   participants?: number;
   playersPerTeam?: number;
-};
-
-type DraftCategory = {
-  id: string;
-  name: string;
-  image: StaticImageData;
-  enabled: boolean;
-  beta?: boolean;
-  requirePremium?: boolean;
-  onClick?: () => void;
 };
 
 type DraftRules = {
@@ -256,197 +240,43 @@ export default function HomePage() {
     }
   };
 
-  const draftCategories: DraftCategory[] = [
-    {
-      id: "nba",
-      name: "NBA Draft",
-      image: nbaImg,
-      enabled: true,
-      onClick: () => router.push("/draft/new"),
-    },
-    {
-      id: "nfl",
-      name: "NFL Draft (Beta)",
-      image: nflImg,
-      enabled: true,
-      beta: true,
-      requirePremium: true,
-      onClick: goToNfl,
-    },
-    {
-      id: "cartoons",
-      name: "Cartoon Draft (Beta)",
-      image: cartoonsImg,
-      enabled: true,
-      beta: true,
-      requirePremium: true,
-      onClick: goToCartoon,
-    },
-    {
-      id: "food",
-      name: "Food Draft",
-      image: foodImg,
-      enabled: false,
-    },
-    {
-      id: "anime",
-      name: "Anime Characters Draft",
-      image: animeImg,
-      enabled: false,
-    },
-    {
-      id: "epl",
-      name: "EPL / FIFA Draft",
-      image: fifaImg,
-      enabled: false,
-    },
-  ];
 
   return (
     <>
       <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground space-y-10">
       {/* PAGE TITLE */}
-      <header>
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-secondary mb-2">
-          DraftHub
-        </h1>
+      <header className="space-y-1">
+        <h1 className="text-4xl md:text-5xl">Stat Drafts</h1>
         <p className="text-muted-foreground text-sm md:text-base">
-          Create fantasy lineups across sports, games, food, and more.
+          Spin a team and era, then draft real players with career stats. Looking for characters, auctions or blind rankings?{" "}
+          <a href="/" className="text-secondary underline underline-offset-2">Browse all topics</a>.
         </p>
       </header>
 
       {/* AVAILABLE DRAFT MODES */}
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Available Drafts</h2>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {draftCategories.map((cat) => {
-            const isNba = cat.id === "nba";
-            const isNfl = cat.id === "nfl";
-            const locked = !cat.enabled || (cat.requirePremium && !isPremium);
+      <section className="space-y-4">
+        <h2 className="text-2xl">Pick a league</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {([
+            { id: "nba", title: "NBA Draft", icon: "/icons/basketball.png", premium: false, offline: () => router.push("/draft/new"), online: () => router.push("/online") },
+            { id: "nfl", title: "NFL Draft", icon: "/icons/football.png", premium: true, offline: goToNfl, online: () => router.push("/online?league=NFL") },
+            { id: "cartoons", title: "Cartoon Draft", icon: "/icons/turtle.png", premium: true, offline: goToCartoon, online: goToCartoonOnline },
+          ] as const).map((cat) => {
+            const locked = cat.premium && !isPremium;
             return (
-              <div
-                key={cat.id}
-                role={!locked ? "button" : undefined}
-                onClick={() => !locked && cat.onClick?.()}
-                className={`group relative rounded-2xl overflow-hidden border border-white/10 bg-card/30 backdrop-blur-sm transition-all ${
-                  !locked
-                    ? "hover:border-secondary hover:shadow-indigo-500/30 cursor-pointer"
-                    : "opacity-60 cursor-not-allowed"
-                }`}
-              >
-                {/* Image */}
-                <div className="relative h-40 w-full overflow-hidden">
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    fill
-                    className={`object-cover transition-all duration-300 group-hover:scale-105 ${
-                      !cat.enabled ? "grayscale" : ""
-                    }`}
-                  />
-                </div>
-
-                {/* Title */}
-                <div className="p-4 text-left">
-                  <div className="text-xl font-semibold mb-1 text-foreground">
-                    {cat.name}
+              <div key={cat.id} className={`relative flex flex-col gap-4 rounded-2xl border border-white/10 bg-card/70 p-5 ${locked ? "opacity-80" : ""}`}>
+                <div className="flex items-center gap-4">
+                  <IconBadge src={cat.icon} />
+                  <div className="min-w-0">
+                    <h3 className="text-xl">{cat.title}</h3>
+                    <p className="text-sm text-muted-foreground">{locked ? "Premium beta" : cat.premium ? "Beta" : "Classic, Casual & Free modes"}</p>
                   </div>
-                  {!locked ? (
-                    <p className="text-sm text-secondary font-medium">
-                      ✦ {cat.beta ? "Launch Beta" : "Start Draft"}
-                    </p>
-                  ) : cat.requirePremium ? (
-                    <p className="text-sm text-orange-300">
-                      Premium members only
-                    </p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Coming Soon</p>
-                  )}
-
-                  {cat.enabled && isNba && (
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push("/draft/new");
-                        }}
-                        className="flex-1 rounded-lg bg-white/10 hover:bg-muted text-xs py-2"
-                      >
-                        Offline Draft
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push("/online");
-                        }}
-                        className="flex-1 rounded-lg bg-primary hover:bg-[#8b5cf6] text-xs py-2"
-                      >
-                        Online Draft
-                      </button>
-                    </div>
-                  )}
-                  {cat.enabled && cat.id === "cartoons" && (
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          goToCartoon();
-                        }}
-                        className="flex-1 rounded-lg bg-white/10 hover:bg-muted text-xs py-2"
-                      >
-                        Offline Draft
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          goToCartoonOnline();
-                        }}
-                        className="flex-1 rounded-lg bg-primary hover:bg-[#8b5cf6] text-xs py-2"
-                      >
-                        Online Draft
-                      </button>
-                    </div>
-                  )}
-                  {cat.enabled && isNfl && (
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          goToNfl();
-                        }}
-                        className="flex-1 rounded-lg bg-white/10 hover:bg-muted text-xs py-2"
-                      >
-                        Offline Draft
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push("/online?league=NFL");
-                        }}
-                        className="flex-1 rounded-lg bg-primary hover:bg-[#8b5cf6] text-xs py-2"
-                      >
-                        Online Draft
-                      </button>
-                    </div>
-                  )}
-
-                  {cat.beta && (
-                    <div className="mt-3 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-amber-300">
-                      <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-                      Beta
-                    </div>
-                  )}
                 </div>
-
-                {/* Coming Soon overlay */}
-                {locked && (
-                  <div className="absolute inset-0 bg-black/30 flex items-end justify-end p-3 pointer-events-none">
-                    <span className="text-[10px] uppercase tracking-wide bg-muted text-muted-foreground px-2 py-[2px] rounded">
-                      {cat.requirePremium ? "Premium Beta" : "Coming Soon"}
-                    </span>
-                  </div>
-                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={cat.offline} className="min-h-11 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold hover:bg-white/10">Offline</button>
+                  <button onClick={cat.online} className="min-h-11 rounded-xl bg-primary text-sm font-semibold hover:bg-[#8b5cf6]">Online</button>
+                </div>
+                {locked && <span className="absolute right-4 top-4 rounded-full bg-black/40 px-2.5 py-1 text-xs font-semibold text-secondary">Premium</span>}
               </div>
             );
           })}
