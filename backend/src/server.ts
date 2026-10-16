@@ -77,6 +77,8 @@ const server = http.createServer(app);
 initSocket(server, corsOrigin);
 startTicker();
 
-server.listen(PORT, "127.0.0.1", () => {
-  console.log(`API server running on localhost:${PORT}`);
+// Bind to localhost behind nginx by default; containers set HOST=0.0.0.0.
+const HOST = process.env.HOST || "127.0.0.1";
+server.listen(PORT, HOST, () => {
+  console.log(`API server running on ${HOST}:${PORT}`);
 });
