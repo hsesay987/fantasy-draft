@@ -6,10 +6,10 @@
   "archetype": "Emperor",
   "stats": {
    "leadership": 98,
-   "intellect": 92,
-   "courage": 90,
-   "influence": 95,
-   "charisma": 85,
+   "intellect": 79,
+   "courage": 77,
+   "influence": 84,
+   "charisma": 73,
    "strategy": 100
   },
   "tags": [
@@ -23,12 +23,12 @@
   "universe": "Ancient",
   "archetype": "Ruler",
   "stats": {
-   "leadership": 85,
-   "intellect": 90,
-   "courage": 80,
-   "influence": 88,
-   "charisma": 98,
-   "strategy": 92
+   "leadership": 77,
+   "intellect": 72,
+   "courage": 66,
+   "influence": 64,
+   "charisma": 96,
+   "strategy": 88
   },
   "tags": [
    "ruler",
@@ -41,12 +41,12 @@
   "universe": "Ancient",
   "archetype": "Emperor",
   "stats": {
-   "leadership": 96,
-   "intellect": 90,
-   "courage": 92,
-   "influence": 95,
-   "charisma": 88,
-   "strategy": 95
+   "leadership": 95,
+   "intellect": 72,
+   "courage": 80,
+   "influence": 84,
+   "charisma": 78,
+   "strategy": 92
   },
   "tags": [
    "military",
@@ -60,11 +60,11 @@
   "archetype": "Conqueror",
   "stats": {
    "leadership": 98,
-   "intellect": 85,
-   "courage": 100,
-   "influence": 95,
-   "charisma": 92,
-   "strategy": 98
+   "intellect": 64,
+   "courage": 98,
+   "influence": 84,
+   "charisma": 85,
+   "strategy": 96
   },
   "tags": [
    "military",
@@ -78,11 +78,11 @@
   "archetype": "Conqueror",
   "stats": {
    "leadership": 98,
-   "intellect": 80,
-   "courage": 95,
-   "influence": 98,
-   "charisma": 70,
-   "strategy": 98
+   "intellect": 59,
+   "courage": 86,
+   "influence": 94,
+   "charisma": 54,
+   "strategy": 96
   },
   "tags": [
    "military",
@@ -95,12 +95,12 @@
   "universe": "Renaissance",
   "archetype": "Genius",
   "stats": {
-   "leadership": 45,
-   "intellect": 100,
-   "courage": 70,
-   "influence": 80,
-   "charisma": 85,
-   "strategy": 75
+   "leadership": 43,
+   "intellect": 98,
+   "courage": 55,
+   "influence": 54,
+   "charisma": 73,
+   "strategy": 65
   },
   "tags": [
    "inventor",
@@ -113,12 +113,12 @@
   "universe": "Science",
   "archetype": "Genius",
   "stats": {
-   "leadership": 35,
-   "intellect": 100,
-   "courage": 60,
-   "influence": 92,
-   "charisma": 75,
-   "strategy": 60
+   "leadership": 34,
+   "intellect": 98,
+   "courage": 45,
+   "influence": 73,
+   "charisma": 60,
+   "strategy": 48
   },
   "tags": [
    "scientist",
@@ -131,12 +131,12 @@
   "universe": "Science",
   "archetype": "Genius",
   "stats": {
-   "leadership": 30,
-   "intellect": 100,
-   "courage": 55,
-   "influence": 85,
-   "charisma": 35,
-   "strategy": 60
+   "leadership": 29,
+   "intellect": 98,
+   "courage": 40,
+   "influence": 60,
+   "charisma": 30,
+   "strategy": 48
   },
   "tags": [
    "scientist",
@@ -149,12 +149,12 @@
   "universe": "Science",
   "archetype": "Genius",
   "stats": {
-   "leadership": 55,
-   "intellect": 98,
-   "courage": 92,
-   "influence": 85,
-   "charisma": 70,
-   "strategy": 70
+   "leadership": 51,
+   "intellect": 90,
+   "courage": 80,
+   "influence": 60,
+   "charisma": 54,
+   "strategy": 59
   },
   "tags": [
    "scientist",
@@ -167,12 +167,12 @@
   "universe": "Science",
   "archetype": "Inventor",
   "stats": {
-   "leadership": 35,
-   "intellect": 100,
-   "courage": 65,
-   "influence": 80,
-   "charisma": 70,
-   "strategy": 70
+   "leadership": 34,
+   "intellect": 98,
+   "courage": 49,
+   "influence": 54,
+   "charisma": 54,
+   "strategy": 59
   },
   "tags": [
    "inventor",
@@ -185,12 +185,12 @@
   "universe": "Politics",
   "archetype": "Statesman",
   "stats": {
-   "leadership": 95,
-   "intellect": 90,
-   "courage": 92,
-   "influence": 98,
-   "charisma": 92,
-   "strategy": 90
+   "leadership": 91,
+   "intellect": 72,
+   "courage": 80,
+   "influence": 94,
+   "charisma": 85,
+   "strategy": 82
   },
   "tags": [
    "politician",
@@ -203,12 +203,12 @@
   "universe": "Politics",
   "archetype": "Statesman",
   "stats": {
-   "leadership": 95,
-   "intellect": 88,
-   "courage": 95,
-   "influence": 95,
-   "charisma": 95,
-   "strategy": 92
+   "leadership": 91,
+   "intellect": 68,
+   "courage": 86,
+   "influence": 84,
+   "charisma": 91,
+   "strategy": 88
   },
   "tags": [
    "politician",
@@ -221,12 +221,12 @@
   "universe": "Military",
   "archetype": "Icon",
   "stats": {
-   "leadership": 92,
-   "intellect": 60,
-   "courage": 100,
-   "influence": 92,
-   "charisma": 90,
-   "strategy": 85
+   "leadership": 85,
+   "intellect": 43,
+   "courage": 98,
+   "influence": 73,
+   "charisma": 81,
+   "strategy": 73
   },
   "tags": [
    "military",
@@ -239,11 +239,11 @@
   "universe": "Military",
   "archetype": "Strategist",
   "stats": {
-   "leadership": 70,
-   "intellect": 98,
-   "courage": 70,
-   "influence": 85,
-   "charisma": 60,
+   "leadership": 64,
+   "intellect": 90,
+   "courage": 55,
+   "influence": 60,
+   "charisma": 44,
    "strategy": 100
   },
   "tags": [
@@ -257,12 +257,12 @@
   "universe": "Politics",
   "archetype": "Ruler",
   "stats": {
-   "leadership": 92,
-   "intellect": 90,
-   "courage": 85,
-   "influence": 95,
-   "charisma": 92,
-   "strategy": 90
+   "leadership": 85,
+   "intellect": 72,
+   "courage": 72,
+   "influence": 84,
+   "charisma": 85,
+   "strategy": 82
   },
   "tags": [
    "ruler",
@@ -275,12 +275,12 @@
   "universe": "Politics",
   "archetype": "Icon",
   "stats": {
-   "leadership": 95,
-   "intellect": 92,
-   "courage": 98,
+   "leadership": 91,
+   "intellect": 79,
+   "courage": 92,
    "influence": 100,
-   "charisma": 98,
-   "strategy": 90
+   "charisma": 96,
+   "strategy": 82
   },
   "tags": [
    "politician",
@@ -293,12 +293,12 @@
   "universe": "Politics",
   "archetype": "Icon",
   "stats": {
-   "leadership": 96,
-   "intellect": 92,
-   "courage": 100,
+   "leadership": 95,
+   "intellect": 79,
+   "courage": 98,
    "influence": 100,
    "charisma": 100,
-   "strategy": 90
+   "strategy": 82
   },
   "tags": [
    "politician",
@@ -311,12 +311,12 @@
   "universe": "Politics",
   "archetype": "Icon",
   "stats": {
-   "leadership": 95,
-   "intellect": 90,
-   "courage": 100,
-   "influence": 98,
-   "charisma": 95,
-   "strategy": 88
+   "leadership": 91,
+   "intellect": 72,
+   "courage": 98,
+   "influence": 94,
+   "charisma": 91,
+   "strategy": 77
   },
   "tags": [
    "politician",
@@ -329,12 +329,12 @@
   "universe": "Politics",
   "archetype": "Icon",
   "stats": {
-   "leadership": 88,
-   "intellect": 80,
-   "courage": 100,
-   "influence": 92,
-   "charisma": 85,
-   "strategy": 92
+   "leadership": 80,
+   "intellect": 59,
+   "courage": 98,
+   "influence": 73,
+   "charisma": 73,
+   "strategy": 88
   },
   "tags": [
    "icon",
@@ -347,12 +347,12 @@
   "universe": "Ancient",
   "archetype": "Philosopher",
   "stats": {
-   "leadership": 50,
-   "intellect": 100,
-   "courage": 55,
-   "influence": 95,
-   "charisma": 75,
-   "strategy": 85
+   "leadership": 47,
+   "intellect": 98,
+   "courage": 40,
+   "influence": 84,
+   "charisma": 60,
+   "strategy": 73
   },
   "tags": [
    "philosopher",
@@ -365,12 +365,12 @@
   "universe": "Ancient",
   "archetype": "Philosopher",
   "stats": {
-   "leadership": 40,
-   "intellect": 98,
-   "courage": 95,
-   "influence": 90,
-   "charisma": 80,
-   "strategy": 70
+   "leadership": 39,
+   "intellect": 90,
+   "courage": 86,
+   "influence": 67,
+   "charisma": 65,
+   "strategy": 59
   },
   "tags": [
    "philosopher"
@@ -382,12 +382,12 @@
   "universe": "Arts",
   "archetype": "Artist",
   "stats": {
-   "leadership": 25,
-   "intellect": 98,
-   "courage": 70,
-   "influence": 98,
-   "charisma": 95,
-   "strategy": 60
+   "leadership": 26,
+   "intellect": 90,
+   "courage": 55,
+   "influence": 94,
+   "charisma": 91,
+   "strategy": 48
   },
   "tags": [
    "artist",
@@ -400,12 +400,12 @@
   "universe": "Arts",
   "archetype": "Artist",
   "stats": {
-   "leadership": 20,
-   "intellect": 98,
-   "courage": 60,
-   "influence": 95,
-   "charisma": 92,
-   "strategy": 45
+   "leadership": 22,
+   "intellect": 90,
+   "courage": 45,
+   "influence": 84,
+   "charisma": 85,
+   "strategy": 35
   },
   "tags": [
    "artist",
@@ -418,12 +418,12 @@
   "universe": "Arts",
   "archetype": "Artist",
   "stats": {
-   "leadership": 35,
-   "intellect": 92,
-   "courage": 70,
-   "influence": 92,
-   "charisma": 85,
-   "strategy": 50
+   "leadership": 34,
+   "intellect": 79,
+   "courage": 55,
+   "influence": 73,
+   "charisma": 73,
+   "strategy": 38
   },
   "tags": [
    "artist"
@@ -435,12 +435,12 @@
   "universe": "Explorer",
   "archetype": "Pioneer",
   "stats": {
-   "leadership": 60,
-   "intellect": 75,
-   "courage": 98,
-   "influence": 88,
-   "charisma": 90,
-   "strategy": 60
+   "leadership": 55,
+   "intellect": 54,
+   "courage": 92,
+   "influence": 64,
+   "charisma": 81,
+   "strategy": 48
   },
   "tags": [
    "explorer",
@@ -453,12 +453,12 @@
   "universe": "Explorer",
   "archetype": "Pioneer",
   "stats": {
-   "leadership": 75,
-   "intellect": 90,
-   "courage": 98,
-   "influence": 92,
-   "charisma": 70,
-   "strategy": 92
+   "leadership": 69,
+   "intellect": 72,
+   "courage": 92,
+   "influence": 73,
+   "charisma": 54,
+   "strategy": 88
   },
   "tags": [
    "explorer",
@@ -471,12 +471,12 @@
   "universe": "Explorer",
   "archetype": "Explorer",
   "stats": {
-   "leadership": 65,
-   "intellect": 60,
-   "courage": 85,
-   "influence": 75,
-   "charisma": 60,
-   "strategy": 55
+   "leadership": 59,
+   "intellect": 43,
+   "courage": 72,
+   "influence": 50,
+   "charisma": 44,
+   "strategy": 42
   },
   "tags": [
    "explorer"
@@ -488,12 +488,12 @@
   "universe": "Explorer",
   "archetype": "Explorer",
   "stats": {
-   "leadership": 55,
-   "intellect": 80,
-   "courage": 85,
-   "influence": 80,
-   "charisma": 85,
-   "strategy": 70
+   "leadership": 51,
+   "intellect": 59,
+   "courage": 72,
+   "influence": 54,
+   "charisma": 73,
+   "strategy": 59
   },
   "tags": [
    "explorer"
@@ -505,12 +505,12 @@
   "universe": "Science",
   "archetype": "Genius",
   "stats": {
-   "leadership": 40,
-   "intellect": 98,
-   "courage": 75,
-   "influence": 95,
-   "charisma": 60,
-   "strategy": 60
+   "leadership": 39,
+   "intellect": 90,
+   "courage": 61,
+   "influence": 84,
+   "charisma": 44,
+   "strategy": 48
   },
   "tags": [
    "scientist",
@@ -523,12 +523,12 @@
   "universe": "Science",
   "archetype": "Genius",
   "stats": {
-   "leadership": 50,
-   "intellect": 98,
-   "courage": 92,
-   "influence": 92,
-   "charisma": 65,
-   "strategy": 60
+   "leadership": 47,
+   "intellect": 90,
+   "courage": 80,
+   "influence": 73,
+   "charisma": 49,
+   "strategy": 48
   },
   "tags": [
    "scientist",
@@ -541,12 +541,12 @@
   "universe": "Modern",
   "archetype": "Founder",
   "stats": {
-   "leadership": 92,
-   "intellect": 95,
-   "courage": 80,
-   "influence": 98,
-   "charisma": 92,
-   "strategy": 85
+   "leadership": 85,
+   "intellect": 84,
+   "courage": 66,
+   "influence": 94,
+   "charisma": 85,
+   "strategy": 73
   },
   "tags": [
    "founder",
@@ -559,12 +559,12 @@
   "universe": "Modern",
   "archetype": "Founder",
   "stats": {
-   "leadership": 85,
-   "intellect": 85,
-   "courage": 70,
-   "influence": 90,
-   "charisma": 70,
-   "strategy": 88
+   "leadership": 77,
+   "intellect": 64,
+   "courage": 55,
+   "influence": 67,
+   "charisma": 54,
+   "strategy": 77
   },
   "tags": [
    "founder"
@@ -576,12 +576,12 @@
   "universe": "Modern",
   "archetype": "Fighter",
   "stats": {
-   "leadership": 60,
-   "intellect": 88,
-   "courage": 95,
-   "influence": 95,
-   "charisma": 98,
-   "strategy": 70
+   "leadership": 55,
+   "intellect": 68,
+   "courage": 86,
+   "influence": 84,
+   "charisma": 96,
+   "strategy": 59
   },
   "tags": [
    "fighter",
@@ -594,12 +594,12 @@
   "universe": "Modern",
   "archetype": "Fighter",
   "stats": {
-   "leadership": 75,
-   "intellect": 80,
-   "courage": 98,
-   "influence": 98,
+   "leadership": 69,
+   "intellect": 59,
+   "courage": 92,
+   "influence": 94,
    "charisma": 100,
-   "strategy": 70
+   "strategy": 59
   },
   "tags": [
    "fighter",
@@ -612,12 +612,12 @@
   "universe": "Politics",
   "archetype": "Icon",
   "stats": {
-   "leadership": 70,
-   "intellect": 70,
-   "courage": 100,
-   "influence": 95,
-   "charisma": 85,
-   "strategy": 75
+   "leadership": 64,
+   "intellect": 50,
+   "courage": 98,
+   "influence": 84,
+   "charisma": 73,
+   "strategy": 65
   },
   "tags": [
    "icon"
@@ -629,12 +629,12 @@
   "universe": "Ancient",
   "archetype": "Philosopher",
   "stats": {
-   "leadership": 70,
-   "intellect": 98,
-   "courage": 70,
-   "influence": 98,
-   "charisma": 80,
-   "strategy": 90
+   "leadership": 64,
+   "intellect": 90,
+   "courage": 55,
+   "influence": 94,
+   "charisma": 65,
+   "strategy": 82
   },
   "tags": [
    "philosopher"
@@ -646,12 +646,12 @@
   "universe": "Military",
   "archetype": "Strategist",
   "stats": {
-   "leadership": 95,
-   "intellect": 92,
-   "courage": 95,
-   "influence": 90,
-   "charisma": 80,
-   "strategy": 98
+   "leadership": 91,
+   "intellect": 79,
+   "courage": 86,
+   "influence": 67,
+   "charisma": 65,
+   "strategy": 96
   },
   "tags": [
    "military",
@@ -664,12 +664,12 @@
   "universe": "Politics",
   "archetype": "Ruler",
   "stats": {
-   "leadership": 88,
-   "intellect": 70,
-   "courage": 75,
-   "influence": 95,
-   "charisma": 80,
-   "strategy": 78
+   "leadership": 80,
+   "intellect": 50,
+   "courage": 61,
+   "influence": 84,
+   "charisma": 65,
+   "strategy": 68
   },
   "tags": [
    "ruler"
@@ -681,12 +681,12 @@
   "universe": "Politics",
   "archetype": "Ruler",
   "stats": {
-   "leadership": 92,
-   "intellect": 92,
-   "courage": 85,
-   "influence": 92,
-   "charisma": 88,
-   "strategy": 95
+   "leadership": 85,
+   "intellect": 79,
+   "courage": 72,
+   "influence": 73,
+   "charisma": 78,
+   "strategy": 92
   },
   "tags": [
    "ruler",
@@ -699,12 +699,12 @@
   "universe": "Politics",
   "archetype": "Inventor",
   "stats": {
-   "leadership": 75,
-   "intellect": 98,
-   "courage": 80,
-   "influence": 95,
-   "charisma": 98,
-   "strategy": 90
+   "leadership": 69,
+   "intellect": 90,
+   "courage": 66,
+   "influence": 84,
+   "charisma": 96,
+   "strategy": 82
   },
   "tags": [
    "inventor",
