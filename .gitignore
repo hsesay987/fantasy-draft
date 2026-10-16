@@ -47,3 +47,6 @@ backend/data/cartoons/
 
 # keep the templates
 !.env.example
+
+# database dumps contain user data
+backups/

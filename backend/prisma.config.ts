@@ -8,7 +8,8 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
 
   datasource: {
-    url: process.env.DATABASE_URL!,
+    // Migrations need a direct (non-pooled) connection; the running API can use the pooled DATABASE_URL.
+    url: (process.env.MIGRATE_DATABASE_URL || process.env.DATABASE_URL)!,
   },
 
   migrations: {
