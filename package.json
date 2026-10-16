@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "sync:shared": "node scripts/sync-shared.mjs"
+    "sync:shared": "node scripts/sync-shared.mjs",
+    "dev:all": "bash scripts/dev.sh"
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
