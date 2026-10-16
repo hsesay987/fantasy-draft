@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 const nextConfig: NextConfig = {
   images: {
@@ -23,4 +24,11 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Sentry build plugin: source maps are uploaded only when SENTRY_AUTH_TOKEN (+ org/project) are set; otherwise it is inert.
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+});

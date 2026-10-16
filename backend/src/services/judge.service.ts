@@ -1,5 +1,6 @@
 // AI judge: deterministic baseline + Claude commentary, with safe fallback.
 import { analyze } from "../shared/play/analysis";
+import { captureError, trackServer } from "../lib/monitoring";
 import { CATALOG_META, getCatalog } from "../shared/topicDraft/catalogs";
 
 export type JudgeItem = {
@@ -27,7 +28,7 @@ export type Verdict = {
   source: "ai" | "fallback";
 };
 export interface LLM {
-  complete(system: string, user: string): Promise<string>;
+  complete(system: string, user: string, onUsage?: (u: { model: string; tokensIn: number; tokensOut: number }) => void): Promise<string>;
 }
 
 const MAX_TEAMS = 12;
@@ -184,7 +185,7 @@ export function defaultClient(): LLM | null {
   if (!key) return null;
   const model = process.env.JUDGE_MODEL || "claude-sonnet-5-5";
   return {
-    async complete(system, user) {
+    async complete(system, user, onUsage) {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const Anthropic = require("@anthropic-ai/sdk").default || require("@anthropic-ai/sdk");
       const client = new Anthropic({ apiKey: key });
@@ -194,6 +195,7 @@ export function defaultClient(): LLM | null {
         system,
         messages: [{ role: "user", content: user }],
       });
+      onUsage?.({ model, tokensIn: res.usage?.input_tokens ?? 0, tokensOut: res.usage?.output_tokens ?? 0 });
       return (res.content as any[]).map((b) => (b.type === "text" ? b.text : "")).join("");
     },
   };
@@ -202,7 +204,10 @@ export function defaultClient(): LLM | null {
 export async function judge(input: JudgeReq, client: LLM | null = defaultClient()): Promise<Verdict> {
   const req = sanitize(input);
   if (!req.teams.length) return fallbackVerdict(req);
-  if (!client) return fallbackVerdict(req);
+  if (!client) {
+    trackServer("judge_call", { game: req.game, source: "fallback_no_key", teams: req.teams.length });
+    return fallbackVerdict(req);
+  }
 
   const weights = req.scenario.weights ?? {};
   const facts = analyze(req.teams as any, { title: req.scenario.title, weights }, Object.fromEntries(req.teams.map((t) => [t.player, baseline(t, weights)])));
@@ -213,12 +218,18 @@ export async function judge(input: JudgeReq, client: LLM | null = defaultClient(
   };
   const user = `Judge these teams.\n<DATA>\n${JSON.stringify(data)}\n</DATA>`;
 
+  const t0 = Date.now();
+  let usage: { model: string; tokensIn: number; tokensOut: number } | null = null;
   try {
-    const text = await withTimeout(client.complete(SYSTEM, user), TIMEOUT_MS);
+    const text = await withTimeout(client.complete(SYSTEM, user, (u) => (usage = u)), TIMEOUT_MS);
     const v = validateAi(extractJson(text), req);
+    // Cost per game: tokens in/out and latency, plus whether the answer was usable.
+    trackServer("judge_call", { game: req.game, source: v ? "ai" : "fallback_invalid", ms: Date.now() - t0, teams: req.teams.length, ...(usage ?? {}) });
     return v ?? fallbackVerdict(req);
   } catch (err) {
     console.error("judge failed, using fallback:", (err as Error).message);
+    captureError(err, { where: "judge", game: req.game });
+    trackServer("judge_call", { game: req.game, source: "fallback_error", ms: Date.now() - t0, teams: req.teams.length });
     return fallbackVerdict(req);
   }
 }

@@ -10,6 +10,7 @@ import { fetchVerdict, type Verdict } from "./judging";
 import { newSeed } from "../topicDraft/rng";
 import { buildTeams, isDone } from "../topicDraft/core";
 import { useSound } from "../components/SoundProvider";
+import { track } from "../lib/analytics";
 import type { GameSetup } from "./types";
 import { useLocalGame, type GameCtl } from "./useGame";
 import { SnakeView } from "./views/SnakeView";
@@ -31,6 +32,7 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
   useEffect(() => {
     if (!done) return;
     ctl.finish();
+    track("game_finished", { format: setup.format, pool: setup.pool, players: setup.players.length, online: ctl.online, mystery: setup.mystery });
     play("reveal");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done]);
@@ -58,7 +60,7 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
     return (
       <PageShell width="md">
         <h1 className="text-3xl md:text-4xl">{setup.mission.title}</h1>
-        <VerdictView verdict={v ?? null} loading={!v} extra={extra} shareText={lines} onAgain={onNew} onRematch={onRematch} />
+        <VerdictView format={setup.format} verdict={v ?? null} loading={!v} extra={extra} shareText={lines} onAgain={onNew} onRematch={onRematch} />
       </PageShell>
     );
   }

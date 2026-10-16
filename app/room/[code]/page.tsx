@@ -11,6 +11,7 @@ import { category } from "../../play/categories";
 import { clearToken, joinRoom, leaveRoom, loadToken, saveToken, startRoom } from "../../play/onlineApi";
 import { useRemoteCtl, useRemoteRoom } from "../../play/useRemoteGame";
 import { loadPrefs, savePrefs } from "../../play/storage";
+import { track } from "../../lib/analytics";
 
 export default function RoomPage() {
   const { code: raw } = useParams<{ code: string }>();
@@ -47,6 +48,7 @@ export default function RoomPage() {
       setBusy(false);
       if (!r.ok) return setError(r.data.error ?? "Couldn't join");
       saveToken(code, r.data.token);
+      track("room_joined", { format: snap.setup.format, pool: snap.setup.pool });
       setToken(r.data.token);
       savePrefs({ name });
       await refresh();

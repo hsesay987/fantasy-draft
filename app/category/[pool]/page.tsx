@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { motion } from "motion/react";
+import { useEffect } from "react";
 import { Sparkles } from "lucide-react";
+import { track } from "../../lib/analytics";
 import { PageHeader, PageShell } from "../../components/ui";
 import { category, formatsFor, FORMAT_WHY } from "../../play/categories";
 import { formatMeta } from "../../play/formats";
@@ -14,6 +16,9 @@ const item = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transiti
 export default function CategoryPage() {
   const { pool } = useParams<{ pool: string }>();
   const cat = category(pool);
+  useEffect(() => {
+    if (cat) track("category_opened", { pool });
+  }, [cat, pool]);
   if (!cat) return notFound();
   const formats = formatsFor(pool);
   const rec = new Map(cat.recommended.map((r) => [r.format, r.why]));

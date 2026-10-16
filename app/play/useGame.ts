@@ -5,6 +5,7 @@ import { applyAction, initGame, poolFor, type Action, type GameState } from "../
 import type { Item } from "../topicDraft/types";
 import type { GameSetup } from "./types";
 import { useRunState } from "./useRunState";
+import { trackAction } from "./trackAction";
 
 /** One interface for local and online play: views read `state` and send `dispatch(action)`. */
 export type GameCtl = {
@@ -27,7 +28,13 @@ export function useLocalGame(setup: GameSetup): GameCtl {
   const [state, setState, finish] = useRunState<GameState>(setup.id, () => initGame(setup, Date.now()));
   const pool = useMemo(() => poolFor(setup), [setup]);
   const map = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
-  const dispatch = useCallback((a: Action) => setState((s) => applyAction(setup, s, a, Date.now())), [setState, setup]);
+  const dispatch = useCallback(
+    (a: Action) => {
+      trackAction(setup, a, false);
+      setState((s) => applyAction(setup, s, a, Date.now()));
+    },
+    [setState, setup]
+  );
   const isAi = useCallback((p: string | null) => !!p && setup.aiPlayers.includes(p), [setup.aiPlayers]);
   return { state, dispatch, me: null, online: false, finish, offset: 0, pool, byId: (id) => map.get(id), controls: (p) => !!p && !setup.aiPlayers.includes(p), isAi };
 }

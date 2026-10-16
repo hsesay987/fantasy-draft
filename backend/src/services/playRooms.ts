@@ -3,6 +3,7 @@
 // runs the exact same engines as the browser (backend/src/shared is generated from the web app).
 import crypto from "crypto";
 import { getIo } from "../socket";
+import { trackServer } from "../lib/monitoring";
 import { judge, type Verdict } from "./judge.service";
 import { applyAction, buildTeams, currentTurn, initGame, isDone, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
 import { CATALOG_META, getCatalog } from "../shared/topicDraft/catalogs";
@@ -150,6 +151,7 @@ export function createRoom(input: unknown, hostName: string): { room: Room; seat
   const seat: Seat = { name, token: crypto.randomBytes(16).toString("hex"), left: false };
   const room: Room = { code: code(), setup: { ...setup, id: `room-${Date.now()}`, players: [name] }, seats: [seat], status: "lobby", state: null, turnMarker: "", turnStartedAt: 0, verdict: null, version: 1, createdAt: Date.now(), touchedAt: Date.now() };
   rooms.set(room.code, room);
+  trackServer("room_created_server", { format: setup.format, pool: setup.pool }, room.code);
   return { room, seat };
 }
 
@@ -178,6 +180,7 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
   room.setup = { ...room.setup, players: room.seats.map((s) => s.name), seed: (Math.random() * 2 ** 31) | 0 };
   room.state = initGame(room.setup, Date.now());
   room.status = "playing";
+  trackServer("room_started", { format: room.setup.format, pool: room.setup.pool, seats: room.seats.length }, room.code);
   room.turnMarker = turnMarker(room.setup, room.state);
   room.turnStartedAt = Date.now();
   bump(room);
@@ -228,6 +231,7 @@ function commit(room: Room, next: GameState) {
 
 function finish(room: Room) {
   room.status = "done";
+  trackServer("room_finished", { format: room.setup.format, pool: room.setup.pool, seats: room.seats.length, duration_s: Math.round((Date.now() - room.createdAt) / 1000), left: room.seats.filter((s) => s.left).length }, room.code);
   const { teams } = buildTeams(room.setup, room.state!);
   const m = room.setup.mission;
   judge({ game: room.setup.format, scenario: { title: m.title, blurb: m.blurb, weights: m.weights }, teams: teams as any })

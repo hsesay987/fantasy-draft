@@ -15,6 +15,7 @@ import { CATEGORIES, category, formatsFor } from "./categories";
 import { DEFAULT_OPTS, type FormatId, type GameSetup, type Opts } from "./types";
 import { loadPrefs, resumable, saveSetup, savePrefs } from "./storage";
 import { createRoom, saveToken } from "./onlineApi";
+import { track } from "../lib/analytics";
 import { BossPicker, Collapse, CustomItems, Field, LoadoutEditor, RolesEditor, Stepper, inputCls } from "./setupParts";
 
 type Mode = "solo" | "ai" | "local" | "online";
@@ -82,6 +83,11 @@ export default function SetupScreen() {
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
+    track("game_setup_started", { format, pool: initialPool });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     const p = loadPrefs();
     if (p.name) setName(p.name);
     setResume(resumable()?.setup ?? null);
@@ -144,6 +150,7 @@ export default function SetupScreen() {
       seed: newSeed(),
     };
     savePrefs({ pool, name });
+    track("game_started", { format, pool: setup.pool, mode, roll: opts.roll || format === "spin", mystery, preset, team_size: format === "loadout" ? loadout.slots.length : opts.teamSize, players: players.length });
     if (mode === "online") {
       setCreating(true);
       setNetError(null);
@@ -151,6 +158,7 @@ export default function SetupScreen() {
       setCreating(false);
       if (!r.ok) return setNetError(r.data.error ?? "Couldn't create the room");
       saveToken(r.data.code, r.data.token);
+      track("room_created", { format, pool: setup.pool, seats_max: 6 });
       router.push(`/room/${r.data.code}`);
       return;
     }

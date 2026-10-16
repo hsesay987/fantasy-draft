@@ -4,16 +4,21 @@ import { useEffect, useState } from "react";
 import { Confetti } from "../../components/Confetti";
 import { useCountUp } from "../../components/useCountUp";
 import { useSound } from "../../components/SoundProvider";
+import { track } from "../../lib/analytics";
 import { motion } from "motion/react";
 import { Crown, Bot, RotateCcw, Share2, Repeat } from "lucide-react";
 import { Button, Card } from "../../components/ui";
 import type { Verdict } from "../../play/judging";
 
-export function VerdictView({ verdict, loading, onAgain, onRematch, extra, shareText, mission }: { verdict: Verdict | null; loading: boolean; onAgain: () => void; onRematch?: () => void; extra?: React.ReactNode; shareText?: string; mission?: string }) {
+export function VerdictView({ verdict, loading, onAgain, onRematch, extra, shareText, mission, format }: { verdict: Verdict | null; loading: boolean; onAgain: () => void; onRematch?: () => void; extra?: React.ReactNode; shareText?: string; mission?: string; format?: string }) {
   const [copied, setCopied] = useState(false);
   const { play } = useSound();
   useEffect(() => {
-    if (verdict) play("win");
+    if (verdict) {
+      play("win");
+      const sorted = [...verdict.teams].sort((a, b) => b.score - a.score);
+      track("verdict_shown", { format, source: verdict.source, winner_score: Math.round(sorted[0]?.score ?? 0), margin: sorted[1] ? Math.round(sorted[0]!.score - sorted[1].score) : null, players: sorted.length });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!verdict]);
   if (loading || !verdict) {
@@ -105,10 +110,10 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
       ) : null}
       {extra}
       <div className="flex flex-wrap justify-center gap-3">
-        {onRematch && <Button onClick={onRematch}><Repeat className="h-4 w-4" aria-hidden /> Rematch</Button>}
+        {onRematch && <Button onClick={() => { track("rematch_clicked", { format }); onRematch(); }}><Repeat className="h-4 w-4" aria-hidden /> Rematch</Button>}
         <Button variant="ghost" onClick={onAgain}><RotateCcw className="h-4 w-4" aria-hidden /> New game</Button>
         {shareText && (
-          <Button variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(shareText); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* clipboard blocked */ } }}>
+          <Button variant="ghost" onClick={async () => { try { await navigator.clipboard.writeText(shareText); track("share_clicked", { format }); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* clipboard blocked */ } }}>
             <Share2 className="h-4 w-4" aria-hidden /> {copied ? "Copied!" : "Copy result"}
           </Button>
         )}

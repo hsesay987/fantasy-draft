@@ -5,6 +5,7 @@ import { io, type Socket } from "socket.io-client";
 import { applyAction, poolFor, type Action } from "../topicDraft/core";
 import { API_URL, getRoom, loadToken, sendAction, type RoomSnapshot } from "./onlineApi";
 import type { GameCtl } from "./useGame";
+import { trackAction } from "./trackAction";
 
 /** Live view of an online room: polls + socket pushes, with optimistic local moves. */
 export function useRemoteRoom(code: string) {
@@ -13,6 +14,8 @@ export function useRemoteRoom(code: string) {
   const [offset, setOffset] = useState(0);
   const token = useRef<string | null>(null);
   const latest = useRef(0);
+  const snapRef = useRef<RoomSnapshot | null>(null);
+  snapRef.current = snap;
 
   const accept = useCallback((s: RoomSnapshot) => {
     if (s.version < latest.current) return; // stale response
@@ -49,6 +52,7 @@ export function useRemoteRoom(code: string) {
     (a: Action) => {
       const tk = token.current ?? loadToken(code);
       if (!tk) return;
+      if (snapRef.current) trackAction(snapRef.current.setup, a, true);
       // Optimistic: apply locally right away, then take the server's answer.
       setSnap((cur) => (cur?.state && cur.setup ? { ...cur, state: applyAction(cur.setup, cur.state, a, Date.now() + offset) } : cur));
       void sendAction(code, tk, a).then((r) => {
