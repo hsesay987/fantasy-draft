@@ -10,9 +10,29 @@ export const HISTORY_MISSIONS: Scenario[] = [
   { id: "all-around-history", title: "Greatest All-Round Team", blurb: "No mission. Pure greatness.", weights: { leadership: 1, intellect: 1, courage: 1, influence: 1, charisma: 1, strategy: 1 } },
 ];
 
+export const FOOTBALL_MISSIONS: Scenario[] = [
+  { id: "world-cup-final", title: "Win the World Cup Final", blurb: "One match, everything on the line. Balance and nerve.", weights: { shooting: 2.5, passing: 2, defending: 2, dribbling: 1.5, pace: 1.5, physical: 1.5 } },
+  { id: "counter-attack", title: "Lethal Counter-Attack", blurb: "Win the ball, burn them on the break.", weights: { pace: 3, shooting: 2.5, dribbling: 2, passing: 1.5, defending: 0.5, physical: 1 } },
+  { id: "tiki-taka", title: "Tiki-Taka Masterclass", blurb: "Own the ball, pass them to sleep.", weights: { passing: 3, dribbling: 2.5, shooting: 1, pace: 0.5, defending: 1, physical: 0.5 } },
+  { id: "park-the-bus", title: "Park the Bus", blurb: "Nothing gets through. Defend and hit hard.", weights: { defending: 3, physical: 2.5, passing: 1, pace: 1, shooting: 0.5, dribbling: 0.5 } },
+  { id: "penalty-shootout", title: "Survive a Penalty Shootout", blurb: "Cool heads, clean strikes.", weights: { shooting: 3, physical: 1.5, passing: 1, dribbling: 1, defending: 1.5, pace: 0.5 } },
+  { id: "all-around-football", title: "Greatest All-Round XI", blurb: "No tactic. Pure quality.", weights: { pace: 1, shooting: 1, passing: 1, dribbling: 1, defending: 1, physical: 1 } },
+];
+
+export const SCREEN_MISSIONS: Scenario[] = [
+  { id: "movie-night", title: "Perfect Movie Night", blurb: "Friends, popcorn, zero regrets.", weights: { fun: 3, rewatch: 2, visuals: 1.5, story: 1.5, acting: 1, impact: 1 } },
+  { id: "awards-season", title: "Sweep the Awards", blurb: "Critics want story and performances.", weights: { story: 3, acting: 3, impact: 2, visuals: 1, rewatch: 0.5, fun: 0.5 } },
+  { id: "time-capsule", title: "Fill a Time Capsule", blurb: "What should future humans watch?", weights: { impact: 3, story: 2, acting: 1.5, rewatch: 1.5, visuals: 1, fun: 1 } },
+  { id: "binge-weekend", title: "Weekend Binge", blurb: "Hard to stop, easy to rewatch.", weights: { rewatch: 3, fun: 2.5, story: 1.5, acting: 1, visuals: 1, impact: 0.5 } },
+  { id: "spectacle", title: "Pure Spectacle", blurb: "Big screen, big sound, big eyes.", weights: { visuals: 3, fun: 2, impact: 1.5, story: 1, acting: 0.5, rewatch: 1 } },
+  { id: "all-around-screen", title: "Greatest All-Round Watchlist", blurb: "No theme. Pure greatness.", weights: { story: 1, acting: 1, visuals: 1, rewatch: 1, impact: 1, fun: 1 } },
+];
+
 /** Missions that suit a character pool's stat keys. */
 export function missionsFor(poolId: string): Scenario[] {
   const keys = catalogMeta(poolId)?.statKeys ?? [];
+  if (keys.includes("shooting")) return FOOTBALL_MISSIONS;
+  if (keys.includes("story")) return SCREEN_MISSIONS;
   return keys.includes("leadership") ? HISTORY_MISSIONS : SCENARIOS;
 }
 
@@ -25,6 +45,8 @@ export function customMission(poolId: string, title: string, blurb: string): Sce
 
 const METRIC_LABEL: Record<string, string> = {
   power: "Strongest", intellect: "Smartest", speed: "Fastest", durability: "Toughest", combat: "Best fighter", teamwork: "Best teammate",
+  pace: "Fastest", shooting: "Best finisher", passing: "Best passer", dribbling: "Best dribbler", defending: "Best defender", physical: "Strongest",
+  story: "Best story", acting: "Best acting", visuals: "Best visuals", rewatch: "Most rewatchable", fun: "Most fun",
   leadership: "Best leader", courage: "Bravest", influence: "Most influential", charisma: "Most charming", strategy: "Best strategist",
 };
 

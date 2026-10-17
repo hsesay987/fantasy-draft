@@ -67,6 +67,21 @@ export const CATEGORIES: Category[] = [
     recommended: [{ format: "position", why: "Fill a cabinet" }, { format: "blind", why: "Rank the greatest minds" }],
     defaults: { teamSize: 5, missionId: "dinner-party", rankSize: 6, timerSeconds: 30, budget: 25 },
   },
+  {
+    id: "football", title: "International Football", blurb: "World Cup legends and today\u2019s stars.", iconSrc: "/icons/soccer.svg", gradient: "from-green-600/40 to-accent/20",
+    recommended: [{ format: "position", why: "Pick your starting XI by position" }, { format: "auction", why: "Bid for the biggest names" }],
+    defaults: { teamSize: 5, missionId: "world-cup-final", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
+  {
+    id: "films", title: "Films", blurb: "Classics, blockbusters and cult hits.", iconSrc: "/icons/film.svg", gradient: "from-red-700/40 to-primary/20",
+    recommended: [{ format: "blind", why: "Rank the best of the best" }, { format: "position", why: "Plan a perfect movie marathon" }],
+    defaults: { teamSize: 5, missionId: "movie-night", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
+  {
+    id: "shows", title: "TV Shows", blurb: "Binge-worthy series, all genres.", iconSrc: "/icons/tv.svg", gradient: "from-cyan-600/40 to-primary/20",
+    recommended: [{ format: "blind", why: "Rank the greatest series" }, { format: "snake", why: "Draft your ultimate watchlist" }],
+    defaults: { teamSize: 5, missionId: "binge-weekend", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
 ];
 
 /** Spin Draft is the default way in for every topic; each topic's other best fits follow it. */

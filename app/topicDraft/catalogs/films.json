@@ -1,0 +1,1083 @@
+[
+ {
+  "id": "the-godfather",
+  "name": "The Godfather",
+  "universe": "Crime",
+  "archetype": "Drama",
+  "stats": {
+   "story": 99,
+   "acting": 99,
+   "visuals": 85,
+   "rewatch": 96,
+   "impact": 99,
+   "fun": 70
+  },
+  "tags": [
+   "classic",
+   "crime"
+  ]
+ },
+ {
+  "id": "the-shawshank-redemption",
+  "name": "The Shawshank Redemption",
+  "universe": "Drama",
+  "archetype": "Drama",
+  "stats": {
+   "story": 98,
+   "acting": 96,
+   "visuals": 75,
+   "rewatch": 97,
+   "impact": 95,
+   "fun": 75
+  },
+  "tags": [
+   "classic",
+   "drama"
+  ]
+ },
+ {
+  "id": "the-dark-knight",
+  "name": "The Dark Knight",
+  "universe": "Action",
+  "archetype": "Superhero",
+  "stats": {
+   "story": 95,
+   "acting": 97,
+   "visuals": 92,
+   "rewatch": 95,
+   "impact": 96,
+   "fun": 92
+  },
+  "tags": [
+   "action",
+   "superhero"
+  ]
+ },
+ {
+  "id": "pulp-fiction",
+  "name": "Pulp Fiction",
+  "universe": "Crime",
+  "archetype": "Drama",
+  "stats": {
+   "story": 96,
+   "acting": 95,
+   "visuals": 80,
+   "rewatch": 97,
+   "impact": 95,
+   "fun": 88
+  },
+  "tags": [
+   "classic",
+   "crime"
+  ]
+ },
+ {
+  "id": "inception",
+  "name": "Inception",
+  "universe": "Sci-Fi",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 94,
+   "acting": 88,
+   "visuals": 97,
+   "rewatch": 92,
+   "impact": 92,
+   "fun": 92
+  },
+  "tags": [
+   "scifi",
+   "mindbender"
+  ]
+ },
+ {
+  "id": "the-matrix",
+  "name": "The Matrix",
+  "universe": "Sci-Fi",
+  "archetype": "Action",
+  "stats": {
+   "story": 92,
+   "acting": 85,
+   "visuals": 97,
+   "rewatch": 93,
+   "impact": 96,
+   "fun": 93
+  },
+  "tags": [
+   "scifi",
+   "action"
+  ]
+ },
+ {
+  "id": "forrest-gump",
+  "name": "Forrest Gump",
+  "universe": "Drama",
+  "archetype": "Drama",
+  "stats": {
+   "story": 93,
+   "acting": 96,
+   "visuals": 78,
+   "rewatch": 88,
+   "impact": 93,
+   "fun": 85
+  },
+  "tags": [
+   "drama",
+   "feelgood"
+  ]
+ },
+ {
+  "id": "star-wars-a-new-hope",
+  "name": "Star Wars: A New Hope",
+  "universe": "Sci-Fi",
+  "archetype": "Adventure",
+  "stats": {
+   "story": 88,
+   "acting": 80,
+   "visuals": 90,
+   "rewatch": 95,
+   "impact": 99,
+   "fun": 95
+  },
+  "tags": [
+   "scifi",
+   "classic"
+  ]
+ },
+ {
+  "id": "jurassic-park",
+  "name": "Jurassic Park",
+  "universe": "Adventure",
+  "archetype": "Adventure",
+  "stats": {
+   "story": 86,
+   "acting": 82,
+   "visuals": 96,
+   "rewatch": 94,
+   "impact": 93,
+   "fun": 96
+  },
+  "tags": [
+   "adventure",
+   "classic"
+  ]
+ },
+ {
+  "id": "titanic",
+  "name": "Titanic",
+  "universe": "Romance",
+  "archetype": "Drama",
+  "stats": {
+   "story": 85,
+   "acting": 90,
+   "visuals": 95,
+   "rewatch": 82,
+   "impact": 94,
+   "fun": 80
+  },
+  "tags": [
+   "romance",
+   "epic"
+  ]
+ },
+ {
+  "id": "avatar",
+  "name": "Avatar",
+  "universe": "Sci-Fi",
+  "archetype": "Adventure",
+  "stats": {
+   "story": 70,
+   "acting": 78,
+   "visuals": 100,
+   "rewatch": 75,
+   "impact": 90,
+   "fun": 85
+  },
+  "tags": [
+   "scifi",
+   "visual"
+  ]
+ },
+ {
+  "id": "avengers-endgame",
+  "name": "Avengers: Endgame",
+  "universe": "Action",
+  "archetype": "Superhero",
+  "stats": {
+   "story": 85,
+   "acting": 88,
+   "visuals": 94,
+   "rewatch": 86,
+   "impact": 95,
+   "fun": 96
+  },
+  "tags": [
+   "superhero",
+   "epic"
+  ]
+ },
+ {
+  "id": "parasite",
+  "name": "Parasite",
+  "universe": "Thriller",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 97,
+   "acting": 95,
+   "visuals": 90,
+   "rewatch": 85,
+   "impact": 95,
+   "fun": 82
+  },
+  "tags": [
+   "thriller",
+   "modern"
+  ]
+ },
+ {
+  "id": "interstellar",
+  "name": "Interstellar",
+  "universe": "Sci-Fi",
+  "archetype": "Drama",
+  "stats": {
+   "story": 88,
+   "acting": 90,
+   "visuals": 98,
+   "rewatch": 85,
+   "impact": 92,
+   "fun": 80
+  },
+  "tags": [
+   "scifi",
+   "emotional"
+  ]
+ },
+ {
+  "id": "fight-club",
+  "name": "Fight Club",
+  "universe": "Drama",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 92,
+   "acting": 93,
+   "visuals": 85,
+   "rewatch": 96,
+   "impact": 90,
+   "fun": 88
+  },
+  "tags": [
+   "cult",
+   "mindbender"
+  ]
+ },
+ {
+  "id": "gladiator",
+  "name": "Gladiator",
+  "universe": "Action",
+  "archetype": "Epic",
+  "stats": {
+   "story": 88,
+   "acting": 92,
+   "visuals": 92,
+   "rewatch": 90,
+   "impact": 92,
+   "fun": 92
+  },
+  "tags": [
+   "epic",
+   "action"
+  ]
+ },
+ {
+  "id": "the-lord-of-the-rings-the-return-of-the-king",
+  "name": "The Lord of the Rings: The Return of the King",
+  "universe": "Fantasy",
+  "archetype": "Epic",
+  "stats": {
+   "story": 92,
+   "acting": 90,
+   "visuals": 97,
+   "rewatch": 94,
+   "impact": 96,
+   "fun": 90
+  },
+  "tags": [
+   "fantasy",
+   "epic"
+  ]
+ },
+ {
+  "id": "back-to-the-future",
+  "name": "Back to the Future",
+  "universe": "Sci-Fi",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 93,
+   "acting": 88,
+   "visuals": 80,
+   "rewatch": 98,
+   "impact": 92,
+   "fun": 98
+  },
+  "tags": [
+   "scifi",
+   "feelgood"
+  ]
+ },
+ {
+  "id": "toy-story",
+  "name": "Toy Story",
+  "universe": "Animation",
+  "archetype": "Family",
+  "stats": {
+   "story": 92,
+   "acting": 88,
+   "visuals": 86,
+   "rewatch": 95,
+   "impact": 94,
+   "fun": 96
+  },
+  "tags": [
+   "animation",
+   "feelgood"
+  ]
+ },
+ {
+  "id": "the-lion-king",
+  "name": "The Lion King",
+  "universe": "Animation",
+  "archetype": "Family",
+  "stats": {
+   "story": 90,
+   "acting": 90,
+   "visuals": 92,
+   "rewatch": 94,
+   "impact": 96,
+   "fun": 92
+  },
+  "tags": [
+   "animation",
+   "classic"
+  ]
+ },
+ {
+  "id": "spirited-away",
+  "name": "Spirited Away",
+  "universe": "Animation",
+  "archetype": "Fantasy",
+  "stats": {
+   "story": 92,
+   "acting": 88,
+   "visuals": 98,
+   "rewatch": 90,
+   "impact": 94,
+   "fun": 85
+  },
+  "tags": [
+   "animation",
+   "fantasy"
+  ]
+ },
+ {
+  "id": "schindler-s-list",
+  "name": "Schindler's List",
+  "universe": "Drama",
+  "archetype": "Historical",
+  "stats": {
+   "story": 97,
+   "acting": 98,
+   "visuals": 90,
+   "rewatch": 60,
+   "impact": 99,
+   "fun": 30
+  },
+  "tags": [
+   "drama",
+   "historical"
+  ]
+ },
+ {
+  "id": "goodfellas",
+  "name": "Goodfellas",
+  "universe": "Crime",
+  "archetype": "Drama",
+  "stats": {
+   "story": 93,
+   "acting": 96,
+   "visuals": 85,
+   "rewatch": 95,
+   "impact": 92,
+   "fun": 88
+  },
+  "tags": [
+   "crime",
+   "classic"
+  ]
+ },
+ {
+  "id": "se7en",
+  "name": "Se7en",
+  "universe": "Thriller",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 95,
+   "acting": 93,
+   "visuals": 88,
+   "rewatch": 86,
+   "impact": 88,
+   "fun": 72
+  },
+  "tags": [
+   "thriller",
+   "dark"
+  ]
+ },
+ {
+  "id": "the-silence-of-the-lambs",
+  "name": "The Silence of the Lambs",
+  "universe": "Thriller",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 94,
+   "acting": 98,
+   "visuals": 80,
+   "rewatch": 88,
+   "impact": 92,
+   "fun": 70
+  },
+  "tags": [
+   "thriller",
+   "classic"
+  ]
+ },
+ {
+  "id": "whiplash",
+  "name": "Whiplash",
+  "universe": "Drama",
+  "archetype": "Drama",
+  "stats": {
+   "story": 90,
+   "acting": 97,
+   "visuals": 82,
+   "rewatch": 88,
+   "impact": 85,
+   "fun": 75
+  },
+  "tags": [
+   "drama",
+   "intense"
+  ]
+ },
+ {
+  "id": "mad-max-fury-road",
+  "name": "Mad Max: Fury Road",
+  "universe": "Action",
+  "archetype": "Action",
+  "stats": {
+   "story": 70,
+   "acting": 84,
+   "visuals": 99,
+   "rewatch": 92,
+   "impact": 88,
+   "fun": 96
+  },
+  "tags": [
+   "action",
+   "visual"
+  ]
+ },
+ {
+  "id": "terminator-2-judgment-day",
+  "name": "Terminator 2: Judgment Day",
+  "universe": "Action",
+  "archetype": "Sci-Fi",
+  "stats": {
+   "story": 85,
+   "acting": 86,
+   "visuals": 94,
+   "rewatch": 94,
+   "impact": 93,
+   "fun": 94
+  },
+  "tags": [
+   "action",
+   "scifi"
+  ]
+ },
+ {
+  "id": "alien",
+  "name": "Alien",
+  "universe": "Horror",
+  "archetype": "Sci-Fi",
+  "stats": {
+   "story": 85,
+   "acting": 86,
+   "visuals": 92,
+   "rewatch": 92,
+   "impact": 94,
+   "fun": 70
+  },
+  "tags": [
+   "horror",
+   "scifi"
+  ]
+ },
+ {
+  "id": "die-hard",
+  "name": "Die Hard",
+  "universe": "Action",
+  "archetype": "Action",
+  "stats": {
+   "story": 84,
+   "acting": 86,
+   "visuals": 85,
+   "rewatch": 96,
+   "impact": 90,
+   "fun": 98
+  },
+  "tags": [
+   "action",
+   "classic"
+  ]
+ },
+ {
+  "id": "the-princess-bride",
+  "name": "The Princess Bride",
+  "universe": "Fantasy",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 88,
+   "acting": 86,
+   "visuals": 78,
+   "rewatch": 96,
+   "impact": 86,
+   "fun": 97
+  },
+  "tags": [
+   "fantasy",
+   "feelgood"
+  ]
+ },
+ {
+  "id": "superbad",
+  "name": "Superbad",
+  "universe": "Comedy",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 78,
+   "acting": 82,
+   "visuals": 60,
+   "rewatch": 92,
+   "impact": 72,
+   "fun": 98
+  },
+  "tags": [
+   "comedy",
+   "teen"
+  ]
+ },
+ {
+  "id": "anchorman",
+  "name": "Anchorman",
+  "universe": "Comedy",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 65,
+   "acting": 88,
+   "visuals": 55,
+   "rewatch": 94,
+   "impact": 75,
+   "fun": 98
+  },
+  "tags": [
+   "comedy",
+   "cult"
+  ]
+ },
+ {
+  "id": "get-out",
+  "name": "Get Out",
+  "universe": "Horror",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 94,
+   "acting": 90,
+   "visuals": 82,
+   "rewatch": 88,
+   "impact": 90,
+   "fun": 78
+  },
+  "tags": [
+   "horror",
+   "modern"
+  ]
+ },
+ {
+  "id": "a-quiet-place",
+  "name": "A Quiet Place",
+  "universe": "Horror",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 82,
+   "acting": 86,
+   "visuals": 86,
+   "rewatch": 70,
+   "impact": 78,
+   "fun": 74
+  },
+  "tags": [
+   "horror",
+   "modern"
+  ]
+ },
+ {
+  "id": "oppenheimer",
+  "name": "Oppenheimer",
+  "universe": "Drama",
+  "archetype": "Historical",
+  "stats": {
+   "story": 88,
+   "acting": 94,
+   "visuals": 96,
+   "rewatch": 70,
+   "impact": 92,
+   "fun": 60
+  },
+  "tags": [
+   "drama",
+   "historical",
+   "modern"
+  ]
+ },
+ {
+  "id": "barbie",
+  "name": "Barbie",
+  "universe": "Comedy",
+  "archetype": "Fantasy",
+  "stats": {
+   "story": 72,
+   "acting": 84,
+   "visuals": 94,
+   "rewatch": 74,
+   "impact": 88,
+   "fun": 88
+  },
+  "tags": [
+   "comedy",
+   "modern"
+  ]
+ },
+ {
+  "id": "dune-part-two",
+  "name": "Dune: Part Two",
+  "universe": "Sci-Fi",
+  "archetype": "Epic",
+  "stats": {
+   "story": 82,
+   "acting": 86,
+   "visuals": 100,
+   "rewatch": 84,
+   "impact": 86,
+   "fun": 86
+  },
+  "tags": [
+   "scifi",
+   "visual"
+  ]
+ },
+ {
+  "id": "everything-everywhere-all-at-once",
+  "name": "Everything Everywhere All at Once",
+  "universe": "Sci-Fi",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 92,
+   "acting": 94,
+   "visuals": 92,
+   "rewatch": 88,
+   "impact": 90,
+   "fun": 92
+  },
+  "tags": [
+   "scifi",
+   "mindbender"
+  ]
+ },
+ {
+  "id": "spider-man-into-the-spider-verse",
+  "name": "Spider-Man: Into the Spider-Verse",
+  "universe": "Animation",
+  "archetype": "Superhero",
+  "stats": {
+   "story": 90,
+   "acting": 88,
+   "visuals": 100,
+   "rewatch": 94,
+   "impact": 92,
+   "fun": 96
+  },
+  "tags": [
+   "animation",
+   "superhero"
+  ]
+ },
+ {
+  "id": "finding-nemo",
+  "name": "Finding Nemo",
+  "universe": "Animation",
+  "archetype": "Family",
+  "stats": {
+   "story": 88,
+   "acting": 86,
+   "visuals": 92,
+   "rewatch": 92,
+   "impact": 92,
+   "fun": 94
+  },
+  "tags": [
+   "animation",
+   "feelgood"
+  ]
+ },
+ {
+  "id": "up",
+  "name": "Up",
+  "universe": "Animation",
+  "archetype": "Family",
+  "stats": {
+   "story": 92,
+   "acting": 90,
+   "visuals": 90,
+   "rewatch": 80,
+   "impact": 94,
+   "fun": 86
+  },
+  "tags": [
+   "animation",
+   "emotional"
+  ]
+ },
+ {
+  "id": "inglourious-basterds",
+  "name": "Inglourious Basterds",
+  "universe": "War",
+  "archetype": "Drama",
+  "stats": {
+   "story": 90,
+   "acting": 94,
+   "visuals": 86,
+   "rewatch": 90,
+   "impact": 86,
+   "fun": 88
+  },
+  "tags": [
+   "war",
+   "crime"
+  ]
+ },
+ {
+  "id": "saving-private-ryan",
+  "name": "Saving Private Ryan",
+  "universe": "War",
+  "archetype": "Drama",
+  "stats": {
+   "story": 88,
+   "acting": 92,
+   "visuals": 92,
+   "rewatch": 80,
+   "impact": 94,
+   "fun": 60
+  },
+  "tags": [
+   "war",
+   "intense"
+  ]
+ },
+ {
+  "id": "the-departed",
+  "name": "The Departed",
+  "universe": "Crime",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 91,
+   "acting": 95,
+   "visuals": 85,
+   "rewatch": 90,
+   "impact": 88,
+   "fun": 88
+  },
+  "tags": [
+   "crime",
+   "thriller"
+  ]
+ },
+ {
+  "id": "casablanca",
+  "name": "Casablanca",
+  "universe": "Romance",
+  "archetype": "Classic",
+  "stats": {
+   "story": 93,
+   "acting": 95,
+   "visuals": 70,
+   "rewatch": 88,
+   "impact": 96,
+   "fun": 70
+  },
+  "tags": [
+   "classic",
+   "romance"
+  ]
+ },
+ {
+  "id": "citizen-kane",
+  "name": "Citizen Kane",
+  "universe": "Drama",
+  "archetype": "Classic",
+  "stats": {
+   "story": 95,
+   "acting": 92,
+   "visuals": 85,
+   "rewatch": 70,
+   "impact": 98,
+   "fun": 40
+  },
+  "tags": [
+   "classic",
+   "drama"
+  ]
+ },
+ {
+  "id": "ratatouille",
+  "name": "Ratatouille",
+  "universe": "Animation",
+  "archetype": "Family",
+  "stats": {
+   "story": 88,
+   "acting": 86,
+   "visuals": 92,
+   "rewatch": 90,
+   "impact": 86,
+   "fun": 92
+  },
+  "tags": [
+   "animation",
+   "feelgood"
+  ]
+ },
+ {
+  "id": "home-alone",
+  "name": "Home Alone",
+  "universe": "Comedy",
+  "archetype": "Family",
+  "stats": {
+   "story": 78,
+   "acting": 82,
+   "visuals": 70,
+   "rewatch": 98,
+   "impact": 90,
+   "fun": 100
+  },
+  "tags": [
+   "comedy",
+   "feelgood"
+  ]
+ },
+ {
+  "id": "the-social-network",
+  "name": "The Social Network",
+  "universe": "Drama",
+  "archetype": "Drama",
+  "stats": {
+   "story": 92,
+   "acting": 92,
+   "visuals": 80,
+   "rewatch": 86,
+   "impact": 88,
+   "fun": 74
+  },
+  "tags": [
+   "drama",
+   "modern"
+  ]
+ },
+ {
+  "id": "black-panther",
+  "name": "Black Panther",
+  "universe": "Action",
+  "archetype": "Superhero",
+  "stats": {
+   "story": 78,
+   "acting": 86,
+   "visuals": 94,
+   "rewatch": 80,
+   "impact": 92,
+   "fun": 88
+  },
+  "tags": [
+   "superhero",
+   "modern"
+  ]
+ },
+ {
+  "id": "top-gun-maverick",
+  "name": "Top Gun: Maverick",
+  "universe": "Action",
+  "archetype": "Action",
+  "stats": {
+   "story": 72,
+   "acting": 84,
+   "visuals": 96,
+   "rewatch": 88,
+   "impact": 86,
+   "fun": 96
+  },
+  "tags": [
+   "action",
+   "modern"
+  ]
+ },
+ {
+  "id": "joker",
+  "name": "Joker",
+  "universe": "Drama",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 82,
+   "acting": 99,
+   "visuals": 88,
+   "rewatch": 78,
+   "impact": 92,
+   "fun": 50
+  },
+  "tags": [
+   "dark",
+   "modern"
+  ]
+ },
+ {
+  "id": "shrek",
+  "name": "Shrek",
+  "universe": "Animation",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 84,
+   "acting": 86,
+   "visuals": 82,
+   "rewatch": 96,
+   "impact": 92,
+   "fun": 98
+  },
+  "tags": [
+   "animation",
+   "comedy"
+  ]
+ },
+ {
+  "id": "harry-potter-and-the-prisoner-of-azkaban",
+  "name": "Harry Potter and the Prisoner of Azkaban",
+  "universe": "Fantasy",
+  "archetype": "Adventure",
+  "stats": {
+   "story": 84,
+   "acting": 84,
+   "visuals": 92,
+   "rewatch": 92,
+   "impact": 90,
+   "fun": 90
+  },
+  "tags": [
+   "fantasy",
+   "family"
+  ]
+ },
+ {
+  "id": "rocky",
+  "name": "Rocky",
+  "universe": "Drama",
+  "archetype": "Sports",
+  "stats": {
+   "story": 86,
+   "acting": 90,
+   "visuals": 70,
+   "rewatch": 90,
+   "impact": 92,
+   "fun": 86
+  },
+  "tags": [
+   "sports",
+   "classic"
+  ]
+ },
+ {
+  "id": "l-on-the-professional",
+  "name": "Léon: The Professional",
+  "universe": "Crime",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 86,
+   "acting": 92,
+   "visuals": 80,
+   "rewatch": 90,
+   "impact": 88,
+   "fun": 80
+  },
+  "tags": [
+   "crime",
+   "cult"
+  ]
+ },
+ {
+  "id": "the-big-lebowski",
+  "name": "The Big Lebowski",
+  "universe": "Comedy",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 72,
+   "acting": 94,
+   "visuals": 65,
+   "rewatch": 98,
+   "impact": 86,
+   "fun": 96
+  },
+  "tags": [
+   "comedy",
+   "cult"
+  ]
+ },
+ {
+  "id": "memento",
+  "name": "Memento",
+  "universe": "Thriller",
+  "archetype": "Mystery",
+  "stats": {
+   "story": 93,
+   "acting": 86,
+   "visuals": 80,
+   "rewatch": 88,
+   "impact": 86,
+   "fun": 70
+  },
+  "tags": [
+   "mindbender",
+   "thriller"
+  ]
+ },
+ {
+  "id": "coco",
+  "name": "Coco",
+  "universe": "Animation",
+  "archetype": "Family",
+  "stats": {
+   "story": 88,
+   "acting": 86,
+   "visuals": 96,
+   "rewatch": 86,
+   "impact": 90,
+   "fun": 88
+  },
+  "tags": [
+   "animation",
+   "emotional"
+  ]
+ }
+]

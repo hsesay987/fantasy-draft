@@ -8,7 +8,7 @@ import type { Item, Scenario } from "./types";
 
 const best = (pool: Item[], m: Scenario, n = 5) => [...pool].sort((a, b) => itemScore(b, m.weights) - itemScore(a, m.weights)).slice(0, n);
 
-const POOLS = ["superheroes", "villains", "heroes-villains", "anime", "pokemon", "videogames", "disney", "movies", "history"];
+const POOLS = ["superheroes", "villains", "heroes-villains", "anime", "pokemon", "videogames", "disney", "movies", "history", "football", "films", "shows"];
 
 describe("missions change team scores", () => {
   for (const pool of POOLS) {

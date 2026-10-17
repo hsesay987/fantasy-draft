@@ -7,6 +7,9 @@ import pokemon from "./pokemon.json";
 import disney from "./disney.json";
 import movies from "./movies.json";
 import history from "./history.json";
+import football from "./football.json";
+import films from "./films.json";
+import shows from "./shows.json";
 import weapons from "./weapons.json";
 import gadgets from "./gadgets.json";
 import allies from "./allies.json";
@@ -33,7 +36,7 @@ const dedupe = (...lists: Item[][]): Item[] => {
 
 /** Which public image source suits each pool (none = initials avatar). Query format: "kind:name". */
 const IMAGE_KIND: Record<string, string> = {
-  superheroes: "hero", villains: "hero", "heroes-villains": "hero", anime: "anilist", pokemon: "poke", history: "wiki",
+  superheroes: "hero", villains: "hero", "heroes-villains": "hero", anime: "anilist", pokemon: "poke", history: "wiki", football: "wiki", films: "wiki", shows: "wiki",
 };
 
 /** Attach an image lookup key to every item so pictures can be fetched lazily. */
@@ -56,6 +59,9 @@ const DATA: Record<string, Item[]> = {
   disney: withQuery(disney as Item[], "disney"),
   movies: withQuery(movies as Item[], "movies"),
   history: withQuery(history as Item[], "history"),
+  football: withQuery(football as Item[], "football"),
+  films: withQuery(films as Item[], "films"),
+  shows: withQuery(shows as Item[], "shows"),
   weapons: withQuery(weapons as Item[], "weapons"),
   gadgets: withQuery(gadgets as Item[], "gadgets"),
   allies: withQuery(allies as Item[], "allies"),
@@ -75,6 +81,9 @@ export const CATALOG_META: CatalogMeta[] = [
   { id: "disney", title: "Disney & Pixar", blurb: "Magic, heart and a few villains.", statKeys: STD_KEYS, kind: "character" },
   { id: "movies", title: "Movie Icons", blurb: "Action stars to monsters.", statKeys: STD_KEYS, kind: "character" },
   { id: "history", title: "Historical Figures", blurb: "Leaders, geniuses and icons.", statKeys: keysOf("history"), kind: "character" },
+  { id: "football", title: "International Football", blurb: "World Cup legends and today\u2019s stars.", statKeys: keysOf("football"), kind: "character" },
+  { id: "films", title: "Films", blurb: "Classics, blockbusters and cult hits.", statKeys: keysOf("films"), kind: "character" },
+  { id: "shows", title: "TV Shows", blurb: "Binge-worthy series, all genres.", statKeys: keysOf("shows"), kind: "character" },
   { id: "weapons", title: "Weapons", blurb: "Blades, blasters and artifacts.", statKeys: keysOf("weapons"), kind: "item" },
   { id: "gadgets", title: "Gadgets", blurb: "Tech and gear.", statKeys: keysOf("gadgets"), kind: "item" },
   { id: "allies", title: "Allies & Sidekicks", blurb: "Villain help and loyal partners.", statKeys: keysOf("allies"), kind: "item" },

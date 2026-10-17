@@ -25,6 +25,27 @@ const R = (id: string, label: string, weights: Record<string, number>): Role => 
 
 /** Role sets that suit each topic. Anything not listed uses the standard Captain/Healer/Tank set. */
 export const POOL_ROLES: Record<string, Role[]> = {
+  football: [
+    R("striker", "Striker", { shooting: 3, pace: 1.5, physical: 1 }),
+    R("winger", "Winger", { pace: 2.5, dribbling: 2.5, shooting: 1 }),
+    R("playmaker", "Playmaker", { passing: 3, dribbling: 2, shooting: 0.8 }),
+    R("defender", "Centre-Back", { defending: 3, physical: 2, pace: 0.8 }),
+    R("keeper", "Goalkeeper", { defending: 2.5, physical: 2, passing: 1 }),
+  ],
+  films: [
+    R("opener", "Opening Night", { visuals: 2.5, fun: 2, impact: 1.5 }),
+    R("crowd", "Crowd-Pleaser", { fun: 3, rewatch: 2 }),
+    R("tear", "Tearjerker", { acting: 2.5, story: 2.5, impact: 1.5 }),
+    R("mind", "Mind-Bender", { story: 3, impact: 1.5, visuals: 1 }),
+    R("closer", "Closing Credits", { impact: 3, rewatch: 1.5, story: 1.5 }),
+  ],
+  shows: [
+    R("pilot", "Pilot Hook", { story: 2.5, visuals: 1.5, fun: 1.5 }),
+    R("comfort", "Comfort Rewatch", { rewatch: 3, fun: 2.5 }),
+    R("prestige", "Prestige Drama", { acting: 3, story: 2.5, impact: 1.5 }),
+    R("binge", "Binge Magnet", { fun: 2.5, rewatch: 2, story: 1.5 }),
+    R("finale", "Legacy Finale", { impact: 3, story: 2, acting: 1 }),
+  ],
   pokemon: [
     R("lead", "Lead", { speed: 2.5, teamwork: 1, intellect: 1 }),
     R("sweeper", "Sweeper", { power: 3, speed: 2.5, combat: 1 }),
