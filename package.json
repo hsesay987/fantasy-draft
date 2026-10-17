@@ -12,7 +12,8 @@
     "dev:all": "bash scripts/dev.sh",
     "db:backup": "bash scripts/db/backup.sh",
     "db:restore": "bash scripts/db/restore.sh",
-    "db:verify": "bash scripts/db/verify.sh"
+    "db:verify": "bash scripts/db/verify.sh",
+    "db:to-neon": "bash scripts/db/to-neon.sh"
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
