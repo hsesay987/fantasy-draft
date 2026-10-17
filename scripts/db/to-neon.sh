@@ -7,18 +7,22 @@ cd "$(dirname "$0")/../.."
 ENVF=backend/.env.local
 [ -f "$ENVF" ] || { echo "Missing $ENVF" >&2; exit 1; }
 
-grab() { # $1 = prompt, $2 = must-contain-pooler (1/0)
-  read -r -p "$1 then press Enter... " _
+clip() { # prints the postgres URL currently on the clipboard
   local u; u=$(pbpaste | tr -d '\r' | grep -Eo 'postgres(ql)?://[^[:space:]"'"'"']+' | head -1 || true)
   [ -n "$u" ] || { echo "Clipboard has no postgres:// URL. Use Neon's 'Copy snippet'." >&2; exit 1; }
-  if [ "$2" = 1 ]; then case "$u" in *-pooler*) ;; *) echo "That is the DIRECT url; need the pooled one (Connection pooling ON)." >&2; exit 1;; esac
-  else case "$u" in *-pooler*) echo "That is the POOLED url; need the direct one (Connection pooling OFF)." >&2; exit 1;; esac; fi
   case "$u" in *neon.tech*) ;; *) echo "Not a neon.tech URL." >&2; exit 1;; esac
   printf '%s' "$u"
 }
+kind() { case "$1" in *-pooler*) echo pooled;; *) echo direct;; esac; }
 
-POOLED=$(grab "In Neon: Connection pooling ON, click 'Copy snippet'" 1); echo " ok (pooled, host $(printf '%s' "$POOLED" | sed -E 's#.*@([^/:?]+).*#\1#'))"
-DIRECT=$(grab "Now turn Connection pooling OFF and click 'Copy snippet'" 0); echo " ok (direct, host $(printf '%s' "$DIRECT" | sed -E 's#.*@([^/:?]+).*#\1#'))"
+read -r -p "In Neon click 'Copy snippet' (pooling ON or OFF), then press Enter (do not paste)... " _
+U1=$(clip); echo " got a $(kind "$U1") url"
+read -r -p "Flip 'Connection pooling' the other way, click 'Copy snippet', then press Enter... " _
+U2=$(clip); echo " got a $(kind "$U2") url"
+[ "$(kind "$U1")" != "$(kind "$U2")" ] || { echo "Both URLs are $(kind "$U1"). Flip the Connection pooling switch between copies." >&2; exit 1; }
+if [ "$(kind "$U1")" = pooled ]; then POOLED=$U1; DIRECT=$U2; else POOLED=$U2; DIRECT=$U1; fi
+echo "pooled host: $(printf '%s' "$POOLED" | sed -E 's#.*@([^/:?]+).*#\1#')"
+echo "direct host: $(printf '%s' "$DIRECT" | sed -E 's#.*@([^/:?]+).*#\1#')"
 
 SOURCE=$(grep -E '^DATABASE_URL=' "$ENVF" | head -1 | sed -E 's/^DATABASE_URL=//; s/^"//; s/"$//')
 [ -n "$SOURCE" ] || { echo "No DATABASE_URL in $ENVF" >&2; exit 1; }
