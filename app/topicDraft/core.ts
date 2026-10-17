@@ -204,7 +204,11 @@ export function buildTeams(setup: GameSetup, s: GameState): { teams: JudgeTeamIn
         teams: p.players.map((player) => {
           const assigned = Object.fromEntries(p.roles.map((r) => [r.id, get(p.assign[player]![r.id]!)]));
           const sc = P.scorePosition(p.roles, assigned);
-          return { player, baseline: sc.total, notes: "Role fit: " + p.roles.map((r) => `${r.label} ${sc.perRole[r.id]}`).join(", "), items: p.roles.filter((r) => assigned[r.id]).map((r) => toJudgeItem(assigned[r.id]!, { role: r.label })) };
+          // Role fit decides most of it; the mission still shapes the result (65/35 blend).
+          const picked = p.roles.map((r) => assigned[r.id]).filter(Boolean) as Item[];
+          const fit = picked.length ? scoreTeam(picked, mission).total : 0;
+          const baseline = Math.round((sc.total * 0.65 + fit * 0.35) * 10) / 10;
+          return { player, baseline, notes: `Mission fit ${Math.round(fit)}. Role fit: ` + p.roles.map((r) => `${r.label} ${sc.perRole[r.id]}`).join(", "), items: p.roles.filter((r) => assigned[r.id]).map((r) => toJudgeItem(assigned[r.id]!, { role: r.label })) };
         }),
       };
     }
