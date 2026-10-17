@@ -20,6 +20,8 @@ export type Opts = {
   roll: boolean;
   options: number;
   rerolls: number;
+  // judging: also duel every pick against the other team under the mission
+  battle: boolean;
   // auction
   budget: number;
   lotSeconds: number;
@@ -54,6 +56,7 @@ export const DEFAULT_OPTS: Opts = {
   universes: [],
   customItems: [],
   roll: false,
+  battle: false,
   options: 3,
   rerolls: 1,
   budget: 20,

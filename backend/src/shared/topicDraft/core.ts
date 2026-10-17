@@ -14,6 +14,7 @@ import * as L from "./formats/loadout";
 import * as P from "./formats/position";
 import * as B from "./formats/blind";
 import type { Item, State } from "./types";
+import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
 export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState;
@@ -173,6 +174,12 @@ export function timeoutAction(setup: GameSetup, s: GameState): Action | null {
 
 /** Judge-ready teams (plus optional extra info to show under the verdict). */
 export function buildTeams(setup: GameSetup, s: GameState): { teams: JudgeTeamInput[]; extra: Extra } {
+  const base = buildTeamsBase(setup, s);
+  if (!setup.opts.battle || base.teams.length < 2 || !["snake", "spin", "auction", "position"].includes(setup.format)) return base;
+  return { ...base, teams: battle(base.teams, setup.mission.weights).teams };
+}
+
+function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput[]; extra: Extra } {
   const get = itemsById(setup);
   const mission = setup.mission;
   switch (setup.format) {

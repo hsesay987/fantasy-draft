@@ -108,7 +108,7 @@ export function sanitizeSetup(input: any): GameSetup | null {
     bans: (Array.isArray(o.bans) ? o.bans : []).slice(0, 20).map((b: any) => clean(b, 60)),
     universes: (Array.isArray(o.universes) ? o.universes : []).slice(0, 12).map((u: any) => clean(u, 24)),
     customItems: custom,
-    roll: !!o.roll, options: num(o.options, 2, 6, 3), rerolls: num(o.rerolls, 0, 4, 1),
+    roll: !!o.roll, battle: !!o.battle, options: num(o.options, 2, 6, 3), rerolls: num(o.rerolls, 0, 4, 1),
     budget: num(o.budget, 10, 100, 20), lotSeconds: num(o.lotSeconds, 5, 30, 15),
     handExtra: num(o.handExtra, 0, 4, 2), rankSize: num(o.rankSize, 4, 10, 6),
   };

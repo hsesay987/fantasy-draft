@@ -136,7 +136,7 @@ export function PositionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 className="flex items-center gap-2 text-lg"><Dices className="h-5 w-5 text-secondary" aria-hidden /> {activeDef ? `Roll for ${activeDef.label}` : "All roles filled"}</h2>
                   <div className="flex gap-2">
-                    {activeRole && <Button variant="ghost" disabled={(s.roll!.rerolls[current] ?? 0) <= 0} onClick={() => { ctl.dispatch({ type: "rerollSlot", by: current, slotId: activeRole }); setSelected(null); play("click"); }}><RefreshCw className="h-4 w-4" aria-hidden /> Reroll ({s.roll!.rerolls[current] ?? 0})</Button>}
+                    {activeRole && <Button variant="ghost" disabled={(s.roll!.rerolls[current] ?? 0) <= 0} onClick={() => { ctl.dispatch({ type: "rerollSlot", by: current, slotId: activeRole }); setSelected(null); play("click"); }}><RefreshCw className="h-4 w-4" aria-hidden /> Respin ({s.roll!.rerolls[current] ?? 0})</Button>}
                     <Button variant="ghost" onClick={() => { ctl.dispatch({ type: "autoAssign", by: current }); setSelected(null); play("steal"); }}><Wand2 className="h-4 w-4" aria-hidden /> Auto-fill</Button>
                   </div>
                 </div>
@@ -151,7 +151,7 @@ export function PositionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
                   <h2 className="text-lg">Your hand <span className="text-sm text-muted-foreground">tap a card, then a role</span></h2>
                   <div className="flex gap-2">
                     <Button variant="ghost" disabled={s.rerolls[current]! <= 0 || Object.keys(assigned).length > 0} onClick={() => { ctl.dispatch({ type: "reroll", by: current }); setSelected(null); play("click"); }}>
-                      <RefreshCw className="h-4 w-4" aria-hidden /> Reroll ({s.rerolls[current]})
+                      <RefreshCw className="h-4 w-4" aria-hidden /> Respin ({s.rerolls[current]})
                     </Button>
                     <Button variant="ghost" onClick={() => { ctl.dispatch({ type: "autoAssign", by: current }); setSelected(null); play("steal"); }}>
                       <Wand2 className="h-4 w-4" aria-hidden /> Best fit

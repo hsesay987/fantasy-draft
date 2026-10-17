@@ -40,6 +40,7 @@ function baseOpts(pool: string, format: FormatId): { opts: Opts; missionId: stri
     o.rankSize = d.rankSize;
   }
   if (format === "auction") o.timerSeconds = null;
+  if (format === "position") { o.roll = true; o.options = 4; o.rerolls = 2; }
   if (format === "spin") {
     o.options = 3;
     o.rerolls = pool === "pokemon" ? 2 : 1;
@@ -128,13 +129,14 @@ export default function SetupScreen() {
     const p = PRESETS.find((x) => x.id === id)!;
     const r = p.apply(format, baseOpts(pool, format).opts);
     setPreset(id);
-    setOpts((o) => ({ ...r.opts, bans: o.bans, universes: o.universes, customItems: o.customItems, roll: o.roll }));
+    setOpts((o) => ({ ...r.opts, bans: o.bans, universes: o.universes, customItems: o.customItems, roll: o.roll, battle: o.battle }));
     setMystery(!!r.mystery);
   };
 
   async function start() {
     if (problem) return;
-    const mission = missionId === "custom" ? customMission(pool, cTitle, cBlurb) : missions.find((m) => m.id === missionId) ?? missions[0]!;
+    const surprise = format === "blind" && missionId === "surprise";
+    const mission = missionId === "custom" ? customMission(pool, cTitle, cBlurb) : surprise ? missions[Math.floor(Math.random() * missions.length)]! : missions.find((m) => m.id === missionId) ?? missions[0]!;
     const lm = format === "loadout" ? loadout : null;
     const setup: GameSetup = {
       id: `g${Date.now()}`,
@@ -143,7 +145,7 @@ export default function SetupScreen() {
       players,
       aiPlayers: mode === "ai" ? players.slice(1) : [],
       mission: lm ? { id: lm.id, title: lm.title, blurb: lm.blurb, weights: { power: 1 } } : mission,
-      mystery,
+      mystery: mystery || surprise,
       loadout: lm,
       roles,
       opts,
@@ -198,6 +200,9 @@ export default function SetupScreen() {
             </button>
           ))}
         </div>
+        {(format === "snake" || format === "spin" || format === "auction" || format === "position") && (players.length > 1 || mode === "online") && (
+          <Chip selected={opts.battle} onClick={() => set("battle", !opts.battle)}>⚔️ Vs mission — every pick duels the other team&apos;s on the mission</Chip>
+        )}
         {ROLL_COPY[format] && format !== "spin" && (
           <Chip selected={opts.roll} onClick={() => set("roll", !opts.roll)}>🎲 Random roll — {ROLL_COPY[format]}</Chip>
         )}
@@ -226,6 +231,7 @@ export default function SetupScreen() {
           <Panel title={format === "blind" ? "Rank by" : "Mission"} hint={format === "blind" ? "The category you rank by." : "What the AI judge scores you on."}>
             <div className="flex flex-wrap gap-2">
               {missions.map((m) => <Chip key={m.id} selected={missionId === m.id} onClick={() => setMissionId(m.id)}>{m.title}</Chip>)}
+              {format === "blind" && <Chip selected={missionId === "surprise"} onClick={() => setMissionId("surprise")}>🎲 Surprise me — hidden until the end</Chip>}
               {format !== "blind" && <Chip selected={missionId === "custom"} onClick={() => setMissionId("custom")}>Write your own</Chip>}
             </div>
             {missionId === "custom" && (
@@ -272,7 +278,7 @@ export default function SetupScreen() {
             <Field label="Roles" hint="Name each role and pick the stats it rewards."><RolesEditor pool={pool} roles={roles} onChange={setRoles} /></Field>
             <div className="grid gap-5 sm:grid-cols-2">
               <Field label="Bench size (extra cards in hand)"><Stepper value={opts.handExtra} min={0} max={4} onChange={(n) => set("handExtra", n)} label="Bench" /></Field>
-              <Field label={opts.roll ? "Rerolls per player" : "Hand rerolls"}><Stepper value={opts.rerolls} min={0} max={4} onChange={(n) => set("rerolls", n)} label="Rerolls" /></Field>
+              <Field label={opts.roll ? "Respins per player" : "Hand rerolls"}><Stepper value={opts.rerolls} min={0} max={4} onChange={(n) => set("rerolls", n)} label="Respins" /></Field>
               {opts.roll && <Field label="Options per roll"><Stepper value={opts.options} min={2} max={5} onChange={(n) => set("options", n)} label="Options" /></Field>}
             </div>
           </>
@@ -296,7 +302,7 @@ export default function SetupScreen() {
             {(format === "spin" || (format === "snake" && opts.roll)) && (
               <>
                 <Field label="Options per pick"><Stepper value={opts.options} min={2} max={5} onChange={(n) => set("options", n)} label="Options" /></Field>
-                <Field label="Rerolls each"><Stepper value={opts.rerolls} min={0} max={3} onChange={(n) => set("rerolls", n)} label="Rerolls" /></Field>
+                <Field label="Respins each"><Stepper value={opts.rerolls} min={0} max={3} onChange={(n) => set("rerolls", n)} label="Respins" /></Field>
               </>
             )}
             {format !== "auction" && (
@@ -317,7 +323,7 @@ export default function SetupScreen() {
             {opts.roll && (
               <>
                 <Field label="Options per roll"><Stepper value={opts.options} min={2} max={6} onChange={(n) => set("options", n)} label="Options" /></Field>
-                <Field label="Rerolls each"><Stepper value={opts.rerolls} min={0} max={4} onChange={(n) => set("rerolls", n)} label="Rerolls" /></Field>
+                <Field label="Respins each"><Stepper value={opts.rerolls} min={0} max={4} onChange={(n) => set("rerolls", n)} label="Respins" /></Field>
               </>
             )}
           </div>
