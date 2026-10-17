@@ -1,4 +1,4 @@
-import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices } from "lucide-react";
+import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, DollarSign, BarChart3, HelpCircle } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { FormatId } from "./types";
 
@@ -19,6 +19,10 @@ export const FORMATS: FormatMeta[] = [
   { id: "position", title: "Positions", tagline: "Random hand. Assign your Captain, Healer, Tank…", how: ["You're dealt a random hand.", "Assign each character to a role.", "Best role fit wins. Roles are editable."], icon: Users2, gradient: "from-sky-600/40 to-primary/20", usesPool: true },
   { id: "blind", title: "Blind Rank", tagline: "Slot each reveal into a rank. No take-backs.", how: ["Characters reveal one at a time.", "Place each into a rank immediately.", "Closest to the true order wins."], icon: ListOrdered, gradient: "from-fuchsia-600/40 to-primary/20", usesPool: true },
   { id: "spin", title: "Spin Draft", tagline: "Pick 1 of a few random options each turn.", how: ["Each turn shows a few random options.", "Take one, or spend a reroll.", "Luck and judgement."], icon: Dices, gradient: "from-rose-600/40 to-primary/20", usesPool: true },
+  { id: "keep", title: "Keep or Delete", tagline: "One stream of reveals. Keep it or lose it forever.", how: ["A character is revealed to everyone, one player at a time.", "Keep them for your roster or delete them for good.", "Fill your roster before the stream runs out."], icon: ThumbsUp, gradient: "from-lime-600/40 to-primary/20", usesPool: true },
+  { id: "price", title: "Price Is Right", tagline: "Guess the rating. Closest without going over wins them.", how: ["A mystery character shows up with no stats.", "Everyone guesses their 0-100 rating for the mission.", "Closest without going over takes the round."], icon: DollarSign, gradient: "from-yellow-500/40 to-accent/20", usesPool: true },
+  { id: "feud", title: "Family Feud", tagline: "Name the survey's top answers. Three strikes and out.", how: ["A survey asks who is best at something.", "Take turns naming one of the top five.", "Higher ranks score more. Wrong guesses are strikes."], icon: BarChart3, gradient: "from-orange-600/40 to-primary/20", usesPool: true },
+  { id: "jeopardy", title: "Jeopardy", tagline: "Pick a clue, win the money. Wrong answers cost it.", how: ["Pick a category and a dollar value.", "Name who ranks highest of four.", "Right answers earn the value, wrong ones lose it."], icon: HelpCircle, gradient: "from-blue-700/40 to-primary/20", usesPool: true },
 ];
 
 export const formatMeta = (id: string) => FORMATS.find((f) => f.id === id);

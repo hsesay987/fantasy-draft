@@ -26,8 +26,13 @@ const ROLL_COPY: Record<FormatId, string> = {
   position: "roll options for each role instead of a dealt hand",
   auction: "the opener picks which of a few rolled lots goes up",
   blind: "each reveal spins in with a slot-machine roll",
+  keep: "",
+  price: "",
+  feud: "",
+  jeopardy: "",
 };
-const SOLO_FORMATS = new Set<FormatId>(["blind", "loadout", "position"]);
+const QUIZ_FORMATS = new Set<FormatId>(["keep", "price", "feud", "jeopardy"]);
+const SOLO_FORMATS = new Set<FormatId>(["blind", "loadout", "position", "keep", "price", "feud", "jeopardy"]);
 
 /** Topic-specific starting point for a format. */
 function baseOpts(pool: string, format: FormatId): { opts: Opts; missionId: string } {
@@ -121,7 +126,7 @@ export default function SetupScreen() {
   const uniquePlayers = new Set(players).size === players.length && players.every(Boolean);
   const catalogSize = getCatalog(pool).length + opts.customItems.length;
   const perPlayer = format === "position" ? roles.length + opts.handExtra : opts.teamSize * (format === "auction" ? 2 : 1);
-  const need = format === "blind" ? opts.rankSize : players.length * perPlayer;
+  const need = format === "blind" ? opts.rankSize : format === "keep" ? opts.teamSize * 2 : QUIZ_FORMATS.has(format) ? 12 : players.length * perPlayer;
   const needsBoss = format === "loadout" && loadout.id === "custom" && !loadout.boss.name.trim();
   const problem = needsBoss ? "Name your opponent to start." : !uniquePlayers ? "Every player needs a unique name." : meta?.usesPool && catalogSize - opts.bans.length < need ? `Pool too small (${catalogSize - opts.bans.length}) — need ${need}.` : null;
 
@@ -138,13 +143,14 @@ export default function SetupScreen() {
     const surprise = format === "blind" && missionId === "surprise";
     const mission = missionId === "custom" ? customMission(pool, cTitle, cBlurb) : surprise ? missions[Math.floor(Math.random() * missions.length)]! : missions.find((m) => m.id === missionId) ?? missions[0]!;
     const lm = format === "loadout" ? loadout : null;
+    const quizMission = format === "feud" || format === "jeopardy" ? { id: "quiz", title: `${meta?.title}: ${catMeta?.title ?? pool}`, blurb: "How well do you know them?", weights: Object.fromEntries((catalogMeta(pool)?.statKeys ?? []).map((k) => [k, 1])) } : null;
     const setup: GameSetup = {
       id: `g${Date.now()}`,
       format,
       pool: lm ? "loadout" : pool,
       players,
       aiPlayers: mode === "ai" ? players.slice(1) : [],
-      mission: lm ? { id: lm.id, title: lm.title, blurb: lm.blurb, weights: { power: 1 } } : mission,
+      mission: lm ? { id: lm.id, title: lm.title, blurb: lm.blurb, weights: { power: 1 } } : quizMission ?? mission,
       mystery: mystery || surprise,
       loadout: lm,
       roles,
@@ -228,7 +234,7 @@ export default function SetupScreen() {
             <div className="flex flex-wrap gap-2">{CATEGORIES.filter((c) => formatsFor(c.id).includes(format)).map((c) => <Chip key={c.id} selected={pool === c.id} onClick={() => changePool(c.id)}>{c.title}</Chip>)}</div>
             <p className="text-xs text-muted-foreground">{catalogMeta(pool)?.blurb} · {getCatalog(pool).length} to choose from</p>
           </Panel>
-          <Panel title={format === "blind" ? "Rank by" : "Mission"} hint={format === "blind" ? "The category you rank by." : "What the AI judge scores you on."}>
+          {format !== "feud" && format !== "jeopardy" && <Panel title={format === "blind" ? "Rank by" : format === "price" ? "Rating based on" : "Mission"} hint={format === "blind" ? "The category you rank by." : "What the AI judge scores you on."}>
             <div className="flex flex-wrap gap-2">
               {missions.map((m) => <Chip key={m.id} selected={missionId === m.id} onClick={() => setMissionId(m.id)}>{m.title}</Chip>)}
               {format === "blind" && <Chip selected={missionId === "surprise"} onClick={() => setMissionId("surprise")}>🎲 Surprise me — hidden until the end</Chip>}
@@ -240,7 +246,7 @@ export default function SetupScreen() {
                 <input className={inputCls} placeholder="What does winning look like?" maxLength={200} value={cBlurb} onChange={(e) => setCBlurb(e.target.value)} aria-label="Mission description" />
               </div>
             )}
-          </Panel>
+          </Panel>}
         </>
       )}
 
@@ -282,6 +288,9 @@ export default function SetupScreen() {
               {opts.roll && <Field label="Options per roll"><Stepper value={opts.options} min={2} max={5} onChange={(n) => set("options", n)} label="Options" /></Field>}
             </div>
           </>
+        )}
+        {(format === "keep" || format === "price" || format === "feud") && (
+          <Field label={format === "keep" ? "Roster size (keeps)" : "Rounds"}><Stepper value={opts.teamSize} min={format === "keep" ? 2 : 3} max={format === "keep" ? 9 : format === "feud" ? 5 : 8} onChange={(n) => set("teamSize", n)} label={format === "keep" ? "Keeps" : "Rounds"} /></Field>
         )}
         {format === "blind" && <Field label="Ranks"><Stepper value={opts.rankSize} min={4} max={10} onChange={(n) => set("rankSize", n)} label="Ranks" /></Field>}
         {(format === "snake" || format === "spin" || format === "auction") && (

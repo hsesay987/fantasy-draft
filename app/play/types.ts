@@ -2,7 +2,7 @@ import type { Config, Item, Scenario } from "../topicDraft/types";
 import type { LoadoutMission } from "../topicDraft/formats/loadout";
 import type { Role } from "../topicDraft/formats/position";
 
-export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind";
+export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "price" | "feud" | "jeopardy";
 
 export type Opts = {
   teamSize: number;

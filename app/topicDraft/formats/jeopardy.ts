@@ -1,0 +1,89 @@
+// Jeopardy: a board of categories and dollar values. Pick a clue, then name who ranks highest.
+import type { Item } from "../types";
+import { itemScore } from "../scorer";
+import { next, shuffle } from "../rng";
+
+export const VALUES = [100, 200, 300, 400];
+
+export type Cell = { metric: string; value: number; options: string[]; answer: string; done: boolean; by?: string; picked?: string; correct?: boolean };
+
+export type JeopardyState = {
+  players: string[];
+  cats: string[];
+  cells: Cell[]; // row-major: row = value tier, column = category
+  active: number | null; // the clue currently on screen
+  resolved: number;
+  points: Record<string, number>;
+  right: Record<string, string[]>;
+  tried: Record<string, number>;
+  done: boolean;
+  seed: number;
+};
+
+export const colsOf = (s: JeopardyState) => s.cats.length;
+
+export function init(o: { players: string[]; pool: Item[]; statKeys: string[]; cats?: number; seed: number }): JeopardyState {
+  let seed = o.seed;
+  const [keys, s1] = shuffle(o.statKeys, seed);
+  seed = s1;
+  const cats = keys.slice(0, Math.min(o.cats ?? 4, keys.length));
+  const cells: Cell[] = new Array(cats.length * VALUES.length);
+  cats.forEach((metric, col) => {
+    // Candidate 4-item groups; a bigger gap between 1st and 2nd means an easier clue.
+    const groups: { ids: string[]; answer: string; gap: number }[] = [];
+    for (let g = 0; g < 14; g++) {
+      const [shuf, sn] = shuffle(o.pool, seed);
+      seed = sn;
+      const four = shuf.slice(0, 4).sort((a, b) => itemScore(b, { [metric]: 1 }) - itemScore(a, { [metric]: 1 }));
+      groups.push({ ids: four.map((i) => i.id), answer: four[0]!.id, gap: itemScore(four[0]!, { [metric]: 1 }) - itemScore(four[1]!, { [metric]: 1 }) });
+    }
+    groups.sort((a, b) => b.gap - a.gap);
+    VALUES.forEach((value, row) => {
+      const g = groups[Math.min(groups.length - 1, Math.floor((row / VALUES.length) * groups.length) + 1)]!;
+      const [options, sn] = shuffle(g.ids, seed);
+      seed = sn;
+      cells[row * cats.length + col] = { metric, value, options, answer: g.answer, done: false };
+    });
+  });
+  return { players: o.players, cats, cells, active: null, resolved: 0, points: Object.fromEntries(o.players.map((p) => [p, 0])), right: Object.fromEntries(o.players.map((p) => [p, []])), tried: Object.fromEntries(o.players.map((p) => [p, 0])), done: false, seed };
+}
+
+/** Whoever's turn it is picks the clue and answers it. */
+export const turnPlayer = (s: JeopardyState) => (s.done ? null : s.players[s.resolved % s.players.length]!);
+
+export function choose(s: JeopardyState, by: string, cell: number): JeopardyState {
+  if (s.done || s.active != null || turnPlayer(s) !== by) return s;
+  if (!s.cells[cell] || s.cells[cell]!.done) return s;
+  return { ...s, active: cell };
+}
+
+export function answer(s: JeopardyState, by: string, itemId: string): JeopardyState {
+  if (s.done || s.active == null || turnPlayer(s) !== by) return s;
+  const c = s.cells[s.active]!;
+  if (!c.options.includes(itemId)) return s;
+  const correct = itemId === c.answer;
+  const cells = s.cells.map((x, i) => (i === s.active ? { ...x, done: true, by, picked: itemId, correct } : x));
+  const resolved = s.resolved + 1;
+  return {
+    ...s,
+    cells,
+    active: null,
+    resolved,
+    points: { ...s.points, [by]: s.points[by]! + (correct ? c.value : -c.value) },
+    right: correct ? { ...s.right, [by]: [...s.right[by]!, c.answer] } : s.right,
+    tried: { ...s.tried, [by]: s.tried[by]! + 1 },
+    done: resolved >= s.cells.length,
+  };
+}
+
+/** AI: picks the cheapest open clue; answers right less often as the value climbs. */
+export function aiChoose(s: JeopardyState): number {
+  return s.cells.findIndex((c) => !c.done);
+}
+export function aiAnswer(s: JeopardyState): { itemId: string; seed: number } {
+  const c = s.cells[s.active!]!;
+  const [r, seed] = next(s.seed);
+  const p = 0.9 - 0.14 * VALUES.indexOf(c.value);
+  const wrong = c.options.filter((o) => o !== c.answer);
+  return { itemId: r < p ? c.answer : wrong[Math.floor(r * 997) % wrong.length]!, seed };
+}

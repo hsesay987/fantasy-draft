@@ -5,7 +5,7 @@ import crypto from "crypto";
 import { getIo } from "../socket";
 import { trackServer } from "../lib/monitoring";
 import { judge, type Verdict } from "./judge.service";
-import { applyAction, buildTeams, currentTurn, initGame, isDone, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
+import { applyAction, autoAction, buildTeams, currentTurn, initGame, isDone, QUICK_FORMATS, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
 import { CATALOG_META, getCatalog } from "../shared/topicDraft/catalogs";
 import type { GameSetup, FormatId } from "../shared/play/types";
 import { DEFAULT_OPTS } from "../shared/play/types";
@@ -14,7 +14,7 @@ import * as B from "../shared/topicDraft/formats/blind";
 import * as P from "../shared/topicDraft/formats/position";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind"];
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "price", "feud", "jeopardy"];
 const MAX_SEATS = 6;
 const MAX_ROOMS = 500;
 const ROOM_TTL_MS = 6 * 60 * 60 * 1000;
@@ -135,7 +135,8 @@ const bump = (r: Room) => {
 function turnMarker(setup: GameSetup, s: GameState): string {
   const t = currentTurn(setup, s) ?? "-";
   const n = (s as { turn?: number }).turn ?? (s as any).draft?.turn ?? (s as any).spin?.draft?.turn ?? 0;
-  return `${t}:${n}`;
+  const x = s as { round?: number; resolved?: number; active?: number | null };
+  return `${t}:${n}:${x.round ?? ""}:${x.resolved ?? ""}:${x.active ?? ""}`;
 }
 
 export function getRoom(c: string): Room | undefined {
@@ -202,7 +203,7 @@ export function leaveRoom(room: Room, token: unknown) {
   bump(room);
 }
 
-const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place"]);
+const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
   const seat = seatFor(room, token);
@@ -264,6 +265,7 @@ function autoplay(room: Room, name: string): Action | null {
     if (B.turnPlayer(b) !== name) return null;
     return { type: "place", by: name, rank: B.freeRanks(b, name)[0]! };
   }
+  if (QUICK_FORMATS.has(format)) return currentTurn(room.setup, s) === name ? autoAction(room.setup, s) : null;
   return currentTurn(room.setup, s) === name ? { type: "auto", by: name } : null;
 }
 
@@ -283,11 +285,11 @@ export function tickRooms(now = Date.now()) {
     const timer = setup.opts.timerSeconds;
     const turnBased = setup.format === "snake" || setup.format === "spin" || setup.format === "loadout";
     const limit = turnBased && timer ? timer * 1000 + 1500 : AFK_TURN_MS;
-    if ((turnBased || setup.format === "blind") && now - room.turnStartedAt > limit) {
-      const t = timeoutAction(setup, s) ?? (setup.format === "blind" ? autoplay(room, currentTurn(setup, s) ?? "") : null);
+    if ((turnBased || QUICK_FORMATS.has(setup.format)) && now - room.turnStartedAt > limit) {
+      const t = timeoutAction(setup, s) ?? (QUICK_FORMATS.has(setup.format) ? autoplay(room, currentTurn(setup, s) ?? "") : null);
       if (t) {
         s = applyAction(setup, s, t, now);
-        if (setup.format !== "blind") {
+        if (!QUICK_FORMATS.has(setup.format)) {
           const who = (t as { by: string }).by;
           const seat = room.seats.find((x) => x.name === who);
           if (seat && !timer) seat.left = true; // AFK with no timer: bot takes over

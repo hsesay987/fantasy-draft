@@ -18,6 +18,10 @@ import { AuctionView } from "./views/AuctionView";
 import { LoadoutView } from "./views/LoadoutView";
 import { PositionView } from "./views/PositionView";
 import { BlindView } from "./views/BlindView";
+import { KeepView } from "./views/KeepView";
+import { PriceView } from "./views/PriceView";
+import { FeudView } from "./views/FeudView";
+import { JeopardyView } from "./views/JeopardyView";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -74,6 +78,14 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
       return <PositionView setup={setup} ctl={ctl} />;
     case "blind":
       return <BlindView setup={setup} ctl={ctl} />;
+    case "keep":
+      return <KeepView setup={setup} ctl={ctl} />;
+    case "price":
+      return <PriceView setup={setup} ctl={ctl} />;
+    case "feud":
+      return <FeudView setup={setup} ctl={ctl} />;
+    case "jeopardy":
+      return <JeopardyView setup={setup} ctl={ctl} />;
     default:
       return <SnakeView setup={setup} ctl={ctl} />;
   }

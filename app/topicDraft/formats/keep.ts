@@ -1,0 +1,79 @@
+// Keep or Delete: the same stream of reveals goes past every player. Keep it or lose it, forever.
+import type { Item } from "../types";
+import { itemScore } from "../scorer";
+import { next, shuffle } from "../rng";
+
+export type KeepState = {
+  players: string[];
+  size: number; // roster size to fill
+  queue: string[];
+  weights: Record<string, number>;
+  /** Percentile (0-100) of each reveal in the stream by mission score, for the AI. */
+  pct: Record<string, number>;
+  keeps: Record<string, string[]>;
+  deleted: Record<string, string[]>;
+  turn: number; // turn % players = who decides; floor(turn / players) = which reveal
+  done: boolean;
+  seed: number;
+};
+
+export function init(o: { players: string[]; pool: Item[]; teamSize: number; weights: Record<string, number>; seed: number }): KeepState {
+  const len = Math.min(o.pool.length, Math.max(o.teamSize + 2, o.teamSize * 3));
+  const [shuf, seed] = shuffle(o.pool, o.seed);
+  const stream = shuf.slice(0, len);
+  const ranked = [...stream].sort((a, b) => itemScore(a, o.weights) - itemScore(b, o.weights));
+  return {
+    players: o.players,
+    size: Math.min(o.teamSize, len),
+    queue: stream.map((i) => i.id),
+    weights: o.weights,
+    pct: Object.fromEntries(ranked.map((i, n) => [i.id, Math.round((n / Math.max(1, len - 1)) * 100)])),
+    keeps: Object.fromEntries(o.players.map((p) => [p, []])),
+    deleted: Object.fromEntries(o.players.map((p) => [p, []])),
+    turn: 0,
+    done: false,
+    seed,
+  };
+}
+
+export const revealIndex = (s: KeepState) => Math.floor(s.turn / s.players.length);
+export const turnPlayer = (s: KeepState) => s.players[s.turn % s.players.length]!;
+export const currentItemId = (s: KeepState) => (s.done ? null : s.queue[revealIndex(s)]!);
+export const slotsLeft = (s: KeepState, p: string) => s.size - s.keeps[p]!.length;
+/** Reveals left for this player, counting the current one when it is their turn. */
+export const revealsLeft = (s: KeepState, p: string) => s.queue.length - s.deleted[p]!.length - s.keeps[p]!.length;
+
+/** Must the current player keep (stream is running out) or delete (roster full)? */
+export function forced(s: KeepState): "keep" | "delete" | null {
+  if (s.done) return null;
+  const p = turnPlayer(s);
+  if (slotsLeft(s, p) <= 0) return "delete";
+  if (revealsLeft(s, p) <= slotsLeft(s, p)) return "keep";
+  return null;
+}
+
+export function decide(s: KeepState, keep: boolean): KeepState {
+  if (s.done) return s;
+  const p = turnPlayer(s);
+  const f = forced(s);
+  const k = f ? f === "keep" : keep;
+  const id = currentItemId(s)!;
+  const turn = s.turn + 1;
+  return {
+    ...s,
+    keeps: k ? { ...s.keeps, [p]: [...s.keeps[p]!, id] } : s.keeps,
+    deleted: k ? s.deleted : { ...s.deleted, [p]: [...s.deleted[p]!, id] },
+    turn,
+    done: turn >= s.players.length * s.queue.length,
+  };
+}
+
+/** AI: keep when the reveal sits above the bar needed to fill the remaining slots (with a little noise). */
+export function aiDecide(s: KeepState): { keep: boolean; seed: number } {
+  const p = turnPlayer(s);
+  const [r, seed] = next(s.seed);
+  const need = slotsLeft(s, p) / Math.max(1, revealsLeft(s, p));
+  const bar = 100 * (1 - need);
+  const pct = s.pct[currentItemId(s)!] ?? 50;
+  return { keep: pct + (r - 0.5) * 24 >= bar, seed };
+}
