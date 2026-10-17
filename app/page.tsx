@@ -56,7 +56,7 @@ export default function Home() {
       </motion.header>
 
       <Group title="Pick a topic" sub="Auctions, loadouts, blind rankings and more for every one.">
-        {CATEGORIES.map((c) => (
+        {CATEGORIES.filter((c) => !c.hidden).map((c) => (
           <motion.div key={c.id} variants={item}><GameTile title={c.title} blurb={c.blurb} iconSrc={c.iconSrc} gradient={c.gradient} href={`/category/${c.id}`} /></motion.div>
         ))}
       </Group>

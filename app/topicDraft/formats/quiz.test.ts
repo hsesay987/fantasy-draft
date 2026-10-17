@@ -3,10 +3,13 @@ import { applyAction, autoAction, buildTeams, initGame, isDone } from "../core";
 import { getCatalog } from "../catalogs";
 import { missionsFor } from "../missions";
 import { DEFAULT_OPTS, type FormatId, type GameSetup } from "../../play/types";
+import { localVerdict } from "../../play/judging";
 import * as K from "./keep";
 import * as PR from "./price";
 import * as FD from "./feud";
 import * as J from "./jeopardy";
+import { questionsFor, surveysFor, TRIVIA_POOLS } from "../trivia";
+import { usableCats } from "./jeopardy";
 
 const setupFor = (format: FormatId, pool = "superheroes", players = ["A", "B"]): GameSetup => ({
   id: "t", format, pool, players, aiPlayers: players, mission: missionsFor(pool)[0]!, mystery: false, loadout: null, roles: [],
@@ -30,6 +33,9 @@ describe("new formats play to the end with AI and produce judged teams", () => {
         const { teams } = buildTeams(setup, s);
         expect(teams).toHaveLength(2);
         for (const t of teams) expect(t.baseline).toBeGreaterThanOrEqual(0);
+        const v = localVerdict(teams, setup.mission);
+        expect(JSON.stringify(v)).not.toContain("NaN");
+        expect(v.winner).toBeTruthy();
       });
     }
   }
@@ -70,28 +76,30 @@ describe("price is right", () => {
 });
 
 describe("family feud", () => {
-  const pool = getCatalog("superheroes");
-  const s0 = FD.init({ players: ["A", "B"], pool, statKeys: ["power", "speed", "intellect"], rounds: 3, seed: 3 });
-  it("board is the real top five and decoys are not on it", () => {
+  const surveys = surveysFor("superheroes");
+  const s0 = FD.init({ players: ["A", "B"], surveys, rounds: 3, seed: 3 });
+  it("board has five answers and shuffled options include wrong ones", () => {
     const r = s0.rounds[0]!;
     expect(r.board).toHaveLength(5);
-    expect(r.options).toHaveLength(9);
-    expect(new Set(r.options).size).toBe(9);
+    expect(r.options.length).toBeGreaterThan(5);
+    expect(new Set(r.options).size).toBe(r.options.length);
   });
   it("three strikes end the round", () => {
     let s = s0;
-    const decoys = s.rounds[0]!.options.filter((id) => !s.rounds[0]!.board.includes(id));
-    for (let i = 0; i < 3; i++) s = FD.choose(s, FD.turnPlayer(s)!, decoys[i]!);
+    const wrong = s.rounds[0]!.options.filter((a) => !s.rounds[0]!.board.includes(a));
+    for (let i = 0; i < 3; i++) s = FD.choose(s, FD.turnPlayer(s)!, wrong[i]!);
     expect(s.round).toBe(1);
   });
 });
 
 describe("jeopardy", () => {
-  const pool = getCatalog("anime");
-  const s0 = J.init({ players: ["A", "B"], pool, statKeys: ["power", "speed", "intellect", "combat", "teamwork"], seed: 4 });
-  it("builds a 4x4 board whose answers are really the top of each clue", () => {
+  const s0 = J.init({ players: ["A", "B"], questions: questionsFor("anime"), seed: 4 });
+  it("builds a 4x4 board of real questions", () => {
     expect(s0.cells).toHaveLength(16);
-    for (const c of s0.cells) expect(c.options).toContain(c.answer);
+    for (const c of s0.cells) {
+      expect(c.options).toContain(c.answer);
+      expect(c.q.includes("?")).toBe(true);
+    }
   });
   it("right answers add the value, wrong ones subtract it", () => {
     let s = J.choose(s0, "A", 0);
@@ -102,4 +110,24 @@ describe("jeopardy", () => {
     s = J.answer(s, "B", wrong);
     expect(s.points.B).toBe(-s.cells[1]!.value);
   });
+});
+
+describe("trivia data", () => {
+  for (const pool of TRIVIA_POOLS) {
+    it(`${pool}: enough clean questions and surveys`, () => {
+      const qs = questionsFor(pool);
+      expect(usableCats(qs).length, "needs 4 categories with all 4 levels").toBeGreaterThanOrEqual(4);
+      for (const q of qs) {
+        expect(new Set([q.right, ...q.wrong]).size, q.q).toBe(4);
+        expect(q.q.includes("?"), q.q).toBe(true);
+      }
+      const sv = surveysFor(pool);
+      expect(sv.length).toBeGreaterThanOrEqual(5);
+      for (const x of sv) {
+        expect(x.answers, x.q).toHaveLength(5);
+        expect(x.decoys.length, x.q).toBeGreaterThanOrEqual(3);
+        expect(new Set([...x.answers, ...x.decoys]).size, x.q).toBe(x.answers.length + x.decoys.length);
+      }
+    });
+  }
 });

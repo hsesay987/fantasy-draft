@@ -21,13 +21,14 @@ export const FOOTBALL_MISSIONS: Scenario[] = [
   { id: "all-around-football", title: "Greatest All-Round XI", blurb: "No tactic. Pure quality.", weights: { pace: 1, shooting: 1, passing: 1, dribbling: 1, defending: 1, physical: 1 } },
 ];
 
+// Films and shows have no "mission": the draft is judged on a lens (who is judging, or what the night is for).
 export const SCREEN_MISSIONS: Scenario[] = [
-  { id: "movie-night", title: "Perfect Movie Night", blurb: "Friends, popcorn, zero regrets.", weights: { fun: 3, rewatch: 2, visuals: 1.5, story: 1.5, acting: 1, impact: 1 } },
-  { id: "awards-season", title: "Sweep the Awards", blurb: "Critics want story and performances.", weights: { story: 3, acting: 3, impact: 2, visuals: 1, rewatch: 0.5, fun: 0.5 } },
-  { id: "time-capsule", title: "Fill a Time Capsule", blurb: "What should future humans watch?", weights: { impact: 3, story: 2, acting: 1.5, rewatch: 1.5, visuals: 1, fun: 1 } },
-  { id: "binge-weekend", title: "Weekend Binge", blurb: "Hard to stop, easy to rewatch.", weights: { rewatch: 3, fun: 2.5, story: 1.5, acting: 1, visuals: 1, impact: 0.5 } },
-  { id: "spectacle", title: "Pure Spectacle", blurb: "Big screen, big sound, big eyes.", weights: { visuals: 3, fun: 2, impact: 1.5, story: 1, acting: 0.5, rewatch: 1 } },
-  { id: "all-around-screen", title: "Greatest All-Round Watchlist", blurb: "No theme. Pure greatness.", weights: { story: 1, acting: 1, visuals: 1, rewatch: 1, impact: 1, fun: 1 } },
+  { id: "critics-choice", title: "Critics\u2019 Choice", blurb: "Story, performances and lasting impact.", weights: { story: 3, acting: 3, impact: 2, visuals: 1, rewatch: 0.5, fun: 0.5 } },
+  { id: "crowd-favourite", title: "Crowd Favourite", blurb: "Pure fun that people love.", weights: { fun: 3, rewatch: 2.5, impact: 1, story: 1, acting: 0.5, visuals: 1 } },
+  { id: "rewatch-king", title: "Rewatch King", blurb: "Comfort viewing, again and again.", weights: { rewatch: 3, fun: 2.5, story: 1.5, acting: 1, visuals: 0.5, impact: 0.5 } },
+  { id: "visual-spectacle", title: "Visual Spectacle", blurb: "Big screen, big sound, big eyes.", weights: { visuals: 3, fun: 2, impact: 1.5, story: 1, acting: 0.5, rewatch: 1 } },
+  { id: "cultural-impact", title: "Cultural Impact", blurb: "What shaped everything after.", weights: { impact: 3, story: 2, acting: 1.5, rewatch: 1.5, visuals: 1, fun: 1 } },
+  { id: "all-around-screen", title: "Overall Best", blurb: "No lens. Pure greatness.", weights: { story: 1, acting: 1, visuals: 1, rewatch: 1, impact: 1, fun: 1 } },
 ];
 
 /** Missions that suit a character pool's stat keys. */

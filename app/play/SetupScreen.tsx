@@ -31,6 +31,7 @@ const ROLL_COPY: Record<FormatId, string> = {
   feud: "",
   jeopardy: "",
 };
+const SCREEN_POOLS = new Set(["films", "shows"]);
 const QUIZ_FORMATS = new Set<FormatId>(["keep", "price", "feud", "jeopardy"]);
 const SOLO_FORMATS = new Set<FormatId>(["blind", "loadout", "position", "keep", "price", "feud", "jeopardy"]);
 
@@ -231,14 +232,14 @@ export default function SetupScreen() {
       ) : (
         <>
           <Panel title="Topic">
-            <div className="flex flex-wrap gap-2">{CATEGORIES.filter((c) => formatsFor(c.id).includes(format)).map((c) => <Chip key={c.id} selected={pool === c.id} onClick={() => changePool(c.id)}>{c.title}</Chip>)}</div>
+            <div className="flex flex-wrap gap-2">{CATEGORIES.filter((c) => formatsFor(c.id).includes(format) && (!c.hidden || c.id === pool)).map((c) => <Chip key={c.id} selected={pool === c.id} onClick={() => changePool(c.id)}>{c.title}</Chip>)}</div>
             <p className="text-xs text-muted-foreground">{catalogMeta(pool)?.blurb} · {getCatalog(pool).length} to choose from</p>
           </Panel>
-          {format !== "feud" && format !== "jeopardy" && <Panel title={format === "blind" ? "Rank by" : format === "price" ? "Rating based on" : "Mission"} hint={format === "blind" ? "The category you rank by." : "What the AI judge scores you on."}>
+          {format !== "feud" && format !== "jeopardy" && <Panel title={format === "blind" ? "Rank by" : format === "price" ? "Rating based on" : SCREEN_POOLS.has(pool) ? "Judged on" : "Mission"} hint={format === "blind" ? "The category you rank by." : "What the AI judge scores you on."}>
             <div className="flex flex-wrap gap-2">
               {missions.map((m) => <Chip key={m.id} selected={missionId === m.id} onClick={() => setMissionId(m.id)}>{m.title}</Chip>)}
               {format === "blind" && <Chip selected={missionId === "surprise"} onClick={() => setMissionId("surprise")}>🎲 Surprise me — hidden until the end</Chip>}
-              {format !== "blind" && <Chip selected={missionId === "custom"} onClick={() => setMissionId("custom")}>Write your own</Chip>}
+              {format !== "blind" && !SCREEN_POOLS.has(pool) && <Chip selected={missionId === "custom"} onClick={() => setMissionId("custom")}>Write your own</Chip>}
             </div>
             {missionId === "custom" && (
               <div className="grid gap-3 sm:grid-cols-2">

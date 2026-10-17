@@ -1,4 +1,5 @@
 import type { FormatId } from "./types";
+import { hasTrivia } from "../topicDraft/trivia";
 
 export type CategoryDefaults = {
   teamSize: number;
@@ -19,6 +20,8 @@ export type Category = {
   /** Best draft types for this topic, first is the one-tap default. */
   recommended: { format: FormatId; why: string }[];
   defaults: CategoryDefaults;
+  /** Not listed as a topic; reached through the Stat drafts row. */
+  hidden?: boolean;
 };
 
 export const CATEGORIES: Category[] = [
@@ -68,19 +71,19 @@ export const CATEGORIES: Category[] = [
     defaults: { teamSize: 5, missionId: "dinner-party", rankSize: 6, timerSeconds: 30, budget: 25 },
   },
   {
-    id: "football", title: "International Football", blurb: "World Cup legends and today\u2019s stars.", iconSrc: "/icons/soccer.svg", gradient: "from-green-600/40 to-accent/20",
+    id: "football", hidden: true, title: "International Football", blurb: "World Cup legends and today\u2019s stars.", iconSrc: "/icons/soccer.svg", gradient: "from-green-600/40 to-accent/20",
     recommended: [{ format: "position", why: "Pick your starting XI by position" }, { format: "auction", why: "Bid for the biggest names" }],
     defaults: { teamSize: 5, missionId: "world-cup-final", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
     id: "films", title: "Films", blurb: "Classics, blockbusters and cult hits.", iconSrc: "/icons/film.svg", gradient: "from-red-700/40 to-primary/20",
     recommended: [{ format: "blind", why: "Rank the best of the best" }, { format: "position", why: "Plan a perfect movie marathon" }],
-    defaults: { teamSize: 5, missionId: "movie-night", rankSize: 8, timerSeconds: 25, budget: 25 },
+    defaults: { teamSize: 5, missionId: "crowd-favourite", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
     id: "shows", title: "TV Shows", blurb: "Binge-worthy series, all genres.", iconSrc: "/icons/tv.svg", gradient: "from-cyan-600/40 to-primary/20",
     recommended: [{ format: "blind", why: "Rank the greatest series" }, { format: "snake", why: "Draft your ultimate watchlist" }],
-    defaults: { teamSize: 5, missionId: "binge-weekend", rankSize: 8, timerSeconds: 25, budget: 25 },
+    defaults: { teamSize: 5, missionId: "rewatch-king", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
 ];
 
@@ -96,6 +99,7 @@ export const category = (id: string) => CATEGORIES.find((c) => c.id === id);
 export const LEAGUES = [
   { id: "nba", title: "NBA", blurb: "All-time players, your lineup.", href: "/draft/new", iconSrc: "/icons/basketball.png", gradient: "from-orange-600/40 to-primary/20" },
   { id: "nfl", title: "NFL", blurb: "Gridiron greats, positions and all.", href: "/draft/new?league=NFL", iconSrc: "/icons/football.png", gradient: "from-emerald-700/40 to-primary/20" },
+  { id: "football", title: "Int\u2019l Football", blurb: "World Cup legends, one lineup.", href: "/play/position?pool=football", iconSrc: "/icons/soccer.svg", gradient: "from-green-600/40 to-accent/20" },
   { id: "cartoon", title: "Cartoons", blurb: "Shows and characters from every era.", href: "/draft/new?league=CARTOON", iconSrc: "/icons/turtle.png", gradient: "from-sky-600/40 to-accent/20" },
 ];
 
@@ -115,6 +119,6 @@ export const FORMAT_WHY: Record<FormatId, string> = {
 /** Formats that make sense for a category (Loadout needs hero-ish items). */
 export const LOADOUT_CATEGORIES = new Set(["superheroes", "villains", "heroes-villains", "anime", "movies", "videogames"]);
 export function formatsFor(pool: string): FormatId[] {
-  const all: FormatId[] = ["snake", "spin", "auction", "position", "blind", "keep", "price", "feud", "jeopardy"];
+  const all: FormatId[] = ["snake", "spin", "auction", "position", "blind", "keep", "price", ...(hasTrivia(pool) ? (["feud", "jeopardy"] as FormatId[]) : [])];
   return LOADOUT_CATEGORIES.has(pool) ? [...all, "loadout"] : all;
 }

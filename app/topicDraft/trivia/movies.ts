@@ -1,0 +1,30 @@
+import type { TriviaSet } from "./types";
+
+export const movies: TriviaSet = {
+  quiz: [
+    ["Action Heroes", 1, "Which spy has the code number 007?", "James Bond", "Ethan Hunt", "Jason Bourne", "John Wick"],
+    ["Action Heroes", 2, "Which actor played Indiana Jones?", "Harrison Ford", "Tom Cruise", "Kurt Russell", "Bruce Willis"],
+    ["Action Heroes", 3, "Which film features Ethan Hunt?", "Mission: Impossible", "The Bourne Identity", "Speed", "Heat"],
+    ["Action Heroes", 4, "Which 1988 film has John McClane fighting terrorists in Nakatomi Plaza?", "Die Hard", "Lethal Weapon", "Predator", "Cliffhanger"],
+    ["Monsters", 1, "Which giant ape climbs the Empire State Building?", "King Kong", "Godzilla", "Mighty Joe Young", "Mothra"],
+    ["Monsters", 2, "Which film features a great white shark terrorising Amity Island?", "Jaws", "Deep Blue Sea", "The Meg", "Open Water"],
+    ["Monsters", 3, "Which monster is the creature in Alien?", "Xenomorph", "Predator", "The Thing", "Gremlin"],
+    ["Monsters", 4, "Which country is Godzilla originally from?", "Japan", "USA", "South Korea", "China"],
+    ["Quotes", 1, "Which film says 'I'll be back'?", "The Terminator", "Predator", "Total Recall", "Rambo"],
+    ["Quotes", 2, "Which film includes 'May the Force be with you'?", "Star Wars", "Star Trek", "Dune", "Avatar"],
+    ["Quotes", 3, "Which film has the line 'Here's looking at you, kid'?", "Casablanca", "Gone with the Wind", "Citizen Kane", "Vertigo"],
+    ["Quotes", 4, "Which film says 'You can't handle the truth!'?", "A Few Good Men", "The Firm", "Scarface", "Philadelphia"],
+    ["Franchises", 1, "How many Lord of the Rings films are in the original trilogy?", "3", "2", "4", "6"],
+    ["Franchises", 2, "Which franchise features the Millennium Falcon?", "Star Wars", "Star Trek", "Battlestar Galactica", "Guardians of the Galaxy"],
+    ["Franchises", 3, "Who directed Jurassic Park?", "Steven Spielberg", "James Cameron", "Ridley Scott", "George Lucas"],
+    ["Franchises", 4, "Which film series features the Nostromo?", "Alien", "Terminator", "Predator", "Star Trek"],
+  ],
+  surveys: [
+    ["Name a James Bond actor", "Sean Connery|Roger Moore|Daniel Craig|Pierce Brosnan|Timothy Dalton", "Harrison Ford|Tom Cruise|Matt Damon|Idris Elba"],
+    ["Name a Star Wars character", "Luke Skywalker|Darth Vader|Han Solo|Princess Leia|Yoda", "Gandalf|Frodo|Spock|Ripley"],
+    ["Name a famous movie monster", "Godzilla|King Kong|Dracula|Frankenstein's monster|The Xenomorph", "Rocky|Forrest Gump|John Wick|Maverick"],
+    ["Name an action movie franchise", "Die Hard|John Wick|Mission: Impossible|Fast & Furious|Terminator", "Titanic|La La Land|Forrest Gump|Casablanca"],
+    ["Name a Steven Spielberg film", "Jaws|E.T.|Jurassic Park|Schindler's List|Raiders of the Lost Ark", "Alien|Titanic|Avatar|Gladiator"],
+    ["Name a movie with a famous sequel", "Toy Story|The Godfather|Terminator|Aliens|The Dark Knight", "Citizen Kane|Casablanca|Psycho|Vertigo"],
+  ],
+};

@@ -32,6 +32,6 @@ describe("categories", () => {
   });
 
   it("league tiles link to existing draft pages", () => {
-    for (const l of LEAGUES) expect(l.href.startsWith("/draft")).toBe(true);
+    for (const l of LEAGUES) expect(/^\/(draft|play)/.test(l.href)).toBe(true);
   });
 });

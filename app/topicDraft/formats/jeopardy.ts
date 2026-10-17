@@ -1,11 +1,11 @@
-// Jeopardy: a board of categories and dollar values. Pick a clue, then name who ranks highest.
-import type { Item } from "../types";
-import { itemScore } from "../scorer";
+// Jeopardy: a board of categories and dollar values filled with real trivia for the topic.
+import type { Question } from "../trivia/types";
 import { next, shuffle } from "../rng";
 
 export const VALUES = [100, 200, 300, 400];
 
-export type Cell = { metric: string; value: number; options: string[]; answer: string; done: boolean; by?: string; picked?: string; correct?: boolean };
+export type Cell = { cat: string; value: number; q: string; options: string[]; answer: string; done: boolean; by?: string; picked?: string; correct?: boolean };
+export type Right = { q: string; answer: string; cat: string };
 
 export type JeopardyState = {
   players: string[];
@@ -14,7 +14,7 @@ export type JeopardyState = {
   active: number | null; // the clue currently on screen
   resolved: number;
   points: Record<string, number>;
-  right: Record<string, string[]>;
+  right: Record<string, Right[]>;
   tried: Record<string, number>;
   done: boolean;
   seed: number;
@@ -22,30 +22,25 @@ export type JeopardyState = {
 
 export const colsOf = (s: JeopardyState) => s.cats.length;
 
-export function init(o: { players: string[]; pool: Item[]; statKeys: string[]; cats?: number; seed: number }): JeopardyState {
+/** Categories that have a question at every value tier can go on the board. */
+export const usableCats = (qs: Question[]) => [...new Set(qs.map((q) => q.cat))].filter((c) => [1, 2, 3, 4].every((l) => qs.some((q) => q.cat === c && q.level === l)));
+
+export function init(o: { players: string[]; questions: Question[]; cats?: number; seed: number }): JeopardyState {
   let seed = o.seed;
-  const [keys, s1] = shuffle(o.statKeys, seed);
+  const [shuffled, s1] = shuffle(usableCats(o.questions), seed);
   seed = s1;
-  const cats = keys.slice(0, Math.min(o.cats ?? 4, keys.length));
+  const cats = shuffled.slice(0, o.cats ?? 4);
   const cells: Cell[] = new Array(cats.length * VALUES.length);
-  cats.forEach((metric, col) => {
-    // Candidate 4-item groups; a bigger gap between 1st and 2nd means an easier clue.
-    const groups: { ids: string[]; answer: string; gap: number }[] = [];
-    for (let g = 0; g < 14; g++) {
-      const [shuf, sn] = shuffle(o.pool, seed);
-      seed = sn;
-      const four = shuf.slice(0, 4).sort((a, b) => itemScore(b, { [metric]: 1 }) - itemScore(a, { [metric]: 1 }));
-      groups.push({ ids: four.map((i) => i.id), answer: four[0]!.id, gap: itemScore(four[0]!, { [metric]: 1 }) - itemScore(four[1]!, { [metric]: 1 }) });
-    }
-    groups.sort((a, b) => b.gap - a.gap);
+  cats.forEach((cat, col) => {
     VALUES.forEach((value, row) => {
-      const g = groups[Math.min(groups.length - 1, Math.floor((row / VALUES.length) * groups.length) + 1)]!;
-      const [options, sn] = shuffle(g.ids, seed);
-      seed = sn;
-      cells[row * cats.length + col] = { metric, value, options, answer: g.answer, done: false };
+      const pool = o.questions.filter((q) => q.cat === cat && q.level === row + 1);
+      const [pickOne, s2] = shuffle(pool, seed);
+      const [options, s3] = shuffle([pickOne[0]!.right, ...pickOne[0]!.wrong], s2);
+      seed = s3;
+      cells[row * cats.length + col] = { cat, value, q: pickOne[0]!.q, options, answer: pickOne[0]!.right, done: false };
     });
   });
-  return { players: o.players, cats, cells, active: null, resolved: 0, points: Object.fromEntries(o.players.map((p) => [p, 0])), right: Object.fromEntries(o.players.map((p) => [p, []])), tried: Object.fromEntries(o.players.map((p) => [p, 0])), done: false, seed };
+  return { players: o.players, cats, cells, active: null, resolved: 0, points: Object.fromEntries(o.players.map((p) => [p, 0])), right: Object.fromEntries(o.players.map((p) => [p, []])), tried: Object.fromEntries(o.players.map((p) => [p, 0])), done: cells.length === 0, seed };
 }
 
 /** Whoever's turn it is picks the clue and answers it. */
@@ -57,12 +52,12 @@ export function choose(s: JeopardyState, by: string, cell: number): JeopardyStat
   return { ...s, active: cell };
 }
 
-export function answer(s: JeopardyState, by: string, itemId: string): JeopardyState {
+export function answer(s: JeopardyState, by: string, choice: string): JeopardyState {
   if (s.done || s.active == null || turnPlayer(s) !== by) return s;
   const c = s.cells[s.active]!;
-  if (!c.options.includes(itemId)) return s;
-  const correct = itemId === c.answer;
-  const cells = s.cells.map((x, i) => (i === s.active ? { ...x, done: true, by, picked: itemId, correct } : x));
+  if (!c.options.includes(choice)) return s;
+  const correct = choice === c.answer;
+  const cells = s.cells.map((x, i) => (i === s.active ? { ...x, done: true, by, picked: choice, correct } : x));
   const resolved = s.resolved + 1;
   return {
     ...s,
@@ -70,20 +65,19 @@ export function answer(s: JeopardyState, by: string, itemId: string): JeopardySt
     active: null,
     resolved,
     points: { ...s.points, [by]: s.points[by]! + (correct ? c.value : -c.value) },
-    right: correct ? { ...s.right, [by]: [...s.right[by]!, c.answer] } : s.right,
+    right: correct ? { ...s.right, [by]: [...s.right[by]!, { q: c.q, answer: c.answer, cat: c.cat }] } : s.right,
     tried: { ...s.tried, [by]: s.tried[by]! + 1 },
     done: resolved >= s.cells.length,
   };
 }
 
 /** AI: picks the cheapest open clue; answers right less often as the value climbs. */
-export function aiChoose(s: JeopardyState): number {
-  return s.cells.findIndex((c) => !c.done);
-}
-export function aiAnswer(s: JeopardyState): { itemId: string; seed: number } {
+export const aiChoose = (s: JeopardyState): number => s.cells.findIndex((c) => !c.done);
+
+export function aiAnswer(s: JeopardyState): { choice: string; seed: number } {
   const c = s.cells[s.active!]!;
   const [r, seed] = next(s.seed);
   const p = 0.9 - 0.14 * VALUES.indexOf(c.value);
   const wrong = c.options.filter((o) => o !== c.answer);
-  return { itemId: r < p ? c.answer : wrong[Math.floor(r * 997) % wrong.length]!, seed };
+  return { choice: r < p ? c.answer : wrong[Math.floor(r * 997) % wrong.length]!, seed };
 }

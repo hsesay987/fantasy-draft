@@ -17,7 +17,7 @@ import * as K from "./formats/keep";
 import * as PR from "./formats/price";
 import * as FD from "./formats/feud";
 import * as J from "./formats/jeopardy";
-import { catalogMeta } from "./catalogs";
+import { questionsFor, surveysFor } from "./trivia";
 import type { Item, State } from "./types";
 import { battle } from "./battle";
 
@@ -56,7 +56,7 @@ export function poolFor(setup: GameSetup): Item[] {
 
 const rolling = (s: GameSetup) => s.format === "spin" || s.opts.roll;
 
-const statKeysOf = (setup: GameSetup) => catalogMeta(setup.pool)?.statKeys ?? Object.keys(poolFor(setup)[0]?.stats ?? {});
+const triviaItem = (label: string, cat: string): Item => ({ id: `trivia-${label}`, name: label, universe: cat, archetype: "Trivia", stats: {}, tags: [] });
 const quizRounds = (setup: GameSetup) => Math.max(3, Math.min(8, setup.opts.teamSize));
 
 export function initGame(setup: GameSetup, now: number): GameState {
@@ -83,9 +83,9 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "price":
       return PR.init({ players: setup.players, pool, rounds: quizRounds(setup), weights: setup.mission.weights, seed: setup.seed });
     case "feud":
-      return FD.init({ players: setup.players, pool, statKeys: statKeysOf(setup), rounds: Math.min(5, quizRounds(setup)), seed: setup.seed });
+      return FD.init({ players: setup.players, surveys: surveysFor(setup.pool), rounds: Math.min(5, quizRounds(setup)), seed: setup.seed });
     case "jeopardy":
-      return J.init({ players: setup.players, pool, statKeys: statKeysOf(setup), seed: setup.seed });
+      return J.init({ players: setup.players, questions: questionsFor(setup.pool), seed: setup.seed });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }
@@ -228,13 +228,13 @@ export function autoAction(setup: GameSetup, s: GameState): Action | null {
     }
     case "feud": {
       const r = FD.aiChoose(s as FD.FeudState);
-      return { type: "answer", by, choice: r.itemId, seed: r.seed };
+      return { type: "answer", by, choice: r.choice, seed: r.seed };
     }
     case "jeopardy": {
       const j = s as J.JeopardyState;
       if (j.active == null) return { type: "choose", by, cell: J.aiChoose(j) };
       const r = J.aiAnswer(j);
-      return { type: "answer", by, choice: r.itemId, seed: r.seed };
+      return { type: "answer", by, choice: r.choice, seed: r.seed };
     }
     default:
       return null;
@@ -346,10 +346,10 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
       return {
         extra: null,
         teams: f.players.map((player) => {
-          const found = f.rounds.flatMap((r) => Object.entries(r.found).filter(([, by]) => by === player).map(([id]) => ({ id, role: `#${r.board.indexOf(id) + 1} ${r.metric}` })));
+          const found = f.rounds.flatMap((r) => Object.entries(r.found).filter(([, by]) => by === player).map(([answer]) => ({ answer, role: `#${r.board.indexOf(answer) + 1}: ${r.q}` })));
           const pts = f.points[player]!;
           const strikes = f.rounds.reduce((n, r) => n + r.wrong.length, 0);
-          return { player, baseline: Math.round(Math.min(100, 30 + (70 * pts) / (f.rounds.length * 75)) * 10) / 10, notes: `Scored ${pts} points naming ${found.length} survey answers. Table strikes: ${strikes}.`, items: found.map((x) => toJudgeItem(get(x.id)!, { role: x.role })) };
+          return { player, baseline: Math.round(Math.min(100, 30 + (70 * pts) / (f.rounds.length * 75)) * 10) / 10, notes: `Scored ${pts} points naming ${found.length} survey answers. Table strikes: ${strikes}.`, items: found.map((x) => toJudgeItem(triviaItem(x.answer, "Survey"), { role: x.role })) };
         }),
       };
     }
@@ -361,7 +361,7 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
           const tried = j.tried[player]!;
           const acc = tried ? j.right[player]!.length / tried : 0;
           const share = Math.max(0, Math.min(1, j.points[player]! / 1200));
-          return { player, baseline: Math.round((35 + 65 * (0.5 * acc + 0.5 * share)) * 10) / 10, notes: `Scored $${j.points[player]} (${j.right[player]!.length} of ${tried} clues right).`, items: j.right[player]!.map((id) => toJudgeItem(get(id)!, { role: "Correct answer" })) };
+          return { player, baseline: Math.round((35 + 65 * (0.5 * acc + 0.5 * share)) * 10) / 10, notes: `Scored $${j.points[player]} (${j.right[player]!.length} of ${tried} clues right).`, items: j.right[player]!.map((r) => toJudgeItem(triviaItem(r.answer, r.cat), { role: r.q })) };
         }),
       };
     }
