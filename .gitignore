@@ -50,3 +50,4 @@ backend/data/cartoons/
 
 # database dumps contain user data
 backups/
+.archify/
