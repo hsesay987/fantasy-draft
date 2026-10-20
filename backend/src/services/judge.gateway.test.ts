@@ -3,7 +3,7 @@ import { defaultClient } from "./judge.service";
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  for (const k of ["JUDGE_BASE_URL", "JUDGE_API_KEY", "ANTHROPIC_API_KEY", "JUDGE_GATEWAY_MODEL"]) delete process.env[k];
+  for (const k of ["JUDGE_BASE_URL", "JUDGE_API_KEY", "ANTHROPIC_API_KEY", "JUDGE_GATEWAY_MODEL", "JUDGE_BASE_URL_2", "JUDGE_API_KEY_2", "JUDGE_GATEWAY_MODEL_2"]) delete process.env[k];
 });
 
 describe("judge model chain", () => {
@@ -25,5 +25,16 @@ describe("judge model chain", () => {
     process.env.JUDGE_BASE_URL = "http://x/v1";
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 503 })));
     await expect(defaultClient()!.complete("s", "u")).rejects.toThrow("gateway 503");
+  });
+  it("falls through to the second gateway when the first fails", async () => {
+    process.env.JUDGE_BASE_URL = "http://one/v1";
+    process.env.JUDGE_BASE_URL_2 = "http://two/v1";
+    process.env.JUDGE_GATEWAY_MODEL_2 = "m2";
+    const f = vi.fn(async (url: string) =>
+      url.startsWith("http://one") ? ({ ok: false, status: 429 } as any) : ({ ok: true, json: async () => ({ choices: [{ message: { content: "from two" } }] }) } as any)
+    );
+    vi.stubGlobal("fetch", f);
+    expect(await defaultClient()!.complete("s", "u")).toBe("from two");
+    expect(f).toHaveBeenCalledTimes(2);
   });
 });

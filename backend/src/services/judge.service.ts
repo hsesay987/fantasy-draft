@@ -183,25 +183,33 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   });
 }
 
-/** OpenAI-compatible chat endpoint: OmniRoute, OpenRouter, Groq, Gemini's compat layer, Ollama and most gateways. */
-function gatewayClient(): LLM | null {
-  const base = process.env.JUDGE_BASE_URL;
-  if (!base) return null;
-  const model = process.env.JUDGE_GATEWAY_MODEL || process.env.JUDGE_MODEL || "auto";
-  const key = process.env.JUDGE_API_KEY || "";
-  return {
-    async complete(system, user, onUsage) {
-      const res = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {
-        method: "POST",
-        headers: { "content-type": "application/json", ...(key ? { authorization: `Bearer ${key}` } : {}) },
-        body: JSON.stringify({ model, max_tokens: 1500, temperature: 0.7, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
-      });
-      if (!res.ok) throw new Error(`gateway ${res.status}`);
-      const j: any = await res.json();
-      onUsage?.({ model: j.model ?? model, tokensIn: j.usage?.prompt_tokens ?? 0, tokensOut: j.usage?.completion_tokens ?? 0 });
-      return String(j.choices?.[0]?.message?.content ?? "");
-    },
-  };
+/**
+ * OpenAI-compatible chat endpoints (Groq, Gemini's compat layer, OpenRouter, OmniRoute, Ollama...). Up to three can be
+ * configured as JUDGE_BASE_URL / _2 / _3 with matching JUDGE_API_KEY / JUDGE_GATEWAY_MODEL; they are tried in order.
+ */
+function gatewayClients(): LLM[] {
+  const out: LLM[] = [];
+  for (const n of ["", "_2", "_3"]) {
+    const base = process.env[`JUDGE_BASE_URL${n}`];
+    if (!base) continue;
+    const model = process.env[`JUDGE_GATEWAY_MODEL${n}`] || (n === "" ? process.env.JUDGE_MODEL : "") || "auto";
+    const key = process.env[`JUDGE_API_KEY${n}`] || "";
+    out.push({
+      async complete(system, user, onUsage) {
+        const res = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {
+          method: "POST",
+          headers: { "content-type": "application/json", ...(key ? { authorization: `Bearer ${key}` } : {}) },
+          body: JSON.stringify({ model, max_tokens: 1500, temperature: 0.7, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
+          signal: AbortSignal.timeout(15_000),
+        });
+        if (!res.ok) throw new Error(`gateway${n} ${res.status}`);
+        const j: any = await res.json();
+        onUsage?.({ model: j.model ?? model, tokensIn: j.usage?.prompt_tokens ?? 0, tokensOut: j.usage?.completion_tokens ?? 0 });
+        return String(j.choices?.[0]?.message?.content ?? "");
+      },
+    });
+  }
+  return out;
 }
 
 function anthropicClient(): LLM | null {
@@ -226,11 +234,11 @@ function anthropicClient(): LLM | null {
 }
 
 /**
- * Judge model order: a free/cheap OpenAI-compatible gateway first (JUDGE_BASE_URL, e.g. OmniRoute), then Anthropic
+ * Judge model order: free/cheap OpenAI-compatible gateways first (JUDGE_BASE_URL, _2, _3), then Anthropic
  * if a key is set, then the deterministic judge. A failing provider falls through to the next one.
  */
 export function defaultClient(): LLM | null {
-  const chain = [gatewayClient(), anthropicClient()].filter(Boolean) as LLM[];
+  const chain = [...gatewayClients(), anthropicClient()].filter(Boolean) as LLM[];
   if (!chain.length) return null;
   if (chain.length === 1) return chain[0]!;
   return {
