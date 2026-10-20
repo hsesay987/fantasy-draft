@@ -14,6 +14,12 @@ for k in DATABASE_URL MIGRATE_DATABASE_URL SENTRY_DSN POSTHOG_KEY; do
   v=$(val "$k"); [ -n "$v" ] || { echo "Missing $k in $ENVF" >&2; exit 1; }
   args+=("$k=$v")
 done
+# Optional values copied from .env.local when present (Jev moderation, hosted judge gateways). Local-only URLs are skipped.
+for k in JEV_API_KEY JEV_MODEL JUDGE_BASE_URL JUDGE_API_KEY JUDGE_GATEWAY_MODEL JUDGE_EXTRA_BODY JUDGE_BASE_URL_2 JUDGE_API_KEY_2 JUDGE_GATEWAY_MODEL_2 JUDGE_EXTRA_BODY_2 JUDGE_BASE_URL_3 JUDGE_API_KEY_3 JUDGE_GATEWAY_MODEL_3 JUDGE_EXTRA_BODY_3; do
+  v=$(val "$k" || true); [ -n "$v" ] || continue
+  case "$v" in *localhost*|*127.0.0.1*) continue;; esac
+  args+=("$k=$v")
+done
 args+=("JWT_SECRET=$(openssl rand -hex 32)")
 args+=("RESEND_VERIFY_TEMPLATE_ID=verify-email-toppic-games" "RESEND_RESET_TEMPLATE_ID=reset-password-toppic-games" "RESEND_RECEIPT_TEMPLATE_ID=toppic-subscription-confirmation")
 for k in RESEND_API_KEY ANTHROPIC_API_KEY STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET GOOGLE_CLIENT_ID; do
