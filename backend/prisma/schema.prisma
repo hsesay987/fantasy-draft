@@ -493,3 +493,34 @@ model TopPicCardReport {
 
   @@index([promptId, createdAt])
 }
+
+/// A Jeopardy category with four clues (rows 100-400), written by hand or generated and verified by the AI.
+model TriviaCategory {
+  id         String    @id @default(cuid())
+  pool       String
+  name       String
+  clues      Json
+  source     String // "seed" | "ai"
+  uses       Int       @default(0)
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([pool, name])
+  @@index([pool, uses])
+}
+
+/// A Family Feud survey: a question with its ranked answers and some plausible wrong ones.
+model TriviaSurvey {
+  id         String    @id @default(cuid())
+  pool       String
+  q          String
+  answers    String[]
+  decoys     String[]
+  source     String // "seed" | "ai"
+  uses       Int       @default(0)
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([pool, q])
+  @@index([pool, uses])
+}

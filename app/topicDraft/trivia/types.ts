@@ -12,3 +12,10 @@ export type TriviaSet = { quiz: QuizRow[]; surveys: SurveyRow[] };
 
 export type Question = { cat: string; level: number; q: string; right: string; wrong: string[] };
 export type Survey = { q: string; answers: string[]; decoys: string[] };
+
+/** One clue on a Jeopardy board. */
+export type Clue = { q: string; right: string; wrong: string[] };
+/** A Jeopardy category: four clues, easiest first (100, 200, 300, 400 dollars). */
+export type TriviaCategory = { name: string; clues: Clue[] };
+/** What the server attaches to a Jeopardy or Family Feud game so every player sees the same questions. */
+export type QuizData = { categories?: TriviaCategory[]; surveys?: Survey[] };

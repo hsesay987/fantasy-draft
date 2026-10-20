@@ -3,6 +3,7 @@
 import type { Config, Item, Scenario } from "../topicDraft/types";
 import type { LoadoutMission } from "../topicDraft/formats/loadout";
 import type { Role } from "../topicDraft/formats/position";
+import type { QuizData } from "../topicDraft/trivia/types";
 
 export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "price" | "feud" | "jeopardy";
 
@@ -44,6 +45,8 @@ export type GameSetup = {
   loadout: LoadoutMission | null;
   roles: Role[];
   opts: Opts;
+  /** Jeopardy and Family Feud: the questions for this game, chosen by the server so rooms share them. */
+  quiz?: QuizData;
   seed: number;
 };
 

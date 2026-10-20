@@ -14,7 +14,7 @@ import { formatMeta } from "./formats";
 import { CATEGORIES, category, formatsFor } from "./categories";
 import { DEFAULT_OPTS, type FormatId, type GameSetup, type Opts } from "./types";
 import { loadPrefs, resumable, saveSetup, savePrefs } from "./storage";
-import { createRoom, saveToken } from "./onlineApi";
+import { createRoom, fetchQuiz, saveToken } from "./onlineApi";
 import { track } from "../lib/analytics";
 import { loadSeen } from "../lib/seenTrivia";
 import { BossPicker, Collapse, CustomItems, Field, LoadoutEditor, RolesEditor, Stepper, inputCls } from "./setupParts";
@@ -175,6 +175,11 @@ export default function SetupScreen() {
       track("room_created", { format, pool: setup.pool, seats_max: 6 });
       router.push(`/room/${r.data.code}`);
       return;
+    }
+    if (format === "jeopardy" || format === "feud") {
+      setCreating(true);
+      setup.quiz = (await fetchQuiz(format, pool, setup.opts.avoid, opts.teamSize)) ?? undefined;
+      setCreating(false);
     }
     saveSetup(setup);
     router.push(`/play/${format}/game`);
@@ -367,7 +372,7 @@ export default function SetupScreen() {
             <div className="truncate font-semibold">{meta.title} · {format === "loadout" ? loadout.title : catMeta?.title}</div>
             <div className={`truncate ${problem || netError ? "text-accent" : "text-muted-foreground"}`}>{problem ?? netError ?? `${mode === "online" ? "Online" : players.length === 1 ? "Solo" : `${players.length} players`}${mystery ? " · mystery" : ""}${opts.roll || format === "spin" ? " · random roll" : ""}`}</div>
           </div>
-          <Button variant="accent" className="px-8 text-lg" disabled={!!problem || creating} onClick={start}><Play className="h-5 w-5" aria-hidden /> {mode === "online" ? (creating ? "Creating…" : "Create room") : "Start"}</Button>
+          <Button variant="accent" className="px-8 text-lg" disabled={!!problem || creating} onClick={start}><Play className="h-5 w-5" aria-hidden /> {mode === "online" ? (creating ? "Creating…" : "Create room") : creating ? "Building your board…" : "Start"}</Button>
         </div>
       </div>
     </PageShell>

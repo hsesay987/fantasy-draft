@@ -2,6 +2,7 @@ import type { GameState } from "../topicDraft/core";
 import type { Action } from "../topicDraft/core";
 import type { Verdict } from "./judging";
 import type { GameSetup } from "./types";
+import type { QuizData } from "../topicDraft/trivia/types";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -56,3 +57,22 @@ export const startRoom = (code: string, token: string) => call<RoomSnapshot>(`/$
 export const sendAction = (code: string, token: string, action: Omit<Action, "by"> & { by?: string }) =>
   call<{ ok: boolean; snapshot: RoomSnapshot }>(`/${code.toUpperCase()}/action`, { method: "POST", body: JSON.stringify({ token, action }) });
 export const leaveRoom = (code: string, token: string) => call<{ ok: boolean }>(`/${code.toUpperCase()}/leave`, { method: "POST", body: JSON.stringify({ token }) });
+
+/** Jeopardy and Feud questions come from the server's trivia bank (AI-written, checked, rotated). Null = use the bundled set. */
+export async function fetchQuiz(format: "jeopardy" | "feud", pool: string, avoid: string[], rounds = 5): Promise<QuizData | null> {
+  try {
+    const res = await fetch(`${API_URL}/trivia/${format}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pool, avoid, rounds }),
+      signal: AbortSignal.timeout(45_000),
+    });
+    if (!res.ok) return null;
+    const j = await res.json();
+    if (format === "jeopardy" && Array.isArray(j.categories) && j.categories.length >= 4) return { categories: j.categories };
+    if (format === "feud" && Array.isArray(j.surveys) && j.surveys.length >= 3) return { surveys: j.surveys };
+    return null;
+  } catch {
+    return null;
+  }
+}

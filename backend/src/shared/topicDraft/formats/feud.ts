@@ -50,10 +50,10 @@ export type FeudState = {
   seed: number;
 };
 
-export function init(o: { players: string[]; surveys: Survey[]; extra?: Survey[]; avoid?: string[]; rounds: number; seed: number }): FeudState {
+export function init(o: { players: string[]; surveys: Survey[]; avoid?: string[]; rounds: number; seed: number }): FeudState {
   let seed = o.seed;
   const avoid = new Set(o.avoid ?? []);
-  const all = [...o.surveys, ...(o.extra ?? [])];
+  const all = o.surveys;
   const fresh = all.filter((x) => !avoid.has(x.q));
   const [picked, s1] = shuffle(fresh.length >= o.rounds ? fresh : all, seed);
   seed = s1;

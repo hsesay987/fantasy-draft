@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { getIo } from "../socket";
 import { trackServer } from "../lib/monitoring";
 import { judge, type Verdict } from "./judge.service";
+import type { QuizData } from "../shared/topicDraft/trivia/types";
 import { applyAction, autoAction, buildTeams, currentTurn, initGame, isDone, QUICK_FORMATS, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
 import { CATALOG_META, getCatalog } from "../shared/topicDraft/catalogs";
 import type { GameSetup, FormatId } from "../shared/play/types";
@@ -143,14 +144,14 @@ export function getRoom(c: string): Room | undefined {
   return rooms.get(String(c).toUpperCase());
 }
 
-export function createRoom(input: unknown, hostName: string): { room: Room; seat: Seat } | { error: string } {
+export function createRoom(input: unknown, hostName: string, quiz?: QuizData): { room: Room; seat: Seat } | { error: string } {
   const setup = sanitizeSetup(input);
   if (!setup) return { error: "Invalid game setup" };
   const name = clean(hostName, 20);
   if (!name) return { error: "Enter a name" };
   if (rooms.size >= MAX_ROOMS) return { error: "Server is busy, try again soon" };
   const seat: Seat = { name, token: crypto.randomBytes(16).toString("hex"), left: false };
-  const room: Room = { code: code(), setup: { ...setup, id: `room-${Date.now()}`, players: [name] }, seats: [seat], status: "lobby", state: null, turnMarker: "", turnStartedAt: 0, verdict: null, version: 1, createdAt: Date.now(), touchedAt: Date.now() };
+  const room: Room = { code: code(), setup: { ...setup, id: `room-${Date.now()}`, players: [name], ...(quiz ? { quiz } : {}) }, seats: [seat], status: "lobby", state: null, turnMarker: "", turnStartedAt: 0, verdict: null, version: 1, createdAt: Date.now(), touchedAt: Date.now() };
   rooms.set(room.code, room);
   trackServer("room_created_server", { format: setup.format, pool: setup.pool }, room.code);
   return { room, seat };

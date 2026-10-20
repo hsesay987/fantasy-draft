@@ -8,9 +8,7 @@ import * as K from "./keep";
 import * as PR from "./price";
 import * as FD from "./feud";
 import * as J from "./jeopardy";
-import { questionsFor, surveysFor, TRIVIA_POOLS } from "../trivia";
-import { usableCats } from "./jeopardy";
-import { statSurveys } from "../trivia/generated";
+import { bundledCategories, questionsFor, surveysFor, TRIVIA_POOLS } from "../trivia";
 
 const setupFor = (format: FormatId, pool = "superheroes", players = ["A", "B"]): GameSetup => ({
   id: "t", format, pool, players, aiPlayers: players, mission: missionsFor(pool)[0]!, mystery: false, loadout: null, roles: [],
@@ -115,7 +113,8 @@ describe("family feud", () => {
 });
 
 describe("jeopardy", () => {
-  const s0 = J.init({ players: ["A", "B"], questions: questionsFor("anime"), seed: 4 });
+  const cats = bundledCategories("anime");
+  const s0 = J.init({ players: ["A", "B"], categories: cats, seed: 4 });
   it("builds a 4x4 board of real questions", () => {
     expect(s0.cells).toHaveLength(16);
     for (const c of s0.cells) {
@@ -123,18 +122,26 @@ describe("jeopardy", () => {
       expect(c.q.includes("?")).toBe(true);
     }
   });
-  it("never uses easy level-1 questions or repeats a question in a category", () => {
-    const qs = questionsFor("anime");
-    const easy = new Set(qs.filter((q) => q.level === 1).map((q) => q.q));
-    for (let seed = 1; seed < 30; seed++) {
-      const b = J.init({ players: ["A"], questions: qs, seed });
-      const seen = new Set<string>();
-      for (const c of b.cells) {
-        expect(easy.has(c.q)).toBe(false);
-        expect(seen.has(c.q)).toBe(false);
-        seen.add(c.q);
-      }
+  it("uses whole categories, in clue order down each column", () => {
+    for (const name of s0.cats) {
+      const col = s0.cats.indexOf(name);
+      const clues = cats.find((c) => c.name === name)!.clues;
+      for (let row = 0; row < 4; row++) expect(s0.cells[row * 4 + col]!.q).toBe(clues[row]!.q);
     }
+  });
+  const big = [...bundledCategories("superheroes"), ...bundledCategories("villains"), ...cats];
+  it("prefers categories you have not seen, but still builds when all were seen", () => {
+    const first = J.init({ players: ["A"], categories: big, seed: 4 });
+    const seen = first.cats.map((n) => `cat:${n}`);
+    const next = J.init({ players: ["A"], categories: big, avoid: seen, seed: 4 });
+    expect(next.cats.filter((n) => first.cats.includes(n))).toHaveLength(0);
+    const all = J.init({ players: ["A"], categories: cats, avoid: cats.map((c) => `cat:${c.name}`), seed: 4 });
+    expect(all.cells).toHaveLength(16);
+  });
+  it("different seeds shuffle which categories appear", () => {
+    const boards = new Set<string>();
+    for (let seed = 1; seed <= 12; seed++) boards.add(J.init({ players: ["A"], categories: big, seed }).cats.slice().sort().join("|"));
+    expect(boards.size).toBeGreaterThan(3);
   });
   it("right answers add the value, wrong ones subtract it", () => {
     let s = J.choose(s0, "A", 0);
@@ -147,47 +154,11 @@ describe("jeopardy", () => {
   });
 });
 
-describe("quiz variety", () => {
-  const pool = getCatalog("anime");
-  const qs = questionsFor("anime");
-  const stats = ["power", "intellect", "speed", "durability", "combat", "teamwork"];
-  it("different seeds give different boards", () => {
-    const boards = new Set<string>();
-    for (let seed = 1; seed <= 12; seed++) boards.add(J.init({ players: ["A"], questions: qs, pool, statKeys: stats, seed }).cells.map((c) => c.q).join("|"));
-    expect(boards.size).toBeGreaterThanOrEqual(10);
-  });
-  it("stat clues have a real answer and harder rows are closer calls", () => {
-    for (let seed = 1; seed <= 20; seed++) {
-      const b = J.init({ players: ["A"], questions: qs, pool, statKeys: stats, seed });
-      expect(b.cells).toHaveLength(16);
-      for (const c of b.cells) {
-        expect(new Set(c.options).size).toBe(4);
-        expect(c.options).toContain(c.answer);
-      }
-    }
-  });
-  it("still builds a full board when everything was seen", () => {
-    const first = J.init({ players: ["A"], questions: qs, pool, statKeys: stats, seed: 5 });
-    const again = J.init({ players: ["A"], questions: qs, pool, statKeys: stats, avoid: qs.map((x) => x.q), seed: 5 });
-    expect(first.cells).toHaveLength(16);
-    expect(again.cells).toHaveLength(16);
-  });
-  it("feud mixes in stat boards that match the catalog", () => {
-    const extra = statSurveys(pool, stats, "Anime");
-    expect(extra.length).toBeGreaterThan(2);
-    for (const x of extra) {
-      expect(x.answers.length).toBeGreaterThanOrEqual(3);
-      expect(x.decoys.length).toBeGreaterThan(0);
-      for (const d of x.decoys) expect(FD.matchAnswer(d, x.answers), `${d} vs ${x.q}`).toBeNull();
-    }
-  });
-});
-
 describe("trivia data", () => {
   for (const pool of TRIVIA_POOLS) {
     it(`${pool}: enough clean questions and surveys`, () => {
       const qs = questionsFor(pool);
-      expect(usableCats(qs).length, "needs 4 categories that can fill a board").toBeGreaterThanOrEqual(4);
+      expect(bundledCategories(pool).length, "needs 4 categories that can fill a board").toBeGreaterThanOrEqual(4);
       for (const q of qs) {
         expect(new Set([q.right, ...q.wrong]).size, q.q).toBe(4);
         expect(q.q.includes("?"), q.q).toBe(true);

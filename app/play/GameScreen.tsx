@@ -38,7 +38,7 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
     if (!done) return;
     ctl.finish();
     // Remember the quiz questions from this game so the next one is different.
-    if (setup.format === "jeopardy") saveSeen((ctl.state as { cells: { q: string }[] }).cells.map((c) => c.q));
+    if (setup.format === "jeopardy") saveSeen([...new Set((ctl.state as { cats: string[] }).cats.map((c) => `cat:${c}`))]);
     if (setup.format === "feud") saveSeen((ctl.state as { rounds: { q: string }[] }).rounds.map((r) => r.q));
     track("game_finished", { format: setup.format, pool: setup.pool, players: setup.players.length, online: ctl.online, mystery: setup.mystery });
     play("reveal");

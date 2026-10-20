@@ -244,6 +244,11 @@ function anthropicClient(): LLM | null {
  * Judge model order: free/cheap OpenAI-compatible gateways first (JUDGE_BASE_URL, _2, _3), then Anthropic
  * if a key is set, then the deterministic judge. A failing provider falls through to the next one.
  */
+/** Every configured model, in preference order (used by the trivia generator to cross-check one model with another). */
+export function allClients(): LLM[] {
+  return [...gatewayClients(), anthropicClient()].filter(Boolean) as LLM[];
+}
+
 export function defaultClient(): LLM | null {
   const chain = [...gatewayClients(), anthropicClient()].filter(Boolean) as LLM[];
   if (!chain.length) return null;

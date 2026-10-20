@@ -1,3 +1,4 @@
+import { getFeud, getJeopardy, isTriviaPool } from "../services/trivia.service";
 import { moderate, userText } from "../lib/moderation";
 import { Router } from "express";
 import { act, createRoom, getRoom, joinRoom, leaveRoom, seatFor, snapshot, startRoom } from "../services/playRooms";
@@ -19,7 +20,19 @@ router.post("/", async (req, res) => {
   if (limited(req.ip ?? "anon")) return res.status(429).json({ error: "Slow down — try again in a minute" });
   const mod = await moderate([...userText(req.body?.setup), req.body?.name]);
   if (!mod.ok) return res.status(400).json({ error: mod.reason });
-  const r = createRoom(req.body?.setup, req.body?.name);
+  // Jeopardy and Feud rooms get their questions from the server's trivia bank so every seat sees the same board.
+  let quiz;
+  const fmt = req.body?.setup?.format;
+  const pool = req.body?.setup?.pool;
+  if ((fmt === "jeopardy" || fmt === "feud") && isTriviaPool(pool)) {
+    try {
+      const avoid = Array.isArray(req.body?.setup?.opts?.avoid) ? req.body.setup.opts.avoid.filter((x: unknown) => typeof x === "string").slice(-400) : [];
+      quiz = fmt === "jeopardy" ? { categories: await getJeopardy(pool, avoid) } : { surveys: await getFeud(pool, 5, avoid) };
+    } catch {
+      quiz = undefined; // falls back to the bundled questions
+    }
+  }
+  const r = createRoom(req.body?.setup, req.body?.name, quiz);
   if ("error" in r) return res.status(400).json({ error: r.error });
   res.json({ code: r.room.code, token: r.seat.token, snapshot: snapshot(r.room, r.seat.token) });
 });
