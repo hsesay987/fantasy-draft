@@ -4,7 +4,7 @@ import type { LLM } from "./judge.service";
 
 const good = (n: number) => ({
   name: `Test Category ${n}`,
-  clues: [1, 2, 3, 4].map((i) => ({ q: `Which of these is test answer number ${n}-${i}?`, right: `Right ${n}-${i}`, wrong: [`Nope A${n}-${i}`, `Nope B${n}-${i}`, `Nope C${n}-${i}`] })),
+  clues: [1, 2, 3, 4, 5, 6].map((i) => ({ q: `Which of these is test answer number ${n}-${i}?`, right: `Right ${n}-${i}`, wrong: [`Nope A${n}-${i}`, `Nope B${n}-${i}`, `Nope C${n}-${i}`] })),
 });
 
 /** Writer returns a new category each call; checker answers by recognising the "Right" option. */
@@ -33,13 +33,15 @@ beforeEach(() => { resetBudget(); resetSeeded(); });
 
 describe("validation", () => {
   const empty = { names: new Set<string>(), questions: new Set<string>() };
-  it("accepts a well-formed category", () => expect(validateCategory(good(1), empty)?.clues).toHaveLength(4));
+  it("accepts a well-formed category", () => expect(validateCategory(good(1), empty)?.clues).toHaveLength(6));
   it("rejects wrong clue count, duplicate options, duplicate names and give-away clues", () => {
     expect(validateCategory({ ...good(1), clues: good(1).clues.slice(0, 3) }, empty)).toBeNull();
     const dup = good(1); dup.clues[0]!.wrong[0] = dup.clues[0]!.right;
-    expect(validateCategory(dup, empty)).toBeNull();
+    expect(validateCategory(dup, empty)?.clues).toHaveLength(5); // the bad clue is skipped, the rest survive
+    for (let i = 0; i < 3; i++) { dup.clues[i]!.wrong[0] = dup.clues[i]!.right; }
+    expect(validateCategory(dup, empty)).toBeNull(); // fewer than four usable clues
     expect(validateCategory(good(1), { names: new Set(["test category 1"]), questions: new Set() })).toBeNull();
-    const leak = good(1); leak.clues[1]!.q = "Which of these is the one called Right 1-2 exactly?";
+    const leak = good(1); for (let i = 0; i < 3; i++) leak.clues[i]!.q = `Which of these is the one called Right 1-${i + 1} exactly?`;
     expect(validateCategory(leak, empty)).toBeNull();
   });
   it("accepts a survey with five answers and rejects overlap with decoys", () => {
@@ -51,7 +53,15 @@ describe("validation", () => {
 });
 
 describe("cross-check and storage", () => {
-  it("stores a category only when the second model agrees on every clue", async () => {
+  it("keeps only the four clues the second model agrees with, and rejects a category that cannot reach four", async () => {
+    const gen = fakeGen();
+    const picky: Gen = { ...gen, checker: { complete: async (s: string, u: string) => { const idx = u.split("\n").filter((l) => /^[A-D]\) /.test(l)).findIndex((l) => /\) Right \d+-[135]$/.test(l)); return idx < 0 ? "Z" : "ABCD"[idx]!; } } as LLM };
+    expect(await generateCategory("anime", memoryStore(), picky)).toBeNull(); // only 3 of 6 clues pass
+    const s = memoryStore();
+    const c = await generateCategory("anime", s, gen);
+    expect(c!.clues).toHaveLength(4);
+  });
+  it("stores a category only when the second model agrees on enough clues", async () => {
     const store = memoryStore();
     expect(await generateCategory("anime", store, fakeGen())).not.toBeNull();
     expect((await store.categories("anime")).filter((c) => c.source === "ai")).toHaveLength(1);

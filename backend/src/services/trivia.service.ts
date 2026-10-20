@@ -27,24 +27,28 @@ export const fold = (t: string) => t.toLowerCase().normalize("NFD").replace(/[̀
 const str = (v: unknown, max: number) => String(v ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
 
 // ---------- validation of AI output ----------
+/**
+ * Accepts a category with at least four usable clues (the writer is asked for six so a clue that fails the
+ * fact-check can be dropped). Clues that are malformed or give the answer away are skipped individually.
+ */
 export function validateCategory(raw: any, existing: { names: Set<string>; questions: Set<string> }): TriviaCategory | null {
   const name = str(raw?.name, 40);
   if (name.length < 3 || existing.names.has(fold(name))) return null;
-  const arr = Array.isArray(raw?.clues) ? raw.clues : [];
-  if (arr.length !== 4) return null;
+  const arr = Array.isArray(raw?.clues) ? raw.clues.slice(0, 8) : [];
   const clues: Clue[] = [];
+  const seenQ = new Set<string>();
   for (const c of arr) {
     const q = str(c?.q, 170);
     const right = str(c?.right, 45);
     const wrong = (Array.isArray(c?.wrong) ? c.wrong : []).map((w: unknown) => str(w, 45)).filter(Boolean);
-    if (q.length < 15 || !right || wrong.length !== 3) return null;
-    if (new Set([right, ...wrong].map(fold)).size !== 4) return null;
-    if (existing.questions.has(fold(q))) return null;
-    if (fold(q).includes(fold(right)) && fold(right).length > 3) return null; // the clue gives the answer away
+    if (q.length < 15 || !right || wrong.length !== 3) continue;
+    if (new Set([right, ...wrong].map(fold)).size !== 4) continue;
+    if (existing.questions.has(fold(q)) || seenQ.has(fold(q))) continue;
+    if (fold(right).length > 3 && fold(q).includes(fold(right))) continue; // the clue gives the answer away
+    seenQ.add(fold(q));
     clues.push({ q, right, wrong });
   }
-  if (new Set(clues.map((c) => fold(c.q))).size !== 4) return null;
-  return { name, clues };
+  return clues.length >= 4 ? { name, clues } : null;
 }
 
 export function validateSurvey(raw: any, existingQs: Set<string>): Survey | null {
@@ -60,8 +64,8 @@ export function validateSurvey(raw: any, existingQs: Set<string>): Survey | null
 
 // ---------- AI generation ----------
 const CAT_SYSTEM = `You write Jeopardy categories for a trivia game. Reply with ONLY a JSON object:
-{"name":string,"clues":[{"q":string,"right":string,"wrong":[string,string,string]}, ... exactly 4 clues]}
-Rules: the four clues get harder in order ($100 easy, $200 medium, $300 hard, $400 very hard but fair). Every clue is a multiple-choice question with exactly one correct answer and three plausible wrong answers of the same kind. Answers are short (under 45 characters). Every fact must be certain and well documented; never use opinions, rankings, or facts that changed recently. The clue must not contain its own answer. Family-friendly. The category name is specific and fun (2 to 4 words), for example "Sith Lords" or "Pixar Villains".`;
+{"name":string,"clues":[{"q":string,"right":string,"wrong":[string,string,string]}, ... exactly 6 clues]}
+Rules: the six clues get steadily harder (the first two easy, the middle two medium, the last two hard but fair). Every clue is a multiple-choice question with exactly one correct answer and three plausible wrong answers of the same kind. Answers are short (under 45 characters). Use only facts you are completely certain of, such as famous, well documented ones; if you are unsure of any detail (a year, a name, a number), choose a different fact. Never use opinions, rankings, or facts that changed recently. The clue must not contain its own answer. Family-friendly. The category is a NARROW, coherent theme and every clue is about that exact theme: good names are "Sith Lords", "Pixar Villains", "Gym Leaders", "Ghibli Directors' Films"; bad names are broad ones like "Famous Heroes", "Fun Facts" or "Starter Picks". The name is 2 to 4 words and the clues never mention the category name's answer.`;
 
 const SURVEY_SYSTEM = `You write Family Feud surveys for a trivia game. Reply with ONLY a JSON object:
 {"q":string,"answers":[5 strings, most popular first],"decoys":[5 strings]}
@@ -103,10 +107,28 @@ async function yesNo(llm: LLM, question: string): Promise<boolean | null> {
 }
 
 export type Gen = { writer: LLM; checker: LLM };
+/** Tries each model in order, moving on when one errors (rate limit, outage). */
+export function failover(models: LLM[]): LLM {
+  return {
+    async complete(system, user, onUsage) {
+      let last: unknown = new Error("no models");
+      for (const m of models) {
+        try {
+          return await m.complete(system, user, onUsage);
+        } catch (e) {
+          last = e;
+        }
+      }
+      throw last;
+    },
+  };
+}
+
+/** The writer prefers the first model; the checker prefers a different one so a model never grades its own work. */
 export function defaultGen(): Gen | null {
   const c = allClients();
   if (!c.length) return null;
-  return { writer: c[0]!, checker: c[1] ?? c[0]! };
+  return { writer: failover(c), checker: failover([...c.slice(1), c[0]!]) };
 }
 
 const topicOf = (pool: string) => {
@@ -121,8 +143,15 @@ export async function generateCategory(pool: string, store: TriviaStore, gen: Ge
   const raw = await ask(gen.writer, CAT_SYSTEM, `Topic: ${topicOf(pool)}\nCategories that already exist (do not repeat or closely resemble): ${avoid || "none"}\nWrite one new category.`);
   const cat = validateCategory(raw, existing);
   if (!cat) return null;
-  const checks = await Promise.all(cat.clues.map((c) => verifyClue(gen.checker, c)));
-  if (!checks.every(Boolean)) return null;
+  // Fact-check one clue at a time (the free tiers rate-limit bursts) and keep the first four the second model agrees with.
+  const kept: Clue[] = [];
+  for (const clue of cat.clues) {
+    if (await verifyClue(gen.checker, clue)) kept.push(clue);
+    if (kept.length === 4) break;
+    if (cat.clues.length - cat.clues.indexOf(clue) - 1 + kept.length < 4) return null; // cannot reach four any more
+  }
+  if (kept.length < 4) return null;
+  cat.clues = kept;
   const mod = await moderate([cat.name, ...cat.clues.flatMap((c) => [c.q, c.right, ...c.wrong])]);
   if (!mod.ok) return null;
   return (await store.addCategory(pool, cat, "ai")) ? cat : null;
@@ -158,13 +187,28 @@ export function genBudget(pool: string, now = Date.now()): number {
 const spend = (pool: string) => gens.push({ at: Date.now(), pool });
 export const resetBudget = () => { gens.length = 0; inflight.clear(); };
 
+const WAIT_MS = Number(process.env.TRIVIA_WAIT_MS) || 14_000;
+
 /** Make up to `n` new items, in parallel, within budget. Returns how many were stored. */
-async function grow(pool: string, kind: "cat" | "survey", n: number, store: TriviaStore, gen: Gen): Promise<number> {
+async function grow(pool: string, kind: "cat" | "survey", n: number, store: TriviaStore, gen: Gen, waitMs = Infinity): Promise<number> {
   const k = Math.min(n, genBudget(pool));
   if (k <= 0) return 0;
   for (let i = 0; i < k; i++) spend(pool);
-  const results = await Promise.all(Array.from({ length: k }, () => (kind === "cat" ? generateCategory(pool, store, gen) : generateSurvey(pool, store, gen)).catch((e) => { captureError(e, { where: "trivia_gen", pool, kind }); return null; })));
-  return results.filter(Boolean).length;
+  // Each item gets two attempts: small free models often write a clue that fails the fact-check.
+  const make = async () => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const r = await (kind === "cat" ? generateCategory(pool, store, gen) : generateSurvey(pool, store, gen));
+        if (r) return r;
+      } catch (e) {
+        captureError(e, { where: "trivia_gen", pool, kind });
+      }
+    }
+    return null;
+  };
+  const all = Promise.all(Array.from({ length: k }, make)).then((r) => r.filter(Boolean).length);
+  // Generation keeps running in the background after we stop waiting; whatever finishes is stored for later games.
+  return waitMs === Infinity ? all : Promise.race([all, new Promise<number>((r) => setTimeout(() => r(0), waitMs))]);
 }
 
 /** Keep the bank growing in the background as people play, without making anyone wait. */
@@ -172,7 +216,7 @@ function topUp(pool: string, kind: "cat" | "survey", have: number, target: numbe
   const key = `${pool}:${kind}`;
   if (!gen || have >= target || inflight.has(key)) return;
   inflight.add(key);
-  grow(pool, kind, 2, store, gen).finally(() => inflight.delete(key));
+  grow(pool, kind, 3, store, gen).finally(() => inflight.delete(key));
 }
 
 // ---------- selection ----------
@@ -207,7 +251,7 @@ export async function getJeopardy(pool: string, avoid: string[], store: TriviaSt
   const fresh = all.filter((c) => !seen(c)).length;
   // Not enough unseen categories: write new ones now (the player waits a few seconds rather than getting repeats).
   if (gen && fresh < count) {
-    await grow(pool, "cat", count - fresh, store, gen);
+    await grow(pool, "cat", count - fresh, store, gen, WAIT_MS);
     all = await store.categories(pool);
   }
   const chosen = pickFresh(all, seen, count, rand);
@@ -224,7 +268,7 @@ export async function getFeud(pool: string, rounds: number, avoid: string[], sto
   let all = await store.surveys(pool);
   const fresh = all.filter((s) => !seen(s)).length;
   if (gen && fresh < rounds) {
-    await grow(pool, "survey", rounds - fresh, store, gen);
+    await grow(pool, "survey", rounds - fresh, store, gen, WAIT_MS);
     all = await store.surveys(pool);
   }
   const chosen = pickFresh(all, seen, rounds, rand);
