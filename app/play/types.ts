@@ -18,6 +18,8 @@ export type Opts = {
   roll: boolean;
   options: number;
   rerolls: number;
+  // quiz formats: question texts seen recently on this device, so new games prefer fresh ones
+  avoid: string[];
   // judging: also duel every pick against the other team under the mission
   battle: boolean;
   // auction
@@ -55,6 +57,7 @@ export const DEFAULT_OPTS: Opts = {
   customItems: [],
   roll: false,
   battle: false,
+  avoid: [],
   options: 3,
   rerolls: 1,
   budget: 20,

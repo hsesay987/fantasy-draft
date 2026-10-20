@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, PageShell } from "../../components/ui";
 import { HeroCard } from "../../topicDraft/components/HeroCard";
 import * as PR from "../../topicDraft/formats/price";
@@ -16,6 +16,16 @@ export function PriceView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const [value, setValue] = useState(50);
   useAiTurn(setup, ctl, `${s.round}-${s.turn}`);
   useEffect(() => setValue(50), [s.round, s.turn]);
+  // Sound for each resolved round: a win for a human, a sad trombone when someone else takes it or nobody does.
+  const lastRound = useRef(s.round);
+  useEffect(() => {
+    if (s.round === lastRound.current) return;
+    lastRound.current = s.round;
+    const r = s.rounds[s.round - 1];
+    if (!r) return;
+    play(r.winner && ctl.controls(r.winner) ? "win" : "lose");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s.round]);
   if (s.done) return null;
   const player = PR.turnPlayer(s)!;
   const mine = ctl.controls(player);

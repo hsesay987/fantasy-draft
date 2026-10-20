@@ -1,5 +1,5 @@
 // app/lib/sound.ts — synthesized SFX via Web Audio, no asset files.
-export type SfxName = "click" | "pick" | "steal" | "tick" | "reveal" | "win" | "error";
+export type SfxName = "click" | "pick" | "steal" | "tick" | "reveal" | "win" | "error" | "wrong" | "lose" | "delete";
 
 export type Note = { freq: number; dur: number; at: number; type?: OscillatorType; gain?: number };
 
@@ -25,6 +25,23 @@ export const SFX_DEFS: Record<SfxName, Note[]> = {
     { freq: 659, dur: 0.12, at: 0.12, type: "square", gain: 0.3 },
     { freq: 784, dur: 0.12, at: 0.24, type: "square", gain: 0.3 },
     { freq: 1047, dur: 0.4, at: 0.36, type: "square", gain: 0.3 },
+  ],
+  // Game-show buzzer: two low, harsh tones.
+  wrong: [
+    { freq: 140, dur: 0.22, at: 0, type: "sawtooth", gain: 0.45 },
+    { freq: 110, dur: 0.32, at: 0.2, type: "square", gain: 0.4 },
+  ],
+  // Sad trombone: slow falling notes for a lost round, lot or game.
+  lose: [
+    { freq: 392, dur: 0.18, at: 0, type: "triangle", gain: 0.4 },
+    { freq: 349, dur: 0.18, at: 0.18, type: "triangle", gain: 0.4 },
+    { freq: 311, dur: 0.18, at: 0.36, type: "triangle", gain: 0.4 },
+    { freq: 220, dur: 0.5, at: 0.54, type: "triangle", gain: 0.4 },
+  ],
+  // Soft downward blip for throwing something away.
+  delete: [
+    { freq: 330, dur: 0.07, at: 0, type: "triangle", gain: 0.35 },
+    { freq: 196, dur: 0.12, at: 0.06, type: "triangle", gain: 0.35 },
   ],
   error: [
     { freq: 200, dur: 0.12, at: 0, type: "sawtooth", gain: 0.35 },

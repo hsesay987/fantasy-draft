@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { PageShell } from "../../components/ui";
 import * as J from "../../topicDraft/formats/jeopardy";
 import { useSound } from "../../components/SoundProvider";
@@ -12,6 +13,13 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
   const { play } = useSound();
   const s = ctl.state as J.JeopardyState;
   useAiTurn(setup, ctl, `${s.resolved}-${s.active}`, 1200);
+  // One sound per answered clue, for humans and the AI alike: a win chime or a buzzer.
+  const seen = useRef(s.resolved);
+  useEffect(() => {
+    if (s.resolved > seen.current && s.last != null) play(s.cells[s.last]!.correct ? "win" : "wrong");
+    seen.current = s.resolved;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s.resolved]);
   if (s.done) return null;
   const player = J.turnPlayer(s)!;
   const mine = ctl.controls(player);
@@ -20,14 +28,14 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
 
   return (
     <PageShell width="lg">
-      <GameFrame kicker={`Jeopardy · Clue ${s.resolved + 1}/${s.cells.length}`} headline={active ? `${active.cat} for $${active.value}` : mine ? `${player}: pick a clue` : `${player} is picking…`} mission={setup.mission} mystery={false}>
+      <GameFrame kicker={`Jeopardy · Clue ${s.resolved + 1}/${s.cells.length}`} headline={active ? `${active.cat} for $${active.value}` : mine ? `${player}: choose a clue` : `${player} is picking…`} mission={setup.mission} mystery={false}>
         <Scoreboard rows={s.players.map((p) => ({ name: p, value: `$${s.points[p]}`, active: p === player }))} />
         {active ? (
           <section className="space-y-3" aria-label="Clue">
             <p className="text-xl">{active.q}</p>
             <div className="grid gap-3 sm:grid-cols-2">
               {active.options.map((o) => (
-                <button key={o} type="button" disabled={!mine} onClick={() => { ctl.dispatch({ type: "answer", by: player, choice: o }); play("pick"); }}
+                <button key={o} type="button" disabled={!mine} onClick={() => { ctl.dispatch({ type: "answer", by: player, choice: o }); }}
                   className="min-h-14 rounded-xl border border-white/10 bg-card/80 px-4 py-3 text-left font-semibold transition-colors hover:border-secondary hover:bg-primary/10 disabled:opacity-60">{o}</button>
               ))}
             </div>

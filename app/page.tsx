@@ -38,7 +38,7 @@ export default function Home() {
       <motion.header initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 200, damping: 26 }} className="max-w-3xl space-y-5">
         <span className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-primary/15 px-3 py-1 text-xs font-semibold text-secondary"><Bot className="h-4 w-4" aria-hidden /> Drafts judged by AI</span>
         <h1 className="text-5xl leading-[1.05] md:text-7xl">Draft <span className="text-accent">anything.</span><br />Take the <span className="text-secondary">top pic.</span></h1>
-        <p className="max-w-xl text-lg text-muted-foreground">Pick a topic, choose how to draft it, and let the AI judge crown the winner.</p>
+        <p className="max-w-xl text-lg text-muted-foreground">Choose the TopPic, decide how to draft it, and let the AI judge crown the winner.</p>
         <div className="flex flex-wrap gap-3">
           <Link href="/play/spin?pool=superheroes" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-6 font-semibold text-black shadow-[0_0_30px_-6px_var(--accent)] transition-transform hover:-translate-y-0.5"><Sparkles className="h-5 w-5" aria-hidden /> Quick play</Link>
           <Link href="/toppic" className="inline-flex min-h-12 items-center rounded-xl border border-white/15 bg-white/5 px-6 font-semibold hover:bg-white/10">Play party mode</Link>
@@ -55,7 +55,7 @@ export default function Home() {
         )}
       </motion.header>
 
-      <Group title="Pick a topic" sub="Auctions, loadouts, blind rankings and more for every one.">
+      <Group title="Choose the TopPic" sub="Auctions, loadouts, blind rankings and more for every one.">
         {CATEGORIES.filter((c) => !c.hidden).map((c) => (
           <motion.div key={c.id} variants={item}><GameTile title={c.title} blurb={c.blurb} iconSrc={c.iconSrc} gradient={c.gradient} href={`/category/${c.id}`} /></motion.div>
         ))}

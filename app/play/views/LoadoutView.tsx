@@ -96,7 +96,7 @@ export function LoadoutView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
   return (
     <PageShell width="lg" layout="sidebar" stickyBar>
       <GameFrame
-        kicker={`Loadout · Pick ${Math.min(s.turn + 1, total)}/${total}`}
+        kicker={`Loadout · TopPic ${Math.min(s.turn + 1, total)}/${total}`}
         headline={ai || !mine ? `${player} is shopping…` : `${player}: build your kit`}
         mission={mission}
         mystery={setup.mystery}
@@ -141,7 +141,7 @@ export function LoadoutView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
 
             {s.roll && player && (
               <div className="flex items-center justify-between gap-3 rounded-xl border border-secondary/40 bg-primary/10 px-4 py-2">
-                <span className="flex items-center gap-2 text-sm"><Dices className="h-4 w-4 text-secondary" aria-hidden /> {mine ? `Random roll — pick from ${s.roll.n}` : `${player}'s roll`}</span>
+                <span className="flex items-center gap-2 text-sm"><Dices className="h-4 w-4 text-secondary" aria-hidden /> {mine ? `Random roll — choose from ${s.roll.n}` : `${player}'s roll`}</span>
                 {mine && <Button variant="ghost" disabled={(s.roll.rerolls[player] ?? 0) <= 0} onClick={() => { ctl.dispatch({ type: "rerollSlot", by: player, slotId }); setSelected(null); play("click"); }}>Reroll ({s.roll.rerolls[player] ?? 0})</Button>}
               </div>
             )}

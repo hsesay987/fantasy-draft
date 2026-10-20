@@ -9,6 +9,8 @@ export type JudgeItem = {
   price?: number;
   stats: Record<string, number>;
   tags: string[];
+  /** Written by a player (not from the built-in catalog). */
+  custom?: boolean;
 };
 export type JudgeTeamInput = { player: string; items: JudgeItem[]; baseline: number; notes?: string };
 
@@ -22,7 +24,8 @@ export type Verdict = {
   analysis?: string[];
   /** Average stat per team for the comparison bars. */
   statsTable?: StatRow[];
-  source: "ai" | "fallback";
+  /** decision = scored by the built-in model; ai = AI commentary; fallback = AI was tried and failed. */
+  source: "ai" | "decision" | "fallback";
 };
 
 export const toJudgeItem = (i: Item, extra?: { role?: string; price?: number }): JudgeItem => ({
@@ -33,6 +36,7 @@ export const toJudgeItem = (i: Item, extra?: { role?: string; price?: number }):
   price: extra?.price,
   stats: i.stats,
   tags: i.tags,
+  ...(i.custom ? { custom: true } : {}),
 });
 
 export function localVerdict(teams: JudgeTeamInput[], mission: { title: string; weights?: Record<string, number> }): Verdict {
@@ -47,21 +51,21 @@ export function localVerdict(teams: JudgeTeamInput[], mission: { title: string; 
     weaknesses: a.perTeam[t.player]?.weaknesses,
   }));
   const winner = [...scored].sort((x, y) => y.score - x.score)[0]?.player ?? "";
-  return { winner, teams: scored, summary: a.analysis[0] ?? "", analysis: a.analysis.slice(1), statsTable: a.statsTable, source: "fallback" };
+  return { winner, teams: scored, summary: a.analysis[0] ?? "", analysis: a.analysis.slice(1), statsTable: a.statsTable, source: "decision" };
 }
 
 export async function fetchVerdict(
   apiUrl: string,
   token: string | null,
   game: string,
-  mission: Pick<Scenario, "title" | "blurb"> & { weights?: Record<string, number> },
+  mission: Pick<Scenario, "title" | "blurb"> & { weights?: Record<string, number>; custom?: boolean },
   teams: JudgeTeamInput[]
 ): Promise<Verdict> {
   try {
     const res = await fetch(`${apiUrl}/judge`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ game, scenario: { title: mission.title, blurb: mission.blurb, weights: mission.weights }, teams }),
+      body: JSON.stringify({ game, scenario: { title: mission.title, blurb: mission.blurb, weights: mission.weights, custom: mission.custom }, teams }),
     });
     if (!res.ok) throw new Error(String(res.status));
     return (await res.json()) as Verdict;

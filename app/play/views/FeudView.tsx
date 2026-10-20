@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { Button, PageShell } from "../../components/ui";
 import * as FD from "../../topicDraft/formats/feud";
@@ -18,6 +18,14 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   // Suggestions come from every survey answer for this topic, so they never reveal which ones are on this board.
   const vocab = useMemo(() => [...new Set(surveysFor(setup.pool).flatMap((x) => [...x.answers, ...x.decoys]))].sort(), [setup.pool]);
   useAiTurn(setup, ctl, `${s.round}-${s.turn}`, 1300);
+  // Buzzer on every strike, whoever earned it.
+  const totalStrikes = s.rounds.reduce((n, x) => n + x.wrong.length, 0);
+  const seenStrikes = useRef(totalStrikes);
+  useEffect(() => {
+    if (totalStrikes > seenStrikes.current) play("wrong");
+    seenStrikes.current = totalStrikes;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalStrikes]);
   if (s.done) return null;
   const player = FD.turnPlayer(s)!;
   const mine = ctl.controls(player);
@@ -26,10 +34,9 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const suggestions = q.length >= 2 ? vocab.filter((v) => v.toLowerCase().includes(q) && !r.found[v]).slice(0, 6) : [];
   const submit = (answer: string) => {
     if (!mine || answer.trim().length < 2) return;
-    const before = r.strikes;
     const good = FD.matchAnswer(answer, r.board);
     ctl.dispatch({ type: "answer", by: player, choice: answer.trim() });
-    play(good ? "pick" : before < FD.MAX_STRIKES ? "click" : "error");
+    if (good) play("pick");
     setText("");
   };
 

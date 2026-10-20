@@ -16,6 +16,8 @@ import * as PR from "./formats/price";
 import * as FD from "./formats/feud";
 import * as J from "./formats/jeopardy";
 import { questionsFor, surveysFor } from "./trivia";
+import { statSurveys } from "./trivia/generated";
+import { catalogMeta } from "./catalogs";
 import type { Item, State } from "./types";
 import { battle } from "./battle";
 
@@ -54,6 +56,7 @@ export function poolFor(setup: GameSetup): Item[] {
 
 const rolling = (s: GameSetup) => s.format === "spin" || s.opts.roll;
 
+const statKeysOf = (setup: GameSetup) => catalogMeta(setup.pool)?.statKeys ?? Object.keys(poolFor(setup)[0]?.stats ?? {});
 const triviaItem = (label: string, cat: string): Item => ({ id: `trivia-${label}`, name: label, universe: cat, archetype: "Trivia", stats: {}, tags: [] });
 const quizRounds = (setup: GameSetup) => Math.max(3, Math.min(8, setup.opts.teamSize));
 
@@ -81,9 +84,9 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "price":
       return PR.init({ players: setup.players, pool, rounds: quizRounds(setup), weights: setup.mission.weights, seed: setup.seed });
     case "feud":
-      return FD.init({ players: setup.players, surveys: surveysFor(setup.pool), rounds: Math.min(5, quizRounds(setup)), seed: setup.seed });
+      return FD.init({ players: setup.players, surveys: surveysFor(setup.pool), extra: statSurveys(pool, statKeysOf(setup), catalogMeta(setup.pool)?.title ?? setup.pool), avoid: o.avoid, rounds: Math.min(5, quizRounds(setup)), seed: setup.seed });
     case "jeopardy":
-      return J.init({ players: setup.players, questions: questionsFor(setup.pool), seed: setup.seed });
+      return J.init({ players: setup.players, questions: questionsFor(setup.pool), pool, statKeys: statKeysOf(setup), avoid: o.avoid, seed: setup.seed });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }

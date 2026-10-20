@@ -11,11 +11,12 @@ export type JudgeItem = {
   price?: number;
   stats?: Record<string, number>;
   tags?: string[];
+  custom?: boolean;
 };
 export type JudgeTeam = { player: string; items: JudgeItem[]; baseline?: number; notes?: string };
 export type JudgeReq = {
   game?: string;
-  scenario: { title: string; blurb?: string; weights?: Record<string, number> };
+  scenario: { title: string; blurb?: string; weights?: Record<string, number>; custom?: boolean };
   teams: JudgeTeam[];
 };
 export type TeamVerdict = { player: string; score: number; highlights: string[]; roast: string; strengths?: string[]; weaknesses?: string[] };
@@ -25,7 +26,7 @@ export type Verdict = {
   summary: string;
   analysis?: string[];
   statsTable?: { key: string; values: Record<string, number> }[];
-  source: "ai" | "fallback";
+  source: "ai" | "decision" | "fallback";
 };
 export interface LLM {
   complete(system: string, user: string, onUsage?: (u: { model: string; tokensIn: number; tokensOut: number }) => void): Promise<string>;
@@ -57,6 +58,7 @@ export function sanitize(req: JudgeReq): JudgeReq {
       title: clean(req.scenario?.title, 80) || "Best team",
       blurb: clean(req.scenario?.blurb, 200),
       weights,
+      ...(req.scenario?.custom ? { custom: true } : {}),
     },
     teams: (req.teams ?? []).slice(0, MAX_TEAMS).map((t, ti) => ({
       player: clean(t.player, 40) || `Player ${ti + 1}`,
@@ -69,6 +71,7 @@ export function sanitize(req: JudgeReq): JudgeReq {
         role: clean(i.role, 40) || undefined,
         price: Number.isFinite(Number(i.price)) ? Math.max(0, Math.min(999, Number(i.price))) : undefined,
         tags: (i.tags ?? []).slice(0, 8).map((x) => clean(x, 24)),
+        ...(i.custom ? { custom: true } : {}),
         stats: Object.fromEntries(
           Object.entries(i.stats ?? {})
             .slice(0, 12)
@@ -100,7 +103,7 @@ function pickWinner(teams: TeamVerdict[]): string {
   return [...teams].sort((a, b) => b.score - a.score)[0]?.player ?? "";
 }
 
-export function fallbackVerdict(req: JudgeReq): Verdict {
+export function fallbackVerdict(req: JudgeReq, source: "decision" | "fallback" = "fallback"): Verdict {
   const scores = Object.fromEntries(req.teams.map((t) => [t.player, baseline(t, req.scenario.weights ?? {})]));
   const a = analyze(req.teams as any, { title: req.scenario.title, weights: req.scenario.weights }, scores);
   const teams: TeamVerdict[] = req.teams.map((t) => {
@@ -114,7 +117,7 @@ export function fallbackVerdict(req: JudgeReq): Verdict {
       weaknesses: a.perTeam[t.player]?.weaknesses,
     };
   });
-  return { winner: pickWinner(teams), teams, summary: a.analysis[0] ?? "No teams to judge.", analysis: a.analysis.slice(1), statsTable: a.statsTable, source: "fallback" };
+  return { winner: pickWinner(teams), teams, summary: a.analysis[0] ?? "No teams to judge.", analysis: a.analysis.slice(1), statsTable: a.statsTable, source };
 }
 
 const SYSTEM = `You are the judge of a draft game called TopPic. You score each team for the given scenario.
@@ -245,12 +248,37 @@ export function defaultClient(): LLM | null {
   };
 }
 
+/** A photo-finish: the top two teams are separated by less than this many points. */
+const CLOSE_CALL = 1;
+
+/**
+ * Most games are plain numbers, so the built-in decision model scores them. The AI is only used when the numbers
+ * cannot be trusted alone: the player wrote their own mission or characters, or the result is a photo finish.
+ * JUDGE_MODE=ai forces the AI for everything; JUDGE_MODE=off never calls it.
+ */
+export function needsAi(req: JudgeReq): { needed: boolean; reason: string } {
+  const mode = (process.env.JUDGE_MODE || "auto").toLowerCase();
+  if (mode === "off") return { needed: false, reason: "mode_off" };
+  if (mode === "ai") return { needed: true, reason: "mode_ai" };
+  if (req.scenario.custom) return { needed: true, reason: "custom_mission" };
+  if (req.teams.some((t) => t.items.some((i) => i.custom))) return { needed: true, reason: "custom_items" };
+  const weights = req.scenario.weights ?? {};
+  const scores = req.teams.map((t) => baseline(t, weights)).sort((a, b) => b - a);
+  if (scores.length > 1 && scores[0]! - scores[1]! < CLOSE_CALL) return { needed: true, reason: "close_call" };
+  return { needed: false, reason: "plain_numbers" };
+}
+
 export async function judge(input: JudgeReq, client: LLM | null = defaultClient()): Promise<Verdict> {
   const req = sanitize(input);
   if (!req.teams.length) return fallbackVerdict(req);
+  const gate = needsAi(req);
+  if (!gate.needed) {
+    trackServer("judge_call", { game: req.game, source: "decision", reason: gate.reason, teams: req.teams.length });
+    return fallbackVerdict(req, "decision");
+  }
   if (!client) {
-    trackServer("judge_call", { game: req.game, source: "fallback_no_key", teams: req.teams.length });
-    return fallbackVerdict(req);
+    trackServer("judge_call", { game: req.game, source: "fallback_no_key", reason: gate.reason, teams: req.teams.length });
+    return fallbackVerdict(req, "decision");
   }
 
   const weights = req.scenario.weights ?? {};

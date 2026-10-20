@@ -10,6 +10,7 @@ import * as FD from "./feud";
 import * as J from "./jeopardy";
 import { questionsFor, surveysFor, TRIVIA_POOLS } from "../trivia";
 import { usableCats } from "./jeopardy";
+import { statSurveys } from "../trivia/generated";
 
 const setupFor = (format: FormatId, pool = "superheroes", players = ["A", "B"]): GameSetup => ({
   id: "t", format, pool, players, aiPlayers: players, mission: missionsFor(pool)[0]!, mystery: false, loadout: null, roles: [],
@@ -143,6 +144,42 @@ describe("jeopardy", () => {
     const wrong = s.cells[1]!.options.find((o) => o !== s.cells[1]!.answer)!;
     s = J.answer(s, "B", wrong);
     expect(s.points.B).toBe(-s.cells[1]!.value);
+  });
+});
+
+describe("quiz variety", () => {
+  const pool = getCatalog("anime");
+  const qs = questionsFor("anime");
+  const stats = ["power", "intellect", "speed", "durability", "combat", "teamwork"];
+  it("different seeds give different boards", () => {
+    const boards = new Set<string>();
+    for (let seed = 1; seed <= 12; seed++) boards.add(J.init({ players: ["A"], questions: qs, pool, statKeys: stats, seed }).cells.map((c) => c.q).join("|"));
+    expect(boards.size).toBeGreaterThanOrEqual(10);
+  });
+  it("stat clues have a real answer and harder rows are closer calls", () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const b = J.init({ players: ["A"], questions: qs, pool, statKeys: stats, seed });
+      expect(b.cells).toHaveLength(16);
+      for (const c of b.cells) {
+        expect(new Set(c.options).size).toBe(4);
+        expect(c.options).toContain(c.answer);
+      }
+    }
+  });
+  it("still builds a full board when everything was seen", () => {
+    const first = J.init({ players: ["A"], questions: qs, pool, statKeys: stats, seed: 5 });
+    const again = J.init({ players: ["A"], questions: qs, pool, statKeys: stats, avoid: qs.map((x) => x.q), seed: 5 });
+    expect(first.cells).toHaveLength(16);
+    expect(again.cells).toHaveLength(16);
+  });
+  it("feud mixes in stat boards that match the catalog", () => {
+    const extra = statSurveys(pool, stats, "Anime");
+    expect(extra.length).toBeGreaterThan(2);
+    for (const x of extra) {
+      expect(x.answers.length).toBeGreaterThanOrEqual(3);
+      expect(x.decoys.length).toBeGreaterThan(0);
+      for (const d of x.decoys) expect(FD.matchAnswer(d, x.answers), `${d} vs ${x.q}`).toBeNull();
+    }
   });
 });
 

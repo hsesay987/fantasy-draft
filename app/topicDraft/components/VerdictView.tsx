@@ -49,6 +49,9 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
         <p className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">{solo ? "Your score" : "Winner"}</p>
         <h2 className="text-4xl">{solo ? <Score value={Math.round(sorted[0]!.score)} delay={200} plain /> : verdict.winner}</h2>
         <p className="mx-auto mt-3 max-w-2xl text-balance text-foreground/90">{verdict.summary}</p>
+        {verdict.source === "decision" && (
+          <p className="mt-2 text-xs text-muted-foreground">Scored by the TopPic decision model.</p>
+        )}
         {verdict.source === "fallback" && (
           <p className="mt-2 text-xs text-muted-foreground">AI judge unavailable — analysis generated from the numbers.</p>
         )}

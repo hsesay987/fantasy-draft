@@ -16,6 +16,7 @@ import { DEFAULT_OPTS, type FormatId, type GameSetup, type Opts } from "./types"
 import { loadPrefs, resumable, saveSetup, savePrefs } from "./storage";
 import { createRoom, saveToken } from "./onlineApi";
 import { track } from "../lib/analytics";
+import { loadSeen } from "../lib/seenTrivia";
 import { BossPicker, Collapse, CustomItems, Field, LoadoutEditor, RolesEditor, Stepper, inputCls } from "./setupParts";
 
 type Mode = "solo" | "ai" | "local" | "online";
@@ -159,7 +160,7 @@ export default function SetupScreen() {
       mystery: mystery || surprise,
       loadout: lm,
       roles,
-      opts,
+      opts: QUIZ_FORMATS.has(format) ? { ...opts, avoid: loadSeen() } : opts,
       seed: newSeed(),
     };
     savePrefs({ pool, name });

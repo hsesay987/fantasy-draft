@@ -83,8 +83,8 @@ export function SnakeView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   return (
     <PageShell width="lg" layout="sidebar" stickyBar>
       <GameFrame
-        kicker={`${offer ? (setup.format === "spin" ? "Spin Draft" : "Random Roll") : "Classic Draft"} · Pick ${Math.min(draft.picks.length + 1, total)}/${total}`}
-        headline={ai || !mine ? `${player} is ${offer ? "rolling" : "picking"}…` : `${player}, you're up`}
+        kicker={`${offer ? (setup.format === "spin" ? "Spin Draft" : "Random Roll") : "Classic Draft"} · TopPic ${Math.min(draft.picks.length + 1, total)}/${total}`}
+        headline={ai || !mine ? `${player} is ${offer ? "rolling" : "picking"}…` : `${player}, choose the TopPic`}
         mission={setup.mission}
         mystery={setup.mystery}
         right={timerOn ? <TimerRing seconds={draft.config.timerSeconds!} resetKey={draft.turn} onExpire={() => player && ctl.dispatch({ type: "auto", by: player })} /> : undefined}
@@ -95,7 +95,7 @@ export function SnakeView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
         {offer && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{mine ? `Pick one of these ${offer.length}` : `${player}'s roll`}</p>
+              <p className="text-sm text-muted-foreground">{mine ? `Choose the TopPic from these ${offer.length}` : `${player}'s roll`}</p>
               {player && mine && (
                 <Button variant="ghost" disabled={(rerolls?.[player] ?? 0) <= 0} onClick={() => { ctl.dispatch({ type: "reroll", by: player }); play("click"); }}>
                   <RefreshCw className="h-4 w-4" aria-hidden /> Reroll ({rerolls?.[player] ?? 0})

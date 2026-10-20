@@ -48,9 +48,12 @@ export type FeudState = {
   seed: number;
 };
 
-export function init(o: { players: string[]; surveys: Survey[]; rounds: number; seed: number }): FeudState {
+export function init(o: { players: string[]; surveys: Survey[]; extra?: Survey[]; avoid?: string[]; rounds: number; seed: number }): FeudState {
   let seed = o.seed;
-  const [picked, s1] = shuffle(o.surveys, seed);
+  const avoid = new Set(o.avoid ?? []);
+  const all = [...o.surveys, ...(o.extra ?? [])];
+  const fresh = all.filter((x) => !avoid.has(x.q));
+  const [picked, s1] = shuffle(fresh.length >= o.rounds ? fresh : all, seed);
   seed = s1;
   const rounds: FeudRound[] = picked.slice(0, o.rounds).map((sv) => {
     return { q: sv.q, board: sv.answers.slice(0, BOARD_POINTS.length), decoys: sv.decoys, found: {}, wrong: [], strikes: 0 };

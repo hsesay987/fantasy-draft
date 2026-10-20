@@ -22,7 +22,7 @@ export function KeepView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const decide = (keep: boolean) => {
     if (!mine) return;
     ctl.dispatch({ type: "answer", by: player, choice: keep ? "keep" : "delete" });
-    play(keep ? "pick" : "click");
+    play(keep ? "pick" : "delete");
     if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(10);
   };
   const kept = s.keeps[player]!.map((id) => ctl.byId(id)).filter(Boolean);

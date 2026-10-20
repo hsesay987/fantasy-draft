@@ -1,5 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { judge, sanitize, bossIdeas, fallbackBoss, loadoutTags, type JudgeReq, type LLM } from "./judge.service";
+import { beforeEach, afterEach, describe, it, expect } from "vitest";
+import { judge, needsAi, sanitize, bossIdeas, fallbackBoss, loadoutTags, type JudgeReq, type LLM } from "./judge.service";
+
+// Existing tests exercise the AI path, so force it; the gate has its own tests below.
+beforeEach(() => { process.env.JUDGE_MODE = "ai"; });
+afterEach(() => { delete process.env.JUDGE_MODE; });
 
 const req: JudgeReq = {
   scenario: { title: "Heist", weights: { intellect: 3, power: 1 } },
@@ -44,7 +48,7 @@ describe("judge", () => {
   });
 
   it("no client (no API key) -> fallback", async () => {
-    expect((await judge(req, null)).source).toBe("fallback");
+    expect((await judge(req, null)).source).toBe("decision");
   });
 
   it("empty teams do not crash and score 0", async () => {
@@ -147,5 +151,45 @@ describe("judge", () => {
     expect((await bossIdeas("Skynet AI", null)).weaknesses).toContain("emp");
     expect(fallbackBoss("Some Unknown Thing").weaknesses.length).toBeGreaterThan(2);
     expect((await bossIdeas("", null)).weaknesses.length).toBeGreaterThan(0);
+  });
+});
+
+
+describe("decision model first, AI only when needed", () => {
+  beforeEach(() => { delete process.env.JUDGE_MODE; });
+  const plain: JudgeReq = {
+    scenario: { title: "Heist", weights: { intellect: 3, power: 1 } },
+    teams: [
+      { player: "Ann", items: [{ name: "Brainy", stats: { intellect: 90, power: 10 } }] },
+      { player: "Bob", items: [{ name: "Brute", stats: { intellect: 10, power: 90 } }] },
+    ],
+  };
+  const boom: LLM = { complete: async () => { throw new Error("must not be called"); } };
+
+  it("plain numbers are scored by the decision model without calling the AI", async () => {
+    const v = await judge(plain, boom);
+    expect(v.source).toBe("decision");
+    expect(v.winner).toBe("Ann");
+    expect(needsAi(sanitize(plain))).toEqual({ needed: false, reason: "plain_numbers" });
+  });
+  it("a player-written mission needs the AI", () => {
+    expect(needsAi(sanitize({ ...plain, scenario: { ...plain.scenario, custom: true } }))).toEqual({ needed: true, reason: "custom_mission" });
+  });
+  it("custom characters need the AI", () => {
+    const r = sanitize({ ...plain, teams: [{ player: "Ann", items: [{ name: "My Hero", stats: { intellect: 50 }, custom: true }] }, plain.teams[1]!] });
+    expect(needsAi(r).reason).toBe("custom_items");
+  });
+  it("a photo finish needs the AI", () => {
+    const close: JudgeReq = { ...plain, teams: [{ player: "Ann", baseline: 70, items: [] }, { player: "Bob", baseline: 70.4, items: [] }] };
+    expect(needsAi(sanitize(close)).reason).toBe("close_call");
+  });
+  it("JUDGE_MODE=off never calls the AI, even for custom text", async () => {
+    process.env.JUDGE_MODE = "off";
+    const v = await judge({ ...plain, scenario: { ...plain.scenario, custom: true } }, boom);
+    expect(v.source).toBe("decision");
+  });
+  it("without a key a needed AI call still returns a usable verdict", async () => {
+    const v = await judge({ ...plain, scenario: { ...plain.scenario, custom: true } }, null);
+    expect(v.winner).toBe("Ann");
   });
 });

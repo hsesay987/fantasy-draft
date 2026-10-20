@@ -11,6 +11,7 @@ import { newSeed } from "../topicDraft/rng";
 import { buildTeams, isDone } from "../topicDraft/core";
 import { useSound } from "../components/SoundProvider";
 import { track } from "../lib/analytics";
+import { saveSeen } from "../lib/seenTrivia";
 import type { GameSetup } from "./types";
 import { useLocalGame, type GameCtl } from "./useGame";
 import { SnakeView } from "./views/SnakeView";
@@ -36,6 +37,9 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
   useEffect(() => {
     if (!done) return;
     ctl.finish();
+    // Remember the quiz questions from this game so the next one is different.
+    if (setup.format === "jeopardy") saveSeen((ctl.state as { cells: { q: string }[] }).cells.map((c) => c.q));
+    if (setup.format === "feud") saveSeen((ctl.state as { rounds: { q: string }[] }).rounds.map((r) => r.q));
     track("game_finished", { format: setup.format, pool: setup.pool, players: setup.players.length, online: ctl.online, mystery: setup.mystery });
     play("reveal");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -45,12 +49,19 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
     if (!done || serverVerdict !== undefined) return;
     let live = true;
     const { teams } = buildTeams(setup, ctl.state);
-    fetchVerdict(API_URL, token ?? null, setup.format, { title: setup.mission.title, blurb: setup.mission.blurb, weights: setup.mission.weights }, teams).then((v) => live && setVerdict(v));
+    fetchVerdict(API_URL, token ?? null, setup.format, { title: setup.mission.title, blurb: setup.mission.blurb, weights: setup.mission.weights, custom: setup.mission.id === "custom" || (setup.loadout?.id === "custom") }, teams).then((v) => live && setVerdict(v));
     return () => {
       live = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done, token]);
+
+  const verdictWinner = (serverVerdict ?? verdict)?.winner;
+  useEffect(() => {
+    if (!verdictWinner) return;
+    play(ctl.controls(verdictWinner) ? "win" : "lose");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verdictWinner]);
 
   if (done && finished) {
     const v = serverVerdict ?? verdict;

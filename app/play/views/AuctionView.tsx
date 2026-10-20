@@ -105,7 +105,7 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
   }, [secs, play]);
   const sold = a.lastSold;
   useEffect(() => {
-    if (sold) play(sold.by ? "pick" : "click");
+    if (sold) play(sold.by ? (ctl.controls(sold.by) ? "pick" : "lose") : "click");
   }, [sold, play]);
 
   const lotId = A.currentItem(a);
@@ -150,7 +150,7 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
 
         {offer && nom && (
           <div className="space-y-3 rounded-2xl border border-secondary/40 bg-primary/10 p-4">
-            <p className="flex items-center gap-2 text-sm"><Dices className="h-4 w-4 text-secondary" aria-hidden /> {ctl.controls(nom) ? "Your roll — pick the lot that goes up for bid" : `${nom} rolled ${offer.length} lots`}</p>
+            <p className="flex items-center gap-2 text-sm"><Dices className="h-4 w-4 text-secondary" aria-hidden /> {ctl.controls(nom) ? "Your roll — choose the lot that goes up for bid" : `${nom} rolled ${offer.length} lots`}</p>
             <RollRow
               items={offer.map((id) => ctl.byId(id)!).filter(Boolean)}
               shuffleFrom={ctl.pool}

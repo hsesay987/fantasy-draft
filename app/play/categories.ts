@@ -72,7 +72,7 @@ export const CATEGORIES: Category[] = [
   },
   {
     id: "football", hidden: true, title: "International Football", blurb: "World Cup legends and today\u2019s stars.", iconSrc: "/icons/soccer.svg", gradient: "from-green-600/40 to-accent/20",
-    recommended: [{ format: "position", why: "Pick your starting XI by position" }, { format: "auction", why: "Bid for the biggest names" }],
+    recommended: [{ format: "position", why: "Choose your starting XI by position" }, { format: "auction", why: "Bid for the biggest names" }],
     defaults: { teamSize: 5, missionId: "world-cup-final", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
@@ -105,7 +105,7 @@ export const LEAGUES = [
 
 export const FORMAT_WHY: Record<FormatId, string> = {
   snake: "Take turns picking",
-  spin: "Pick 1 of a few random options",
+  spin: "Choose 1 of a few random options",
   auction: "Bid on random characters",
   loadout: "Build a kit to beat a boss",
   position: "Assign a random hand to roles",
@@ -113,7 +113,7 @@ export const FORMAT_WHY: Record<FormatId, string> = {
   keep: "Keep or delete every reveal",
   price: "Guess the rating without going over",
   feud: "Name the survey's top answers",
-  jeopardy: "Pick clues, win the board",
+  jeopardy: "Choose clues, win the board",
 };
 
 /** Formats that make sense for a category (Loadout needs hero-ish items). */
