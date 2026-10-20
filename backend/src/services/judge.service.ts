@@ -194,12 +194,19 @@ function gatewayClients(): LLM[] {
     if (!base) continue;
     const model = process.env[`JUDGE_GATEWAY_MODEL${n}`] || (n === "" ? process.env.JUDGE_MODEL : "") || "auto";
     const key = process.env[`JUDGE_API_KEY${n}`] || "";
+    // Optional JSON merged into the request, e.g. OpenRouter routing: {"provider":{"order":["Groq"],"allow_fallbacks":true}}
+    let extra: Record<string, unknown> = {};
+    try {
+      extra = JSON.parse(process.env[`JUDGE_EXTRA_BODY${n}`] || "{}");
+    } catch {
+      /* ignore bad JSON */
+    }
     out.push({
       async complete(system, user, onUsage) {
         const res = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {
           method: "POST",
           headers: { "content-type": "application/json", ...(key ? { authorization: `Bearer ${key}` } : {}) },
-          body: JSON.stringify({ model, max_tokens: 1500, temperature: 0.7, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
+          body: JSON.stringify({ ...extra, model, max_tokens: 1500, temperature: 0.7, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
           signal: AbortSignal.timeout(15_000),
         });
         if (!res.ok) throw new Error(`gateway${n} ${res.status}`);
