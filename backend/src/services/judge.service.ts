@@ -180,7 +180,28 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   });
 }
 
-export function defaultClient(): LLM | null {
+/** OpenAI-compatible chat endpoint: OmniRoute, OpenRouter, Groq, Gemini's compat layer, Ollama and most gateways. */
+function gatewayClient(): LLM | null {
+  const base = process.env.JUDGE_BASE_URL;
+  if (!base) return null;
+  const model = process.env.JUDGE_GATEWAY_MODEL || process.env.JUDGE_MODEL || "auto";
+  const key = process.env.JUDGE_API_KEY || "";
+  return {
+    async complete(system, user, onUsage) {
+      const res = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {
+        method: "POST",
+        headers: { "content-type": "application/json", ...(key ? { authorization: `Bearer ${key}` } : {}) },
+        body: JSON.stringify({ model, max_tokens: 1500, temperature: 0.7, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
+      });
+      if (!res.ok) throw new Error(`gateway ${res.status}`);
+      const j: any = await res.json();
+      onUsage?.({ model: j.model ?? model, tokensIn: j.usage?.prompt_tokens ?? 0, tokensOut: j.usage?.completion_tokens ?? 0 });
+      return String(j.choices?.[0]?.message?.content ?? "");
+    },
+  };
+}
+
+function anthropicClient(): LLM | null {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return null;
   const model = process.env.JUDGE_MODEL || "claude-sonnet-5-5";
@@ -197,6 +218,29 @@ export function defaultClient(): LLM | null {
       });
       onUsage?.({ model, tokensIn: res.usage?.input_tokens ?? 0, tokensOut: res.usage?.output_tokens ?? 0 });
       return (res.content as any[]).map((b) => (b.type === "text" ? b.text : "")).join("");
+    },
+  };
+}
+
+/**
+ * Judge model order: a free/cheap OpenAI-compatible gateway first (JUDGE_BASE_URL, e.g. OmniRoute), then Anthropic
+ * if a key is set, then the deterministic judge. A failing provider falls through to the next one.
+ */
+export function defaultClient(): LLM | null {
+  const chain = [gatewayClient(), anthropicClient()].filter(Boolean) as LLM[];
+  if (!chain.length) return null;
+  if (chain.length === 1) return chain[0]!;
+  return {
+    async complete(system, user, onUsage) {
+      let last: unknown;
+      for (const c of chain) {
+        try {
+          return await c.complete(system, user, onUsage);
+        } catch (e) {
+          last = e;
+        }
+      }
+      throw last;
     },
   };
 }

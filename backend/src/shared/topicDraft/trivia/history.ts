@@ -20,6 +20,10 @@ export const history: TriviaSet = {
     ["Events", 2, "Which ship sank in 1912 after hitting an iceberg?", "Titanic", "Lusitania", "Bismarck", "Britannic"],
     ["Events", 3, "Which wall fell in 1989?", "The Berlin Wall", "Hadrian's Wall", "The Great Wall", "The Western Wall"],
     ["Events", 4, "Which battle ended Napoleon's rule in 1815?", "Waterloo", "Austerlitz", "Trafalgar", "Borodino"],
+    ["Leaders", 4, "Which Roman emperor created the Tetrarchy?", "Diocletian", "Constantine", "Augustus", "Nero"],
+    ["Scientists", 4, "Who proposed the heliocentric model in De revolutionibus in 1543?", "Nicolaus Copernicus", "Johannes Kepler", "Galileo Galilei", "Tycho Brahe"],
+    ["Artists & Thinkers", 4, "Which philosopher wrote the Critique of Pure Reason?", "Immanuel Kant", "Georg Hegel", "René Descartes", "David Hume"],
+    ["Events", 4, "Which treaty formally ended World War I with Germany in 1919?", "Treaty of Versailles", "Treaty of Trianon", "Treaty of Utrecht", "Treaty of Tordesillas"],
   ],
   surveys: [
     ["Name a famous US president", "George Washington|Abraham Lincoln|Thomas Jefferson|Theodore Roosevelt|John F. Kennedy", "Benjamin Franklin|Alexander Hamilton|Winston Churchill|Napoleon"],

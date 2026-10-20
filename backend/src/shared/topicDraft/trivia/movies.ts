@@ -20,6 +20,10 @@ export const movies: TriviaSet = {
     ["Franchises", 2, "Which franchise features the Millennium Falcon?", "Star Wars", "Star Trek", "Battlestar Galactica", "Guardians of the Galaxy"],
     ["Franchises", 3, "Who directed Jurassic Park?", "Steven Spielberg", "James Cameron", "Ridley Scott", "George Lucas"],
     ["Franchises", 4, "Which film series features the Nostromo?", "Alien", "Terminator", "Predator", "Star Trek"],
+    ["Action Heroes", 4, "Who directed Mad Max: Fury Road?", "George Miller", "Ridley Scott", "James Cameron", "Zack Snyder"],
+    ["Monsters", 4, "Which 1954 Japanese film introduced Godzilla?", "Gojira", "Rodan", "Mothra", "Ultraman"],
+    ["Quotes", 4, "Which film includes the line 'Say hello to my little friend'?", "Scarface", "Goodfellas", "Heat", "Casino"],
+    ["Franchises", 4, "Which 1982 film introduced the Replicants?", "Blade Runner", "Alien", "The Thing", "Tron"],
   ],
   surveys: [
     ["Name a James Bond actor", "Sean Connery|Roger Moore|Daniel Craig|Pierce Brosnan|Timothy Dalton", "Harrison Ford|Tom Cruise|Matt Damon|Idris Elba"],

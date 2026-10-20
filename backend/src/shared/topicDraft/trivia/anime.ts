@@ -20,6 +20,10 @@ export const anime: TriviaSet = {
     ["Basics", 2, "What is the term for Japanese comics?", "Manga", "Anime", "Doujin", "Light novel"],
     ["Basics", 3, "Which anime follows Eren Yeager fighting giants?", "Attack on Titan", "Tokyo Ghoul", "Seven Deadly Sins", "Vinland Saga"],
     ["Basics", 4, "Which anime features a notebook that kills anyone whose name is written in it?", "Death Note", "Code Geass", "Steins;Gate", "Monster"],
+    ["Shonen", 4, "In Hunter x Hunter, what is the name of Gon's father?", "Ging Freecss", "Netero", "Kurapika", "Leorio"],
+    ["Studio Ghibli", 4, "Which Ghibli film follows two orphans during World War II?", "Grave of the Fireflies", "Only Yesterday", "Porco Rosso", "Whisper of the Heart"],
+    ["Villains", 4, "In Attack on Titan, who inherits the Beast Titan?", "Zeke Yeager", "Reiner Braun", "Bertholdt Hoover", "Eren Yeager"],
+    ["Basics", 4, "Which manga artist created Dragon Ball?", "Akira Toriyama", "Eiichiro Oda", "Masashi Kishimoto", "Tite Kubo"],
   ],
   surveys: [
     ["Name a Dragon Ball character", "Goku|Vegeta|Gohan|Piccolo|Frieza", "Naruto|Luffy|Ichigo|Light Yagami"],

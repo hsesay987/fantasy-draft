@@ -24,8 +24,12 @@ export type JeopardyState = {
 
 export const colsOf = (s: JeopardyState) => s.cats.length;
 
-/** Categories that have a question at every value tier can go on the board. */
-export const usableCats = (qs: Question[]) => [...new Set(qs.map((q) => q.cat))].filter((c) => [1, 2, 3, 4].every((l) => qs.some((q) => q.cat === c && q.level === l)));
+/** Which question level each board row draws from: no easy level-1 clues, and the two top rows are the hardest. */
+export const ROW_LEVELS = [2, 3, 4, 4];
+
+/** Categories with enough questions to fill every row without repeating one can go on the board. */
+export const usableCats = (qs: Question[]) =>
+  [...new Set(qs.map((q) => q.cat))].filter((c) => [2, 3, 4].every((l) => qs.filter((q) => q.cat === c && q.level === l).length >= ROW_LEVELS.filter((x) => x === l).length));
 
 export function init(o: { players: string[]; questions: Question[]; cats?: number; seed: number }): JeopardyState {
   let seed = o.seed;
@@ -34,9 +38,11 @@ export function init(o: { players: string[]; questions: Question[]; cats?: numbe
   const cats = shuffled.slice(0, o.cats ?? 4);
   const cells: Cell[] = new Array(cats.length * VALUES.length);
   cats.forEach((cat, col) => {
+    const used = new Set<string>();
     VALUES.forEach((value, row) => {
-      const pool = o.questions.filter((q) => q.cat === cat && q.level === row + 1);
+      const pool = o.questions.filter((q) => q.cat === cat && q.level === ROW_LEVELS[row] && !used.has(q.q));
       const [pickOne, s2] = shuffle(pool, seed);
+      used.add(pickOne[0]!.q);
       const [options, s3] = shuffle([pickOne[0]!.right, ...pickOne[0]!.wrong], s2);
       seed = s3;
       cells[row * cats.length + col] = { cat, value, q: pickOne[0]!.q, options, answer: pickOne[0]!.right, done: false };

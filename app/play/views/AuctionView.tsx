@@ -50,25 +50,32 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
   }, [a.index, a.openTurn]);
 
   // Bots: open on their turn, raise while the price is right, otherwise step aside.
+  // The interval is created once and reads the latest state from a ref; re-creating it on every render
+  // (the 200ms clock re-renders constantly) would cancel it before it ever fired.
+  const live = useRef({ a, ctl, setup });
+  live.current = { a, ctl, setup };
+  const hasAi = aiPlayers.length > 0;
   useEffect(() => {
-    if (ctl.online || a.done || !aiPlayers.length) return;
+    if (!hasAi) return;
     const id = setInterval(() => {
+      const { a: cur, ctl: c, setup: su } = live.current;
+      if (c.online || cur.done) return;
       const t = Date.now();
       if (t - lotStart.current < 1400 || t - lastAct.current < 1000) return;
-      const itemId = A.currentItem(a);
-      const item = itemId ? ctl.byId(itemId) : null;
+      const itemId = A.currentItem(cur);
+      const item = itemId ? c.byId(itemId) : null;
       if (!item) return;
-      for (const p of [...aiPlayers].sort(() => Math.random() - 0.5)) {
-        const value = valueOf(setup, a, p, item);
-        const m = A.aiAct(a, p, value);
+      const bots = su.players.filter((p) => c.isAi(p));
+      for (const p of [...bots].sort(() => Math.random() - 0.5)) {
+        const m = A.aiAct(cur, p, valueOf(su, cur, p, item));
         if (!m) continue;
         lastAct.current = t;
-        ctl.dispatch(m.type === "bid" ? { type: "bid", by: p, amount: m.amount, seed: m.seed } : { type: "pass", by: p });
+        c.dispatch(m.type === "bid" ? { type: "bid", by: p, amount: m.amount, seed: m.seed } : { type: "pass", by: p });
         return;
       }
     }, 450);
     return () => clearInterval(id);
-  }, [a, ctl, aiPlayers, setup.mission.weights]);
+  }, [hasAi]);
 
   // Random-roll mode: the nominator picks which rolled lot goes up. AI shows its roll, lights up its pick, then nominates.
   const nom = A.nominator(a);

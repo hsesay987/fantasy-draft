@@ -20,6 +20,10 @@ export const football: TriviaSet = {
     ["Nations", 2, "Which team is nicknamed the Three Lions?", "England", "Cameroon", "Scotland", "Wales"],
     ["Nations", 3, "Which team are known as the Azzurri?", "Italy", "France", "Argentina", "Greece"],
     ["Nations", 4, "Which African team reached the 2022 World Cup semi-finals?", "Morocco", "Senegal", "Ghana", "Cameroon"],
+    ["World Cup", 4, "Which country hosted the first World Cup in 1930?", "Uruguay", "Italy", "Brazil", "France"],
+    ["Legends", 4, "Who won the Golden Ball at the 2022 World Cup?", "Lionel Messi", "Kylian Mbappé", "Luka Modrić", "Antoine Griezmann"],
+    ["Records", 4, "Who scored the winning goal in the 2010 World Cup final?", "Andrés Iniesta", "David Villa", "Xavi", "Wesley Sneijder"],
+    ["Nations", 4, "Which country did Zinedine Zidane's parents emigrate from?", "Algeria", "Morocco", "Tunisia", "Portugal"],
   ],
   surveys: [
     ["Name a World Cup winning nation", "Brazil|Germany|Italy|Argentina|France", "Netherlands|Portugal|Belgium|Croatia"],

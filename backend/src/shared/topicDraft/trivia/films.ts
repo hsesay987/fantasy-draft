@@ -20,6 +20,10 @@ export const films: TriviaSet = {
     ["Animated", 2, "Which film features an ogre named Shrek?", "Shrek", "Ice Age", "Monsters Inc.", "Hotel Transylvania"],
     ["Animated", 3, "Which Japanese animated film won the Best Animated Feature Oscar in 2003?", "Spirited Away", "Howl's Moving Castle", "Akira", "Ponyo"],
     ["Animated", 4, "Which film is set in the Land of the Dead and is about Miguel?", "Coco", "Soul", "Encanto", "Onward"],
+    ["Directors", 4, "Who directed 2001: A Space Odyssey?", "Stanley Kubrick", "Ridley Scott", "Steven Spielberg", "Andrei Tarkovsky"],
+    ["Awards", 4, "Which film won Best Picture for 2016 after the mix-up with La La Land?", "Moonlight", "Arrival", "Hidden Figures", "Manchester by the Sea"],
+    ["Quotes", 4, "Which film includes the line 'Frankly, my dear, I don't give a damn'?", "Gone with the Wind", "Casablanca", "Citizen Kane", "Rebecca"],
+    ["Animated", 4, "Which studio produced Spider-Man: Into the Spider-Verse?", "Sony Pictures Animation", "Pixar", "DreamWorks", "Illumination"],
   ],
   surveys: [
     ["Name a Christopher Nolan film", "Inception|The Dark Knight|Interstellar|Oppenheimer|Memento", "Avatar|Titanic|Gravity|Blade Runner"],

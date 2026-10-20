@@ -24,6 +24,10 @@ export const superheroes: TriviaSet = {
     ["Allies", 2, "Who is Captain America's best friend?", "Bucky Barnes", "Sam Wilson", "Peggy Carter", "Nick Fury"],
     ["Allies", 3, "What is the name of Iron Man's AI butler in the early films?", "J.A.R.V.I.S.", "F.R.I.D.A.Y.", "Ultron", "Karen"],
     ["Allies", 4, "Who is Batman's loyal butler?", "Alfred Pennyworth", "Lucius Fox", "Harvey Bullock", "James Gordon"],
+    ["Origins", 4, "Which X-Men founder's real name is Hank McCoy?", "Beast", "Cyclops", "Iceman", "Angel"],
+    ["Teams", 4, "Which original Teen Titan later became Nightwing?", "Dick Grayson", "Jason Todd", "Tim Drake", "Wally West"],
+    ["Weapons", 4, "Which Infinity Stone sits inside Doctor Strange's Eye of Agamotto?", "Time Stone", "Mind Stone", "Soul Stone", "Reality Stone"],
+    ["Places", 4, "Which Asgardian realm is home to the fire giants?", "Muspelheim", "Jotunheim", "Niflheim", "Vanaheim"],
   ],
   surveys: [
     ["Name a Marvel Avenger", "Iron Man|Captain America|Thor|Hulk|Black Widow", "Batman|Superman|The Flash|Aquaman"],

@@ -20,6 +20,10 @@ export const shows: TriviaSet = {
     ["Sci-Fi & Fantasy", 2, "Which Star Wars series follows Din Djarin?", "The Mandalorian", "Andor", "Ahsoka", "Obi-Wan Kenobi"],
     ["Sci-Fi & Fantasy", 3, "Which British show features a time-travelling Doctor?", "Doctor Who", "Torchwood", "Merlin", "Sherlock"],
     ["Sci-Fi & Fantasy", 4, "Which show's final season involved a Long Night against the White Walkers?", "Game of Thrones", "The Walking Dead", "Vikings", "Westworld"],
+    ["Sitcoms", 4, "Who co-created Seinfeld with Jerry Seinfeld?", "Larry David", "Chuck Lorre", "Greg Daniels", "Tina Fey"],
+    ["Drama", 4, "Which actor played Don Draper in Mad Men?", "Jon Hamm", "Bryan Cranston", "Kevin Spacey", "Michael C. Hall"],
+    ["Animation", 4, "Who co-created Rick and Morty with Justin Roiland?", "Dan Harmon", "Matt Stone", "Seth MacFarlane", "Mike Judge"],
+    ["Sci-Fi & Fantasy", 4, "Which ship does Captain Picard command in Star Trek: The Next Generation?", "USS Enterprise (NCC-1701-D)", "USS Voyager", "USS Defiant", "USS Discovery"],
   ],
   surveys: [
     ["Name a Friends character", "Rachel|Ross|Monica|Chandler|Joey", "Jerry|Elaine|Michael|Pam"],

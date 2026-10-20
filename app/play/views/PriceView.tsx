@@ -33,7 +33,7 @@ export function PriceView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
       <GameFrame kicker={`Price Is Right · Round ${s.round + 1}/${s.queue.length}`} headline={mine ? `${player}: what's it worth?` : `${player} is guessing…`} mission={setup.mission} mystery={setup.mystery}>
         <Scoreboard rows={s.players.map((p) => ({ name: p, value: `${s.points[p]} pts`, active: p === player }))} />
         <div className="grid gap-6 md:grid-cols-[320px_1fr]">
-          <div className="space-y-2">{item && <HeroCard key={item.id} item={item} compact />}<p className="text-xs text-muted-foreground">Stats hidden. Guess its 0–100 rating for the mission. Closest without going over wins.</p></div>
+          <div className="space-y-2">{item && <HeroCard key={item.id} item={item} compact />}<p className="text-xs text-muted-foreground">Stats hidden. Guess its 0–100 score. Closest without going over wins.</p></div>
           <div className="space-y-4">
             <div className="rounded-2xl border border-white/10 bg-card/70 p-5">
               <div className="font-display text-6xl text-secondary" aria-live="polite">{mine ? value : "?"}</div>

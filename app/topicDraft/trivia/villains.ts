@@ -18,6 +18,10 @@ export const villains: TriviaSet = {
     ["Cartoon Baddies", 2, "Who wants to skin 101 Dalmatians?", "Cruella de Vil", "Ursula", "Evil Queen", "Madam Mim"],
     ["Cartoon Baddies", 3, "Who is Mickey Mouse's long-time bully?", "Pete", "Scar", "Gaston", "Hades"],
     ["Cartoon Baddies", 4, "Which Disney villain lives in the Underworld?", "Hades", "Jafar", "Scar", "Dr. Facilier"],
+    ["Comic Foes", 4, "Which Batman villain's real name is Edward Nygma?", "The Riddler", "Scarecrow", "Mad Hatter", "Hush"],
+    ["Movie Menaces", 4, "Which film features the villain Hans Landa?", "Inglourious Basterds", "Django Unchained", "Pulp Fiction", "Kill Bill"],
+    ["Game Bosses", 4, "Who is the main villain of the first Metal Gear Solid, twin of Solid Snake?", "Liquid Snake", "Revolver Ocelot", "Solidus Snake", "Gray Fox"],
+    ["Cartoon Baddies", 4, "Which Disney villain is voiced by Jeremy Irons?", "Scar", "Jafar", "Hades", "Gaston"],
   ],
   surveys: [
     ["Name a Batman villain", "The Joker|Bane|The Penguin|Two-Face|Catwoman", "Lex Luthor|Green Goblin|Magneto|Thanos"],

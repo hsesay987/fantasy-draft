@@ -18,6 +18,10 @@ export const pokemon: TriviaSet = {
     ["Legendaries", 2, "Which legendary bird is Fire/Flying in Kanto?", "Moltres", "Zapdos", "Articuno", "Ho-Oh"],
     ["Legendaries", 3, "Which Pokémon is on the cover of Pokémon Red?", "Charizard", "Blastoise", "Venusaur", "Pikachu"],
     ["Legendaries", 4, "Which legendary sits on the cover of Pokémon Emerald?", "Rayquaza", "Groudon", "Kyogre", "Latias"],
+    ["Starters", 4, "Which Unova starter is a Fire type?", "Tepig", "Snivy", "Oshawott", "Fennekin"],
+    ["Types", 4, "Which type is immune to Psychic attacks?", "Dark", "Fighting", "Steel", "Normal"],
+    ["Evolution", 4, "At what level does Magikarp evolve into Gyarados?", "20", "16", "25", "30"],
+    ["Legendaries", 4, "Which Pokémon is number 151 in the Pokédex?", "Mew", "Celebi", "Jirachi", "Deoxys"],
   ],
   surveys: [
     ["Name a Pokémon starter", "Charmander|Squirtle|Bulbasaur|Pikachu|Eevee", "Mewtwo|Snorlax|Gengar|Magikarp"],

@@ -77,6 +77,7 @@ export default function SetupScreen() {
   const [cTitle, setCTitle] = useState("");
   const [cBlurb, setCBlurb] = useState("");
   const [mystery, setMystery] = useState(false);
+  const [priceStat, setPriceStat] = useState(""); // "" = overall rating
   const [mode, setMode] = useState<Mode>(format === "blind" ? "solo" : "ai");
   const [name, setName] = useState("You");
   const [rivals, setRivals] = useState(1);
@@ -105,6 +106,7 @@ export default function SetupScreen() {
 
   /** Switching topic re-applies that topic's defaults. */
   const changePool = (id: string) => {
+    setPriceStat("");
     const b = baseOpts(id, format);
     setPool(id);
     setPreset("quick");
@@ -144,7 +146,9 @@ export default function SetupScreen() {
     const surprise = format === "blind" && missionId === "surprise";
     const mission = missionId === "custom" ? customMission(pool, cTitle, cBlurb) : surprise ? missions[Math.floor(Math.random() * missions.length)]! : missions.find((m) => m.id === missionId) ?? missions[0]!;
     const lm = format === "loadout" ? loadout : null;
-    const quizMission = format === "feud" || format === "jeopardy" ? { id: "quiz", title: `${meta?.title}: ${catMeta?.title ?? pool}`, blurb: "How well do you know them?", weights: Object.fromEntries((catalogMeta(pool)?.statKeys ?? []).map((k) => [k, 1])) } : null;
+    const statKeys = catalogMeta(pool)?.statKeys ?? [];
+    const priceM = format === "price" ? { id: "price", title: `Price Is Right: ${catMeta?.title ?? pool} · ${priceStat ? metricsFor(pool).find((m) => m.id === `metric-${priceStat}`)?.title.replace("Rank by: ", "") ?? priceStat : "overall rating"}`, blurb: "Guess the rating without going over.", weights: priceStat ? { [priceStat]: 1 } : Object.fromEntries(statKeys.map((k) => [k, 1])) } : null;
+    const quizMission = priceM ?? (format === "feud" || format === "jeopardy" ? { id: "quiz", title: `${meta?.title}: ${catMeta?.title ?? pool}`, blurb: "How well do you know them?", weights: Object.fromEntries((catalogMeta(pool)?.statKeys ?? []).map((k) => [k, 1])) } : null);
     const setup: GameSetup = {
       id: `g${Date.now()}`,
       format,
@@ -235,7 +239,15 @@ export default function SetupScreen() {
             <div className="flex flex-wrap gap-2">{CATEGORIES.filter((c) => formatsFor(c.id).includes(format) && (!c.hidden || c.id === pool)).map((c) => <Chip key={c.id} selected={pool === c.id} onClick={() => changePool(c.id)}>{c.title}</Chip>)}</div>
             <p className="text-xs text-muted-foreground">{catalogMeta(pool)?.blurb} · {getCatalog(pool).length} to choose from</p>
           </Panel>
-          {format !== "feud" && format !== "jeopardy" && <Panel title={format === "blind" ? "Rank by" : format === "price" ? "Rating based on" : SCREEN_POOLS.has(pool) ? "Judged on" : "Mission"} hint={format === "blind" ? "The category you rank by." : "What the AI judge scores you on."}>
+          {format === "price" && (
+            <Panel title="Guess the…" hint="One thing to guess each round. No mission needed.">
+              <div className="flex flex-wrap gap-2">
+                <Chip selected={priceStat === ""} onClick={() => setPriceStat("")}>Overall rating</Chip>
+                {metricsFor(pool).map((m) => <Chip key={m.id} selected={priceStat === m.id.replace("metric-", "")} onClick={() => setPriceStat(m.id.replace("metric-", ""))}>{m.title.replace("Rank by: ", "")}</Chip>)}
+              </div>
+            </Panel>
+          )}
+          {format !== "feud" && format !== "jeopardy" && format !== "price" && <Panel title={format === "blind" ? "Rank by" : SCREEN_POOLS.has(pool) ? "Judged on" : "Mission"} hint={format === "blind" ? "The category you rank by." : "What the AI judge scores you on."}>
             <div className="flex flex-wrap gap-2">
               {missions.map((m) => <Chip key={m.id} selected={missionId === m.id} onClick={() => setMissionId(m.id)}>{m.title}</Chip>)}
               {format === "blind" && <Chip selected={missionId === "surprise"} onClick={() => setMissionId("surprise")}>🎲 Surprise me — hidden until the end</Chip>}

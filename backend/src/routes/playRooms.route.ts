@@ -1,3 +1,4 @@
+import { moderate, userText } from "../lib/moderation";
 import { Router } from "express";
 import { act, createRoom, getRoom, joinRoom, leaveRoom, seatFor, snapshot, startRoom } from "../services/playRooms";
 
@@ -14,8 +15,10 @@ const limited = (ip: string) => {
   return false;
 };
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   if (limited(req.ip ?? "anon")) return res.status(429).json({ error: "Slow down — try again in a minute" });
+  const mod = await moderate([...userText(req.body?.setup), req.body?.name]);
+  if (!mod.ok) return res.status(400).json({ error: mod.reason });
   const r = createRoom(req.body?.setup, req.body?.name);
   if ("error" in r) return res.status(400).json({ error: r.error });
   res.json({ code: r.room.code, token: r.seat.token, snapshot: snapshot(r.room, r.seat.token) });

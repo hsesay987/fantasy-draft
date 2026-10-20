@@ -78,17 +78,38 @@ describe("price is right", () => {
 describe("family feud", () => {
   const surveys = surveysFor("superheroes");
   const s0 = FD.init({ players: ["A", "B"], surveys, rounds: 3, seed: 3 });
-  it("board has five answers and shuffled options include wrong ones", () => {
-    const r = s0.rounds[0]!;
-    expect(r.board).toHaveLength(5);
-    expect(r.options.length).toBeGreaterThan(5);
-    expect(new Set(r.options).size).toBe(r.options.length);
+  it("board has five answers and decoys never match the board", () => {
+    for (const r of s0.rounds) {
+      expect(r.board).toHaveLength(5);
+      for (const d of r.decoys) expect(FD.matchAnswer(d, r.board), `${d} wrongly matches ${r.q}`).toBeNull();
+    }
   });
-  it("three strikes end the round", () => {
+  it("forgives case, partial names and typos", () => {
+    const board = ["Spider-Man", "Iron Man", "Captain America", "Thor", "The Hulk"];
+    expect(FD.matchAnswer("spiderman", board)).toBe("Spider-Man");
+    expect(FD.matchAnswer("IRON MAN", board)).toBe("Iron Man");
+    expect(FD.matchAnswer("captain", board)).toBe("Captain America");
+    expect(FD.matchAnswer("hulk", board)).toBe("The Hulk");
+    expect(FD.matchAnswer("captian america", board)).toBe("Captain America");
+    expect(FD.matchAnswer("batman", board)).toBeNull();
+    expect(FD.matchAnswer("a", board)).toBeNull();
+  });
+  it("three typed misses end the round; a repeat does not double-strike", () => {
     let s = s0;
-    const wrong = s.rounds[0]!.options.filter((a) => !s.rounds[0]!.board.includes(a));
-    for (let i = 0; i < 3; i++) s = FD.choose(s, FD.turnPlayer(s)!, wrong[i]!);
+    s = FD.choose(s, FD.turnPlayer(s)!, "zzzz one");
+    const same = FD.choose(s, FD.turnPlayer(s)!, "ZZZZ one");
+    expect(same).toBe(s);
+    s = FD.choose(s, FD.turnPlayer(s)!, "zzzz two");
+    s = FD.choose(s, FD.turnPlayer(s)!, "zzzz three");
     expect(s.round).toBe(1);
+  });
+  it("naming a board answer scores it once", () => {
+    const first = s0.rounds[0]!.board[0]!;
+    let s = FD.choose(s0, FD.turnPlayer(s0)!, first.toLowerCase());
+    expect(s.rounds[0]!.found[first]).toBeDefined();
+    expect(Object.values(s.points).reduce((a, b) => a + b, 0)).toBe(FD.BOARD_POINTS[0]);
+    const again = FD.choose(s, FD.turnPlayer(s)!, first);
+    expect(again).toBe(s);
   });
 });
 
@@ -99,6 +120,19 @@ describe("jeopardy", () => {
     for (const c of s0.cells) {
       expect(c.options).toContain(c.answer);
       expect(c.q.includes("?")).toBe(true);
+    }
+  });
+  it("never uses easy level-1 questions or repeats a question in a category", () => {
+    const qs = questionsFor("anime");
+    const easy = new Set(qs.filter((q) => q.level === 1).map((q) => q.q));
+    for (let seed = 1; seed < 30; seed++) {
+      const b = J.init({ players: ["A"], questions: qs, seed });
+      const seen = new Set<string>();
+      for (const c of b.cells) {
+        expect(easy.has(c.q)).toBe(false);
+        expect(seen.has(c.q)).toBe(false);
+        seen.add(c.q);
+      }
     }
   });
   it("right answers add the value, wrong ones subtract it", () => {
@@ -116,7 +150,7 @@ describe("trivia data", () => {
   for (const pool of TRIVIA_POOLS) {
     it(`${pool}: enough clean questions and surveys`, () => {
       const qs = questionsFor(pool);
-      expect(usableCats(qs).length, "needs 4 categories with all 4 levels").toBeGreaterThanOrEqual(4);
+      expect(usableCats(qs).length, "needs 4 categories that can fill a board").toBeGreaterThanOrEqual(4);
       for (const q of qs) {
         expect(new Set([q.right, ...q.wrong]).size, q.q).toBe(4);
         expect(q.q.includes("?"), q.q).toBe(true);

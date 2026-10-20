@@ -20,6 +20,10 @@ export const videogames: TriviaSet = {
     ["Consoles", 2, "Which Nintendo console launched in 2006 with motion controls?", "Wii", "GameCube", "Switch", "N64"],
     ["Consoles", 3, "Which company made the Dreamcast?", "Sega", "Atari", "Nintendo", "Sony"],
     ["Consoles", 4, "Which 1985 console popularised Super Mario Bros.?", "NES", "Atari 2600", "Master System", "Game Boy"],
+    ["Mascots", 4, "What was Mario originally called in Donkey Kong (1981)?", "Jumpman", "Mr. Video", "Plumber Pete", "Marty"],
+    ["Zelda", 4, "In which Zelda game does Link travel with Midna?", "Twilight Princess", "Skyward Sword", "The Wind Waker", "Majora's Mask"],
+    ["Shooters & RPGs", 4, "What is the name of Commander Shepard's ship in Mass Effect?", "Normandy", "Nostromo", "Serenity", "Enterprise"],
+    ["Consoles", 4, "Which company released the Neo Geo?", "SNK", "Capcom", "Sega", "Konami"],
   ],
   surveys: [
     ["Name a Mario Kart character", "Mario|Luigi|Peach|Bowser|Yoshi", "Link|Sonic|Kirby|Samus"],

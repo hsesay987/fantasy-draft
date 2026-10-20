@@ -20,6 +20,10 @@ export const disney: TriviaSet = {
     ["Villains & Sidekicks", 2, "Who is Aladdin's monkey companion?", "Abu", "Iago", "Rajah", "Genie"],
     ["Villains & Sidekicks", 3, "Which sidekick is Mulan's tiny dragon?", "Mushu", "Pascal", "Meeko", "Flounder"],
     ["Villains & Sidekicks", 4, "What kind of animal is Rapunzel's sidekick Pascal?", "Chameleon", "Frog", "Lizard", "Parrot"],
+    ["Classics", 4, "Which 1991 Disney film was the first animated film nominated for Best Picture?", "Beauty and the Beast", "The Lion King", "Aladdin", "The Little Mermaid"],
+    ["Pixar", 4, "Who directed Inside Out?", "Pete Docter", "Andrew Stanton", "Brad Bird", "John Lasseter"],
+    ["Songs", 4, "Which composer wrote the songs for The Little Mermaid with Howard Ashman?", "Alan Menken", "Elton John", "Randy Newman", "Lin-Manuel Miranda"],
+    ["Villains & Sidekicks", 4, "What are the names of Hades' two minions in Hercules?", "Pain and Panic", "Gus and Jaq", "Timon and Pumbaa", "Flotsam and Jetsam"],
   ],
   surveys: [
     ["Name a Disney princess", "Cinderella|Belle|Ariel|Snow White|Jasmine", "Wendy|Alice|Dorothy|Tinker Bell"],
