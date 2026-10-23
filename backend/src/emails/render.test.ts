@@ -33,6 +33,7 @@ describe("email rendering", () => {
   it("receipt shows formatted amount, cycle, date and optional invoice link", () => {
     const m = receiptEmail({ to: "a@b.c", name: "Ann", amountCents: 499, currency: "usd", billingCycle: "yearly", receiptId: "in_123", date: "2026-10-24T10:00:00Z", invoiceUrl: "https://x.test/inv" });
     expect(m.html).toContain("4.99 USD");
+    expect(m.html).toContain("$4.99");
     expect(m.html).toContain("TopPic Yearly");
     expect(m.html).toContain("October 24, 2026");
     expect(m.html).toContain("View your invoice");
@@ -46,6 +47,22 @@ describe("email rendering", () => {
     expect(verify.html.startsWith("<!doctype html>")).toBe(true);
     expect(verify.html).toContain('name="viewport"');
     expect(verify.html).toContain("max-width:620px");
-    expect(verify.html).toContain("Draft anything. Take the top pic.");
+    expect(verify.html).toContain("Draft anything. Choose the top pic.");
+    expect(verify.html + verify.text).not.toMatch(/take the top pic/i);
+  });
+});
+
+describe("email looks like the site", () => {
+  const html = verifyEmail({ to: "a@b.c", verifyUrl: "https://x.test/v" }).html;
+  it("sets the site background colour and glow image on every container, not only <body>", () => {
+    expect(html).toContain('bgcolor="#0f0f23"');
+    expect((html.match(/background-color:#0f0f23/g) ?? []).length).toBeGreaterThanOrEqual(2);
+    expect(html).toContain("/email/bg.png");
+    expect(html).toContain('bgcolor="#1e1c35"');
+  });
+  it("has feature tiles that stack on phones, and footer links", () => {
+    expect(html).toContain("10 ways to draft");
+    expect(html).toContain(".col{display:block");
+    expect(html).toContain("/trivia");
   });
 });
