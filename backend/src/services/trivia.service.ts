@@ -1,6 +1,5 @@
 // Trivia bank for Jeopardy and Family Feud. Categories and surveys are written by the AI, cross-checked by a second
 // model, moderated, stored, and reused; selection rotates through the bank so a category does not keep coming back.
-import prisma from "../lib/prisma";
 import { moderate } from "../lib/moderation";
 import { captureError } from "../lib/monitoring";
 import { allClients, extractJson, type LLM } from "./judge.service";
@@ -278,36 +277,39 @@ export async function getFeud(pool: string, rounds: number, avoid: string[], sto
 }
 
 // ---------- stores ----------
+// Loaded on first use so importing this file (and its tests) never needs a database connection.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const db = () => require("../lib/prisma").default as typeof import("../lib/prisma").default;
 export const prismaStore: TriviaStore = {
   async categories(pool) {
-    const rows = await prisma.triviaCategory.findMany({ where: { pool } });
+    const rows = await db().triviaCategory.findMany({ where: { pool } });
     return rows.map((r) => ({ name: r.name, clues: r.clues as unknown as Clue[], uses: r.uses, lastUsedAt: r.lastUsedAt?.getTime() ?? null, source: r.source }));
   },
   async addCategory(pool, c, source) {
     try {
-      await prisma.triviaCategory.create({ data: { pool, name: c.name, clues: c.clues as any, source } });
+      await db().triviaCategory.create({ data: { pool, name: c.name, clues: c.clues as any, source } });
       return true;
     } catch {
       return false; // unique name already stored
     }
   },
   async touchCategories(pool, names) {
-    if (names.length) await prisma.triviaCategory.updateMany({ where: { pool, name: { in: names } }, data: { uses: { increment: 1 }, lastUsedAt: new Date() } });
+    if (names.length) await db().triviaCategory.updateMany({ where: { pool, name: { in: names } }, data: { uses: { increment: 1 }, lastUsedAt: new Date() } });
   },
   async surveys(pool) {
-    const rows = await prisma.triviaSurvey.findMany({ where: { pool } });
+    const rows = await db().triviaSurvey.findMany({ where: { pool } });
     return rows.map((r) => ({ q: r.q, answers: r.answers, decoys: r.decoys, uses: r.uses, lastUsedAt: r.lastUsedAt?.getTime() ?? null, source: r.source }));
   },
   async addSurvey(pool, s, source) {
     try {
-      await prisma.triviaSurvey.create({ data: { pool, q: s.q, answers: s.answers, decoys: s.decoys, source } });
+      await db().triviaSurvey.create({ data: { pool, q: s.q, answers: s.answers, decoys: s.decoys, source } });
       return true;
     } catch {
       return false;
     }
   },
   async touchSurveys(pool, qs) {
-    if (qs.length) await prisma.triviaSurvey.updateMany({ where: { pool, q: { in: qs } }, data: { uses: { increment: 1 }, lastUsedAt: new Date() } });
+    if (qs.length) await db().triviaSurvey.updateMany({ where: { pool, q: { in: qs } }, data: { uses: { increment: 1 }, lastUsedAt: new Date() } });
   },
 };
 
