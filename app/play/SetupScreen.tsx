@@ -79,7 +79,7 @@ export default function SetupScreen() {
   const [cBlurb, setCBlurb] = useState("");
   const [mystery, setMystery] = useState(false);
   const [priceStat, setPriceStat] = useState(""); // "" = overall rating
-  const [mode, setMode] = useState<Mode>(format === "blind" ? "solo" : "ai");
+  const [mode, setMode] = useState<Mode>(search.get("online") === "1" ? "online" : format === "blind" ? "solo" : "ai");
   const [name, setName] = useState("You");
   const [rivals, setRivals] = useState(1);
   const [localNames, setLocalNames] = useState(["Player 1", "Player 2"]);
