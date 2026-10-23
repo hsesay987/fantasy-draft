@@ -59,7 +59,7 @@ function button(href: string, label: string): string {
 }
 
 /** Every container sets bgcolor AND background-color: some webmail strips <body> styles and the background shorthand. */
-function layout(o: { preheader: string; title: string; eyebrow: string; body: string }): string {
+function layout(o: { preheader: string; title: string; eyebrow: string; hero: { file: string; alt: string }; body: string }): string {
   return `<!doctype html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -94,7 +94,8 @@ function layout(o: { preheader: string; title: string; eyebrow: string; body: st
     <tr><td bgcolor="${C.card}" style="background-color:${C.card};border:1px solid ${C.border};border-radius:20px;overflow:hidden;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr><td height="6" bgcolor="${C.primary}" style="height:6px;line-height:6px;font-size:0;background-color:${C.primary};background-image:linear-gradient(90deg,${C.primary},${C.accent});">&nbsp;</td></tr>
-        <tr><td class="px" bgcolor="${C.card}" style="padding:34px 40px 38px;background-color:${C.card};font-family:${FONT};color:${C.text};">
+        <tr><td bgcolor="${C.card}" style="padding:0;background-color:${C.card};font-size:0;line-height:0;"><img src="${esc(SITE)}/email/${o.hero.file}" width="600" alt="${esc(o.hero.alt)}" style="display:block;width:100%;max-width:600px;height:auto;border:0;background-color:${C.card};"></td></tr>
+        <tr><td class="px" bgcolor="${C.card}" style="padding:30px 40px 38px;background-color:${C.card};font-family:${FONT};color:${C.text};">
           <div style="margin:0 0 14px;"><span style="display:inline-block;font-family:${FONT};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${C.secondary};background-color:#2b2757;border:1px solid ${C.border};border-radius:999px;padding:5px 12px;">${esc(o.eyebrow)}</span></div>
           ${o.body}
         </td></tr>
@@ -147,8 +148,8 @@ export function verifyEmail(o: { to: string; name?: string | null; verifyUrl: st
   const url = safeUrl(o.verifyUrl);
   const n = firstName(o.name, o.to);
   const body = [
-    h1(`Welcome to TopPic, ${n}!`),
-    p("You are one tap from your first draft. Pick a topic, choose your team, and let the AI judge crown the winner."),
+    h1(`Oh hey, ${n} &#128075; welcome to TopPic`),
+    p("You are one tap from your first draft. Choose a topic, build your team, and let the AI judge crown the winner."),
     p("First, confirm your email so we know it is really you:"),
     cta(url, "Verify my email"),
     divider,
@@ -163,9 +164,9 @@ export function verifyEmail(o: { to: string; name?: string | null; verifyUrl: st
     small("Did not sign up? You can safely ignore this email and nothing will happen."),
   ].join("");
   return {
-    subject: "Verify your email to start playing TopPic",
-    html: layout({ preheader: "One tap to confirm your email and choose your first top pic.", title: "Verify your email", eyebrow: "Welcome", body }),
-    text: [`Welcome to TopPic, ${plainName(o.name, o.to)}!`, "", "You are one tap from your first draft. Confirm your email so we know it is really you:", url, "", "What is waiting for you: 10 ways to draft, trivia boards, and rooms to play with friends.", "", "This link works for 24 hours.", "Did not sign up? Ignore this email and nothing will happen.", "", TAGLINE, `Need help? ${SUPPORT}`].join("\n"),
+    subject: "Welcome to TopPic \u{1F3AF} Confirm your email",
+    html: layout({ preheader: "One tap to confirm your email and choose your first top pic.", title: "Verify your email", eyebrow: "Welcome", hero: { file: "hero-welcome.jpg", alt: "A fan of TopPic draft cards" }, body }),
+    text: [`Oh hey, ${plainName(o.name, o.to)}, welcome to TopPic!`, "", "You are one tap from your first draft. Confirm your email so we know it is really you:", url, "", "What is waiting for you: 10 ways to draft, trivia boards, and rooms to play with friends.", "", "This link works for 24 hours.", "Did not sign up? Ignore this email and nothing will happen.", "", TAGLINE, `Need help? ${SUPPORT}`].join("\n"),
   };
 }
 
@@ -173,7 +174,7 @@ export function resetEmail(o: { to: string; name?: string | null; resetUrl: stri
   const url = safeUrl(o.resetUrl);
   const n = firstName(o.name, o.to);
   const body = [
-    h1("Reset your password"),
+    h1("Let&#8217;s get you back in &#128272;"),
     p(`Hi ${n}, we got a request to reset the password on your TopPic account. Choose a new one with the button below.`),
     cta(url, "Choose a new password"),
     linkBox(url),
@@ -184,8 +185,8 @@ export function resetEmail(o: { to: string; name?: string | null; resetUrl: stri
     small("&bull; Never share this link. TopPic will never ask for your password by email."),
   ].join("");
   return {
-    subject: "Reset your TopPic password",
-    html: layout({ preheader: "Choose a new password. The link works for 1 hour.", title: "Reset your password", eyebrow: "Security", body }),
+    subject: "Reset your TopPic password \u{1F510}",
+    html: layout({ preheader: "Choose a new password. The link works for 1 hour.", title: "Reset your password", eyebrow: "Security", hero: { file: "hero-security.jpg", alt: "A shield with a lock" }, body }),
     text: [`Hi ${plainName(o.name, o.to)},`, "", "We got a request to reset your TopPic password. Choose a new one here:", url, "", "This link works for 1 hour and only once.", "Did not ask for this? Your password has not changed. Ignore this email.", "TopPic will never ask for your password by email.", "", TAGLINE, `Need help? ${SUPPORT}`].join("\n"),
   };
 }
@@ -202,7 +203,7 @@ export function receiptEmail(o: { to: string; name?: string | null; amountCents:
     `<tr><td style="padding:12px 0;${last ? "" : `border-bottom:1px solid ${C.border};`}font-family:${FONT};font-size:14px;color:${C.muted};">${k}</td><td align="right" style="padding:12px 0;${last ? "" : `border-bottom:1px solid ${C.border};`}font-family:${FONT};font-size:14px;color:#ffffff;font-weight:bold;">${v}</td></tr>`;
   const invoice = o.invoiceUrl ? safeUrl(o.invoiceUrl) : null;
   const body = [
-    h1("Thanks for backing TopPic"),
+    h1("You&#8217;re officially a backer &#127942;"),
     p(`Hi ${n}, your payment went through. You are helping us build more ways to draft, so thank you.`),
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 20px;"><tr><td align="center" bgcolor="${C.tile}" style="background-color:${C.tile};border:1px solid ${C.border};border-radius:14px;padding:22px 16px;font-family:${FONT};">
 <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:${C.secondary};">Amount paid</div>
@@ -214,8 +215,8 @@ export function receiptEmail(o: { to: string; name?: string | null; amountCents:
     small("You can manage or cancel your subscription any time from your account page."),
   ].join("");
   return {
-    subject: "Your TopPic receipt",
-    html: layout({ preheader: `Payment received: ${m.short}. Thank you!`, title: "Your TopPic receipt", eyebrow: "Receipt", body }),
+    subject: "Your TopPic receipt \u{1F3C6}",
+    html: layout({ preheader: `Payment received: ${m.short}. Thank you!`, title: "Your TopPic receipt", eyebrow: "Receipt", hero: { file: "hero-receipt.jpg", alt: "A golden trophy on a podium" }, body }),
     text: [`Hi ${plainName(o.name, o.to)},`, "", "Your payment went through. Receipt:", `Plan: TopPic ${cycle}`, `Amount: ${m.long}`, `Date: ${when}`, `Receipt: ${o.receiptId || "N/A"}`, invoice ? `Invoice: ${invoice}` : "", "", "Manage or cancel any time from your account page.", TAGLINE, `Need help? ${SUPPORT}`].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n"),
   };
 }
