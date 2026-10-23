@@ -1,0 +1,75 @@
+import type { Item, Scenario } from "../topicDraft/types";
+import { analyze } from "./analysis";
+
+export type JudgeItem = {
+  name: string;
+  universe?: string;
+  archetype?: string;
+  role?: string;
+  price?: number;
+  stats: Record<string, number>;
+  tags: string[];
+  /** Written by a player (not from the built-in catalog). */
+  custom?: boolean;
+};
+export type JudgeTeamInput = { player: string; items: JudgeItem[]; baseline: number; notes?: string };
+
+export type StatRow = { key: string; values: Record<string, number> };
+
+export type Verdict = {
+  winner: string;
+  teams: { player: string; score: number; highlights: string[]; roast: string; strengths?: string[]; weaknesses?: string[] }[];
+  summary: string;
+  /** Detailed written breakdown: why it went this way, head-to-head, key picks, advice. */
+  analysis?: string[];
+  /** Average stat per team for the comparison bars. */
+  statsTable?: StatRow[];
+  /** decision = scored by the built-in model; ai = AI commentary; fallback = AI was tried and failed. */
+  source: "ai" | "decision" | "fallback";
+};
+
+export const toJudgeItem = (i: Item, extra?: { role?: string; price?: number }): JudgeItem => ({
+  name: i.name,
+  universe: i.universe,
+  archetype: i.archetype,
+  role: extra?.role,
+  price: extra?.price,
+  stats: i.stats,
+  tags: i.tags,
+  ...(i.custom ? { custom: true } : {}),
+});
+
+export function localVerdict(teams: JudgeTeamInput[], mission: { title: string; weights?: Record<string, number> }): Verdict {
+  const scores = Object.fromEntries(teams.map((t) => [t.player, t.baseline]));
+  const a = analyze(teams, mission, scores);
+  const scored = teams.map((t) => ({
+    player: t.player,
+    score: t.baseline,
+    highlights: a.perTeam[t.player]?.highlights ?? [],
+    roast: t.baseline >= 75 ? "Annoyingly solid." : t.baseline >= 50 ? "Respectable. Not scary." : "Bold strategy. Bold.",
+    strengths: a.perTeam[t.player]?.strengths,
+    weaknesses: a.perTeam[t.player]?.weaknesses,
+  }));
+  const winner = [...scored].sort((x, y) => y.score - x.score)[0]?.player ?? "";
+  return { winner, teams: scored, summary: a.analysis[0] ?? "", analysis: a.analysis.slice(1), statsTable: a.statsTable, source: "decision" };
+}
+
+export async function fetchVerdict(
+  apiUrl: string,
+  token: string | null,
+  game: string,
+  mission: Pick<Scenario, "title" | "blurb"> & { weights?: Record<string, number>; custom?: boolean },
+  teams: JudgeTeamInput[]
+): Promise<Verdict> {
+  try {
+    const res = await fetch(`${apiUrl}/judge`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ game, scenario: { title: mission.title, blurb: mission.blurb, weights: mission.weights, custom: mission.custom }, teams }),
+    });
+    if (!res.ok) throw new Error(String(res.status));
+    return (await res.json()) as Verdict;
+  } catch {
+    return localVerdict(teams, mission);
+  }
+}

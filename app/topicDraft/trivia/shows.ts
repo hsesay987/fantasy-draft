@@ -1,0 +1,34 @@
+import type { TriviaSet } from "./types";
+
+export const shows: TriviaSet = {
+  quiz: [
+    ["Sitcoms", 1, "Which sitcom follows six friends in New York including Ross and Rachel?", "Friends", "Seinfeld", "How I Met Your Mother", "Frasier"],
+    ["Sitcoms", 2, "Which show is set at Dunder Mifflin?", "The Office", "Parks and Recreation", "Scrubs", "Community"],
+    ["Sitcoms", 3, "Which sitcom's catchphrase is 'Bazinga!'?", "The Big Bang Theory", "Two and a Half Men", "Friends", "Modern Family"],
+    ["Sitcoms", 4, "Which sitcom was 'about nothing'?", "Seinfeld", "Cheers", "Frasier", "Taxi"],
+    ["Drama", 1, "Which show features Walter White, a chemistry teacher turned drug maker?", "Breaking Bad", "Ozark", "Narcos", "Better Call Saul"],
+    ["Drama", 2, "Which show is set in Westeros?", "Game of Thrones", "The Witcher", "Vikings", "The Rings of Power"],
+    ["Drama", 3, "Which drama stars Tony Soprano?", "The Sopranos", "The Wire", "Boardwalk Empire", "Goodfellas"],
+    ["Drama", 4, "Which HBO show examines the drug trade in Baltimore?", "The Wire", "True Detective", "Oz", "Treme"],
+    ["Animation", 1, "Which yellow family lives in Springfield?", "The Simpsons", "Family Guy", "The Flintstones", "American Dad"],
+    ["Animation", 2, "Which show features Rick, a mad scientist, and his grandson?", "Rick and Morty", "Futurama", "Archer", "BoJack Horseman"],
+    ["Animation", 3, "Which animated series follows Aang the Avatar?", "Avatar: The Last Airbender", "The Legend of Korra", "Naruto", "Adventure Time"],
+    ["Animation", 4, "Which show is set in a town called South Park, Colorado?", "South Park", "King of the Hill", "Bob's Burgers", "Beavis and Butt-Head"],
+    ["Sci-Fi & Fantasy", 1, "Which Netflix show follows kids in Hawkins and the Upside Down?", "Stranger Things", "Dark", "The OA", "Locke & Key"],
+    ["Sci-Fi & Fantasy", 2, "Which Star Wars series follows Din Djarin?", "The Mandalorian", "Andor", "Ahsoka", "Obi-Wan Kenobi"],
+    ["Sci-Fi & Fantasy", 3, "Which British show features a time-travelling Doctor?", "Doctor Who", "Torchwood", "Merlin", "Sherlock"],
+    ["Sci-Fi & Fantasy", 4, "Which show's final season involved a Long Night against the White Walkers?", "Game of Thrones", "The Walking Dead", "Vikings", "Westworld"],
+    ["Sitcoms", 4, "Who co-created Seinfeld with Jerry Seinfeld?", "Larry David", "Chuck Lorre", "Greg Daniels", "Tina Fey"],
+    ["Drama", 4, "Which actor played Don Draper in Mad Men?", "Jon Hamm", "Bryan Cranston", "Kevin Spacey", "Michael C. Hall"],
+    ["Animation", 4, "Who co-created Rick and Morty with Justin Roiland?", "Dan Harmon", "Matt Stone", "Seth MacFarlane", "Mike Judge"],
+    ["Sci-Fi & Fantasy", 4, "Which ship does Captain Picard command in Star Trek: The Next Generation?", "USS Enterprise (NCC-1701-D)", "USS Voyager", "USS Defiant", "USS Discovery"],
+  ],
+  surveys: [
+    ["Name a Friends character", "Rachel|Ross|Monica|Chandler|Joey", "Jerry|Elaine|Michael|Pam"],
+    ["Name a character from The Office (US)", "Michael Scott|Dwight Schrute|Jim Halpert|Pam Beesly|Stanley Hudson", "Ross Geller|Leslie Knope|Sheldon Cooper|Barney Stinson"],
+    ["Name a Netflix original series", "Stranger Things|Squid Game|The Crown|Money Heist|Wednesday", "Friends|The Office|Seinfeld|Breaking Bad"],
+    ["Name a Game of Thrones house", "Stark|Lannister|Targaryen|Baratheon|Greyjoy", "Corleone|Soprano|Wayne|Skywalker"],
+    ["Name a long-running animated sitcom", "The Simpsons|South Park|Family Guy|American Dad|Bob's Burgers", "Friends|The Wire|Dark|Lost"],
+    ["Name a crime or mystery series", "Breaking Bad|Sherlock|True Detective|The Wire|Mindhunter", "Friends|Ted Lasso|Parks and Recreation|The Bear"],
+  ],
+};

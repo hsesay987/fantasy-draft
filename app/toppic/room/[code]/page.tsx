@@ -16,7 +16,9 @@ import {
   Trophy,
   Vote,
 } from "lucide-react";
+import { motion } from "motion/react";
 import { useAuth } from "@/app/hooks/useAuth";
+import { useSound } from "@/app/components/SoundProvider";
 import {
   TopPicPool,
   TopPicPromptCard,
@@ -76,6 +78,7 @@ type ToppicState = {
 export default function TopPicRoomPage() {
   const { code } = useParams<{ code: string }>();
   const { user, token } = useAuth();
+  const { play } = useSound();
 
   const [room, setRoom] = useState<Room | null>(null);
   const [toppicState, setToppicState] = useState<ToppicState | null>(null);
@@ -83,6 +86,8 @@ export default function TopPicRoomPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reporting, setReporting] = useState(false);
+  const [judging, setJudging] = useState(false);
+  const [judgeNote, setJudgeNote] = useState<string | null>(null);
 
   const isHost = room?.hostId === user?.id;
   const participants = room?.participants || [];
@@ -293,6 +298,7 @@ export default function TopPicRoomPage() {
       const updated = await res.json();
       setToppicState(updated);
       setError(null);
+      play("pick");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -324,16 +330,62 @@ export default function TopPicRoomPage() {
     }
   }
 
-  function autoPickWinner() {
-    if (!toppicState || !isHost) return;
-    const entries = Object.keys(toppicState.submissions || {});
-    if (!entries.length) return;
+  function randomPickWinner(entries: string[]) {
+    if (!toppicState) return;
     const shuffled = seededShuffle(entries, `${code}-round-${toppicState.round}`);
     pickWinner(shuffled[0]);
   }
 
+  /** Ask the AI judge to choose the best submission; fall back to a seeded random pick. */
+  async function autoPickWinner() {
+    if (!toppicState || !isHost) return;
+    const entries = Object.keys(toppicState.submissions || {});
+    if (!entries.length) return;
+    const prompt = toppicState.promptDeck?.[toppicState.promptIndex];
+    if (entries.length === 1 || !prompt) return randomPickWinner(entries);
+
+    const labelFor = (id: string, i: number) => {
+      const p = participants.find((x) => x.user.id === id);
+      return `${p?.user.name || p?.user.email?.split("@")[0] || "Player"} #${i + 1}`;
+    };
+    const labels = entries.map(labelFor);
+    setJudging(true);
+    try {
+      const res = await fetch(`${API_URL}/judge`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          game: "toppic-party",
+          scenario: {
+            title: prompt.text.slice(0, 80),
+            blurb: "Which card best completes this prompt? Reward the funniest, most fitting answer.",
+            weights: { fit: 1 },
+          },
+          teams: entries.map((id, i) => ({
+            player: labels[i],
+            items: [{ name: toppicState.submissions[id]!.cardText, stats: { fit: 50 } }],
+          })),
+        }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      const verdict = await res.json();
+      const idx = labels.indexOf(verdict.winner);
+      if (verdict.source !== "ai" || idx < 0) return randomPickWinner(entries);
+      setJudgeNote(verdict.teams?.find((t: any) => t.player === verdict.winner)?.roast || verdict.summary || null);
+      pickWinner(entries[idx]!);
+    } catch {
+      randomPickWinner(entries);
+    } finally {
+      setJudging(false);
+    }
+  }
+
   function pickWinner(userId: string) {
     if (!toppicState || !room || !isHost) return;
+    play("win");
     const scores = { ...(toppicState.scores || {}) };
     scores[userId] = (scores[userId] || 0) + 1;
 
@@ -485,7 +537,7 @@ export default function TopPicRoomPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-950 text-slate-50 p-6">
+      <main className="min-h-screen text-foreground p-6">
         Loading…
       </main>
     );
@@ -493,7 +545,7 @@ export default function TopPicRoomPage() {
 
   if (!room) {
     return (
-      <main className="min-h-screen bg-slate-950 text-slate-50 p-6">
+      <main className="min-h-screen text-foreground p-6">
         <div className="rounded-xl border border-red-500/50 bg-red-900/20 p-4">
           Room not found.
         </div>
@@ -502,16 +554,16 @@ export default function TopPicRoomPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 p-6 md:p-10 space-y-6">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground space-y-6">
       <header className="flex flex-wrap items-center gap-3 justify-between">
         <div>
-          <div className="text-xs uppercase tracking-[0.25em] text-indigo-300">
+          <div className="text-xs uppercase tracking-[0.25em] text-secondary">
             TopPic Online
           </div>
           <h1 className="text-3xl font-bold">
             Room {room.code}
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-muted-foreground">
             {participants.length} players (max 20) · Pools: {(baseConfig.pools || []).join(", ")}
           </p>
         </div>
@@ -519,7 +571,7 @@ export default function TopPicRoomPage() {
           {isHost && !toppicState && (
             <button
               onClick={initializeGame}
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary hover:bg-[#8b5cf6] px-4 py-2 text-sm font-semibold"
             >
               <Play className="w-4 h-4" />
               Start TopPic
@@ -528,7 +580,7 @@ export default function TopPicRoomPage() {
           {isHost && toppicState && toppicState.status !== "ended" && (
             <button
               onClick={() => saveState({ ...toppicState, status: "ended" })}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm hover:border-red-400"
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm hover:border-red-400"
             >
               <AlertTriangle className="w-4 h-4 text-amber-300" />
               End game
@@ -536,7 +588,7 @@ export default function TopPicRoomPage() {
           )}
           <button
             onClick={fetchRoom}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm"
+            className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm"
           >
             <RefreshCcw className="w-4 h-4" />
             Refresh
@@ -551,7 +603,7 @@ export default function TopPicRoomPage() {
     )}
 
       {!toppicState && (
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 text-sm text-slate-300">
+        <div className="rounded-2xl border border-white/10 bg-card/70 p-5 text-sm text-muted-foreground">
           Waiting for the host to start TopPic. Once the host launches the game, you&apos;ll see your 7-card hand and the first prompt here.
         </div>
       )}
@@ -559,12 +611,12 @@ export default function TopPicRoomPage() {
       {toppicState && (
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 space-y-4">
-            <div className="rounded-2xl border border-indigo-500/40 bg-slate-900/60 p-5 space-y-3">
+            <div className="rounded-2xl border border-secondary/40 bg-card/70 p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-indigo-300" />
+                  <Sparkles className="w-5 h-5 text-secondary" />
                   <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-indigo-200">
+                    <div className="text-xs uppercase tracking-[0.2em] text-secondary">
                       Round {toppicState.round}
                     </div>
                     <div className="text-lg font-semibold">Prompt</div>
@@ -574,14 +626,14 @@ export default function TopPicRoomPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={approvePrompt}
-                      className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold"
+                      className="inline-flex items-center gap-2 rounded-lg bg-success text-black px-3 py-2 text-xs font-semibold"
                     >
                       <ShieldCheck className="w-4 h-4" />
                       Approve prompt
                     </button>
                     <button
                       onClick={skipPrompt}
-                      className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-xs"
+                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs"
                     >
                       Skip
                     </button>
@@ -589,15 +641,15 @@ export default function TopPicRoomPage() {
                 )}
               </div>
 
-              <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 text-lg leading-relaxed">
+              <div className="rounded-xl border border-white/10 bg-black/30 p-4 text-lg leading-relaxed">
                 {currentPrompt ? currentPrompt.text : "No prompt available."}
               </div>
 
-              <div className="flex items-center gap-3 text-sm text-slate-400">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <button
                   onClick={() => reportCard("Prompt report from room")}
                   disabled={reporting}
-                  className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-xs hover:border-indigo-400"
+                  className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs hover:border-secondary"
                 >
                   <Flag className="w-4 h-4" />
                   Report this card
@@ -611,21 +663,21 @@ export default function TopPicRoomPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+            <div className="rounded-2xl border border-white/10 bg-card/70 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Vote className="w-4 h-4 text-indigo-300" />
+                  <Vote className="w-4 h-4 text-secondary" />
                   Submissions
                 </h3>
                 {isHost && (
                   <div className="flex gap-2">
                     <button
                       onClick={autoPickWinner}
-                      disabled={!Object.keys(toppicState.submissions || {}).length}
-                      className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-xs hover:border-indigo-400 disabled:opacity-50"
+                      disabled={judging || !Object.keys(toppicState.submissions || {}).length}
+                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs hover:border-secondary disabled:opacity-50"
                     >
                       <Crown className="w-4 h-4" />
-                      CPU pick
+                      {judging ? "Judging…" : "AI judge pick"}
                     </button>
                   </div>
                 )}
@@ -645,11 +697,15 @@ export default function TopPicRoomPage() {
                       participants.find((p) => p.user.id === userId)?.user.email ||
                       "Player";
                     return (
-                      <div
+                      <motion.div
                         key={userId}
-                        className="rounded-xl border border-slate-700 bg-slate-950/50 p-3 space-y-2"
+                        layout
+                        initial={{ opacity: 0, scale: 0.92, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ type: "spring", stiffness: 320, damping: 26 }}
+                        className="rounded-xl border border-white/10 bg-black/30 p-3 space-y-2"
                       >
-                        <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
                           {name}
                         </div>
                         <div className="text-base font-semibold">
@@ -658,18 +714,23 @@ export default function TopPicRoomPage() {
                         {isHost && toppicState.status !== "ended" && (
                           <button
                             onClick={() => pickWinner(userId)}
-                            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3 py-1 text-xs font-semibold"
+                            className="inline-flex items-center gap-2 rounded-lg bg-primary hover:bg-[#8b5cf6] px-3 py-1 text-xs font-semibold"
                           >
                             <CheckCircle2 className="w-4 h-4" />
                             Pick winner
                           </button>
                         )}
-                      </div>
+                      </motion.div>
                     );
                   }
                 )}
+                {judgeNote && (
+                  <div className="md:col-span-2 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm italic">
+                    Judge: “{judgeNote}”
+                  </div>
+                )}
                 {!Object.keys(toppicState.submissions || {}).length && (
-                  <div className="text-sm text-slate-400">
+                  <div className="text-sm text-muted-foreground">
                     Waiting for submissions…
                   </div>
                 )}
@@ -678,13 +739,13 @@ export default function TopPicRoomPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+            <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-indigo-300" />
+                  <Trophy className="w-5 h-5 text-secondary" />
                   Scoreboard
                 </h3>
-                <div className="text-right text-xs text-slate-400">
+                <div className="text-right text-xs text-muted-foreground">
                   <div>
                     {toppicState.targetScore
                       ? `First to ${toppicState.targetScore}`
@@ -693,7 +754,7 @@ export default function TopPicRoomPage() {
                   <div>
                     Scoring:{" "}
                     {toppicState.scoringMode === "cpu"
-                      ? "CPU decides"
+                      ? "AI judge decides"
                       : toppicState.scoringMode === "vote"
                       ? "Players vote, host confirms"
                       : "Rotating judge"}
@@ -704,17 +765,17 @@ export default function TopPicRoomPage() {
                 {participants.map((p) => (
                   <div
                     key={p.user.id}
-                    className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/50 px-3 py-2"
+                    className="flex items-center justify-between rounded-lg border border-white/10 bg-black/30 px-3 py-2"
                   >
                     <div>
                       <div className="text-sm font-semibold">
                         {p.user.name || p.user.email}
                       </div>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-muted-foreground">
                         {p.isHost ? "Host" : "Player"}
                       </div>
                     </div>
-                    <div className="text-xl font-bold text-indigo-300">
+                    <div className="text-xl font-bold text-secondary">
                       {toppicState.scores?.[p.user.id] ?? 0}
                     </div>
                   </div>
@@ -722,9 +783,9 @@ export default function TopPicRoomPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+            <div className="rounded-2xl border border-white/10 bg-card/70 p-4 space-y-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
-                <Clock className="w-4 h-4 text-indigo-300" />
+                <Clock className="w-4 h-4 text-secondary" />
                 Your hand
               </div>
               {user ? (
@@ -734,40 +795,46 @@ export default function TopPicRoomPage() {
                       {(toppicState.hands?.[user.id] || []).map((card) => {
                         const already = toppicState.submissions?.[user.id];
                         return (
-                          <button
+                          <motion.button
                             key={card.id}
+                            layout
+                            initial={{ opacity: 0, y: 14, rotate: -1.5 }}
+                            animate={{ opacity: 1, y: 0, rotate: 0 }}
+                            whileHover={{ y: -2 }}
+                            whileTap={{ scale: 0.97 }}
+                            transition={{ type: "spring", stiffness: 380, damping: 28 }}
                             disabled={
                               !!already ||
                               needsApproval ||
                               toppicState.status === "ended"
                             }
                             onClick={() => submitCard(card)}
-                            className="w-full text-left rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 hover:border-indigo-400 disabled:opacity-60"
+                            className="min-h-12 w-full text-left rounded-xl border border-white/10 bg-black/30 px-3 py-2 hover:border-secondary disabled:opacity-60"
                           >
                             <div className="text-sm font-semibold">{card.text}</div>
-                            <div className="text-xs text-slate-500 flex justify-between">
+                            <div className="text-xs text-muted-foreground flex justify-between">
                               <span>{card.pool}</span>
                               <span>{card.source}</span>
                             </div>
-                          </button>
+                          </motion.button>
                         );
                       })}
                     </div>
                   ) : (
-                    <div className="text-sm text-slate-400">
+                    <div className="text-sm text-muted-foreground">
                       Waiting for the host to start or deal cards.
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="text-sm text-slate-400">
+                <div className="text-sm text-muted-foreground">
                   Log in to play.
                 </div>
               )}
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 space-y-2 text-xs text-slate-400">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+            <div className="rounded-2xl border border-white/10 bg-card/70 p-4 space-y-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <ShieldCheck className="w-4 h-4 text-emerald-300" />
                 Safeguards
               </div>

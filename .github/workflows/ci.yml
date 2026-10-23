@@ -1,0 +1,32 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npm ci
+        working-directory: backend
+      - name: Prisma client
+        run: npx prisma generate
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      - name: Tests (rules, stats, judge, online rooms)
+        run: npm test
+      - name: Backend typecheck
+        run: npx tsc -p tsconfig.json --noEmit
+        working-directory: backend
+      - name: Web typecheck and build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.example.com

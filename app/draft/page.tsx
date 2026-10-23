@@ -3,14 +3,8 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Image, { type StaticImageData } from "next/image";
-import nbaImg from "../assets/nba.jpg";
-import nflImg from "../assets/nfl.jpg";
-import foodImg from "../assets/food.jpg";
-import animeImg from "../assets/anime.jpg";
-import cartoonsImg from "../assets/cartoons.jpg";
-import fifaImg from "../assets/fifa.jpg";
 import { useAuth } from "../hooks/useAuth";
+import { IconBadge } from "../components/ui";
 
 // Unified Draft Box Type
 type DraftSummary = {
@@ -22,16 +16,6 @@ type DraftSummary = {
   rules?: DraftRules;
   participants?: number;
   playersPerTeam?: number;
-};
-
-type DraftCategory = {
-  id: string;
-  name: string;
-  image: StaticImageData;
-  enabled: boolean;
-  beta?: boolean;
-  requirePremium?: boolean;
-  onClick?: () => void;
 };
 
 type DraftRules = {
@@ -256,197 +240,42 @@ export default function HomePage() {
     }
   };
 
-  const draftCategories: DraftCategory[] = [
-    {
-      id: "nba",
-      name: "NBA Draft",
-      image: nbaImg,
-      enabled: true,
-      onClick: () => router.push("/draft/new"),
-    },
-    {
-      id: "nfl",
-      name: "NFL Draft (Beta)",
-      image: nflImg,
-      enabled: true,
-      beta: true,
-      requirePremium: true,
-      onClick: goToNfl,
-    },
-    {
-      id: "cartoons",
-      name: "Cartoon Draft (Beta)",
-      image: cartoonsImg,
-      enabled: true,
-      beta: true,
-      requirePremium: true,
-      onClick: goToCartoon,
-    },
-    {
-      id: "food",
-      name: "Food Draft",
-      image: foodImg,
-      enabled: false,
-    },
-    {
-      id: "anime",
-      name: "Anime Characters Draft",
-      image: animeImg,
-      enabled: false,
-    },
-    {
-      id: "epl",
-      name: "EPL / FIFA Draft",
-      image: fifaImg,
-      enabled: false,
-    },
-  ];
 
   return (
     <>
-      <main className="min-h-screen p-6 md:p-10 bg-slate-950 text-slate-50 space-y-10">
+      <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground space-y-10">
       {/* PAGE TITLE */}
-      <header>
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-indigo-300 mb-2">
-          DraftHub
-        </h1>
-        <p className="text-slate-400 text-sm md:text-base">
-          Create fantasy lineups across sports, games, food, and more.
+      <header className="space-y-1">
+        <h1 className="text-4xl md:text-5xl">Stat Drafts</h1>
+        <p className="text-muted-foreground text-sm md:text-base">
+          Spin a team and era, then draft real players with career stats. Looking for characters, auctions or blind rankings?{" "}
+          <a href="/" className="text-secondary underline underline-offset-2">Browse all topics</a>.
         </p>
       </header>
 
       {/* AVAILABLE DRAFT MODES */}
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Available Drafts</h2>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {draftCategories.map((cat) => {
-            const isNba = cat.id === "nba";
-            const isNfl = cat.id === "nfl";
-            const locked = !cat.enabled || (cat.requirePremium && !isPremium);
+      <section className="space-y-4">
+        <h2 className="text-2xl">Pick a league</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {([
+            { id: "nba", title: "NBA Draft", icon: "/icons/basketball.png", premium: false, offline: () => router.push("/draft/new"), online: () => router.push("/online") },
+            { id: "nfl", title: "NFL Draft", icon: "/icons/football.png", premium: true, offline: goToNfl, online: () => router.push("/online?league=NFL") },
+            { id: "cartoons", title: "Cartoon Draft", icon: "/icons/turtle.png", premium: true, offline: goToCartoon, online: goToCartoonOnline },
+          ] as const).map((cat) => {
+            const locked = cat.premium && !isPremium;
             return (
-              <div
-                key={cat.id}
-                role={!locked ? "button" : undefined}
-                onClick={() => !locked && cat.onClick?.()}
-                className={`group relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-900/30 backdrop-blur-sm transition-all ${
-                  !locked
-                    ? "hover:border-indigo-500 hover:shadow-indigo-500/30 cursor-pointer"
-                    : "opacity-60 cursor-not-allowed"
-                }`}
-              >
-                {/* Image */}
-                <div className="relative h-40 w-full overflow-hidden">
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    fill
-                    className={`object-cover transition-all duration-300 group-hover:scale-105 ${
-                      !cat.enabled ? "grayscale" : ""
-                    }`}
-                  />
-                </div>
-
-                {/* Title */}
-                <div className="p-4 text-left">
-                  <div className="text-xl font-semibold mb-1 text-slate-100">
-                    {cat.name}
+              <div key={cat.id} className={`relative flex flex-col gap-4 rounded-2xl border border-white/10 bg-card/70 p-5 ${locked ? "opacity-80" : ""}`}>
+                <div className="flex items-center gap-4">
+                  <IconBadge src={cat.icon} />
+                  <div className="min-w-0">
+                    <h3 className="text-xl">{cat.title}</h3>
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">{locked ? <span className="rounded-full bg-accent/20 px-2 py-0.5 text-xs font-semibold text-accent">Premium</span> : null}{locked ? "Beta" : cat.premium ? "Beta" : "Classic, Casual & Free modes"}</p>
                   </div>
-                  {!locked ? (
-                    <p className="text-sm text-indigo-400 font-medium">
-                      ✦ {cat.beta ? "Launch Beta" : "Start Draft"}
-                    </p>
-                  ) : cat.requirePremium ? (
-                    <p className="text-sm text-orange-300">
-                      Premium members only
-                    </p>
-                  ) : (
-                    <p className="text-sm text-slate-500">Coming Soon</p>
-                  )}
-
-                  {cat.enabled && isNba && (
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push("/draft/new");
-                        }}
-                        className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2"
-                      >
-                        Offline Draft
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push("/online");
-                        }}
-                        className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2"
-                      >
-                        Online Draft
-                      </button>
-                    </div>
-                  )}
-                  {cat.enabled && cat.id === "cartoons" && (
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          goToCartoon();
-                        }}
-                        className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2"
-                      >
-                        Offline Draft
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          goToCartoonOnline();
-                        }}
-                        className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2"
-                      >
-                        Online Draft
-                      </button>
-                    </div>
-                  )}
-                  {cat.enabled && isNfl && (
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          goToNfl();
-                        }}
-                        className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2"
-                      >
-                        Offline Draft
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push("/online?league=NFL");
-                        }}
-                        className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs py-2"
-                      >
-                        Online Draft
-                      </button>
-                    </div>
-                  )}
-
-                  {cat.beta && (
-                    <div className="mt-3 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-amber-300">
-                      <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-                      Beta
-                    </div>
-                  )}
                 </div>
-
-                {/* Coming Soon overlay */}
-                {locked && (
-                  <div className="absolute inset-0 bg-slate-950/50 flex items-end justify-end p-3 pointer-events-none">
-                    <span className="text-[10px] uppercase tracking-wide bg-slate-700/60 text-slate-300 px-2 py-[2px] rounded">
-                      {cat.requirePremium ? "Premium Beta" : "Coming Soon"}
-                    </span>
-                  </div>
-                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={cat.offline} className="min-h-11 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold hover:bg-white/10">Offline</button>
+                  <button onClick={cat.online} className="min-h-11 rounded-xl bg-primary text-sm font-semibold hover:bg-[#8b5cf6]">Online</button>
+                </div>
               </div>
             );
           })}
@@ -461,29 +290,29 @@ export default function HomePage() {
             {myDrafts.length > 5 && (
               <button
                 onClick={() => setShowAllMyDrafts((prev) => !prev)}
-                className="text-xs text-slate-300 underline hover:text-white"
+                className="text-xs text-muted-foreground underline hover:text-white"
               >
                 {showAllMyDrafts ? "Show Less" : "View All"}
               </button>
             )}
             <button
               onClick={loadMyDrafts}
-              className="text-xs text-slate-300 underline hover:text-white"
+              className="text-xs text-muted-foreground underline hover:text-white"
             >
               Refresh
             </button>
           </div>
         </div>
 
-        <div className="rounded-2xl bg-slate-900/60 border border-slate-700 p-4">
+        <div className="rounded-2xl bg-card/70 border border-white/10 p-4">
           {!user ? (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               Log in to see your drafts.
             </p>
           ) : myDraftsLoading ? (
-            <p className="text-sm text-slate-400">Loading your drafts...</p>
+            <p className="text-sm text-muted-foreground">Loading your drafts...</p>
           ) : myDrafts.length === 0 ? (
-            <p className="text-sm text-slate-500">No drafts yet.</p>
+            <p className="text-sm text-muted-foreground">No drafts yet.</p>
           ) : (
             <div className="grid gap-2 md:grid-cols-2">
               {(showAllMyDrafts ? myDrafts : myDrafts.slice(0, 5)).map(
@@ -499,9 +328,9 @@ export default function HomePage() {
                     <button
                       key={d.id}
                       onClick={() => router.push(`/draft/${leaguePath}/${d.id}`)}
-                      className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-left hover:border-indigo-500 transition-all"
+                      className="rounded-xl border border-white/10 bg-card px-4 py-3 text-left hover:border-secondary transition-all"
                     >
-                      <div className="font-semibold text-sm text-slate-100">
+                      <div className="font-semibold text-sm text-foreground">
                         {d.title ||
                           (league === "NFL"
                             ? "NFL Draft"
@@ -509,7 +338,7 @@ export default function HomePage() {
                             ? "Cartoon Draft"
                             : "NBA Draft")}
                       </div>
-                      <div className="text-xs text-slate-400 flex items-center justify-between">
+                      <div className="text-xs text-muted-foreground flex items-center justify-between">
                         <span>Mode: {d.mode}</span>
                         {d.createdAt && (
                           <span>
@@ -532,7 +361,7 @@ export default function HomePage() {
           <h3 className="text-xl font-semibold">Community Drafts</h3>
           <button
             onClick={loadCommunityDrafts}
-            className="text-xs text-slate-300 underline hover:text-white"
+            className="text-xs text-muted-foreground underline hover:text-white"
           >
             Refresh
           </button>
@@ -540,9 +369,9 @@ export default function HomePage() {
 
         <div className="grid gap-3 md:grid-cols-2">
           {communityLoading ? (
-            <p className="text-sm text-slate-400">Loading community drafts...</p>
+            <p className="text-sm text-muted-foreground">Loading community drafts...</p>
           ) : communityDrafts.length === 0 ? (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               No community vote drafts yet.
             </p>
           ) : (
@@ -551,13 +380,13 @@ export default function HomePage() {
               return (
                 <div
                   key={d.id}
-                  className="rounded-2xl border border-slate-700 bg-slate-900/70 p-4 flex flex-col gap-3"
+                  className="rounded-2xl border border-white/10 bg-card/70 p-4 flex flex-col gap-3"
                 >
                   <div>
-                    <div className="text-sm uppercase tracking-[0.08em] text-indigo-300">
+                    <div className="text-sm uppercase tracking-[0.08em] text-secondary">
                       Community Vote
                     </div>
-                    <div className="text-lg font-semibold text-slate-50">
+                    <div className="text-lg font-semibold text-foreground">
                       {d.title ||
                         (league === "NFL"
                           ? "NFL Draft"
@@ -565,7 +394,7 @@ export default function HomePage() {
                           ? "Cartoon Draft"
                           : "NBA Draft")}
                     </div>
-                    <div className="text-xs text-slate-400 flex gap-3 mt-1">
+                    <div className="text-xs text-muted-foreground flex gap-3 mt-1">
                       <span>League: {league}</span>
                       {d.createdAt && (
                         <span>{new Date(d.createdAt).toLocaleDateString()}</span>
@@ -574,13 +403,13 @@ export default function HomePage() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs text-muted-foreground">
                       Vote on rosters drafted by the community.
                     </div>
                     <button
                       onClick={() => openCommunityDraft(d.id)}
                       disabled={loadingDraftId === d.id}
-                      className="rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3 py-2 text-xs font-semibold disabled:opacity-60"
+                      className="rounded-lg bg-primary hover:bg-[#8b5cf6] px-3 py-2 text-xs font-semibold disabled:opacity-60"
                     >
                       {loadingDraftId === d.id ? "Opening..." : "Vote on Draft"}
                     </button>
@@ -594,21 +423,21 @@ export default function HomePage() {
     </main>
 
     {selectedDraft && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 px-4">
-        <div className="relative w-full max-w-3xl rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-2xl">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4">
+        <div className="relative w-full max-w-3xl rounded-2xl border border-white/10 bg-card p-5 shadow-2xl">
           <button
             onClick={closeModal}
-            className="absolute right-3 top-3 text-slate-400 hover:text-white"
+            className="absolute right-3 top-3 text-muted-foreground hover:text-white"
           >
             ✕
           </button>
 
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-xs uppercase tracking-[0.12em] text-indigo-300">
+              <div className="text-xs uppercase tracking-[0.12em] text-secondary">
                 Community Vote
               </div>
-              <div className="text-xl font-semibold text-slate-50">
+              <div className="text-xl font-semibold text-foreground">
                 {selectedDraft.title ||
                   ((selectedDraft.league || "NBA").toUpperCase() === "NFL"
                     ? "NFL Draft"
@@ -620,7 +449,7 @@ export default function HomePage() {
             <button
               onClick={handleVoteForTeam}
               disabled={votedDraftIds.has(selectedDraft.id)}
-              className="rounded-lg bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+              className="rounded-lg bg-primary hover:bg-[#8b5cf6] px-4 py-2 text-sm font-semibold disabled:opacity-60"
             >
               {votedDraftIds.has(selectedDraft.id)
                 ? "Vote submitted"
@@ -631,46 +460,46 @@ export default function HomePage() {
           <div className="mt-4 flex items-center justify-between">
             <button
               onClick={prevTeam}
-              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs hover:border-indigo-500"
+              className="rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-xs hover:border-secondary"
             >
               ← Prev
             </button>
-            <div className="text-sm text-slate-300">
+            <div className="text-sm text-muted-foreground">
               Team {activeTeamIndex + 1} of {Math.max(1, teamsForSelected.length)}
             </div>
             <button
               onClick={nextTeam}
-              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs hover:border-indigo-500"
+              className="rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-xs hover:border-secondary"
             >
               Next →
             </button>
           </div>
 
-          <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <div className="text-sm font-semibold text-slate-100 mb-2">
+          <div className="mt-4 rounded-xl border border-white/10 bg-card/70 p-4">
+            <div className="text-sm font-semibold text-foreground mb-2">
               {teamsForSelected[activeTeamIndex]?.name ||
                 `Team ${activeTeamIndex + 1}`}
             </div>
             {(teamsForSelected[activeTeamIndex]?.picks || []).length === 0 ? (
-              <p className="text-sm text-slate-500">No picks recorded.</p>
+              <p className="text-sm text-muted-foreground">No picks recorded.</p>
             ) : (
               <div className="space-y-2">
                 {(teamsForSelected[activeTeamIndex]?.picks || []).map(
                   (pick: any) => (
                     <div
                       key={pick.id || pick.slot}
-                      className="rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2"
+                      className="rounded-lg border border-white/10 bg-background/60 px-3 py-2"
                     >
-                      <div className="text-sm text-slate-100">
+                      <div className="text-sm text-foreground">
                         {formatPickLabel(pick, selectedDraft.league)}
                       </div>
                       {pick.position && (
-                        <div className="text-[11px] text-slate-400">
+                        <div className="text-[11px] text-muted-foreground">
                           Position: {pick.position}
                         </div>
                       )}
                       {typeof pick.slot === "number" && (
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-[11px] text-muted-foreground">
                           Pick #{pick.slot}
                         </div>
                       )}
@@ -685,7 +514,7 @@ export default function HomePage() {
             <button
               onClick={handleVoteForTeam}
               disabled={votedDraftIds.has(selectedDraft.id)}
-              className="rounded-lg bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+              className="rounded-lg bg-primary hover:bg-[#8b5cf6] px-4 py-2 text-sm font-semibold disabled:opacity-60"
             >
               {votedDraftIds.has(selectedDraft.id)
                 ? "Vote submitted"
@@ -693,7 +522,7 @@ export default function HomePage() {
             </button>
             <button
               onClick={() => router.push("/draft/new")}
-              className="rounded-lg border border-indigo-500/70 px-4 py-2 text-sm text-indigo-200 hover:border-indigo-400"
+              className="rounded-lg border border-secondary/70 px-4 py-2 text-sm text-secondary hover:border-secondary"
             >
               Vote for next draft
             </button>

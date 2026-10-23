@@ -11,7 +11,7 @@ type League = "NBA" | "NFL" | "CARTOON";
 
 export default function OnlinePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950 text-slate-50 p-6">Loading…</div>}>
+    <Suspense fallback={<div className="min-h-screen text-foreground p-6">Loading…</div>}>
       <OnlinePageInner />
     </Suspense>
   );
@@ -148,12 +148,12 @@ function OnlinePageInner() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 p-6 md:p-10">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground">
       <header className="mb-10">
-        <h1 className="text-4xl font-extrabold text-indigo-300">
+        <h1 className="text-4xl font-extrabold text-secondary">
           Online Drafts
         </h1>
-        <p className="text-slate-400 text-sm mt-1">
+        <p className="text-muted-foreground text-sm mt-1">
           Create or join live draft rooms with friends.
         </p>
       </header>
@@ -165,16 +165,16 @@ function OnlinePageInner() {
   )}
 
       <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
-        <span className="text-slate-300">Choose league:</span>
-        <div className="inline-flex rounded-full bg-slate-900 border border-slate-800 p-1">
+        <span className="text-muted-foreground">Choose league:</span>
+        <div className="inline-flex rounded-full bg-card border border-white/10 p-1">
           {(["NBA", "NFL", "CARTOON"] as League[]).map((lg) => (
             <button
               key={lg}
               onClick={() => setLeague(lg)}
               className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
                 league === lg
-                  ? "bg-indigo-500 text-slate-900"
-                  : "text-slate-200 hover:text-white"
+                  ? "bg-primary text-slate-900"
+                  : "text-foreground hover:text-white"
               }`}
             >
               {lg}
@@ -190,20 +190,20 @@ function OnlinePageInner() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
         {/* CREATE ROOM */}
-        <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-6">
+        <div className="rounded-2xl border border-white/10 bg-card/70 p-6">
           <div className="flex items-center gap-3 mb-3">
-            <PlusCircle className="w-6 h-6 text-indigo-400" />
+            <PlusCircle className="w-6 h-6 text-secondary" />
             <h2 className="text-xl font-semibold">Create Room</h2>
           </div>
 
-          <p className="text-sm text-slate-400 mb-6">
+          <p className="text-sm text-muted-foreground mb-6">
             Host a private online {league} draft and invite others with a code.
           </p>
 
           <button
             onClick={handleCreateRoom}
             disabled={loading}
-            className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 py-3 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
+            className="w-full rounded-xl bg-primary hover:bg-[#8b5cf6] py-3 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
           >
             <Users className="w-4 h-4" />
             Create Online Draft Room
@@ -211,13 +211,13 @@ function OnlinePageInner() {
         </div>
 
         {/* JOIN ROOM */}
-        <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-6">
+        <div className="rounded-2xl border border-white/10 bg-card/70 p-6">
           <div className="flex items-center gap-3 mb-3">
-            <LogIn className="w-6 h-6 text-indigo-400" />
+            <LogIn className="w-6 h-6 text-secondary" />
             <h2 className="text-xl font-semibold">Join Room</h2>
           </div>
 
-          <p className="text-sm text-slate-400 mb-4">
+          <p className="text-sm text-muted-foreground mb-4">
             Enter a room code to join an existing online draft.
           </p>
 
@@ -225,7 +225,7 @@ function OnlinePageInner() {
             value={joinCode}
             onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
             placeholder="Enter room code"
-            className="w-full mb-4 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm tracking-widest uppercase"
+            className="w-full mb-4 rounded-lg border border-white/10 bg-background px-3 py-2 text-sm tracking-widest uppercase"
           />
 
           <button
@@ -239,7 +239,7 @@ function OnlinePageInner() {
       </div>
 
       {!user && (
-        <p className="text-xs text-slate-500 mt-10">
+        <p className="text-xs text-muted-foreground mt-10">
           ℹ Online drafts require login. Offline drafts are available without an
           account.
         </p>

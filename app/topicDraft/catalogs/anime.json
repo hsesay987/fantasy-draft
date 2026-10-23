@@ -1,0 +1,784 @@
+[
+ {
+  "id": "goku",
+  "name": "Goku",
+  "universe": "Dragon Ball",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 98,
+   "intellect": 70,
+   "speed": 95,
+   "durability": 90,
+   "combat": 98,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "alien",
+   "leader"
+  ]
+ },
+ {
+  "id": "vegeta",
+  "name": "Vegeta",
+  "universe": "Dragon Ball",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 96,
+   "intellect": 78,
+   "speed": 92,
+   "durability": 88,
+   "combat": 96,
+   "teamwork": 60
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "alien"
+  ]
+ },
+ {
+  "id": "gohan",
+  "name": "Gohan",
+  "universe": "Dragon Ball",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 94,
+   "intellect": 85,
+   "speed": 90,
+   "durability": 85,
+   "combat": 90,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "alien"
+  ]
+ },
+ {
+  "id": "piccolo",
+  "name": "Piccolo",
+  "universe": "Dragon Ball",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 86,
+   "intellect": 88,
+   "speed": 85,
+   "durability": 82,
+   "combat": 88,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "alien"
+  ]
+ },
+ {
+  "id": "naruto-uzumaki",
+  "name": "Naruto Uzumaki",
+  "universe": "Naruto",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 92,
+   "intellect": 78,
+   "speed": 88,
+   "durability": 90,
+   "combat": 92,
+   "teamwork": 95
+  },
+  "tags": [
+   "hero",
+   "leader",
+   "ninja"
+  ]
+ },
+ {
+  "id": "sasuke-uchiha",
+  "name": "Sasuke Uchiha",
+  "universe": "Naruto",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 92,
+   "intellect": 88,
+   "speed": 92,
+   "durability": 82,
+   "combat": 96,
+   "teamwork": 60
+  },
+  "tags": [
+   "antihero",
+   "ninja"
+  ]
+ },
+ {
+  "id": "kakashi-hatake",
+  "name": "Kakashi Hatake",
+  "universe": "Naruto",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 85,
+   "intellect": 95,
+   "speed": 88,
+   "durability": 75,
+   "combat": 92,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "ninja",
+   "leader"
+  ]
+ },
+ {
+  "id": "itachi-uchiha",
+  "name": "Itachi Uchiha",
+  "universe": "Naruto",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 90,
+   "intellect": 98,
+   "speed": 90,
+   "durability": 75,
+   "combat": 95,
+   "teamwork": 50
+  },
+  "tags": [
+   "antihero",
+   "ninja"
+  ]
+ },
+ {
+  "id": "luffy",
+  "name": "Luffy",
+  "universe": "One Piece",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 92,
+   "intellect": 60,
+   "speed": 88,
+   "durability": 92,
+   "combat": 92,
+   "teamwork": 98
+  },
+  "tags": [
+   "hero",
+   "leader",
+   "stretch"
+  ]
+ },
+ {
+  "id": "roronoa-zoro",
+  "name": "Roronoa Zoro",
+  "universe": "One Piece",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 88,
+   "intellect": 65,
+   "speed": 82,
+   "durability": 92,
+   "combat": 98,
+   "teamwork": 90
+  },
+  "tags": [
+   "hero",
+   "swordsman"
+  ]
+ },
+ {
+  "id": "sanji",
+  "name": "Sanji",
+  "universe": "One Piece",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 82,
+   "intellect": 72,
+   "speed": 90,
+   "durability": 80,
+   "combat": 92,
+   "teamwork": 90
+  },
+  "tags": [
+   "hero",
+   "martial"
+  ]
+ },
+ {
+  "id": "nami",
+  "name": "Nami",
+  "universe": "One Piece",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 55,
+   "intellect": 92,
+   "speed": 65,
+   "durability": 50,
+   "combat": 55,
+   "teamwork": 92
+  },
+  "tags": [
+   "hero",
+   "navigator",
+   "weather"
+  ]
+ },
+ {
+  "id": "trafalgar-law",
+  "name": "Trafalgar Law",
+  "universe": "One Piece",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 85,
+   "intellect": 95,
+   "speed": 80,
+   "durability": 75,
+   "combat": 88,
+   "teamwork": 70
+  },
+  "tags": [
+   "antihero",
+   "tech"
+  ]
+ },
+ {
+  "id": "ichigo-kurosaki",
+  "name": "Ichigo Kurosaki",
+  "universe": "Bleach",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 92,
+   "intellect": 75,
+   "speed": 90,
+   "durability": 85,
+   "combat": 95,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "swordsman"
+  ]
+ },
+ {
+  "id": "rukia-kuchiki",
+  "name": "Rukia Kuchiki",
+  "universe": "Bleach",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 80,
+   "intellect": 82,
+   "speed": 82,
+   "durability": 65,
+   "combat": 85,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "swordsman",
+   "ice"
+  ]
+ },
+ {
+  "id": "edward-elric",
+  "name": "Edward Elric",
+  "universe": "Fullmetal Alchemist",
+  "archetype": "Scientist",
+  "stats": {
+   "power": 80,
+   "intellect": 95,
+   "speed": 75,
+   "durability": 70,
+   "combat": 85,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "alchemy"
+  ]
+ },
+ {
+  "id": "alphonse-elric",
+  "name": "Alphonse Elric",
+  "universe": "Fullmetal Alchemist",
+  "archetype": "Tank",
+  "stats": {
+   "power": 78,
+   "intellect": 88,
+   "speed": 55,
+   "durability": 92,
+   "combat": 82,
+   "teamwork": 95
+  },
+  "tags": [
+   "hero",
+   "alchemy",
+   "tank"
+  ]
+ },
+ {
+  "id": "roy-mustang",
+  "name": "Roy Mustang",
+  "universe": "Fullmetal Alchemist",
+  "archetype": "Leader",
+  "stats": {
+   "power": 90,
+   "intellect": 88,
+   "speed": 70,
+   "durability": 65,
+   "combat": 80,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "fire",
+   "leader"
+  ]
+ },
+ {
+  "id": "eren-yeager",
+  "name": "Eren Yeager",
+  "universe": "Attack on Titan",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 92,
+   "intellect": 78,
+   "speed": 70,
+   "durability": 90,
+   "combat": 85,
+   "teamwork": 60
+  },
+  "tags": [
+   "antihero",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "levi-ackerman",
+  "name": "Levi Ackerman",
+  "universe": "Attack on Titan",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 75,
+   "intellect": 88,
+   "speed": 98,
+   "durability": 60,
+   "combat": 100,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "swordsman",
+   "leader"
+  ]
+ },
+ {
+  "id": "mikasa-ackerman",
+  "name": "Mikasa Ackerman",
+  "universe": "Attack on Titan",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 72,
+   "intellect": 80,
+   "speed": 92,
+   "durability": 62,
+   "combat": 98,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "swordsman"
+  ]
+ },
+ {
+  "id": "deku-izuku-midoriya",
+  "name": "Deku (Izuku Midoriya)",
+  "universe": "My Hero Academia",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 90,
+   "intellect": 88,
+   "speed": 85,
+   "durability": 80,
+   "combat": 85,
+   "teamwork": 95
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "leader"
+  ]
+ },
+ {
+  "id": "all-might",
+  "name": "All Might",
+  "universe": "My Hero Academia",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 98,
+   "intellect": 80,
+   "speed": 92,
+   "durability": 90,
+   "combat": 95,
+   "teamwork": 95
+  },
+  "tags": [
+   "hero",
+   "flyer",
+   "leader"
+  ]
+ },
+ {
+  "id": "bakugo",
+  "name": "Bakugo",
+  "universe": "My Hero Academia",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 85,
+   "intellect": 82,
+   "speed": 88,
+   "durability": 75,
+   "combat": 92,
+   "teamwork": 60
+  },
+  "tags": [
+   "hero",
+   "fire"
+  ]
+ },
+ {
+  "id": "todoroki",
+  "name": "Todoroki",
+  "universe": "My Hero Academia",
+  "archetype": "Elemental",
+  "stats": {
+   "power": 90,
+   "intellect": 85,
+   "speed": 80,
+   "durability": 78,
+   "combat": 85,
+   "teamwork": 78
+  },
+  "tags": [
+   "hero",
+   "fire",
+   "ice"
+  ]
+ },
+ {
+  "id": "tanjiro-kamado",
+  "name": "Tanjiro Kamado",
+  "universe": "Demon Slayer",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 80,
+   "intellect": 82,
+   "speed": 85,
+   "durability": 80,
+   "combat": 90,
+   "teamwork": 95
+  },
+  "tags": [
+   "hero",
+   "swordsman",
+   "fire"
+  ]
+ },
+ {
+  "id": "zenitsu",
+  "name": "Zenitsu",
+  "universe": "Demon Slayer",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 78,
+   "intellect": 70,
+   "speed": 98,
+   "durability": 65,
+   "combat": 88,
+   "teamwork": 85
+  },
+  "tags": [
+   "hero",
+   "swordsman",
+   "electric"
+  ]
+ },
+ {
+  "id": "giyu-tomioka",
+  "name": "Giyu Tomioka",
+  "universe": "Demon Slayer",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 85,
+   "intellect": 82,
+   "speed": 88,
+   "durability": 78,
+   "combat": 95,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "swordsman",
+   "water"
+  ]
+ },
+ {
+  "id": "gojo-satoru",
+  "name": "Gojo Satoru",
+  "universe": "Jujutsu Kaisen",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 99,
+   "intellect": 98,
+   "speed": 95,
+   "durability": 92,
+   "combat": 98,
+   "teamwork": 70
+  },
+  "tags": [
+   "hero",
+   "magic",
+   "flyer"
+  ]
+ },
+ {
+  "id": "yuji-itadori",
+  "name": "Yuji Itadori",
+  "universe": "Jujutsu Kaisen",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 85,
+   "intellect": 65,
+   "speed": 90,
+   "durability": 92,
+   "combat": 92,
+   "teamwork": 92
+  },
+  "tags": [
+   "hero",
+   "martial"
+  ]
+ },
+ {
+  "id": "sukuna",
+  "name": "Sukuna",
+  "universe": "Jujutsu Kaisen",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 99,
+   "intellect": 96,
+   "speed": 92,
+   "durability": 95,
+   "combat": 98,
+   "teamwork": 5
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "saitama",
+  "name": "Saitama",
+  "universe": "One Punch Man",
+  "archetype": "Powerhouse",
+  "stats": {
+   "power": 100,
+   "intellect": 60,
+   "speed": 95,
+   "durability": 100,
+   "combat": 100,
+   "teamwork": 50
+  },
+  "tags": [
+   "hero",
+   "tank"
+  ]
+ },
+ {
+  "id": "genos",
+  "name": "Genos",
+  "universe": "One Punch Man",
+  "archetype": "Tech",
+  "stats": {
+   "power": 88,
+   "intellect": 85,
+   "speed": 88,
+   "durability": 85,
+   "combat": 88,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "flyer"
+  ]
+ },
+ {
+  "id": "killua-zoldyck",
+  "name": "Killua Zoldyck",
+  "universe": "Hunter x Hunter",
+  "archetype": "Assassin",
+  "stats": {
+   "power": 80,
+   "intellect": 90,
+   "speed": 98,
+   "durability": 70,
+   "combat": 92,
+   "teamwork": 88
+  },
+  "tags": [
+   "hero",
+   "electric",
+   "assassin"
+  ]
+ },
+ {
+  "id": "gon-freecss",
+  "name": "Gon Freecss",
+  "universe": "Hunter x Hunter",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 82,
+   "intellect": 70,
+   "speed": 85,
+   "durability": 75,
+   "combat": 88,
+   "teamwork": 95
+  },
+  "tags": [
+   "hero",
+   "martial"
+  ]
+ },
+ {
+  "id": "hisoka",
+  "name": "Hisoka",
+  "universe": "Hunter x Hunter",
+  "archetype": "Trickster",
+  "stats": {
+   "power": 85,
+   "intellect": 92,
+   "speed": 85,
+   "durability": 80,
+   "combat": 92,
+   "teamwork": 30
+  },
+  "tags": [
+   "antihero",
+   "magic"
+  ]
+ },
+ {
+  "id": "lelouch",
+  "name": "Lelouch",
+  "universe": "Code Geass",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 40,
+   "intellect": 100,
+   "speed": 40,
+   "durability": 35,
+   "combat": 40,
+   "teamwork": 70
+  },
+  "tags": [
+   "antihero",
+   "leader",
+   "magic"
+  ]
+ },
+ {
+  "id": "l-lawliet",
+  "name": "L Lawliet",
+  "universe": "Death Note",
+  "archetype": "Detective",
+  "stats": {
+   "power": 15,
+   "intellect": 100,
+   "speed": 30,
+   "durability": 30,
+   "combat": 40,
+   "teamwork": 45
+  },
+  "tags": [
+   "hero",
+   "human"
+  ]
+ },
+ {
+  "id": "spike-spiegel",
+  "name": "Spike Spiegel",
+  "universe": "Cowboy Bebop",
+  "archetype": "Marksman",
+  "stats": {
+   "power": 55,
+   "intellect": 80,
+   "speed": 85,
+   "durability": 60,
+   "combat": 95,
+   "teamwork": 70
+  },
+  "tags": [
+   "antihero",
+   "human",
+   "spy"
+  ]
+ },
+ {
+  "id": "kirito",
+  "name": "Kirito",
+  "universe": "Sword Art Online",
+  "archetype": "Swordsman",
+  "stats": {
+   "power": 85,
+   "intellect": 80,
+   "speed": 92,
+   "durability": 75,
+   "combat": 95,
+   "teamwork": 80
+  },
+  "tags": [
+   "hero",
+   "swordsman"
+  ]
+ },
+ {
+  "id": "sailor-moon",
+  "name": "Sailor Moon",
+  "universe": "Sailor Moon",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 88,
+   "intellect": 70,
+   "speed": 75,
+   "durability": 70,
+   "combat": 70,
+   "teamwork": 95
+  },
+  "tags": [
+   "hero",
+   "magic",
+   "leader"
+  ]
+ },
+ {
+  "id": "astro-boy",
+  "name": "Astro Boy",
+  "universe": "Classic",
+  "archetype": "Tech",
+  "stats": {
+   "power": 85,
+   "intellect": 85,
+   "speed": 92,
+   "durability": 85,
+   "combat": 80,
+   "teamwork": 90
+  },
+  "tags": [
+   "hero",
+   "tech",
+   "flyer"
+  ]
+ }
+]

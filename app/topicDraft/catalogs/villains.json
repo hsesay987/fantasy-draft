@@ -1,0 +1,878 @@
+[
+ {
+  "id": "darth-vader",
+  "name": "Darth Vader",
+  "universe": "Star Wars",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 85,
+   "intellect": 80,
+   "speed": 60,
+   "durability": 80,
+   "combat": 95,
+   "teamwork": 40
+  },
+  "tags": [
+   "villain",
+   "magic",
+   "leader"
+  ]
+ },
+ {
+  "id": "emperor-palpatine",
+  "name": "Emperor Palpatine",
+  "universe": "Star Wars",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 90,
+   "intellect": 95,
+   "speed": 50,
+   "durability": 50,
+   "combat": 75,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "sauron",
+  "name": "Sauron",
+  "universe": "Fantasy",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 95,
+   "intellect": 90,
+   "speed": 50,
+   "durability": 95,
+   "combat": 90,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "magic",
+   "leader"
+  ]
+ },
+ {
+  "id": "voldemort",
+  "name": "Voldemort",
+  "universe": "Fantasy",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 90,
+   "intellect": 95,
+   "speed": 65,
+   "durability": 65,
+   "combat": 80,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "saruman",
+  "name": "Saruman",
+  "universe": "Fantasy",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 85,
+   "intellect": 90,
+   "speed": 40,
+   "durability": 55,
+   "combat": 65,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "hannibal-lecter",
+  "name": "Hannibal Lecter",
+  "universe": "Horror",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 15,
+   "intellect": 100,
+   "speed": 35,
+   "durability": 30,
+   "combat": 65,
+   "teamwork": 15
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "freddy-krueger",
+  "name": "Freddy Krueger",
+  "universe": "Horror",
+  "archetype": "Stalker",
+  "stats": {
+   "power": 70,
+   "intellect": 70,
+   "speed": 50,
+   "durability": 70,
+   "combat": 65,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "jason-voorhees",
+  "name": "Jason Voorhees",
+  "universe": "Horror",
+  "archetype": "Stalker",
+  "stats": {
+   "power": 65,
+   "intellect": 30,
+   "speed": 45,
+   "durability": 95,
+   "combat": 80,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "tank"
+  ]
+ },
+ {
+  "id": "michael-myers",
+  "name": "Michael Myers",
+  "universe": "Horror",
+  "archetype": "Stalker",
+  "stats": {
+   "power": 60,
+   "intellect": 40,
+   "speed": 40,
+   "durability": 95,
+   "combat": 75,
+   "teamwork": 5
+  },
+  "tags": [
+   "villain",
+   "tank"
+  ]
+ },
+ {
+  "id": "pennywise",
+  "name": "Pennywise",
+  "universe": "Horror",
+  "archetype": "Stalker",
+  "stats": {
+   "power": 80,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 75,
+   "combat": 60,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "xenomorph",
+  "name": "Xenomorph",
+  "universe": "Horror",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 65,
+   "intellect": 40,
+   "speed": 90,
+   "durability": 75,
+   "combat": 85,
+   "teamwork": 60
+  },
+  "tags": [
+   "villain",
+   "alien"
+  ]
+ },
+ {
+  "id": "terminator-t-800",
+  "name": "Terminator T-800",
+  "universe": "Sci-Fi",
+  "archetype": "Machine",
+  "stats": {
+   "power": 70,
+   "intellect": 60,
+   "speed": 50,
+   "durability": 90,
+   "combat": 80,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "t-1000",
+  "name": "T-1000",
+  "universe": "Sci-Fi",
+  "archetype": "Machine",
+  "stats": {
+   "power": 70,
+   "intellect": 70,
+   "speed": 70,
+   "durability": 95,
+   "combat": 85,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "tech",
+   "shapeshifter"
+  ]
+ },
+ {
+  "id": "agent-smith",
+  "name": "Agent Smith",
+  "universe": "Sci-Fi",
+  "archetype": "Machine",
+  "stats": {
+   "power": 90,
+   "intellect": 90,
+   "speed": 95,
+   "durability": 90,
+   "combat": 95,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "hal-9000",
+  "name": "HAL 9000",
+  "universe": "Sci-Fi",
+  "archetype": "Machine",
+  "stats": {
+   "power": 15,
+   "intellect": 100,
+   "speed": 30,
+   "durability": 20,
+   "combat": 10,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "gollum",
+  "name": "Gollum",
+  "universe": "Fantasy",
+  "archetype": "Stalker",
+  "stats": {
+   "power": 20,
+   "intellect": 60,
+   "speed": 65,
+   "durability": 40,
+   "combat": 40,
+   "teamwork": 5
+  },
+  "tags": [
+   "villain",
+   "stealth"
+  ]
+ },
+ {
+  "id": "maleficent",
+  "name": "Maleficent",
+  "universe": "Disney",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 90,
+   "intellect": 85,
+   "speed": 50,
+   "durability": 70,
+   "combat": 50,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "magic",
+   "flyer"
+  ]
+ },
+ {
+  "id": "ursula",
+  "name": "Ursula",
+  "universe": "Disney",
+  "archetype": "Mystic",
+  "stats": {
+   "power": 80,
+   "intellect": 80,
+   "speed": 40,
+   "durability": 65,
+   "combat": 45,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "magic",
+   "water"
+  ]
+ },
+ {
+  "id": "scar",
+  "name": "Scar",
+  "universe": "Disney",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 35,
+   "intellect": 80,
+   "speed": 60,
+   "durability": 50,
+   "combat": 70,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "leader"
+  ]
+ },
+ {
+  "id": "jafar",
+  "name": "Jafar",
+  "universe": "Disney",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 80,
+   "intellect": 85,
+   "speed": 40,
+   "durability": 50,
+   "combat": 35,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "cruella-de-vil",
+  "name": "Cruella de Vil",
+  "universe": "Disney",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 15,
+   "intellect": 65,
+   "speed": 30,
+   "durability": 30,
+   "combat": 30,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "captain-hook",
+  "name": "Captain Hook",
+  "universe": "Disney",
+  "archetype": "Strategist",
+  "stats": {
+   "power": 30,
+   "intellect": 65,
+   "speed": 45,
+   "durability": 45,
+   "combat": 70,
+   "teamwork": 40
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "gaston",
+  "name": "Gaston",
+  "universe": "Disney",
+  "archetype": "Brawler",
+  "stats": {
+   "power": 40,
+   "intellect": 30,
+   "speed": 50,
+   "durability": 55,
+   "combat": 75,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "hades",
+  "name": "Hades",
+  "universe": "Disney",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 85,
+   "intellect": 75,
+   "speed": 50,
+   "durability": 90,
+   "combat": 50,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "god",
+   "magic"
+  ]
+ },
+ {
+  "id": "syndrome",
+  "name": "Syndrome",
+  "universe": "Pixar",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 45,
+   "intellect": 90,
+   "speed": 60,
+   "durability": 45,
+   "combat": 55,
+   "teamwork": 15
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "lotso",
+  "name": "Lotso",
+  "universe": "Pixar",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 20,
+   "intellect": 75,
+   "speed": 30,
+   "durability": 40,
+   "combat": 40,
+   "teamwork": 50
+  },
+  "tags": [
+   "villain",
+   "leader"
+  ]
+ },
+ {
+  "id": "joker",
+  "name": "Joker",
+  "universe": "DC",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 20,
+   "intellect": 90,
+   "speed": 40,
+   "durability": 30,
+   "combat": 60,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "lex-luthor",
+  "name": "Lex Luthor",
+  "universe": "DC",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 35,
+   "intellect": 100,
+   "speed": 30,
+   "durability": 35,
+   "combat": 40,
+   "teamwork": 40
+  },
+  "tags": [
+   "villain",
+   "tech",
+   "human"
+  ]
+ },
+ {
+  "id": "darkseid",
+  "name": "Darkseid",
+  "universe": "DC",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 100,
+   "intellect": 90,
+   "speed": 70,
+   "durability": 100,
+   "combat": 85,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "thanos",
+  "name": "Thanos",
+  "universe": "Marvel",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 95,
+   "intellect": 95,
+   "speed": 50,
+   "durability": 95,
+   "combat": 80,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "cosmic"
+  ]
+ },
+ {
+  "id": "loki",
+  "name": "Loki",
+  "universe": "Marvel",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 75,
+   "intellect": 90,
+   "speed": 55,
+   "durability": 70,
+   "combat": 60,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "magic",
+   "god"
+  ]
+ },
+ {
+  "id": "doctor-doom",
+  "name": "Doctor Doom",
+  "universe": "Marvel",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 85,
+   "intellect": 100,
+   "speed": 45,
+   "durability": 85,
+   "combat": 70,
+   "teamwork": 15
+  },
+  "tags": [
+   "villain",
+   "tech",
+   "magic"
+  ]
+ },
+ {
+  "id": "magneto",
+  "name": "Magneto",
+  "universe": "Marvel",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 90,
+   "intellect": 85,
+   "speed": 50,
+   "durability": 75,
+   "combat": 60,
+   "teamwork": 45
+  },
+  "tags": [
+   "villain",
+   "mutant"
+  ]
+ },
+ {
+  "id": "kingpin",
+  "name": "Kingpin",
+  "universe": "Marvel",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 50,
+   "intellect": 85,
+   "speed": 30,
+   "durability": 75,
+   "combat": 80,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "dr-eggman",
+  "name": "Dr. Eggman",
+  "universe": "Games",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 35,
+   "intellect": 100,
+   "speed": 35,
+   "durability": 35,
+   "combat": 30,
+   "teamwork": 35
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "bowser",
+  "name": "Bowser",
+  "universe": "Games",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 80,
+   "intellect": 45,
+   "speed": 45,
+   "durability": 90,
+   "combat": 75,
+   "teamwork": 50
+  },
+  "tags": [
+   "villain",
+   "fire",
+   "leader"
+  ]
+ },
+ {
+  "id": "ganondorf",
+  "name": "Ganondorf",
+  "universe": "Games",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 90,
+   "intellect": 75,
+   "speed": 60,
+   "durability": 85,
+   "combat": 85,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "sephiroth",
+  "name": "Sephiroth",
+  "universe": "Games",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 90,
+   "intellect": 80,
+   "speed": 90,
+   "durability": 85,
+   "combat": 100,
+   "teamwork": 10
+  },
+  "tags": [
+   "villain",
+   "flyer"
+  ]
+ },
+ {
+  "id": "handsome-jack",
+  "name": "Handsome Jack",
+  "universe": "Games",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 35,
+   "intellect": 80,
+   "speed": 40,
+   "durability": 45,
+   "combat": 55,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "glados",
+  "name": "GLaDOS",
+  "universe": "Games",
+  "archetype": "Machine",
+  "stats": {
+   "power": 40,
+   "intellect": 100,
+   "speed": 30,
+   "durability": 35,
+   "combat": 10,
+   "teamwork": 15
+  },
+  "tags": [
+   "villain",
+   "tech"
+  ]
+ },
+ {
+  "id": "frieza",
+  "name": "Frieza",
+  "universe": "Anime",
+  "archetype": "Tyrant",
+  "stats": {
+   "power": 95,
+   "intellect": 80,
+   "speed": 90,
+   "durability": 85,
+   "combat": 85,
+   "teamwork": 35
+  },
+  "tags": [
+   "villain",
+   "alien",
+   "flyer"
+  ]
+ },
+ {
+  "id": "cell",
+  "name": "Cell",
+  "universe": "Anime",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 90,
+   "intellect": 75,
+   "speed": 90,
+   "durability": 90,
+   "combat": 90,
+   "teamwork": 15
+  },
+  "tags": [
+   "villain",
+   "alien"
+  ]
+ },
+ {
+  "id": "light-yagami",
+  "name": "Light Yagami",
+  "universe": "Anime",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 20,
+   "intellect": 100,
+   "speed": 30,
+   "durability": 20,
+   "combat": 20,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "human",
+   "magic"
+  ]
+ },
+ {
+  "id": "aizen",
+  "name": "Aizen",
+  "universe": "Anime",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 95,
+   "intellect": 100,
+   "speed": 85,
+   "durability": 90,
+   "combat": 95,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "madara-uchiha",
+  "name": "Madara Uchiha",
+  "universe": "Anime",
+  "archetype": "Warrior",
+  "stats": {
+   "power": 100,
+   "intellect": 90,
+   "speed": 85,
+   "durability": 90,
+   "combat": 95,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "magic"
+  ]
+ },
+ {
+  "id": "dio-brando",
+  "name": "Dio Brando",
+  "universe": "Anime",
+  "archetype": "Stalker",
+  "stats": {
+   "power": 85,
+   "intellect": 80,
+   "speed": 80,
+   "durability": 95,
+   "combat": 85,
+   "teamwork": 20
+  },
+  "tags": [
+   "villain",
+   "regen"
+  ]
+ },
+ {
+  "id": "mr-burns",
+  "name": "Mr. Burns",
+  "universe": "TV",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 10,
+   "intellect": 90,
+   "speed": 10,
+   "durability": 10,
+   "combat": 10,
+   "teamwork": 25
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ },
+ {
+  "id": "walter-white",
+  "name": "Walter White",
+  "universe": "TV",
+  "archetype": "Mastermind",
+  "stats": {
+   "power": 20,
+   "intellect": 95,
+   "speed": 35,
+   "durability": 35,
+   "combat": 50,
+   "teamwork": 30
+  },
+  "tags": [
+   "villain",
+   "human"
+  ]
+ }
+]

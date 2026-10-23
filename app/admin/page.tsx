@@ -133,12 +133,12 @@ export default function AdminPage() {
 
   if (!user) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100 p-6">
+      <main className="min-h-screen flex items-center justify-center text-foreground p-6">
         <div className="max-w-md text-center space-y-3">
           <p className="text-lg font-semibold">Sign in required</p>
           <button
             onClick={() => router.push("/login")}
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-700"
+            className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold hover:bg-[#8b5cf6]"
           >
             Go to login
           </button>
@@ -149,13 +149,13 @@ export default function AdminPage() {
 
   if (!user.isAdmin) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100 p-6">
+      <main className="min-h-screen flex items-center justify-center text-foreground p-6">
         <div className="max-w-md text-center space-y-4">
           <ShieldOff className="mx-auto h-10 w-10 text-amber-300" />
           <p className="text-lg font-semibold">Admin access only</p>
           <button
             onClick={() => router.push("/")}
-            className="rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold hover:bg-slate-700"
+            className="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold hover:bg-muted"
           >
             Return home
           </button>
@@ -165,19 +165,19 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-6">
+    <main className="min-h-screen text-foreground p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-widest text-slate-500">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
               Admin
             </p>
-            <h1 className="text-3xl font-bold text-indigo-200">Control Room</h1>
+            <h1 className="text-3xl font-bold text-secondary">Control Room</h1>
           </div>
           <button
             onClick={loadData}
             disabled={loading}
-            className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-semibold hover:border-indigo-400 disabled:opacity-50"
+            className="rounded-xl border border-white/10 bg-card px-4 py-2 text-sm font-semibold hover:border-secondary disabled:opacity-50"
           >
             Refresh
           </button>
@@ -222,34 +222,34 @@ export default function AdminPage() {
           />
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 shadow-xl overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <div className="rounded-2xl border border-white/10 bg-card/70 shadow-xl overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
             <div>
-              <p className="text-xs uppercase tracking-widest text-slate-500">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
                 Community ads
               </p>
-              <h2 className="text-lg font-semibold text-slate-100">
+              <h2 className="text-lg font-semibold text-foreground">
                 Pending approvals
               </h2>
             </div>
             {loading && (
-              <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             )}
           </div>
 
           {ads.length === 0 && !loading ? (
-            <div className="p-6 text-sm text-slate-400">
+            <div className="p-6 text-sm text-muted-foreground">
               No ad submissions yet.
             </div>
           ) : (
-            <div className="divide-y divide-slate-800">
+            <div className="divide-y divide-white/10">
               {ads.map((ad) => (
                 <div key={ad.id} className="p-4 space-y-2">
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                    <span className="rounded-full bg-slate-800 px-2 py-0.5">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <span className="rounded-full bg-white/10 px-2 py-0.5">
                       {ad.status}
                     </span>
-                    <span className="rounded-full bg-slate-800 px-2 py-0.5">
+                    <span className="rounded-full bg-white/10 px-2 py-0.5">
                       {ad.placement}
                     </span>
                     <span>
@@ -261,13 +261,13 @@ export default function AdminPage() {
                       })}
                     </span>
                     {ad.submittedBy?.email && (
-                      <span className="text-slate-500">
+                      <span className="text-muted-foreground">
                         By {ad.submittedBy.email}
                       </span>
                     )}
                     <a
                       href={ad.targetUrl}
-                      className="underline hover:text-indigo-200"
+                      className="underline hover:text-secondary"
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -276,11 +276,11 @@ export default function AdminPage() {
                   </div>
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold text-slate-100">
+                      <p className="text-sm font-semibold text-foreground">
                         {ad.title}
                       </p>
                       {ad.body && (
-                        <p className="text-sm text-slate-400 leading-relaxed">
+                        <p className="text-sm text-muted-foreground leading-relaxed">
                           {ad.body}
                         </p>
                       )}
@@ -306,35 +306,35 @@ export default function AdminPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 shadow-xl overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <div className="rounded-2xl border border-white/10 bg-card/70 shadow-xl overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
             <div>
-              <p className="text-xs uppercase tracking-widest text-slate-500">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
                 Feedback
               </p>
-              <h2 className="text-lg font-semibold text-slate-100">
+              <h2 className="text-lg font-semibold text-foreground">
                 Latest submissions
               </h2>
             </div>
             {loading && (
-              <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             )}
           </div>
 
           {feedback.length === 0 && !loading ? (
-            <div className="p-6 text-sm text-slate-400">No feedback yet.</div>
+            <div className="p-6 text-sm text-muted-foreground">No feedback yet.</div>
           ) : (
-            <div className="divide-y divide-slate-800">
+            <div className="divide-y divide-white/10">
               {feedback.map((item) => (
                 <div key={item.id} className="p-4 flex gap-3">
-                  <div className="w-2 h-2 rounded-full mt-2 shrink-0 bg-indigo-400" />
+                  <div className="w-2 h-2 rounded-full mt-2 shrink-0 bg-primary" />
                   <div className="flex-1 space-y-1">
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                      <span className="rounded-full bg-slate-800 px-2 py-0.5">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span className="rounded-full bg-white/10 px-2 py-0.5">
                         {item.type}
                       </span>
                       {item.category && (
-                        <span className="rounded-full bg-slate-800 px-2 py-0.5">
+                        <span className="rounded-full bg-white/10 px-2 py-0.5">
                           {item.category}
                         </span>
                       )}
@@ -347,7 +347,7 @@ export default function AdminPage() {
                         })}
                       </span>
                       {item.userId && (
-                        <span className="text-slate-500">
+                        <span className="text-muted-foreground">
                           User: {item.userId}
                         </span>
                       )}
@@ -356,19 +356,19 @@ export default function AdminPage() {
                           href={item.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="underline hover:text-indigo-200"
+                          className="underline hover:text-secondary"
                         >
                           View page
                         </a>
                       )}
                     </div>
-                    <p className="text-sm text-slate-100 whitespace-pre-wrap leading-relaxed">
+                    <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
                       {item.message}
                     </p>
                   </div>
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="self-start rounded-lg border border-slate-800 bg-slate-900 p-2 text-slate-400 hover:text-red-300 hover:border-red-500/60"
+                    className="self-start rounded-lg border border-white/10 bg-card p-2 text-muted-foreground hover:text-red-300 hover:border-red-500/60"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -392,12 +392,12 @@ function StatCard({
   loading: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-lg">
-      <p className="text-xs uppercase tracking-widest text-slate-500">
+    <div className="rounded-2xl border border-white/10 bg-card/70 p-4 shadow-lg">
+      <p className="text-xs uppercase tracking-widest text-muted-foreground">
         {label}
       </p>
       <div className="mt-2 flex items-baseline gap-2">
-        <p className="text-3xl font-bold text-indigo-200">
+        <p className="text-3xl font-bold text-secondary">
           {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : value}
         </p>
       </div>

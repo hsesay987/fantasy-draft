@@ -24,6 +24,11 @@ export function initSocket(server: http.Server, corsOrigin: string) {
       socket.join(`room:${roomCode}`);
     });
 
+    // online draft rooms (see services/playRooms.ts)
+    socket.on("playroom:join", (code: string) => {
+      if (typeof code === "string") socket.join(`playroom:${code.toUpperCase().slice(0, 8)}`);
+    });
+
     socket.on("disconnect", () => {
       // optional: handle
     });

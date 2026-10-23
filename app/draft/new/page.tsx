@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ChevronRight,
+  Play,
   Settings,
   Users,
   Zap,
@@ -18,6 +19,8 @@ import {
   ThumbsUp,
   ThumbsDown,
 } from "lucide-react";
+import { IconBadge, Panel, Button } from "../../components/ui";
+import { Collapse, Field, Stepper } from "../../play/setupParts";
 import { useAuth } from "@/app/hooks/useAuth";
 type League = "NBA" | "NFL" | "CARTOON";
 
@@ -618,40 +621,59 @@ export default function NewDraftPage() {
   //  UI START
   // ------------------------------------------
   return (
-    <main className="min-h-screen p-6 md:p-10 bg-slate-950 text-slate-50 space-y-10">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 pb-40 md:px-6 md:py-12 md:pb-32 text-foreground space-y-10">
       {/* HEADER */}
       <header className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-indigo-300 tracking-tight mb-1">
-            Create a New {league} Draft {league === "NFL" ? "(Beta)" : ""}
-          </h1>
-          <p className="text-slate-400 text-sm">
-            Classic mode locks rules; Casual & Free let you get creative.
-            {league === "NFL" ? " NFL beta requires a premium account." : ""}
-          </p>
+        <div className="flex items-center gap-4">
+          <IconBadge src={league === "NFL" ? "/icons/football.png" : "/icons/basketball.png"} />
+          <div>
+            <h1 className="text-3xl md:text-4xl">
+              {league} Draft {league === "NFL" ? "(Beta)" : ""}
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Pick how you want to play, then jump in. {league === "NFL" ? "NFL beta requires a premium account." : ""}
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowRules(true)}
-            className="text-xs underline text-slate-300 hover:text-white"
-          >
-            View rules
-          </button>
-          <button
-            className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-4 py-2 text-sm font-semibold hover:bg-indigo-600"
-            onClick={() => applyModeDefaults(mode)}
-          >
-            <Zap className="h-4 w-4" /> Quick Defaults
-          </button>
-        </div>
+        <button onClick={() => setShowRules(true)} className="min-h-11 text-sm underline text-muted-foreground hover:text-white">
+          View rules
+        </button>
       </header>
 
+      {/* QUICK START: the common path in one card; every detailed rule lives under Customize */}
+      <Panel title="Quick start" hint="Choose a mode and go. Classic locks the rules; Casual and Free open them up.">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {([
+            { id: "classic", label: "Classic", desc: "Locked rules, true era/team randomizer" },
+            { id: "casual", label: "Casual", desc: "Tweak caps and constraints" },
+            { id: "free", label: "Free", desc: "Total creative control" },
+          ] as const).map((m) => (
+            <button key={m.id} type="button" aria-pressed={mode === m.id} onClick={() => applyModeDefaults(m.id)}
+              className={`min-h-16 rounded-xl border p-3 text-left transition-colors ${mode === m.id ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+              <div className="flex items-center gap-2 font-semibold">{m.label}{m.id === "classic" && <Lock className="h-4 w-4 text-muted-foreground" aria-hidden />}</div>
+              <div className="text-xs text-muted-foreground">{m.desc}</div>
+            </button>
+          ))}
+        </div>
+        {mode !== "classic" && (
+          <div className="flex flex-wrap items-center gap-6">
+            <Field label="Players">
+              <Stepper value={participants} min={2} max={6} label="Players" onChange={(n) => { setParticipants(n); setMaxPlayers(n * (league === "NFL" ? NFL_LINEUP.length : playersPerTeam)); }} />
+            </Field>
+            <button type="button" onClick={() => applyModeDefaults(mode)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm font-semibold hover:bg-white/10">
+              <Zap className="h-4 w-4" aria-hidden /> Reset to defaults
+            </button>
+          </div>
+        )}
+      </Panel>
+
+      <Collapse title="Customize rules">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT — MODES */}
         <section className="space-y-4">
-          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+          <div className="p-5 rounded-2xl bg-card/40 border border-white/10">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <Zap className="w-5 h-5 text-indigo-400" /> Draft Mode
+              <Zap className="w-5 h-5 text-secondary" /> Draft Mode
             </h3>
 
             <div className="space-y-3">
@@ -679,55 +701,55 @@ export default function NewDraftPage() {
                   }
                   className={`w-full text-left p-4 rounded-xl border transition-all ${
                     mode === m.id
-                      ? "border-indigo-500 bg-indigo-500/10"
-                      : "border-slate-700 hover:border-indigo-300/50"
+                      ? "border-secondary bg-primary/15"
+                      : "border-white/10 hover:border-secondary/50"
                   }`}
                 >
-                  <div className="font-semibold text-slate-100 flex items-center gap-2">
+                  <div className="font-semibold text-foreground flex items-center gap-2">
                     {m.label}
                     {m.id === "classic" && (
-                      <Lock className="w-4 h-4 text-slate-400" />
+                      <Lock className="w-4 h-4 text-muted-foreground" />
                     )}
                   </div>
-                  <div className="text-xs text-slate-400">{m.desc}</div>
+                  <div className="text-xs text-muted-foreground">{m.desc}</div>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Title */}
-          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+          <div className="p-5 rounded-2xl bg-card/40 border border-white/10">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <BadgeCheck className="w-5 h-5 text-indigo-400" /> Draft Title
+              <BadgeCheck className="w-5 h-5 text-secondary" /> Draft Title
             </h3>
 
             <input
               placeholder="Optional title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm"
+              className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg text-sm"
             />
           </div>
 
           {/* Community / Saved styles (left column) */}
           <div className="space-y-3">
-            <div className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
+            <div className="p-5 rounded-2xl bg-card/50 border border-white/10">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-indigo-400" />
+                  <Sparkles className="w-5 h-5 text-secondary" />
                   Load Community Style Draft
                 </h3>
-                <span className="text-[11px] uppercase tracking-[0.12em] text-slate-400">
+                <span className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
                   Casual / Free
                 </span>
               </div>
               <div className="space-y-3">
                 {communityLoading ? (
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-muted-foreground">
                     Loading community styles...
                   </p>
                 ) : communityStyles.length === 0 ? (
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-muted-foreground">
                     No community styles yet. Save and publish yours!
                   </p>
                 ) : (
@@ -736,24 +758,24 @@ export default function NewDraftPage() {
                       key={style.id}
                       className={`rounded-xl border p-3 ${
                         selectedStyleId === style.id
-                          ? "border-indigo-500 bg-indigo-500/10"
-                          : "border-slate-700 bg-slate-900/40"
+                          ? "border-secondary bg-primary/15"
+                          : "border-white/10 bg-card/40"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <div className="font-semibold text-slate-100">
+                          <div className="font-semibold text-foreground">
                             {style.name}
                           </div>
-                          <div className="text-xs text-slate-400">
+                          <div className="text-xs text-muted-foreground">
                             {style.description}
                           </div>
-                          <div className="text-[11px] text-slate-500 mt-1">
+                          <div className="text-[11px] text-muted-foreground mt-1">
                             Plays: {style.plays} • Mode:{" "}
                             {style.settings?.mode || style.mode || "casual"}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-slate-300">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <ThumbsUp className="w-4 h-4" /> {style.thumbsUp}
                           </span>
@@ -764,19 +786,19 @@ export default function NewDraftPage() {
                       </div>
                       <div className="mt-2 flex items-center gap-2">
                         <button
-                          className="text-xs rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3 py-2 font-semibold"
+                          className="text-xs rounded-lg bg-primary hover:bg-[#8b5cf6] px-3 py-2 font-semibold"
                           onClick={() => applyStyle(style)}
                         >
                           Load Style
                         </button>
                         <button
-                          className="text-[11px] text-slate-400 underline"
+                          className="text-[11px] text-muted-foreground underline"
                           onClick={() => handleThumb(style.id, 1)}
                         >
                           Thumbs up
                         </button>
                         <button
-                          className="text-[11px] text-slate-400 underline"
+                          className="text-[11px] text-muted-foreground underline"
                           onClick={() => handleThumb(style.id, -1)}
                         >
                           Thumbs down
@@ -788,10 +810,10 @@ export default function NewDraftPage() {
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
+            <div className="p-5 rounded-2xl bg-card/50 border border-white/10">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-indigo-400" />
+                  <Settings className="w-5 h-5 text-secondary" />
                   My Saved Styles
                 </h3>
                 {!isPremium && (
@@ -802,12 +824,12 @@ export default function NewDraftPage() {
               </div>
               <div className="space-y-2">
                 {savedStyles.length === 0 ? (
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-muted-foreground">
                     No saved styles yet. Enable &quot;Save settings&quot; before
                     creating.
                   </p>
                 ) : stylesLoading ? (
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-muted-foreground">
                     Loading your styles...
                   </p>
                 ) : (
@@ -816,26 +838,26 @@ export default function NewDraftPage() {
                       key={style.id}
                       className={`rounded-xl border p-3 ${
                         selectedStyleId === style.id
-                          ? "border-indigo-500 bg-indigo-500/10"
-                          : "border-slate-700 bg-slate-900/40"
+                          ? "border-secondary bg-primary/15"
+                          : "border-white/10 bg-card/40"
                       }`}
                     >
                       <div className="flex items-start justify-between">
                         <div>
-                          <div className="font-semibold text-slate-100">
+                          <div className="font-semibold text-foreground">
                             {style.name}
                           </div>
-                          <div className="text-xs text-slate-400">
+                          <div className="text-xs text-muted-foreground">
                             {style.description || "No description"}
                           </div>
                         </div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-[11px] text-muted-foreground">
                           Plays: {style.plays || 0}
                         </div>
                       </div>
                       <div className="mt-2 flex items-center gap-2">
                         <button
-                          className="text-xs rounded-lg bg-slate-800 hover:bg-slate-700 px-3 py-2"
+                          className="text-xs rounded-lg bg-white/10 hover:bg-muted px-3 py-2"
                           onClick={() => applyStyle(style)}
                         >
                           Load
@@ -851,15 +873,15 @@ export default function NewDraftPage() {
 
         {/* MIDDLE — PLAYERS */}
         <section className="space-y-4">
-          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+          <div className="p-5 rounded-2xl bg-card/40 border border-white/10">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <Users className="w-5 h-5 text-indigo-400" /> Players & Lineups
+              <Users className="w-5 h-5 text-secondary" /> Players & Lineups
             </h3>
 
             {/* Participants */}
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <label className="block mb-1 text-slate-300">
+                <label className="block mb-1 text-muted-foreground">
                   Participants
                 </label>
                 <input
@@ -878,14 +900,14 @@ export default function NewDraftPage() {
                   }}
                   className={`w-full px-3 py-2 rounded-lg ${
                     isClassic
-                      ? "bg-slate-800 border-slate-700 text-slate-500"
-                      : "bg-slate-900 border-slate-700"
+                      ? "bg-white/10 border-white/10 text-muted-foreground"
+                      : "bg-card border-white/10"
                   }`}
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-slate-300">
+                <label className="block mb-1 text-muted-foreground">
                   Players / Team
                 </label>
                 <input
@@ -908,8 +930,8 @@ export default function NewDraftPage() {
                   }}
                   className={`w-full px-3 py-2 rounded-lg ${
                     isClassic || (league === "NFL" && mode !== "casual")
-                      ? "bg-slate-800 border-slate-700 text-slate-500"
-                      : "bg-slate-900 border-slate-700"
+                      ? "bg-white/10 border-white/10 text-muted-foreground"
+                      : "bg-card border-white/10"
                   }`}
                 />
               </div>
@@ -917,11 +939,11 @@ export default function NewDraftPage() {
 
             {/* total slots */}
             <div className="mt-3">
-              <label className="block mb-1 text-slate-300">Total Slots</label>
+              <label className="block mb-1 text-muted-foreground">Total Slots</label>
               <input
                 readOnly
                 value={maxPlayers}
-                className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-400"
+                className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-muted-foreground"
               />
             </div>
 
@@ -935,7 +957,7 @@ export default function NewDraftPage() {
               />
               <span
                 className={`${
-                  isClassic || league === "NFL" ? "text-slate-500" : "text-slate-200"
+                  isClassic || league === "NFL" ? "text-muted-foreground" : "text-foreground"
                 }`}
               >
                 {league === "NFL"
@@ -946,7 +968,7 @@ export default function NewDraftPage() {
 
             {!requirePositions && !isClassic && league !== "NFL" && (
               <div className="mt-3">
-                <label className="block text-xs text-slate-400 mb-1">
+                <label className="block text-xs text-muted-foreground mb-1">
                   Position pool (Casual/Free)
                 </label>
                 <select
@@ -954,7 +976,7 @@ export default function NewDraftPage() {
                   onChange={(e) =>
                     setPositionPool(e.target.value as typeof positionPool)
                   }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm"
+                  className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg text-sm"
                 >
                   <option value="all">All positions</option>
                   <option value="guards">Guards only (PG, SG)</option>
@@ -967,7 +989,7 @@ export default function NewDraftPage() {
 
             {/* scoring */}
             <div className="mt-4">
-              <label className="block mb-1 text-sm text-slate-300">
+              <label className="block mb-1 text-sm text-muted-foreground">
                 Scoring Method
               </label>
               <select
@@ -975,7 +997,7 @@ export default function NewDraftPage() {
                 onChange={(e) =>
                   setScoringMethod(e.target.value as typeof scoringMethod)
                 }
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm"
+                className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg text-sm"
               >
                 <option value="system">System Scoring</option>
                 <option value="user">Players Vote</option>
@@ -984,7 +1006,7 @@ export default function NewDraftPage() {
 
               {scoringMethod === "system" && (
                 <div className="mt-3 space-y-2 text-sm">
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-muted-foreground">
                     {isClassic
                       ? "Classic uses default system weights."
                       : "Tune system weights (Casual/Free)."}
@@ -992,9 +1014,9 @@ export default function NewDraftPage() {
                   {["offense", "defense", "playmaking", "shooting"].map(
                     (key) => (
                       <label key={key} className="block">
-                        <div className="flex items-center justify-between text-xs text-slate-300">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>{key[0].toUpperCase() + key.slice(1)}</span>
-                          <span className="text-indigo-200">
+                          <span className="text-secondary">
                             {scoringWeights[key as keyof typeof scoringWeights].toFixed(1)}x
                           </span>
                         </div>
@@ -1013,7 +1035,7 @@ export default function NewDraftPage() {
                               [key]: Number(e.target.value),
                             }))
                           }
-                          className="w-full accent-indigo-500"
+                          className="w-full accent-[var(--primary)]"
                         />
                       </label>
                     )
@@ -1027,9 +1049,9 @@ export default function NewDraftPage() {
         {/* RIGHT — ERA, TEAM, RULES */}
         <section className="space-y-4">
           {/* Era + Team */}
-          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+          <div className="p-5 rounded-2xl bg-card/40 border border-white/10">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <Globe className="w-5 h-5 text-indigo-400" /> Era & Team Rules
+              <Globe className="w-5 h-5 text-secondary" /> Era & Team Rules
             </h3>
 
             {/* Random Era */}
@@ -1040,7 +1062,7 @@ export default function NewDraftPage() {
                 disabled={isClassic}
                 onChange={(e) => setRandomEra(e.target.checked)}
               />
-              <span className={isClassic ? "text-slate-500" : ""}>
+              <span className={isClassic ? "text-muted-foreground" : ""}>
                 Random Era Spin
               </span>
             </label>
@@ -1061,7 +1083,7 @@ export default function NewDraftPage() {
                         setEraFrom(e.target.value ? Number(e.target.value) : "");
                       }
                     }}
-                    className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                    className="px-3 py-2 bg-card border border-white/10 rounded-lg"
                   />
                   <input
                     placeholder="To"
@@ -1075,13 +1097,13 @@ export default function NewDraftPage() {
                         setEraTo(e.target.value ? Number(e.target.value) : "");
                       }
                     }}
-                    className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                    className="px-3 py-2 bg-card border border-white/10 rounded-lg"
                   />
                 </div>
 
                 {randomEra && (
                   <div className="space-y-2">
-                    <label className="text-xs text-slate-400">
+                    <label className="text-xs text-muted-foreground">
                       Era Spin Type (Casual/Free)
                     </label>
                     <select
@@ -1090,14 +1112,14 @@ export default function NewDraftPage() {
                       onChange={(e) =>
                         setEraSpinMode(e.target.value as "decade" | "single")
                       }
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                      className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg"
                     >
                       <option value="decade">Decades (1960s, 1970s...)</option>
                       <option value="single">
                         Single year within range (e.g., 1986)
                       </option>
                     </select>
-                    <div className="text-[11px] text-slate-500">
+                    <div className="text-[11px] text-muted-foreground">
                       Casual/Free can fine-tune era range and single-year spins.
                     </div>
                   </div>
@@ -1113,7 +1135,7 @@ export default function NewDraftPage() {
                 disabled={isClassic}
                 onChange={(e) => setRandomTeam(e.target.checked)}
               />
-              <span className={isClassic ? "text-slate-500" : ""}>
+              <span className={isClassic ? "text-muted-foreground" : ""}>
                 Random Team Spin
               </span>
             </label>
@@ -1126,7 +1148,7 @@ export default function NewDraftPage() {
                 onChange={(e) =>
                   setTeamConstraint(e.target.value.toUpperCase())
                 }
-                className="mt-2 w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm"
+                className="mt-2 w-full px-3 py-2 bg-card border border-white/10 rounded-lg text-sm"
               />
             )}
 
@@ -1139,7 +1161,7 @@ export default function NewDraftPage() {
                   disabled={isClassic}
                   onChange={(e) => setRandomPosition(e.target.checked)}
                 />
-                <span className={isClassic ? "text-slate-500" : ""}>
+                <span className={isClassic ? "text-muted-foreground" : ""}>
                   Random Position Spin (PG/SG/SF/PF/C)
                 </span>
               </label>
@@ -1151,14 +1173,14 @@ export default function NewDraftPage() {
                 checked={skipSpinsWhenOff}
                 onChange={(e) => setSkipSpinsWhenOff(e.target.checked)}
               />
-              <span className="text-slate-200">
+              <span className="text-foreground">
                 Skip spins if era, team, and position randomizers are off
               </span>
             </label>
 
             {/* Premium options */}
             <div className="mt-4 space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-indigo-300 text-xs uppercase tracking-[0.12em]">
+              <div className="flex items-center gap-2 text-secondary text-xs uppercase tracking-[0.12em]">
                 <Shield className="w-4 h-4" /> Premium Only (Casual/Free)
               </div>
               <input
@@ -1166,7 +1188,7 @@ export default function NewDraftPage() {
                 disabled={!isPremium || isClassic}
                 value={premiumTeamOnly}
                 onChange={(e) => setPremiumTeamOnly(e.target.value.toUpperCase())}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg"
               />
               <input
                 placeholder="Specific season (e.g., 1996)"
@@ -1178,7 +1200,7 @@ export default function NewDraftPage() {
                     e.target.value === "" ? "" : Number(e.target.value)
                   )
                 }
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg"
               />
               <div className="grid grid-cols-2 gap-2">
                 <input
@@ -1192,7 +1214,7 @@ export default function NewDraftPage() {
                       min: e.target.value === "" ? "" : Number(e.target.value),
                     }))
                   }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                  className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg"
                 />
                 <input
                   placeholder="Height max (in)"
@@ -1205,7 +1227,7 @@ export default function NewDraftPage() {
                       max: e.target.value === "" ? "" : Number(e.target.value),
                     }))
                   }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                  className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg"
                 />
               </div>
               {!isPremium && (
@@ -1217,9 +1239,9 @@ export default function NewDraftPage() {
           </div>
 
           {/* Rule tweaks */}
-          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+          <div className="p-5 rounded-2xl bg-card/40 border border-white/10">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <SlidersHorizontal className="w-5 h-5 text-indigo-400" /> Rule
+              <SlidersHorizontal className="w-5 h-5 text-secondary" /> Rule
               Tweaks
             </h3>
 
@@ -1237,8 +1259,8 @@ export default function NewDraftPage() {
                 }
                 className={`w-full px-3 py-2 rounded-lg ${
                   isClassic
-                    ? "bg-slate-800 border-slate-700 text-slate-600"
-                    : "bg-slate-900 border-slate-700"
+                    ? "bg-white/10 border-white/10 text-muted-foreground"
+                    : "bg-card border-white/10"
                 }`}
               />
 
@@ -1265,12 +1287,12 @@ export default function NewDraftPage() {
                   }
                   className={`mt-1 w-full px-3 py-2 rounded-lg ${
                     isClassic || isFree
-                      ? "bg-slate-800 border-slate-700 text-slate-600"
-                      : "bg-slate-900 border-slate-700"
+                      ? "bg-white/10 border-white/10 text-muted-foreground"
+                      : "bg-card border-white/10"
                   }`}
                   placeholder="Off"
                 />
-                <span className="text-[11px] text-slate-500">
+                <span className="text-[11px] text-muted-foreground">
                   Leave blank to turn timer off (Casual/Free).
                 </span>
               </label>
@@ -1283,7 +1305,7 @@ export default function NewDraftPage() {
                   checked={isClassic ? true : autoPickEnabled}
                   onChange={(e) => setAutoPickEnabled(e.target.checked)}
                 />
-                <span className={isFree ? "text-slate-600" : "text-slate-200"}>
+                <span className={isFree ? "text-muted-foreground" : "text-foreground"}>
                   Auto-pick when timer expires
                 </span>
               </label>
@@ -1298,7 +1320,7 @@ export default function NewDraftPage() {
                 />
                 <span
                   className={
-                    isClassic || isFree ? "text-slate-600" : "text-slate-200"
+                    isClassic || isFree ? "text-muted-foreground" : "text-foreground"
                   }
                 >
                   Show system suggestion picks
@@ -1316,8 +1338,8 @@ export default function NewDraftPage() {
                   }
                   className={`mt-1 w-full px-3 py-2 rounded-lg ${
                     isClassic
-                      ? "bg-slate-800 border-slate-700 text-slate-600"
-                      : "bg-slate-900 border-slate-700"
+                      ? "bg-white/10 border-white/10 text-muted-foreground"
+                      : "bg-card border-white/10"
                   }`}
                 >
                   <option value="any">Any players allowed</option>
@@ -1333,7 +1355,7 @@ export default function NewDraftPage() {
                   checked={isClassic ? false : multiTeamOnly}
                   onChange={(e) => setMultiTeamOnly(e.target.checked)}
                 />
-                <span className={isClassic ? "text-slate-600" : ""}>
+                <span className={isClassic ? "text-muted-foreground" : ""}>
                   Only players from multiple teams
                 </span>
               </label>
@@ -1347,7 +1369,7 @@ export default function NewDraftPage() {
                   onChange={(e) =>
                     setStatMode(e.target.value as typeof statMode)
                   }
-                  className="mt-1 w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700"
+                  className="mt-1 w-full px-3 py-2 rounded-lg bg-card border border-white/10"
                 >
                   <option disabled={isClassic!} value="peak">
                     Peak Season
@@ -1380,6 +1402,8 @@ export default function NewDraftPage() {
           </div>
         </section>
       </div>
+      </Collapse>
+
 
       {/* SAVE SETTINGS PROMPT */}
       {!isClassic && (mode === "casual" || mode === "free") && (
@@ -1391,7 +1415,7 @@ export default function NewDraftPage() {
               onChange={(e) => setWantSaveBeforeCreate(e.target.checked)}
               disabled={!isPremium}
             />
-            <span className={!isPremium ? "text-slate-500" : "text-slate-200"}>
+            <span className={!isPremium ? "text-muted-foreground" : "text-foreground"}>
               Save these draft settings before creating
             </span>
           </label>
@@ -1403,24 +1427,27 @@ export default function NewDraftPage() {
         </div>
       )}
 
-      {/* CREATE BUTTON */}
-      <button
-        onClick={() => handleCreate()}
-        disabled={loading}
-        className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-2"
-      >
-        {loading ? "Creating Draft..." : "Create Draft"}{" "}
-        <ChevronRight className="w-4 h-4" />
-      </button>
+      {/* CREATE BAR (always reachable) */}
+      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-white/10 bg-background/90 p-3 backdrop-blur-xl md:bottom-0">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-1 md:px-3">
+          <div className="min-w-0 flex-1 text-sm">
+            <div className="truncate font-semibold">{league} · {mode === "classic" ? "Classic" : mode === "casual" ? "Casual" : "Free"}</div>
+            <div className="truncate text-muted-foreground">{participants} players · {league === "NFL" ? NFL_LINEUP.length : playersPerTeam} each</div>
+          </div>
+          <Button variant="accent" className="px-8 text-lg" onClick={() => handleCreate()} disabled={loading}>
+            <Play className="h-5 w-5" aria-hidden /> {loading ? "Creating…" : "Start draft"}
+          </Button>
+        </div>
+      </div>
 
       {showSaveModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 w-full max-w-md space-y-4">
+          <div className="bg-card border border-white/10 rounded-xl p-5 w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">Save Draft Settings</h3>
               <button
                 onClick={() => setShowSaveModal(false)}
-                className="text-sm text-slate-300 hover:text-white"
+                className="text-sm text-muted-foreground hover:text-white"
               >
                 Close
               </button>
@@ -1429,13 +1456,13 @@ export default function NewDraftPage() {
               placeholder="Name these settings"
               value={saveName}
               onChange={(e) => setSaveName(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm"
+              className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg text-sm"
             />
             <textarea
               placeholder="Optional description"
               value={saveDescription}
               onChange={(e) => setSaveDescription(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm"
+              className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg text-sm"
             />
             <div className="flex items-center gap-3 text-sm">
               <label className="flex items-center gap-2">
@@ -1461,7 +1488,7 @@ export default function NewDraftPage() {
               <button
                 disabled={saveLoading}
                 onClick={() => saveStyleAndMaybeCreate(true)}
-                className="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                className="flex-1 rounded-lg bg-primary hover:bg-[#8b5cf6] px-4 py-2 text-sm font-semibold disabled:opacity-60"
               >
                 {saveLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -1474,7 +1501,7 @@ export default function NewDraftPage() {
               <button
                 disabled={saveLoading}
                 onClick={() => saveStyleAndMaybeCreate(false)}
-                className="rounded-lg border border-slate-700 px-4 py-2 text-sm"
+                className="rounded-lg border border-white/10 px-4 py-2 text-sm"
               >
                 Save Only
               </button>
@@ -1485,12 +1512,12 @@ export default function NewDraftPage() {
 
       {showRules && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 w-full max-w-xl space-y-4">
+          <div className="bg-card border border-white/10 rounded-xl p-5 w-full max-w-xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">Draft Rules</h3>
               <button
                 onClick={() => setShowRules(false)}
-                className="text-sm text-slate-300 hover:text-white"
+                className="text-sm text-muted-foreground hover:text-white"
               >
                 Close
               </button>
@@ -1503,8 +1530,8 @@ export default function NewDraftPage() {
                   onClick={() => setRulesTab(tab)}
                   className={`px-3 py-1 rounded border ${
                     rulesTab === tab
-                      ? "border-indigo-400 bg-indigo-500/20 text-indigo-200"
-                      : "border-slate-700 text-slate-300"
+                      ? "border-secondary bg-primary/25 text-secondary"
+                      : "border-white/10 text-muted-foreground"
                   }`}
                 >
                   {tab[0].toUpperCase() + tab.slice(1)}
@@ -1513,14 +1540,14 @@ export default function NewDraftPage() {
             </div>
 
             {rulesTab === "classic" && (
-              <ul className="text-sm text-slate-200 space-y-2">
+              <ul className="text-sm text-foreground space-y-2">
                 <li>• Random era + team; one spin per turn.</li>
                 <li>• Unique players only, positions enforced.</li>
                 <li>• Scoring uses best season for that team in the era.</li>
               </ul>
             )}
             {rulesTab === "casual" && (
-              <ul className="text-sm text-slate-200 space-y-2">
+              <ul className="text-sm text-foreground space-y-2">
                 <li>
                   • Tweak era/team, allow duplicate versions across teams.
                 </li>
@@ -1532,7 +1559,7 @@ export default function NewDraftPage() {
               </ul>
             )}
             {rulesTab === "free" && (
-              <ul className="text-sm text-slate-200 space-y-2">
+              <ul className="text-sm text-foreground space-y-2">
                 <li>• No position enforcement; sandbox picks.</li>
                 <li>• Up to 5 participants, any lineup size.</li>
                 <li>• You decide ordering and scoring.</li>
@@ -1674,30 +1701,28 @@ function CartoonDraftBuilder({
   }
 
   return (
-    <main className="min-h-screen p-6 md:p-10 bg-slate-950 text-slate-50 space-y-8">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 pb-40 md:px-6 md:py-12 md:pb-32 text-foreground space-y-8">
       <header className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-indigo-300 tracking-tight mb-1">
-            Create a Cartoon Draft
-          </h1>
-          <p className="text-slate-400 text-sm">
-            Community-voted drafts for characters or shows. Classic is online-focused with a 60s timer.
-          </p>
-          {!isPremium && (
-            <p className="text-xs text-amber-300 mt-1">
-              Cartoon drafts are available to premium members.
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-4 py-2 text-sm font-semibold hover:bg-indigo-600"
-            onClick={() => setMode((prev) => (prev === "classic" ? "casual" : "classic"))}
-          >
-            <Zap className="h-4 w-4" /> Toggle Mode ({mode})
-          </button>
+        <div className="flex items-center gap-4">
+          <IconBadge src="/icons/turtle.png" />
+          <div>
+            <h1 className="text-3xl md:text-4xl">Cartoon Draft</h1>
+            <p className="text-muted-foreground text-sm">Community-voted drafts for characters or shows. Classic is online-focused with a 60s timer.</p>
+            {!isPremium && <p className="mt-1 text-xs text-amber-300">Cartoon drafts are available to premium members.</p>}
+          </div>
         </div>
       </header>
+
+      <Panel title="Quick start" hint="Classic is the fastest way in; Casual opens the rules.">
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(["classic", "casual"] as const).map((m) => (
+            <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)} className={`min-h-16 rounded-xl border p-3 text-left transition-colors ${mode === m ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+              <div className="font-semibold capitalize">{m}</div>
+              <div className="text-xs text-muted-foreground">{m === "classic" ? "Online-focused, 60s timer" : "Tweak the rules"}</div>
+            </button>
+          ))}
+        </div>
+      </Panel>
 
       {error && (
         <div className="rounded-xl border border-red-500/50 bg-red-900/30 px-4 py-3 text-sm text-red-200">
@@ -1705,11 +1730,12 @@ function CartoonDraftBuilder({
         </div>
       )}
 
+      <Collapse title="Customize rules" defaultOpen>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section className="space-y-4">
-          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+          <div className="p-5 rounded-2xl bg-card/40 border border-white/10">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <Zap className="w-5 h-5 text-indigo-400" /> Draft Mode
+              <Zap className="w-5 h-5 text-secondary" /> Draft Mode
             </h3>
             <div className="space-y-3">
               {(["classic", "casual"] as const).map((m) => (
@@ -1718,14 +1744,14 @@ function CartoonDraftBuilder({
                   onClick={() => setMode(m)}
                   className={`w-full text-left p-4 rounded-xl border transition-all ${
                     mode === m
-                      ? "border-indigo-500 bg-indigo-500/10"
-                      : "border-slate-700 hover:border-indigo-300/50"
+                      ? "border-secondary bg-primary/15"
+                      : "border-white/10 hover:border-secondary/50"
                   }`}
                 >
-                  <div className="font-semibold text-slate-100 flex items-center gap-2">
+                  <div className="font-semibold text-foreground flex items-center gap-2">
                     {m === "classic" ? "Classic (online)" : "Casual"}
                   </div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-muted-foreground">
                     {m === "classic"
                       ? "2 players, 5 picks each, 60s timer."
                       : "Flexible participants and era rules."}
@@ -1735,13 +1761,13 @@ function CartoonDraftBuilder({
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+          <div className="p-5 rounded-2xl bg-card/40 border border-white/10">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <Users className="w-5 h-5 text-indigo-400" /> Players & Teams
+              <Users className="w-5 h-5 text-secondary" /> Players & Teams
             </h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <label className="block mb-1 text-slate-300">
+                <label className="block mb-1 text-muted-foreground">
                   Participants
                 </label>
                 <input
@@ -1755,11 +1781,11 @@ function CartoonDraftBuilder({
                       Math.max(2, Math.min(10, Number(e.target.value)))
                     )
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700"
+                  className="w-full px-3 py-2 rounded-lg bg-card border border-white/10"
                 />
               </div>
               <div>
-                <label className="block mb-1 text-slate-300">
+                <label className="block mb-1 text-muted-foreground">
                   Picks per team
                 </label>
                 <input
@@ -1773,7 +1799,7 @@ function CartoonDraftBuilder({
                       Math.max(3, Math.min(10, Number(e.target.value)))
                     )
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700"
+                  className="w-full px-3 py-2 rounded-lg bg-card border border-white/10"
                 />
               </div>
             </div>
@@ -1798,8 +1824,8 @@ function CartoonDraftBuilder({
                 }
                 className={`mt-1 w-full px-3 py-2 rounded-lg ${
                   mode === "classic"
-                    ? "bg-slate-800 border-slate-700 text-slate-600"
-                    : "bg-slate-900 border-slate-700"
+                    ? "bg-white/10 border-white/10 text-muted-foreground"
+                    : "bg-card border-white/10"
                 }`}
                 placeholder="Off"
               />
@@ -1808,9 +1834,9 @@ function CartoonDraftBuilder({
         </section>
 
         <section className="space-y-4">
-          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+          <div className="p-5 rounded-2xl bg-card/40 border border-white/10">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <SlidersHorizontal className="w-5 h-5 text-indigo-400" /> Draft
+              <SlidersHorizontal className="w-5 h-5 text-secondary" /> Draft
               Focus
             </h3>
             <div className="space-y-3 text-sm">
@@ -1819,8 +1845,8 @@ function CartoonDraftBuilder({
                   onClick={() => setDraftType("character")}
                   className={`px-3 py-2 rounded-lg border ${
                     draftType === "character"
-                      ? "border-indigo-500 bg-indigo-500/10"
-                      : "border-slate-700"
+                      ? "border-secondary bg-primary/15"
+                      : "border-white/10"
                   }`}
                 >
                   Characters
@@ -1829,8 +1855,8 @@ function CartoonDraftBuilder({
                   onClick={() => setDraftType("show")}
                   className={`px-3 py-2 rounded-lg border ${
                     draftType === "show"
-                      ? "border-indigo-500 bg-indigo-500/10"
-                      : "border-slate-700"
+                      ? "border-secondary bg-primary/15"
+                      : "border-white/10"
                   }`}
                 >
                   Shows
@@ -1838,11 +1864,11 @@ function CartoonDraftBuilder({
               </div>
 
               <label className="block">
-                <div className="text-xs text-slate-400 mb-1">Channel</div>
+                <div className="text-xs text-muted-foreground mb-1">Channel</div>
                 <select
                   value={channel}
                   onChange={(e) => setChannel(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                  className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg"
                 >
                   <option value="">Any</option>
                   <option value="Disney">Disney</option>
@@ -1856,13 +1882,13 @@ function CartoonDraftBuilder({
               </label>
 
               <label className="block">
-                <div className="text-xs text-slate-400 mb-1">Age rating</div>
+                <div className="text-xs text-muted-foreground mb-1">Age rating</div>
                 <select
                   value={ageRating}
                   onChange={(e) =>
                     setAgeRating(e.target.value as typeof ageRating)
                   }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                  className="w-full px-3 py-2 bg-card border border-white/10 rounded-lg"
                 >
                   <option value="">Any</option>
                   <option value="baby">Baby</option>
@@ -1894,19 +1920,19 @@ function CartoonDraftBuilder({
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+          <div className="p-5 rounded-2xl bg-card/40 border border-white/10">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <SlidersHorizontal className="w-5 h-5 text-indigo-400" /> Era &
+              <SlidersHorizontal className="w-5 h-5 text-secondary" /> Era &
               Title
             </h3>
 
-            <label className="block mb-3 text-sm text-slate-300">
+            <label className="block mb-3 text-sm text-muted-foreground">
               Draft Title
               <input
                 placeholder="Optional title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="mt-1 w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm"
+                className="mt-1 w-full px-3 py-2 bg-card border border-white/10 rounded-lg text-sm"
               />
             </label>
 
@@ -1928,7 +1954,7 @@ function CartoonDraftBuilder({
                   onChange={(e) =>
                     setEraFrom(e.target.value === "" ? "" : Number(e.target.value))
                   }
-                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                  className="px-3 py-2 bg-card border border-white/10 rounded-lg"
                 />
                 <input
                   placeholder="To year"
@@ -1937,26 +1963,26 @@ function CartoonDraftBuilder({
                   onChange={(e) =>
                     setEraTo(e.target.value === "" ? "" : Number(e.target.value))
                   }
-                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+                  className="px-3 py-2 bg-card border border-white/10 rounded-lg"
                 />
               </div>
             )}
 
-            <p className="text-[11px] text-slate-500 mt-2">
+            <p className="text-[11px] text-muted-foreground mt-2">
               Scoring is community voting only. No stats or IMDb/Google data are used.
             </p>
           </div>
         </section>
 
         <section className="space-y-4">
-          <div className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800 h-full">
+          <div className="p-5 rounded-2xl bg-card/40 border border-white/10 h-full">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <Sparkles className="w-5 h-5 text-indigo-400" /> Summary
+              <Sparkles className="w-5 h-5 text-secondary" /> Summary
             </h3>
-            <div className="space-y-2 text-sm text-slate-300">
+            <div className="space-y-2 text-sm text-muted-foreground">
               <p>
                 Mode:{" "}
-                <span className="text-indigo-300">
+                <span className="text-secondary">
                   {mode === "classic"
                     ? "Classic (online, 60s timer)"
                     : "Casual (flexible)"}
@@ -1964,7 +1990,7 @@ function CartoonDraftBuilder({
               </p>
               <p>
                 Focus:{" "}
-                <span className="text-indigo-300">
+                <span className="text-secondary">
                   {draftType === "character" ? "Characters" : "Shows"}
                 </span>
               </p>
@@ -1982,15 +2008,14 @@ function CartoonDraftBuilder({
           </div>
         </section>
       </div>
+      </Collapse>
 
-      <button
-        onClick={handleCreateCartoon}
-        disabled={loading}
-        className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-2"
-      >
-        {loading ? "Creating Draft..." : "Create Cartoon Draft"}{" "}
-        <ChevronRight className="w-4 h-4" />
-      </button>
+      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-white/10 bg-background/90 p-3 backdrop-blur-xl md:bottom-0">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-1 md:px-3">
+          <div className="min-w-0 flex-1 text-sm"><div className="truncate font-semibold">Cartoon · {mode === "classic" ? "Classic" : "Casual"}</div></div>
+          <Button variant="accent" className="px-8 text-lg" onClick={handleCreateCartoon} disabled={loading}><Play className="h-5 w-5" aria-hidden /> {loading ? "Creating…" : "Start draft"}</Button>
+        </div>
+      </div>
     </main>
   );
 }

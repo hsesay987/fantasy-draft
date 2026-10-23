@@ -1,0 +1,1252 @@
+[
+ {
+  "id": "lionel-messi",
+  "name": "Lionel Messi",
+  "universe": "Argentina",
+  "archetype": "Playmaker",
+  "stats": {
+   "pace": 80,
+   "shooting": 92,
+   "passing": 91,
+   "dribbling": 96,
+   "defending": 25,
+   "physical": 62
+  },
+  "tags": [
+   "playmaker",
+   "legend"
+  ]
+ },
+ {
+  "id": "cristiano-ronaldo",
+  "name": "Cristiano Ronaldo",
+  "universe": "Portugal",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 84,
+   "shooting": 93,
+   "passing": 82,
+   "dribbling": 87,
+   "defending": 34,
+   "physical": 77
+  },
+  "tags": [
+   "striker",
+   "legend"
+  ]
+ },
+ {
+  "id": "kylian-mbapp",
+  "name": "Kylian Mbappé",
+  "universe": "France",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 97,
+   "shooting": 89,
+   "passing": 80,
+   "dribbling": 92,
+   "defending": 36,
+   "physical": 77
+  },
+  "tags": [
+   "winger",
+   "pace"
+  ]
+ },
+ {
+  "id": "erling-haaland",
+  "name": "Erling Haaland",
+  "universe": "Norway",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 89,
+   "shooting": 93,
+   "passing": 66,
+   "dribbling": 80,
+   "defending": 45,
+   "physical": 88
+  },
+  "tags": [
+   "striker",
+   "power"
+  ]
+ },
+ {
+  "id": "neymar-jr",
+  "name": "Neymar Jr",
+  "universe": "Brazil",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 87,
+   "shooting": 84,
+   "passing": 86,
+   "dribbling": 94,
+   "defending": 37,
+   "physical": 61
+  },
+  "tags": [
+   "winger",
+   "flair"
+  ]
+ },
+ {
+  "id": "kevin-de-bruyne",
+  "name": "Kevin De Bruyne",
+  "universe": "Belgium",
+  "archetype": "Playmaker",
+  "stats": {
+   "pace": 74,
+   "shooting": 86,
+   "passing": 94,
+   "dribbling": 87,
+   "defending": 64,
+   "physical": 78
+  },
+  "tags": [
+   "playmaker",
+   "passer"
+  ]
+ },
+ {
+  "id": "luka-modri",
+  "name": "Luka Modrić",
+  "universe": "Croatia",
+  "archetype": "Midfielder",
+  "stats": {
+   "pace": 73,
+   "shooting": 76,
+   "passing": 89,
+   "dribbling": 89,
+   "defending": 72,
+   "physical": 66
+  },
+  "tags": [
+   "midfielder",
+   "legend"
+  ]
+ },
+ {
+  "id": "robert-lewandowski",
+  "name": "Robert Lewandowski",
+  "universe": "Poland",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 78,
+   "shooting": 92,
+   "passing": 79,
+   "dribbling": 86,
+   "defending": 44,
+   "physical": 82
+  },
+  "tags": [
+   "striker",
+   "finisher"
+  ]
+ },
+ {
+  "id": "mohamed-salah",
+  "name": "Mohamed Salah",
+  "universe": "Egypt",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 90,
+   "shooting": 89,
+   "passing": 81,
+   "dribbling": 90,
+   "defending": 45,
+   "physical": 75
+  },
+  "tags": [
+   "winger",
+   "finisher"
+  ]
+ },
+ {
+  "id": "harry-kane",
+  "name": "Harry Kane",
+  "universe": "England",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 69,
+   "shooting": 94,
+   "passing": 85,
+   "dribbling": 82,
+   "defending": 47,
+   "physical": 83
+  },
+  "tags": [
+   "striker",
+   "finisher"
+  ]
+ },
+ {
+  "id": "virgil-van-dijk",
+  "name": "Virgil van Dijk",
+  "universe": "Netherlands",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 77,
+   "shooting": 60,
+   "passing": 70,
+   "dribbling": 72,
+   "defending": 91,
+   "physical": 86
+  },
+  "tags": [
+   "defender",
+   "leader"
+  ]
+ },
+ {
+  "id": "sergio-ramos",
+  "name": "Sergio Ramos",
+  "universe": "Spain",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 70,
+   "shooting": 70,
+   "passing": 71,
+   "dribbling": 72,
+   "defending": 88,
+   "physical": 81
+  },
+  "tags": [
+   "defender",
+   "leader"
+  ]
+ },
+ {
+  "id": "manuel-neuer",
+  "name": "Manuel Neuer",
+  "universe": "Germany",
+  "archetype": "Keeper",
+  "stats": {
+   "pace": 56,
+   "shooting": 50,
+   "passing": 80,
+   "dribbling": 60,
+   "defending": 35,
+   "physical": 80
+  },
+  "tags": [
+   "keeper",
+   "sweeper"
+  ]
+ },
+ {
+  "id": "thibaut-courtois",
+  "name": "Thibaut Courtois",
+  "universe": "Belgium",
+  "archetype": "Keeper",
+  "stats": {
+   "pace": 40,
+   "shooting": 40,
+   "passing": 60,
+   "dribbling": 40,
+   "defending": 30,
+   "physical": 78
+  },
+  "tags": [
+   "keeper",
+   "shotstopper"
+  ]
+ },
+ {
+  "id": "gianluigi-buffon",
+  "name": "Gianluigi Buffon",
+  "universe": "Italy",
+  "archetype": "Keeper",
+  "stats": {
+   "pace": 45,
+   "shooting": 35,
+   "passing": 55,
+   "dribbling": 40,
+   "defending": 30,
+   "physical": 77
+  },
+  "tags": [
+   "keeper",
+   "legend"
+  ]
+ },
+ {
+  "id": "zinedine-zidane",
+  "name": "Zinedine Zidane",
+  "universe": "France",
+  "archetype": "Playmaker",
+  "stats": {
+   "pace": 72,
+   "shooting": 84,
+   "passing": 92,
+   "dribbling": 93,
+   "defending": 62,
+   "physical": 78
+  },
+  "tags": [
+   "playmaker",
+   "legend"
+  ]
+ },
+ {
+  "id": "ronaldinho",
+  "name": "Ronaldinho",
+  "universe": "Brazil",
+  "archetype": "Playmaker",
+  "stats": {
+   "pace": 84,
+   "shooting": 86,
+   "passing": 90,
+   "dribbling": 97,
+   "defending": 30,
+   "physical": 70
+  },
+  "tags": [
+   "playmaker",
+   "flair"
+  ]
+ },
+ {
+  "id": "ronaldo-naz-rio",
+  "name": "Ronaldo Nazário",
+  "universe": "Brazil",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 93,
+   "shooting": 94,
+   "passing": 80,
+   "dribbling": 95,
+   "defending": 35,
+   "physical": 80
+  },
+  "tags": [
+   "striker",
+   "legend"
+  ]
+ },
+ {
+  "id": "pel",
+  "name": "Pelé",
+  "universe": "Brazil",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 90,
+   "shooting": 95,
+   "passing": 88,
+   "dribbling": 96,
+   "defending": 45,
+   "physical": 78
+  },
+  "tags": [
+   "striker",
+   "legend"
+  ]
+ },
+ {
+  "id": "diego-maradona",
+  "name": "Diego Maradona",
+  "universe": "Argentina",
+  "archetype": "Playmaker",
+  "stats": {
+   "pace": 85,
+   "shooting": 89,
+   "passing": 90,
+   "dribbling": 98,
+   "defending": 40,
+   "physical": 72
+  },
+  "tags": [
+   "playmaker",
+   "legend"
+  ]
+ },
+ {
+  "id": "johan-cruyff",
+  "name": "Johan Cruyff",
+  "universe": "Netherlands",
+  "archetype": "Playmaker",
+  "stats": {
+   "pace": 84,
+   "shooting": 86,
+   "passing": 91,
+   "dribbling": 94,
+   "defending": 52,
+   "physical": 70
+  },
+  "tags": [
+   "playmaker",
+   "legend"
+  ]
+ },
+ {
+  "id": "franz-beckenbauer",
+  "name": "Franz Beckenbauer",
+  "universe": "Germany",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 78,
+   "shooting": 72,
+   "passing": 88,
+   "dribbling": 86,
+   "defending": 92,
+   "physical": 80
+  },
+  "tags": [
+   "defender",
+   "leader",
+   "legend"
+  ]
+ },
+ {
+  "id": "paolo-maldini",
+  "name": "Paolo Maldini",
+  "universe": "Italy",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 80,
+   "shooting": 60,
+   "passing": 78,
+   "dribbling": 76,
+   "defending": 95,
+   "physical": 82
+  },
+  "tags": [
+   "defender",
+   "legend"
+  ]
+ },
+ {
+  "id": "andr-s-iniesta",
+  "name": "Andrés Iniesta",
+  "universe": "Spain",
+  "archetype": "Midfielder",
+  "stats": {
+   "pace": 74,
+   "shooting": 72,
+   "passing": 92,
+   "dribbling": 93,
+   "defending": 60,
+   "physical": 60
+  },
+  "tags": [
+   "midfielder",
+   "passer"
+  ]
+ },
+ {
+  "id": "xavi",
+  "name": "Xavi",
+  "universe": "Spain",
+  "archetype": "Midfielder",
+  "stats": {
+   "pace": 66,
+   "shooting": 70,
+   "passing": 95,
+   "dribbling": 90,
+   "defending": 66,
+   "physical": 64
+  },
+  "tags": [
+   "midfielder",
+   "passer"
+  ]
+ },
+ {
+  "id": "n-golo-kant",
+  "name": "N'Golo Kanté",
+  "universe": "France",
+  "archetype": "Midfielder",
+  "stats": {
+   "pace": 82,
+   "shooting": 60,
+   "passing": 76,
+   "dribbling": 80,
+   "defending": 92,
+   "physical": 80
+  },
+  "tags": [
+   "midfielder",
+   "engine"
+  ]
+ },
+ {
+  "id": "rodri",
+  "name": "Rodri",
+  "universe": "Spain",
+  "archetype": "Midfielder",
+  "stats": {
+   "pace": 62,
+   "shooting": 76,
+   "passing": 86,
+   "dribbling": 80,
+   "defending": 88,
+   "physical": 86
+  },
+  "tags": [
+   "midfielder",
+   "anchor"
+  ]
+ },
+ {
+  "id": "jude-bellingham",
+  "name": "Jude Bellingham",
+  "universe": "England",
+  "archetype": "Midfielder",
+  "stats": {
+   "pace": 79,
+   "shooting": 81,
+   "passing": 82,
+   "dribbling": 86,
+   "defending": 78,
+   "physical": 83
+  },
+  "tags": [
+   "midfielder",
+   "engine"
+  ]
+ },
+ {
+  "id": "vin-cius-j-nior",
+  "name": "Vinícius Júnior",
+  "universe": "Brazil",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 95,
+   "shooting": 82,
+   "passing": 79,
+   "dribbling": 94,
+   "defending": 29,
+   "physical": 69
+  },
+  "tags": [
+   "winger",
+   "pace"
+  ]
+ },
+ {
+  "id": "lamine-yamal",
+  "name": "Lamine Yamal",
+  "universe": "Spain",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 88,
+   "shooting": 80,
+   "passing": 84,
+   "dribbling": 92,
+   "defending": 30,
+   "physical": 56
+  },
+  "tags": [
+   "winger",
+   "flair"
+  ]
+ },
+ {
+  "id": "son-heung-min",
+  "name": "Son Heung-min",
+  "universe": "South Korea",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 88,
+   "shooting": 88,
+   "passing": 81,
+   "dribbling": 86,
+   "defending": 42,
+   "physical": 69
+  },
+  "tags": [
+   "winger",
+   "finisher"
+  ]
+ },
+ {
+  "id": "sadio-man",
+  "name": "Sadio Mané",
+  "universe": "Senegal",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 90,
+   "shooting": 86,
+   "passing": 79,
+   "dribbling": 88,
+   "defending": 46,
+   "physical": 75
+  },
+  "tags": [
+   "winger",
+   "pace"
+  ]
+ },
+ {
+  "id": "didier-drogba",
+  "name": "Didier Drogba",
+  "universe": "Ivory Coast",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 81,
+   "shooting": 88,
+   "passing": 70,
+   "dribbling": 78,
+   "defending": 50,
+   "physical": 92
+  },
+  "tags": [
+   "striker",
+   "power"
+  ]
+ },
+ {
+  "id": "samuel-eto-o",
+  "name": "Samuel Eto'o",
+  "universe": "Cameroon",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 88,
+   "shooting": 89,
+   "passing": 72,
+   "dribbling": 84,
+   "defending": 38,
+   "physical": 76
+  },
+  "tags": [
+   "striker",
+   "finisher"
+  ]
+ },
+ {
+  "id": "george-weah",
+  "name": "George Weah",
+  "universe": "Liberia",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 90,
+   "shooting": 87,
+   "passing": 74,
+   "dribbling": 86,
+   "defending": 40,
+   "physical": 85
+  },
+  "tags": [
+   "striker",
+   "power"
+  ]
+ },
+ {
+  "id": "luis-su-rez",
+  "name": "Luis Suárez",
+  "universe": "Uruguay",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 75,
+   "shooting": 91,
+   "passing": 83,
+   "dribbling": 86,
+   "defending": 48,
+   "physical": 80
+  },
+  "tags": [
+   "striker",
+   "finisher"
+  ]
+ },
+ {
+  "id": "edinson-cavani",
+  "name": "Edinson Cavani",
+  "universe": "Uruguay",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 78,
+   "shooting": 88,
+   "passing": 70,
+   "dribbling": 80,
+   "defending": 50,
+   "physical": 85
+  },
+  "tags": [
+   "striker",
+   "power"
+  ]
+ },
+ {
+  "id": "antoine-griezmann",
+  "name": "Antoine Griezmann",
+  "universe": "France",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 78,
+   "shooting": 86,
+   "passing": 86,
+   "dribbling": 87,
+   "defending": 60,
+   "physical": 72
+  },
+  "tags": [
+   "striker",
+   "playmaker"
+  ]
+ },
+ {
+  "id": "thierry-henry",
+  "name": "Thierry Henry",
+  "universe": "France",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 93,
+   "shooting": 90,
+   "passing": 82,
+   "dribbling": 90,
+   "defending": 40,
+   "physical": 76
+  },
+  "tags": [
+   "striker",
+   "pace",
+   "legend"
+  ]
+ },
+ {
+  "id": "marco-van-basten",
+  "name": "Marco van Basten",
+  "universe": "Netherlands",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 82,
+   "shooting": 95,
+   "passing": 80,
+   "dribbling": 88,
+   "defending": 40,
+   "physical": 78
+  },
+  "tags": [
+   "striker",
+   "finisher",
+   "legend"
+  ]
+ },
+ {
+  "id": "gerd-m-ller",
+  "name": "Gerd Müller",
+  "universe": "Germany",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 78,
+   "shooting": 97,
+   "passing": 65,
+   "dribbling": 80,
+   "defending": 35,
+   "physical": 80
+  },
+  "tags": [
+   "striker",
+   "finisher",
+   "legend"
+  ]
+ },
+ {
+  "id": "eus-bio",
+  "name": "Eusébio",
+  "universe": "Portugal",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 89,
+   "shooting": 93,
+   "passing": 80,
+   "dribbling": 88,
+   "defending": 40,
+   "physical": 78
+  },
+  "tags": [
+   "striker",
+   "legend"
+  ]
+ },
+ {
+  "id": "ferenc-pusk-s",
+  "name": "Ferenc Puskás",
+  "universe": "Hungary",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 75,
+   "shooting": 95,
+   "passing": 84,
+   "dribbling": 88,
+   "defending": 35,
+   "physical": 72
+  },
+  "tags": [
+   "striker",
+   "legend"
+  ]
+ },
+ {
+  "id": "roberto-baggio",
+  "name": "Roberto Baggio",
+  "universe": "Italy",
+  "archetype": "Playmaker",
+  "stats": {
+   "pace": 78,
+   "shooting": 90,
+   "passing": 88,
+   "dribbling": 93,
+   "defending": 35,
+   "physical": 64
+  },
+  "tags": [
+   "playmaker",
+   "flair",
+   "legend"
+  ]
+ },
+ {
+  "id": "andrea-pirlo",
+  "name": "Andrea Pirlo",
+  "universe": "Italy",
+  "archetype": "Midfielder",
+  "stats": {
+   "pace": 55,
+   "shooting": 80,
+   "passing": 95,
+   "dribbling": 84,
+   "defending": 66,
+   "physical": 62
+  },
+  "tags": [
+   "midfielder",
+   "passer"
+  ]
+ },
+ {
+  "id": "fabio-cannavaro",
+  "name": "Fabio Cannavaro",
+  "universe": "Italy",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 75,
+   "shooting": 40,
+   "passing": 66,
+   "dribbling": 68,
+   "defending": 93,
+   "physical": 82
+  },
+  "tags": [
+   "defender",
+   "leader"
+  ]
+ },
+ {
+  "id": "carles-puyol",
+  "name": "Carles Puyol",
+  "universe": "Spain",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 68,
+   "shooting": 50,
+   "passing": 65,
+   "dribbling": 60,
+   "defending": 92,
+   "physical": 86
+  },
+  "tags": [
+   "defender",
+   "leader"
+  ]
+ },
+ {
+  "id": "philipp-lahm",
+  "name": "Philipp Lahm",
+  "universe": "Germany",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 78,
+   "shooting": 60,
+   "passing": 86,
+   "dribbling": 82,
+   "defending": 88,
+   "physical": 70
+  },
+  "tags": [
+   "defender",
+   "fullback"
+  ]
+ },
+ {
+  "id": "cafu",
+  "name": "Cafu",
+  "universe": "Brazil",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 86,
+   "shooting": 60,
+   "passing": 80,
+   "dribbling": 80,
+   "defending": 84,
+   "physical": 78
+  },
+  "tags": [
+   "defender",
+   "fullback"
+  ]
+ },
+ {
+  "id": "roberto-carlos",
+  "name": "Roberto Carlos",
+  "universe": "Brazil",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 91,
+   "shooting": 76,
+   "passing": 79,
+   "dribbling": 80,
+   "defending": 82,
+   "physical": 80
+  },
+  "tags": [
+   "defender",
+   "fullback",
+   "pace"
+  ]
+ },
+ {
+  "id": "trent-alexander-arnold",
+  "name": "Trent Alexander-Arnold",
+  "universe": "England",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 76,
+   "shooting": 70,
+   "passing": 92,
+   "dribbling": 82,
+   "defending": 76,
+   "physical": 66
+  },
+  "tags": [
+   "defender",
+   "fullback",
+   "passer"
+  ]
+ },
+ {
+  "id": "alisson-becker",
+  "name": "Alisson Becker",
+  "universe": "Brazil",
+  "archetype": "Keeper",
+  "stats": {
+   "pace": 48,
+   "shooting": 38,
+   "passing": 76,
+   "dribbling": 40,
+   "defending": 32,
+   "physical": 78
+  },
+  "tags": [
+   "keeper",
+   "shotstopper"
+  ]
+ },
+ {
+  "id": "emiliano-mart-nez",
+  "name": "Emiliano Martínez",
+  "universe": "Argentina",
+  "archetype": "Keeper",
+  "stats": {
+   "pace": 50,
+   "shooting": 35,
+   "passing": 65,
+   "dribbling": 38,
+   "defending": 30,
+   "physical": 79
+  },
+  "tags": [
+   "keeper",
+   "shotstopper"
+  ]
+ },
+ {
+  "id": "lev-yashin",
+  "name": "Lev Yashin",
+  "universe": "Soviet Union",
+  "archetype": "Keeper",
+  "stats": {
+   "pace": 55,
+   "shooting": 30,
+   "passing": 60,
+   "dribbling": 40,
+   "defending": 35,
+   "physical": 82
+  },
+  "tags": [
+   "keeper",
+   "legend"
+  ]
+ },
+ {
+  "id": "iker-casillas",
+  "name": "Iker Casillas",
+  "universe": "Spain",
+  "archetype": "Keeper",
+  "stats": {
+   "pace": 47,
+   "shooting": 30,
+   "passing": 55,
+   "dribbling": 36,
+   "defending": 28,
+   "physical": 74
+  },
+  "tags": [
+   "keeper",
+   "shotstopper"
+  ]
+ },
+ {
+  "id": "gianluigi-donnarumma",
+  "name": "Gianluigi Donnarumma",
+  "universe": "Italy",
+  "archetype": "Keeper",
+  "stats": {
+   "pace": 50,
+   "shooting": 30,
+   "passing": 60,
+   "dribbling": 40,
+   "defending": 30,
+   "physical": 86
+  },
+  "tags": [
+   "keeper",
+   "shotstopper"
+  ]
+ },
+ {
+  "id": "toni-kroos",
+  "name": "Toni Kroos",
+  "universe": "Germany",
+  "archetype": "Midfielder",
+  "stats": {
+   "pace": 55,
+   "shooting": 80,
+   "passing": 95,
+   "dribbling": 86,
+   "defending": 70,
+   "physical": 68
+  },
+  "tags": [
+   "midfielder",
+   "passer"
+  ]
+ },
+ {
+  "id": "steven-gerrard",
+  "name": "Steven Gerrard",
+  "universe": "England",
+  "archetype": "Midfielder",
+  "stats": {
+   "pace": 75,
+   "shooting": 86,
+   "passing": 88,
+   "dribbling": 84,
+   "defending": 74,
+   "physical": 83
+  },
+  "tags": [
+   "midfielder",
+   "leader"
+  ]
+ },
+ {
+  "id": "paul-scholes",
+  "name": "Paul Scholes",
+  "universe": "England",
+  "archetype": "Midfielder",
+  "stats": {
+   "pace": 62,
+   "shooting": 84,
+   "passing": 90,
+   "dribbling": 82,
+   "defending": 70,
+   "physical": 68
+  },
+  "tags": [
+   "midfielder",
+   "passer"
+  ]
+ },
+ {
+  "id": "michel-platini",
+  "name": "Michel Platini",
+  "universe": "France",
+  "archetype": "Playmaker",
+  "stats": {
+   "pace": 70,
+   "shooting": 88,
+   "passing": 92,
+   "dribbling": 90,
+   "defending": 50,
+   "physical": 68
+  },
+  "tags": [
+   "playmaker",
+   "legend"
+  ]
+ },
+ {
+  "id": "zlatan-ibrahimovi",
+  "name": "Zlatan Ibrahimović",
+  "universe": "Sweden",
+  "archetype": "Striker",
+  "stats": {
+   "pace": 76,
+   "shooting": 90,
+   "passing": 82,
+   "dribbling": 86,
+   "defending": 40,
+   "physical": 90
+  },
+  "tags": [
+   "striker",
+   "power"
+  ]
+ },
+ {
+  "id": "gareth-bale",
+  "name": "Gareth Bale",
+  "universe": "Wales",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 93,
+   "shooting": 86,
+   "passing": 80,
+   "dribbling": 84,
+   "defending": 48,
+   "physical": 82
+  },
+  "tags": [
+   "winger",
+   "pace"
+  ]
+ },
+ {
+  "id": "eden-hazard",
+  "name": "Eden Hazard",
+  "universe": "Belgium",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 84,
+   "shooting": 82,
+   "passing": 86,
+   "dribbling": 93,
+   "defending": 36,
+   "physical": 68
+  },
+  "tags": [
+   "winger",
+   "flair"
+  ]
+ },
+ {
+  "id": "riyad-mahrez",
+  "name": "Riyad Mahrez",
+  "universe": "Algeria",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 80,
+   "shooting": 82,
+   "passing": 84,
+   "dribbling": 91,
+   "defending": 36,
+   "physical": 60
+  },
+  "tags": [
+   "winger",
+   "flair"
+  ]
+ },
+ {
+  "id": "achraf-hakimi",
+  "name": "Achraf Hakimi",
+  "universe": "Morocco",
+  "archetype": "Defender",
+  "stats": {
+   "pace": 95,
+   "shooting": 76,
+   "passing": 80,
+   "dribbling": 83,
+   "defending": 78,
+   "physical": 74
+  },
+  "tags": [
+   "defender",
+   "fullback",
+   "pace"
+  ]
+ },
+ {
+  "id": "takefusa-kubo",
+  "name": "Takefusa Kubo",
+  "universe": "Japan",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 82,
+   "shooting": 76,
+   "passing": 82,
+   "dribbling": 88,
+   "defending": 40,
+   "physical": 58
+  },
+  "tags": [
+   "winger",
+   "flair"
+  ]
+ },
+ {
+  "id": "christian-pulisic",
+  "name": "Christian Pulisic",
+  "universe": "USA",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 86,
+   "shooting": 78,
+   "passing": 80,
+   "dribbling": 84,
+   "defending": 45,
+   "physical": 68
+  },
+  "tags": [
+   "winger",
+   "pace"
+  ]
+ },
+ {
+  "id": "arjen-robben",
+  "name": "Arjen Robben",
+  "universe": "Netherlands",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 92,
+   "shooting": 86,
+   "passing": 80,
+   "dribbling": 92,
+   "defending": 36,
+   "physical": 72
+  },
+  "tags": [
+   "winger",
+   "pace"
+  ]
+ },
+ {
+  "id": "luis-figo",
+  "name": "Luis Figo",
+  "universe": "Portugal",
+  "archetype": "Winger",
+  "stats": {
+   "pace": 80,
+   "shooting": 82,
+   "passing": 90,
+   "dribbling": 92,
+   "defending": 52,
+   "physical": 74
+  },
+  "tags": [
+   "winger",
+   "playmaker"
+  ]
+ }
+]

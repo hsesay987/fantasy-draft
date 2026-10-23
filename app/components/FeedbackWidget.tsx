@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { Bug, Loader2, MessageCircle, Send, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "../hooks/useAuth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -10,6 +11,9 @@ type FeedbackType = "feedback" | "bug";
 
 export default function FeedbackWidget() {
   const { token, user } = useAuth();
+  const pathname = usePathname() || "";
+  // Sticky action bars live at the bottom of /play pages; keep the button clear of them.
+  const lifted = pathname.startsWith("/play") || pathname.startsWith("/draft/new");
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<FeedbackType>("feedback");
   const [category, setCategory] = useState("idea");
@@ -57,17 +61,17 @@ export default function FeedbackWidget() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3">
+    <div className={`fixed ${lifted ? "bottom-40 md:bottom-24" : "bottom-20 md:bottom-4"} right-4 z-50 flex flex-col items-end gap-3`}>
       {open && (
-        <div className="w-80 rounded-2xl border border-slate-800 bg-slate-900/95 shadow-2xl backdrop-blur">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-            <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
-              <MessageCircle className="h-4 w-4 text-indigo-300" />
+        <div className="w-80 rounded-2xl border border-white/10 bg-card/95 shadow-2xl backdrop-blur">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <MessageCircle className="h-4 w-4 text-secondary" />
               Feedback
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="rounded-full p-1 text-slate-400 hover:text-white hover:bg-slate-800"
+              className="rounded-full p-1 text-muted-foreground hover:text-white hover:bg-white/10"
             >
               <X className="h-4 w-4" />
             </button>
@@ -80,8 +84,8 @@ export default function FeedbackWidget() {
                 onClick={() => setType("feedback")}
                 className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2 ${
                   type === "feedback"
-                    ? "border-indigo-400/60 bg-indigo-500/10 text-indigo-100"
-                    : "border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700"
+                    ? "border-secondary/60 bg-primary/15 text-secondary"
+                    : "border-white/10 bg-card text-muted-foreground hover:border-white/10"
                 }`}
               >
                 <MessageCircle className="h-4 w-4" />
@@ -93,7 +97,7 @@ export default function FeedbackWidget() {
                 className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2 ${
                   type === "bug"
                     ? "border-red-400/60 bg-red-500/10 text-red-100"
-                    : "border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700"
+                    : "border-white/10 bg-card text-muted-foreground hover:border-white/10"
                 }`}
               >
                 <Bug className="h-4 w-4" />
@@ -101,12 +105,12 @@ export default function FeedbackWidget() {
               </button>
             </div>
 
-            <label className="flex flex-col gap-1 text-xs text-slate-300">
+            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
               Category
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+                className="rounded-lg border border-white/10 bg-background px-3 py-2 text-sm text-foreground"
               >
                 <option value="idea">New idea</option>
                 <option value="design">Design / UX</option>
@@ -116,24 +120,24 @@ export default function FeedbackWidget() {
               </select>
             </label>
 
-            <label className="flex flex-col gap-1 text-xs text-slate-300">
+            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
               Message
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
                 maxLength={2000}
-                className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-indigo-400 focus:ring-0"
+                className="rounded-lg border border-white/10 bg-background px-3 py-2 text-sm text-foreground focus:border-secondary focus:ring-0"
                 placeholder="Tell us what you love, what feels off, or what broke."
               />
-              <span className="text-[11px] text-slate-500">
+              <span className="text-[11px] text-muted-foreground">
                 {message.length}/2000
               </span>
             </label>
 
             {user?.email && (
-              <p className="text-[11px] text-slate-500">
-                Signed in as <span className="text-slate-200">{user.email}</span>
+              <p className="text-[11px] text-muted-foreground">
+                Signed in as <span className="text-foreground">{user.email}</span>
               </p>
             )}
 
@@ -152,7 +156,7 @@ export default function FeedbackWidget() {
             <button
               type="submit"
               disabled={status === "sending" || !message.trim()}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-[#8b5cf6] disabled:opacity-60"
             >
               {status === "sending" ? (
                 <>
@@ -176,7 +180,7 @@ export default function FeedbackWidget() {
           setStatus("idle");
           setError(null);
         }}
-        className="flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-900/50 hover:bg-indigo-700"
+        className="flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-900/50 hover:bg-[#8b5cf6]"
       >
         <MessageCircle className="h-4 w-4" />
         Feedback

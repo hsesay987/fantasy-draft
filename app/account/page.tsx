@@ -53,14 +53,14 @@ export default function AccountPage() {
 
   if (!token) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100 p-6">
+      <main className="min-h-screen flex items-center justify-center text-foreground p-6">
         <div className="max-w-md text-center space-y-3">
           <p className="text-lg font-semibold">
             You need an account to manage settings.
           </p>
           <button
             onClick={() => router.push("/login")}
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-700"
+            className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold hover:bg-[#8b5cf6]"
           >
             Go to login
           </button>
@@ -145,15 +145,15 @@ export default function AccountPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center p-6">
+    <main className="min-h-screen text-foreground flex items-center justify-center p-6">
       <div className="w-full max-w-3xl space-y-6">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
+        <div className="rounded-2xl border border-white/10 bg-card/70 p-6 shadow-xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-wider text-slate-500">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">
                 Account
               </p>
-              <h1 className="text-2xl font-semibold text-indigo-200">
+              <h1 className="text-2xl font-semibold text-secondary">
                 Settings
               </h1>
             </div>
@@ -170,7 +170,7 @@ export default function AccountPage() {
             )}
           </div>
 
-          <div className="mt-4 text-sm text-slate-400 space-y-1">
+          <div className="mt-4 text-sm text-muted-foreground space-y-1">
             <p>Email: {user?.email}</p>
             {user?.isFounder && (
               <span className="inline-flex items-center gap-2 rounded-full bg-amber-900/40 px-3 py-1 text-xs font-semibold text-amber-100 border border-amber-600/50">
@@ -197,19 +197,19 @@ export default function AccountPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
+          <div className="rounded-2xl border border-white/10 bg-card/70 p-6 shadow-xl">
             <h2 className="text-lg font-semibold mb-4">Profile</h2>
-            <label className="text-xs text-slate-400">Display name</label>
+            <label className="text-xs text-muted-foreground">Display name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+              className="mt-2 w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
               placeholder="Your name"
             />
             <button
               onClick={saveProfile}
               disabled={savingProfile || loadingProfile}
-              className="mt-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+              className="mt-4 rounded-xl bg-primary hover:bg-[#8b5cf6] px-4 py-2 text-sm font-semibold disabled:opacity-60"
             >
               {savingProfile ? (
                 <span className="flex items-center gap-2">
@@ -222,15 +222,15 @@ export default function AccountPage() {
             </button>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
+          <div className="rounded-2xl border border-white/10 bg-card/70 p-6 shadow-xl">
             <h2 className="text-lg font-semibold mb-1">Email verification</h2>
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               We&apos;ll send a fresh link to {user?.email}.
             </p>
             <button
               onClick={handleResendVerification}
               disabled={sendingVerification || emailVerified}
-              className="rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-700 disabled:opacity-60"
+              className="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-60"
             >
               {sendingVerification ? (
                 <span className="flex items-center gap-2">
@@ -244,12 +244,12 @@ export default function AccountPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
+        <div className="rounded-2xl border border-white/10 bg-card/70 p-6 shadow-xl">
           <div className="flex items-center gap-2 mb-2">
-            <ShieldCheck className="h-5 w-5 text-indigo-300" />
+            <ShieldCheck className="h-5 w-5 text-secondary" />
             <h2 className="text-lg font-semibold">Reset password</h2>
           </div>
-          <p className="text-xs text-slate-400 mb-4">
+          <p className="text-xs text-muted-foreground mb-4">
             Enter your current password if you have one. If you signed up with
             Google and never set a password, leave the current password empty.
           </p>
@@ -259,27 +259,27 @@ export default function AccountPage() {
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               placeholder="Current password"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
             />
             <input
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="New password"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
             />
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm new password"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
             />
           </div>
           <button
             onClick={handleChangePassword}
             disabled={changingPassword}
-            className="mt-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+            className="mt-4 rounded-xl bg-primary hover:bg-[#8b5cf6] px-4 py-2 text-sm font-semibold disabled:opacity-60"
           >
             {changingPassword ? (
               <span className="flex items-center gap-2">

@@ -54,12 +54,12 @@ function ResetPasswordContent() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900/60 p-6">
-        <h1 className="text-2xl font-bold text-indigo-300 mb-2">
+    <main className="min-h-screen text-foreground flex items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-card/70 p-6">
+        <h1 className="text-2xl font-bold text-secondary mb-2">
           Reset password
         </h1>
-        <p className="text-sm text-slate-400 mb-6">
+        <p className="text-sm text-muted-foreground mb-6">
           Choose a new password to finish resetting your account.
         </p>
 
@@ -80,20 +80,20 @@ function ResetPasswordContent() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="New password"
-          className="w-full mb-3 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+          className="w-full mb-3 rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
         />
         <input
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Confirm new password"
-          className="w-full mb-4 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+          className="w-full mb-4 rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
         />
 
         <button
           onClick={handleReset}
           disabled={loading || !token}
-          className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 py-3 text-sm font-semibold disabled:opacity-60"
+          className="w-full rounded-xl bg-primary hover:bg-[#8b5cf6] py-3 text-sm font-semibold disabled:opacity-60"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -113,8 +113,8 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center p-6">
-          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900/60 p-6 text-center text-sm text-slate-300">
+        <main className="min-h-screen text-foreground flex items-center justify-center p-6">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-card/70 p-6 text-center text-sm text-muted-foreground">
             Loading reset form...
           </div>
         </main>

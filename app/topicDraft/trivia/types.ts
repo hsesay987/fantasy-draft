@@ -1,0 +1,21 @@
+/**
+ * Trivia for Jeopardy and Family Feud. To add more: append rows to a topic file in this folder.
+ *   quiz:    [category, level 1-4 (1 = easy), question, right answer, wrong, wrong, wrong]
+ *   surveys: [question, "top 5 answers, best first", "4 wrong answers that sound plausible"]
+ * Jeopardy needs at least 4 categories that each have all 4 levels. Feud needs at least 5 surveys.
+ * Answers must be short (they are shown as buttons). Keep facts well known and undisputed.
+ */
+export type QuizRow = [cat: string, level: 1 | 2 | 3 | 4, q: string, right: string, w1: string, w2: string, w3: string];
+export type SurveyRow = [q: string, answers: string, decoys: string];
+
+export type TriviaSet = { quiz: QuizRow[]; surveys: SurveyRow[] };
+
+export type Question = { cat: string; level: number; q: string; right: string; wrong: string[] };
+export type Survey = { q: string; answers: string[]; decoys: string[] };
+
+/** One clue on a Jeopardy board. */
+export type Clue = { q: string; right: string; wrong: string[] };
+/** A Jeopardy category: four clues, easiest first (100, 200, 300, 400 dollars). */
+export type TriviaCategory = { name: string; clues: Clue[] };
+/** What the server attaches to a Jeopardy or Family Feud game so every player sees the same questions. */
+export type QuizData = { categories?: TriviaCategory[]; surveys?: Survey[] };

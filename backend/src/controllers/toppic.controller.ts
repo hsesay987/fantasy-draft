@@ -9,7 +9,7 @@ import {
 } from "../services/toppic.service";
 
 function parsePools(raw: any): TopPicPool[] {
-  const allowed: TopPicPool[] = ["NBA", "NFL", "CARTOON", "MULTI"];
+  const allowed: TopPicPool[] = ["NBA", "NFL", "CARTOON", "SUPERHERO", "MULTI"];
   if (!raw) return ["NBA", "MULTI"];
   if (typeof raw === "string") {
     return raw

@@ -1,0 +1,467 @@
+[
+ {
+  "id": "jetpack",
+  "name": "Jetpack",
+  "universe": "Mobility",
+  "archetype": "Mobility",
+  "stats": {
+   "utility": 80,
+   "tech": 70,
+   "stealth": 30,
+   "power": 40,
+   "range": 50
+  },
+  "tags": [
+   "flyer",
+   "mobility"
+  ]
+ },
+ {
+  "id": "cloaking-device",
+  "name": "Cloaking Device",
+  "universe": "Stealth",
+  "archetype": "Stealth",
+  "stats": {
+   "utility": 85,
+   "tech": 85,
+   "stealth": 98,
+   "power": 10,
+   "range": 10
+  },
+  "tags": [
+   "stealth",
+   "tech"
+  ]
+ },
+ {
+  "id": "hacking-rig",
+  "name": "Hacking Rig",
+  "universe": "Tech",
+  "archetype": "Hacker",
+  "stats": {
+   "utility": 90,
+   "tech": 98,
+   "stealth": 60,
+   "power": 5,
+   "range": 70
+  },
+  "tags": [
+   "hacker",
+   "tech"
+  ]
+ },
+ {
+  "id": "invisible-jet",
+  "name": "Invisible Jet",
+  "universe": "Mobility",
+  "archetype": "Vehicle",
+  "stats": {
+   "utility": 70,
+   "tech": 85,
+   "stealth": 88,
+   "power": 40,
+   "range": 90
+  },
+  "tags": [
+   "stealth",
+   "flyer",
+   "tech"
+  ]
+ },
+ {
+  "id": "utility-belt",
+  "name": "Utility Belt",
+  "universe": "Gear",
+  "archetype": "Gear",
+  "stats": {
+   "utility": 92,
+   "tech": 60,
+   "stealth": 50,
+   "power": 30,
+   "range": 40
+  },
+  "tags": [
+   "gear",
+   "gadgets"
+  ]
+ },
+ {
+  "id": "power-armor-suit",
+  "name": "Power Armor Suit",
+  "universe": "Tech",
+  "archetype": "Armor",
+  "stats": {
+   "utility": 60,
+   "tech": 92,
+   "stealth": 15,
+   "power": 90,
+   "range": 40
+  },
+  "tags": [
+   "armor",
+   "tech",
+   "energy"
+  ]
+ },
+ {
+  "id": "mind-shield-helmet",
+  "name": "Mind-Shield Helmet",
+  "universe": "Gear",
+  "archetype": "Defense",
+  "stats": {
+   "utility": 88,
+   "tech": 60,
+   "stealth": 50,
+   "power": 20,
+   "range": 10
+  },
+  "tags": [
+   "telepath-counter",
+   "defense"
+  ]
+ },
+ {
+  "id": "portal-gun",
+  "name": "Portal Gun",
+  "universe": "Tech",
+  "archetype": "Special",
+  "stats": {
+   "utility": 95,
+   "tech": 92,
+   "stealth": 60,
+   "power": 50,
+   "range": 70
+  },
+  "tags": [
+   "portal",
+   "tech"
+  ]
+ },
+ {
+  "id": "grapple-drone",
+  "name": "Grapple Drone",
+  "universe": "Tech",
+  "archetype": "Drone",
+  "stats": {
+   "utility": 70,
+   "tech": 80,
+   "stealth": 70,
+   "power": 25,
+   "range": 80
+  },
+  "tags": [
+   "drone",
+   "mobility",
+   "ranged"
+  ]
+ },
+ {
+  "id": "decoy-hologram",
+  "name": "Decoy Hologram",
+  "universe": "Stealth",
+  "archetype": "Stealth",
+  "stats": {
+   "utility": 85,
+   "tech": 80,
+   "stealth": 85,
+   "power": 5,
+   "range": 60
+  },
+  "tags": [
+   "stealth",
+   "tech",
+   "fear"
+  ]
+ },
+ {
+  "id": "time-slow-watch",
+  "name": "Time-Slow Watch",
+  "universe": "Tech",
+  "archetype": "Special",
+  "stats": {
+   "utility": 92,
+   "tech": 88,
+   "stealth": 40,
+   "power": 60,
+   "range": 30
+  },
+  "tags": [
+   "speed",
+   "tech"
+  ]
+ },
+ {
+  "id": "healing-nanites",
+  "name": "Healing Nanites",
+  "universe": "Tech",
+  "archetype": "Support",
+  "stats": {
+   "utility": 88,
+   "tech": 90,
+   "stealth": 40,
+   "power": 20,
+   "range": 30
+  },
+  "tags": [
+   "healing",
+   "tech"
+  ]
+ },
+ {
+  "id": "shock-gauntlets",
+  "name": "Shock Gauntlets",
+  "universe": "Gear",
+  "archetype": "Offense",
+  "stats": {
+   "utility": 40,
+   "tech": 70,
+   "stealth": 20,
+   "power": 85,
+   "range": 25
+  },
+  "tags": [
+   "electric",
+   "power"
+  ]
+ },
+ {
+  "id": "gravity-boots",
+  "name": "Gravity Boots",
+  "universe": "Mobility",
+  "archetype": "Mobility",
+  "stats": {
+   "utility": 75,
+   "tech": 70,
+   "stealth": 60,
+   "power": 35,
+   "range": 30
+  },
+  "tags": [
+   "mobility"
+  ]
+ },
+ {
+  "id": "night-vision-cowl",
+  "name": "Night-Vision Cowl",
+  "universe": "Gear",
+  "archetype": "Gear",
+  "stats": {
+   "utility": 72,
+   "tech": 60,
+   "stealth": 80,
+   "power": 10,
+   "range": 40
+  },
+  "tags": [
+   "stealth",
+   "gear"
+  ]
+ },
+ {
+  "id": "smoke-pellet-pack",
+  "name": "Smoke Pellet Pack",
+  "universe": "Stealth",
+  "archetype": "Stealth",
+  "stats": {
+   "utility": 75,
+   "tech": 25,
+   "stealth": 88,
+   "power": 10,
+   "range": 25
+  },
+  "tags": [
+   "stealth",
+   "gas"
+  ]
+ },
+ {
+  "id": "sonic-scrambler",
+  "name": "Sonic Scrambler",
+  "universe": "Tech",
+  "archetype": "Defense",
+  "stats": {
+   "utility": 85,
+   "tech": 90,
+   "stealth": 50,
+   "power": 40,
+   "range": 60
+  },
+  "tags": [
+   "sonic",
+   "tech-counter"
+  ]
+ },
+ {
+  "id": "rune-amulet",
+  "name": "Rune Amulet",
+  "universe": "Mystic",
+  "archetype": "Mystic",
+  "stats": {
+   "utility": 88,
+   "tech": 10,
+   "stealth": 40,
+   "power": 70,
+   "range": 50
+  },
+  "tags": [
+   "magic",
+   "defense"
+  ]
+ },
+ {
+  "id": "sleeper-dart-kit",
+  "name": "Sleeper Dart Kit",
+  "universe": "Stealth",
+  "archetype": "Stealth",
+  "stats": {
+   "utility": 78,
+   "tech": 50,
+   "stealth": 85,
+   "power": 20,
+   "range": 60
+  },
+  "tags": [
+   "poison",
+   "stealth",
+   "ranged"
+  ]
+ },
+ {
+  "id": "force-field-projector",
+  "name": "Force Field Projector",
+  "universe": "Tech",
+  "archetype": "Defense",
+  "stats": {
+   "utility": 85,
+   "tech": 92,
+   "stealth": 20,
+   "power": 65,
+   "range": 30
+  },
+  "tags": [
+   "defense",
+   "energy",
+   "tech"
+  ]
+ },
+ {
+  "id": "teleport-beacon",
+  "name": "Teleport Beacon",
+  "universe": "Tech",
+  "archetype": "Mobility",
+  "stats": {
+   "utility": 98,
+   "tech": 95,
+   "stealth": 75,
+   "power": 10,
+   "range": 98
+  },
+  "tags": [
+   "teleport",
+   "tech"
+  ]
+ },
+ {
+  "id": "mini-nuke-briefcase",
+  "name": "Mini-Nuke Briefcase",
+  "universe": "Weapon",
+  "archetype": "Explosive",
+  "stats": {
+   "utility": 20,
+   "tech": 70,
+   "stealth": 35,
+   "power": 100,
+   "range": 60
+  },
+  "tags": [
+   "explosive",
+   "area"
+  ]
+ },
+ {
+  "id": "lie-detector-lasso",
+  "name": "Lie-Detector Lasso",
+  "universe": "Mystic",
+  "archetype": "Control",
+  "stats": {
+   "utility": 90,
+   "tech": 35,
+   "stealth": 50,
+   "power": 45,
+   "range": 30
+  },
+  "tags": [
+   "control",
+   "truth"
+  ]
+ },
+ {
+  "id": "magnet-glove",
+  "name": "Magnet Glove",
+  "universe": "Tech",
+  "archetype": "Offense",
+  "stats": {
+   "utility": 65,
+   "tech": 75,
+   "stealth": 40,
+   "power": 70,
+   "range": 40
+  },
+  "tags": [
+   "magnet",
+   "control"
+  ]
+ },
+ {
+  "id": "bait-drone-swarm",
+  "name": "Bait Drone Swarm",
+  "universe": "Tech",
+  "archetype": "Drone",
+  "stats": {
+   "utility": 80,
+   "tech": 88,
+   "stealth": 55,
+   "power": 30,
+   "range": 70
+  },
+  "tags": [
+   "swarm",
+   "drone",
+   "fear"
+  ]
+ },
+ {
+  "id": "cryo-grenades",
+  "name": "Cryo Grenades",
+  "universe": "Tech",
+  "archetype": "Explosive",
+  "stats": {
+   "utility": 70,
+   "tech": 70,
+   "stealth": 40,
+   "power": 60,
+   "range": 50
+  },
+  "tags": [
+   "ice",
+   "area"
+  ]
+ },
+ {
+  "id": "satellite-uplink",
+  "name": "Satellite Uplink",
+  "universe": "Tech",
+  "archetype": "Intel",
+  "stats": {
+   "utility": 98,
+   "tech": 98,
+   "stealth": 30,
+   "power": 5,
+   "range": 100
+  },
+  "tags": [
+   "tech",
+   "intel"
+  ]
+ }
+]

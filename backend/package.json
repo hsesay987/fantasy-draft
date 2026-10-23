@@ -17,15 +17,19 @@
     "seed:nfl:fitTopPic": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scripts/updateFitTopPicEligibility.ts",
     "seed:cartoon:shows": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scripts/seedCartoonShows.ts",
     "seed:cartoon:characters": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scripts/seedCartoonCharacters.ts",
-    "seed:cartoon": "npm run seed:cartoon:shows && npm run seed:cartoon:characters"
+    "seed:cartoon": "npm run seed:cartoon:shows && npm run seed:cartoon:characters",
+    "db:local:setup": "createdb -h localhost toppic_dev 2>/dev/null; echo 'DATABASE_URL=\"postgresql://$USER@localhost:5432/toppic_dev\"' > .env.local && prisma migrate deploy && npm run seed:nba",
+    "trivia:fill": "ts-node --transpile-only src/scripts/fillTrivia.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
     "@prisma/adapter-pg": "^7.0.1",
     "@prisma/client": "^7.0.1",
+    "@sentry/node": "^11.8.0",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
@@ -37,6 +41,7 @@
     "jsonwebtoken": "^9.0.3",
     "node-fetch": "^2.7.0",
     "pg": "^8.16.3",
+    "posthog-node": "^5.56.1",
     "prisma": "^7.0.1",
     "resend": "^6.6.0",
     "socket.io": "^4.8.1",

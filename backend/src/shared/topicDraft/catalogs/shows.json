@@ -1,0 +1,1100 @@
+[
+ {
+  "id": "breaking-bad",
+  "name": "Breaking Bad",
+  "universe": "Crime",
+  "archetype": "Drama",
+  "stats": {
+   "story": 99,
+   "acting": 99,
+   "visuals": 90,
+   "rewatch": 95,
+   "impact": 98,
+   "fun": 88
+  },
+  "tags": [
+   "crime",
+   "drama"
+  ]
+ },
+ {
+  "id": "the-wire",
+  "name": "The Wire",
+  "universe": "Crime",
+  "archetype": "Drama",
+  "stats": {
+   "story": 99,
+   "acting": 95,
+   "visuals": 75,
+   "rewatch": 85,
+   "impact": 96,
+   "fun": 60
+  },
+  "tags": [
+   "crime",
+   "drama"
+  ]
+ },
+ {
+  "id": "game-of-thrones",
+  "name": "Game of Thrones",
+  "universe": "Fantasy",
+  "archetype": "Epic",
+  "stats": {
+   "story": 82,
+   "acting": 94,
+   "visuals": 98,
+   "rewatch": 80,
+   "impact": 99,
+   "fun": 90
+  },
+  "tags": [
+   "fantasy",
+   "epic"
+  ]
+ },
+ {
+  "id": "the-sopranos",
+  "name": "The Sopranos",
+  "universe": "Crime",
+  "archetype": "Drama",
+  "stats": {
+   "story": 97,
+   "acting": 98,
+   "visuals": 82,
+   "rewatch": 90,
+   "impact": 97,
+   "fun": 80
+  },
+  "tags": [
+   "crime",
+   "drama"
+  ]
+ },
+ {
+  "id": "friends",
+  "name": "Friends",
+  "universe": "Sitcom",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 78,
+   "acting": 86,
+   "visuals": 60,
+   "rewatch": 100,
+   "impact": 94,
+   "fun": 100
+  },
+  "tags": [
+   "sitcom",
+   "comfort"
+  ]
+ },
+ {
+  "id": "the-office-us",
+  "name": "The Office (US)",
+  "universe": "Sitcom",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 86,
+   "acting": 90,
+   "visuals": 55,
+   "rewatch": 100,
+   "impact": 95,
+   "fun": 100
+  },
+  "tags": [
+   "sitcom",
+   "comfort"
+  ]
+ },
+ {
+  "id": "seinfeld",
+  "name": "Seinfeld",
+  "universe": "Sitcom",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 90,
+   "acting": 88,
+   "visuals": 50,
+   "rewatch": 96,
+   "impact": 92,
+   "fun": 98
+  },
+  "tags": [
+   "sitcom",
+   "classic"
+  ]
+ },
+ {
+  "id": "stranger-things",
+  "name": "Stranger Things",
+  "universe": "Sci-Fi",
+  "archetype": "Horror",
+  "stats": {
+   "story": 80,
+   "acting": 84,
+   "visuals": 92,
+   "rewatch": 86,
+   "impact": 92,
+   "fun": 92
+  },
+  "tags": [
+   "scifi",
+   "nostalgia"
+  ]
+ },
+ {
+  "id": "better-call-saul",
+  "name": "Better Call Saul",
+  "universe": "Crime",
+  "archetype": "Drama",
+  "stats": {
+   "story": 98,
+   "acting": 98,
+   "visuals": 88,
+   "rewatch": 92,
+   "impact": 90,
+   "fun": 84
+  },
+  "tags": [
+   "crime",
+   "drama"
+  ]
+ },
+ {
+  "id": "succession",
+  "name": "Succession",
+  "universe": "Drama",
+  "archetype": "Drama",
+  "stats": {
+   "story": 96,
+   "acting": 99,
+   "visuals": 82,
+   "rewatch": 88,
+   "impact": 92,
+   "fun": 88
+  },
+  "tags": [
+   "drama",
+   "modern"
+  ]
+ },
+ {
+  "id": "chernobyl",
+  "name": "Chernobyl",
+  "universe": "Drama",
+  "archetype": "Historical",
+  "stats": {
+   "story": 96,
+   "acting": 96,
+   "visuals": 92,
+   "rewatch": 60,
+   "impact": 96,
+   "fun": 30
+  },
+  "tags": [
+   "drama",
+   "historical"
+  ]
+ },
+ {
+  "id": "black-mirror",
+  "name": "Black Mirror",
+  "universe": "Sci-Fi",
+  "archetype": "Anthology",
+  "stats": {
+   "story": 92,
+   "acting": 86,
+   "visuals": 88,
+   "rewatch": 86,
+   "impact": 92,
+   "fun": 70
+  },
+  "tags": [
+   "scifi",
+   "dark"
+  ]
+ },
+ {
+  "id": "the-mandalorian",
+  "name": "The Mandalorian",
+  "universe": "Sci-Fi",
+  "archetype": "Adventure",
+  "stats": {
+   "story": 78,
+   "acting": 82,
+   "visuals": 95,
+   "rewatch": 86,
+   "impact": 88,
+   "fun": 92
+  },
+  "tags": [
+   "scifi",
+   "adventure"
+  ]
+ },
+ {
+  "id": "avatar-the-last-airbender",
+  "name": "Avatar: The Last Airbender",
+  "universe": "Animation",
+  "archetype": "Fantasy",
+  "stats": {
+   "story": 97,
+   "acting": 90,
+   "visuals": 90,
+   "rewatch": 96,
+   "impact": 96,
+   "fun": 95
+  },
+  "tags": [
+   "animation",
+   "fantasy"
+  ]
+ },
+ {
+  "id": "rick-and-morty",
+  "name": "Rick and Morty",
+  "universe": "Animation",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 90,
+   "acting": 90,
+   "visuals": 80,
+   "rewatch": 98,
+   "impact": 92,
+   "fun": 96
+  },
+  "tags": [
+   "animation",
+   "scifi"
+  ]
+ },
+ {
+  "id": "the-simpsons",
+  "name": "The Simpsons",
+  "universe": "Animation",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 84,
+   "acting": 88,
+   "visuals": 60,
+   "rewatch": 92,
+   "impact": 99,
+   "fun": 98
+  },
+  "tags": [
+   "animation",
+   "classic"
+  ]
+ },
+ {
+  "id": "south-park",
+  "name": "South Park",
+  "universe": "Animation",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 80,
+   "acting": 86,
+   "visuals": 50,
+   "rewatch": 92,
+   "impact": 92,
+   "fun": 98
+  },
+  "tags": [
+   "animation",
+   "satire"
+  ]
+ },
+ {
+  "id": "attack-on-titan",
+  "name": "Attack on Titan",
+  "universe": "Anime",
+  "archetype": "Action",
+  "stats": {
+   "story": 96,
+   "acting": 90,
+   "visuals": 92,
+   "rewatch": 92,
+   "impact": 94,
+   "fun": 90
+  },
+  "tags": [
+   "anime",
+   "action"
+  ]
+ },
+ {
+  "id": "death-note",
+  "name": "Death Note",
+  "universe": "Anime",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 94,
+   "acting": 88,
+   "visuals": 82,
+   "rewatch": 92,
+   "impact": 90,
+   "fun": 86
+  },
+  "tags": [
+   "anime",
+   "mindbender"
+  ]
+ },
+ {
+  "id": "fullmetal-alchemist-brotherhood",
+  "name": "Fullmetal Alchemist: Brotherhood",
+  "universe": "Anime",
+  "archetype": "Fantasy",
+  "stats": {
+   "story": 98,
+   "acting": 90,
+   "visuals": 90,
+   "rewatch": 92,
+   "impact": 94,
+   "fun": 92
+  },
+  "tags": [
+   "anime",
+   "fantasy"
+  ]
+ },
+ {
+  "id": "dragon-ball-z",
+  "name": "Dragon Ball Z",
+  "universe": "Anime",
+  "archetype": "Action",
+  "stats": {
+   "story": 74,
+   "acting": 80,
+   "visuals": 86,
+   "rewatch": 88,
+   "impact": 98,
+   "fun": 96
+  },
+  "tags": [
+   "anime",
+   "action"
+  ]
+ },
+ {
+  "id": "naruto",
+  "name": "Naruto",
+  "universe": "Anime",
+  "archetype": "Action",
+  "stats": {
+   "story": 82,
+   "acting": 82,
+   "visuals": 86,
+   "rewatch": 86,
+   "impact": 96,
+   "fun": 92
+  },
+  "tags": [
+   "anime",
+   "action"
+  ]
+ },
+ {
+  "id": "one-piece",
+  "name": "One Piece",
+  "universe": "Anime",
+  "archetype": "Adventure",
+  "stats": {
+   "story": 88,
+   "acting": 84,
+   "visuals": 90,
+   "rewatch": 88,
+   "impact": 96,
+   "fun": 96
+  },
+  "tags": [
+   "anime",
+   "adventure"
+  ]
+ },
+ {
+  "id": "sherlock",
+  "name": "Sherlock",
+  "universe": "Mystery",
+  "archetype": "Drama",
+  "stats": {
+   "story": 90,
+   "acting": 95,
+   "visuals": 90,
+   "rewatch": 88,
+   "impact": 88,
+   "fun": 86
+  },
+  "tags": [
+   "mystery",
+   "modern"
+  ]
+ },
+ {
+  "id": "peaky-blinders",
+  "name": "Peaky Blinders",
+  "universe": "Crime",
+  "archetype": "Drama",
+  "stats": {
+   "story": 88,
+   "acting": 94,
+   "visuals": 92,
+   "rewatch": 86,
+   "impact": 90,
+   "fun": 86
+  },
+  "tags": [
+   "crime",
+   "drama"
+  ]
+ },
+ {
+  "id": "the-crown",
+  "name": "The Crown",
+  "universe": "Drama",
+  "archetype": "Historical",
+  "stats": {
+   "story": 88,
+   "acting": 96,
+   "visuals": 92,
+   "rewatch": 65,
+   "impact": 86,
+   "fun": 50
+  },
+  "tags": [
+   "drama",
+   "historical"
+  ]
+ },
+ {
+  "id": "house-of-the-dragon",
+  "name": "House of the Dragon",
+  "universe": "Fantasy",
+  "archetype": "Epic",
+  "stats": {
+   "story": 80,
+   "acting": 90,
+   "visuals": 96,
+   "rewatch": 70,
+   "impact": 86,
+   "fun": 84
+  },
+  "tags": [
+   "fantasy",
+   "epic"
+  ]
+ },
+ {
+  "id": "the-last-of-us",
+  "name": "The Last of Us",
+  "universe": "Drama",
+  "archetype": "Horror",
+  "stats": {
+   "story": 94,
+   "acting": 96,
+   "visuals": 92,
+   "rewatch": 80,
+   "impact": 94,
+   "fun": 76
+  },
+  "tags": [
+   "drama",
+   "gaming"
+  ]
+ },
+ {
+  "id": "squid-game",
+  "name": "Squid Game",
+  "universe": "Thriller",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 84,
+   "acting": 84,
+   "visuals": 90,
+   "rewatch": 80,
+   "impact": 96,
+   "fun": 88
+  },
+  "tags": [
+   "thriller",
+   "modern"
+  ]
+ },
+ {
+  "id": "money-heist",
+  "name": "Money Heist",
+  "universe": "Crime",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 80,
+   "acting": 80,
+   "visuals": 84,
+   "rewatch": 84,
+   "impact": 88,
+   "fun": 92
+  },
+  "tags": [
+   "crime",
+   "thriller"
+  ]
+ },
+ {
+  "id": "dark",
+  "name": "Dark",
+  "universe": "Sci-Fi",
+  "archetype": "Mystery",
+  "stats": {
+   "story": 98,
+   "acting": 92,
+   "visuals": 92,
+   "rewatch": 92,
+   "impact": 90,
+   "fun": 70
+  },
+  "tags": [
+   "scifi",
+   "mindbender"
+  ]
+ },
+ {
+  "id": "lost",
+  "name": "Lost",
+  "universe": "Mystery",
+  "archetype": "Adventure",
+  "stats": {
+   "story": 78,
+   "acting": 86,
+   "visuals": 86,
+   "rewatch": 76,
+   "impact": 94,
+   "fun": 86
+  },
+  "tags": [
+   "mystery",
+   "adventure"
+  ]
+ },
+ {
+  "id": "the-walking-dead",
+  "name": "The Walking Dead",
+  "universe": "Horror",
+  "archetype": "Drama",
+  "stats": {
+   "story": 72,
+   "acting": 80,
+   "visuals": 84,
+   "rewatch": 70,
+   "impact": 92,
+   "fun": 80
+  },
+  "tags": [
+   "horror",
+   "drama"
+  ]
+ },
+ {
+  "id": "westworld",
+  "name": "Westworld",
+  "universe": "Sci-Fi",
+  "archetype": "Drama",
+  "stats": {
+   "story": 78,
+   "acting": 92,
+   "visuals": 96,
+   "rewatch": 76,
+   "impact": 84,
+   "fun": 80
+  },
+  "tags": [
+   "scifi",
+   "drama"
+  ]
+ },
+ {
+  "id": "mad-men",
+  "name": "Mad Men",
+  "universe": "Drama",
+  "archetype": "Drama",
+  "stats": {
+   "story": 94,
+   "acting": 96,
+   "visuals": 92,
+   "rewatch": 82,
+   "impact": 92,
+   "fun": 60
+  },
+  "tags": [
+   "drama",
+   "classic"
+  ]
+ },
+ {
+  "id": "the-bear",
+  "name": "The Bear",
+  "universe": "Drama",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 92,
+   "acting": 96,
+   "visuals": 86,
+   "rewatch": 86,
+   "impact": 88,
+   "fun": 82
+  },
+  "tags": [
+   "drama",
+   "modern"
+  ]
+ },
+ {
+  "id": "ted-lasso",
+  "name": "Ted Lasso",
+  "universe": "Sitcom",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 90,
+   "acting": 94,
+   "visuals": 70,
+   "rewatch": 92,
+   "impact": 92,
+   "fun": 96
+  },
+  "tags": [
+   "sitcom",
+   "feelgood"
+  ]
+ },
+ {
+  "id": "arrested-development",
+  "name": "Arrested Development",
+  "universe": "Sitcom",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 92,
+   "acting": 92,
+   "visuals": 60,
+   "rewatch": 100,
+   "impact": 88,
+   "fun": 98
+  },
+  "tags": [
+   "sitcom",
+   "cult"
+  ]
+ },
+ {
+  "id": "parks-and-recreation",
+  "name": "Parks and Recreation",
+  "universe": "Sitcom",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 86,
+   "acting": 92,
+   "visuals": 55,
+   "rewatch": 98,
+   "impact": 88,
+   "fun": 98
+  },
+  "tags": [
+   "sitcom",
+   "comfort"
+  ]
+ },
+ {
+  "id": "how-i-met-your-mother",
+  "name": "How I Met Your Mother",
+  "universe": "Sitcom",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 82,
+   "acting": 86,
+   "visuals": 60,
+   "rewatch": 92,
+   "impact": 88,
+   "fun": 94
+  },
+  "tags": [
+   "sitcom",
+   "comfort"
+  ]
+ },
+ {
+  "id": "brooklyn-nine-nine",
+  "name": "Brooklyn Nine-Nine",
+  "universe": "Sitcom",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 78,
+   "acting": 88,
+   "visuals": 58,
+   "rewatch": 94,
+   "impact": 84,
+   "fun": 98
+  },
+  "tags": [
+   "sitcom",
+   "comfort"
+  ]
+ },
+ {
+  "id": "modern-family",
+  "name": "Modern Family",
+  "universe": "Sitcom",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 76,
+   "acting": 88,
+   "visuals": 55,
+   "rewatch": 90,
+   "impact": 86,
+   "fun": 94
+  },
+  "tags": [
+   "sitcom",
+   "comfort"
+  ]
+ },
+ {
+  "id": "the-big-bang-theory",
+  "name": "The Big Bang Theory",
+  "universe": "Sitcom",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 68,
+   "acting": 84,
+   "visuals": 50,
+   "rewatch": 92,
+   "impact": 90,
+   "fun": 92
+  },
+  "tags": [
+   "sitcom",
+   "comfort"
+  ]
+ },
+ {
+  "id": "narcos",
+  "name": "Narcos",
+  "universe": "Crime",
+  "archetype": "Drama",
+  "stats": {
+   "story": 84,
+   "acting": 88,
+   "visuals": 86,
+   "rewatch": 76,
+   "impact": 84,
+   "fun": 88
+  },
+  "tags": [
+   "crime",
+   "drama"
+  ]
+ },
+ {
+  "id": "ozark",
+  "name": "Ozark",
+  "universe": "Crime",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 86,
+   "acting": 92,
+   "visuals": 84,
+   "rewatch": 76,
+   "impact": 80,
+   "fun": 82
+  },
+  "tags": [
+   "crime",
+   "thriller"
+  ]
+ },
+ {
+  "id": "true-detective",
+  "name": "True Detective",
+  "universe": "Mystery",
+  "archetype": "Drama",
+  "stats": {
+   "story": 88,
+   "acting": 96,
+   "visuals": 90,
+   "rewatch": 72,
+   "impact": 88,
+   "fun": 60
+  },
+  "tags": [
+   "mystery",
+   "dark"
+  ]
+ },
+ {
+  "id": "fargo",
+  "name": "Fargo",
+  "universe": "Crime",
+  "archetype": "Anthology",
+  "stats": {
+   "story": 92,
+   "acting": 96,
+   "visuals": 86,
+   "rewatch": 82,
+   "impact": 84,
+   "fun": 80
+  },
+  "tags": [
+   "crime",
+   "dark"
+  ]
+ },
+ {
+  "id": "doctor-who",
+  "name": "Doctor Who",
+  "universe": "Sci-Fi",
+  "archetype": "Adventure",
+  "stats": {
+   "story": 78,
+   "acting": 84,
+   "visuals": 70,
+   "rewatch": 86,
+   "impact": 94,
+   "fun": 88
+  },
+  "tags": [
+   "scifi",
+   "british"
+  ]
+ },
+ {
+  "id": "star-trek-the-next-generation",
+  "name": "Star Trek: The Next Generation",
+  "universe": "Sci-Fi",
+  "archetype": "Adventure",
+  "stats": {
+   "story": 84,
+   "acting": 86,
+   "visuals": 72,
+   "rewatch": 86,
+   "impact": 94,
+   "fun": 82
+  },
+  "tags": [
+   "scifi",
+   "classic"
+  ]
+ },
+ {
+  "id": "buffy-the-vampire-slayer",
+  "name": "Buffy the Vampire Slayer",
+  "universe": "Fantasy",
+  "archetype": "Drama",
+  "stats": {
+   "story": 82,
+   "acting": 82,
+   "visuals": 70,
+   "rewatch": 84,
+   "impact": 92,
+   "fun": 90
+  },
+  "tags": [
+   "fantasy",
+   "cult"
+  ]
+ },
+ {
+  "id": "the-x-files",
+  "name": "The X-Files",
+  "universe": "Mystery",
+  "archetype": "Sci-Fi",
+  "stats": {
+   "story": 80,
+   "acting": 86,
+   "visuals": 76,
+   "rewatch": 84,
+   "impact": 92,
+   "fun": 84
+  },
+  "tags": [
+   "mystery",
+   "scifi"
+  ]
+ },
+ {
+  "id": "twin-peaks",
+  "name": "Twin Peaks",
+  "universe": "Mystery",
+  "archetype": "Drama",
+  "stats": {
+   "story": 82,
+   "acting": 86,
+   "visuals": 88,
+   "rewatch": 88,
+   "impact": 92,
+   "fun": 60
+  },
+  "tags": [
+   "mystery",
+   "cult"
+  ]
+ },
+ {
+  "id": "gilmore-girls",
+  "name": "Gilmore Girls",
+  "universe": "Drama",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 80,
+   "acting": 88,
+   "visuals": 60,
+   "rewatch": 96,
+   "impact": 84,
+   "fun": 92
+  },
+  "tags": [
+   "drama",
+   "comfort"
+  ]
+ },
+ {
+  "id": "spongebob-squarepants",
+  "name": "Spongebob Squarepants",
+  "universe": "Animation",
+  "archetype": "Comedy",
+  "stats": {
+   "story": 78,
+   "acting": 82,
+   "visuals": 66,
+   "rewatch": 94,
+   "impact": 96,
+   "fun": 100
+  },
+  "tags": [
+   "animation",
+   "comfort"
+  ]
+ },
+ {
+  "id": "bluey",
+  "name": "Bluey",
+  "universe": "Animation",
+  "archetype": "Family",
+  "stats": {
+   "story": 88,
+   "acting": 88,
+   "visuals": 76,
+   "rewatch": 90,
+   "impact": 90,
+   "fun": 98
+  },
+  "tags": [
+   "animation",
+   "family"
+  ]
+ },
+ {
+  "id": "arcane",
+  "name": "Arcane",
+  "universe": "Animation",
+  "archetype": "Fantasy",
+  "stats": {
+   "story": 94,
+   "acting": 90,
+   "visuals": 100,
+   "rewatch": 86,
+   "impact": 92,
+   "fun": 86
+  },
+  "tags": [
+   "animation",
+   "fantasy"
+  ]
+ },
+ {
+  "id": "severance",
+  "name": "Severance",
+  "universe": "Sci-Fi",
+  "archetype": "Thriller",
+  "stats": {
+   "story": 94,
+   "acting": 94,
+   "visuals": 92,
+   "rewatch": 80,
+   "impact": 88,
+   "fun": 78
+  },
+  "tags": [
+   "scifi",
+   "mindbender"
+  ]
+ },
+ {
+  "id": "euphoria",
+  "name": "Euphoria",
+  "universe": "Drama",
+  "archetype": "Drama",
+  "stats": {
+   "story": 76,
+   "acting": 92,
+   "visuals": 96,
+   "rewatch": 62,
+   "impact": 86,
+   "fun": 64
+  },
+  "tags": [
+   "drama",
+   "modern"
+  ]
+ },
+ {
+  "id": "yellowstone",
+  "name": "Yellowstone",
+  "universe": "Drama",
+  "archetype": "Western",
+  "stats": {
+   "story": 70,
+   "acting": 82,
+   "visuals": 86,
+   "rewatch": 70,
+   "impact": 80,
+   "fun": 82
+  },
+  "tags": [
+   "drama",
+   "western"
+  ]
+ },
+ {
+  "id": "band-of-brothers",
+  "name": "Band of Brothers",
+  "universe": "War",
+  "archetype": "Historical",
+  "stats": {
+   "story": 94,
+   "acting": 94,
+   "visuals": 92,
+   "rewatch": 86,
+   "impact": 96,
+   "fun": 64
+  },
+  "tags": [
+   "war",
+   "historical"
+  ]
+ },
+ {
+  "id": "the-boys",
+  "name": "The Boys",
+  "universe": "Superhero",
+  "archetype": "Action",
+  "stats": {
+   "story": 86,
+   "acting": 90,
+   "visuals": 90,
+   "rewatch": 80,
+   "impact": 88,
+   "fun": 94
+  },
+  "tags": [
+   "superhero",
+   "dark"
+  ]
+ }
+]

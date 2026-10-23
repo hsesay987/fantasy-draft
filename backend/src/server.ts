@@ -1,5 +1,6 @@
 // backend/src/server.ts
 import "dotenv/config";
+import { Sentry, captureError, shutdownMonitoring, monitoringEnabled } from "./lib/monitoring";
 import express from "express";
 import cors from "cors";
 import http from "http";
@@ -13,8 +14,12 @@ import feedbackRoutes from "./routes/feedback.route";
 import adminRoutes from "./routes/admin.route";
 import billingRoutes from "./routes/billing.route";
 import adRoutes from "./routes/ad.route";
+import triviaRoutes from "./routes/trivia.route";
 import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
+import judgeRoutes from "./routes/judge.route";
+import playRoomRoutes from "./routes/playRooms.route";
+import { startTicker } from "./services/playRooms";
 import { authOptional } from "./middleware/auth";
 
 const app = express();
@@ -57,10 +62,17 @@ app.use("/ads", adRoutes);
 app.use("/admin", adminRoutes);
 app.use("/cartoons", cartoonRoutes);
 app.use("/toppic", toppicRoutes);
+app.use("/judge", judgeRoutes);
+app.use("/play-rooms", playRoomRoutes);
+app.use("/trivia", triviaRoutes);
+
+// Sentry must see errors before our own handler responds (no-op without SENTRY_DSN).
+Sentry.setupExpressErrorHandler(app);
 
 app.use(
   (err: any, _req: express.Request, res: express.Response, _next: any) => {
     console.error("Unhandled error:", err);
+    captureError(err, { path: _req.path, method: _req.method });
     res.status(500).json({ error: "Internal server error" });
   }
 );
@@ -70,7 +82,21 @@ const server = http.createServer(app);
 
 /* 🔹 Socket.IO must match CORS */
 initSocket(server, corsOrigin);
+startTicker();
 
-server.listen(PORT, "127.0.0.1", () => {
-  console.log(`API server running on localhost:${PORT}`);
+// Bind to localhost behind nginx by default; containers set HOST=0.0.0.0.
+const HOST = process.env.HOST || "127.0.0.1";
+server.listen(PORT, HOST, () => {
+  console.log(`API server running on ${HOST}:${PORT}`);
 });
+
+for (const sig of ["SIGTERM", "SIGINT"] as const) {
+  process.on(sig, () => {
+    shutdownMonitoring().finally(() => process.exit(0));
+  });
+}
+process.on("unhandledRejection", (reason) => {
+  console.error("unhandledRejection", reason);
+  captureError(reason, { kind: "unhandledRejection" });
+});
+if (monitoringEnabled.sentry || monitoringEnabled.posthog) console.log(`monitoring: sentry=${monitoringEnabled.sentry} posthog=${monitoringEnabled.posthog}`);

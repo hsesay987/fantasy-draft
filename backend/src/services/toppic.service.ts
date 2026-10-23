@@ -1,6 +1,7 @@
 import prisma from "../lib/prisma";
+import { SUPERHERO_NAMES } from "../data/superheroNames";
 
-export type TopPicPool = "NBA" | "NFL" | "CARTOON" | "MULTI";
+export type TopPicPool = "NBA" | "NFL" | "CARTOON" | "SUPERHERO" | "MULTI";
 
 export type TopPicPromptCard = {
   id: string;
@@ -175,6 +176,19 @@ const cartoonMoments = [
   "during the musical episode.",
 ];
 
+const superheroMoments = [
+  "in the middle of a city-wide crossover.",
+  "while the multiverse collapsed behind them.",
+  "during the rooftop team-up nobody asked for.",
+  "right after the origin story montage.",
+  "at the secret hideout's group chat.",
+  "when the post-credits scene dropped.",
+  "after the cape got stuck in a door.",
+  "during the final-act speech.",
+  "while the villain monologued too long.",
+  "on the training-day nobody survived.",
+];
+
 const cultureMoments = [
   "in the cinematic universe nobody mapped.",
   "during a brand collab livestream.",
@@ -214,6 +228,7 @@ function buildCandidatePrompts(): TopPicPromptCard[] {
     { pool: "NBA", moments: nbaMoments, tags: ["basketball"] },
     { pool: "NFL", moments: nflMoments, tags: ["football"] },
     { pool: "CARTOON", moments: cartoonMoments, tags: ["animation"] },
+    { pool: "SUPERHERO", moments: superheroMoments, tags: ["superhero"] },
     { pool: "MULTI", moments: cultureMoments, tags: ["culture"] },
   ];
 
@@ -318,6 +333,12 @@ export async function buildResponseCards(options: {
         source: c.show?.name || "Cartoon",
         rating: c.show?.ageRating === "adult" ? "adult" : "family",
       });
+    });
+  }
+
+  if (enabledPools.includes("SUPERHERO")) {
+    SUPERHERO_NAMES.forEach(([name, universe, rating], i) => {
+      cards.push({ id: `SUPERHERO-${i}`, text: name, pool: "SUPERHERO", source: universe, rating });
     });
   }
 

@@ -44,3 +44,10 @@ next-env.d.ts
 backend/data/nfl/*.csv
 # local cartoon datasets
 backend/data/cartoons/
+
+# keep the templates
+!.env.example
+
+# database dumps contain user data
+backups/
+.archify/

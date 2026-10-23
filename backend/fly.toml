@@ -1,0 +1,41 @@
+# TopPic API on Fly.io. Deploy from this folder:  fly deploy --ha=false
+# Keep exactly ONE machine: online rooms and Socket.IO state live in memory.
+app = "toppic-api"
+primary_region = "iad" # Virginia, closest to Neon us-east-2 (Ohio)
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+  HOST = "0.0.0.0"
+  APP_ENV = "production"
+  CORS_ORIGIN = "https://toppicgames.com,https://www.toppicgames.com,https://toppic-games-git-toppic-redesign-hsesay987s-projects.vercel.app"
+  FRONTEND_URL = "https://toppicgames.com"
+  RESEND_FROM_EMAIL = "admin@toppicgames.com"
+  JUDGE_MODEL = "claude-haiku-5-5"
+  SENTRY_TRACES_RATE = "0.1"
+  POSTHOG_HOST = "https://us.i.posthog.com"
+
+[deploy]
+  # Apply Prisma migrations with the DIRECT Neon URL (secret MIGRATE_DATABASE_URL).
+  release_command = "npx prisma migrate deploy"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "20s"
+    interval = "30s"
+    method = "GET"
+    path = "/health"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

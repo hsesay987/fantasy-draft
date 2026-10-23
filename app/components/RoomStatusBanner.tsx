@@ -73,19 +73,19 @@ export default function RoomStatusBanner() {
   if (!roomCode) return null;
 
   return (
-    <div className="flex items-center gap-3 rounded-full border border-indigo-500/40 bg-slate-900/70 px-3 py-1.5 text-[11px] text-slate-200">
-      <span className="font-semibold text-indigo-200">Room {roomCode}</span>
+    <div className="flex items-center gap-3 rounded-full border border-secondary/40 bg-card/70 px-3 py-1.5 text-[11px] text-foreground">
+      <span className="font-semibold text-secondary">Room {roomCode}</span>
       {activeDraftId ? (
         <button
           onClick={() => router.push(`/draft/${activeDraftId}`)}
-          className="rounded-full bg-indigo-500 px-2 py-[3px] text-xs font-semibold text-slate-900 hover:bg-indigo-400"
+          className="rounded-full bg-primary px-2 py-[3px] text-xs font-semibold text-slate-900 hover:bg-primary"
         >
           Rejoin Draft
         </button>
       ) : (
         <button
           onClick={() => router.push(`/online/room/${roomCode}`)}
-          className="rounded-full bg-indigo-500 px-2 py-[3px] text-xs font-semibold text-slate-900 hover:bg-indigo-400"
+          className="rounded-full bg-primary px-2 py-[3px] text-xs font-semibold text-slate-900 hover:bg-primary"
         >
           Open Lobby
         </button>
@@ -94,7 +94,7 @@ export default function RoomStatusBanner() {
       <button
         onClick={handleLeave}
         disabled={checking}
-        className="rounded-full border border-slate-700 px-2 py-[3px] text-xs font-semibold text-slate-200 hover:border-red-400 hover:text-red-200 disabled:opacity-50"
+        className="rounded-full border border-white/10 px-2 py-[3px] text-xs font-semibold text-foreground hover:border-red-400 hover:text-red-200 disabled:opacity-50"
       >
         Leave
       </button>

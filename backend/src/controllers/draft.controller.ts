@@ -68,6 +68,21 @@ export async function saveDraft(req: Request, res: Response) {
   }
 }
 
+/**
+ * Guests may play anonymous (ownerless) offline drafts. Owned drafts can only be edited by their owner;
+ * online drafts by a seated participant (the service also enforces whose turn it is).
+ */
+export async function canEditDraft(draftId: string, userId: string | null): Promise<{ ok: boolean; status?: number; error?: string }> {
+  const draft = await prisma.draft.findUnique({ where: { id: draftId }, select: { ownerId: true, rules: true } });
+  if (!draft) return { ok: false, status: 404, error: "Draft not found" };
+  if (!draft.ownerId) return { ok: true };
+  if (draft.ownerId === userId) return { ok: true };
+  const rules = (draft.rules || {}) as any;
+  const seated = !!userId && rules.online && Array.isArray(rules.seatAssignments) && rules.seatAssignments.includes(userId);
+  if (seated) return { ok: true };
+  return { ok: false, status: userId ? 403 : 401, error: userId ? "Only the owner can change this draft" : "Log in to continue this draft" };
+}
+
 export async function updatePick(req: AuthedRequest, res: Response) {
   const draftId = req.params.id;
   const {
@@ -82,6 +97,9 @@ export async function updatePick(req: AuthedRequest, res: Response) {
     cartoonCharacterId,
   } = req.body;
   const userId = req.userId || null;
+
+  const allowed = await canEditDraft(draftId, userId);
+  if (!allowed.ok) return res.status(allowed.status ?? 403).json({ error: allowed.error });
 
   try {
     const pick = await DraftService.updatePick(draftId, {
@@ -102,7 +120,9 @@ export async function updatePick(req: AuthedRequest, res: Response) {
   }
 }
 
-export async function undoPick(req: Request, res: Response) {
+export async function undoPick(req: AuthedRequest, res: Response) {
+  const allowed = await canEditDraft(req.params.id, req.userId || null);
+  if (!allowed.ok) return res.status(allowed.status ?? 403).json({ error: allowed.error });
   try {
     const slot = Number(req.params.slot);
     const draft = await DraftService.undoPick(req.params.id, slot);

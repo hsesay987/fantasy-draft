@@ -50,7 +50,7 @@ export default function DraftRedirectPage() {
   }, [id, router]);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100">
+    <main className="min-h-screen flex items-center justify-center text-foreground">
       <div className="text-center space-y-2">
         <p className="text-lg font-semibold">Loading draft...</p>
         {error && (
