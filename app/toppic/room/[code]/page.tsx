@@ -363,6 +363,8 @@ export default function TopPicRoomPage() {
             title: prompt.text.slice(0, 80),
             blurb: "Which card best completes this prompt? Reward the funniest, most fitting answer.",
             weights: { fit: 1 },
+            // Picking the funniest card is a judgement call, so always ask the AI (the built-in model only handles plain numbers).
+            custom: true,
           },
           teams: entries.map((id, i) => ({
             player: labels[i],

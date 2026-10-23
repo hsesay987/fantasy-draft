@@ -36,8 +36,10 @@ app.use(
   })
 );
 
+// The TopPic party state carries the whole prompt and card deck (about 120 KB), which is over Express's 100 KB default.
 app.use(
   express.json({
+    limit: "3mb",
     verify: (req: any, _res, buf) => {
       if (req.originalUrl === "/billing/webhook") {
         req.rawBody = buf;
@@ -71,6 +73,8 @@ Sentry.setupExpressErrorHandler(app);
 
 app.use(
   (err: any, _req: express.Request, res: express.Response, _next: any) => {
+    // Client mistakes (oversized or malformed bodies) are not server errors.
+    if (err?.status && err.status >= 400 && err.status < 500) return res.status(err.status).json({ error: err.type === "entity.too.large" ? "Request too large" : "Bad request" });
     console.error("Unhandled error:", err);
     captureError(err, { path: _req.path, method: _req.method });
     res.status(500).json({ error: "Internal server error" });
