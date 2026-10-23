@@ -7,12 +7,13 @@ describe("email rendering", () => {
     expect(verify.html).toContain('href="https://toppicgames.com/verify-email?token=abc123"');
     expect((verify.html.match(/token=abc123/g) ?? []).length).toBeGreaterThanOrEqual(3);
     expect(verify.text).toContain("https://toppicgames.com/verify-email?token=abc123");
-    expect(verify.subject).toMatch(/verify/i);
-    expect(verify.html).toContain("Welcome to TopPic, Ann!");
+    expect(verify.subject).toMatch(/confirm your email/i);
+    expect(verify.html).toContain("Oh hey, Ann");
+    expect(verify.html).toContain("welcome to TopPic");
     expect(verify.html).toContain("24 hours");
   });
   it("uses the part before the @ when there is no name", () => {
-    expect(verifyEmail({ to: "zed@example.com", verifyUrl: "https://x.test/v" }).html).toContain("Welcome to TopPic, zed!");
+    expect(verifyEmail({ to: "zed@example.com", verifyUrl: "https://x.test/v" }).html).toContain("Oh hey, zed");
   });
   it("escapes anything a user can control", () => {
     const m = resetEmail({ to: "a@b.c", name: '<script>alert(1)</script>"', resetUrl: "https://x.test/r?token=1&b=2" });
@@ -64,5 +65,20 @@ describe("email looks like the site", () => {
     expect(html).toContain("10 ways to draft");
     expect(html).toContain(".col{display:block");
     expect(html).toContain("/trivia");
+  });
+});
+
+describe("hero banners", () => {
+  it("each email has its own hero image with alt text and the right file", () => {
+    expect(verifyEmail({ to: "a@b.c", verifyUrl: "https://x.test/v" }).html).toMatch(/email\/hero-welcome\.jpg" width="600" alt="[^"]+"/);
+    expect(resetEmail({ to: "a@b.c", resetUrl: "https://x.test/r" }).html).toMatch(/email\/hero-security\.jpg" width="600" alt="[^"]+"/);
+    expect(receiptEmail({ to: "a@b.c", amountCents: 100, currency: "usd" }).html).toMatch(/email\/hero-receipt\.jpg" width="600" alt="[^"]+"/);
+  });
+  it("the hero files exist in public/email", async () => {
+    const { existsSync } = await import("fs");
+    for (const f of ["hero-welcome.jpg", "hero-security.jpg", "hero-receipt.jpg", "bg.png"]) expect(existsSync(`${__dirname}/../../../public/email/${f}`), f).toBe(true);
+  });
+  it("friendly subjects stay short", () => {
+    for (const m of [verifyEmail({ to: "a@b.c", verifyUrl: "https://x.test/v" }), resetEmail({ to: "a@b.c", resetUrl: "https://x.test/r" }), receiptEmail({ to: "a@b.c", amountCents: 100, currency: "usd" })]) expect(m.subject.length).toBeLessThan(60);
   });
 });
