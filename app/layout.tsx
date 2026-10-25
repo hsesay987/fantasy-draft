@@ -8,9 +8,11 @@ import SiteFooter from "./components/SiteFooter";
 import FeedbackWidget from "./components/FeedbackWidget";
 import AdShell from "./components/AdShell";
 import Script from "next/script";
-import { Russo_One, Chakra_Petch } from "next/font/google";
+import { Russo_One, Chakra_Petch, Press_Start_2P, VT323 } from "next/font/google";
 
 const russo = Russo_One({ weight: "400", subsets: ["latin"], variable: "--font-russo", display: "swap" });
+const press = Press_Start_2P({ weight: "400", subsets: ["latin"], variable: "--font-press", display: "swap" });
+const vt = VT323({ weight: "400", subsets: ["latin"], variable: "--font-vt", display: "swap" });
 const chakra = Chakra_Petch({ weight: ["400", "500", "600", "700"], subsets: ["latin"], variable: "--font-chakra", display: "swap" });
 
 export const metadata: Metadata = {
@@ -28,7 +30,7 @@ export default function RootLayout({
     process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-3005130388684291";
 
   return (
-    <html lang="en" className={`h-full ${russo.variable} ${chakra.variable}`}>
+    <html lang="en" className={`h-full ${russo.variable} ${chakra.variable} ${press.variable} ${vt.variable}`}>
       {adsenseClient && (
         <Script
           id="adsense-loader"

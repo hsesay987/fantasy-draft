@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X } from "lucide-react";
-import { Button, PageShell } from "../../components/ui";
 import * as FD from "../../topicDraft/formats/feud";
 import { surveysFor } from "../../topicDraft/trivia";
 import { useSound } from "../../components/SoundProvider";
-import { GameFrame } from "../GameFrame";
-import { Scoreboard, useAiTurn } from "./useAiTurn";
+import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
+import { Sprite } from "../../components/pixel/Sprite";
+import { heart, strikeX } from "../../components/pixel/sprites";
+import { useAiTurn } from "./useAiTurn";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
+/** Family Feud as an arcade board: answers flip open, strikes are pixel crosses, and you type into a prompt. */
 export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as FD.FeudState;
@@ -41,34 +42,45 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   };
 
   return (
-    <PageShell width="lg">
-      <GameFrame kicker={`Family Feud · Round ${s.round + 1}/${s.rounds.length}`} headline={r.q} mission={setup.mission} mystery={false}
-        right={<div className="flex gap-1" aria-label={`${r.strikes} of ${FD.MAX_STRIKES} strikes`}>{Array.from({ length: FD.MAX_STRIKES }).map((_, i) => <X key={i} className={`h-8 w-8 ${i < r.strikes ? "text-accent" : "text-white/15"}`} aria-hidden />)}</div>}>
-        <Scoreboard rows={s.players.map((p) => ({ name: p, value: `${s.points[p]} pts`, active: p === player }))} />
-        <ol className="grid gap-2 sm:grid-cols-2" aria-label="Survey board">
-          {r.board.map((a, i) => (
-            <li key={a} className={`flex min-h-12 items-center gap-3 rounded-xl border px-4 py-2 ${r.found[a] ? "border-secondary/40 bg-primary/20" : "border-white/10 bg-white/5"}`}>
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-white/10 font-display">{i + 1}</span>
-              <span className="font-semibold">{r.found[a] ? a : "• • • • •"}</span>
-              <span className="ml-auto text-sm text-secondary">{r.found[a] ? `${FD.BOARD_POINTS[i]} · ${r.found[a]}` : FD.BOARD_POINTS[i]}</span>
-            </li>
-          ))}
-        </ol>
-        <form className="space-y-2" onSubmit={(e) => { e.preventDefault(); submit(text); }}>
-          <label className="text-sm text-muted-foreground" htmlFor="feud-answer">{mine ? `${player}, type your answer` : `${player} is answering…`}</label>
-          <div className="flex gap-2">
-            <input id="feud-answer" autoComplete="off" autoFocus disabled={!mine} value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a name…"
-              className="min-h-12 flex-1 rounded-xl border border-white/10 bg-card/80 px-4 outline-none focus:border-secondary disabled:opacity-60" />
-            <Button type="submit" variant="accent" disabled={!mine || text.trim().length < 2}>Answer</Button>
+    <PixelShell>
+      <div className="space-y-5">
+        <PixelBox>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="px-eyebrow">SURVEY SAYS · ROUND {s.round + 1}/{s.rounds.length}</p>
+            <div className="flex gap-2" role="img" aria-label={`${r.strikes} of ${FD.MAX_STRIKES} strikes`}>
+              {Array.from({ length: FD.MAX_STRIKES }).map((_, i) => <Sprite key={i} sprite={i < r.strikes ? strikeX(true) : heart()} size={36} />)}
+            </div>
           </div>
-          {mine && suggestions.length > 0 && (
-            <ul className="flex flex-wrap gap-2" aria-label="Suggestions">
-              {suggestions.map((v) => <li key={v}><button type="button" onClick={() => submit(v)} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm hover:border-secondary">{v}</button></li>)}
-            </ul>
-          )}
-        </form>
-        {r.wrong.length > 0 && <p className="text-sm text-accent">Not on the board: {r.wrong.join(", ")}</p>}
-      </GameFrame>
-    </PageShell>
+          <h1 className="mt-3">{r.q.toUpperCase()}</h1>
+        </PixelBox>
+        <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]} PTS`, active: p === player }))} />
+        <PixelBox>
+          <ol className="m-0 grid list-none gap-3 bg-[var(--px-ink)] p-3" aria-label="Survey board">
+            {r.board.map((a, i) => (
+              <li key={a} className={`px-ans ${r.found[a] ? "open" : ""}`}>
+                <span className="rk">{i + 1}</span>
+                <span className="tx">{r.found[a] ? a : "????????"}</span>
+                <span className="pt">{r.found[a] ? `${FD.BOARD_POINTS[i]} · ${r.found[a]}` : FD.BOARD_POINTS[i]}</span>
+              </li>
+            ))}
+          </ol>
+          <form className="mt-5 space-y-2" onSubmit={(e) => { e.preventDefault(); submit(text); }}>
+            <label className="px-note" htmlFor="feud-answer">{mine ? `${player}, type your answer` : `${player} is answering…`}</label>
+            <div className="px-term">
+              <div className="in"><span>&gt;</span>
+                <input id="feud-answer" autoComplete="off" autoFocus disabled={!mine} value={text} onChange={(e) => setText(e.target.value)} placeholder="type a name" />
+              </div>
+              <PixelButton type="submit" disabled={!mine || text.trim().length < 2}>ENTER</PixelButton>
+            </div>
+            {mine && suggestions.length > 0 && (
+              <ul className="m-0 flex list-none flex-wrap gap-2 p-0" aria-label="Suggestions">
+                {suggestions.map((v) => <li key={v}><button type="button" onClick={() => submit(v)} className="px-chip cursor-pointer border-0 hover:text-[var(--px-gold)]">{v}</button></li>)}
+              </ul>
+            )}
+          </form>
+          {r.wrong.length > 0 && <p className="mt-3 text-[22px] text-[var(--px-rose)]">NOT ON THE BOARD: {r.wrong.join(", ")}</p>}
+        </PixelBox>
+      </div>
+    </PixelShell>
   );
 }

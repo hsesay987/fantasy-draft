@@ -111,7 +111,6 @@ export const FORMAT_WHY: Record<FormatId, string> = {
   position: "Assign a random hand to roles",
   blind: "Rank each reveal on the spot",
   keep: "Keep or delete every reveal",
-  price: "Guess the rating without going over",
   feud: "Name the survey's top answers",
   jeopardy: "Choose clues, win the board",
 };
@@ -119,6 +118,6 @@ export const FORMAT_WHY: Record<FormatId, string> = {
 /** Formats that make sense for a category (Loadout needs hero-ish items). */
 export const LOADOUT_CATEGORIES = new Set(["superheroes", "villains", "heroes-villains", "anime", "movies", "videogames"]);
 export function formatsFor(pool: string): FormatId[] {
-  const all: FormatId[] = ["snake", "spin", "auction", "position", "blind", "keep", "price", ...(hasTrivia(pool) ? (["feud", "jeopardy"] as FormatId[]) : [])];
+  const all: FormatId[] = ["snake", "spin", "auction", "position", "blind", "keep", ...(hasTrivia(pool) ? (["feud", "jeopardy"] as FormatId[]) : [])];
   return LOADOUT_CATEGORIES.has(pool) ? [...all, "loadout"] : all;
 }

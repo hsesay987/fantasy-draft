@@ -19,7 +19,8 @@
     "seed:cartoon:characters": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/scripts/seedCartoonCharacters.ts",
     "seed:cartoon": "npm run seed:cartoon:shows && npm run seed:cartoon:characters",
     "db:local:setup": "createdb -h localhost toppic_dev 2>/dev/null; echo 'DATABASE_URL=\"postgresql://$USER@localhost:5432/toppic_dev\"' > .env.local && prisma migrate deploy && npm run seed:nba",
-    "trivia:fill": "ts-node --transpile-only src/scripts/fillTrivia.ts"
+    "trivia:fill": "ts-node --transpile-only src/scripts/fillTrivia.ts",
+    "prices:ingest": "ts-node --transpile-only src/scripts/ingestPrices.ts"
   },
   "keywords": [],
   "author": "",

@@ -5,7 +5,6 @@ import { missionsFor } from "../missions";
 import { DEFAULT_OPTS, type FormatId, type GameSetup } from "../../play/types";
 import { localVerdict } from "../../play/judging";
 import * as K from "./keep";
-import * as PR from "./price";
 import * as FD from "./feud";
 import * as J from "./jeopardy";
 import { bundledCategories, questionsFor, surveysFor, TRIVIA_POOLS } from "../trivia";
@@ -16,7 +15,7 @@ const setupFor = (format: FormatId, pool = "superheroes", players = ["A", "B"]):
 });
 
 describe("new formats play to the end with AI and produce judged teams", () => {
-  for (const format of ["keep", "price", "feud", "jeopardy"] as FormatId[]) {
+  for (const format of ["keep", "feud", "jeopardy"] as FormatId[]) {
     for (const pool of ["superheroes", "history", "football", "shows"]) {
       it(`${format} / ${pool}`, () => {
         const setup = setupFor(format, pool);
@@ -52,25 +51,6 @@ describe("keep or delete", () => {
     let s = st;
     while (!s.done) s = K.decide(s, true);
     expect(s.keeps.A).toHaveLength(3);
-  });
-});
-
-describe("price is right", () => {
-  const pool = getCatalog("superheroes");
-  it("closest without going over wins; all-over still awards the closest", () => {
-    let s = PR.init({ players: ["A", "B"], pool, rounds: 3, weights: { power: 1 }, seed: 2 });
-    const t = s.truth[s.queue[0]!]!;
-    const first = PR.turnPlayer(s)!;
-    const second = s.players.find((p) => p !== first)!;
-    s = PR.guess(s, first, Math.max(0, t - 5));
-    s = PR.guess(s, second, Math.min(100, t + 9));
-    expect(s.rounds[0]!.winner).toBe(first);
-    expect(s.round).toBe(1);
-  });
-  it("ignores guesses out of turn", () => {
-    const s = PR.init({ players: ["A", "B"], pool, rounds: 3, weights: { power: 1 }, seed: 2 });
-    const other = s.players.find((p) => p !== PR.turnPlayer(s))!;
-    expect(PR.guess(s, other, 10)).toBe(s);
   });
 });
 
