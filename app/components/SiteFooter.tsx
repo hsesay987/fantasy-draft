@@ -24,6 +24,12 @@ export default function SiteFooter() {
             </a>
           ))}
         </p>
+        <p>
+          Costimation product names, photos and prices come from{" "}
+          <a href="https://prices.openfoodfacts.org" target="_blank" rel="noopener noreferrer" className="underline decoration-white/20 underline-offset-2 hover:text-white">Open Prices</a> and{" "}
+          <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener noreferrer" className="underline decoration-white/20 underline-offset-2 hover:text-white">Open Food Facts</a>, © their contributors, available under the{" "}
+          <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener noreferrer" className="underline decoration-white/20 underline-offset-2 hover:text-white">Open Database License</a>. Photos are shared under CC BY-SA.
+        </p>
         <p>Character pictures and stats come from public community sources (PokeAPI, AniList, Superhero API, Wikipedia). TopPic is an unofficial fan project; characters belong to their owners.</p>
       </div>
     </footer>
