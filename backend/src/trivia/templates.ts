@@ -8,7 +8,7 @@ const first = (e: Entity, f: string) => e.facts[f]?.[0] ?? null;
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const era = (e: Entity) => decade(first(e, "year") ?? undefined);
 
-const byEra = (fact: string, ask: (e: Entity) => string, name: (g: string) => string): Template => ({ fact, ask, group: era, name });
+const byEra = (fact: string, ask: (e: Entity) => string, name: (g: string) => string): Template => ({ fact, ask, group: era, name, shared: ["network", "developer", "publisher", "studio"].includes(fact) });
 const quote = (e: Entity) => `“${e.label}”`;
 
 const films: Spec = {
@@ -37,7 +37,7 @@ const videogames: Spec = {
   templates: [
     byEra("developer", (e) => `Which studio developed ${quote(e)}?`, (g) => `Game Developers: ${g}`),
     byEra("publisher", (e) => `Which company published ${quote(e)}?`, (g) => `Game Publishers: ${g}`),
-    byEra("series", (e) => `Which series is ${quote(e)} part of?`, (g) => `Game Series: ${g}`),
+    { ...byEra("series", (e) => `Which series is ${quote(e)} part of?`, (g) => `Game Series: ${g}`), entityAnswer: true },
     { fact: "year", ask: (e) => `In what year was ${quote(e)} first released?`, group: (e) => first(e, "publisher"), name: (g) => `Years: ${g} Games`, year: true },
   ],
   surveys: [{ fact: "series", ask: (v) => `Name a game in the ${v} series` }, { fact: "developer", ask: (v) => `Name a game developed by ${v}` }],
@@ -58,7 +58,7 @@ const anime: Spec = {
   pool: "anime",
   templates: [
     byEra("studio", (e) => `Which studio animated ${quote(e)}?`, (g) => `Anime Studios: ${g}`),
-    byEra("basedOn", (e) => `${quote(e)} is based on which work?`, (g) => `Anime Sources: ${g}`),
+    { ...byEra("basedOn", (e) => `${quote(e)} is based on which work?`, (g) => `Anime Sources: ${g}`), entityAnswer: true },
     byEra("director", (e) => `Who directed the anime ${quote(e)}?`, (g) => `Anime Directors: ${g}`),
     { fact: "year", ask: (e) => `In what year did the anime ${quote(e)} premiere?`, group: (e) => first(e, "studio"), name: (g) => `Years: ${g} Anime`, year: true },
   ],

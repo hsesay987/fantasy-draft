@@ -30,6 +30,11 @@ describe("trivia build", () => {
     const k = buildCategories(films, spec, seeded(3))[1]!.clues[0]!;
     for (const w of k.wrong) expect(Math.abs(Number(w) - Number(k.right))).toBeLessThanOrEqual(6);
   });
+  it("drops a clue whose answer is really another item (a bad link in the source)", () => {
+    const bad = films.map((f, i) => (i === 0 ? { ...f, facts: { ...f.facts, director: ["Film B1"] } } : f));
+    const q = buildCategories(bad, spec, seeded(7))[0]!.clues.map((c) => c.q).join();
+    expect(q).not.toContain("Film A0");
+  });
   it("skips groups that are too small and ambiguous names", () => {
     expect(buildCategories(films.slice(0, 5), spec)).toEqual([]);
     const dup = [...films, { ...films[0]!, id: "Qx" }];

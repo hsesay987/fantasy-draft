@@ -78,10 +78,14 @@ function board(t: Template, members: Entity[], rand: () => number): Clue[] | nul
 export function buildCategories(entities: Entity[], spec: Spec, rand = seeded(1)): TriviaCategory[] {
   const out: TriviaCategory[] = [];
   const all = uniqueNames(entities);
+  const names = new Set(entities.map((e) => fold(e.label)));
   for (const t of spec.templates) {
     const groups = new Map<string, Entity[]>();
+    const times = new Map<string, number>();
+    if (t.shared) for (const e of all) for (const v of e.facts[t.fact] ?? []) times.set(v, (times.get(v) ?? 0) + 1);
     for (const e of all) {
-      if (!one(e, t.fact)) continue;
+      const a = one(e, t.fact);
+      if (!a || (!t.entityAnswer && !t.year && names.has(fold(a))) || (t.shared && (times.get(a) ?? 0) < 2)) continue;
       const g = t.group(e);
       if (g) groups.set(g, [...(groups.get(g) ?? []), e]);
     }

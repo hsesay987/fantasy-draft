@@ -12,6 +12,10 @@ export type Template = {
   name: (group: string) => string;
   /** Answers are years, so wrong options are made by shifting the right one. */
   year?: boolean;
+  /** The answer may itself be an item in the dataset (a game's series, an anime's source). Otherwise an answer that matches another item's name is treated as a bad link and the clue is dropped. */
+  entityAnswer?: boolean;
+  /** The answer is an organisation that has several items in the data (a network, a studio). One that appears only once is probably a bad link. */
+  shared?: boolean;
 };
 
 /** A Family Feud survey: "Name a <noun> <where>" for every value of a fact that has enough members. */
