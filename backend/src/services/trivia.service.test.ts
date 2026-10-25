@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { generateCategory, generateSurvey, genBudget, getFeud, getJeopardy, memoryStore, pickFresh, resetBudget, resetSeeded, validateCategory, validateSurvey, verifyClue, type Gen } from "./trivia.service";
+import { generateCategory, generateSurvey, genBudget, getFeud, getJeopardy, memoryStore, pickFresh, preferTrusted, resetBudget, resetSeeded, validateCategory, validateSurvey, verifyClue, type Gen } from "./trivia.service";
 import type { LLM } from "./judge.service";
 
 const good = (n: number) => ({
@@ -138,5 +138,18 @@ describe("Family Feud selection", () => {
     ];
     expect(pickFresh(items, () => false, 3, () => 0.5).map((x) => x.id)).toEqual(["b", "c", "d"]);
     expect(pickFresh(items, (x) => x.id === "b", 4, () => 0.5).map((x) => x.id)).toEqual(["c", "d", "a", "b"]);
+  });
+});
+
+describe("trusted sources first", () => {
+  const items = [
+    ...Array.from({ length: 5 }, (_, i) => ({ id: `w${i}`, source: "wikidata" })),
+    ...Array.from({ length: 3 }, (_, i) => ({ id: `a${i}`, source: "ai" })),
+  ];
+  it("drops AI-written items while enough real-data items are unseen", () => {
+    expect(preferTrusted(items, () => false, 4).every((x) => x.source !== "ai")).toBe(true);
+  });
+  it("brings AI-written items back when the trusted ones run out", () => {
+    expect(preferTrusted(items, (x) => x.source !== "ai", 4)).toHaveLength(8);
   });
 });
