@@ -15,7 +15,7 @@ import * as B from "../shared/topicDraft/formats/blind";
 import * as P from "../shared/topicDraft/formats/position";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "price", "feud", "jeopardy"];
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy"];
 const MAX_SEATS = 6;
 const MAX_ROOMS = 500;
 const ROOM_TTL_MS = 6 * 60 * 60 * 1000;

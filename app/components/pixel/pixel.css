@@ -1,0 +1,80 @@
+/* Pixel look for the trivia games. Everything sits under .pixel so the rest of the app keeps its own style.
+   Chrome uses hard-edged notched borders (box-shadow rings), canvases are scaled with image-rendering: pixelated. */
+.pixel {
+  --px-bg: #120d2b; --px-bg2: #1b1442; --px-panel: #251b57; --px-panel2: #2f2370; --px-ink: #070419;
+  --px-fg: #f1ecff; --px-dim: #9b90d6; --px-lav: #b9a4ff; --px-violet: #7c3aed; --px-rose: #ff4d6d;
+  --px-gold: #ffd23f; --px-mint: #3ddc97; --px-sky: #4cc9f0;
+  --px-head: var(--font-press), "Courier New", monospace; --px-body: var(--font-vt), "Courier New", monospace;
+  background: var(--px-bg) linear-gradient(var(--px-bg2) 50%, transparent 50%) 0 0 / 100% 8px;
+  color: var(--px-fg); font: 400 21px/1.2 var(--px-body); overflow-x: clip;
+}
+.pixel canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+.pixel h1, .pixel h2, .pixel h3 { font-family: var(--px-head); font-weight: 400; line-height: 1.5; text-wrap: balance; }
+.pixel h1 { font-size: 18px; } .pixel h2 { font-size: 14px; } .pixel h3 { font-size: 10px; }
+.pixel button:focus-visible, .pixel input:focus-visible, .pixel select:focus-visible { outline: 4px dashed var(--px-gold); outline-offset: 2px; }
+.px-box { position: relative; margin: 4px; background: var(--px-panel); min-width: 0; box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 -4px 0 0 #0005, inset 0 4px 0 0 #ffffff14; }
+.px-pad { padding: 18px; }
+.px-note { color: var(--px-dim); font-size: 19px; }
+.px-eyebrow { font-family: var(--px-head); font-size: 9px; color: var(--px-lav); letter-spacing: .08em; }
+.px-btn { font-family: var(--px-head); font-size: 11px; border: 0; padding: 14px 18px; min-height: 48px; background: var(--px-rose); color: #fff; cursor: pointer; margin: 4px; box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 -6px 0 0 #0004; }
+.px-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 4px 0 0 #0004; }
+.px-btn.alt { background: var(--px-panel2); }
+.px-btn.gold { background: var(--px-gold); color: var(--px-ink); }
+.px-btn:disabled { opacity: .4; cursor: not-allowed; }
+.px-tag { display: inline-flex; gap: 8px; align-items: center; font-family: var(--px-head); font-size: 9px; padding: 6px 8px; background: var(--px-ink); }
+.px-chip { display: inline-block; background: var(--px-ink); padding: 4px 8px; font-size: 19px; color: var(--px-lav); }
+.px-score { display: flex; flex-wrap: wrap; gap: 10px; }
+.px-score li { list-style: none; background: var(--px-ink); padding: 6px 10px; font-size: 22px; display: flex; gap: 10px; align-items: center; }
+.px-score li.on { background: var(--px-violet); }
+.px-score b { font-weight: 400; color: var(--px-gold); }
+.px-board { display: grid; gap: 14px; }
+.px-cat { background: var(--px-panel2); padding: 10px; display: grid; gap: 10px; align-content: start; margin: 4px; box-shadow: 0 0 0 4px var(--px-ink); }
+.px-cat h3 { min-height: 48px; color: var(--px-lav); font-size: 9px; text-transform: uppercase; }
+.px-tile { border: 0; background: var(--px-ink); padding: 10px 4px; display: grid; justify-items: center; gap: 4px; font-family: var(--px-head); font-size: 9px; color: var(--px-fg); cursor: pointer; min-height: 62px; }
+.px-tile:hover:not(:disabled) { background: #1a1050; transform: translateY(-2px); }
+.px-tile:disabled { opacity: .3; cursor: default; }
+.px-tile.good { color: var(--px-mint); } .px-tile.bad { color: var(--px-rose); }
+.px-q { font-size: 30px; line-height: 1.1; min-height: 66px; }
+.px-menu { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 640px) { .px-menu { grid-template-columns: 1fr; } }
+.px-opt { text-align: left; border: 0; background: var(--px-ink); padding: 12px 14px 12px 38px; position: relative; font: 400 25px var(--px-body); color: var(--px-fg); min-height: 52px; cursor: pointer; }
+.px-opt::before { content: ""; position: absolute; left: 14px; top: 50%; margin-top: -8px; border-left: 12px solid var(--px-lav); border-top: 8px solid transparent; border-bottom: 8px solid transparent; opacity: 0; }
+.px-opt:hover:not(:disabled)::before, .px-opt:focus-visible::before { opacity: 1; }
+.px-opt:hover:not(:disabled) { background: #1a1050; }
+.px-opt:disabled { opacity: .65; cursor: default; }
+.px-ans { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; background: var(--px-panel2); min-height: 56px; padding: 0 12px; gap: 10px; }
+.px-ans .rk { font-family: var(--px-head); font-size: 14px; color: var(--px-dim); }
+.px-ans .tx { font-size: 28px; letter-spacing: .12em; color: #4c3f94; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.px-ans .pt { font-family: var(--px-head); font-size: 12px; text-align: right; color: var(--px-dim); }
+.px-ans.open { background: var(--px-violet); animation: px-flip .4s steps(4); }
+.px-ans.open .tx { color: #fff; letter-spacing: 0; } .px-ans.open .pt { color: var(--px-gold); }
+@keyframes px-flip { 0% { transform: scaleY(0); } 100% { transform: scaleY(1); } }
+.px-term { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+.px-term .in { flex: 1; min-width: 200px; background: var(--px-ink); display: flex; align-items: center; padding: 0 12px; gap: 8px; margin: 4px; box-shadow: 0 0 0 4px var(--px-panel2); }
+.px-term .in span { color: var(--px-gold); font-size: 28px; }
+.px-term input { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--px-fg); font: 400 28px var(--px-body); padding: 12px 0; caret-color: var(--px-gold); }
+.px-term input:focus-visible { outline: 0; }
+.px-field { display: grid; gap: 8px; }
+.px-field > label, .px-lab { font-family: var(--px-head); font-size: 9px; color: var(--px-lav); }
+.px-select, .px-num { background: var(--px-ink); color: var(--px-fg); border: 0; padding: 12px; font: 400 25px var(--px-body); width: 100%; min-width: 0; box-shadow: 0 0 0 4px var(--px-panel2); }
+.px-toggles { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 10px; }
+.px-tog { display: flex; gap: 12px; align-items: center; padding: 10px 12px; background: var(--px-panel2); cursor: pointer; user-select: none; }
+.px-tog input { appearance: none; width: 32px; height: 32px; flex: none; background: var(--px-ink); margin: 0; cursor: pointer; position: relative; box-shadow: 0 0 0 4px var(--px-panel); }
+.px-tog input:checked::after { content: ""; position: absolute; inset: 6px; background: var(--px-mint); }
+.px-tog small { display: block; color: var(--px-dim); font-size: 18px; line-height: 1; }
+.px-hint { background: var(--px-ink); padding: 10px 12px; border-left: 8px solid var(--px-gold); font-size: 22px; }
+.px-seg { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; height: 14px; }
+.px-seg i { background: var(--px-mint); } .px-seg i.off { background: var(--px-ink); }
+.px-scale { position: relative; height: 26px; margin: 34px 8px 44px; background: repeating-linear-gradient(90deg, var(--px-sky) 0 12px, var(--px-mint) 12px 24px); }
+.px-scale b { position: absolute; top: -12px; width: 8px; height: 50px; background: #fff; transform: translateX(-50%); }
+.px-scale b.me { background: var(--px-rose); }
+.px-scale em { position: absolute; font-style: normal; font-family: var(--px-head); font-size: 8px; transform: translateX(-50%); white-space: nowrap; }
+.px-scale em.t { top: -28px; } .px-scale em.b { top: 44px; color: var(--px-rose); }
+.px-lane { display: grid; grid-template-columns: 96px minmax(0, 1fr) 56px; gap: 10px; align-items: center; }
+.px-lane .who { font-family: var(--px-head); font-size: 9px; overflow: hidden; text-overflow: ellipsis; }
+.px-lane .pc { font-family: var(--px-head); font-size: 10px; text-align: right; }
+.px-road { position: relative; height: 40px; background: #2b2b3d; overflow: hidden; }
+.px-road::before { content: ""; position: absolute; left: 0; right: 0; top: 18px; height: 4px; background: repeating-linear-gradient(90deg, #ffe58a 0 14px, transparent 14px 28px); }
+.px-road .fin { position: absolute; right: 0; top: 0; bottom: 0; width: 16px; background: repeating-conic-gradient(#fff 0 25%, #111 0 50%) 0 0 / 8px 8px; }
+.px-road .car { position: absolute; top: 6px; left: 0; width: 56px; height: 28px; transition: left 1.6s steps(24); }
+@media (prefers-reduced-motion: reduce) { .px-road .car { transition: none; } .px-ans.open { animation: none; } }

@@ -20,7 +20,6 @@ import { LoadoutView } from "./views/LoadoutView";
 import { PositionView } from "./views/PositionView";
 import { BlindView } from "./views/BlindView";
 import { KeepView } from "./views/KeepView";
-import { PriceView } from "./views/PriceView";
 import { FeudView } from "./views/FeudView";
 import { JeopardyView } from "./views/JeopardyView";
 
@@ -91,8 +90,6 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
       return <BlindView setup={setup} ctl={ctl} />;
     case "keep":
       return <KeepView setup={setup} ctl={ctl} />;
-    case "price":
-      return <PriceView setup={setup} ctl={ctl} />;
     case "feud":
       return <FeudView setup={setup} ctl={ctl} />;
     case "jeopardy":

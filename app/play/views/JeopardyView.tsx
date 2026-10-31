@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { PageShell } from "../../components/ui";
 import * as J from "../../topicDraft/formats/jeopardy";
 import { useSound } from "../../components/SoundProvider";
-import { GameFrame } from "../GameFrame";
-import { Scoreboard, useAiTurn } from "./useAiTurn";
+import { ClimbScene } from "../../components/pixel/ClimbScene";
+import { PixelBox, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
+import { Sprite } from "../../components/pixel/Sprite";
+import { gem, TIER_NAMES } from "../../components/pixel/sprites";
+import { useTypewriter } from "../../components/pixel/useTypewriter";
+import { useAiTurn } from "./useAiTurn";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
+/** Jeopardy as a tower climb: clue value is height, rarer clues are worth more, and every player is a hero on the tower. */
 export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as J.JeopardyState;
@@ -20,38 +24,66 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
     seen.current = s.resolved;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.resolved]);
+  const active = s.active != null ? s.cells[s.active] : null;
+  const text = useTypewriter(active?.q ?? "");
   if (s.done) return null;
   const player = J.turnPlayer(s)!;
   const mine = ctl.controls(player);
   const cols = J.colsOf(s);
-  const active = s.active != null ? s.cells[s.active]! : null;
+  const cap = J.VALUES.reduce((a, b) => a + b, 0) * cols * 0.6;
+  const tierOf = (value: number) => J.VALUES.indexOf(value) + 1;
 
   return (
-    <PageShell width="lg">
-      <GameFrame kicker={`Jeopardy · Clue ${s.resolved + 1}/${s.cells.length}`} headline={active ? `${active.cat} for $${active.value}` : mine ? `${player}: choose a clue` : `${player} is picking…`} mission={setup.mission} mystery={false}>
-        <Scoreboard rows={s.players.map((p) => ({ name: p, value: `$${s.points[p]}`, active: p === player }))} />
-        {active ? (
-          <section className="space-y-3" aria-label="Clue">
-            <p className="text-xl">{active.q}</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {active.options.map((o) => (
-                <button key={o} type="button" disabled={!mine} onClick={() => { ctl.dispatch({ type: "answer", by: player, choice: o }); }}
-                  className="min-h-14 rounded-xl border border-white/10 bg-card/80 px-4 py-3 text-left font-semibold transition-colors hover:border-secondary hover:bg-primary/10 disabled:opacity-60">{o}</button>
-              ))}
-            </div>
-          </section>
-        ) : (
-          <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }} role="grid" aria-label="Board">
-            {s.cats.map((c) => <div key={c} className="rounded-lg bg-primary/30 px-2 py-3 text-center text-sm font-semibold uppercase tracking-wider">{c}</div>)}
-            {s.cells.map((c, i) => (
-              <button key={i} type="button" disabled={c.done || !mine} onClick={() => { ctl.dispatch({ type: "choose", by: player, cell: i }); play("click"); }}
-                className={`min-h-16 rounded-lg border font-display text-2xl transition-colors ${c.done ? (c.correct ? "border-success/40 bg-success/10 text-success" : "border-accent/40 bg-accent/10 text-accent") : "border-white/10 bg-card/80 text-secondary hover:bg-primary/20 disabled:opacity-60"}`}>
-                {c.done ? (c.correct ? "✓" : "✗") : `$${c.value}`}
-              </button>
-            ))}
-          </div>
-        )}
-      </GameFrame>
-    </PageShell>
+    <PixelShell>
+      <div className="space-y-5">
+        <PixelBox>
+          <p className="px-eyebrow">JEOPARDY · CLUE {s.resolved + 1}/{s.cells.length}</p>
+          <h1 className="mt-2">{active ? `${active.cat} · ${active.value}M` : mine ? `${player}: CHOOSE A CLUE` : `${player} IS PICKING…`}</h1>
+          <p className="px-note mt-2">{setup.mission.title}</p>
+        </PixelBox>
+        <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]}M`, active: p === player }))} />
+        <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_216px]">
+          <PixelBox>
+            {active ? (
+              <section className="grid gap-4" aria-label="Clue">
+                <span className="px-tag"><Sprite sprite={gem(tierOf(active.value))} size={20} /> {TIER_NAMES[tierOf(active.value) - 1]} · {active.value}M</span>
+                <p className="px-q" aria-label={active.q}><span aria-hidden>{text}</span></p>
+                <div className="px-menu">
+                  {active.options.map((o) => (
+                    <button key={o} type="button" disabled={!mine} onClick={() => ctl.dispatch({ type: "answer", by: player, choice: o })} className="px-opt">{o}</button>
+                  ))}
+                </div>
+              </section>
+            ) : (
+              <div role="grid" aria-label="Board">
+                <div className="px-board" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+                  {s.cats.map((c, col) => (
+                    <div key={c} className="px-cat">
+                      <h3>{c}</h3>
+                      {J.VALUES.map((v, row) => {
+                        const i = row * cols + col;
+                        const cell = s.cells[i]!;
+                        return (
+                          <button key={i} type="button" disabled={cell.done || !mine} onClick={() => { ctl.dispatch({ type: "choose", by: player, cell: i }); play("click"); }}
+                            className={`px-tile ${cell.done ? (cell.correct ? "good" : "bad") : ""}`} aria-label={`${c} for ${v}`}>
+                            <Sprite sprite={gem(row + 1)} size={24} />
+                            <span>{cell.done ? (cell.correct ? "WIN" : "MISS") : `${v}M`}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+                <p className="px-note mt-4">Rarer gems are worth more height. A wrong answer drops you the same amount.</p>
+              </div>
+            )}
+          </PixelBox>
+          <PixelBox className="text-center" aria-label="Climb progress">
+            <ClimbScene players={s.players.map((p) => ({ name: p, fraction: Math.max(0, s.points[p]!) / cap }))} />
+            <p className="mt-2 font-[family-name:var(--px-head)] text-[11px] text-[var(--px-gold)]">{s.players.map((p) => `${p} ${s.points[p]}M`).join(" · ")}</p>
+          </PixelBox>
+        </div>
+      </div>
+    </PixelShell>
   );
 }

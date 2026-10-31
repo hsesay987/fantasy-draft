@@ -524,3 +524,28 @@ model TriviaSurvey {
   @@unique([pool, q])
   @@index([pool, uses])
 }
+
+/// A shelf product with a typical price at one store, from Open Prices. Costimation reads these; games never call Open Prices.
+model CostProduct {
+  id          String    @id @default(cuid())
+  code        String
+  name        String
+  brand       String?
+  quantity    String?
+  category    String?
+  imageUrl    String?
+  kind        String
+  country     String
+  countryName String
+  store       String
+  currency    String
+  price       Float
+  samples     Int       @default(1)
+  priceDate   DateTime?
+  uses        Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@unique([code, store, currency])
+  @@index([country, store])
+  @@index([uses])
+}

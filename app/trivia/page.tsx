@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { Coins } from "lucide-react";
 import { GameTile, PageShell } from "../components/ui";
 import { CATEGORIES } from "../play/categories";
 import { formatMeta } from "../play/formats";
 import { hasTrivia } from "../topicDraft/trivia";
 import type { FormatId } from "../play/types";
 
-const GAMES: FormatId[] = ["jeopardy", "feud", "price"];
+const GAMES: FormatId[] = ["jeopardy", "feud"];
 const topics = CATEGORIES.filter((c) => !c.hidden && hasTrivia(c.id));
 
 export default function TriviaHub() {
@@ -15,7 +16,7 @@ export default function TriviaHub() {
     <PageShell width="lg" className="space-y-12 md:py-14">
       <header className="max-w-2xl space-y-3">
         <h1 className="text-4xl md:text-6xl">Trivia</h1>
-        <p className="text-lg text-muted-foreground">Know your stuff? Jeopardy boards, survey showdowns and guess-the-score games for every topic. Play solo, against the AI, or with friends.</p>
+        <p className="text-lg text-muted-foreground">Know your stuff? Jeopardy boards and survey showdowns for every topic, plus Costimation, the price-guessing race. Play solo, against the AI, or with friends.</p>
       </header>
 
       <section className="space-y-4">
@@ -25,6 +26,7 @@ export default function TriviaHub() {
             const f = formatMeta(id)!;
             return <GameTile key={id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} href={`/play/${id}`} />;
           })}
+          <GameTile title="Costimation" blurb="Spin for a real product and guess its price. The closer you are, the further you drive." icon={Coins} gradient="from-yellow-500/40 to-accent/20" href="/costimation" />
         </div>
       </section>
 

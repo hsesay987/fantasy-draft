@@ -3,7 +3,7 @@ import type { LoadoutMission } from "../topicDraft/formats/loadout";
 import type { Role } from "../topicDraft/formats/position";
 import type { QuizData } from "../topicDraft/trivia/types";
 
-export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "price" | "feud" | "jeopardy";
+export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy";
 
 export type Opts = {
   teamSize: number;

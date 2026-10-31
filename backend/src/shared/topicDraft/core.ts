@@ -14,7 +14,6 @@ import * as L from "./formats/loadout";
 import * as P from "./formats/position";
 import * as B from "./formats/blind";
 import * as K from "./formats/keep";
-import * as PR from "./formats/price";
 import * as FD from "./formats/feud";
 import * as J from "./formats/jeopardy";
 import { bundledCategories, surveysFor } from "./trivia";
@@ -23,7 +22,7 @@ import type { Item, State } from "./types";
 import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
-export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | PR.PriceState | FD.FeudState | J.JeopardyState;
+export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState;
 
 /** Every action says who is acting; the server checks that against the seat's token. */
 export type Action =
@@ -82,8 +81,6 @@ export function initGame(setup: GameSetup, now: number): GameState {
       return B.init({ players: setup.players, poolIds: pool.map((i) => i.id), size: o.rankSize, weights: setup.mission.weights, seed: setup.seed });
     case "keep":
       return K.init({ players: setup.players, pool, teamSize: o.teamSize, weights: setup.mission.weights, seed: setup.seed });
-    case "price":
-      return PR.init({ players: setup.players, pool, rounds: quizRounds(setup), weights: setup.mission.weights, seed: setup.seed });
     case "feud":
       return FD.init({ players: setup.players, surveys: setup.quiz?.surveys?.length ? setup.quiz.surveys : surveysFor(setup.pool), avoid: o.avoid, rounds: Math.min(5, quizRounds(setup)), seed: setup.seed });
     case "jeopardy":
@@ -122,8 +119,6 @@ export function currentTurn(setup: GameSetup, s: GameState): string | null {
       return B.turnPlayer(s as B.BlindState);
     case "keep":
       return K.turnPlayer(s as K.KeepState);
-    case "price":
-      return PR.turnPlayer(s as PR.PriceState);
     case "feud":
       return FD.turnPlayer(s as FD.FeudState);
     case "jeopardy":
@@ -194,11 +189,6 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       const x = s as K.KeepState;
       return K.decide(a.seed != null ? { ...x, seed: a.seed } : x, a.choice === "keep");
     }
-    case "price": {
-      if (!mine(a) || a.type !== "answer") return s;
-      const x = s as PR.PriceState;
-      return PR.guess(a.seed != null ? { ...x, seed: a.seed } : x, a.by, Number(a.choice));
-    }
     case "feud": {
       if (!mine(a) || a.type !== "answer") return s;
       const x = s as FD.FeudState;
@@ -224,10 +214,6 @@ export function autoAction(setup: GameSetup, s: GameState): Action | null {
       const r = K.aiDecide(s as K.KeepState);
       return { type: "answer", by, choice: r.keep ? "keep" : "delete", seed: r.seed };
     }
-    case "price": {
-      const r = PR.aiGuess(s as PR.PriceState);
-      return { type: "answer", by, choice: r.value, seed: r.seed };
-    }
     case "feud": {
       const r = FD.aiChoose(s as FD.FeudState);
       return { type: "answer", by, choice: r.choice, seed: r.seed };
@@ -244,7 +230,7 @@ export function autoAction(setup: GameSetup, s: GameState): Action | null {
 }
 
 /** Formats where every turn is a quick decision, so a stalled player is auto-played after a short wait. */
-export const QUICK_FORMATS = new Set<string>(["blind", "keep", "price", "feud", "jeopardy"]);
+export const QUICK_FORMATS = new Set<string>(["blind", "keep", "feud", "jeopardy"]);
 
 /** What the server should do when a turn timer runs out (null = nothing). */
 export function timeoutAction(setup: GameSetup, s: GameState): Action | null {
@@ -328,18 +314,6 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
         teams: k.players.map((player) => {
           const items = k.keeps[player]!.map((id) => get(id)!).filter(Boolean);
           return { player, baseline: scoreTeam(items, mission).total, notes: `Kept ${items.length}, deleted ${k.deleted[player]!.length}.`, items: items.map((i) => toJudgeItem(i)) };
-        }),
-      };
-    }
-    case "price": {
-      const p = s as PR.PriceState;
-      const rate = (pl: string) => p.won[pl]!.length / Math.max(1, p.queue.length);
-      return {
-        extra: null,
-        teams: p.players.map((player) => {
-          const acc = PR.accuracy(p, player);
-          const baseline = Math.round((acc * 0.5 + (40 + 60 * rate(player)) * 0.5) * 10) / 10;
-          return { player, baseline, notes: `Won ${p.won[player]!.length} of ${p.queue.length} rounds, ${p.points[player]} points. Guess accuracy ${acc}%.`, items: p.won[player]!.map((id) => toJudgeItem(get(id)!, { role: `Rating ${p.truth[id]}` })).filter(Boolean) };
         }),
       };
     }
