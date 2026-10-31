@@ -25,6 +25,9 @@ import { authOptional } from "./middleware/auth";
 
 const app = express();
 
+// Behind the Fly proxy: trust one hop so req.ip is the real client, not the proxy (per-IP limits depend on it).
+app.set("trust proxy", 1);
+
 const PORT = Number(process.env.PORT) || 4000;
 const corsOrigin = process.env.CORS_ORIGIN || "https://toppicgames.com";
 

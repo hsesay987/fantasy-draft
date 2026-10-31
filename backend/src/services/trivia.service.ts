@@ -1,5 +1,7 @@
-// Trivia bank for Jeopardy and Family Feud. Categories and surveys are written by the AI, cross-checked by a second
-// model, moderated, stored, and reused; selection rotates through the bank so a category does not keep coming back.
+// Trivia bank for Jeopardy and Family Feud. Most of it is built offline from real data (Wikidata, PokéAPI; see
+// src/trivia and scripts/ingestTrivia.ts), plus hand-written seeds. The AI can add more, cross-checked by a second model
+// and moderated, but live generation is off unless TRIVIA_LIVE_AI=1: games read only from the stored bank.
+// Selection rotates through the bank so a category does not keep coming back.
 import { moderate } from "../lib/moderation";
 import { captureError } from "../lib/monitoring";
 import { allClients, extractJson, type LLM } from "./judge.service";
@@ -124,6 +126,9 @@ export function failover(models: LLM[]): LLM {
 }
 
 /** The writer prefers the first model; the checker prefers a different one so a model never grades its own work. */
+/** What games use at runtime: no AI unless it is switched on, so a game never waits on (or pays for) a model call. */
+export const liveGen = (): Gen | null => (process.env.TRIVIA_LIVE_AI === "1" ? defaultGen() : null);
+
 export function defaultGen(): Gen | null {
   const c = allClients();
   if (!c.length) return null;
@@ -223,6 +228,12 @@ function rotate<T extends { uses: number; lastUsedAt: number | null }>(items: T[
   return [...items].map((x) => ({ x, r: rand() })).sort((a, b) => a.x.uses - b.x.uses || (a.x.lastUsedAt ?? 0) - (b.x.lastUsedAt ?? 0) || a.r - b.r).map((e) => e.x);
 }
 
+/** Items built from real data or written by hand come first; AI-written ones only fill the gap when too few of those are unseen. */
+export function preferTrusted<T extends { source: string }>(items: T[], seen: (x: T) => boolean, need: number): T[] {
+  const trusted = items.filter((x) => x.source !== "ai");
+  return trusted.filter((x) => !seen(x)).length >= need ? trusted : items;
+}
+
 /** Least-used first, never one the player just saw unless there is nothing else. */
 export function pickFresh<T extends { uses: number; lastUsedAt: number | null }>(items: T[], seen: (x: T) => boolean, n: number, rand = Math.random): T[] {
   const fresh = rotate(items.filter((x) => !seen(x)), rand);
@@ -242,7 +253,7 @@ export async function ensureSeeded(pool: string, store: TriviaStore) {
 }
 export const resetSeeded = () => seeded.clear();
 
-export async function getJeopardy(pool: string, avoid: string[], store: TriviaStore = prismaStore, gen: Gen | null = defaultGen(), rand = Math.random, count = 4): Promise<TriviaCategory[]> {
+export async function getJeopardy(pool: string, avoid: string[], store: TriviaStore = prismaStore, gen: Gen | null = liveGen(), rand = Math.random, count = 4): Promise<TriviaCategory[]> {
   await ensureSeeded(pool, store);
   const avoidSet = new Set(avoid);
   const seen = (c: StoredCategory) => avoidSet.has(`cat:${c.name}`);
@@ -253,14 +264,14 @@ export async function getJeopardy(pool: string, avoid: string[], store: TriviaSt
     await grow(pool, "cat", count - fresh, store, gen, WAIT_MS);
     all = await store.categories(pool);
   }
-  const chosen = pickFresh(all, seen, count, rand);
+  const chosen = pickFresh(preferTrusted(all, seen, count), seen, count, rand);
   await store.touchCategories(pool, chosen.map((c) => c.name));
   topUp(pool, "cat", all.length, CAT_TARGET, store, gen);
   if (gen && all.filter((c) => !seen(c)).length - chosen.filter((c) => !seen(c)).length < count) topUp(pool, "cat", 0, CAT_TARGET, store, gen);
   return chosen.map(({ name, clues }) => ({ name, clues }));
 }
 
-export async function getFeud(pool: string, rounds: number, avoid: string[], store: TriviaStore = prismaStore, gen: Gen | null = defaultGen(), rand = Math.random): Promise<Survey[]> {
+export async function getFeud(pool: string, rounds: number, avoid: string[], store: TriviaStore = prismaStore, gen: Gen | null = liveGen(), rand = Math.random): Promise<Survey[]> {
   await ensureSeeded(pool, store);
   const avoidSet = new Set(avoid);
   const seen = (s: StoredSurvey) => avoidSet.has(s.q);
@@ -270,7 +281,7 @@ export async function getFeud(pool: string, rounds: number, avoid: string[], sto
     await grow(pool, "survey", rounds - fresh, store, gen, WAIT_MS);
     all = await store.surveys(pool);
   }
-  const chosen = pickFresh(all, seen, rounds, rand);
+  const chosen = pickFresh(preferTrusted(all, seen, rounds), seen, rounds, rand);
   await store.touchSurveys(pool, chosen.map((s) => s.q));
   topUp(pool, "survey", all.length, SURVEY_TARGET, store, gen);
   return chosen.map(({ q, answers, decoys }) => ({ q, answers, decoys }));
