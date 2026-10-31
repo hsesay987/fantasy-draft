@@ -6,13 +6,17 @@ import { surveysFor } from "../../topicDraft/trivia";
 import { useSound } from "../../components/SoundProvider";
 import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
 import { RateItem } from "../../components/pixel/RateItem";
+import { WorldScene } from "../../components/pixel/WorldScene";
 import { Sprite } from "../../components/pixel/Sprite";
 import { heart, strikeX } from "../../components/pixel/sprites";
 import { useAiTurn } from "./useAiTurn";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
-/** Family Feud as an arcade board: answers flip open, strikes are pixel crosses, and you type into a prompt. */
+/** Family Feud over a dusk sea: the more popular your answers, the higher your balloon rises. Answers flip open, strikes are pixel crosses. */
+// Each board rank is an altitude: the most common answer flies highest.
+const RANK_ALTITUDE = ["SKY HIGH", "CLOUDS", "TREETOPS", "ROOFTOPS", "WAVES"];
+
 export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as FD.FeudState;
@@ -41,6 +45,12 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
     seenStrikes.current = totalStrikes;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalStrikes]);
+  // The sky sparkles for a hit and flashes red for a strike.
+  const found = s.rounds.reduce((n, x) => n + Object.keys(x.found).length, 0);
+  const events = useRef({ found, strikes: totalStrikes, key: 0, good: true });
+  if (found !== events.current.found || totalStrikes !== events.current.strikes) {
+    events.current = { found, strikes: totalStrikes, key: events.current.key + 1, good: found > events.current.found };
+  }
   if (s.done) return null;
   const player = FD.turnPlayer(s)!;
   const mine = ctl.controls(player);
@@ -57,7 +67,7 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   };
 
   return (
-    <PixelShell>
+    <PixelShell world="sky">
       <div className="space-y-5">
         <PixelBox>
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -69,6 +79,8 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <h1 className="mt-3">{r.q.toUpperCase()}</h1>
         </PixelBox>
         <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]} PTS`, active: p === player }))} />
+        <WorldScene world="sky" caption="Altitude" actors={s.players.map((p) => ({ name: p, value: Math.min(1, s.points[p]! / (125 * s.rounds.length * 0.55)) }))}
+          flash={events.current.key ? { key: events.current.key, good: events.current.good } : undefined} />
         {done ? (
           <PixelBox>
             <p className="px-eyebrow">ROUND OVER · HERE ARE THE ANSWERS</p>
@@ -97,7 +109,7 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
               <li key={a} className={`px-ans ${r.found[a] ? "open" : ""}`}>
                 <span className="rk">{i + 1}</span>
                 <span className="tx">{r.found[a] ? a : "????????"}</span>
-                <span className="pt">{r.found[a] ? `${FD.BOARD_POINTS[i]} · ${r.found[a]}` : FD.BOARD_POINTS[i]}</span>
+                <span className="pt">{r.found[a] ? `${RANK_ALTITUDE[i]} · ${r.found[a]}` : `${RANK_ALTITUDE[i]} · ${FD.BOARD_POINTS[i]}`}</span>
               </li>
             ))}
           </ol>

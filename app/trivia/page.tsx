@@ -1,48 +1,52 @@
 "use client";
 
 import Link from "next/link";
-import { Coins } from "lucide-react";
-import { GameTile, PageShell } from "../components/ui";
+import { PixelBox, PixelShell } from "../components/pixel/PixelUI";
+import { WorldScene } from "../components/pixel/WorldScene";
 import { CATEGORIES } from "../play/categories";
-import { formatMeta } from "../play/formats";
 import { hasTrivia } from "../topicDraft/trivia";
-import type { FormatId } from "../play/types";
 
-const GAMES: FormatId[] = ["jeopardy", "feud"];
 const topics = CATEGORIES.filter((c) => !c.hidden && hasTrivia(c.id));
+
+/** The three trivia games, each in its own pixel world. */
+const GAMES = [
+  { id: "jeopardy", world: "summit", title: "Jeopardy: The Summit", blurb: "Pick a clue, climb a camp. Harder clues take you higher up the mountain.", href: "/play/jeopardy", demo: 0.62, topics: true },
+  { id: "feud", world: "sky", title: "Family Feud: Sky High", blurb: "Name the most popular answers. The more common, the higher your balloon flies.", href: "/play/feud", demo: 0.7, topics: true },
+  { id: "costimation", world: "launch", title: "Costimation: Liftoff", blurb: "Spin for a real product and guess its price. Close guesses launch you toward the stars.", href: "/costimation", demo: 0.55, topics: false },
+] as const;
 
 export default function TriviaHub() {
   return (
-    <PageShell width="lg" className="space-y-12 md:py-14">
-      <header className="max-w-2xl space-y-3">
-        <h1 className="text-4xl md:text-6xl">Trivia</h1>
-        <p className="text-lg text-muted-foreground">Know your stuff? Jeopardy boards and survey showdowns for every topic, plus Costimation, the price-guessing race. Play solo, against the AI, or with friends.</p>
-      </header>
+    <PixelShell>
+      <div className="space-y-8">
+        <header className="max-w-2xl space-y-3">
+          <p className="px-eyebrow">TRIVIA</p>
+          <h1>Three worlds. One question: do you know it?</h1>
+          <p className="px-note">Play solo, against the AI, or with friends. Every game is made of real facts, and you can rate any question you play.</p>
+        </header>
 
-      <section className="space-y-4">
-        <h2 className="text-2xl">Choose a game</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {GAMES.map((id) => {
-            const f = formatMeta(id)!;
-            return <GameTile key={id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} href={`/play/${id}`} />;
-          })}
-          <GameTile title="Costimation" blurb="Spin for a real product and guess its price. The closer you are, the further you drive." icon={Coins} gradient="from-yellow-500/40 to-accent/20" href="/costimation" />
+        <div className="grid gap-8 lg:grid-cols-3">
+          {GAMES.map((g) => (
+            <div key={g.id} className="pixel !min-h-0 !bg-transparent" data-world={g.world}>
+              <PixelBox className="grid h-full content-start gap-4">
+                <Link href={g.href} aria-label={`Play ${g.title}`} className="block">
+                  <WorldScene world={g.world} caption={g.title} actors={[{ name: "YOU", value: g.demo }]} labels={false} />
+                </Link>
+                <div>
+                  <h2>{g.title}</h2>
+                  <p className="px-note mt-2">{g.blurb}</p>
+                </div>
+                <Link href={g.href} className="px-btn gold inline-block w-fit no-underline">PLAY</Link>
+                {g.topics && (
+                  <div className="flex flex-wrap gap-2" aria-label={`${g.title} by topic`}>
+                    {topics.map((c) => <Link key={c.id} href={`/play/${g.id}?pool=${c.id}`} className="px-chip no-underline hover:text-[var(--px-gold)]">{c.title}</Link>)}
+                  </div>
+                )}
+              </PixelBox>
+            </div>
+          ))}
         </div>
-      </section>
-
-      {GAMES.slice(0, 2).map((id) => (
-        <section key={id} className="space-y-3">
-          <h2 className="text-2xl">{formatMeta(id)!.title} by topic</h2>
-          <div className="flex flex-wrap gap-2">
-            {topics.map((c) => (
-              <Link key={c.id} href={`/play/${id}?pool=${c.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold transition-colors hover:border-secondary hover:bg-primary/15">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={c.iconSrc} alt="" width={20} height={20} className="h-5 w-5" /> {c.title}
-              </Link>
-            ))}
-          </div>
-        </section>
-      ))}
-    </PageShell>
+      </div>
+    </PixelShell>
   );
 }

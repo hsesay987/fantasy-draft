@@ -5,11 +5,28 @@ import Link from "next/link";
 import { useSound } from "../components/SoundProvider";
 import { PixelBox, PixelButton, PixelShell } from "../components/pixel/PixelUI";
 import { Sprite } from "../components/pixel/Sprite";
-import { car } from "../components/pixel/sprites";
+import { WorldScene } from "../components/pixel/WorldScene";
+import { LAUNCH, tierAt } from "../components/pixel/worlds";
 import { loadBank, poolFor, type Bank } from "./data";
 import { ANY, BOTS, botGuess, BULLSEYE, closeness, CURRENCIES, currencyFor, digitsHint, money, priceIn, rangeHint, roundGain, shuffle, wheelFor, type CurrencyChoice, type Product } from "./game";
 import { PixelWheel, WHEEL_COLORS, type WheelHandle } from "./PixelWheel";
 import { ProductPhoto } from "./ProductPhoto";
+
+// Ranks by how close the guess was, named like a space programme.
+const RANKS: [number, string][] = [[BULLSEYE, "ONE IN A GALAXY"], [0.8, "DEEP SPACE"], [0.6, "ASTRONAUT"], [0.4, "CADET"], [0, "TOURIST"]];
+const rankOf = (close: number) => RANKS.find(([min]) => close >= min)![1];
+// Bolt, the launch-pad robot who reads out the hints.
+const BOLT = { rows: ["......a.......", "......a.......", "....mmmmmm....", "...mMMMMMMm...", "...mMeMMeMm...", "...mMMMMMMm...", "...mMMggMMm...", "....mmmmmm....", "..bbbbbbbbbb..", ".bbBBBBBBBBbb.", ".bbBBccccBBbb.", "..bbBBBBBBbb..", "...bb....bb...", "...kk....kk..."], pal: { a: "#ffd23f", m: "#2b2d42", M: "#9aa3c8", e: "#4cc9f0", g: "#ff4d6d", b: "#2b2d42", B: "#7c88b8", c: "#ffd23f", k: "#1a1033" } };
+
+function Host({ lines }: { lines: string[] }) {
+  if (!lines.length) return null;
+  return (
+    <div className="px-host" aria-live="polite">
+      <Sprite sprite={BOLT} size={56} label="Bolt the robot" />
+      <div className="grid gap-2">{lines.map((l) => <p key={l} className="bubble m-0">{l}</p>)}</div>
+    </div>
+  );
+}
 
 type Toggles = { desc: boolean; cat: boolean; fog: boolean; timer: boolean; twice: boolean; bots: boolean };
 const TOGGLE_INFO: { key: keyof Toggles; title: string; sub: string }[] = [
@@ -46,11 +63,11 @@ export function CostimationGame() {
     const stores = country === ANY ? [...new Set(places.flatMap((p) => p.stores))].sort() : places.find((p) => p.code === country)?.stores ?? [];
     const { pool, widened } = bank ? poolFor(bank, { country, store }) : { pool: [], widened: false };
     return (
-      <PixelShell>
+      <PixelShell world="launch">
         <PixelBox>
           <p className="px-eyebrow">COSTIMATION</p>
-          <h1 className="mt-2">GUESS THE PRICE. WIN THE RACE.</h1>
-          <p className="px-note mt-2">Spin the wheel for a real shelf product. The closer your guess, the further your car drives.</p>
+          <h1 className="mt-2">Guess the price. Reach orbit.</h1>
+          <p className="px-note mt-2">Spin the wheel for a real shelf product. The closer your guess, the higher your rocket flies: from Tourist all the way to One in a Galaxy.</p>
           {bank && !bank.live && <p className="px-hint mt-4">Live prices are not reachable right now, so this round uses a small set of sample products with approximate prices.</p>}
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <div className="px-field"><label htmlFor="c-country">PRODUCT FROM</label>
@@ -165,8 +182,10 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
   const blur = toggles.fog ? FOG[round?.hints ?? 0]! : 0;
 
   return (
-    <PixelShell>
+    <PixelShell world="launch">
       <div className="space-y-6">
+        <WorldScene world="launch" caption="Altitude" actors={players.map((p) => ({ name: p, value: progress[p] ?? 0 }))}
+          flash={result ? { key: roundNo, good: result.close >= 0.6 } : undefined} />
         <div className="grid items-start gap-6 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
           <PixelBox className="grid justify-items-center gap-3">
             <p className="px-eyebrow justify-self-start">ROUND {roundNo} / {total}</p>
@@ -192,8 +211,7 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
                 </div>
                 {toggles.desc && (round.product.brand || round.product.quantity) && <p className="px-hint">{[round.product.brand, round.product.quantity].filter(Boolean).join(" · ")}</p>}
                 {toggles.timer && !result && <div className="px-seg" aria-label={`${left} seconds left`}>{Array.from({ length: 15 }, (_, i) => <i key={i} className={i < left ? "" : "off"} />)}</div>}
-                {round.nudge && !result && <p className="px-hint">{round.nudge}</p>}
-                {round.hintText.map((h) => <p key={h} className="px-hint">{h}</p>)}
+                <Host lines={[...round.hintText, ...(round.nudge && !result ? [round.nudge] : [])]} />
                 {!result ? (
                   <form className="grid gap-3" onSubmit={(e) => { e.preventDefault(); lock(); }}>
                     <label className="px-lab" htmlFor="c-guess">YOUR GUESS</label>
@@ -209,7 +227,7 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
                 ) : (
                   <div className="grid gap-2">
                     <p className="font-[family-name:var(--px-head)] text-xs leading-[1.9] text-[var(--px-gold)]">
-                      {result.close >= BULLSEYE ? "BULLSEYE!" : `YOU WERE ${Math.round(result.close * 100)}% CLOSE`}<br />IT COSTS {money(round.truth, round.currency)}
+                      {rankOf(result.close)}{result.close >= BULLSEYE ? " · BULLSEYE!" : ` · ${Math.round(result.close * 100)}% CLOSE`}<br />IT COSTS {money(round.truth, round.currency)}
                     </p>
                     <Scale truth={round.truth} guess={result.guess} />
                     {!done && <div><PixelButton variant="gold" onClick={next}>NEXT ROUND</PixelButton></div>}
@@ -220,24 +238,16 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
           </PixelBox>
         </div>
 
-        <PixelBox>
-          <p className="px-eyebrow mb-3">THE RACE</p>
-          <div className="grid gap-3">
-            {players.map((p, i) => (
-              <div key={p} className="px-lane">
-                <span className="who">{p}</span>
-                <div className="px-road"><div className="fin" /><div className="car" style={{ left: `calc((100% - 72px) * ${progress[p] ?? 0})` }}><Sprite sprite={car(i)} size={56} /></div></div>
-                <span className="pc">{Math.round((progress[p] ?? 0) * 100)}%</span>
-              </div>
-            ))}
-          </div>
-          {done && (
-            <div className="mt-5 grid gap-3">
-              <p className="font-[family-name:var(--px-head)] text-xs leading-[1.9] text-[var(--px-gold)]">{ranking[0]![0]} WINS WITH {Math.round(ranking[0]![1] * 100)}% OF THE TRACK</p>
-              <div><PixelButton variant="gold" onClick={onExit}>PLAY AGAIN</PixelButton></div>
-            </div>
-          )}
-        </PixelBox>
+        {done && (
+          <PixelBox>
+            <p className="px-eyebrow">MISSION COMPLETE</p>
+            <h2 className="mt-2">{ranking[0]![0]} reaches {tierAt(LAUNCH, ranking[0]![1]).label.toLowerCase()}</h2>
+            <ol className="m-0 mt-3 grid list-none gap-2 p-0">
+              {ranking.map(([p, v], i) => <li key={p} className="flex justify-between bg-[var(--px-ink)] px-3 py-2 text-[22px]"><span>{i + 1}. {p}</span><b className="font-normal text-[var(--px-gold)]">{Math.round(v * 100)}% altitude</b></li>)}
+            </ol>
+            <div className="mt-3"><PixelButton variant="gold" onClick={onExit}>PLAY AGAIN</PixelButton></div>
+          </PixelBox>
+        )}
       </div>
     </PixelShell>
   );
