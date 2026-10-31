@@ -78,3 +78,19 @@
 .px-road .fin { position: absolute; right: 0; top: 0; bottom: 0; width: 16px; background: repeating-conic-gradient(#fff 0 25%, #111 0 50%) 0 0 / 8px 8px; }
 .px-road .car { position: absolute; top: 6px; left: 0; width: 56px; height: 28px; transition: left 1.6s steps(24); }
 @media (prefers-reduced-motion: reduce) { .px-road .car { transition: none; } .px-ans.open { animation: none; } }
+
+/* answer review: the right answer is green, a wrong pick is red */
+.px-opt.right { background: #0d4f33; box-shadow: inset 0 0 0 4px var(--px-mint); opacity: 1; }
+.px-opt.right::before { opacity: 1; border-left-color: var(--px-mint); }
+.px-opt.wrong { background: #6b1230; box-shadow: inset 0 0 0 4px var(--px-rose); opacity: 1; animation: px-shake .3s steps(4); }
+.px-opt.dim { opacity: .45; }
+.px-opt .badge { float: right; font-family: var(--px-head); font-size: 8px; padding: 4px 6px; background: var(--px-ink); }
+.px-opt.right .badge { color: var(--px-mint); } .px-opt.wrong .badge { color: var(--px-rose); }
+@keyframes px-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.px-ans.hit { background: #0d4f33; box-shadow: inset 0 0 0 4px var(--px-mint); }
+.px-ans.hit .tx { color: #fff; letter-spacing: 0; } .px-ans.hit .pt { color: var(--px-mint); }
+.px-ans.miss { background: #4a1228; box-shadow: inset 0 0 0 4px var(--px-rose); }
+.px-ans.miss .tx { color: #ffd0da; letter-spacing: 0; } .px-ans.miss .pt { color: var(--px-rose); }
+.px-review { display: grid; gap: 14px; }
+.px-review li { list-style: none; }
+@media (prefers-reduced-motion: reduce) { .px-opt.wrong { animation: none; } }

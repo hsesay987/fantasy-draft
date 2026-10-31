@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Loader2, ShieldOff, Trash2 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
@@ -173,6 +174,7 @@ export default function AdminPage() {
               Admin
             </p>
             <h1 className="text-3xl font-bold text-secondary">Control Room</h1>
+            <Link href="/admin/trivia" className="text-sm text-secondary underline">Trivia ratings</Link>
           </div>
           <button
             onClick={loadData}

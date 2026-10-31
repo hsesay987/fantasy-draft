@@ -503,6 +503,8 @@ model TriviaCategory {
   source     String // "seed" | "ai"
   uses       Int       @default(0)
   lastUsedAt DateTime?
+  retired    Boolean   @default(false)
+  flagged    Boolean   @default(false) // an admin marked it for review
   createdAt  DateTime  @default(now())
 
   @@unique([pool, name])
@@ -519,6 +521,8 @@ model TriviaSurvey {
   source     String // "seed" | "ai"
   uses       Int       @default(0)
   lastUsedAt DateTime?
+  retired    Boolean   @default(false)
+  flagged    Boolean   @default(false) // an admin marked it for review
   createdAt  DateTime  @default(now())
 
   @@unique([pool, q])
@@ -548,4 +552,21 @@ model CostProduct {
   @@unique([code, store, currency])
   @@index([country, store])
   @@index([uses])
+}
+
+/// A player's rating of a category, a clue inside one, or a survey. One row per voter and target; voting again replaces it.
+model TriviaRating {
+  id         String   @id @default(cuid())
+  kind       String // "category" | "clue" | "survey"
+  targetId   String // TriviaCategory.id or TriviaSurvey.id
+  clue       Int      @default(-1) // clue index for kind "clue", otherwise -1
+  voter      String // anonymous id kept in the player's browser, or a user id
+  quality    Int? // 1 to 5 stars
+  difficulty Int? // 1 too easy ... 3 just right ... 5 too hard
+  wrong      Boolean  @default(false) // "the answer is wrong"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([kind, targetId, clue, voter])
+  @@index([kind, targetId])
 }

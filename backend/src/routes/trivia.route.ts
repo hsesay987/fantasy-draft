@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { captureError } from "../lib/monitoring";
 import { getFeud, getJeopardy, isTriviaPool } from "../services/trivia.service";
+import { parseRating, prismaRatingStore, recordRating } from "../services/triviaRatings.service";
 
 const router = Router();
 
@@ -36,6 +37,20 @@ router.post("/feud", async (req, res) => {
   } catch (e) {
     captureError(e, { where: "trivia_feud" });
     res.status(500).json({ error: "Couldn't build the surveys" });
+  }
+});
+
+/** A player rates a category, clue or survey. Anyone can vote; a voter replaces their own earlier vote. */
+router.post("/rate", async (req, res) => {
+  if (limited(req.ip ?? "anon")) return res.status(429).json({ error: "Slow down — try again in a minute" });
+  const r = parseRating(req.body);
+  if (!r) return res.status(400).json({ error: "Not a valid rating" });
+  try {
+    await recordRating(prismaRatingStore, r);
+    res.json({ ok: true });
+  } catch (e) {
+    captureError(e, { where: "trivia_rate" });
+    res.status(500).json({ error: "Couldn't save your rating" });
   }
 });
 
