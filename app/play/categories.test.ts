@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { CATEGORIES, formatsFor, LEAGUES } from "./categories";
+import { CATEGORIES, CLASSIC_DRAFTS, CLASSIC_ONLY, formatsFor, TOPICS } from "./categories";
 import { FORMATS } from "./formats";
 import { CHARACTER_POOLS, getCatalog, catalogMeta } from "../topicDraft/catalogs";
 import { missionsFor } from "../topicDraft/missions";
@@ -31,7 +31,17 @@ describe("categories", () => {
     }
   });
 
-  it("league tiles link to existing draft pages", () => {
-    for (const l of LEAGUES) expect(/^\/(draft|play)/.test(l.href)).toBe(true);
+  it("classic stat drafts link to existing draft pages and belong to a listed topic", () => {
+    for (const [id, drafts] of Object.entries(CLASSIC_DRAFTS)) {
+      expect(TOPICS.some((t) => t.id === id), id).toBe(true);
+      for (const d of drafts) expect(/^\/(draft|online|play)/.test(d.href), d.href).toBe(true);
+    }
+    for (const c of CLASSIC_ONLY) expect(CLASSIC_DRAFTS[c.id]?.length, c.id).toBeGreaterThan(0);
+  });
+  it("lists every topic once, with no separate stat-draft row", () => {
+    const ids = TOPICS.map((t) => t.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toContain("fictional");
+    expect(ids).toEqual(expect.arrayContaining(["nba", "nfl", "football", "cartoon"]));
   });
 });

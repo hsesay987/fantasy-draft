@@ -20,6 +20,14 @@ const SETS: Record<string, TriviaSet> = {
   anime, pokemon, videogames, disney, movies, history, football, films, shows,
 };
 
+// A pool made of other pools: it plays with their questions combined.
+export const POOL_MEMBERS: Record<string, string[]> = {
+  "heroes-villains": ["superheroes", "villains"],
+  fictional: ["superheroes", "villains", "anime", "pokemon", "videogames", "disney", "movies"],
+};
+const merged = (ids: string[]): TriviaSet => ({ quiz: ids.flatMap((i) => SETS[i]!.quiz), surveys: ids.flatMap((i) => SETS[i]!.surveys) });
+SETS.fictional = merged(POOL_MEMBERS.fictional!);
+
 export const TRIVIA_POOLS = Object.keys(SETS);
 export const hasTrivia = (pool: string) => !!SETS[pool];
 

@@ -19,7 +19,7 @@ import {
   ThumbsUp,
   ThumbsDown,
 } from "lucide-react";
-import { IconBadge, Panel, Button } from "../../components/ui";
+import { PageHeader, PageShell, Panel, Button } from "../../components/ui";
 import { Collapse, Field, Stepper } from "../../play/setupParts";
 import { useAuth } from "@/app/hooks/useAuth";
 type League = "NBA" | "NFL" | "CARTOON";
@@ -621,24 +621,15 @@ export default function NewDraftPage() {
   //  UI START
   // ------------------------------------------
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 pb-40 md:px-6 md:py-12 md:pb-32 text-foreground space-y-10">
-      {/* HEADER */}
-      <header className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-4">
-          <IconBadge src={league === "NFL" ? "/icons/football.png" : "/icons/basketball.png"} />
-          <div>
-            <h1 className="text-3xl md:text-4xl">
-              {league} Draft {league === "NFL" ? "(Beta)" : ""}
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              Pick how you want to play, then jump in. {league === "NFL" ? "NFL beta requires a premium account." : ""}
-            </p>
-          </div>
-        </div>
-        <button onClick={() => setShowRules(true)} className="min-h-11 text-sm underline text-muted-foreground hover:text-white">
-          View rules
-        </button>
-      </header>
+    <PageShell width="lg" stickyBar>
+      <PageHeader
+        title={`${league} Draft${league === "NFL" ? " (Beta)" : ""}`}
+        subtitle={`Pick how you want to play, then jump in.${league === "NFL" ? " NFL beta requires a premium account." : ""}`}
+        iconSrc={league === "NFL" ? "/icons/football.png" : "/icons/basketball.png"}
+        back={{ href: `/category/${league.toLowerCase()}`, label: `All ${league} ways to play` }}
+      >
+        <button onClick={() => setShowRules(true)} className="min-h-11 text-sm underline text-muted-foreground hover:text-white">View rules</button>
+      </PageHeader>
 
       {/* QUICK START: the common path in one card; every detailed rule lives under Customize */}
       <Panel title="Quick start" hint="Choose a mode and go. Classic locks the rules; Casual and Free open them up.">
@@ -1568,7 +1559,7 @@ export default function NewDraftPage() {
           </div>
         </div>
       )}
-    </main>
+    </PageShell>
   );
 }
 
@@ -1701,17 +1692,15 @@ function CartoonDraftBuilder({
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 pb-40 md:px-6 md:py-12 md:pb-32 text-foreground space-y-8">
-      <header className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-4">
-          <IconBadge src="/icons/turtle.png" />
-          <div>
-            <h1 className="text-3xl md:text-4xl">Cartoon Draft</h1>
-            <p className="text-muted-foreground text-sm">Community-voted drafts for characters or shows. Classic is online-focused with a 60s timer.</p>
-            {!isPremium && <p className="mt-1 text-xs text-amber-300">Cartoon drafts are available to premium members.</p>}
-          </div>
-        </div>
-      </header>
+    <PageShell width="lg" stickyBar>
+      <PageHeader
+        title="Cartoon Draft"
+        subtitle="Community-voted drafts for characters or shows. Classic is online-focused with a 60s timer."
+        iconSrc="/icons/turtle.png"
+        back={{ href: "/category/cartoon", label: "All Cartoon ways to play" }}
+      >
+        {!isPremium && <p className="text-xs text-amber-300">Cartoon drafts are available to premium members.</p>}
+      </PageHeader>
 
       <Panel title="Quick start" hint="Classic is the fastest way in; Casual opens the rules.">
         <div className="grid gap-3 sm:grid-cols-2">
@@ -2016,6 +2005,6 @@ function CartoonDraftBuilder({
           <Button variant="accent" className="px-8 text-lg" onClick={handleCreateCartoon} disabled={loading}><Play className="h-5 w-5" aria-hidden /> {loading ? "Creating…" : "Start draft"}</Button>
         </div>
       </div>
-    </main>
+    </PageShell>
   );
 }
