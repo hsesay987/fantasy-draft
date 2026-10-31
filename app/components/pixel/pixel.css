@@ -4,13 +4,15 @@
   --px-bg: #120d2b; --px-bg2: #1b1442; --px-panel: #251b57; --px-panel2: #2f2370; --px-ink: #070419;
   --px-fg: #f1ecff; --px-dim: #9b90d6; --px-lav: #b9a4ff; --px-violet: #7c3aed; --px-rose: #ff4d6d;
   --px-gold: #ffd23f; --px-mint: #3ddc97; --px-sky: #4cc9f0;
-  --px-head: var(--font-press), "Courier New", monospace; --px-body: var(--font-vt), "Courier New", monospace;
+  --px-head: var(--font-press), "Courier New", monospace; --px-body: var(--font-vt), "Courier New", monospace; --px-title: var(--font-pixelify), var(--font-press), monospace;
   background: var(--px-bg) linear-gradient(var(--px-bg2) 50%, transparent 50%) 0 0 / 100% 8px;
   color: var(--px-fg); font: 400 21px/1.2 var(--px-body); overflow-x: clip;
 }
 .pixel canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
 .pixel h1, .pixel h2, .pixel h3 { font-family: var(--px-head); font-weight: 400; line-height: 1.5; text-wrap: balance; }
-.pixel h1 { font-size: 18px; } .pixel h2 { font-size: 14px; } .pixel h3 { font-size: 10px; }
+.pixel h1 { font-family: var(--px-title); font-weight: 700; font-size: 30px; line-height: 1.1; letter-spacing: .01em; text-shadow: 3px 3px 0 var(--px-ink); }
+.pixel h2 { font-family: var(--px-title); font-weight: 700; font-size: 22px; line-height: 1.15; } .pixel h3 { font-size: 10px; }
+@media (min-width: 768px) { .pixel h1 { font-size: 38px; } }
 .pixel button:focus-visible, .pixel input:focus-visible, .pixel select:focus-visible { outline: 4px dashed var(--px-gold); outline-offset: 2px; }
 .px-box { position: relative; margin: 4px; background: var(--px-panel); min-width: 0; box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 -4px 0 0 #0005, inset 0 4px 0 0 #ffffff14; }
 .px-pad { padding: 18px; }
@@ -94,3 +96,27 @@
 .px-review { display: grid; gap: 14px; }
 .px-review li { list-style: none; }
 @media (prefers-reduced-motion: reduce) { .px-opt.wrong { animation: none; } }
+
+/* ---------- worlds: each trivia game has its own scene and palette ---------- */
+.pixel[data-world="summit"] { --px-bg: #0f1a33; --px-bg2: #13203d; --px-panel: #1d2c52; --px-panel2: #283a68; --px-lav: #a9c8ff; --px-dim: #8ea3cc; }
+.pixel[data-world="sky"] { --px-bg: #140f2b; --px-bg2: #191335; --px-panel: #2a1f4e; --px-panel2: #3a2a63; --px-lav: #f6c1d9; --px-dim: #b3a0cf; }
+.pixel[data-world="launch"] { --px-bg: #070614; --px-bg2: #0c0a20; --px-panel: #16163a; --px-panel2: #22224f; --px-lav: #8fe3ff; --px-dim: #8f95c9; }
+/* Panel trims: snow on the summit, brass studs on the sky, rivets on the launch pad. */
+.pixel[data-world="summit"] .px-box::before { content: ""; position: absolute; left: -4px; right: -4px; top: -10px; height: 10px; pointer-events: none;
+  background: linear-gradient(#ffffff, #ffffff) 0 2px / 100% 6px no-repeat, repeating-linear-gradient(90deg, #ffffff 0 6px, #dfe8f7 6px 8px, transparent 8px 14px) 0 8px / 100% 4px no-repeat; }
+.pixel[data-world="sky"] .px-box::before, .pixel[data-world="sky"] .px-box::after { content: ""; position: absolute; top: 6px; width: 6px; height: 6px; background: #e8b04a; box-shadow: 0 2px 0 #8a5a2b; }
+.pixel[data-world="sky"] .px-box::before { left: 6px; } .pixel[data-world="sky"] .px-box::after { right: 6px; }
+.pixel[data-world="launch"] .px-box { box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 4px 0 0 #2f3a8a, inset 0 -4px 0 0 #0005; }
+.pixel[data-world="launch"] .px-box::before { content: ""; position: absolute; left: 8px; right: 8px; top: 10px; height: 2px; pointer-events: none; background: repeating-linear-gradient(90deg, #4cc9f0 0 2px, transparent 2px 22px); opacity: .5; }
+.px-world { position: relative; background: var(--px-ink); padding: 4px; box-shadow: 0 0 0 4px var(--px-ink), 0 8px 0 0 #0006; }
+.px-world canvas { image-rendering: pixelated; }
+.px-world-tier { position: absolute; left: 6px; transform: translateY(-50%); font-family: var(--px-head); font-size: 7px; color: #fff; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; opacity: .85; }
+@media (min-width: 768px) { .px-world-tier { font-size: 9px; left: 10px; } }
+.px-world-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 6px 4px; font-size: 20px; color: var(--px-dim); }
+.px-world-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.px-world-legend span.lead { color: var(--px-gold); }
+.px-world-legend i { width: 12px; height: 12px; display: inline-block; }
+/* A pixel host who reads out hints (Costimation). */
+.px-host { display: flex; gap: 12px; align-items: flex-end; }
+.px-host .bubble { position: relative; background: #f1ecff; color: #14102b; padding: 10px 12px; font-size: 22px; line-height: 1.1; box-shadow: 0 -3px 0 0 var(--px-ink), 0 3px 0 0 var(--px-ink), -3px 0 0 0 var(--px-ink), 3px 0 0 0 var(--px-ink); }
+.px-host .bubble::after { content: ""; position: absolute; left: -10px; bottom: 8px; border-right: 10px solid #f1ecff; border-top: 6px solid transparent; border-bottom: 6px solid transparent; }

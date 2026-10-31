@@ -4,8 +4,8 @@ import "./pixel.css";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 /** Wrapper that switches a page to the pixel look. */
-export function PixelShell({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`pixel min-h-[calc(100vh-4rem)] ${className}`}><div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-6 md:py-10">{children}</div></div>;
+export function PixelShell({ children, className = "", world }: { children: ReactNode; className?: string; world?: "summit" | "sky" | "launch" }) {
+  return <div className={`pixel min-h-[calc(100vh-4rem)] ${className}`} data-world={world}><div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-6 md:py-10">{children}</div></div>;
 }
 
 export function PixelBox({ children, className = "", pad = true, as: Tag = "div" }: { children: ReactNode; className?: string; pad?: boolean; as?: "div" | "section" | "aside" }) {

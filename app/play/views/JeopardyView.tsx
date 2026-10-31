@@ -3,17 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import * as J from "../../topicDraft/formats/jeopardy";
 import { useSound } from "../../components/SoundProvider";
-import { ClimbScene } from "../../components/pixel/ClimbScene";
+import { WorldScene } from "../../components/pixel/WorldScene";
 import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
 import { RateItem } from "../../components/pixel/RateItem";
 import { Sprite } from "../../components/pixel/Sprite";
-import { gem, TIER_NAMES } from "../../components/pixel/sprites";
+import { gem } from "../../components/pixel/sprites";
 import { useTypewriter } from "../../components/pixel/useTypewriter";
 import { useAiTurn } from "./useAiTurn";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
-/** Jeopardy as a tower climb: clue value is height, rarer clues are worth more, and every player is a hero on the tower. */
+/** Jeopardy as a mountain climb: harder clues are higher camps, and every player is a climber on the same trail. */
+const CLUE_TIERS = ["FOOTHILL", "TREELINE", "SNOWLINE", "SUMMIT"];
+
 export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as J.JeopardyState;
@@ -49,7 +51,7 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
   const tierOf = (value: number) => J.VALUES.indexOf(value) + 1;
 
   return (
-    <PixelShell>
+    <PixelShell world="summit">
       <div className="space-y-5">
         <PixelBox>
           <p className="px-eyebrow">JEOPARDY · CLUE {s.resolved + 1}/{s.cells.length}</p>
@@ -57,11 +59,13 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
           <p className="px-note mt-2">{setup.mission.title}</p>
         </PixelBox>
         <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]}M`, active: p === player }))} />
-        <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_216px]">
+        <WorldScene world="summit" caption="The climb" actors={s.players.map((p) => ({ name: p, value: Math.max(0, s.points[p]!) / cap }))}
+          flash={s.last != null ? { key: s.resolved, good: !!s.cells[s.last]!.correct } : undefined} />
+        <div>
           <PixelBox>
             {shown ? (
               <section className="grid gap-4" aria-label="Answer">
-                <span className="px-tag"><Sprite sprite={gem(tierOf(shown.value))} size={20} /> {TIER_NAMES[tierOf(shown.value) - 1]} · {shown.value}M</span>
+                <span className="px-tag"><Sprite sprite={gem(tierOf(shown.value))} size={20} /> {CLUE_TIERS[tierOf(shown.value) - 1]} · {shown.value}M</span>
                 <p className="px-q">{shown.q}</p>
                 <div className="px-menu">
                   {shown.options.map((o) => {
@@ -81,7 +85,7 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
               </section>
             ) : active ? (
               <section className="grid gap-4" aria-label="Clue">
-                <span className="px-tag"><Sprite sprite={gem(tierOf(active.value))} size={20} /> {TIER_NAMES[tierOf(active.value) - 1]} · {active.value}M</span>
+                <span className="px-tag"><Sprite sprite={gem(tierOf(active.value))} size={20} /> {CLUE_TIERS[tierOf(active.value) - 1]} · {active.value}M</span>
                 <p className="px-q" aria-label={active.q}><span aria-hidden>{text}</span></p>
                 <div className="px-menu">
                   {active.options.map((o) => (
@@ -109,13 +113,9 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
                     </div>
                   ))}
                 </div>
-                <p className="px-note mt-4">Rarer gems are worth more height. A wrong answer drops you the same amount.</p>
+                <p className="px-note mt-4">Higher camps are harder clues and climb further. A wrong answer slides you back the same amount.</p>
               </div>
             )}
-          </PixelBox>
-          <PixelBox className="text-center" aria-label="Climb progress">
-            <ClimbScene players={s.players.map((p) => ({ name: p, fraction: Math.max(0, s.points[p]!) / cap }))} />
-            <p className="mt-2 font-[family-name:var(--px-head)] text-[11px] text-[var(--px-gold)]">{s.players.map((p) => `${p} ${s.points[p]}M`).join(" · ")}</p>
           </PixelBox>
         </div>
       </div>

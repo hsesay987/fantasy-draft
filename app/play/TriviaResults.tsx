@@ -5,6 +5,7 @@ import * as FD from "../topicDraft/formats/feud";
 import type * as J from "../topicDraft/formats/jeopardy";
 import { useSound } from "../components/SoundProvider";
 import { PixelBox, PixelButton, PixelShell } from "../components/pixel/PixelUI";
+import { WorldScene } from "../components/pixel/WorldScene";
 import type { GameCtl } from "./useGame";
 import type { GameSetup } from "./types";
 
@@ -29,8 +30,9 @@ export function TriviaResults({ setup, ctl, onAgain, onRematch }: { setup: GameS
   const copy = async () => { try { await navigator.clipboard.writeText(share); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* clipboard unavailable */ } };
 
   return (
-    <PixelShell>
+    <PixelShell world={jeo ? "summit" : "sky"}>
       <div className="space-y-5">
+        <WorldScene world={jeo ? "summit" : "sky"} caption="Final standings" actors={ranked.map(([p, v]) => ({ name: p, value: Math.max(0, v) / Math.max(1, ...ranked.map(([, x]) => x)) }))} />
         <PixelBox>
           <p className="px-eyebrow">{jeo ? "JEOPARDY" : "FAMILY FEUD"} · FINAL SCORES</p>
           <h1 className="mt-2">{tied ? "IT'S A TIE!" : `${top[0].toUpperCase()} WINS!`}</h1>
