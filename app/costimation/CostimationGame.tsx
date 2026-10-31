@@ -15,13 +15,13 @@ type Toggles = { desc: boolean; cat: boolean; fog: boolean; timer: boolean; twic
 const TOGGLE_INFO: { key: keyof Toggles; title: string; sub: string }[] = [
   { key: "desc", title: "Description", sub: "Brand, size and tags" },
   { key: "cat", title: "Category and store", sub: "Where it sits on the shelf" },
-  { key: "fog", title: "Foggy photo", sub: "Clears up with each hint" },
+  { key: "fog", title: "Blurred photo", sub: "Clears up with each hint" },
   { key: "timer", title: "15 second timer", sub: "Beat the clock" },
   { key: "twice", title: "Two guesses", sub: "A higher or lower nudge" },
   { key: "bots", title: "Race two bots", sub: "Ava and Max join" },
 ];
 const DEFAULT_TOGGLES: Toggles = { desc: true, cat: true, fog: false, timer: false, twice: false, bots: true };
-const FOG = [8, 14, 36];
+const FOG = [14, 6, 0];
 
 type Round = { product: Product; currency: string; truth: number; hints: number; tries: number; nudge: string | null; hintText: string[]; result: { guess: number; close: number } | null };
 
@@ -162,7 +162,7 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
 
   const result = round?.result ?? null;
   const ranking = Object.entries(progress).sort((a, b) => b[1] - a[1]);
-  const res = toggles.fog ? FOG[round?.hints ?? 0]! : 40;
+  const blur = toggles.fog ? FOG[round?.hints ?? 0]! : 0;
 
   return (
     <PixelShell>
@@ -180,7 +180,7 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
           <PixelBox>
             {!round ? <p className="px-note">Spin the wheel. The product appears here.</p> : (
               <div className="grid gap-4">
-                <ProductPhoto product={round.product} res={res} />
+                <ProductPhoto product={round.product} blur={blur} />
                 <div>
                   <h2>{round.product.name.toUpperCase()}</h2>
                   <div className="mt-3 flex flex-wrap gap-2">
