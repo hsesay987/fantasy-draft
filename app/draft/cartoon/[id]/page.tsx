@@ -5,9 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { io as socketIo, type Socket } from "socket.io-client";
 import { useAuth } from "@/app/hooks/useAuth";
+import { DraftButton, DraftSection, DraftTopBar, TurnBanner } from "../../components/DraftChrome";
 import {
-  Clock,
-  Sparkles,
   Wand2,
   Save,
   Pause,
@@ -606,7 +605,7 @@ export default function CartoonDraftPage() {
   const currentSlot = selectedSlot ?? defaultSlotForActive;
 
   return (
-    <main className="min-h-screen text-foreground p-6 space-y-6">
+    <main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 text-foreground md:px-6 md:py-10">
       {showReadyModal && draft.rules?.online && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
           <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-card/95 p-4 space-y-3 shadow-xl shadow-indigo-500/20">
@@ -621,7 +620,7 @@ export default function CartoonDraftPage() {
               </div>
               <button
                 onClick={() => setShowReadyModal(false)}
-                className="text-[11px] text-muted-foreground hover:text-white"
+                className="text-xs text-muted-foreground hover:text-white"
               >
                 Close
               </button>
@@ -650,7 +649,7 @@ export default function CartoonDraftPage() {
                 </div>
               ))}
               {readyParticipants.length === 0 && (
-                <div className="text-[11px] text-muted-foreground">
+                <div className="text-xs text-muted-foreground">
                   Seats will appear once players join.
                 </div>
               )}
@@ -687,79 +686,40 @@ export default function CartoonDraftPage() {
         </div>
       )}
 
-      <header className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <p className="text-xs uppercase tracking-[0.12em] text-secondary">
-            Cartoon Draft • {draft.mode}
-          </p>
-          <h1 className="text-3xl font-extrabold text-secondary">
-            {draft.title || "Cartoon Draft"}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Community voting only.{" "}
-            {draftType === "show" ? "Shows" : "Characters"} draft.
-          </p>
-        </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-card px-3 py-2 text-sm">
-            <Clock className="w-4 h-4 text-secondary" />
-            <span>
-              Timer:{" "}
-              {draft.rules?.pickTimerSeconds
-                ? `${draft.rules.pickTimerSeconds}s`
-                : "Off"}
-            </span>
-          </div>
-          {timeLeft !== null && (
-            <div className="flex items-center gap-2 rounded-xl border border-secondary/50 bg-primary/15 px-3 py-2 text-sm text-secondary">
-              <Sparkles className="w-4 h-4" />
-              <span>{timeLeft}s left</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handleSaveDraft("saved")}
-              className="flex items-center gap-1 rounded-lg border border-white/10 bg-card px-3 py-2 text-xs hover:border-secondary"
-            >
-              <Save className="w-4 h-4" /> Save
-            </button>
-            <button
-              onClick={handlePauseDraft}
-              className="flex items-center gap-1 rounded-lg border border-white/10 bg-card px-3 py-2 text-xs hover:border-secondary"
-            >
-              <Pause className="w-4 h-4" /> Pause
-            </button>
-            <button
-              onClick={handleCancelDraft}
-              className="flex items-center gap-1 rounded-lg border border-red-600 bg-red-600/10 px-3 py-2 text-xs text-red-200 hover:border-red-400"
-            >
-              <X className="w-4 h-4" /> Cancel
-            </button>
-            <button
-              onClick={() => router.push("/draft/new?league=CARTOON")}
-              className="flex items-center gap-1 rounded-lg border border-emerald-500 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200 hover:border-emerald-400"
-            >
-              <PlusCircle className="w-4 h-4" /> New Draft
-            </button>
-            {draft.rules?.online && !isHost && (
-              <button
-                onClick={leaveDraft}
-                className="flex items-center gap-1 rounded-lg border border-white/10 bg-card px-3 py-2 text-xs hover:border-secondary"
-              >
-                <LogOut className="w-4 h-4" /> Leave
-              </button>
+      <DraftTopBar
+        league="Cartoon"
+        title={draft.title || "Cartoon Draft"}
+        back={isOnline ? undefined : { href: "/draft/my-drafts", label: "My drafts" }}
+        facts={[
+          draft.mode === "classic" ? "Classic" : draft.mode === "casual" ? "Casual" : draft.mode,
+          draftType === "show" ? "Shows" : "Characters",
+          "Scored by community vote",
+          draft.rules?.pickTimerSeconds ? `${draft.rules.pickTimerSeconds}s per pick` : "No pick timer",
+          isOnline && "Live room · saves after every pick",
+        ]}
+        actions={
+          <>
+            {!isOnline && <DraftButton tone="success" onClick={() => handleSaveDraft("saved")}><Save className="h-4 w-4" aria-hidden /> Save</DraftButton>}
+            {!isOnline && !draftComplete && <DraftButton onClick={handlePauseDraft}><Pause className="h-4 w-4" aria-hidden /> Pause</DraftButton>}
+            {isOnline && isHost ? (
+              <DraftButton tone="primary" onClick={requestRematch}><PlusCircle className="h-4 w-4" aria-hidden /> New online draft</DraftButton>
+            ) : (
+              <DraftButton tone="primary" onClick={() => router.push("/draft/new?league=CARTOON")}><PlusCircle className="h-4 w-4" aria-hidden /> New draft</DraftButton>
             )}
-            {draft.rules?.online && isHost && (
-              <button
-                onClick={requestRematch}
-                className="flex items-center gap-1 rounded-lg border border-secondary bg-primary/15 px-3 py-2 text-xs text-secondary hover:border-secondary"
-              >
-                Start New Online Draft
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
+            {isOnline && !isHost && <DraftButton onClick={leaveDraft}><LogOut className="h-4 w-4" aria-hidden /> Leave</DraftButton>}
+            <DraftButton tone="danger" onClick={handleCancelDraft} title={isOnline ? "Ends the room for everyone" : undefined}><X className="h-4 w-4" aria-hidden /> Cancel</DraftButton>
+          </>
+        }
+      />
+
+      <TurnBanner
+        who={activeParticipant ? seatDisplayNames[activeParticipant - 1] || `Player ${activeParticipant}` : null}
+        detail={activeParticipant && currentSlot ? `Team ${activeParticipant} · slot ${currentSlot}` : undefined}
+        seconds={timeLeft}
+        mine={isOnline ? !!user && activeSeatUserId === user.id : !draftComplete}
+        done={draftComplete}
+        note={<span className="inline-flex items-center gap-1"><Wand2 className="h-3.5 w-3.5" aria-hidden /> When the timer runs out, the top search result is picked automatically.</span>}
+      />
 
       {pickError && (
         <div className="rounded-xl border border-amber-500/50 bg-amber-900/30 px-4 py-3 text-sm text-amber-100">
@@ -769,17 +729,7 @@ export default function CartoonDraftPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2 space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-secondary">
-                Draft Board
-              </div>
-              {currentSlot && activeParticipant && (
-                <div className="text-xs text-muted-foreground">
-                  Current slot: #{currentSlot} • Team {activeParticipant}
-                </div>
-              )}
-            </div>
+          <DraftSection title="Lineups" hint="Tap an open slot to pick for it.">
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {teams.map((team, idx) => (
                 <div
@@ -795,8 +745,8 @@ export default function CartoonDraftPage() {
                       {team.name}
                     </div>
                     {activeParticipant === idx + 1 && (
-                      <span className="text-[11px] text-secondary">
-                        On clock
+                      <span className="rounded-full bg-primary/25 px-2 py-0.5 text-xs font-semibold text-secondary">
+                        On the clock
                       </span>
                     )}
                   </div>
@@ -822,7 +772,7 @@ export default function CartoonDraftPage() {
                             {display || "Empty slot"}
                           </div>
                           {pick?.show?.channel && (
-                            <div className="text-[11px] text-muted-foreground">
+                            <div className="text-xs text-muted-foreground">
                               {pick.show.channel}
                             </div>
                           )}
@@ -833,38 +783,28 @@ export default function CartoonDraftPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </DraftSection>
         </section>
 
         <section className="space-y-3">
-          <div className="rounded-2xl border border-white/10 bg-card/70 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold text-secondary">
-                Search {draftType === "show" ? "Shows" : "Characters"}
-              </div>
-              <button
-                onClick={searchCandidates}
-                disabled={searching}
-                className="rounded-lg bg-primary hover:bg-[#8b5cf6] px-3 py-2 text-xs font-semibold disabled:opacity-60"
-              >
-                {searching ? "Searching..." : "Search"}
+          <DraftSection
+            title={`Find ${draftType === "show" ? "a show" : "a character"}`}
+            hint={`${draft.rules?.cartoonChannel || "Any channel"} · ${draft.rules?.cartoonAgeRating || "any rating"}`}
+          >
+            <form onSubmit={(e) => { e.preventDefault(); void searchCandidates(); }} className="flex gap-2">
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={`Search ${draftType === "show" ? "shows" : "characters"}`}
+                aria-label={`Search ${draftType === "show" ? "shows" : "characters"}`}
+                className="min-h-10 flex-1 rounded-xl border border-white/10 bg-background px-3 text-sm outline-none focus:border-secondary"
+              />
+              <button type="submit" disabled={searching} className="min-h-10 rounded-xl bg-primary px-4 text-sm font-semibold hover:bg-[#8b5cf6] disabled:opacity-60">
+                {searching ? "Searching…" : "Search"}
               </button>
-            </div>
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={`Search ${
-                draftType === "show" ? "shows" : "characters"
-              }`}
-              className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-sm"
-            />
-            <div className="text-[11px] text-muted-foreground">
-              Filters: {draft.rules?.cartoonChannel || "Any channel"} •{" "}
-              {draft.rules?.cartoonAgeRating || "Any rating"}
-            </div>
-          </div>
+            </form>
 
-          <div className="rounded-2xl border border-white/10 bg-card/70 p-4 space-y-2 max-h-[32rem] overflow-y-auto">
+          <div className="max-h-[32rem] space-y-2 overflow-y-auto">
             {searchResults.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 {searching
@@ -888,12 +828,12 @@ export default function CartoonDraftPage() {
                           {result.name}
                         </div>
                         {show?.name && (
-                          <div className="text-[11px] text-muted-foreground">
+                          <div className="text-xs text-muted-foreground">
                             {show.name}
                           </div>
                         )}
                         {show?.channel && (
-                          <div className="text-[11px] text-muted-foreground">
+                          <div className="text-xs text-muted-foreground">
                             Channel: {show.channel}
                           </div>
                         )}
@@ -901,7 +841,7 @@ export default function CartoonDraftPage() {
                       <button
                         onClick={() => makePick(result)}
                         disabled={!canPick}
-                        className="rounded-md bg-emerald-500 hover:bg-emerald-400 px-3 py-1 text-xs font-semibold text-slate-900 disabled:opacity-50"
+                        className="min-h-9 rounded-lg bg-emerald-400 px-3 text-xs font-semibold text-slate-950 hover:bg-emerald-300 disabled:opacity-50"
                       >
                         Draft
                       </button>
@@ -911,10 +851,7 @@ export default function CartoonDraftPage() {
               })
             )}
           </div>
-          <div className="rounded-xl border border-white/10 bg-card/70 px-3 py-2 text-xs text-muted-foreground flex items-center gap-2">
-            <Wand2 className="w-4 h-4" />
-            Auto-pick selects the top filtered result when the timer expires.
-          </div>
+          </DraftSection>
         </section>
       </div>
     </main>
