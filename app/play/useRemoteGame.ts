@@ -52,7 +52,7 @@ export function useRemoteRoom(code: string) {
     (a: Action) => {
       const tk = token.current ?? loadToken(code);
       if (!tk) return;
-      if (snapRef.current) trackAction(snapRef.current.setup, a, true);
+      if (snapRef.current?.setup) trackAction(snapRef.current.setup, a, true);
       // Optimistic: apply locally right away, then take the server's answer.
       setSnap((cur) => (cur?.state && cur.setup ? { ...cur, state: applyAction(cur.setup, cur.state, a, Date.now() + offset) } : cur));
       void sendAction(code, tk, a).then((r) => {
@@ -68,7 +68,7 @@ export function useRemoteRoom(code: string) {
   return { snap, missing, offset, refresh, dispatchRemote, setToken: (t: string) => (token.current = t) };
 }
 
-export function useRemoteCtl(snap: RoomSnapshot, offset: number, dispatch: (a: Action) => void): GameCtl {
+export function useRemoteCtl(snap: RoomSnapshot & { setup: NonNullable<RoomSnapshot["setup"]> }, offset: number, dispatch: (a: Action) => void): GameCtl {
   const pool = useMemo(() => poolFor(snap.setup), [snap.setup]);
   const map = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
   return {

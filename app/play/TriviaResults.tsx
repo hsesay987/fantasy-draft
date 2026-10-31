@@ -6,6 +6,8 @@ import type * as J from "../topicDraft/formats/jeopardy";
 import { useSound } from "../components/SoundProvider";
 import { PixelBox, PixelButton, PixelShell } from "../components/pixel/PixelUI";
 import { WorldScene } from "../components/pixel/WorldScene";
+import { playerColor } from "../components/pixel/worlds";
+import { climbOf } from "./views/JeopardyView";
 import type { GameCtl } from "./useGame";
 import type { GameSetup } from "./types";
 
@@ -32,13 +34,14 @@ export function TriviaResults({ setup, ctl, onAgain, onRematch }: { setup: GameS
   return (
     <PixelShell world={jeo ? "summit" : "sky"}>
       <div className="space-y-5">
-        <WorldScene world={jeo ? "summit" : "sky"} caption="Final standings" actors={ranked.map(([p, v]) => ({ name: p, value: Math.max(0, v) / Math.max(1, ...ranked.map(([, x]) => x)) }))} />
+        <WorldScene world={jeo ? "summit" : "sky"} caption="Final standings" winner={tied || top[1] <= 0 ? null : top[0]}
+          actors={ranked.map(([p, v]) => ({ name: p, value: jeo ? climbOf(v, Math.max(1, top[1])) : Math.max(0, v) / Math.max(1, top[1]), color: playerColor(Object.keys(points), p) }))} />
         <PixelBox>
           <p className="px-eyebrow">{jeo ? "SUMMIT" : "HOT AIR"} · FINAL SCORES</p>
           <h1 className="mt-2">{tied ? "IT'S A TIE!" : `${top[0].toUpperCase()} WINS!`}</h1>
           <ol className="m-0 mt-4 grid list-none gap-2 p-0">
             {ranked.map(([p, v], i) => (
-              <li key={p} className="flex items-center justify-between bg-[var(--px-ink)] px-3 py-2 text-[24px]"><span>{i + 1}. {p}</span><b className="font-normal text-[var(--px-gold)]">{v}{unit}</b></li>
+              <li key={p} className="flex items-center justify-between bg-[var(--px-ink)] px-3 py-2 text-[24px]"><span className="flex items-center gap-2"><i className="inline-block h-3 w-3 shadow-[0_0_0_2px_#000]" style={{ background: playerColor(Object.keys(points), p) }} aria-hidden />{i + 1}. {p}</span><b className="font-normal text-[var(--px-gold)]">{v}{unit}</b></li>
             ))}
           </ol>
           <div className="mt-4 flex flex-wrap">

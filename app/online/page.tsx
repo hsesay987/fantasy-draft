@@ -3,13 +3,13 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Users, PlusCircle, LogIn, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import Link from "next/link";
 import { GameTile, PageShell, Panel } from "../components/ui";
-import { Chip } from "../components/ui";
 import { FORMATS } from "../play/formats";
 import { PARTY } from "../topicDraft/games";
+import { STAT_LEAGUES } from "../lib/statRooms";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 type League = "NBA" | "NFL" | "CARTOON";
@@ -52,17 +52,15 @@ function OnlinePageInner() {
       (!user?.subscriptionEnds ||
         new Date(user.subscriptionEnds).getTime() > Date.now()));
 
-  const requiresPremium = league === "NFL" || league === "CARTOON";
-
   /* -------------------- CREATE ROOM -------------------- */
-  async function handleCreateRoom() {
+  async function handleCreateRoom(lg: League = league) {
     if (!token) {
       alert("Log in to create online draft rooms.");
       router.push("/login");
       return;
     }
 
-    if (requiresPremium && !isPremium) {
+    if ((lg === "NFL" || lg === "CARTOON") && !isPremium) {
       router.push("/account/subscription");
       return;
     }
@@ -80,10 +78,10 @@ function OnlinePageInner() {
         body: JSON.stringify({
           gameType: "DRAFT",
           isPublic: false,
-          name: `Online ${league} Draft`,
-          league,
+          name: `Online ${lg} Draft`,
+          league: lg,
           settings:
-            league === "CARTOON"
+            lg === "CARTOON"
               ? {
                   cartoonDraftType: "character",
                   cartoonMode: "classic",
@@ -101,7 +99,7 @@ function OnlinePageInner() {
       const room = await res.json();
       localStorage.setItem("activeRoomCode", room.code);
       localStorage.removeItem("activeRoomDraftId");
-      router.push(`/online/room/${room.code}?league=${room.league || league}`);
+      router.push(`/online/room/${room.code}?league=${room.league || lg}`);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -199,23 +197,20 @@ function OnlinePageInner() {
       </Panel>
 
       <section className="space-y-4">
-        <div><h2 className="text-2xl">Host a TopPic room</h2><p className="text-sm text-muted-foreground">Pick a game. You choose the topic and rules on the next screen, then get a room code to share. No account needed.</p></div>
+        <div><h2 className="text-2xl">Host a room</h2><p className="text-sm text-muted-foreground">Pick a game to open a room with it, or open an empty room from the home page and switch games all night. Stat drafts need a login.</p></div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FORMATS.filter((f) => f.id !== "loadout").map((f) => (
             <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} href={`/play/${f.id}?online=1`} />
           ))}
+          {STAT_LEAGUES.map((l) => (
+            <GameTile key={l.league} title={l.title} blurb={l.blurb} iconSrc={l.iconSrc} gradient="from-emerald-700/40 to-primary/20"
+              badge={loading && league === l.league ? "Opening…" : !user ? "Login" : l.premium && !isPremium ? "Premium" : undefined}
+              onClick={() => { setLeague(l.league); void handleCreateRoom(l.league); }} />
+          ))}
           <GameTile title={PARTY.title} blurb="The party card game. Up to 20 players, AI or friends judge." icon={PARTY.icon} gradient={PARTY.gradient} href={PARTY.href} />
         </div>
+        {!user && <p className="text-xs text-muted-foreground">Not logged in. <Link href="/login" className="text-secondary underline">Log in</Link> to host or join NBA, NFL and Cartoon stat drafts.</p>}
       </section>
-
-      <Panel title="NBA, NFL and Cartoon draft rooms" hint="The classic stat drafts, played live with friends. Needs a login; NFL and Cartoon need a premium plan.">
-        <div className="flex flex-wrap items-center gap-2">
-          {(["NBA", "NFL", "CARTOON"] as League[]).map((lg) => <Chip key={lg} selected={league === lg} onClick={() => setLeague(lg)}>{lg}</Chip>)}
-          {requiresPremium && !isPremium && <span className="text-xs text-secondary">Premium required for {league} online rooms.</span>}
-        </div>
-        <button onClick={handleCreateRoom} disabled={loading} className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-6 font-semibold disabled:opacity-60"><Users className="h-4 w-4" aria-hidden /> Create {league} room</button>
-        {!user && <p className="text-xs text-muted-foreground">You are not logged in. <Link href="/login" className="text-secondary underline">Log in</Link> to host or join these rooms.</p>}
-      </Panel>
     </PageShell>
   );
 }
