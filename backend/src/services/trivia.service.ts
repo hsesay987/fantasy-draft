@@ -268,7 +268,7 @@ export async function getJeopardy(pool: string, avoid: string[], store: TriviaSt
   await store.touchCategories(pool, chosen.map((c) => c.name));
   topUp(pool, "cat", all.length, CAT_TARGET, store, gen);
   if (gen && all.filter((c) => !seen(c)).length - chosen.filter((c) => !seen(c)).length < count) topUp(pool, "cat", 0, CAT_TARGET, store, gen);
-  return chosen.map(({ name, clues }) => ({ name, clues }));
+  return chosen.map(({ id, name, clues }) => ({ id, name, clues }));
 }
 
 export async function getFeud(pool: string, rounds: number, avoid: string[], store: TriviaStore = prismaStore, gen: Gen | null = liveGen(), rand = Math.random): Promise<Survey[]> {
@@ -284,7 +284,7 @@ export async function getFeud(pool: string, rounds: number, avoid: string[], sto
   const chosen = pickFresh(preferTrusted(all, seen, rounds), seen, rounds, rand);
   await store.touchSurveys(pool, chosen.map((s) => s.q));
   topUp(pool, "survey", all.length, SURVEY_TARGET, store, gen);
-  return chosen.map(({ q, answers, decoys }) => ({ q, answers, decoys }));
+  return chosen.map(({ id, q, answers, decoys }) => ({ id, q, answers, decoys }));
 }
 
 // ---------- stores ----------
@@ -295,8 +295,8 @@ const db = () => require("../lib/prisma").default as typeof import("../lib/prism
 const poolsOf = (pool: string) => POOL_MEMBERS[pool] ?? [pool];
 export const prismaStore: TriviaStore = {
   async categories(pool) {
-    const rows = await db().triviaCategory.findMany({ where: { pool: { in: poolsOf(pool) } } });
-    return rows.map((r) => ({ name: r.name, clues: r.clues as unknown as Clue[], uses: r.uses, lastUsedAt: r.lastUsedAt?.getTime() ?? null, source: r.source }));
+    const rows = await db().triviaCategory.findMany({ where: { pool: { in: poolsOf(pool) }, retired: false } });
+    return rows.map((r) => ({ id: r.id, name: r.name, clues: r.clues as unknown as Clue[], uses: r.uses, lastUsedAt: r.lastUsedAt?.getTime() ?? null, source: r.source }));
   },
   async addCategory(pool, c, source) {
     try {
@@ -310,8 +310,8 @@ export const prismaStore: TriviaStore = {
     if (names.length) await db().triviaCategory.updateMany({ where: { pool: { in: poolsOf(pool) }, name: { in: names } }, data: { uses: { increment: 1 }, lastUsedAt: new Date() } });
   },
   async surveys(pool) {
-    const rows = await db().triviaSurvey.findMany({ where: { pool: { in: poolsOf(pool) } } });
-    return rows.map((r) => ({ q: r.q, answers: r.answers, decoys: r.decoys, uses: r.uses, lastUsedAt: r.lastUsedAt?.getTime() ?? null, source: r.source }));
+    const rows = await db().triviaSurvey.findMany({ where: { pool: { in: poolsOf(pool) }, retired: false } });
+    return rows.map((r) => ({ id: r.id, q: r.q, answers: r.answers, decoys: r.decoys, uses: r.uses, lastUsedAt: r.lastUsedAt?.getTime() ?? null, source: r.source }));
   },
   async addSurvey(pool, s, source) {
     try {
@@ -336,7 +336,7 @@ export function memoryStore(): TriviaStore & { cats: Map<string, StoredCategory[
     async addCategory(pool, c, source) {
       const l = get(cats, pool);
       if (l.some((x) => x.name === c.name)) return false;
-      l.push({ ...c, uses: 0, lastUsedAt: null, source });
+      l.push({ ...c, id: `c${l.length}`, uses: 0, lastUsedAt: null, source });
       return true;
     },
     async touchCategories(pool, names) { for (const c of get(cats, pool)) if (names.includes(c.name)) { c.uses++; c.lastUsedAt = Date.now(); } },
@@ -344,7 +344,7 @@ export function memoryStore(): TriviaStore & { cats: Map<string, StoredCategory[
     async addSurvey(pool, s, source) {
       const l = get(svs, pool);
       if (l.some((x) => x.q === s.q)) return false;
-      l.push({ ...s, uses: 0, lastUsedAt: null, source });
+      l.push({ ...s, id: `s${l.length}`, uses: 0, lastUsedAt: null, source });
       return true;
     },
     async touchSurveys(pool, qs) { for (const s of get(svs, pool)) if (qs.includes(s.q)) { s.uses++; s.lastUsedAt = Date.now(); } },
