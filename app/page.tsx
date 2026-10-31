@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { Sparkles, Bot, RotateCcw, LogIn } from "lucide-react";
+import { Sparkles, Bot, RotateCcw, LogIn, Users } from "lucide-react";
 import { GameTile, PageShell } from "./components/ui";
 import { TOPICS } from "./play/categories";
 import { formatMeta } from "./play/formats";
-import { resumable } from "./play/storage";
+import { loadPrefs, resumable, savePrefs } from "./play/storage";
+import { createRoom, saveToken } from "./play/onlineApi";
+import { track } from "./lib/analytics";
 import type { GameSetup } from "./play/types";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
@@ -30,7 +32,27 @@ export default function Home() {
   const router = useRouter();
   const [resume, setResume] = useState<GameSetup | null>(null);
   const [joinCode, setJoinCode] = useState("");
-  useEffect(() => setResume(resumable()?.setup ?? null), []);
+  const [hostName, setHostName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [roomError, setRoomError] = useState<string | null>(null);
+  useEffect(() => {
+    setResume(resumable()?.setup ?? null);
+    setHostName(loadPrefs().name ?? "");
+  }, []);
+
+  /** An empty room: friends join first, then the host picks games one after another in the lobby. */
+  async function hostRoom() {
+    if (!hostName.trim()) return setRoomError("Enter your name first.");
+    setCreating(true);
+    setRoomError(null);
+    const r = await createRoom(null, hostName.trim());
+    setCreating(false);
+    if (!r.ok) return setRoomError(r.data.error ?? "Couldn't create the room");
+    saveToken(r.data.code, r.data.token);
+    savePrefs({ name: hostName.trim() });
+    track("room_created", { format: "none", pool: "none", seats_max: 6 });
+    router.push(`/room/${r.data.code}`);
+  }
 
   return (
     <PageShell width="lg" className="space-y-14 md:py-16">
@@ -42,11 +64,26 @@ export default function Home() {
           <Link href="/play/spin?pool=superheroes" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-6 font-semibold text-black shadow-[0_0_30px_-6px_var(--accent)] transition-transform hover:-translate-y-0.5"><Sparkles className="h-5 w-5" aria-hidden /> Quick play</Link>
           <Link href="/toppic" className="inline-flex min-h-12 items-center rounded-xl border border-white/15 bg-white/5 px-6 font-semibold hover:bg-white/10">Play party mode</Link>
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); if (joinCode.trim()) router.push(`/room/${joinCode.trim().toUpperCase()}`); }} className="flex max-w-sm gap-2">
-          <label className="sr-only" htmlFor="join-code">Room code</label>
-          <input id="join-code" value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))} placeholder="Friend's room code" className="min-h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 font-display uppercase tracking-widest outline-none focus:border-secondary" />
-          <button type="submit" disabled={!joinCode.trim()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 font-semibold hover:bg-white/10 disabled:opacity-50"><LogIn className="h-4 w-4" aria-hidden /> Join</button>
-        </form>
+        <div className="grid max-w-2xl gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 sm:grid-cols-2">
+          <form onSubmit={(e) => { e.preventDefault(); void hostRoom(); }} className="space-y-2">
+            <p className="text-sm font-semibold">Play with friends online</p>
+            <div className="flex gap-2">
+              <label className="sr-only" htmlFor="host-name">Your name</label>
+              <input id="host-name" value={hostName} maxLength={20} onChange={(e) => setHostName(e.target.value)} placeholder="Your name" className="min-h-11 w-full rounded-xl border border-white/10 bg-black/20 px-3 outline-none focus:border-secondary" />
+              <button type="submit" disabled={creating} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-primary px-4 font-semibold disabled:opacity-50"><Users className="h-4 w-4" aria-hidden /> {creating ? "Opening…" : "Create room"}</button>
+            </div>
+            {roomError && <p role="alert" className="text-xs text-accent">{roomError}</p>}
+          </form>
+          <form onSubmit={(e) => { e.preventDefault(); if (joinCode.trim()) router.push(`/room/${joinCode.trim().toUpperCase()}`); }} className="space-y-2">
+            <p className="text-sm font-semibold">Got a code?</p>
+            <div className="flex gap-2">
+              <label className="sr-only" htmlFor="join-code">Room code</label>
+              <input id="join-code" value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))} placeholder="Room code" className="min-h-11 w-full rounded-xl border border-white/10 bg-black/20 px-3 font-display uppercase tracking-widest outline-none focus:border-secondary" />
+              <button type="submit" disabled={!joinCode.trim()} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 font-semibold hover:bg-white/10 disabled:opacity-50"><LogIn className="h-4 w-4" aria-hidden /> Join</button>
+            </div>
+          </form>
+          <p className="text-xs text-muted-foreground sm:col-span-2">One room for the whole night: pick a game, play, then pick the next one. Nobody has to rejoin.</p>
+        </div>
         {resume && (
           <Link href={`/play/${resume.format}/game`} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-secondary/50 bg-primary/15 px-4 text-sm font-semibold">
             <RotateCcw className="h-4 w-4" aria-hidden /> Resume your {formatMeta(resume.format)?.title}

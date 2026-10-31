@@ -16,6 +16,7 @@ export function GameTile({
   badge,
   soon,
   gradient = "from-primary/40 to-accent/20",
+  onClick,
 }: {
   title: string;
   blurb: string;
@@ -26,6 +27,8 @@ export function GameTile({
   badge?: string;
   soon?: boolean;
   gradient?: string;
+  /** Use instead of `href` when the tile runs an action. */
+  onClick?: () => void;
 }) {
   const inner = (
     <motion.div
@@ -46,6 +49,7 @@ export function GameTile({
       )}
     </motion.div>
   );
+  if (onClick && !soon) return <button type="button" onClick={onClick} className="block h-full w-full rounded-2xl text-left">{inner}</button>;
   if (!href || soon) return <div aria-disabled={soon}>{inner}</div>;
   return (
     <Link href={href} className="block rounded-2xl">

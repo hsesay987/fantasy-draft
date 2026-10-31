@@ -14,7 +14,7 @@ import { formatMeta } from "./formats";
 import { CATEGORIES, category, formatsFor } from "./categories";
 import { DEFAULT_OPTS, type FormatId, type GameSetup, type Opts } from "./types";
 import { loadPrefs, resumable, saveSetup, savePrefs } from "./storage";
-import { createRoom, fetchQuiz, saveToken } from "./onlineApi";
+import { createRoom, fetchQuiz, saveToken, setRoomGame } from "./onlineApi";
 import { track } from "../lib/analytics";
 import { loadSeen } from "../lib/seenTrivia";
 import { BossPicker, Collapse, CustomItems, Field, LoadoutEditor, RolesEditor, Stepper, inputCls } from "./setupParts";
@@ -60,24 +60,28 @@ const PRESETS: { id: string; label: string; blurb: string; apply: (f: FormatId, 
   { id: "hardcore", label: "Hardcore", blurb: "Roles, no repeats, long game", apply: (f, o) => ({ opts: { ...o, teamSize: Math.max(o.teamSize, 6), timerSeconds: 45, useRoles: f === "snake" || f === "spin", noDupUniverse: f === "snake" || f === "spin", budget: f === "auction" ? Math.max(o.budget, 30) : o.budget, rankSize: 10, options: 2, rerolls: 0, handExtra: 1 } }) },
 ];
 
-export default function SetupScreen() {
+/** Picking the next game inside an online room: same options, but it sets the room's game instead of starting one. */
+export type RoomPick = { code: string; token: string; pool?: string; onDone: () => void; onCancel: () => void };
+
+export default function SetupScreen({ format: forced, room }: { format?: FormatId; room?: RoomPick } = {}) {
   const router = useRouter();
-  const { format: fid } = useParams<{ format: string }>();
+  const params = useParams<{ format: string }>();
+  const fid = forced ?? params.format;
   const search = useSearchParams();
   const meta = formatMeta(fid);
   const format = (meta?.id ?? "snake") as FormatId;
   const soloOk = SOLO_FORMATS.has(format);
 
   const initialPool = (() => {
-    const q = search.get("pool");
-    return q && category(q) ? q : "superheroes";
+    const q = room?.pool ?? search.get("pool");
+    return q && category(q) && formatsFor(q).includes(format) ? q : CATEGORIES.find((c) => formatsFor(c.id).includes(format))?.id ?? "superheroes";
   })();
   const [pool, setPool] = useState(initialPool);
   const [missionId, setMissionId] = useState(() => baseOpts(initialPool, format).missionId);
   const [cTitle, setCTitle] = useState("");
   const [cBlurb, setCBlurb] = useState("");
   const [mystery, setMystery] = useState(false);
-  const [mode, setMode] = useState<Mode>(search.get("online") === "1" ? "online" : format === "blind" ? "solo" : "ai");
+  const [mode, setMode] = useState<Mode>(room || search.get("online") === "1" ? "online" : format === "blind" ? "solo" : "ai");
   const [name, setName] = useState("You");
   const [rivals, setRivals] = useState(1);
   const [localNames, setLocalNames] = useState(["Player 1", "Player 2"]);
@@ -161,6 +165,15 @@ export default function SetupScreen() {
     };
     savePrefs({ pool, name });
     track("game_started", { format, pool: setup.pool, mode, roll: opts.roll || format === "spin", mystery, preset, team_size: format === "loadout" ? loadout.slots.length : opts.teamSize, players: players.length });
+    if (room) {
+      setCreating(true);
+      setNetError(null);
+      const r = await setRoomGame(room.code, room.token, setup);
+      setCreating(false);
+      if (!r.ok) return setNetError(r.data.error ?? "Couldn't set the game");
+      room.onDone();
+      return;
+    }
     if (mode === "online") {
       setCreating(true);
       setNetError(null);
@@ -190,12 +203,13 @@ export default function SetupScreen() {
         subtitle={meta.tagline}
         icon={meta.icon}
         gradient={meta.gradient}
-        back={{ href: format === "loadout" ? "/" : `/category/${pool}`, label: format === "loadout" ? "All topics" : catMeta?.title ?? "Back" }}
+        back={room ? undefined : { href: format === "loadout" ? "/" : `/category/${pool}`, label: format === "loadout" ? "All topics" : catMeta?.title ?? "Back" }}
       >
+        {room && <Button variant="ghost" onClick={room.onCancel}>← Back to the room</Button>}
         <ul className="space-y-1 text-sm text-muted-foreground">{meta.how.map((h, i) => <li key={i}><span className="mr-2 text-secondary">{i + 1}.</span>{h}</li>)}</ul>
       </PageHeader>
 
-      {resume && (
+      {resume && !room && (
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between gap-3 rounded-2xl border border-secondary/50 bg-primary/15 p-4">
           <div className="text-sm"><div className="font-semibold">Resume your {formatMeta(resume.format)?.title}</div><div className="text-muted-foreground">{resume.mystery ? "Mystery mission" : resume.mission.title}</div></div>
           <div className="flex gap-2">
@@ -260,7 +274,7 @@ export default function SetupScreen() {
         </>
       )}
 
-      <Panel title="Players" hint={soloOk ? "Play solo, against the AI, or pass the device." : undefined}>
+      {!room && <Panel title="Players" hint={soloOk ? "Play solo, against the AI, or pass the device." : undefined}>
         <div className="flex flex-wrap gap-2">
           {soloOk && <Chip selected={mode === "solo"} onClick={() => setMode("solo")}>Just me</Chip>}
           <Chip selected={mode === "ai"} onClick={() => setMode("ai")}>Vs AI</Chip>
@@ -285,7 +299,8 @@ export default function SetupScreen() {
           </div>
         )}
         <Chip selected={mystery} onClick={() => setMystery(!mystery)}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/icons/mystery-block.png" alt="" width={18} height={18} className="h-[18px] w-[18px]" /> Mystery mission — hide it until the verdict</Chip>
-      </Panel>
+      </Panel>}
+      {room && <Chip selected={mystery} onClick={() => setMystery(!mystery)}>Mystery mission — hide it until the verdict</Chip>}
 
       <Collapse title="Customize rules">
         {format === "loadout" && <LoadoutEditor mission={loadout} onChange={setLoadout} />}
@@ -364,7 +379,7 @@ export default function SetupScreen() {
             <div className="truncate font-semibold">{meta.title} · {format === "loadout" ? loadout.title : catMeta?.title}</div>
             <div className={`truncate ${problem || netError ? "text-accent" : "text-muted-foreground"}`}>{problem ?? netError ?? `${mode === "online" ? "Online" : players.length === 1 ? "Solo" : `${players.length} players`}${mystery ? " · mystery" : ""}${opts.roll || format === "spin" ? " · random roll" : ""}`}</div>
           </div>
-          <Button variant="accent" className="px-8 text-lg" disabled={!!problem || creating} onClick={start}><Play className="h-5 w-5" aria-hidden /> {mode === "online" ? (creating ? "Creating…" : "Create room") : creating ? "Building your board…" : "Start"}</Button>
+          <Button variant="accent" className="px-8 text-lg" disabled={!!problem || creating} onClick={start}><Play className="h-5 w-5" aria-hidden /> {room ? (creating ? "Saving…" : "Use this game") : mode === "online" ? (creating ? "Creating…" : "Create room") : creating ? "Building your board…" : "Start"}</Button>
         </div>
       </div>
     </PageShell>

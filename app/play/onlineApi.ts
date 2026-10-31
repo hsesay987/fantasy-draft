@@ -11,11 +11,15 @@ export type RoomSnapshot = {
   status: "lobby" | "playing" | "done";
   version: number;
   serverNow: number;
-  setup: GameSetup;
+  /** Null until the host picks a game. */
+  setup: GameSetup | null;
   seats: { name: string; host: boolean; left: boolean }[];
   me: string | null;
   state: GameState | null;
   verdict: Verdict | null;
+  played: { format: string; pool: string; winner: string | null }[];
+  /** An NBA, NFL or Cartoon stat draft room the host opened for the group. */
+  statLink: { code: string; league: "NBA" | "NFL" | "CARTOON" } | null;
 };
 
 const seatKey = (code: string) => `toppic:v2:seat:${code.toUpperCase()}`;
@@ -50,12 +54,16 @@ async function call<T>(path: string, init?: RequestInit): Promise<{ ok: boolean;
   }
 }
 
-export const createRoom = (setup: GameSetup, name: string) => call<{ code: string; token: string; snapshot: RoomSnapshot }>("", { method: "POST", body: JSON.stringify({ setup, name }) });
+/** Open a room. Pass a setup to pick the first game now, or null to pick it in the lobby. */
+export const createRoom = (setup: GameSetup | null, name: string) => call<{ code: string; token: string; snapshot: RoomSnapshot }>("", { method: "POST", body: JSON.stringify({ setup, name }) });
 export const joinRoom = (code: string, name: string) => call<{ code: string; token: string; snapshot: RoomSnapshot }>(`/${code.toUpperCase()}/join`, { method: "POST", body: JSON.stringify({ name }) });
 export const getRoom = (code: string, token: string | null) => call<RoomSnapshot>(`/${code.toUpperCase()}${token ? `?token=${token}` : ""}`);
 export const startRoom = (code: string, token: string) => call<RoomSnapshot>(`/${code.toUpperCase()}/start`, { method: "POST", body: JSON.stringify({ token }) });
 export const sendAction = (code: string, token: string, action: Omit<Action, "by"> & { by?: string }) =>
   call<{ ok: boolean; snapshot: RoomSnapshot }>(`/${code.toUpperCase()}/action`, { method: "POST", body: JSON.stringify({ token, action }) });
+export const setRoomGame = (code: string, token: string, setup: GameSetup) => call<RoomSnapshot>(`/${code.toUpperCase()}/game`, { method: "POST", body: JSON.stringify({ token, setup }) });
+export const roomToLobby = (code: string, token: string) => call<RoomSnapshot>(`/${code.toUpperCase()}/lobby`, { method: "POST", body: JSON.stringify({ token }) });
+export const setStatLink = (code: string, token: string, link: RoomSnapshot["statLink"]) => call<RoomSnapshot>(`/${code.toUpperCase()}/stat-link`, { method: "POST", body: JSON.stringify({ token, link }) });
 export const leaveRoom = (code: string, token: string) => call<{ ok: boolean }>(`/${code.toUpperCase()}/leave`, { method: "POST", body: JSON.stringify({ token }) });
 
 /** Jeopardy and Feud questions come from the server's trivia bank (AI-written, checked, rotated). Null = use the bundled set. */

@@ -7,6 +7,7 @@ import { useSound } from "../../components/SoundProvider";
 import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
 import { RateItem } from "../../components/pixel/RateItem";
 import { WorldScene } from "../../components/pixel/WorldScene";
+import { playerColor } from "../../components/pixel/worlds";
 import { Sprite } from "../../components/pixel/Sprite";
 import { heart, strikeX } from "../../components/pixel/sprites";
 import { useAiTurn } from "./useAiTurn";
@@ -78,8 +79,8 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
           </div>
           <h1 className="mt-3">{r.q.toUpperCase()}</h1>
         </PixelBox>
-        <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]} PTS`, active: p === player }))} />
-        <WorldScene world="sky" caption="Altitude" actors={s.players.map((p) => ({ name: p, value: Math.min(1, s.points[p]! / (125 * s.rounds.length * (s.players.length === 1 ? 1 : 0.55))) }))}
+        <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]} PTS`, active: p === player, color: playerColor(s.players, p) }))} />
+        <WorldScene world="sky" caption="Altitude" actors={s.players.map((p) => ({ name: p, value: Math.min(1, s.points[p]! / (125 * s.rounds.length * (s.players.length === 1 ? 1 : 0.55))), color: playerColor(s.players, p) }))}
           flash={events.current.key ? { key: events.current.key, good: events.current.good } : undefined} />
         {done ? (
           <PixelBox>
