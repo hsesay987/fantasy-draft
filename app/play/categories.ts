@@ -20,11 +20,16 @@ export type Category = {
   /** Best draft types for this topic, first is the one-tap default. */
   recommended: { format: FormatId; why: string }[];
   defaults: CategoryDefaults;
-  /** Not listed as a topic; reached through the Stat drafts row. */
+  /** Not listed as a topic. */
   hidden?: boolean;
 };
 
 export const CATEGORIES: Category[] = [
+  {
+    id: "fictional", title: "All Fictional Characters", blurb: "Heroes, villains, anime, games, Disney, movies and Pokémon in one pool.", iconSrc: "/icons/swords.png", gradient: "from-fuchsia-600/40 to-accent/20",
+    recommended: [{ format: "spin", why: "Roll random fighters from every universe" }, { format: "auction", why: "Bid across franchises, blind if you dare" }],
+    defaults: { teamSize: 6, missionId: "all-around", rankSize: 8, timerSeconds: 20, budget: 30 },
+  },
   {
     id: "superheroes", title: "Superheroes", blurb: "Marvel, DC and indie heroes.", iconSrc: "/icons/superman.png", gradient: "from-primary/50 to-accent/20",
     recommended: [{ format: "loadout", why: "Build a kit to beat any boss you name" }, { format: "snake", why: "Classic squad draft" }],
@@ -71,7 +76,7 @@ export const CATEGORIES: Category[] = [
     defaults: { teamSize: 5, missionId: "dinner-party", rankSize: 6, timerSeconds: 30, budget: 25 },
   },
   {
-    id: "football", hidden: true, title: "International Football", blurb: "World Cup legends and today\u2019s stars.", iconSrc: "/icons/soccer.svg", gradient: "from-green-600/40 to-accent/20",
+    id: "football", title: "International Football", blurb: "World Cup legends and today\u2019s stars.", iconSrc: "/icons/soccer.svg", gradient: "from-green-600/40 to-accent/20",
     recommended: [{ format: "position", why: "Choose your starting XI by position" }, { format: "auction", why: "Bid for the biggest names" }],
     defaults: { teamSize: 5, missionId: "world-cup-final", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
@@ -100,13 +105,37 @@ for (const c of CATEGORIES) {
 
 export const category = (id: string) => CATEGORIES.find((c) => c.id === id);
 
-/** Classic stat drafts that have their own pages. */
-export const LEAGUES = [
-  { id: "nba", title: "NBA", blurb: "All-time players, your lineup.", href: "/draft/new", iconSrc: "/icons/basketball.png", gradient: "from-orange-600/40 to-primary/20" },
-  { id: "nfl", title: "NFL", blurb: "Gridiron greats, positions and all.", href: "/draft/new?league=NFL", iconSrc: "/icons/football.png", gradient: "from-emerald-700/40 to-primary/20" },
-  { id: "football", title: "Int\u2019l Football", blurb: "World Cup legends, one lineup.", href: "/play/position?pool=football", iconSrc: "/icons/soccer.svg", gradient: "from-green-600/40 to-accent/20" },
-  { id: "cartoon", title: "Cartoons", blurb: "Shows and characters from every era.", href: "/draft/new?league=CARTOON", iconSrc: "/icons/turtle.png", gradient: "from-sky-600/40 to-accent/20" },
+/** A classic stat draft: real career stats by era and team, played on its own pages. */
+export type ClassicDraft = { title: string; blurb: string; href: string; premium?: boolean };
+
+/** Classic stat drafts offered under each topic. They sit beside the topic's other draft types instead of in a separate row. */
+export const CLASSIC_DRAFTS: Record<string, ClassicDraft[]> = {
+  nba: [
+    { title: "NBA stat draft", blurb: "Real career stats by era and team. Solo against the AI, or in a live room with friends.", href: "/draft/new" },
+    { title: "Live NBA room", blurb: "Draft with friends on their own devices.", href: "/online?league=NBA" },
+  ],
+  nfl: [
+    { title: "NFL stat draft", blurb: "Gridiron greats by position, with real career stats.", href: "/draft/new?league=NFL", premium: true },
+    { title: "Live NFL room", blurb: "Draft with friends on their own devices.", href: "/online?league=NFL", premium: true },
+  ],
+  cartoon: [
+    { title: "Cartoon stat draft", blurb: "Shows and characters from every era, scored by the community.", href: "/draft/new?league=CARTOON", premium: true },
+    { title: "Live Cartoon room", blurb: "Draft with friends on their own devices.", href: "/online?league=CARTOON", premium: true },
+  ],
+};
+
+/** Topics that only have a classic stat draft (no pool of characters for the other draft types). */
+export const CLASSIC_ONLY: Omit<Category, "recommended" | "defaults">[] = [
+  { id: "nfl", title: "NFL", blurb: "Gridiron greats, positions and all.", iconSrc: "/icons/football.png", gradient: "from-emerald-700/40 to-primary/20" },
+  { id: "cartoon", title: "Cartoons", blurb: "Shows and characters from every era.", iconSrc: "/icons/turtle.png", gradient: "from-sky-600/40 to-accent/20" },
 ];
+
+export type Topic = { id: string; title: string; blurb: string; iconSrc: string; gradient: string };
+const HOME_ORDER = ["fictional", "superheroes", "villains", "heroes-villains", "anime", "pokemon", "videogames", "disney", "movies", "films", "shows", "history", "nba", "nfl", "football", "cartoon"];
+/** Every topic in one list, for the home page: draft pools and classic leagues side by side. */
+export const TOPICS: Topic[] = [...CATEGORIES.filter((c) => !c.hidden), ...CLASSIC_ONLY]
+  .sort((a, b) => (HOME_ORDER.indexOf(a.id) + 1 || 99) - (HOME_ORDER.indexOf(b.id) + 1 || 99));
+export const topic = (id: string): Topic | undefined => TOPICS.find((t) => t.id === id);
 
 export const FORMAT_WHY: Record<FormatId, string> = {
   snake: "Take turns picking",
@@ -123,6 +152,7 @@ export const FORMAT_WHY: Record<FormatId, string> = {
 /** Formats that make sense for a category (Loadout needs hero-ish items). */
 export const LOADOUT_CATEGORIES = new Set(["superheroes", "villains", "heroes-villains", "anime", "movies", "videogames"]);
 export function formatsFor(pool: string): FormatId[] {
+  if (!CATEGORIES.some((c) => c.id === pool)) return [];
   const all: FormatId[] = ["snake", "spin", "auction", "position", "blind", "keep", ...(hasTrivia(pool) ? (["feud", "jeopardy"] as FormatId[]) : [])];
   return LOADOUT_CATEGORIES.has(pool) ? [...all, "loadout"] : all;
 }

@@ -71,9 +71,14 @@ const DATA: Record<string, Item[]> = {
   traps: withQuery(traps as Item[], "traps"),
 };
 
+/** Every fictional character in one pool: heroes, villains, anime, games, Disney, movies and Pokémon. Each keeps its own picture source. */
+export const FICTIONAL_MEMBERS = ["superheroes", "villains", "anime", "pokemon", "videogames", "disney", "movies"];
+DATA.fictional = dedupe(...FICTIONAL_MEMBERS.map((id) => DATA[id]!));
+
 const keysOf = (id: string) => Object.keys(DATA[id]![0]!.stats);
 
 export const CATALOG_META: CatalogMeta[] = [
+  { id: "fictional", title: "All Fictional Characters", blurb: "Heroes, villains, anime, games, Disney, movies and Pokémon in one pool.", statKeys: STD_KEYS, kind: "character" },
   { id: "superheroes", title: "Superheroes", blurb: "Marvel, DC and indie heroes.", statKeys: STD_KEYS, kind: "character" },
   { id: "villains", title: "Villains", blurb: "The deadliest rogues gallery.", statKeys: STD_KEYS, kind: "character" },
   { id: "heroes-villains", title: "Heroes & Villains", blurb: "One big pool, both sides.", statKeys: STD_KEYS, kind: "character" },

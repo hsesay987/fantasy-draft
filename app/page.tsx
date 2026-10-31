@@ -7,8 +7,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { Sparkles, Bot, RotateCcw, LogIn } from "lucide-react";
 import { GameTile, PageShell } from "./components/ui";
-import { PARTY } from "./topicDraft/games";
-import { CATEGORIES, LEAGUES } from "./play/categories";
+import { TOPICS } from "./play/categories";
 import { formatMeta } from "./play/formats";
 import { resumable } from "./play/storage";
 import type { GameSetup } from "./play/types";
@@ -55,17 +54,10 @@ export default function Home() {
         )}
       </motion.header>
 
-      <Group title="Choose the TopPic" sub="Auctions, loadouts, blind rankings and more for every one.">
-        {CATEGORIES.filter((c) => !c.hidden).map((c) => (
-          <motion.div key={c.id} variants={item}><GameTile title={c.title} blurb={c.blurb} iconSrc={c.iconSrc} gradient={c.gradient} href={`/category/${c.id}`} /></motion.div>
+      <Group title="Choose the TopPic" sub="Pick a topic, then how to play it: auctions, blind rankings, stat drafts and more.">
+        {TOPICS.map((t) => (
+          <motion.div key={t.id} variants={item}><GameTile title={t.title} blurb={t.blurb} iconSrc={t.iconSrc} gradient={t.gradient} href={`/category/${t.id}`} /></motion.div>
         ))}
-      </Group>
-
-      <Group title="Stat drafts" sub="Real players and shows with career stats.">
-        {LEAGUES.map((g) => (
-          <motion.div key={g.id} variants={item}><GameTile title={g.title} blurb={g.blurb} iconSrc={g.iconSrc} gradient={g.gradient} href={g.href} /></motion.div>
-        ))}
-        <motion.div variants={item}><GameTile title={PARTY.title} blurb={PARTY.blurb} icon={PARTY.icon} gradient={PARTY.gradient} href={PARTY.href} /></motion.div>
       </Group>
     </PageShell>
   );

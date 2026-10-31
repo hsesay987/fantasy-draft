@@ -4,11 +4,11 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 import { defaultGen, ensureSeeded, generateCategory, generateSurvey, prismaStore } from "../services/trivia.service";
-import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
+import { POOL_MEMBERS, TRIVIA_POOLS } from "../shared/topicDraft/trivia";
 
 (async () => {
   const [target = "all", n = "4"] = process.argv.slice(2);
-  const pools = target === "all" ? TRIVIA_POOLS.filter((p) => p !== "heroes-villains") : [target];
+  const pools = target === "all" ? TRIVIA_POOLS.filter((p) => !POOL_MEMBERS[p]) : [target];
   const gen = defaultGen();
   if (!gen) return console.error("No AI model configured (JUDGE_BASE_URL or ANTHROPIC_API_KEY).");
   for (const pool of pools) {

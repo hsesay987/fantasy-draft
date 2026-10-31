@@ -4,7 +4,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { IconBadge } from "../components/ui";
+import { PageShell } from "../components/ui";
 
 // Unified Draft Box Type
 type DraftSummary = {
@@ -47,13 +47,6 @@ export default function HomePage() {
   const [activeTeamIndex, setActiveTeamIndex] = useState(0);
   const [loadingDraftId, setLoadingDraftId] = useState<string | null>(null);
   const [votedDraftIds, setVotedDraftIds] = useState<Set<string>>(new Set());
-
-  const isPremium =
-    !!user?.isAdmin ||
-    !!user?.isFounder ||
-    (!!user?.subscriptionTier &&
-      (!user.subscriptionEnds ||
-        new Date(user.subscriptionEnds).getTime() > Date.now()));
 
   const loadMyDrafts = useCallback(async () => {
     if (!user || !token) {
@@ -111,30 +104,6 @@ export default function HomePage() {
   useEffect(() => {
     loadCommunityDrafts();
   }, [loadCommunityDrafts]);
-
-  const goToNfl = () => {
-    if (!isPremium) {
-      router.push("/account/subscription");
-      return;
-    }
-    router.push("/draft/new?league=NFL");
-  };
-
-  const goToCartoon = () => {
-    if (!isPremium) {
-      router.push("/account/subscription");
-      return;
-    }
-    router.push("/draft/new?league=CARTOON");
-  };
-
-  const goToCartoonOnline = () => {
-    if (!isPremium) {
-      router.push("/account/subscription");
-      return;
-    }
-    router.push("/online?league=CARTOON");
-  };
 
   const openCommunityDraft = async (draftId: string) => {
     try {
@@ -243,44 +212,15 @@ export default function HomePage() {
 
   return (
     <>
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12 text-foreground space-y-10">
+      <PageShell width="lg">
       {/* PAGE TITLE */}
       <header className="space-y-1">
-        <h1 className="text-4xl md:text-5xl">Stat Drafts</h1>
+        <h1 className="text-4xl md:text-5xl">Your drafts</h1>
         <p className="text-muted-foreground text-sm md:text-base">
-          Spin a team and era, then draft real players with career stats. Looking for characters, auctions or blind rankings?{" "}
+          Recent drafts and community drafts to vote on. To start a new one, pick any topic, stat drafts like NBA and NFL included.{" "}
           <a href="/" className="text-secondary underline underline-offset-2">Browse all topics</a>.
         </p>
       </header>
-
-      {/* AVAILABLE DRAFT MODES */}
-      <section className="space-y-4">
-        <h2 className="text-2xl">Pick a league</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {([
-            { id: "nba", title: "NBA Draft", icon: "/icons/basketball.png", premium: false, offline: () => router.push("/draft/new"), online: () => router.push("/online") },
-            { id: "nfl", title: "NFL Draft", icon: "/icons/football.png", premium: true, offline: goToNfl, online: () => router.push("/online?league=NFL") },
-            { id: "cartoons", title: "Cartoon Draft", icon: "/icons/turtle.png", premium: true, offline: goToCartoon, online: goToCartoonOnline },
-          ] as const).map((cat) => {
-            const locked = cat.premium && !isPremium;
-            return (
-              <div key={cat.id} className={`relative flex flex-col gap-4 rounded-2xl border border-white/10 bg-card/70 p-5 ${locked ? "opacity-80" : ""}`}>
-                <div className="flex items-center gap-4">
-                  <IconBadge src={cat.icon} />
-                  <div className="min-w-0">
-                    <h3 className="text-xl">{cat.title}</h3>
-                    <p className="flex items-center gap-2 text-sm text-muted-foreground">{locked ? <span className="rounded-full bg-accent/20 px-2 py-0.5 text-xs font-semibold text-accent">Premium</span> : null}{locked ? "Beta" : cat.premium ? "Beta" : "Classic, Casual & Free modes"}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button onClick={cat.offline} className="min-h-11 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold hover:bg-white/10">Offline</button>
-                  <button onClick={cat.online} className="min-h-11 rounded-xl bg-primary text-sm font-semibold hover:bg-[#8b5cf6]">Online</button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
 
       {/* MY RECENT DRAFTS */}
       <section className="space-y-3">
@@ -420,7 +360,7 @@ export default function HomePage() {
           )}
         </div>
       </section>
-    </main>
+    </PageShell>
 
     {selectedDraft && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4">
