@@ -3,7 +3,8 @@
 // window of it and follows the leading player, so every step of progress is a visible climb or flight.
 // Named checkpoints mark the way; crossing one is a moment the game celebrates.
 
-export type Actor = { name: string; value: number };
+/** `value` is the fraction of the journey: 0 at the start, 1 at the end, below 0 for worlds with an underground. */
+export type Actor = { name: string; value: number; color?: string };
 export type Checkpoint = { name: string; at: number };
 
 export type World = {
@@ -15,9 +16,11 @@ export type World = {
   viewW: number;
   viewH: number;
   checkpoints: Checkpoint[];
+  /** Named places below the start, for scores under zero (`at` is negative). */
+  below?: Checkpoint[];
   backdrop: (ctx: CanvasRenderingContext2D) => void;
-  /** Moving things, in map coordinates. `cam` is the camera's top-left corner. */
-  frame: (ctx: CanvasRenderingContext2D, t: number, shown: number[], moving: boolean[], cam: { x: number; y: number }) => void;
+  /** Moving things, in map coordinates. `cam` is the camera's top-left corner; `colors` is each player's color. */
+  frame: (ctx: CanvasRenderingContext2D, t: number, shown: number[], moving: boolean[], cam: { x: number; y: number }, colors: string[]) => void;
   /** Where an actor is at a given fraction of the journey, in map coordinates. */
   pos: (f: number, i: number, n: number) => { x: number; y: number };
   /** Top-left of the camera window when it centres on a point, kept inside the map. */
@@ -25,6 +28,8 @@ export type World = {
 };
 
 export const ACTOR_COLORS = ["#ff4d6d", "#4cc9f0", "#ffd23f", "#3ddc97", "#fb923c", "#c084fc"];
+/** A player's color, fixed by their seat so it stays the same on every screen (game, results, flag). */
+export const playerColor = (players: string[], name: string) => ACTOR_COLORS[Math.max(0, players.indexOf(name)) % ACTOR_COLORS.length]!;
 
 // ---------- helpers ----------
 const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
@@ -36,6 +41,15 @@ function rng(seed: number) {
   return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
 }
 const noise1 = (x: number, seed: number) => { const n = Math.sin(x * 12.9898 + seed * 78.233) * 43758.5453; return n - Math.floor(n); };
+/** Smooth 2D value noise in 0..1, for natural rock and grass texture. */
+function noise2(x: number, y: number, seed: number) {
+  const h = (i: number, j: number) => noise1(i * 57 + j * 131, seed);
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  const a = h(xi, yi) + (h(xi + 1, yi) - h(xi, yi)) * u;
+  const b = h(xi, yi + 1) + (h(xi + 1, yi + 1) - h(xi, yi + 1)) * u;
+  return a + (b - a) * v;
+}
 const disc = (ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, shade: (dx: number, dy: number) => string) => {
   for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r) px(ctx, cx + x, cy + y, shade(x, y));
 };
@@ -86,8 +100,10 @@ export function drawSprite(ctx: CanvasRenderingContext2D, rows: string[], pal: R
   rows.forEach((row, ry) => { for (let rx = 0; rx < row.length; rx++) { const c = pal[row[rx]!]; if (c) px(ctx, x + rx * scale, y + ry * scale, c, scale, scale); } });
 }
 
-// ======================= SUMMIT: a mountain with a long switchback trail =======================
-const S_W = 320, S_H = 520, PEAK = { x: 168, y: 34 };
+// ======================= SUMMIT: a mountain with a long switchback trail, and a cave under it =======================
+// Above ground, a lake, a waterfall and pine forest at the foot, a glacier and snowfields higher up, a dawn sky behind.
+// Below the trailhead, a ladder drops into caves: a score under zero sends the climber underground, down to Rock Bottom.
+const S_W = 320, S_H = 600, PEAK = { x: 168, y: 34 }, GROUND = 512;
 const halfWidth = (y: number) => (y - PEAK.y) * 0.4 + 6;
 const TRAIL_POINTS: [number, number][] = (() => {
   const pts: [number, number][] = [[64, 506]];
@@ -101,7 +117,11 @@ const TRAIL_POINTS: [number, number][] = (() => {
   return pts;
 })();
 const summitPath = pathOf(TRAIL_POINTS);
+const CAVE_POINTS: [number, number][] = [[64, 506], [64, 516], [64, 548], [104, 558], [150, 566], [196, 576], [246, 586]];
+const cavePath = pathOf(CAVE_POINTS);
 const CLIMBER = ["..h..", ".hhh.", ".sss.", "bbbbp", ".bbbp", ".l.l."];
+const LAKE = { x: 262, y: 492, rx: 44, ry: 9 };
+const FALLS = { x: 252, top: 372, bottom: 484 };
 
 export const SUMMIT: World = {
   id: "summit", fullW: S_W, fullH: S_H, viewW: 320, viewH: 150,
@@ -109,68 +129,146 @@ export const SUMMIT: World = {
     { name: "Trailhead", at: 0 }, { name: "Pine Hollow", at: 0.12 }, { name: "Fox Bridge", at: 0.25 }, { name: "Eagle Rock", at: 0.38 },
     { name: "Misty Ledge", at: 0.5 }, { name: "Frost Hut", at: 0.62 }, { name: "Ice Wall", at: 0.75 }, { name: "Cloud Gate", at: 0.88 }, { name: "Summit", at: 1 },
   ],
+  below: [{ name: "Cave Mouth", at: -0.001 }, { name: "Glow Caves", at: -0.4 }, { name: "Rock Bottom", at: -0.85 }],
   backdrop(ctx) {
-    ditherSky(ctx, 0, 0, S_W, S_H, [[0, "#0f1640"], [0.25, "#24407e"], [0.55, "#5e8cc9"], [0.8, "#9cc3e6"], [1, "#d7e8f5"]]);
+    // a dawn sky: night at the top, a warm glow on the horizon
+    ditherSky(ctx, 0, 0, S_W, GROUND, [[0, "#0b1035"], [0.18, "#1d2f6b"], [0.36, "#4a6fb5"], [0.48, "#9fbfe4"], [0.56, "#f6d2b0"], [0.62, "#f4a98c"], [1, "#e88f7c"]]);
     const r = rng(7);
-    for (let i = 0; i < 60; i++) px(ctx, r() * S_W, r() * 110, r() > 0.7 ? "#ffffff" : "#9fb0e0");
-    // far ranges on both sides
-    for (let x = 0; x < S_W; x++) {
-      const h = 300 + Math.sin(x * 0.04) * 22 + Math.sin(x * 0.13 + 1) * 8 + noise1(x, 3) * 3;
-      for (let y = Math.round(h); y < S_H; y++) px(ctx, x, y, y < h + 6 && h < 300 ? "#e8eef8" : "#6f86b8");
+    for (let i = 0; i < 80; i++) px(ctx, r() * S_W, r() * 120, r() > 0.75 ? "#ffffff" : "#9fb0e0");
+    disc(ctx, 40, 292, 13, (x, y) => (x * x + y * y > 100 ? "#ffd9a0" : "#fff3d6")); // the rising sun behind the far ranges
+    // three far ranges, paler with distance, each with its own snow line
+    const ranges: [number, number, string, string, number][] = [[262, 0.035, "#b9a7c9", "#efe6f2", 271], [288, 0.05, "#8c86b4", "#e4e2f2", 296], [318, 0.07, "#5d6a9c", "#d5dcef", 324]];
+    for (const [base, freq, rock, snow, line] of ranges) {
+      for (let x = 0; x < S_W; x++) {
+        const h = base + Math.sin(x * freq) * 18 + Math.sin(x * freq * 3.1 + 1) * 7 + noise1(x, base) * 2;
+        for (let y = Math.round(h); y < GROUND; y++) px(ctx, x, y, y < line && y < h + 5 ? snow : rock);
+      }
     }
-    // the great peak, lit from the left, with rock bands, cliffs and a snowfield
-    for (let y = PEAK.y; y < S_H; y++) {
+    // the great peak, lit from the left, with a jagged ridge, rock bands, snowfields, a glacier and crevasses
+    for (let y = PEAK.y; y < GROUND; y++) {
       const hw = halfWidth(y) + noise1(y, 9) * 4 + Math.sin(y * 0.09) * 3;
+      const ridge = PEAK.x + Math.sin(y * 0.05) * 6 + noise1(y, 4) * 2;
       for (let x = Math.floor(PEAK.x - hw); x <= Math.ceil(PEAK.x + hw); x++) {
         if (x < 0 || x >= S_W) continue;
-        const lit = x < PEAK.x + Math.sin(y * 0.05) * 6;
-        const snowLine = 230 + noise1(x, 11) * 22 + Math.sin(x * 0.17) * 10;
-        let c = lit ? "#8493ad" : "#58617c";
-        if (y < snowLine) c = lit ? "#ffffff" : "#c7d4ea";
-        else if ((x * 7 + y * 13) % 19 === 0) c = lit ? "#6d7c96" : "#444d66";
-        if (y > snowLine && y % 37 < 2) c = lit ? "#6d7c96" : "#3e4760";
+        const lit = x < ridge;
+        const edge = Math.min(x - (PEAK.x - hw), PEAK.x + hw - x); // distance from the mountain's outline
+        const snowLine = 230 + noise1(x, 11) * 22 + Math.sin(x * 0.17) * 10 + (noise2(x / 9, y / 9, 2) - 0.5) * 30;
+        const grassLine = 390 + (noise2(x / 14, y / 10, 6) - 0.5) * 60;
+        const n = noise2(x / 7, y / 5, 1) * 0.7 + noise2(x / 2.5, y / 2.5, 3) * 0.3; // rock texture
+        const strata = Math.sin((y + x * (lit ? 0.45 : -0.45)) * 0.32 + noise2(x / 12, y / 12, 4) * 4);
+        let c: string;
+        if (y < snowLine) {
+          c = lit ? (n > 0.62 ? "#e3eaf6" : "#ffffff") : n > 0.6 ? "#a9b9d8" : "#c7d4ea";
+          if (!lit && x > ridge + 8 && x < ridge + 26 && y > 110) c = n > 0.55 ? "#8fb2e2" : "#a9c6ec"; // glacier tongue
+          if (n < 0.22 && y > 60) c = lit ? "#6d7c96" : "#444d66"; // rock poking through the snow
+        } else if (y > grassLine && n > 0.35) {
+          c = lit ? (n > 0.7 ? "#7cae6a" : "#5f9a5c") : n > 0.7 ? "#4f7f55" : "#3f6a4a"; // alpine meadow on the lower slopes
+        } else {
+          const rock = lit ? ["#5e6a85", "#76839f", "#8e9bb5", "#a5b0c6"] : ["#363d55", "#454d68", "#58617c", "#69728c"];
+          c = rock[Math.min(3, Math.floor(n * 4.2))]!;
+          if (strata > 0.86) c = lit ? "#4f5a73" : "#2d3349"; // tilted rock bands
+          if (y < snowLine + 16 && noise2(x / 3, y / 2, 8) > 0.68) c = lit ? "#e8eef8" : "#aab8d4"; // snow caught in the cracks
+        }
+        if (Math.abs(x - ridge) < 1 && y < snowLine) c = "#fffbe6"; // sunlit ridge
+        if (edge < 1.5 && y < snowLine) c = lit ? "#f4f8ff" : "#8ea0c4"; // rim light on the outline
         px(ctx, x, y, c);
       }
     }
+    // the waterfall's cliff, then the falls themselves are animated in `frame`
+    for (let y = FALLS.top - 4; y < FALLS.bottom; y++) {
+      const half = 4 + Math.round(noise1(y, 12) * 2) + Math.round((y - FALLS.top) / 40);
+      px(ctx, FALLS.x - half, y, "#2d3349", half * 2, 1); // the dark wet rock behind the falls
+      px(ctx, FALLS.x - half - 1, y, "#58617c"); px(ctx, FALLS.x + half, y, "#58617c");
+    }
+    for (let y = -3; y <= 3; y++) for (let x = -9; x <= 9; x++) if (x * x / 81 + y * y / 9 <= 1) px(ctx, FALLS.x + x, FALLS.bottom + y, y < 0 ? "#bfe3ff" : "#6f93c8"); // plunge pool
     // forest band and meadow at the foot
     for (let x = 0; x < S_W; x++) {
-      const g = 470 + Math.sin(x * 0.05) * 6 + noise1(x, 5) * 3;
-      for (let y = Math.round(g); y < S_H; y++) px(ctx, x, y, y < g + 2 ? "#5c9a63" : "#2e5a3f");
+      const g = 466 + Math.sin(x * 0.05) * 6 + noise1(x, 5) * 3;
+      for (let y = Math.round(g); y < GROUND; y++) px(ctx, x, y, y < g + 2 ? "#7cc06f" : y < g + 18 ? "#4f8f52" : "#3c7445");
     }
-    for (let i = 0; i < 90; i++) {
-      const x = Math.round(r() * S_W), base = 380 + r() * 95, h = 5 + Math.round(r() * 6);
-      if (Math.abs(x - PEAK.x) < halfWidth(base) * 0.35) continue;
-      for (let k = 0; k < h; k++) { const half = Math.floor((k * 3) / h); for (let dx = -half; dx <= half; dx++) px(ctx, x + dx, base - h + k, k % 3 === 0 ? "#2f6b45" : "#1f4e33"); }
+    for (let i = 0; i < 70; i++) px(ctx, r() * S_W, 478 + r() * 30, ["#ffd23f", "#ff8fb1", "#ffffff", "#c084fc"][i % 4]!); // wildflowers
+    // the lake, mirroring the sky and the peak
+    for (let y = -LAKE.ry; y <= LAKE.ry; y++) for (let x = -LAKE.rx; x <= LAKE.rx; x++) {
+      if ((x * x) / (LAKE.rx * LAKE.rx) + (y * y) / (LAKE.ry * LAKE.ry) > 1) continue;
+      const edge = (x * x) / (LAKE.rx * LAKE.rx) + (y * y) / (LAKE.ry * LAKE.ry) > 0.8;
+      px(ctx, LAKE.x + x, LAKE.y + y, edge ? "#d8c79a" : y < -3 ? "#9fbfe4" : y < 2 ? "#6f93c8" : "#4a6fb5");
+    }
+    // pines on the lower slopes, bigger and darker nearer the foot
+    for (let i = 0; i < 150; i++) {
+      const x = Math.round(r() * S_W), base = 360 + r() * 140, h = 4 + Math.round(((base - 360) / 140) * 6 + r() * 4);
+      if (Math.abs(x - PEAK.x) < halfWidth(base) * 0.32 || ((x - LAKE.x) ** 2) / 2500 + ((base - LAKE.y) ** 2) / 200 < 1.4) continue;
+      const dark = base > 440 ? "#1f4e33" : "#2b5a4a", light = base > 440 ? "#2f6b45" : "#3d7563";
+      for (let k = 0; k < h; k++) { const half = Math.floor((k * 3) / h); for (let dx = -half; dx <= half; dx++) px(ctx, x + dx, base - h + k, k % 3 === 0 || dx < 0 ? light : dark); }
+      if (base > 400 && base < 430) px(ctx, x, base - h, "#ffffff"); // snow on the higher trees
       px(ctx, x, base, "#4a3324", 1, 2);
     }
+    // the trailhead cabin and its signpost
+    px(ctx, 36, 496, "#7a4a2a", 18, 10); for (let k = 0; k < 6; k++) px(ctx, 34 + k, 495 - k, "#b23a48", 22 - k * 2, 1);
+    px(ctx, 41, 499, "#ffd23f", 3, 3); px(ctx, 48, 500, "#3a2416", 3, 6); px(ctx, 50, 486, "#5a4535", 2, 6);
+    px(ctx, 74, 496, "#5a4535", 1, 10); px(ctx, 70, 496, "#c9a46b", 10, 3);
     // the trail
     for (let i = 1; i < TRAIL_POINTS.length; i++) {
       const [x0, y0] = TRAIL_POINTS[i - 1]!, [x1, y1] = TRAIL_POINTS[i]!;
       const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0));
       for (let k = 0; k < n; k += 2) px(ctx, x0 + ((x1 - x0) * k) / n, y0 + ((y1 - y0) * k) / n, "#3c3550");
     }
-    // a hut, a bridge and a flag at each checkpoint
-    SUMMIT.checkpoints.slice(1).forEach((cp, i) => {
+    // a stone cairn with a pennant at each checkpoint, and an empty pole on the summit for the winner's flag
+    SUMMIT.checkpoints.slice(1, -1).forEach((cp) => {
       const p = summitPath(cp.at);
-      px(ctx, p.x + 2, p.y - 9, "#3c3550", 1, 9);
-      px(ctx, p.x + 3, p.y - 9, ["#ffd23f", "#4cc9f0", "#c084fc", "#3ddc97", "#fb923c", "#ff4d6d", "#ffffff", "#ffd23f"][i % 8]!, 5, 3);
+      px(ctx, p.x + 2, p.y - 2, "#8a8fa3", 5, 2); px(ctx, p.x + 3, p.y - 4, "#a7abbd", 3, 2); px(ctx, p.x + 4, p.y - 5, "#c4c8d6", 1, 1);
+      px(ctx, p.x + 4, p.y - 11, "#3c3550", 1, 6); px(ctx, p.x + 5, p.y - 11, "#e9e3f5", 3, 2);
     });
+    px(ctx, PEAK.x - 3, PEAK.y - 1, "#8a8fa3", 7, 2);
+
+    // ----- underground -----
+    ditherSky(ctx, 0, GROUND, S_W, S_H - GROUND, [[0, "#5a3b26"], [0.3, "#3f2a1d"], [0.7, "#2a1c15"], [1, "#1a110d"]]);
+    for (let x = 0; x < S_W; x++) px(ctx, x, GROUND, "#2e5a3f", 1, 2); // grass edge
+    for (let i = 0; i < 260; i++) { const y = GROUND + 4 + r() * (S_H - GROUND - 4); px(ctx, r() * S_W, y, r() > 0.5 ? "#6b5040" : "#1f1510", 1 + Math.round(r()), 1); }
+    for (let i = 0; i < 22; i++) { const x = r() * S_W, len = 3 + r() * 9; for (let k = 0; k < len; k++) px(ctx, x + Math.sin(k * 0.8 + i) * 1.5, GROUND + 2 + k, "#8a6a4a"); } // roots
+    for (const [bx, by] of [[150, 530], [286, 548], [30, 580]]) { px(ctx, bx, by, "#e8dcc0", 7, 1); px(ctx, bx - 1, by - 1, "#e8dcc0", 2, 3); px(ctx, bx + 6, by - 1, "#e8dcc0", 2, 3); } // fossil bones
+    // the cave tunnel, carved along the climber's way down
+    const cave = pathOf(CAVE_POINTS.slice(2));
+    for (let k = 0; k <= 200; k++) {
+      const p = cave(k / 200);
+      for (let dy = -7; dy <= 5; dy++) for (let dx = -6; dx <= 6; dx++) if (dx * dx + dy * dy * 1.4 < 46) px(ctx, p.x + dx, p.y + dy, dx * dx + dy * dy * 1.4 > 34 ? "#4a3326" : "#140d10");
+    }
+    for (let x = 80; x < 250; x += 9) { const p = cave((x - 64) / 182); px(ctx, x, p.y - 8, "#5a4535", 2, 2 + (x % 3)); } // stalactites
+    px(ctx, 58, GROUND - 4, "#140d10", 12, 6); // the hole at the trailhead
+    for (let y = GROUND - 2; y < 552; y++) { px(ctx, 61, y, "#a9825a"); px(ctx, 67, y, "#a9825a"); if (y % 4 === 0) px(ctx, 61, y, "#c9a46b", 7, 1); } // ladder
+    px(ctx, 80, GROUND - 9, "#5a4535", 1, 9); px(ctx, 76, GROUND - 10, "#ffd23f", 9, 5); px(ctx, 80, GROUND - 9, "#2b2d42", 1, 2); px(ctx, 80, GROUND - 6, "#2b2d42", 1, 1); // a "!" warning sign
+    // a lava pool at rock bottom
+    for (let x = 226; x < 300; x++) { const top = 594 + Math.round(Math.sin(x * 0.3) * 1); px(ctx, x, top, "#ffb347", 1, S_H - top); }
   },
-  frame(ctx, t, shown, moving, cam) {
+  frame(ctx, t, shown, moving, cam, colors) {
+    // waterfall, mist and ripples on the lake
+    for (let y = FALLS.top; y < FALLS.bottom; y++) {
+      const c = (y + t * 3) % 6 < 2 ? "#ffffff" : (y + t * 3) % 6 < 4 ? "#bfe3ff" : "#7fbcf0";
+      px(ctx, FALLS.x - 2 + Math.round(Math.sin(y * 0.2) * 0.6), y, c, 4, 1);
+    }
+    for (let k = 0; k < 6; k++) px(ctx, FALLS.x - 4 + noise1(k + t, 3) * 10, FALLS.bottom - 2 + noise1(k * 3 + t, 5) * 4, "#ffffff");
+    for (let k = 0; k < 5; k++) { const x = LAKE.x - 30 + ((t * 0.8 + k * 17) % 60); px(ctx, x, LAKE.y - 2 + (k % 3) * 2, "#d7e8f5", 4, 1); }
+    // chimney smoke from the cabin
+    for (let k = 0; k < 5; k++) { const age = (t * 0.6 + k * 4) % 20; px(ctx, 51 + Math.sin(age * 0.4) * 2 + age * 0.3, 484 - age, age < 10 ? "#d8d8e8" : "#a9a9c0", 2, 2); }
     for (let i = 0; i < 7; i++) {
       const w = 22 + (i % 3) * 8;
-      cloud(ctx, ((t * (0.06 + (i % 3) * 0.03) + i * 97) % (S_W + 60)) - 40, 60 + i * 55, w);
+      cloud(ctx, ((t * (0.06 + (i % 3) * 0.03) + i * 97) % (S_W + 60)) - 40, 60 + i * 52, w);
     }
-    for (let i = 0; i < 30; i++) px(ctx, (noise1(i, 1) * S_W + t * 1.4) % S_W, cam.y + ((noise1(i, 2) * 150 + t * 0.6 + i * 5) % 150), "#ffffff");
+    if (cam.y < 300) for (let i = 0; i < 30; i++) px(ctx, (noise1(i, 1) * S_W + t * 1.4) % S_W, cam.y + ((noise1(i, 2) * 150 + t * 0.6 + i * 5) % 150), "#ffffff");
     for (let i = 0; i < 3; i++) { const bx = ((t * 0.5 + i * 40) % 360) - 20, by = 330 + i * 6 + Math.sin(t / 6 + i) * 2; px(ctx, bx, by, "#24304f", 2, 1); px(ctx, bx + 3, by, "#24304f", 2, 1); }
+    // underground: glowing crystals, drips and bubbling lava
+    if (cam.y + 150 > GROUND) {
+      for (let k = 0; k < 9; k++) { const p = cavePath(0.3 + k * 0.08); const on = (t + k * 3) % 12 < 8; px(ctx, p.x + (k % 2 ? 5 : -6), p.y + 3, on ? (k % 2 ? "#c084fc" : "#4cc9f0") : "#5b3d8a", 2, 3); }
+      for (let k = 0; k < 4; k++) { const x = 92 + k * 40, age = (t + k * 7) % 16; px(ctx, x, 552 + k * 6 + age, "#7fbcf0"); }
+      for (let k = 0; k < 4; k++) if ((t + k * 5) % 10 < 4) px(ctx, 232 + k * 18, 592, "#ffd23f", 2, 2);
+    }
     shown.forEach((v, i) => {
-      const p = summitPath(v);
+      const p = SUMMIT.pos(v, i, shown.length);
       const hop = moving[i] ? Math.abs(Math.sin(t * 1.1 + i)) * 2 : 0;
-      if (moving[i]) for (let k = 0; k < 3; k++) px(ctx, p.x - 3 + noise1(k + t, i) * 6, p.y - 1 + noise1(k * 2 + t, i) * 2, "#e8e2d0");
-      drawSprite(ctx, CLIMBER, { h: ACTOR_COLORS[i % 6]!, s: "#ffd9b0", b: "#2b2d42", p: "#8a5a2b", l: "#1a1033" }, p.x - 2 + (i - (shown.length - 1) / 2) * 6, p.y - 6 - hop);
+      if (moving[i] && v >= 0) for (let k = 0; k < 3; k++) px(ctx, p.x - 3 + noise1(k + t, i) * 6, p.y - 1 + noise1(k * 2 + t, i) * 2, "#e8e2d0");
+      drawSprite(ctx, CLIMBER, { h: colors[i]!, s: "#ffd9b0", b: "#2b2d42", p: "#8a5a2b", l: "#1a1033" }, p.x - 2 + (i - (shown.length - 1) / 2) * 6, p.y - 6 - hop);
     });
   },
-  pos: (f) => summitPath(f),
+  pos: (f) => (f < 0 ? cavePath(Math.min(1, -f)) : summitPath(f)),
   camera: (p) => ({ x: 0, y: clamp(p.y - 90, 0, S_H - 150) }),
 };
 
@@ -204,7 +302,7 @@ export const SKY: World = {
     ditherSky(ctx, 0, SEA, H_W, H_H - SEA, [[0, "#3a3f8f"], [0.5, "#1f2a66"], [1, "#0d1438"]]);
     for (const bx of [96, 214, 282]) { px(ctx, bx, SEA - 2, "#2a1d3d", 10, 2); px(ctx, bx + 4, SEA - 11, "#e9e3f5", 1, 9); px(ctx, bx + 5, SEA - 10, "#e9e3f5", 4, 6); }
   },
-  frame(ctx, t, shown, moving) {
+  frame(ctx, t, shown, moving, _cam, colors) {
     for (let y = SEA + 2; y < H_H; y += 2) {
       const off = Math.sin(t / 5 + y) * 3;
       for (let x = ((y * 7) % 23) - 23 + off; x < H_W; x += 23) px(ctx, x, y, "#5560b0", 6, 1);
@@ -216,7 +314,7 @@ export const SKY: World = {
     shown.forEach((v, i) => {
       const p = SKY.pos(v, i, shown.length);
       const sway = Math.sin(t / 7 + i * 2) * 1.5;
-      drawSprite(ctx, BALLOON, { c: ACTOR_COLORS[i % 6]!, C: "#ffe9a6", r: "#6b4226", b: "#8a5a2b" }, p.x - 5 + sway, p.y - 10);
+      drawSprite(ctx, BALLOON, { c: colors[i]!, C: "#ffe9a6", r: "#6b4226", b: "#8a5a2b" }, p.x - 5 + sway, p.y - 10);
       if (moving[i] && t % 3 < 2) px(ctx, p.x - 1 + sway, p.y - 3, "#ffb347", 2, 2);
     });
   },
@@ -257,13 +355,13 @@ export const LAUNCH: World = {
     // dotted flight path
     for (let x = 40; x < 1740; x += 6) px(ctx, x, ORBIT_Y + 4, "#2c2c5a", 2, 1);
   },
-  frame(ctx, t, shown, moving) {
+  frame(ctx, t, shown, moving, _cam, colors) {
     for (let i = 0; i < 40; i++) if ((t + i * 7) % 26 < 2) px(ctx, noise1(i, 8) * L_W, noise1(i, 9) * L_H, "#ffffff");
     shown.forEach((v, i) => {
       const x = shipX(v), y = ORBIT_Y + (i - (shown.length - 1) / 2) * 12 + Math.sin(t / 6 + i) * 1.5;
       const thrust = moving[i] ? 8 + (t % 3) * 2 : 3;
       for (let k = 0; k < thrust; k++) px(ctx, x - 2 - k, y + 2 + noise1(k + t, i) * 2 - 1, k < 3 ? "#fff3b0" : k < 6 ? "#ffb347" : "#ff4d6d");
-      drawSprite(ctx, SHIP, { w: "#f1f1f8", B: "#4cc9f0", r: ACTOR_COLORS[i % 6]!, o: "#ffd23f" }, x, y - 1);
+      drawSprite(ctx, SHIP, { w: "#f1f1f8", B: "#4cc9f0", r: colors[i]!, o: "#ffd23f" }, x, y - 1);
     });
   },
   pos: (f, i, n) => ({ x: shipX(f) + 6, y: ORBIT_Y + (i - (n - 1) / 2) * 12 }),
@@ -274,6 +372,7 @@ export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH };
 
 /** The last checkpoint reached at a fraction of the journey. */
 export function checkpointAt(world: World, f: number): Checkpoint {
+  if (f < 0 && world.below?.length) return [...world.below].reverse().find((c) => f <= c.at) ?? world.below[0]!;
   let out = world.checkpoints[0]!;
   for (const c of world.checkpoints) if (f >= c.at - 1e-9) out = c;
   return out;

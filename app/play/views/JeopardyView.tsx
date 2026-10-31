@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as J from "../../topicDraft/formats/jeopardy";
 import { useSound } from "../../components/SoundProvider";
 import { WorldScene } from "../../components/pixel/WorldScene";
+import { playerColor } from "../../components/pixel/worlds";
 import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
 import { RateItem } from "../../components/pixel/RateItem";
 import { Sprite } from "../../components/pixel/Sprite";
@@ -12,6 +13,9 @@ import { useTypewriter } from "../../components/pixel/useTypewriter";
 import { useAiTurn } from "./useAiTurn";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
+
+/** How far up the mountain a score puts you. Below zero you go underground: three missed top clues is Rock Bottom. */
+export const climbOf = (points: number, cap: number) => (points >= 0 ? points / cap : Math.max(-1, points / (Math.max(...J.VALUES) * 3)));
 
 /** Jeopardy as a mountain climb: harder clues are higher camps, and every player is a climber on the same trail. */
 const CLUE_TIERS = ["FOOTHILL", "TREELINE", "SNOWLINE", "SUMMIT"];
@@ -50,6 +54,7 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
   // A solo climber can reach the summit only by getting every clue; with rivals the clues are shared, so less is needed.
   const cap = J.VALUES.reduce((a, b) => a + b, 0) * cols * (s.players.length === 1 ? 1 : 0.6);
   const tierOf = (value: number) => J.VALUES.indexOf(value) + 1;
+  const color = (p: string) => playerColor(s.players, p);
 
   return (
     <PixelShell world="summit">
@@ -59,8 +64,8 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
           <h1 className="mt-2">{active ? `${active.cat} · ${active.value}M` : mine ? `${player}: CHOOSE A CLUE` : `${player} IS PICKING…`}</h1>
           <p className="px-note mt-2">{setup.mission.title}</p>
         </PixelBox>
-        <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]}M`, active: p === player }))} />
-        <WorldScene world="summit" caption="The climb" actors={s.players.map((p) => ({ name: p, value: Math.max(0, s.points[p]!) / cap }))}
+        <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]}M`, active: p === player, color: color(p) }))} />
+        <WorldScene world="summit" caption="The climb" actors={s.players.map((p) => ({ name: p, value: climbOf(s.points[p]!, cap), color: color(p) }))}
           flash={s.last != null ? { key: s.resolved, good: !!s.cells[s.last]!.correct } : undefined} />
         <div>
           <PixelBox>

@@ -16,10 +16,10 @@ export function PixelButton({ variant, className = "", ...rest }: ButtonHTMLAttr
   return <button type="button" {...rest} className={`px-btn ${variant ?? ""} ${className}`} />;
 }
 
-export function PixelScore({ rows }: { rows: { name: string; value: string; active?: boolean }[] }) {
+export function PixelScore({ rows }: { rows: { name: string; value: string; active?: boolean; color?: string }[] }) {
   return (
     <ul className="px-score m-0 p-0" aria-label="Scores">
-      {rows.map((r) => <li key={r.name} className={r.active ? "on" : ""}><span>{r.name}</span><b>{r.value}</b></li>)}
+      {rows.map((r) => <li key={r.name} className={r.active ? "on" : ""}>{r.color && <i className="swatch" style={{ background: r.color }} aria-hidden />}<span>{r.name}</span><b>{r.value}</b></li>)}
     </ul>
   );
 }

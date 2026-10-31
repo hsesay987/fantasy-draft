@@ -8,16 +8,20 @@ import { ACTOR_COLORS, checkpointAt, easeToward, WORLDS, type Actor, type Checkp
  * leading player, then animates clouds, water, stars and the players themselves at about 14 frames a second.
  * Crossing a named checkpoint shows a banner. Below the scene, a track charts every player against the checkpoints.
  * `flash` (bump `key`) shakes the scene red for a miss or sparkles gold for a hit.
+ * `winner` plants a waving flag in that player's color where they finished.
  */
-export function WorldScene({ world, actors, flash, caption, labels = true, track = true, onCheckpoint }: {
+export function WorldScene({ world, actors, flash, caption, labels = true, track = true, onCheckpoint, winner }: {
   world: keyof typeof WORLDS; actors: Actor[]; flash?: { key: number; good: boolean }; caption?: string; labels?: boolean; track?: boolean;
-  onCheckpoint?: (cp: Checkpoint, who: string) => void;
+  onCheckpoint?: (cp: Checkpoint, who: string) => void; winner?: string | null;
 }) {
   const w = WORLDS[world];
   const ref = useRef<HTMLCanvasElement>(null);
   const labelRefs = useRef<(HTMLLIElement | null)[]>([]);
   const target = useRef(actors);
   target.current = actors;
+  const winnerRef = useRef(winner);
+  winnerRef.current = winner;
+  const marks = [...w.checkpoints, ...(w.below ?? [])];
   const fx = useRef<{ at: number; good: boolean } | null>(null);
   const lastKey = useRef(flash?.key);
   if (flash && flash.key !== lastKey.current) { lastKey.current = flash.key; fx.current = { at: -1, good: flash.good }; }
@@ -71,7 +75,10 @@ export function WorldScene({ world, actors, flash, caption, labels = true, track
       ctx.drawImage(back, camX - shake, camY, w.viewW, w.viewH, 0, 0, w.viewW, w.viewH);
       ctx.save();
       ctx.translate(-camX + shake, -camY);
-      w.frame(ctx, still ? 0 : t, shown, moving, { x: camX, y: camY });
+      const colors = goal.map((a, i) => colorOf(a, i));
+      w.frame(ctx, still ? 0 : t, shown, moving, { x: camX, y: camY }, colors);
+      const wi = goal.findIndex((a) => a.name === winnerRef.current);
+      if (wi >= 0) plantFlag(ctx, w.pos(shown[wi] ?? 0, wi, shown.length), colors[wi]!, still ? 0 : t);
       if (f && age < 9 && f.good) {
         const p = w.pos(shown[lead] ?? 0, lead, shown.length);
         for (let k = 0; k < 12; k++) {
@@ -82,16 +89,18 @@ export function WorldScene({ world, actors, flash, caption, labels = true, track
       }
       ctx.restore();
       if (f && age < 8 && !f.good) { ctx.fillStyle = `rgba(255,40,80,${0.28 - age * 0.035})`; ctx.fillRect(0, 0, w.viewW, w.viewH); }
-      // Keep the checkpoint labels pinned to their spots on the map.
-      w.checkpoints.forEach((cp, i) => {
+      // Checkpoint labels: on the climbing worlds they sit in one column on the left edge, level with their spot;
+      // on the flight across the solar system they sit along the bottom, under each planet.
+      const side = w.id !== "launch";
+      marks.forEach((cp, i) => {
         const el = labelRefs.current[i];
         if (!el) return;
         const p = w.pos(cp.at, 0, 1);
         const x = ((p.x - camX) / w.viewW) * 100, y = ((p.y - camY) / w.viewH) * 100;
-        const visible = x > -10 && x < 100 && y > 2 && y < 98;
+        const visible = side ? y > 3 && y < 97 : x > -10 && x < 100;
         el.style.opacity = visible ? "1" : "0";
-        el.style.left = `${Math.max(1, Math.min(78, x + (w.id === "launch" ? -4 : 3)))}%`;
-        el.style.top = `${w.id === "launch" ? 92 : y}%`;
+        el.style.left = side ? "0" : `${Math.max(1, Math.min(78, x - 4))}%`;
+        el.style.top = `${side ? y : 92}%`;
       });
     };
     raf = requestAnimationFrame(loop);
@@ -112,7 +121,7 @@ export function WorldScene({ world, actors, flash, caption, labels = true, track
           aria-label={`${caption ?? "Progress"}: ${actors.map((a) => `${a.name} at ${checkpointAt(w, a.value).name}`).join(", ")}`} />
         {labels && (
           <ol className="pointer-events-none absolute inset-0 m-0 list-none p-0" aria-hidden>
-            {w.checkpoints.map((cp, i) => <li key={cp.name} ref={(el) => { labelRefs.current[i] = el; }} className="px-world-tier" style={{ opacity: 0 }}>{cp.name.toUpperCase()}</li>)}
+            {marks.map((cp, i) => <li key={cp.name} ref={(el) => { labelRefs.current[i] = el; }} className={`px-world-tier ${cp.at < 0 ? "under" : ""} ${w.id === "launch" ? "" : "side"}`} style={{ opacity: 0 }}>{cp.name.toUpperCase()}</li>)}
           </ol>
         )}
         {banner && (
@@ -126,6 +135,26 @@ export function WorldScene({ world, actors, flash, caption, labels = true, track
       {track && <ProgressTrack world={world} actors={actors} leadName={lead?.value ? lead.name : null} />}
     </figure>
   );
+}
+
+const colorOf = (a: Actor, i: number) => a.color ?? ACTOR_COLORS[i % ACTOR_COLORS.length]!;
+
+/** A pole with a flag that ripples in the wind, planted just behind a player. */
+function plantFlag(ctx: CanvasRenderingContext2D, p: { x: number; y: number }, color: string, t: number) {
+  const x = Math.round(p.x) + 4, y = Math.round(p.y);
+  ctx.fillStyle = "#e9e3f5";
+  ctx.fillRect(x, y - 16, 1, 16);
+  ctx.fillStyle = "#2b2d42";
+  ctx.fillRect(x + 1, y - 16, 1, 16);
+  ctx.fillStyle = "#ffd23f";
+  ctx.fillRect(x, y - 17, 1, 1);
+  for (let cx = 0; cx < 9; cx++) {
+    const wave = Math.round(Math.sin(t / 3 + cx * 0.7) * (cx / 8) * 1.5);
+    ctx.fillStyle = color;
+    ctx.fillRect(x + 1 + cx, y - 16 + wave, 1, 6);
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillRect(x + 1 + cx, y - 11 + wave, 1, 1);
+  }
 }
 
 /** A chart of the whole journey: every checkpoint as a tick, every player as a marker, the leader's progress filled in. */
@@ -143,13 +172,13 @@ export function ProgressTrack({ world, actors, leadName }: { world: keyof typeof
           </span>
         ))}
         {actors.map((a, i) => (
-          <span key={a.name} className="pin" style={{ left: `${Math.min(100, a.value * 100)}%`, background: ACTOR_COLORS[i % 6], top: `${-10 - i * 6}px` }} title={a.name} />
+          <span key={a.name} className={`pin ${a.value < 0 ? "under" : ""}`} style={{ left: `${Math.max(0, Math.min(100, a.value * 100))}%`, background: colorOf(a, i), top: `${-10 - i * 6}px` }} title={a.name} />
         ))}
       </div>
       <div className="px-track-legend">
         {actors.map((a, i) => (
           <span key={a.name} className={leadName === a.name ? "lead" : ""}>
-            <i style={{ background: ACTOR_COLORS[i % 6] }} />{a.name} · {checkpointAt(w, a.value).name} · {Math.round(a.value * 100)}%
+            <i style={{ background: colorOf(a, i) }} />{a.name} · {checkpointAt(w, a.value).name}{a.value < 0 ? " ▼ underground" : ` · ${Math.round(a.value * 100)}%`}
           </span>
         ))}
       </div>

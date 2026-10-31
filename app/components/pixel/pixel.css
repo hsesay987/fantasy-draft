@@ -29,6 +29,7 @@
 .px-score li { list-style: none; background: var(--px-ink); padding: 6px 10px; font-size: 22px; display: flex; gap: 10px; align-items: center; }
 .px-score li.on { background: var(--px-violet); }
 .px-score b { font-weight: 400; color: var(--px-gold); }
+.px-score .swatch { width: 12px; height: 12px; display: inline-block; box-shadow: 0 0 0 2px #000; }
 .px-board { display: grid; gap: 14px; }
 .px-cat { background: var(--px-panel2); padding: 10px; display: grid; gap: 10px; align-content: start; margin: 4px; box-shadow: 0 0 0 4px var(--px-ink); }
 .px-cat h3 { min-height: 48px; color: var(--px-lav); font-size: 9px; text-transform: uppercase; }
@@ -112,6 +113,10 @@
 .px-world canvas { image-rendering: pixelated; }
 .px-world-tier { position: absolute; left: 6px; transform: translateY(-50%); font-family: var(--px-head); font-size: 7px; color: #fff; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; opacity: .85; }
 @media (min-width: 768px) { .px-world-tier { font-size: 9px; left: 10px; } }
+/* Climbing worlds: every checkpoint label in one column on the left edge, with a tick pointing at its level. */
+.px-world-tier.side { padding: 2px 6px 2px 4px; background: rgba(10, 8, 30, .55); border-left: 3px solid #fff; }
+.px-world-tier.side::after { content: ""; position: absolute; left: 100%; top: 50%; width: 10px; border-top: 1px dashed rgba(255,255,255,.6); }
+.px-world-tier.under { color: #ffb4a8; border-left-color: #ff4d6d; }
 .px-world-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 6px 4px; font-size: 20px; color: var(--px-dim); }
 .px-world-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .px-world-legend span.lead { color: var(--px-gold); }
@@ -138,6 +143,9 @@
 .px-track-bar .tick:nth-child(even) em { margin-top: 16px; }
 .px-track-bar .tick.on em { color: var(--px-gold); }
 .px-track-bar .pin { position: absolute; width: 10px; height: 10px; transform: translateX(-50%); box-shadow: 0 0 0 2px #000; transition: left .8s steps(16); }
+.px-track-bar .pin.under { box-shadow: 0 0 0 2px #ff4d6d; animation: px-sink 1s steps(2) infinite; }
+@keyframes px-sink { 50% { transform: translate(-50%, 3px); } }
+@media (prefers-reduced-motion: reduce) { .px-track-bar .pin.under { animation: none; } }
 .px-track-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 20px; color: var(--px-dim); }
 .px-track-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .px-track-legend span.lead { color: var(--px-gold); }

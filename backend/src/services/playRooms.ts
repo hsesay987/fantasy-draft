@@ -1,6 +1,8 @@
 // Online rooms for the TopPic draft formats. Rooms live in memory (no database writes, no accounts):
 // players join with a room code and get a private seat token. The server owns the game state and
 // runs the exact same engines as the browser (backend/src/shared is generated from the web app).
+// A room outlives its games: after one ends everyone goes back to the lobby, and the host can pick
+// another game (or the same one again) without anyone having to rejoin.
 import crypto from "crypto";
 import { getIo } from "../socket";
 import { trackServer } from "../lib/monitoring";
@@ -22,9 +24,12 @@ const ROOM_TTL_MS = 6 * 60 * 60 * 1000;
 const AFK_TURN_MS = 120_000;
 
 type Seat = { name: string; token: string; left: boolean };
+/** An NBA, NFL or Cartoon stat draft room the host opened for this group (those rooms need accounts). */
+type StatLink = { code: string; league: "NBA" | "NFL" | "CARTOON" };
 type Room = {
   code: string;
-  setup: GameSetup;
+  /** The game picked for the next (or current) round; null until the host picks one. */
+  setup: GameSetup | null;
   seats: Seat[];
   status: "lobby" | "playing" | "done";
   state: GameState | null;
@@ -34,6 +39,13 @@ type Room = {
   version: number;
   createdAt: number;
   touchedAt: number;
+  /** Games finished in this room, newest last. */
+  played: { format: FormatId; pool: string; winner: string | null }[];
+  /** Trivia already asked in this room, so the next board is different. */
+  seen: string[];
+  /** False once the current trivia board has been played, so a rematch gets new questions. */
+  freshQuiz: boolean;
+  statLink: StatLink | null;
 };
 
 const rooms = new Map<string, Room>();
@@ -144,30 +156,96 @@ export function getRoom(c: string): Room | undefined {
   return rooms.get(String(c).toUpperCase());
 }
 
+/** A room can be opened with a game already picked, or empty so the host picks one in the lobby. */
 export function createRoom(input: unknown, hostName: string, quiz?: QuizData): { room: Room; seat: Seat } | { error: string } {
-  const setup = sanitizeSetup(input);
-  if (!setup) return { error: "Invalid game setup" };
+  const setup = input == null ? null : sanitizeSetup(input);
+  if (input != null && !setup) return { error: "Invalid game setup" };
   const name = clean(hostName, 20);
   if (!name) return { error: "Enter a name" };
   if (rooms.size >= MAX_ROOMS) return { error: "Server is busy, try again soon" };
   const seat: Seat = { name, token: crypto.randomBytes(16).toString("hex"), left: false };
-  const room: Room = { code: code(), setup: { ...setup, id: `room-${Date.now()}`, players: [name], ...(quiz ? { quiz } : {}) }, seats: [seat], status: "lobby", state: null, turnMarker: "", turnStartedAt: 0, verdict: null, version: 1, createdAt: Date.now(), touchedAt: Date.now() };
+  const room: Room = {
+    code: code(), setup: setup && { ...setup, id: `room-${Date.now()}`, players: [name], ...(quiz ? { quiz } : {}) }, seats: [seat], status: "lobby", state: null,
+    turnMarker: "", turnStartedAt: 0, verdict: null, version: 1, createdAt: Date.now(), touchedAt: Date.now(), played: [], seen: [], freshQuiz: !!quiz, statLink: null,
+  };
   rooms.set(room.code, room);
-  trackServer("room_created_server", { format: setup.format, pool: setup.pool }, room.code);
+  trackServer("room_created_server", { format: setup?.format ?? "none", pool: setup?.pool ?? "none" }, room.code);
   return { room, seat };
 }
+
+const isHost = (room: Room, token: unknown) => {
+  const seat = seatFor(room, token);
+  return !!seat && seat === room.seats[0];
+};
+
+/** Back to the lobby: forget the last game's board and drop anyone who left during it. */
+function resetToLobby(room: Room) {
+  room.status = "lobby";
+  room.state = null;
+  room.verdict = null;
+  room.seats = room.seats.filter((s) => !s.left);
+  if (room.setup) room.setup = { ...room.setup, players: room.seats.map((s) => s.name) };
+}
+
+/** The host picks the next game (any time except mid-game). Trivia boards come in as `quiz`. */
+export function setGame(room: Room, token: unknown, input: unknown, quiz?: QuizData): { ok: true } | { error: string } {
+  if (!isHost(room, token)) return { error: "Only the host can pick the game" };
+  if (room.status === "playing") return { error: "Finish this game first" };
+  const setup = sanitizeSetup(input);
+  if (!setup) return { error: "Invalid game setup" };
+  resetToLobby(room);
+  room.setup = { ...setup, id: `room-${Date.now()}`, players: room.seats.map((s) => s.name), ...(quiz ? { quiz } : {}) };
+  room.freshQuiz = !!quiz;
+  room.statLink = null;
+  bump(room);
+  return { ok: true };
+}
+
+/** After a game: everyone returns to the lobby, keeping the room, the seats and the last game picked. */
+export function backToLobby(room: Room, token: unknown): { ok: true } | { error: string } {
+  if (!isHost(room, token)) return { error: "Only the host can do that" };
+  if (room.status !== "done") return { error: "The game is still running" };
+  resetToLobby(room);
+  bump(room);
+  return { ok: true };
+}
+
+/** Point the group at an NBA, NFL or Cartoon stat draft room the host opened (null clears it). */
+export function setStatLink(room: Room, token: unknown, link: unknown): { ok: true } | { error: string } {
+  if (!isHost(room, token)) return { error: "Only the host can do that" };
+  const l = link as Partial<StatLink> | null;
+  if (l == null) room.statLink = null;
+  else {
+    const c = clean(l.code, 12).toUpperCase();
+    if (!/^[A-Z0-9]{4,12}$/.test(c) || !["NBA", "NFL", "CARTOON"].includes(String(l.league))) return { error: "Invalid room" };
+    room.statLink = { code: c, league: l.league as StatLink["league"] };
+  }
+  bump(room);
+  return { ok: true };
+}
+
+/** A trivia game whose board was already played needs new questions before it starts again. */
+export const needsQuiz = (room: Room) => !!room.setup && (room.setup.format === "jeopardy" || room.setup.format === "feud") && !room.freshQuiz;
+export function giveQuiz(room: Room, quiz: QuizData) {
+  if (!room.setup) return;
+  room.setup = { ...room.setup, quiz };
+  room.freshQuiz = true;
+}
+/** Trivia already asked in this room (to avoid repeats on the next board). */
+export const seenIn = (room: Room) => room.seen;
 
 export function joinRoom(c: string, name: string): { room: Room; seat: Seat } | { error: string } {
   const room = getRoom(c);
   if (!room) return { error: "Room not found" };
-  if (room.status !== "lobby") return { error: "That game already started" };
+  if (room.status === "playing") return { error: "A game is running. You can join when it ends." };
   const n = clean(name, 20);
   if (!n) return { error: "Enter a name" };
   if (room.seats.length >= MAX_SEATS) return { error: "Room is full" };
   if (room.seats.some((s) => s.name.toLowerCase() === n.toLowerCase())) return { error: "That name is taken" };
   const seat: Seat = { name: n, token: crypto.randomBytes(16).toString("hex"), left: false };
   room.seats.push(seat);
-  room.setup.players = room.seats.map((s) => s.name);
+  if (room.status === "done") resetToLobby(room); // a newcomer after a game: everyone heads back to the lobby
+  if (room.setup) room.setup.players = room.seats.map((s) => s.name);
   bump(room);
   return { room, seat };
 }
@@ -177,11 +255,14 @@ export const seatFor = (room: Room, token: unknown) => room.seats.find((s) => ty
 export function startRoom(room: Room, token: unknown): { ok: true } | { error: string } {
   const seat = seatFor(room, token);
   if (!seat || seat !== room.seats[0]) return { error: "Only the host can start" };
-  if (room.status !== "lobby") return { error: "Already started" };
+  if (room.status === "playing") return { error: "Already started" };
+  if (!room.setup) return { error: "Pick a game first" };
+  if (room.status === "done") resetToLobby(room);
   if (room.seats.length < 2) return { error: "Need at least 2 players" };
   room.setup = { ...room.setup, players: room.seats.map((s) => s.name), seed: (Math.random() * 2 ** 31) | 0 };
   room.state = initGame(room.setup, Date.now());
   room.status = "playing";
+  room.freshQuiz = false;
   trackServer("room_started", { format: room.setup.format, pool: room.setup.pool, seats: room.seats.length }, room.code);
   room.turnMarker = turnMarker(room.setup, room.state);
   room.turnStartedAt = Date.now();
@@ -189,18 +270,20 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
   return { ok: true };
 }
 
+/** Leaving between games frees the seat (the next player in line becomes host); mid-game a bot takes over. */
 export function leaveRoom(room: Room, token: unknown) {
   const seat = seatFor(room, token);
   if (!seat) return;
-  if (room.status === "lobby") {
-    if (seat === room.seats[0]) {
-      rooms.delete(room.code);
-      getIo()?.to(`playroom:${room.code}`).emit("playroom:update", { version: -1 });
-      return;
-    }
+  if (room.status === "playing") seat.left = true;
+  else {
     room.seats = room.seats.filter((s) => s !== seat);
-    room.setup.players = room.seats.map((s) => s.name);
-  } else seat.left = true;
+    if (room.setup) room.setup.players = room.seats.map((s) => s.name);
+  }
+  if (room.seats.every((s) => s.left)) {
+    rooms.delete(room.code);
+    getIo()?.to(`playroom:${room.code}`).emit("playroom:update", { version: -1 });
+    return;
+  }
   bump(room);
 }
 
@@ -209,7 +292,7 @@ const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
   const seat = seatFor(room, token);
   if (!seat) return { ok: false, error: "Not in this room" };
-  if (room.status !== "playing" || !room.state) return { ok: false, error: "Game is not running" };
+  if (room.status !== "playing" || !room.state || !room.setup) return { ok: false, error: "Game is not running" };
   if (!raw || !ACTION_TYPES.has(raw.type)) return { ok: false, error: "Unknown action" };
   // The seat decides who is acting; clients can't act for someone else, set the clock or pick RNG seeds.
   const { seed: _seed, ...rest } = raw;
@@ -221,25 +304,43 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
 }
 
 function commit(room: Room, next: GameState) {
+  const setup = room.setup!;
   room.state = next;
-  const marker = turnMarker(room.setup, next);
+  const marker = turnMarker(setup, next);
   if (marker !== room.turnMarker) {
     room.turnMarker = marker;
     room.turnStartedAt = Date.now();
   }
-  if (isDone(room.setup, next)) finish(room);
+  if (isDone(setup, next)) finish(room);
   bump(room);
 }
 
+/** The top scorer of a trivia game, or null on a tie. */
+function triviaWinner(state: GameState): string | null {
+  const ranked = Object.entries((state as { points: Record<string, number> }).points ?? {}).sort((a, b) => b[1] - a[1]);
+  return ranked[0] && ranked[0][1] !== ranked[1]?.[1] ? ranked[0][0] : null;
+}
+
 function finish(room: Room) {
+  const setup = room.setup!;
   room.status = "done";
-  trackServer("room_finished", { format: room.setup.format, pool: room.setup.pool, seats: room.seats.length, duration_s: Math.round((Date.now() - room.createdAt) / 1000), left: room.seats.filter((s) => s.left).length }, room.code);
-  const { teams } = buildTeams(room.setup, room.state!);
+  trackServer("room_finished", { format: setup.format, pool: setup.pool, seats: room.seats.length, duration_s: Math.round((Date.now() - room.createdAt) / 1000), left: room.seats.filter((s) => s.left).length }, room.code);
+  const { teams } = buildTeams(setup, room.state!);
+  const record = { format: setup.format, pool: setup.pool, winner: null as string | null };
+  room.played = [...room.played, record].slice(-30);
   // Trivia games show the right answers instead of an AI report.
-  if (room.setup.format === "jeopardy" || room.setup.format === "feud") return;
-  const m = room.setup.mission;
-  judge({ game: room.setup.format, scenario: { title: m.title, blurb: m.blurb, weights: m.weights }, teams: teams as any })
+  if (setup.format === "jeopardy" || setup.format === "feud") {
+    record.winner = triviaWinner(room.state!);
+    const s = room.state as { cats?: string[]; rounds?: { q: string }[] };
+    room.seen = [...room.seen, ...(s.cats ?? []).map((c) => `cat:${c}`), ...(s.rounds ?? []).map((r) => r.q)].slice(-400);
+    return;
+  }
+  const m = setup.mission;
+  const state = room.state;
+  judge({ game: setup.format, scenario: { title: m.title, blurb: m.blurb, weights: m.weights }, teams: teams as any })
     .then((v) => {
+      record.winner = v?.winner ?? null;
+      if (room.state !== state) return; // the room already moved on to another game
       room.verdict = v;
       bump(room);
     })
@@ -251,7 +352,7 @@ function finish(room: Room) {
 /** What to do for a seat that left (or timed out) so the game never stalls. */
 function autoplay(room: Room, name: string): Action | null {
   const s = room.state!;
-  const { format } = room.setup;
+  const { format } = room.setup!;
   if (format === "auction") {
     const a = s as A.AuctionState;
     if (a.nominate?.offer) return A.nominator(a) === name ? { type: "nominate", by: name, itemId: a.nominate.offer[0]! } : null;
@@ -268,8 +369,9 @@ function autoplay(room: Room, name: string): Action | null {
     if (B.turnPlayer(b) !== name) return null;
     return { type: "place", by: name, rank: B.freeRanks(b, name)[0]! };
   }
-  if (QUICK_FORMATS.has(format)) return currentTurn(room.setup, s) === name ? autoAction(room.setup, s) : null;
-  return currentTurn(room.setup, s) === name ? { type: "auto", by: name } : null;
+  const setup = room.setup!;
+  if (QUICK_FORMATS.has(format)) return currentTurn(setup, s) === name ? autoAction(setup, s) : null;
+  return currentTurn(setup, s) === name ? { type: "auto", by: name } : null;
 }
 
 /** Called ~2x per second: auction clocks, turn timers, and bots for players who left. */
@@ -279,7 +381,7 @@ export function tickRooms(now = Date.now()) {
       rooms.delete(c);
       continue;
     }
-    if (room.status !== "playing" || !room.state) continue;
+    if (room.status !== "playing" || !room.state || !room.setup) continue;
     let s = room.state;
     const setup = room.setup;
 
@@ -319,7 +421,7 @@ export function startTicker() {
 function redact(room: Room, me: string | null): GameState | null {
   const s = room.state;
   if (!s) return null;
-  if (room.status === "done") return s;
+  if (room.status === "done" || !room.setup) return s;
   if (room.setup.format === "position") {
     const p = s as P.PositionState;
     return { ...p, hands: Object.fromEntries(Object.entries(p.hands).map(([k, v]) => [k, k === me ? v : v.map(() => "?")])), assign: Object.fromEntries(Object.entries(p.assign).map(([k, v]) => [k, k === me ? v : {}])), unused: [], roll: p.roll ? { ...p.roll, pool: [], offers: Object.fromEntries(Object.entries(p.roll.offers).map(([k, v]) => [k, k === me ? v : {}])) } : undefined };
@@ -343,6 +445,8 @@ export function snapshot(room: Room, token: unknown) {
     me: seat?.name ?? null,
     state: redact(room, seat?.name ?? null),
     verdict: room.status === "done" ? room.verdict : null,
+    played: room.played,
+    statLink: room.statLink,
   };
 }
 

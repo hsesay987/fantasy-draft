@@ -169,7 +169,7 @@ export default function RoomLobbyPage() {
   }
 
   /* -------------------- POLL ROOM (fallback) -------------------- */
-  async function fetchRoom() {
+  async function fetchRoom(joined = false) {
     if (!token) return;
 
     try {
@@ -187,6 +187,14 @@ export default function RoomLobbyPage() {
       }
       applyRoomSettings(data.settings);
       const isMember = data.participants.some((p) => p.user.id === user?.id);
+      // Opened from a shared link: take a seat first, then load the room again.
+      if (!isMember && !joined && user) {
+        const j = await fetch(`${API_URL}/rooms/${code}/join`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+        if (j.ok) return fetchRoom(true);
+        const e = await j.json().catch(() => ({}));
+        if (e.activeDraftId) return router.replace(`/draft/${e.activeDraftId}`);
+        throw new Error(e.error || "Couldn't join this room");
+      }
       if (!isMember) {
         setError("You are not in this room.");
         setRoom(null);

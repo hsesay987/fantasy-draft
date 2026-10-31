@@ -203,7 +203,7 @@ export function Play({ bank, filters, currency, total: totalIn, toggles, onExit,
   return (
     <PixelShell world="launch">
       <div className="space-y-6">
-        <WorldScene world="launch" caption="Altitude" actors={players.map((p) => ({ name: p, value: progress[p] ?? 0 }))}
+        <WorldScene world="launch" caption="Altitude" actors={players.map((p) => ({ name: p, value: progress[p] ?? 0 }))} winner={done && !daily && ranking[0]![1] > (ranking[1]?.[1] ?? -1) ? ranking[0]![0] : null}
           flash={result ? { key: roundNo, good: result.close >= 0.6 } : undefined} />
         <div className="grid items-start gap-6 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
           {daily ? (
