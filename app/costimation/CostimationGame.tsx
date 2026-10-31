@@ -6,7 +6,7 @@ import { useSound } from "../components/SoundProvider";
 import { PixelBox, PixelButton, PixelShell } from "../components/pixel/PixelUI";
 import { Sprite } from "../components/pixel/Sprite";
 import { WorldScene } from "../components/pixel/WorldScene";
-import { LAUNCH, tierAt } from "../components/pixel/worlds";
+import { checkpointAt, LAUNCH } from "../components/pixel/worlds";
 import { loadBank, poolFor, type Bank } from "./data";
 import { ANY, BOTS, botGuess, BULLSEYE, closeness, CURRENCIES, currencyFor, digitsHint, money, priceIn, rangeHint, roundGain, shuffle, wheelFor, type CurrencyChoice, type Product } from "./game";
 import { PixelWheel, WHEEL_COLORS, type WheelHandle } from "./PixelWheel";
@@ -66,8 +66,8 @@ export function CostimationGame() {
       <PixelShell world="launch">
         <PixelBox>
           <p className="px-eyebrow">COSTIMATION</p>
-          <h1 className="mt-2">Guess the price. Reach orbit.</h1>
-          <p className="px-note mt-2">Spin the wheel for a real shelf product. The closer your guess, the higher your rocket flies: from Tourist all the way to One in a Galaxy.</p>
+          <h1 className="mt-2">Guess the price. Cross the solar system.</h1>
+          <p className="px-note mt-2">Spin the wheel for a real shelf product. The closer your guess, the further your ship flies: from Earth past the Moon, Mars, Jupiter and Saturn, all the way to Pluto.</p>
           {bank && !bank.live && <p className="px-hint mt-4">Live prices are not reachable right now, so this round uses a small set of sample products with approximate prices.</p>}
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <div className="px-field"><label htmlFor="c-country">PRODUCT FROM</label>
@@ -106,10 +106,16 @@ export function CostimationGame() {
   return <Play bank={bank!} filters={{ country, store }} currency={currency} total={rounds} toggles={toggles} onExit={() => setStarted(false)} />;
 }
 
-function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank; filters: { country: string; store: string }; currency: CurrencyChoice; total: number; toggles: Toggles; onExit: () => void }) {
+export type DailyRun = { products: Product[]; onFinish: (r: { score: number; closes: number[]; history: number[] }) => void };
+
+/** One Costimation game. In daily mode the products are fixed (no wheel, no bots) and the result goes to `daily.onFinish`. */
+export function Play({ bank, filters, currency, total: totalIn, toggles, onExit, daily }: { bank: Bank; filters: { country: string; store: string }; currency: CurrencyChoice; total: number; toggles: Toggles; onExit: () => void; daily?: DailyRun }) {
+  const total = daily ? daily.products.length : totalIn;
   const { play } = useSound();
   const pool = useMemo(() => poolFor(bank, filters).pool, [bank, filters]);
-  const players = useMemo(() => ["YOU", ...(toggles.bots ? BOTS.map((b) => b.name) : [])], [toggles.bots]);
+  const players = useMemo(() => ["YOU", ...(toggles.bots && !daily ? BOTS.map((b) => b.name) : [])], [toggles.bots, daily]);
+  const closes = useRef<number[]>([]);
+  const history = useRef<number[]>([]);
   const [roundNo, setRoundNo] = useState(1);
   const [progress, setProgress] = useState<Record<string, number>>(() => Object.fromEntries(players.map((p) => [p, 0])));
   const played = useRef(new Set<string>());
@@ -121,7 +127,18 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
   const wheel = useRef<WheelHandle>(null);
   const roundRef = useRef<Round | null>(null);
   roundRef.current = round;
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
   const done = round?.result != null && roundNo >= total;
+
+  useEffect(() => {
+    if (!daily || round) return;
+    const product = daily.products[roundNo - 1];
+    if (!product) return;
+    setRound({ product, currency: product.currency, truth: product.price, hints: 0, tries: 0, nudge: null, hintText: [], result: null });
+    setGuess(""); setLeft(15);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [daily, roundNo, round]);
 
   const spin = async () => {
     if (spinning || !items.length) return;
@@ -146,6 +163,8 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
       return;
     }
     const close = closeness(g, r.truth);
+    closes.current.push(close);
+    history.current.push(Math.min(1, (progressRef.current.YOU ?? 0) + roundGain(close, r.hints, total)));
     setProgress((prev) => {
       const next = { ...prev };
       next.YOU = Math.min(1, (prev.YOU ?? 0) + roundGain(close, r.hints, total));
@@ -174,7 +193,7 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
 
   const next = () => {
     if (roundNo >= total) return;
-    setRoundNo(roundNo + 1); setRound(null); setItems(wheelFor(pool, played.current)); play("click");
+    setRoundNo(roundNo + 1); setRound(null); if (!daily) setItems(wheelFor(pool, played.current)); play("click");
   };
 
   const result = round?.result ?? null;
@@ -187,6 +206,17 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
         <WorldScene world="launch" caption="Altitude" actors={players.map((p) => ({ name: p, value: progress[p] ?? 0 }))}
           flash={result ? { key: roundNo, good: result.close >= 0.6 } : undefined} />
         <div className="grid items-start gap-6 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
+          {daily ? (
+            <PixelBox className="grid gap-3">
+              <p className="px-eyebrow">TODAY&apos;S CARGO · {roundNo} / {total}</p>
+              <ol className="m-0 grid list-none gap-2 p-0">
+                {daily.products.map((p, i) => {
+                  const c = closes.current[i];
+                  return <li key={p.id} className={`flex items-center justify-between gap-2 px-3 py-2 text-[20px] ${i === roundNo - 1 ? "bg-[var(--px-violet)]" : "bg-[var(--px-ink)]"}`}><span className="truncate">{i < roundNo - 1 || (i === roundNo - 1 && result) ? p.name : `Product ${i + 1}`}</span>{c != null && <b className="font-normal" style={{ color: c >= 0.8 ? "var(--px-mint)" : c >= 0.4 ? "var(--px-gold)" : "var(--px-rose)" }}>{Math.round(c * 100)}%</b>}</li>;
+                })}
+              </ol>
+            </PixelBox>
+          ) : (
           <PixelBox className="grid justify-items-center gap-3">
             <p className="px-eyebrow justify-self-start">ROUND {roundNo} / {total}</p>
             <PixelWheel ref={wheel} segments={Math.max(2, items.length)} />
@@ -195,6 +225,7 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
               {items.map((p, i) => <li key={p.id} className="flex min-w-0 items-center gap-2"><i className="h-3.5 w-3.5 shrink-0" style={{ background: WHEEL_COLORS[i % 8] }} /><span className="truncate">{p.name}</span></li>)}
             </ul>
           </PixelBox>
+          )}
 
           <PixelBox>
             {!round ? <p className="px-note">Spin the wheel. The product appears here.</p> : (
@@ -230,7 +261,8 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
                       {rankOf(result.close)}{result.close >= BULLSEYE ? " · BULLSEYE!" : ` · ${Math.round(result.close * 100)}% CLOSE`}<br />IT COSTS {money(round.truth, round.currency)}
                     </p>
                     <Scale truth={round.truth} guess={result.guess} />
-                    {!done && <div><PixelButton variant="gold" onClick={next}>NEXT ROUND</PixelButton></div>}
+                    {!done && <div><PixelButton variant="gold" onClick={next}>NEXT {daily ? "PRODUCT" : "ROUND"}</PixelButton></div>}
+                    {done && daily && <div><PixelButton variant="gold" onClick={() => daily.onFinish({ score: progress.YOU ?? 0, closes: closes.current, history: history.current })}>SEE YOUR STATS</PixelButton></div>}
                   </div>
                 )}
               </div>
@@ -238,10 +270,10 @@ function Play({ bank, filters, currency, total, toggles, onExit }: { bank: Bank;
           </PixelBox>
         </div>
 
-        {done && (
+        {done && !daily && (
           <PixelBox>
             <p className="px-eyebrow">MISSION COMPLETE</p>
-            <h2 className="mt-2">{ranking[0]![0]} reaches {tierAt(LAUNCH, ranking[0]![1]).label.toLowerCase()}</h2>
+            <h2 className="mt-2">{ranking[0]![0]} reaches {checkpointAt(LAUNCH, ranking[0]![1]).name}</h2>
             <ol className="m-0 mt-3 grid list-none gap-2 p-0">
               {ranking.map(([p, v], i) => <li key={p} className="flex justify-between bg-[var(--px-ink)] px-3 py-2 text-[22px]"><span>{i + 1}. {p}</span><b className="font-normal text-[var(--px-gold)]">{Math.round(v * 100)}% altitude</b></li>)}
             </ol>

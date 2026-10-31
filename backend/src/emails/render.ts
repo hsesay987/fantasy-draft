@@ -156,7 +156,7 @@ export function verifyEmail(o: { to: string; name?: string | null; verifyUrl: st
     p(`<strong style="color:#ffffff;">What is waiting for you</strong>`),
     tiles([
       { icon: "&#127919;", title: "10 ways to draft", text: "Classic, auction, spin, blind rank and more." },
-      { icon: "&#129504;", title: "Trivia boards", text: "Jeopardy and Family Feud for every topic." },
+      { icon: "&#129504;", title: "Trivia boards", text: "Summit, Hot Air and Costimation for every topic." },
       { icon: "&#127760;", title: "Play with friends", text: "Share a room code and go head to head." },
     ]),
     linkBox(url),

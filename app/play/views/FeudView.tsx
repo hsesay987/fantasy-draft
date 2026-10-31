@@ -13,9 +13,9 @@ import { useAiTurn } from "./useAiTurn";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
-/** Family Feud over a dusk sea: the more popular your answers, the higher your balloon rises. Answers flip open, strikes are pixel crosses. */
+/** Hot Air, a survey game over a dusk sea: the more popular your answers, the higher your balloon rises. Answers flip open, strikes are pixel crosses. */
 // Each board rank is an altitude: the most common answer flies highest.
-const RANK_ALTITUDE = ["SKY HIGH", "CLOUDS", "TREETOPS", "ROOFTOPS", "WAVES"];
+const RANK_ALTITUDE = ["EDGE OF SPACE", "JET STREAM", "CLOUD DECK", "GULL FLIGHT", "LIGHTHOUSE"];
 
 export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
@@ -71,7 +71,7 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
       <div className="space-y-5">
         <PixelBox>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="px-eyebrow">SURVEY SAYS · ROUND {s.round + 1}/{s.rounds.length}</p>
+            <p className="px-eyebrow">HOT AIR · ROUND {s.round + 1}/{s.rounds.length}</p>
             <div className="flex gap-2" role="img" aria-label={`${r.strikes} of ${FD.MAX_STRIKES} strikes`}>
               {Array.from({ length: FD.MAX_STRIKES }).map((_, i) => <Sprite key={i} sprite={i < r.strikes ? strikeX(true) : heart()} size={36} />)}
             </div>
@@ -79,7 +79,7 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <h1 className="mt-3">{r.q.toUpperCase()}</h1>
         </PixelBox>
         <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]} PTS`, active: p === player }))} />
-        <WorldScene world="sky" caption="Altitude" actors={s.players.map((p) => ({ name: p, value: Math.min(1, s.points[p]! / (125 * s.rounds.length * 0.55)) }))}
+        <WorldScene world="sky" caption="Altitude" actors={s.players.map((p) => ({ name: p, value: Math.min(1, s.points[p]! / (125 * s.rounds.length * (s.players.length === 1 ? 1 : 0.55))) }))}
           flash={events.current.key ? { key: events.current.key, good: events.current.good } : undefined} />
         {done ? (
           <PixelBox>

@@ -16,6 +16,7 @@ import billingRoutes from "./routes/billing.route";
 import adRoutes from "./routes/ad.route";
 import triviaRoutes from "./routes/trivia.route";
 import costimationRoutes from "./routes/costimation.route";
+import dailyRoutes from "./routes/daily.route";
 import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
 import judgeRoutes from "./routes/judge.route";
@@ -72,6 +73,7 @@ app.use("/judge", judgeRoutes);
 app.use("/play-rooms", playRoomRoutes);
 app.use("/trivia", triviaRoutes);
 app.use("/costimation", costimationRoutes);
+app.use("/daily", dailyRoutes);
 
 // Sentry must see errors before our own handler responds (no-op without SENTRY_DSN).
 Sentry.setupExpressErrorHandler(app);
