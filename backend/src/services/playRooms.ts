@@ -235,6 +235,8 @@ function finish(room: Room) {
   room.status = "done";
   trackServer("room_finished", { format: room.setup.format, pool: room.setup.pool, seats: room.seats.length, duration_s: Math.round((Date.now() - room.createdAt) / 1000), left: room.seats.filter((s) => s.left).length }, room.code);
   const { teams } = buildTeams(room.setup, room.state!);
+  // Trivia games show the right answers instead of an AI report.
+  if (room.setup.format === "jeopardy" || room.setup.format === "feud") return;
   const m = room.setup.mission;
   judge({ game: room.setup.format, scenario: { title: m.title, blurb: m.blurb, weights: m.weights }, teams: teams as any })
     .then((v) => {

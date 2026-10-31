@@ -6,6 +6,7 @@ export const BOARD_POINTS = [50, 30, 20, 15, 10];
 export const MAX_STRIKES = 3;
 
 export type FeudRound = {
+  sid?: string; // bank id, so the survey can be rated
   q: string;
   board: string[]; // top answers, best first
   decoys: string[]; // plausible wrong answers (only the AI uses them)
@@ -56,7 +57,7 @@ export function init(o: { players: string[]; surveys: Survey[]; avoid?: string[]
   const [picked, s1] = shuffle(fresh.length >= o.rounds ? fresh : all, seed);
   seed = s1;
   const rounds: FeudRound[] = picked.slice(0, o.rounds).map((sv) => {
-    return { q: sv.q, board: sv.answers.slice(0, BOARD_POINTS.length), decoys: sv.decoys, found: {}, wrong: [], strikes: 0 };
+    return { sid: sv.id, q: sv.q, board: sv.answers.slice(0, BOARD_POINTS.length), decoys: sv.decoys, found: {}, wrong: [], strikes: 0 };
   });
   return { players: o.players, rounds, round: 0, turn: 0, points: Object.fromEntries(o.players.map((p) => [p, 0])), done: rounds.length === 0, seed };
 }

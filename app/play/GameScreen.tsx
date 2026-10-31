@@ -22,6 +22,7 @@ import { BlindView } from "./views/BlindView";
 import { KeepView } from "./views/KeepView";
 import { FeudView } from "./views/FeudView";
 import { JeopardyView } from "./views/JeopardyView";
+import { TriviaResults } from "./TriviaResults";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -32,6 +33,8 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
   const done = isDone(setup, ctl.state);
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const finished = done ? buildTeams(setup, ctl.state) : null;
+  // Trivia games show the answers instead of asking the AI judge for a report.
+  const trivia = setup.format === "jeopardy" || setup.format === "feud";
 
   useEffect(() => {
     if (!done) return;
@@ -45,7 +48,7 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
   }, [done]);
 
   useEffect(() => {
-    if (!done || serverVerdict !== undefined) return;
+    if (!done || trivia || serverVerdict !== undefined) return;
     let live = true;
     const { teams } = buildTeams(setup, ctl.state);
     fetchVerdict(API_URL, token ?? null, setup.format, { title: setup.mission.title, blurb: setup.mission.blurb, weights: setup.mission.weights, custom: setup.mission.id === "custom" || (setup.loadout?.id === "custom") }, teams).then((v) => live && setVerdict(v));
@@ -61,6 +64,8 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
     play(ctl.controls(verdictWinner) ? "win" : "lose");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verdictWinner]);
+
+  if (done && finished && trivia) return <TriviaResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
 
   if (done && finished) {
     const v = serverVerdict ?? verdict;
