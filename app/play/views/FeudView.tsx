@@ -19,7 +19,20 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const [text, setText] = useState("");
   // Suggestions come from every survey answer for this topic, so they never reveal which ones are on this board.
   const vocab = useMemo(() => [...new Set(surveysFor(setup.pool).flatMap((x) => [...x.answers, ...x.decoys]))].sort(), [setup.pool]);
-  useAiTurn(setup, ctl, `${s.round}-${s.turn}`, 1300);
+  // When a round ends, every answer is shown (found ones green, missed ones red) until the player moves on.
+  const [review, setReview] = useState<number | null>(null);
+  const roundSeen = useRef(s.round);
+  useEffect(() => {
+    if (s.round > roundSeen.current && !s.done) setReview(s.round - 1);
+    roundSeen.current = s.round;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s.round]);
+  useEffect(() => {
+    if (review == null || !ctl.online) return;
+    const t = setTimeout(() => setReview(null), 8000); // online games keep moving
+    return () => clearTimeout(t);
+  }, [review, ctl.online]);
+  useAiTurn(setup, ctl, `${s.round}-${s.turn}`, 1300, review != null);
   // Buzzer on every strike, whoever earned it.
   const totalStrikes = s.rounds.reduce((n, x) => n + x.wrong.length, 0);
   const seenStrikes = useRef(totalStrikes);
@@ -32,7 +45,7 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const player = FD.turnPlayer(s)!;
   const mine = ctl.controls(player);
   const r = s.rounds[s.round]!;
-  const prev = s.round > 0 ? s.rounds[s.round - 1] : null;
+  const done = review != null ? s.rounds[review] : null;
   const q = text.trim().toLowerCase();
   const suggestions = q.length >= 2 ? vocab.filter((v) => v.toLowerCase().includes(q) && !r.found[v]).slice(0, 6) : [];
   const submit = (answer: string) => {
@@ -56,6 +69,28 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <h1 className="mt-3">{r.q.toUpperCase()}</h1>
         </PixelBox>
         <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]} PTS`, active: p === player }))} />
+        {done ? (
+          <PixelBox>
+            <p className="px-eyebrow">ROUND OVER · HERE ARE THE ANSWERS</p>
+            <h2 className="mt-2">{done.q.toUpperCase()}</h2>
+            <ol className="m-0 mt-4 grid list-none gap-3 bg-[var(--px-ink)] p-3" aria-label="All answers">
+              {done.board.map((a, i) => (
+                <li key={a} className={`px-ans ${done.found[a] ? "hit" : "miss"}`}>
+                  <span className="rk">{i + 1}</span><span className="tx">{a}</span>
+                  <span className="pt">{done.found[a] ? `${done.found[a]} · +${FD.BOARD_POINTS[i]}` : "MISSED"}</span>
+                </li>
+              ))}
+            </ol>
+            {done.wrong.length > 0 && <p className="mt-3 text-[22px] text-[var(--px-rose)]">NOT ON THE BOARD: {done.wrong.join(", ")}</p>}
+            {done.sid && (
+              <div className="mt-4 grid gap-3" aria-label="Rate this survey">
+                <p className="px-eyebrow">HELP US PICK THE BEST QUESTIONS</p>
+                <RateItem key={done.sid} kind="survey" id={done.sid} label="This survey" />
+              </div>
+            )}
+            <div className="mt-4"><PixelButton onClick={() => setReview(null)}>CONTINUE</PixelButton></div>
+          </PixelBox>
+        ) : (
         <PixelBox>
           <ol className="m-0 grid list-none gap-3 bg-[var(--px-ink)] p-3" aria-label="Survey board">
             {r.board.map((a, i) => (
@@ -80,15 +115,9 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
               </ul>
             )}
           </form>
-          {prev?.sid && (
-            <div className="mt-5 grid gap-3" aria-label="Rate the last survey">
-              <p className="px-eyebrow">HELP US PICK THE BEST QUESTIONS</p>
-              <p className="m-0 text-[22px] leading-tight">{prev.q} <span className="text-[var(--px-mint)]">Board: {prev.board.join(", ")}</span></p>
-              <RateItem key={prev.sid} kind="survey" id={prev.sid} label="Last survey" />
-            </div>
-          )}
           {r.wrong.length > 0 && <p className="mt-3 text-[22px] text-[var(--px-rose)]">NOT ON THE BOARD: {r.wrong.join(", ")}</p>}
         </PixelBox>
+        )}
       </div>
     </PixelShell>
   );

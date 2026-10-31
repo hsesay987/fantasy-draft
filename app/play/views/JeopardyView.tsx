@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as J from "../../topicDraft/formats/jeopardy";
 import { useSound } from "../../components/SoundProvider";
 import { ClimbScene } from "../../components/pixel/ClimbScene";
-import { PixelBox, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
+import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
 import { RateItem } from "../../components/pixel/RateItem";
 import { Sprite } from "../../components/pixel/Sprite";
 import { gem, TIER_NAMES } from "../../components/pixel/sprites";
@@ -17,7 +17,20 @@ import type { GameSetup } from "../types";
 export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as J.JeopardyState;
-  useAiTurn(setup, ctl, `${s.resolved}-${s.active}`, 1200);
+  // After every clue the answer is shown (right in green, a wrong pick in red) until the player moves on.
+  const [reveal, setReveal] = useState<number | null>(null);
+  const revealSeen = useRef(s.resolved);
+  useEffect(() => {
+    if (s.resolved > revealSeen.current && s.last != null && !s.done) setReveal(s.last);
+    revealSeen.current = s.resolved;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s.resolved]);
+  useEffect(() => {
+    if (reveal == null || !ctl.online) return;
+    const t = setTimeout(() => setReveal(null), 6000); // online games keep moving
+    return () => clearTimeout(t);
+  }, [reveal, ctl.online]);
+  useAiTurn(setup, ctl, `${s.resolved}-${s.active}`, 1200, reveal != null);
   // One sound per answered clue, for humans and the AI alike: a win chime or a buzzer.
   const seen = useRef(s.resolved);
   useEffect(() => {
@@ -26,7 +39,7 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.resolved]);
   const active = s.active != null ? s.cells[s.active] : null;
-  const lastCell = s.last != null ? s.cells[s.last] : null;
+  const shown = reveal != null ? s.cells[reveal] : null;
   const text = useTypewriter(active?.q ?? "");
   if (s.done) return null;
   const player = J.turnPlayer(s)!;
@@ -46,7 +59,27 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
         <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]}M`, active: p === player }))} />
         <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_216px]">
           <PixelBox>
-            {active ? (
+            {shown ? (
+              <section className="grid gap-4" aria-label="Answer">
+                <span className="px-tag"><Sprite sprite={gem(tierOf(shown.value))} size={20} /> {TIER_NAMES[tierOf(shown.value) - 1]} · {shown.value}M</span>
+                <p className="px-q">{shown.q}</p>
+                <div className="px-menu">
+                  {shown.options.map((o) => {
+                    const right = o === shown.answer, wrong = !right && o === shown.picked;
+                    return <div key={o} className={`px-opt ${right ? "right" : wrong ? "wrong" : "dim"}`}>{o}{right && <span className="badge">RIGHT ANSWER</span>}{wrong && <span className="badge">{shown.by} PICKED THIS</span>}</div>;
+                  })}
+                </div>
+                <p className={`m-0 font-[family-name:var(--px-head)] text-xs leading-[1.9] ${shown.correct ? "text-[var(--px-mint)]" : "text-[var(--px-rose)]"}`}>{shown.correct ? `${shown.by} GETS +${shown.value}M` : `${shown.by} LOSES ${shown.value}M`}</p>
+                {shown.catId && shown.clue != null && (
+                  <div className="grid gap-3" aria-label="Rate this clue">
+                    <p className="px-eyebrow">HELP US PICK THE BEST QUESTIONS</p>
+                    <RateItem kind="clue" id={shown.catId} clue={shown.clue} label="This question" />
+                    <RateItem kind="category" id={shown.catId} label={`Category: ${shown.cat}`} />
+                  </div>
+                )}
+                <div><PixelButton onClick={() => setReveal(null)}>CONTINUE</PixelButton></div>
+              </section>
+            ) : active ? (
               <section className="grid gap-4" aria-label="Clue">
                 <span className="px-tag"><Sprite sprite={gem(tierOf(active.value))} size={20} /> {TIER_NAMES[tierOf(active.value) - 1]} · {active.value}M</span>
                 <p className="px-q" aria-label={active.q}><span aria-hidden>{text}</span></p>
@@ -66,7 +99,7 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
                         const i = row * cols + col;
                         const cell = s.cells[i]!;
                         return (
-                          <button key={i} type="button" disabled={cell.done || !mine} onClick={() => { ctl.dispatch({ type: "choose", by: player, cell: i }); play("click"); }}
+                          <button key={i} type="button" disabled={cell.done || !mine || reveal != null} onClick={() => { ctl.dispatch({ type: "choose", by: player, cell: i }); play("click"); }}
                             className={`px-tile ${cell.done ? (cell.correct ? "good" : "bad") : ""}`} aria-label={`${c} for ${v}`}>
                             <Sprite sprite={gem(row + 1)} size={24} />
                             <span>{cell.done ? (cell.correct ? "WIN" : "MISS") : `${v}M`}</span>
@@ -77,14 +110,6 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
                   ))}
                 </div>
                 <p className="px-note mt-4">Rarer gems are worth more height. A wrong answer drops you the same amount.</p>
-                {lastCell?.catId && lastCell.clue != null && (
-                  <div className="mt-5 grid gap-3" aria-label="Rate the last clue">
-                    <p className="px-eyebrow">HELP US PICK THE BEST QUESTIONS</p>
-                    <p className="m-0 text-[22px] leading-tight">{lastCell.q} <span className="text-[var(--px-mint)]">Answer: {lastCell.answer}</span></p>
-                    <RateItem kind="clue" id={lastCell.catId} clue={lastCell.clue} label="This question" />
-                    <RateItem kind="category" id={lastCell.catId} label={`Category: ${lastCell.cat}`} />
-                  </div>
-                )}
               </div>
             )}
           </PixelBox>

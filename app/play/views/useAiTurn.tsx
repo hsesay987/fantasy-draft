@@ -6,9 +6,10 @@ import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
 /** Plays the AI's move a beat after it becomes their turn. `key` changes whenever the position changes. */
-export function useAiTurn(setup: GameSetup, ctl: GameCtl, key: string, delay = 1100) {
+/** While `paused` (for example a result is on screen) the AI waits. */
+export function useAiTurn(setup: GameSetup, ctl: GameCtl, key: string, delay = 1100, paused = false) {
   useEffect(() => {
-    if (ctl.online || isDone(setup, ctl.state)) return;
+    if (paused || ctl.online || isDone(setup, ctl.state)) return;
     const who = currentTurn(setup, ctl.state);
     if (!who || !ctl.isAi(who)) return;
     const t = setTimeout(() => {
@@ -17,7 +18,7 @@ export function useAiTurn(setup: GameSetup, ctl: GameCtl, key: string, delay = 1
     }, delay);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, ctl.state]);
+  }, [key, ctl.state, paused]);
 }
 
 export function Scoreboard({ rows }: { rows: { name: string; value: string; active?: boolean }[] }) {

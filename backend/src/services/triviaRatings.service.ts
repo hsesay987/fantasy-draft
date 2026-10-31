@@ -5,6 +5,8 @@
 export type Kind = "category" | "clue" | "survey";
 export const KINDS: Kind[] = ["category", "clue", "survey"];
 
+export const isAdminVoter = (voter: string) => voter.startsWith("admin:");
+
 export type RatingInput = { kind: Kind; targetId: string; clue: number; voter: string; quality: number | null; difficulty: number | null; wrong: boolean };
 export type RatingRow = { kind: Kind; clue: number; voter: string; quality: number | null; difficulty: number | null; wrong: boolean };
 export type Summary = { votes: number; quality: number | null; qualityVotes: number; difficulty: number | null; wrongFlags: number };
@@ -55,16 +57,31 @@ export interface RatingStore {
   /** Every rating on a category (its own and its clues') or on a survey. */
   forItem(kind: "category" | "survey", id: string): Promise<RatingRow[]>;
   setRetired(kind: "category" | "survey", id: string, retired: boolean): Promise<void>;
+  setFlagged?(kind: "category" | "survey", id: string, flagged: boolean): Promise<void>;
 }
 
 /** Records a vote and retires the item if the votes now say it should go. */
 export async function recordRating(store: RatingStore, r: RatingInput): Promise<{ retired: boolean }> {
   await store.upsert(r);
   const item = r.kind === "survey" ? "survey" : "category";
-  const rows = await store.forItem(item, r.targetId);
+  // Only player votes count toward automatic retirement; admins act directly.
+  const rows = (await store.forItem(item, r.targetId)).filter((x) => !isAdminVoter(x.voter));
   const retire = item === "survey" ? shouldRetire(summarize(rows)) : categoryShouldRetire(rows);
   if (retire) await store.setRetired(item, r.targetId, true);
   return { retired: retire };
+}
+
+/**
+ * An admin's own rating, saved under their account. Unlike player votes it acts at once: marking the answer wrong
+ * retires the item, and the admin's stars and difficulty are shown apart from the players'.
+ */
+export async function recordAdminRating(store: RatingStore, adminId: string, r: Omit<RatingInput, "voter">): Promise<{ retired: boolean }> {
+  await store.upsert({ ...r, voter: `admin:${adminId}` });
+  if (r.wrong) {
+    await store.setRetired(r.kind === "survey" ? "survey" : "category", r.targetId, true);
+    return { retired: true };
+  }
+  return { retired: false };
 }
 
 // Loaded on first use so importing this file (and its tests) never needs a database connection.
@@ -87,32 +104,65 @@ export const prismaRatingStore: RatingStore = {
   },
 };
 
+export type Mine = { quality: number | null; difficulty: number | null; wrong: boolean } | null;
 export type ReviewItem = {
-  kind: "category" | "survey"; id: string; pool: string; title: string; source: string; uses: number; retired: boolean;
-  summary: Summary; clues?: { index: number; q: string; right: string; summary: Summary }[]; answers?: string[];
+  kind: "category" | "survey"; id: string; pool: string; title: string; source: string; uses: number; retired: boolean; flagged: boolean;
+  summary: Summary; mine: Mine; clues?: { index: number; q: string; right: string; wrong: string[]; summary: Summary; mine: Mine }[]; answers?: string[];
 };
 
-/** Everything an admin needs to decide what to keep: each item with its votes, worst first by default. */
-export async function reviewItems(opts: { pool?: string; kind: "category" | "survey"; retired: boolean; sort: "worst" | "best" | "votes"; limit: number }): Promise<ReviewItem[]> {
-  const where = { ...(opts.pool ? { pool: opts.pool } : {}), retired: opts.retired };
+export type ReviewOpts = {
+  pool?: string; kind: "category" | "survey"; sort: "worst" | "best" | "votes";
+  /** "active" = in play, "retired", "flagged" = marked by an admin, "all" = everything. */
+  status: "active" | "retired" | "flagged" | "all";
+  /** Include items nobody has rated yet, so an admin can rate them directly. */
+  unrated: boolean; search?: string; limit: number; adminId: string;
+};
+
+const mineOf = (rows: { voter: string; quality: number | null; difficulty: number | null; wrong: boolean }[], adminId: string): Mine => {
+  const r = rows.find((x) => x.voter === `admin:${adminId}`);
+  return r ? { quality: r.quality, difficulty: r.difficulty, wrong: r.wrong } : null;
+};
+
+/** Everything an admin needs to decide what to keep: each item with the players' votes and the admin's own, worst first by default. */
+export async function reviewItems(opts: ReviewOpts): Promise<ReviewItem[]> {
+  const where = {
+    ...(opts.pool ? { pool: opts.pool } : {}),
+    ...(opts.status === "retired" ? { retired: true } : opts.status === "active" ? { retired: false } : opts.status === "flagged" ? { flagged: true } : {}),
+  };
   const items: ReviewItem[] = [];
+  const players = (rows: RatingRowWithVoter[]) => rows.filter((r) => !isAdminVoter(r.voter));
   if (opts.kind === "category") {
     const cats = await db().triviaCategory.findMany({ where });
     const ratings = await db().triviaRating.findMany({ where: { kind: { in: ["category", "clue"] }, targetId: { in: cats.map((c) => c.id) } } });
     for (const c of cats) {
       const mine = ratings.filter((r) => r.targetId === c.id);
-      const clues = (c.clues as unknown as { q: string; right: string }[]).map((k, index) => ({ index, q: k.q, right: k.right, summary: summarize(mine.filter((r) => r.kind === "clue" && r.clue === index)) }));
-      items.push({ kind: "category", id: c.id, pool: c.pool, title: c.name, source: c.source, uses: c.uses, retired: c.retired, summary: summarize(mine.filter((r) => r.kind === "category")), clues });
+      const clues = (c.clues as unknown as { q: string; right: string; wrong?: string[] }[]).map((k, index) => {
+        const rows = mine.filter((r) => r.kind === "clue" && r.clue === index);
+        return { index, q: k.q, right: k.right, wrong: k.wrong ?? [], summary: summarize(players(rows)), mine: mineOf(rows, opts.adminId) };
+      });
+      const own = mine.filter((r) => r.kind === "category");
+      items.push({ kind: "category", id: c.id, pool: c.pool, title: c.name, source: c.source, uses: c.uses, retired: c.retired, flagged: c.flagged, summary: summarize(players(own)), mine: mineOf(own, opts.adminId), clues });
     }
   } else {
     const svs = await db().triviaSurvey.findMany({ where });
     const ratings = await db().triviaRating.findMany({ where: { kind: "survey", targetId: { in: svs.map((s) => s.id) } } });
-    for (const s of svs) items.push({ kind: "survey", id: s.id, pool: s.pool, title: s.q, source: s.source, uses: s.uses, retired: s.retired, summary: summarize(ratings.filter((r) => r.targetId === s.id)), answers: s.answers });
+    for (const sv of svs) {
+      const rows = ratings.filter((r) => r.targetId === sv.id);
+      items.push({ kind: "survey", id: sv.id, pool: sv.pool, title: sv.q, source: sv.source, uses: sv.uses, retired: sv.retired, flagged: sv.flagged, summary: summarize(players(rows)), mine: mineOf(rows, opts.adminId), answers: sv.answers });
+    }
   }
-  const rated = items.filter((i) => i.summary.votes > 0 || i.clues?.some((c) => c.summary.votes > 0));
+  const q = opts.search?.trim().toLowerCase();
+  let list = items.filter((i) => !q || i.title.toLowerCase().includes(q) || i.clues?.some((c) => c.q.toLowerCase().includes(q) || c.right.toLowerCase().includes(q)) || i.answers?.some((a) => a.toLowerCase().includes(q)));
+  if (!opts.unrated) list = list.filter((i) => i.summary.votes > 0 || i.mine || i.flagged || i.clues?.some((c) => c.summary.votes > 0 || c.mine));
   const score = (i: ReviewItem) => i.summary.quality ?? 99;
-  rated.sort((a, b) => (opts.sort === "votes" ? b.summary.votes - a.summary.votes : opts.sort === "best" ? score(b) - score(a) : score(a) - score(b)));
-  return rated.slice(0, opts.limit);
+  list.sort((a, b) => (opts.sort === "votes" ? b.summary.votes - a.summary.votes : opts.sort === "best" ? score(b) - score(a) : score(a) - score(b)));
+  return list.slice(0, opts.limit);
 }
 
+type RatingRowWithVoter = { voter: string; quality: number | null; difficulty: number | null; wrong: boolean };
+
 export const setRetiredById = (kind: "category" | "survey", id: string, retired: boolean) => prismaRatingStore.setRetired(kind, id, retired);
+export async function setFlaggedById(kind: "category" | "survey", id: string, flagged: boolean) {
+  if (kind === "survey") await db().triviaSurvey.update({ where: { id }, data: { flagged } });
+  else await db().triviaCategory.update({ where: { id }, data: { flagged } });
+}

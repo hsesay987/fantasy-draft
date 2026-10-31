@@ -504,6 +504,7 @@ model TriviaCategory {
   uses       Int       @default(0)
   lastUsedAt DateTime?
   retired    Boolean   @default(false)
+  flagged    Boolean   @default(false) // an admin marked it for review
   createdAt  DateTime  @default(now())
 
   @@unique([pool, name])
@@ -521,6 +522,7 @@ model TriviaSurvey {
   uses       Int       @default(0)
   lastUsedAt DateTime?
   retired    Boolean   @default(false)
+  flagged    Boolean   @default(false) // an admin marked it for review
   createdAt  DateTime  @default(now())
 
   @@unique([pool, q])

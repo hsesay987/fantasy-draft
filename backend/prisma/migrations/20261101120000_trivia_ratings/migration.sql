@@ -1,8 +1,10 @@
 -- AlterTable
-ALTER TABLE "TriviaCategory" ADD COLUMN "retired" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "TriviaCategory" ADD COLUMN "retired" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "flagged" BOOLEAN NOT NULL DEFAULT false;
 
 -- AlterTable
-ALTER TABLE "TriviaSurvey" ADD COLUMN "retired" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "TriviaSurvey" ADD COLUMN "retired" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "flagged" BOOLEAN NOT NULL DEFAULT false;
 
 -- CreateTable
 CREATE TABLE "TriviaRating" (

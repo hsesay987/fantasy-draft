@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { categoryShouldRetire, parseRating, recordRating, shouldRetire, summarize, type RatingInput, type RatingRow, type RatingStore } from "./triviaRatings.service";
+import { categoryShouldRetire, parseRating, recordAdminRating, recordRating, shouldRetire, summarize, type RatingInput, type RatingRow, type RatingStore } from "./triviaRatings.service";
 
 const ok = { kind: "category", id: "c1", voter: "voter-abcdefgh", quality: 4 };
 const row = (over: Partial<RatingRow> = {}): RatingRow => ({ kind: "category", clue: -1, voter: "v", quality: 3, difficulty: null, wrong: false, ...over });
@@ -70,5 +70,36 @@ describe("recordRating", () => {
     for (let i = 0; i < 5; i++) last = await recordRating(m.store, { kind: "category", targetId: "c1", clue: -1, voter: `voter-${i}xxxx`, quality: 1, difficulty: null, wrong: false });
     expect(last.retired).toBe(true);
     expect(m.retired.has("category:c1")).toBe(true);
+  });
+});
+
+describe("admin ratings", () => {
+  const mk = () => {
+    const rows: RatingInput[] = [];
+    const retired: string[] = [];
+    const store: RatingStore = {
+      async upsert(r) { rows.push(r); },
+      async forItem(_k, id) { return rows.filter((r) => r.targetId === id); },
+      async setRetired(k, id, v) { if (v) retired.push(`${k}:${id}`); },
+    };
+    return { store, rows, retired };
+  };
+  it("is saved under the admin's own voter id", async () => {
+    const m = mk();
+    await recordAdminRating(m.store, "u1", { kind: "clue", targetId: "c1", clue: 1, quality: 2, difficulty: 5, wrong: false });
+    expect(m.rows[0]!.voter).toBe("admin:u1");
+    expect(m.retired).toEqual([]);
+  });
+  it("marking the answer wrong retires the item straight away", async () => {
+    const m = mk();
+    const out = await recordAdminRating(m.store, "u1", { kind: "clue", targetId: "c1", clue: 0, quality: null, difficulty: null, wrong: true });
+    expect(out.retired).toBe(true);
+    expect(m.retired).toEqual(["category:c1"]);
+  });
+  it("admin stars never count toward automatic retirement", async () => {
+    const m = mk();
+    for (let i = 0; i < 6; i++) await recordAdminRating(m.store, `u${i}`, { kind: "category", targetId: "c1", clue: -1, quality: 1, difficulty: null, wrong: false });
+    const out = await recordRating(m.store, { kind: "category", targetId: "c1", clue: -1, voter: "player-1xxxx", quality: 5, difficulty: null, wrong: false });
+    expect(out.retired).toBe(false);
   });
 });
