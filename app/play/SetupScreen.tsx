@@ -135,7 +135,7 @@ export default function SetupScreen() {
     const p = PRESETS.find((x) => x.id === id)!;
     const r = p.apply(format, baseOpts(pool, format).opts);
     setPreset(id);
-    setOpts((o) => ({ ...r.opts, bans: o.bans, universes: o.universes, customItems: o.customItems, roll: o.roll, battle: o.battle }));
+    setOpts((o) => ({ ...r.opts, bans: o.bans, universes: o.universes, customItems: o.customItems, roll: o.roll, battle: o.battle, blind: o.blind, clues: o.clues }));
     setMystery(!!r.mystery);
   };
 
@@ -216,8 +216,11 @@ export default function SetupScreen() {
         {(format === "snake" || format === "spin" || format === "auction" || format === "position") && (players.length > 1 || mode === "online") && (
           <Chip selected={opts.battle} onClick={() => set("battle", !opts.battle)}>⚔️ Vs mission — every pick duels the other team&apos;s on the mission</Chip>
         )}
-        {ROLL_COPY[format] && format !== "spin" && (
-          <Chip selected={opts.roll} onClick={() => set("roll", !opts.roll)}>🎲 Random roll — {ROLL_COPY[format]}</Chip>
+        {ROLL_COPY[format] && format !== "spin" && !(format === "auction" && opts.blind) && (
+          <Chip selected={opts.roll} onClick={() => setOpts((o) => ({ ...o, roll: !o.roll }))}>🎲 Random roll — {ROLL_COPY[format]}</Chip>
+        )}
+        {format === "auction" && (
+          <Chip selected={opts.blind} onClick={() => setOpts((o) => ({ ...o, blind: !o.blind, roll: o.blind ? o.roll : false }))}>🕵️ Blind lots — bid on clues, see who it is when it sells</Chip>
         )}
       </Panel>
 
@@ -307,6 +310,7 @@ export default function SetupScreen() {
               <>
                 <Field label={`Budget: $${opts.budget}`}><input type="range" min={10} max={100} step={5} value={opts.budget} onChange={(e) => set("budget", +e.target.value)} className="w-full accent-[var(--primary)]" aria-label="Budget" /></Field>
                 <Field label="Seconds per lot"><div className="flex gap-2">{[8, 15, 25].map((n) => <Chip key={n} selected={opts.lotSeconds === n} onClick={() => set("lotSeconds", n)}>{n}s</Chip>)}</div></Field>
+                {opts.blind && <Field label="Clues per lot"><Stepper value={opts.clues} min={1} max={4} onChange={(n) => set("clues", n)} label="Clues" /></Field>}
                 {opts.roll && <Field label="Lots rolled per nomination"><Stepper value={opts.options} min={2} max={4} onChange={(n) => set("options", n)} label="Lots" /></Field>}
               </>
             ) : (

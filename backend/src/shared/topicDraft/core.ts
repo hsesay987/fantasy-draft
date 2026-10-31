@@ -69,7 +69,7 @@ export function initGame(setup: GameSetup, now: number): GameState {
         A.init({
           players: setup.players, budget: o.budget, teamSize: o.teamSize, poolIds: pool.map((i) => i.id), seed: setup.seed,
           baseMs: o.lotSeconds * 1000, bumpMs: Math.min(8000, o.lotSeconds * 500), openMs: Math.min(12000, Math.max(6000, o.lotSeconds * 600)),
-          nominate: o.roll ? { n: Math.max(2, Math.min(4, o.options)) } : undefined,
+          nominate: o.roll && !o.blind ? { n: Math.max(2, Math.min(4, o.options)) } : undefined,
         }),
         now
       );

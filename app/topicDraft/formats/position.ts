@@ -25,6 +25,13 @@ const R = (id: string, label: string, weights: Record<string, number>): Role => 
 
 /** Role sets that suit each topic. Anything not listed uses the standard Captain/Healer/Tank set. */
 export const POOL_ROLES: Record<string, Role[]> = {
+  nba: [
+    R("pg", "Point Guard", { playmaking: 3, shooting: 1.5, scoring: 1 }),
+    R("sg", "Shooting Guard", { scoring: 3, shooting: 2, defense: 0.8 }),
+    R("sf", "Small Forward", { scoring: 2, defense: 1.5, rebounding: 1.2, impact: 1 }),
+    R("pf", "Power Forward", { rebounding: 2.5, scoring: 1.5, defense: 1.5 }),
+    R("c", "Center", { rebounding: 3, defense: 2.5, impact: 1 }),
+  ],
   football: [
     R("st", "Striker", { shooting: 3, pace: 1.5, physical: 1 }),
     R("lw", "Left Wing", { pace: 2.5, dribbling: 2.5, shooting: 1 }),

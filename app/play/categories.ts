@@ -85,6 +85,11 @@ export const CATEGORIES: Category[] = [
     recommended: [{ format: "blind", why: "Rank the greatest series" }, { format: "snake", why: "Draft your ultimate watchlist" }],
     defaults: { teamSize: 5, missionId: "rewatch-king", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
+  {
+    id: "nba", title: "NBA Legends", blurb: "All-time greats with real heights, teams and best seasons.", iconSrc: "/icons/basketball.png", gradient: "from-orange-600/40 to-primary/20",
+    recommended: [{ format: "auction", why: "Bid blind on clues: height, team colours, best season" }, { format: "snake", why: "Draft your all-time starting five" }],
+    defaults: { teamSize: 5, missionId: "all-around-basketball", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
 ];
 
 /** Spin Draft is the default way in for every topic; each topic's other best fits follow it. */

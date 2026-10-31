@@ -22,7 +22,8 @@
     "trivia:fill": "ts-node --transpile-only src/scripts/fillTrivia.ts",
     "trivia:ingest": "ts-node --transpile-only src/scripts/ingestTrivia.ts",
     "trivia:audit": "ts-node --transpile-only src/scripts/auditTrivia.ts",
-    "prices:ingest": "ts-node --transpile-only src/scripts/ingestPrices.ts"
+    "prices:ingest": "ts-node --transpile-only src/scripts/ingestPrices.ts",
+    "nba:export": "ts-node --transpile-only src/scripts/exportNbaCatalog.ts"
   },
   "keywords": [],
   "author": "",

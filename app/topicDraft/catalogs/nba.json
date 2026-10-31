@@ -1,0 +1,8669 @@
+[
+ {
+  "id": "lebron-james",
+  "name": "LeBron James",
+  "universe": "Cleveland Cavaliers",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 94,
+   "playmaking": 65,
+   "rebounding": 53,
+   "defense": 56,
+   "shooting": 73,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "small forward",
+   "team": "Cleveland Cavaliers",
+   "colors": [
+    "wine",
+    "gold"
+   ],
+   "teams": [
+    "Cleveland Cavaliers",
+    "Miami Heat",
+    "Los Angeles Lakers"
+   ],
+   "from": 2003,
+   "to": 2026,
+   "allNba": 20,
+   "allStar": 20,
+   "peak": {
+    "season": "2008-09",
+    "team": "CLE",
+    "ppg": 30,
+    "rpg": 7.9,
+    "apg": 7.2,
+    "spg": 1.8,
+    "bpg": 1.1,
+    "ts": 0.568
+   }
+  }
+ },
+ {
+  "id": "kareem-abdul-jabbar",
+  "name": "Kareem Abdul-Jabbar",
+  "universe": "Los Angeles Lakers",
+  "archetype": "center",
+  "stats": {
+   "scoring": 99,
+   "playmaking": 30,
+   "rebounding": 100,
+   "defense": 5,
+   "shooting": 100,
+   "impact": 99
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 86,
+   "pos": "center",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Milwaukee Bucks",
+    "Los Angeles Lakers"
+   ],
+   "from": 1969,
+   "to": 1989,
+   "hof": true,
+   "allNba": 15,
+   "allStar": 19,
+   "peak": {
+    "season": "1971-72",
+    "team": "MIL",
+    "ppg": 31.7,
+    "rpg": 16,
+    "apg": 3.3,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.606
+   },
+   "college": "University of California, Los Angeles"
+  }
+ },
+ {
+  "id": "karl-malone",
+  "name": "Karl Malone",
+  "universe": "Utah Jazz",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 80,
+   "playmaking": 38,
+   "rebounding": 65,
+   "defense": 47,
+   "shooting": 79,
+   "impact": 94
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "forward",
+   "team": "Utah Jazz",
+   "colors": [
+    "purple",
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "Utah Jazz",
+    "Los Angeles Lakers"
+   ],
+   "from": 1985,
+   "to": 2004,
+   "hof": true,
+   "allNba": 14,
+   "allStar": 14,
+   "peak": {
+    "season": "1996-97",
+    "team": "UTA",
+    "ppg": 25.7,
+    "rpg": 9.8,
+    "apg": 4.2,
+    "spg": 1.7,
+    "bpg": 0.7,
+    "ts": 0.575
+   },
+   "college": "Louisiana Tech University"
+  }
+ },
+ {
+  "id": "michael-jordan",
+  "name": "Michael Jordan",
+  "universe": "Chicago Bulls",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 100,
+   "playmaking": 42,
+   "rebounding": 35,
+   "defense": 85,
+   "shooting": 68,
+   "impact": 100
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "shooting guard",
+   "team": "Chicago Bulls",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Chicago Bulls",
+    "Washington Wizards"
+   ],
+   "from": 1984,
+   "to": 2003,
+   "hof": true,
+   "allNba": 11,
+   "allStar": 14,
+   "peak": {
+    "season": "1987-88",
+    "team": "CHI",
+    "ppg": 37.1,
+    "rpg": 5.2,
+    "apg": 4.6,
+    "spg": 2.9,
+    "bpg": 1.5,
+    "ts": 0.562
+   },
+   "college": "University of North Carolina at Chapel Hill"
+  }
+ },
+ {
+  "id": "wilt-chamberlain",
+  "name": "Wilt Chamberlain",
+  "universe": "Los Angeles Lakers",
+  "archetype": "center",
+  "stats": {
+   "scoring": 100,
+   "playmaking": 17,
+   "rebounding": 100,
+   "defense": 5,
+   "shooting": 33,
+   "impact": 100
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 85,
+   "pos": "center",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Philadelphia Warriors",
+    "San Francisco Warriors",
+    "Philadelphia 76ers",
+    "Los Angeles Lakers"
+   ],
+   "from": 1959,
+   "to": 1973,
+   "hof": true,
+   "allNba": 10,
+   "allStar": 13,
+   "peak": {
+    "season": "1961-62",
+    "team": "PHW",
+    "ppg": 38.4,
+    "rpg": 27.2,
+    "apg": 1.9,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.519
+   },
+   "college": "University of Kansas"
+  }
+ },
+ {
+  "id": "tim-duncan",
+  "name": "Tim Duncan",
+  "universe": "San Antonio Spurs",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 73,
+   "playmaking": 35,
+   "rebounding": 86,
+   "defense": 56,
+   "shooting": 70,
+   "impact": 84
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "power forward",
+   "team": "San Antonio Spurs",
+   "colors": [
+    "silver",
+    "black"
+   ],
+   "teams": [
+    "San Antonio Spurs"
+   ],
+   "from": 1997,
+   "to": 2016,
+   "hof": true,
+   "allNba": 15,
+   "allStar": 15,
+   "peak": {
+    "season": "2003-04",
+    "team": "SAS",
+    "ppg": 23.3,
+    "rpg": 12.9,
+    "apg": 3.9,
+    "spg": 0.7,
+    "bpg": 2.9,
+    "ts": 0.564
+   },
+   "college": "Wake Forest University"
+  }
+ },
+ {
+  "id": "dirk-nowitzki",
+  "name": "Dirk Nowitzki",
+  "universe": "Dallas Mavericks",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 81,
+   "playmaking": 28,
+   "rebounding": 65,
+   "defense": 49,
+   "shooting": 82,
+   "impact": 89
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 84,
+   "pos": "power forward",
+   "team": "Dallas Mavericks",
+   "colors": [
+    "blue",
+    "silver"
+   ],
+   "teams": [
+    "Dallas Mavericks"
+   ],
+   "from": 1998,
+   "to": 2019,
+   "hof": true,
+   "allNba": 12,
+   "allStar": 14,
+   "peak": {
+    "season": "2005-06",
+    "team": "DAL",
+    "ppg": 26.1,
+    "rpg": 9.7,
+    "apg": 3.1,
+    "spg": 1.2,
+    "bpg": 1.5,
+    "ts": 0.578
+   }
+  }
+ },
+ {
+  "id": "john-stockton",
+  "name": "John Stockton",
+  "universe": "Utah Jazz",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 53,
+   "playmaking": 100,
+   "rebounding": 20,
+   "defense": 73,
+   "shooting": 100,
+   "impact": 66
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "point guard",
+   "team": "Utah Jazz",
+   "colors": [
+    "purple",
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "Utah Jazz"
+   ],
+   "from": 1984,
+   "to": 2003,
+   "hof": true,
+   "allNba": 11,
+   "allStar": 10,
+   "peak": {
+    "season": "1989-90",
+    "team": "UTA",
+    "ppg": 17.1,
+    "rpg": 3,
+    "apg": 13.6,
+    "spg": 3.2,
+    "bpg": 0.2,
+    "ts": 0.624
+   },
+   "college": "Gonzaga University"
+  }
+ },
+ {
+  "id": "kobe-bryant",
+  "name": "Kobe Bryant",
+  "universe": "Los Angeles Lakers",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 86,
+   "playmaking": 55,
+   "rebounding": 40,
+   "defense": 40,
+   "shooting": 69,
+   "impact": 89
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "shooting guard",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Los Angeles Lakers"
+   ],
+   "from": 1996,
+   "to": 2016,
+   "hof": true,
+   "allNba": 15,
+   "allStar": 18,
+   "peak": {
+    "season": "2005-06",
+    "team": "LAL",
+    "ppg": 27.6,
+    "rpg": 5.9,
+    "apg": 6,
+    "spg": 1.3,
+    "bpg": 0.8,
+    "ts": 0.563
+   }
+  }
+ },
+ {
+  "id": "shaquille-o-neal",
+  "name": "Shaquille O'Neal",
+  "universe": "Los Angeles Lakers",
+  "archetype": "center",
+  "stats": {
+   "scoring": 88,
+   "playmaking": 22,
+   "rebounding": 76,
+   "defense": 48,
+   "shooting": 89,
+   "impact": 100
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 85,
+   "pos": "center",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Orlando Magic",
+    "Los Angeles Lakers",
+    "Miami Heat",
+    "Phoenix Suns",
+    "Cleveland Cavaliers",
+    "Boston Celtics"
+   ],
+   "from": 1992,
+   "to": 2011,
+   "hof": true,
+   "allNba": 14,
+   "allStar": 15,
+   "peak": {
+    "season": "1998-99",
+    "team": "LAL",
+    "ppg": 28.3,
+    "rpg": 11.4,
+    "apg": 2.4,
+    "spg": 0.7,
+    "bpg": 2.4,
+    "ts": 0.587
+   },
+   "college": "Syracuse University"
+  }
+ },
+ {
+  "id": "chris-paul",
+  "name": "Chris Paul",
+  "universe": "Los Angeles Clippers",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 66,
+   "playmaking": 100,
+   "rebounding": 27,
+   "defense": 60,
+   "shooting": 80,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 72,
+   "pos": "point guard",
+   "team": "Los Angeles Clippers",
+   "colors": [
+    "red",
+    "blue"
+   ],
+   "teams": [
+    "New Orleans/Oklahoma City Hornets",
+    "New Orleans Hornets",
+    "Los Angeles Clippers",
+    "Houston Rockets",
+    "Oklahoma City Thunder",
+    "Phoenix Suns",
+    "Golden State Warriors",
+    "San Antonio Spurs"
+   ],
+   "from": 2005,
+   "to": 2026,
+   "allNba": 11,
+   "allStar": 12,
+   "peak": {
+    "season": "2008-09",
+    "team": "NOH",
+    "ppg": 21.1,
+    "rpg": 4,
+    "apg": 11.6,
+    "spg": 2.7,
+    "bpg": 0.1,
+    "ts": 0.576
+   },
+   "college": "Abilene Christian University"
+  }
+ },
+ {
+  "id": "oscar-robertson",
+  "name": "Oscar Robertson",
+  "universe": "Cincinnati Royals",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 88,
+   "playmaking": 86,
+   "rebounding": 70,
+   "defense": 5,
+   "shooting": 90,
+   "impact": 87
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 77,
+   "pos": "shooting guard",
+   "team": "Cincinnati Royals",
+   "colors": [
+    "blue",
+    "white"
+   ],
+   "teams": [
+    "Cincinnati Royals",
+    "Milwaukee Bucks"
+   ],
+   "from": 1960,
+   "to": 1974,
+   "hof": true,
+   "allNba": 11,
+   "allStar": 12,
+   "peak": {
+    "season": "1963-64",
+    "team": "CIN",
+    "ppg": 28.3,
+    "rpg": 10.4,
+    "apg": 9.5,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.588
+   },
+   "college": "University of Cincinnati"
+  }
+ },
+ {
+  "id": "kevin-garnett",
+  "name": "Kevin Garnett",
+  "universe": "Minnesota Timberwolves",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 72,
+   "playmaking": 55,
+   "rebounding": 90,
+   "defense": 52,
+   "shooting": 61,
+   "impact": 97
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "power forward",
+   "team": "Minnesota Timberwolves",
+   "colors": [
+    "blue",
+    "green"
+   ],
+   "teams": [
+    "Minnesota Timberwolves",
+    "Boston Celtics",
+    "Brooklyn Nets"
+   ],
+   "from": 1995,
+   "to": 2016,
+   "hof": true,
+   "allNba": 9,
+   "allStar": 15,
+   "peak": {
+    "season": "2003-04",
+    "team": "MIN",
+    "ppg": 23,
+    "rpg": 13.4,
+    "apg": 6,
+    "spg": 1.4,
+    "bpg": 1.6,
+    "ts": 0.553
+   }
+  }
+ },
+ {
+  "id": "charles-barkley",
+  "name": "Charles Barkley",
+  "universe": "Philadelphia 76ers",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 79,
+   "playmaking": 35,
+   "rebounding": 77,
+   "defense": 50,
+   "shooting": 100,
+   "impact": 94
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "forward",
+   "team": "Philadelphia 76ers",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "teams": [
+    "Philadelphia 76ers",
+    "Phoenix Suns",
+    "Houston Rockets"
+   ],
+   "from": 1984,
+   "to": 2000,
+   "hof": true,
+   "allNba": 11,
+   "allStar": 11,
+   "peak": {
+    "season": "1990-91",
+    "team": "PHI",
+    "ppg": 25.2,
+    "rpg": 11.5,
+    "apg": 3.9,
+    "spg": 1.9,
+    "bpg": 0.6,
+    "ts": 0.661
+   },
+   "college": "Auburn University"
+  }
+ },
+ {
+  "id": "jerry-west",
+  "name": "Jerry West",
+  "universe": "Los Angeles Lakers",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 90,
+   "playmaking": 51,
+   "rebounding": 40,
+   "defense": 5,
+   "shooting": 68,
+   "impact": 72
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 75,
+   "pos": "point guard",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Los Angeles Lakers"
+   ],
+   "from": 1960,
+   "to": 1974,
+   "hof": true,
+   "allNba": 12,
+   "allStar": 14,
+   "peak": {
+    "season": "1964-65",
+    "team": "LAL",
+    "ppg": 28.7,
+    "rpg": 6,
+    "apg": 5.6,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.562
+   },
+   "college": "West Virginia University"
+  }
+ },
+ {
+  "id": "bill-russell",
+  "name": "Bill Russell",
+  "universe": "Boston Celtics",
+  "archetype": "center",
+  "stats": {
+   "scoring": 46,
+   "playmaking": 17,
+   "rebounding": 100,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 60
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "center",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Boston Celtics"
+   ],
+   "from": 1956,
+   "to": 1969,
+   "hof": true,
+   "allNba": 11,
+   "allStar": 12,
+   "peak": {
+    "season": "1957-58",
+    "team": "BOS",
+    "ppg": 14.7,
+    "rpg": 19.6,
+    "apg": 1.8,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.45
+   },
+   "college": "University of San Francisco"
+  }
+ },
+ {
+  "id": "kevin-durant",
+  "name": "Kevin Durant",
+  "universe": "Oklahoma City Thunder",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 88,
+   "playmaking": 42,
+   "rebounding": 53,
+   "defense": 50,
+   "shooting": 100,
+   "impact": 99
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "small forward",
+   "team": "Oklahoma City Thunder",
+   "colors": [
+    "blue",
+    "orange"
+   ],
+   "teams": [
+    "Seattle SuperSonics",
+    "Oklahoma City Thunder",
+    "Golden State Warriors",
+    "Brooklyn Nets",
+    "Phoenix Suns",
+    "Houston Rockets"
+   ],
+   "from": 2007,
+   "to": 2026,
+   "allNba": 11,
+   "allStar": 14,
+   "peak": {
+    "season": "2013-14",
+    "team": "OKC",
+    "ppg": 28.1,
+    "rpg": 7.9,
+    "apg": 4.6,
+    "spg": 1.4,
+    "bpg": 1.3,
+    "ts": 0.647
+   },
+   "college": "University of Texas at Austin"
+  }
+ },
+ {
+  "id": "hakeem-olajuwon",
+  "name": "Hakeem Olajuwon",
+  "universe": "Houston Rockets",
+  "archetype": "center",
+  "stats": {
+   "scoring": 67,
+   "playmaking": 20,
+   "rebounding": 80,
+   "defense": 100,
+   "shooting": 61,
+   "impact": 85
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 84,
+   "pos": "center",
+   "team": "Houston Rockets",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "Houston Rockets",
+    "Toronto Raptors"
+   ],
+   "from": 1984,
+   "to": 2002,
+   "hof": true,
+   "allNba": 12,
+   "allStar": 12,
+   "peak": {
+    "season": "1992-93",
+    "team": "HOU",
+    "ppg": 21.6,
+    "rpg": 12.1,
+    "apg": 2.2,
+    "spg": 1.8,
+    "bpg": 4.3,
+    "ts": 0.553
+   },
+   "college": "University of Houston"
+  }
+ },
+ {
+  "id": "david-robinson",
+  "name": "David Robinson",
+  "universe": "San Antonio Spurs",
+  "archetype": "center",
+  "stats": {
+   "scoring": 78,
+   "playmaking": 27,
+   "rebounding": 81,
+   "defense": 76,
+   "shooting": 91,
+   "impact": 100
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 85,
+   "pos": "center",
+   "team": "San Antonio Spurs",
+   "colors": [
+    "silver",
+    "black"
+   ],
+   "teams": [
+    "San Antonio Spurs"
+   ],
+   "from": 1989,
+   "to": 2003,
+   "hof": true,
+   "allNba": 10,
+   "allStar": 10,
+   "peak": {
+    "season": "1996-97",
+    "team": "SAS",
+    "ppg": 25,
+    "rpg": 12.2,
+    "apg": 3,
+    "spg": 1.4,
+    "bpg": 3.3,
+    "ts": 0.589
+   }
+  }
+ },
+ {
+  "id": "julius-erving",
+  "name": "Julius Erving",
+  "universe": "Philadelphia 76ers",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 87,
+   "playmaking": 50,
+   "rebounding": 73,
+   "defense": 75,
+   "shooting": 71,
+   "impact": 93
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "small forward",
+   "team": "Philadelphia 76ers",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "teams": [
+    "VIR",
+    "NYA",
+    "Philadelphia 76ers"
+   ],
+   "from": 1971,
+   "to": 1987,
+   "hof": true,
+   "allNba": 7,
+   "allStar": 16,
+   "peak": {
+    "season": "1975-76",
+    "team": "NYA",
+    "ppg": 27.9,
+    "rpg": 10.9,
+    "apg": 5.5,
+    "spg": 2.2,
+    "bpg": 1.9,
+    "ts": 0.565
+   },
+   "college": "University of Massachusetts Amherst"
+  }
+ },
+ {
+  "id": "magic-johnson",
+  "name": "Magic Johnson",
+  "universe": "Los Angeles Lakers",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 59,
+   "playmaking": 100,
+   "rebounding": 39,
+   "defense": 38,
+   "shooting": 100,
+   "impact": 83
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "shooting guard",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Los Angeles Lakers"
+   ],
+   "from": 1979,
+   "to": 1996,
+   "hof": true,
+   "allNba": 10,
+   "allStar": 12,
+   "peak": {
+    "season": "1986-87",
+    "team": "LAL",
+    "ppg": 18.8,
+    "rpg": 5.9,
+    "apg": 12.6,
+    "spg": 1.6,
+    "bpg": 0.2,
+    "ts": 0.61
+   },
+   "college": "Michigan State University"
+  }
+ },
+ {
+  "id": "moses-malone",
+  "name": "Moses Malone",
+  "universe": "Houston Rockets",
+  "archetype": "center",
+  "stats": {
+   "scoring": 87,
+   "playmaking": 16,
+   "rebounding": 98,
+   "defense": 49,
+   "shooting": 88,
+   "impact": 82
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "center",
+   "team": "Houston Rockets",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "UTS",
+    "SSL",
+    "Houston Rockets",
+    "Philadelphia 76ers",
+    "Washington Bullets",
+    "Atlanta Hawks",
+    "Milwaukee Bucks",
+    "San Antonio Spurs"
+   ],
+   "from": 1974,
+   "to": 1995,
+   "hof": true,
+   "allNba": 8,
+   "allStar": 13,
+   "peak": {
+    "season": "1981-82",
+    "team": "HOU",
+    "ppg": 27.8,
+    "rpg": 14.8,
+    "apg": 1.8,
+    "spg": 1,
+    "bpg": 1.9,
+    "ts": 0.585
+   }
+  }
+ },
+ {
+  "id": "dolph-schayes",
+  "name": "Dolph Schayes",
+  "universe": "Syracuse Nationals",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 43,
+   "playmaking": 26,
+   "rebounding": 82,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 74
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "power forward",
+   "team": "Syracuse Nationals",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Syracuse Nationals",
+    "Philadelphia 76ers"
+   ],
+   "from": 1949,
+   "to": 1964,
+   "hof": true,
+   "allNba": 12,
+   "allStar": 12,
+   "peak": {
+    "season": "1952-53",
+    "team": "SYR",
+    "ppg": 13.8,
+    "rpg": 12.3,
+    "apg": 2.9,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.468
+   },
+   "college": "New York University"
+  }
+ },
+ {
+  "id": "larry-bird",
+  "name": "Larry Bird",
+  "universe": "Boston Celtics",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 88,
+   "playmaking": 70,
+   "rebounding": 61,
+   "defense": 53,
+   "shooting": 100,
+   "impact": 88
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "forward",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Boston Celtics"
+   ],
+   "from": 1979,
+   "to": 1992,
+   "hof": true,
+   "allNba": 10,
+   "allStar": 12,
+   "peak": {
+    "season": "1987-88",
+    "team": "BOS",
+    "ppg": 28.1,
+    "rpg": 9.2,
+    "apg": 7.6,
+    "spg": 1.8,
+    "bpg": 0.9,
+    "ts": 0.612
+   },
+   "college": "Indiana State University"
+  }
+ },
+ {
+  "id": "john-havlicek",
+  "name": "John Havlicek",
+  "universe": "Boston Celtics",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 76,
+   "playmaking": 62,
+   "rebounding": 52,
+   "defense": 5,
+   "shooting": 44,
+   "impact": 49
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 77,
+   "pos": "small forward",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Boston Celtics"
+   ],
+   "from": 1962,
+   "to": 1978,
+   "hof": true,
+   "allNba": 11,
+   "allStar": 13,
+   "peak": {
+    "season": "1970-71",
+    "team": "BOS",
+    "ppg": 24.2,
+    "rpg": 7.8,
+    "apg": 6.8,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.533
+   },
+   "college": "Ohio State University"
+  }
+ },
+ {
+  "id": "bob-pettit",
+  "name": "Bob Pettit",
+  "universe": "St. Louis Hawks",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 80,
+   "playmaking": 24,
+   "rebounding": 100,
+   "defense": 5,
+   "shooting": 19,
+   "impact": 91
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "power forward",
+   "team": "St. Louis Hawks",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "MLH",
+    "St. Louis Hawks"
+   ],
+   "from": 1954,
+   "to": 1965,
+   "hof": true,
+   "allNba": 11,
+   "allStar": 11,
+   "peak": {
+    "season": "1956-57",
+    "team": "STL",
+    "ppg": 25.7,
+    "rpg": 16.2,
+    "apg": 2.6,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.502
+   },
+   "college": "Louisiana State University"
+  }
+ },
+ {
+  "id": "james-harden",
+  "name": "James Harden",
+  "universe": "Houston Rockets",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 95,
+   "playmaking": 80,
+   "rebounding": 36,
+   "defense": 48,
+   "shooting": 100,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 77,
+   "pos": "point guard",
+   "team": "Houston Rockets",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "Oklahoma City Thunder",
+    "Houston Rockets",
+    "Philadelphia 76ers",
+    "Los Angeles Clippers"
+   ],
+   "from": 2009,
+   "to": 2026,
+   "allNba": 7,
+   "allStar": 10,
+   "peak": {
+    "season": "2018-19",
+    "team": "HOU",
+    "ppg": 30.4,
+    "rpg": 5.4,
+    "apg": 8.8,
+    "spg": 1.8,
+    "bpg": 0.7,
+    "ts": 0.619
+   },
+   "college": "Arizona State University"
+  }
+ },
+ {
+  "id": "gary-payton",
+  "name": "Gary Payton",
+  "universe": "Seattle SuperSonics",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 68,
+   "playmaking": 79,
+   "rebounding": 33,
+   "defense": 51,
+   "shooting": 32,
+   "impact": 64
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "point guard",
+   "team": "Seattle SuperSonics",
+   "colors": [
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "Seattle SuperSonics",
+    "Los Angeles Lakers",
+    "Boston Celtics",
+    "Miami Heat"
+   ],
+   "from": 1990,
+   "to": 2007,
+   "hof": true,
+   "allNba": 9,
+   "allStar": 9,
+   "peak": {
+    "season": "1999-00",
+    "team": "SEA",
+    "ppg": 21.7,
+    "rpg": 4.9,
+    "apg": 8.7,
+    "spg": 2.2,
+    "bpg": 0.2,
+    "ts": 0.519
+   },
+   "college": "Oregon State University"
+  }
+ },
+ {
+  "id": "stephen-curry",
+  "name": "Stephen Curry",
+  "universe": "Golden State Warriors",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 74,
+   "playmaking": 70,
+   "rebounding": 28,
+   "defense": 48,
+   "shooting": 100,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 74,
+   "pos": "point guard",
+   "team": "Golden State Warriors",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "Golden State Warriors"
+   ],
+   "from": 2009,
+   "to": 2026,
+   "allNba": 10,
+   "allStar": 10,
+   "peak": {
+    "season": "2015-16",
+    "team": "GSW",
+    "ppg": 23.8,
+    "rpg": 4.3,
+    "apg": 7.7,
+    "spg": 2,
+    "bpg": 0.2,
+    "ts": 0.638
+   },
+   "college": "Davidson College"
+  }
+ },
+ {
+  "id": "reggie-miller",
+  "name": "Reggie Miller",
+  "universe": "Indiana Pacers",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 77,
+   "playmaking": 34,
+   "rebounding": 24,
+   "defense": 33,
+   "shooting": 100,
+   "impact": 51
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "shooting guard",
+   "team": "Indiana Pacers",
+   "colors": [
+    "navy",
+    "gold"
+   ],
+   "teams": [
+    "Indiana Pacers"
+   ],
+   "from": 1987,
+   "to": 2005,
+   "hof": true,
+   "allNba": 3,
+   "allStar": 5,
+   "peak": {
+    "season": "1990-91",
+    "team": "IND",
+    "ppg": 24.6,
+    "rpg": 3.6,
+    "apg": 3.8,
+    "spg": 1.3,
+    "bpg": 0.2,
+    "ts": 0.645
+   },
+   "college": "La Salle University"
+  }
+ },
+ {
+  "id": "dwight-howard",
+  "name": "Dwight Howard",
+  "universe": "Orlando Magic",
+  "archetype": "center",
+  "stats": {
+   "scoring": 57,
+   "playmaking": 16,
+   "rebounding": 88,
+   "defense": 59,
+   "shooting": 100,
+   "impact": 78
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "center",
+   "team": "Orlando Magic",
+   "colors": [
+    "blue",
+    "black"
+   ],
+   "teams": [
+    "Orlando Magic",
+    "Los Angeles Lakers",
+    "Houston Rockets",
+    "Atlanta Hawks",
+    "Charlotte Hornets",
+    "Washington Wizards",
+    "Philadelphia 76ers"
+   ],
+   "from": 2004,
+   "to": 2022,
+   "hof": true,
+   "allNba": 8,
+   "allStar": 8,
+   "peak": {
+    "season": "2010-11",
+    "team": "ORL",
+    "ppg": 18.3,
+    "rpg": 13.2,
+    "apg": 1.8,
+    "spg": 0.9,
+    "bpg": 2.8,
+    "ts": 0.63
+   }
+  }
+ },
+ {
+  "id": "jason-kidd",
+  "name": "Jason Kidd",
+  "universe": "Dallas Mavericks",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 36,
+   "playmaking": 83,
+   "rebounding": 41,
+   "defense": 48,
+   "shooting": 18,
+   "impact": 58
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "point guard",
+   "team": "Dallas Mavericks",
+   "colors": [
+    "blue",
+    "silver"
+   ],
+   "teams": [
+    "Dallas Mavericks",
+    "Phoenix Suns",
+    "New Jersey Nets",
+    "New York Knicks"
+   ],
+   "from": 1994,
+   "to": 2013,
+   "hof": true,
+   "allNba": 6,
+   "allStar": 10,
+   "peak": {
+    "season": "1998-99",
+    "team": "PHO",
+    "ppg": 11.6,
+    "rpg": 6.2,
+    "apg": 9.1,
+    "spg": 2,
+    "bpg": 0.3,
+    "ts": 0.502
+   },
+   "college": "University of California, Berkeley"
+  }
+ },
+ {
+  "id": "artis-gilmore",
+  "name": "Artis Gilmore",
+  "universe": "KEN",
+  "archetype": "center",
+  "stats": {
+   "scoring": 75,
+   "playmaking": 25,
+   "rebounding": 100,
+   "defense": 70,
+   "shooting": 100,
+   "impact": 69
+  },
+  "tags": [
+   "hall-of-fame",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 86,
+   "pos": "center",
+   "team": "KEN",
+   "teams": [
+    "KEN",
+    "Chicago Bulls",
+    "San Antonio Spurs"
+   ],
+   "from": 1971,
+   "to": 1987,
+   "hof": true,
+   "allStar": 11,
+   "peak": {
+    "season": "1972-73",
+    "team": "KEN",
+    "ppg": 23.8,
+    "rpg": 17.8,
+    "apg": 2.7,
+    "spg": 0,
+    "bpg": 5,
+    "ts": 0.62
+   },
+   "college": "Jacksonville University"
+  }
+ },
+ {
+  "id": "dwyane-wade",
+  "name": "Dwyane Wade",
+  "universe": "Miami Heat",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 77,
+   "playmaking": 63,
+   "rebounding": 28,
+   "defense": 48,
+   "shooting": 57,
+   "impact": 100
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "point guard",
+   "team": "Miami Heat",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Miami Heat",
+    "Chicago Bulls"
+   ],
+   "from": 2003,
+   "to": 2019,
+   "hof": true,
+   "allNba": 8,
+   "allStar": 13,
+   "peak": {
+    "season": "2008-09",
+    "team": "MIA",
+    "ppg": 24.6,
+    "rpg": 4.2,
+    "apg": 6.9,
+    "spg": 1.7,
+    "bpg": 0.7,
+    "ts": 0.549
+   },
+   "college": "Marquette University"
+  }
+ },
+ {
+  "id": "bob-cousy",
+  "name": "Bob Cousy",
+  "universe": "Boston Celtics",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 68,
+   "playmaking": 61,
+   "rebounding": 43,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 54
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "point guard",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Boston Celtics",
+    "Cincinnati Royals"
+   ],
+   "from": 1950,
+   "to": 1970,
+   "hof": true,
+   "allNba": 12,
+   "allStar": 13,
+   "peak": {
+    "season": "1952-53",
+    "team": "BOS",
+    "ppg": 21.7,
+    "rpg": 6.4,
+    "apg": 6.7,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.445
+   },
+   "college": "College of the Holy Cross"
+  }
+ },
+ {
+  "id": "paul-pierce",
+  "name": "Paul Pierce",
+  "universe": "Boston Celtics",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 67,
+   "playmaking": 39,
+   "rebounding": 44,
+   "defense": 42,
+   "shooting": 86,
+   "impact": 64
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "small forward",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Boston Celtics",
+    "Brooklyn Nets",
+    "Washington Wizards",
+    "Los Angeles Clippers"
+   ],
+   "from": 1998,
+   "to": 2017,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 10,
+   "peak": {
+    "season": "2005-06",
+    "team": "BOS",
+    "ppg": 21.6,
+    "rpg": 6.6,
+    "apg": 4.2,
+    "spg": 1.6,
+    "bpg": 0.5,
+    "ts": 0.583
+   },
+   "college": "University of Kansas"
+  }
+ },
+ {
+  "id": "patrick-ewing",
+  "name": "Patrick Ewing",
+  "universe": "New York Knicks",
+  "archetype": "center",
+  "stats": {
+   "scoring": 71,
+   "playmaking": 21,
+   "rebounding": 62,
+   "defense": 81,
+   "shooting": 100,
+   "impact": 77
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 84,
+   "pos": "center",
+   "team": "New York Knicks",
+   "colors": [
+    "blue",
+    "orange"
+   ],
+   "teams": [
+    "New York Knicks",
+    "Seattle SuperSonics",
+    "Orlando Magic"
+   ],
+   "from": 1985,
+   "to": 2002,
+   "hof": true,
+   "allNba": 7,
+   "allStar": 11,
+   "peak": {
+    "season": "1989-90",
+    "team": "NYK",
+    "ppg": 22.7,
+    "rpg": 9.3,
+    "apg": 2.4,
+    "spg": 1.5,
+    "bpg": 3.5,
+    "ts": 0.607
+   },
+   "college": "Georgetown University"
+  }
+ },
+ {
+  "id": "rick-barry",
+  "name": "Rick Barry",
+  "universe": "Golden State Warriors",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 100,
+   "playmaking": 35,
+   "rebounding": 63,
+   "defense": 5,
+   "shooting": 100,
+   "impact": 72
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "forward",
+   "team": "Golden State Warriors",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "San Francisco Warriors",
+    "OAK",
+    "WSA",
+    "NYA",
+    "Golden State Warriors",
+    "Houston Rockets"
+   ],
+   "from": 1965,
+   "to": 1980,
+   "hof": true,
+   "allNba": 6,
+   "allStar": 12,
+   "peak": {
+    "season": "1969-70",
+    "team": "OAK",
+    "ppg": 34,
+    "rpg": 9.4,
+    "apg": 3.9,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.615
+   },
+   "college": "University of Miami"
+  }
+ },
+ {
+  "id": "steve-nash",
+  "name": "Steve Nash",
+  "universe": "Phoenix Suns",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 59,
+   "playmaking": 95,
+   "rebounding": 28,
+   "defense": 19,
+   "shooting": 100,
+   "impact": 66
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 75,
+   "pos": "point guard",
+   "team": "Phoenix Suns",
+   "colors": [
+    "purple",
+    "orange"
+   ],
+   "teams": [
+    "Phoenix Suns",
+    "Dallas Mavericks",
+    "Los Angeles Lakers"
+   ],
+   "from": 1996,
+   "to": 2014,
+   "hof": true,
+   "allNba": 7,
+   "allStar": 8,
+   "peak": {
+    "season": "2006-07",
+    "team": "PHO",
+    "ppg": 18.8,
+    "rpg": 4.2,
+    "apg": 10.5,
+    "spg": 0.8,
+    "bpg": 0.2,
+    "ts": 0.632
+   },
+   "college": "St. Michaels University School"
+  }
+ },
+ {
+  "id": "clyde-drexler",
+  "name": "Clyde Drexler",
+  "universe": "Portland Trail Blazers",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 68,
+   "playmaking": 63,
+   "rebounding": 42,
+   "defense": 67,
+   "shooting": 60,
+   "impact": 67
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "point guard",
+   "team": "Portland Trail Blazers",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Portland Trail Blazers",
+    "Houston Rockets"
+   ],
+   "from": 1983,
+   "to": 1998,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 10,
+   "peak": {
+    "season": "1987-88",
+    "team": "POR",
+    "ppg": 21.7,
+    "rpg": 6.3,
+    "apg": 6.9,
+    "spg": 2.5,
+    "bpg": 0.9,
+    "ts": 0.552
+   },
+   "college": "University of Houston"
+  }
+ },
+ {
+  "id": "george-gervin",
+  "name": "George Gervin",
+  "universe": "San Antonio Spurs",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 72,
+   "playmaking": 26,
+   "rebounding": 37,
+   "defense": 46,
+   "shooting": 100,
+   "impact": 71
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "shooting guard",
+   "team": "San Antonio Spurs",
+   "colors": [
+    "silver",
+    "black"
+   ],
+   "teams": [
+    "VIR",
+    "SAA",
+    "San Antonio Spurs",
+    "Chicago Bulls"
+   ],
+   "from": 1972,
+   "to": 1986,
+   "hof": true,
+   "allNba": 7,
+   "allStar": 12,
+   "peak": {
+    "season": "1977-78",
+    "team": "SAS",
+    "ppg": 23.1,
+    "rpg": 5.5,
+    "apg": 2.9,
+    "spg": 1.3,
+    "bpg": 1.3,
+    "ts": 0.604
+   },
+   "college": "California State University, Long Beach"
+  }
+ },
+ {
+  "id": "scottie-pippen",
+  "name": "Scottie Pippen",
+  "universe": "Chicago Bulls",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 58,
+   "playmaking": 57,
+   "rebounding": 51,
+   "defense": 60,
+   "shooting": 25,
+   "impact": 62
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "small forward",
+   "team": "Chicago Bulls",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Chicago Bulls",
+    "Houston Rockets",
+    "Portland Trail Blazers"
+   ],
+   "from": 1987,
+   "to": 2004,
+   "hof": true,
+   "allNba": 7,
+   "allStar": 7,
+   "peak": {
+    "season": "1993-94",
+    "team": "CHI",
+    "ppg": 18.6,
+    "rpg": 7.7,
+    "apg": 6.3,
+    "spg": 2.1,
+    "bpg": 0.9,
+    "ts": 0.51
+   },
+   "college": "University of Central Arkansas"
+  }
+ },
+ {
+  "id": "elgin-baylor",
+  "name": "Elgin Baylor",
+  "universe": "Los Angeles Lakers",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 93,
+   "playmaking": 32,
+   "rebounding": 100,
+   "defense": 5,
+   "shooting": 8,
+   "impact": 90
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 77,
+   "pos": "forward",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Minneapolis Lakers",
+    "Los Angeles Lakers"
+   ],
+   "from": 1958,
+   "to": 1972,
+   "hof": true,
+   "allNba": 10,
+   "allStar": 11,
+   "peak": {
+    "season": "1960-61",
+    "team": "MNL",
+    "ppg": 29.6,
+    "rpg": 16.4,
+    "apg": 3.5,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.489
+   },
+   "college": "Seattle University"
+  }
+ },
+ {
+  "id": "giannis-antetokounmpo",
+  "name": "Giannis Antetokounmpo",
+  "universe": "Milwaukee Bucks",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 95,
+   "playmaking": 59,
+   "rebounding": 79,
+   "defense": 35,
+   "shooting": 100,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "2020s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "small forward",
+   "team": "Milwaukee Bucks",
+   "colors": [
+    "green",
+    "cream"
+   ],
+   "teams": [
+    "Milwaukee Bucks"
+   ],
+   "from": 2013,
+   "to": 2026,
+   "allNba": 8,
+   "allStar": 8,
+   "peak": {
+    "season": "2025-26",
+    "team": "MIL",
+    "ppg": 30.4,
+    "rpg": 11.9,
+    "apg": 6.5,
+    "spg": 0.9,
+    "bpg": 1.2,
+    "ts": 0.625
+   }
+  }
+ },
+ {
+  "id": "robert-parish",
+  "name": "Robert Parish",
+  "universe": "Boston Celtics",
+  "archetype": "center",
+  "stats": {
+   "scoring": 53,
+   "playmaking": 15,
+   "rebounding": 73,
+   "defense": 40,
+   "shooting": 51,
+   "impact": 73
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 85,
+   "pos": "center",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Golden State Warriors",
+    "Boston Celtics",
+    "Charlotte Hornets",
+    "Chicago Bulls"
+   ],
+   "from": 1976,
+   "to": 1997,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 9,
+   "peak": {
+    "season": "1980-81",
+    "team": "GSW",
+    "ppg": 17,
+    "rpg": 10.9,
+    "apg": 1.7,
+    "spg": 0.8,
+    "bpg": 1.6,
+    "ts": 0.541
+   },
+   "college": "Centenary College of Louisiana"
+  }
+ },
+ {
+  "id": "ray-allen",
+  "name": "Ray Allen",
+  "universe": "Milwaukee Bucks",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 68,
+   "playmaking": 36,
+   "rebounding": 30,
+   "defense": 32,
+   "shooting": 99,
+   "impact": 63
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 77,
+   "pos": "shooting guard",
+   "team": "Milwaukee Bucks",
+   "colors": [
+    "green",
+    "cream"
+   ],
+   "teams": [
+    "Milwaukee Bucks",
+    "Seattle SuperSonics",
+    "Boston Celtics",
+    "Miami Heat"
+   ],
+   "from": 1996,
+   "to": 2014,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 10,
+   "peak": {
+    "season": "2002-03",
+    "team": "MIL",
+    "ppg": 21.8,
+    "rpg": 4.5,
+    "apg": 3.9,
+    "spg": 1.3,
+    "bpg": 0.3,
+    "ts": 0.598
+   },
+   "college": "University of Connecticut"
+  }
+ },
+ {
+  "id": "elvin-hayes",
+  "name": "Elvin Hayes",
+  "universe": "Washington Bullets",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 62,
+   "playmaking": 14,
+   "rebounding": 73,
+   "defense": 64,
+   "shooting": 17,
+   "impact": 43
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "power forward",
+   "team": "Washington Bullets",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "SDR",
+    "Houston Rockets",
+    "Baltimore Bullets",
+    "CAP",
+    "Washington Bullets"
+   ],
+   "from": 1968,
+   "to": 1984,
+   "hof": true,
+   "allNba": 6,
+   "allStar": 12,
+   "peak": {
+    "season": "1976-77",
+    "team": "WSB",
+    "ppg": 19.8,
+    "rpg": 11,
+    "apg": 1.5,
+    "spg": 1.3,
+    "bpg": 2.5,
+    "ts": 0.501
+   },
+   "college": "University of Houston"
+  }
+ },
+ {
+  "id": "dominique-wilkins",
+  "name": "Dominique Wilkins",
+  "universe": "Atlanta Hawks",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 82,
+   "playmaking": 24,
+   "rebounding": 46,
+   "defense": 41,
+   "shooting": 40,
+   "impact": 70
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "small forward",
+   "team": "Atlanta Hawks",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "Atlanta Hawks",
+    "Boston Celtics",
+    "San Antonio Spurs",
+    "Orlando Magic"
+   ],
+   "from": 1982,
+   "to": 1999,
+   "hof": true,
+   "allNba": 7,
+   "allStar": 9,
+   "peak": {
+    "season": "1989-90",
+    "team": "ATL",
+    "ppg": 26.2,
+    "rpg": 6.9,
+    "apg": 2.6,
+    "spg": 1.5,
+    "bpg": 0.7,
+    "ts": 0.528
+   },
+   "college": "University of Georgia"
+  }
+ },
+ {
+  "id": "pau-gasol",
+  "name": "Pau Gasol",
+  "universe": "Memphis Grizzlies",
+  "archetype": "center",
+  "stats": {
+   "scoring": 64,
+   "playmaking": 42,
+   "rebounding": 59,
+   "defense": 39,
+   "shooting": 63,
+   "impact": 67
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 84,
+   "pos": "center",
+   "team": "Memphis Grizzlies",
+   "colors": [
+    "navy",
+    "light blue"
+   ],
+   "teams": [
+    "Memphis Grizzlies",
+    "Los Angeles Lakers",
+    "Chicago Bulls",
+    "San Antonio Spurs"
+   ],
+   "from": 2001,
+   "to": 2018,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 6,
+   "peak": {
+    "season": "2006-07",
+    "team": "MEM",
+    "ppg": 20.4,
+    "rpg": 8.9,
+    "apg": 4.6,
+    "spg": 0.6,
+    "bpg": 1.9,
+    "ts": 0.555
+   },
+   "college": "University of Barcelona"
+  }
+ },
+ {
+  "id": "russell-westbrook",
+  "name": "Russell Westbrook",
+  "universe": "Oklahoma City Thunder",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 73,
+   "playmaking": 95,
+   "rebounding": 52,
+   "defense": 48,
+   "shooting": 61,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "point guard",
+   "team": "Oklahoma City Thunder",
+   "colors": [
+    "blue",
+    "orange"
+   ],
+   "teams": [
+    "Oklahoma City Thunder",
+    "Houston Rockets",
+    "Washington Wizards",
+    "Los Angeles Lakers",
+    "Los Angeles Clippers",
+    "Denver Nuggets",
+    "Sacramento Kings"
+   ],
+   "from": 2008,
+   "to": 2026,
+   "allNba": 9,
+   "allStar": 9,
+   "peak": {
+    "season": "2016-17",
+    "team": "OKC",
+    "ppg": 23.5,
+    "rpg": 7.8,
+    "apg": 10.4,
+    "spg": 2,
+    "bpg": 0.3,
+    "ts": 0.554
+   },
+   "college": "University of California, Los Angeles"
+  }
+ },
+ {
+  "id": "dan-issel",
+  "name": "Dan Issel",
+  "universe": "Denver Nuggets",
+  "archetype": "center",
+  "stats": {
+   "scoring": 96,
+   "playmaking": 21,
+   "rebounding": 75,
+   "defense": 5,
+   "shooting": 53,
+   "impact": 64
+  },
+  "tags": [
+   "hall-of-fame",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "center",
+   "team": "Denver Nuggets",
+   "colors": [
+    "light blue",
+    "gold"
+   ],
+   "teams": [
+    "KEN",
+    "DNA",
+    "Denver Nuggets"
+   ],
+   "from": 1970,
+   "to": 1985,
+   "hof": true,
+   "allStar": 7,
+   "peak": {
+    "season": "1972-73",
+    "team": "KEN",
+    "ppg": 30.6,
+    "rpg": 11.2,
+    "apg": 2.3,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.544
+   },
+   "college": "University of Kentucky"
+  }
+ },
+ {
+  "id": "nikola-jokic",
+  "name": "Nikola Jokić",
+  "universe": "Denver Nuggets",
+  "archetype": "center",
+  "stats": {
+   "scoring": 92,
+   "playmaking": 93,
+   "rebounding": 85,
+   "defense": 49,
+   "shooting": 100,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "2020s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "center",
+   "team": "Denver Nuggets",
+   "colors": [
+    "light blue",
+    "gold"
+   ],
+   "teams": [
+    "Denver Nuggets"
+   ],
+   "from": 2015,
+   "to": 2026,
+   "allNba": 6,
+   "allStar": 6,
+   "peak": {
+    "season": "2025-26",
+    "team": "DEN",
+    "ppg": 29.6,
+    "rpg": 12.7,
+    "apg": 10.2,
+    "spg": 1.8,
+    "bpg": 0.6,
+    "ts": 0.663
+   }
+  }
+ },
+ {
+  "id": "damian-lillard",
+  "name": "Damian Lillard",
+  "universe": "Portland Trail Blazers",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 81,
+   "playmaking": 63,
+   "rebounding": 31,
+   "defense": 30,
+   "shooting": 90,
+   "impact": 83
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 74,
+   "pos": "point guard",
+   "team": "Portland Trail Blazers",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Portland Trail Blazers",
+    "Milwaukee Bucks"
+   ],
+   "from": 2012,
+   "to": 2025,
+   "allNba": 7,
+   "allStar": 8,
+   "peak": {
+    "season": "2019-20",
+    "team": "POR",
+    "ppg": 25.8,
+    "rpg": 4.6,
+    "apg": 6.9,
+    "spg": 1.1,
+    "bpg": 0.4,
+    "ts": 0.588
+   },
+   "college": "Weber State University"
+  }
+ },
+ {
+  "id": "hal-greer",
+  "name": "Hal Greer",
+  "universe": "Philadelphia 76ers",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 61,
+   "playmaking": 31,
+   "rebounding": 38,
+   "defense": 5,
+   "shooting": 39,
+   "impact": 32
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 74,
+   "pos": "shooting guard",
+   "team": "Philadelphia 76ers",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "teams": [
+    "Syracuse Nationals",
+    "Philadelphia 76ers"
+   ],
+   "from": 1958,
+   "to": 1973,
+   "hof": true,
+   "allNba": 7,
+   "allStar": 10,
+   "peak": {
+    "season": "1963-64",
+    "team": "SYR",
+    "ppg": 19.5,
+    "rpg": 5.7,
+    "apg": 3.4,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.526
+   },
+   "college": "Marshall University"
+  }
+ },
+ {
+  "id": "walt-frazier",
+  "name": "Walt Frazier",
+  "universe": "New York Knicks",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 68,
+   "playmaking": 61,
+   "rebounding": 45,
+   "defense": 5,
+   "shooting": 63,
+   "impact": 53
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "point guard",
+   "team": "New York Knicks",
+   "colors": [
+    "blue",
+    "orange"
+   ],
+   "teams": [
+    "New York Knicks",
+    "Cleveland Cavaliers"
+   ],
+   "from": 1967,
+   "to": 1980,
+   "hof": true,
+   "allNba": 6,
+   "allStar": 7,
+   "peak": {
+    "season": "1971-72",
+    "team": "NYK",
+    "ppg": 21.7,
+    "rpg": 6.8,
+    "apg": 6.7,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.556
+   },
+   "college": "University of Pennsylvania"
+  }
+ },
+ {
+  "id": "allen-iverson",
+  "name": "Allen Iverson",
+  "universe": "Philadelphia 76ers",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 96,
+   "playmaking": 72,
+   "rebounding": 27,
+   "defense": 54,
+   "shooting": 43,
+   "impact": 77
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 72,
+   "pos": "point guard",
+   "team": "Philadelphia 76ers",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "teams": [
+    "Philadelphia 76ers",
+    "Denver Nuggets"
+   ],
+   "from": 1996,
+   "to": 2008,
+   "hof": true,
+   "allNba": 7,
+   "allStar": 11,
+   "peak": {
+    "season": "2005-06",
+    "team": "PHI",
+    "ppg": 30.7,
+    "rpg": 4,
+    "apg": 7.9,
+    "spg": 2.4,
+    "bpg": 0.1,
+    "ts": 0.532
+   },
+   "college": "Georgetown University"
+  }
+ },
+ {
+  "id": "carmelo-anthony",
+  "name": "Carmelo Anthony",
+  "universe": "Denver Nuggets",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 71,
+   "playmaking": 33,
+   "rebounding": 42,
+   "defense": 31,
+   "shooting": 37,
+   "impact": 71
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "forward",
+   "team": "Denver Nuggets",
+   "colors": [
+    "light blue",
+    "gold"
+   ],
+   "teams": [
+    "Denver Nuggets",
+    "New York Knicks",
+    "Oklahoma City Thunder",
+    "Houston Rockets",
+    "Portland Trail Blazers",
+    "Los Angeles Lakers"
+   ],
+   "from": 2003,
+   "to": 2022,
+   "hof": true,
+   "allNba": 6,
+   "allStar": 10,
+   "peak": {
+    "season": "2012-13",
+    "team": "NYK",
+    "ppg": 22.6,
+    "rpg": 6.3,
+    "apg": 3.6,
+    "spg": 1.1,
+    "bpg": 0.4,
+    "ts": 0.525
+   },
+   "college": "Syracuse University"
+  }
+ },
+ {
+  "id": "tracy-mcgrady",
+  "name": "Tracy McGrady",
+  "universe": "Houston Rockets",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 80,
+   "playmaking": 48,
+   "rebounding": 52,
+   "defense": 48,
+   "shooting": 43,
+   "impact": 100
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "shooting guard",
+   "team": "Houston Rockets",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "Toronto Raptors",
+    "Orlando Magic",
+    "Houston Rockets",
+    "Detroit Pistons",
+    "Atlanta Hawks"
+   ],
+   "from": 1997,
+   "to": 2012,
+   "hof": true,
+   "allNba": 7,
+   "allStar": 7,
+   "peak": {
+    "season": "2002-03",
+    "team": "ORL",
+    "ppg": 25.6,
+    "rpg": 7.9,
+    "apg": 5.3,
+    "spg": 1.6,
+    "bpg": 1,
+    "ts": 0.532
+   }
+  }
+ },
+ {
+  "id": "paul-arizin",
+  "name": "Paul Arizin",
+  "universe": "Philadelphia Warriors",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 54,
+   "playmaking": 19,
+   "rebounding": 66,
+   "defense": 5,
+   "shooting": 26,
+   "impact": 76
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "small forward",
+   "team": "Philadelphia Warriors",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "Philadelphia Warriors"
+   ],
+   "from": 1950,
+   "to": 1962,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 10,
+   "peak": {
+    "season": "1951-52",
+    "team": "PHW",
+    "ppg": 17.2,
+    "rpg": 9.8,
+    "apg": 2.1,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.512
+   },
+   "college": "Villanova University"
+  }
+ },
+ {
+  "id": "jimmy-butler",
+  "name": "Jimmy Butler",
+  "universe": "Chicago Bulls",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 67,
+   "playmaking": 50,
+   "rebounding": 39,
+   "defense": 43,
+   "shooting": 94,
+   "impact": 87
+  },
+  "tags": [
+   "all-nba",
+   "2020s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "small forward",
+   "team": "Chicago Bulls",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Chicago Bulls",
+    "Minnesota Timberwolves",
+    "Miami Heat",
+    "Golden State Warriors"
+   ],
+   "from": 2011,
+   "to": 2026,
+   "allNba": 5,
+   "allStar": 6,
+   "peak": {
+    "season": "2022-23",
+    "team": "MIA",
+    "ppg": 21.4,
+    "rpg": 5.9,
+    "apg": 5.5,
+    "spg": 1.6,
+    "bpg": 0.5,
+    "ts": 0.592
+   },
+   "college": "Marquette University"
+  }
+ },
+ {
+  "id": "vince-carter",
+  "name": "Vince Carter",
+  "universe": "Toronto Raptors",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 80,
+   "playmaking": 36,
+   "rebounding": 39,
+   "defense": 45,
+   "shooting": 53,
+   "impact": 72
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "shooting guard",
+   "team": "Toronto Raptors",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Toronto Raptors",
+    "New Jersey Nets",
+    "Orlando Magic",
+    "Dallas Mavericks",
+    "Memphis Grizzlies",
+    "Sacramento Kings",
+    "Atlanta Hawks"
+   ],
+   "from": 1998,
+   "to": 2020,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 8,
+   "peak": {
+    "season": "2000-01",
+    "team": "TOR",
+    "ppg": 25.7,
+    "rpg": 5.8,
+    "apg": 3.9,
+    "spg": 1.3,
+    "bpg": 1.1,
+    "ts": 0.543
+   },
+   "college": "University of North Carolina at Chapel Hill"
+  }
+ },
+ {
+  "id": "bill-sharman",
+  "name": "Bill Sharman",
+  "universe": "Boston Celtics",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 33,
+   "playmaking": 22,
+   "rebounding": 23,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 43
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "shooting guard",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "WSC",
+    "Boston Celtics"
+   ],
+   "from": 1950,
+   "to": 1961,
+   "hof": true,
+   "allNba": 7,
+   "allStar": 8,
+   "peak": {
+    "season": "1952-53",
+    "team": "BOS",
+    "ppg": 10.7,
+    "rpg": 3.5,
+    "apg": 2.4,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.465
+   },
+   "college": "University of Southern California"
+  }
+ },
+ {
+  "id": "tony-parker",
+  "name": "Tony Parker",
+  "universe": "San Antonio Spurs",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 59,
+   "playmaking": 54,
+   "rebounding": 21,
+   "defense": 19,
+   "shooting": 51,
+   "impact": 63
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 74,
+   "pos": "point guard",
+   "team": "San Antonio Spurs",
+   "colors": [
+    "silver",
+    "black"
+   ],
+   "teams": [
+    "San Antonio Spurs",
+    "Charlotte Hornets"
+   ],
+   "from": 2001,
+   "to": 2019,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 6,
+   "peak": {
+    "season": "2008-09",
+    "team": "SAS",
+    "ppg": 18.8,
+    "rpg": 3.2,
+    "apg": 6,
+    "spg": 0.8,
+    "bpg": 0.1,
+    "ts": 0.542
+   }
+  }
+ },
+ {
+  "id": "lamarcus-aldridge",
+  "name": "LaMarcus Aldridge",
+  "universe": "Portland Trail Blazers",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 54,
+   "playmaking": 18,
+   "rebounding": 48,
+   "defense": 31,
+   "shooting": 43,
+   "impact": 72
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "power forward",
+   "team": "Portland Trail Blazers",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Portland Trail Blazers",
+    "San Antonio Spurs",
+    "Brooklyn Nets"
+   ],
+   "from": 2006,
+   "to": 2022,
+   "allNba": 5,
+   "allStar": 7,
+   "peak": {
+    "season": "2017-18",
+    "team": "SAS",
+    "ppg": 17.3,
+    "rpg": 7.3,
+    "apg": 1.9,
+    "spg": 0.6,
+    "bpg": 1.2,
+    "ts": 0.532
+   },
+   "college": "University of Texas at Austin"
+  }
+ },
+ {
+  "id": "dikembe-mutombo",
+  "name": "Dikembe Mutombo",
+  "universe": "Denver Nuggets",
+  "archetype": "center",
+  "stats": {
+   "scoring": 42,
+   "playmaking": 13,
+   "rebounding": 77,
+   "defense": 60,
+   "shooting": 87,
+   "impact": 43
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 86,
+   "pos": "center",
+   "team": "Denver Nuggets",
+   "colors": [
+    "light blue",
+    "gold"
+   ],
+   "teams": [
+    "Denver Nuggets",
+    "Atlanta Hawks",
+    "Philadelphia 76ers",
+    "New Jersey Nets",
+    "New York Knicks",
+    "Houston Rockets"
+   ],
+   "from": 1991,
+   "to": 2009,
+   "hof": true,
+   "allNba": 3,
+   "allStar": 8,
+   "peak": {
+    "season": "1997-98",
+    "team": "ATL",
+    "ppg": 13.3,
+    "rpg": 11.6,
+    "apg": 1.4,
+    "spg": 0.6,
+    "bpg": 3.3,
+    "ts": 0.584
+   },
+   "college": "Georgetown University"
+  }
+ },
+ {
+  "id": "anthony-davis",
+  "name": "Anthony Davis",
+  "universe": "New Orleans Pelicans",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 65,
+   "playmaking": 14,
+   "rebounding": 67,
+   "defense": 69,
+   "shooting": 85,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "New Orleans Pelicans",
+   "colors": [
+    "navy",
+    "gold",
+    "red"
+   ],
+   "teams": [
+    "New Orleans Hornets",
+    "New Orleans Pelicans",
+    "Los Angeles Lakers",
+    "Dallas Mavericks"
+   ],
+   "from": 2012,
+   "to": 2026,
+   "allNba": 5,
+   "allStar": 9,
+   "peak": {
+    "season": "2014-15",
+    "team": "NOP",
+    "ppg": 20.8,
+    "rpg": 10,
+    "apg": 1.6,
+    "spg": 1.3,
+    "bpg": 2.8,
+    "ts": 0.582
+   },
+   "college": "University of Kentucky"
+  }
+ },
+ {
+  "id": "chauncey-billups",
+  "name": "Chauncey Billups",
+  "universe": "Detroit Pistons",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 53,
+   "playmaking": 65,
+   "rebounding": 23,
+   "defense": 30,
+   "shooting": 93,
+   "impact": 64
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 75,
+   "pos": "point guard",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Denver Nuggets",
+    "Minnesota Timberwolves",
+    "Detroit Pistons",
+    "Los Angeles Clippers"
+   ],
+   "from": 1999,
+   "to": 2014,
+   "hof": true,
+   "allNba": 3,
+   "allStar": 5,
+   "peak": {
+    "season": "2007-08",
+    "team": "DET",
+    "ppg": 17,
+    "rpg": 3.4,
+    "apg": 7.2,
+    "spg": 1.2,
+    "bpg": 0.2,
+    "ts": 0.591
+   },
+   "college": "University of Colorado Boulder"
+  }
+ },
+ {
+  "id": "adrian-dantley",
+  "name": "Adrian Dantley",
+  "universe": "Utah Jazz",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 96,
+   "playmaking": 43,
+   "rebounding": 42,
+   "defense": 20,
+   "shooting": 100,
+   "impact": 70
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 77,
+   "pos": "small forward",
+   "team": "Utah Jazz",
+   "colors": [
+    "purple",
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "Buffalo Braves",
+    "Los Angeles Lakers",
+    "Utah Jazz",
+    "Detroit Pistons",
+    "Dallas Mavericks",
+    "Milwaukee Bucks"
+   ],
+   "from": 1976,
+   "to": 1991,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 6,
+   "peak": {
+    "season": "1983-84",
+    "team": "UTA",
+    "ppg": 30.7,
+    "rpg": 6.4,
+    "apg": 4.8,
+    "spg": 0.9,
+    "bpg": 0,
+    "ts": 0.661
+   },
+   "college": "University of Notre Dame"
+  }
+ },
+ {
+  "id": "chet-walker",
+  "name": "Chet Walker",
+  "universe": "Philadelphia 76ers",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 69,
+   "playmaking": 20,
+   "rebounding": 48,
+   "defense": 5,
+   "shooting": 51,
+   "impact": 54
+  },
+  "tags": [
+   "hall-of-fame",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "small forward",
+   "team": "Philadelphia 76ers",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "teams": [
+    "Syracuse Nationals",
+    "Philadelphia 76ers",
+    "Chicago Bulls"
+   ],
+   "from": 1962,
+   "to": 1975,
+   "hof": true,
+   "allStar": 7,
+   "peak": {
+    "season": "1971-72",
+    "team": "CHI",
+    "ppg": 22,
+    "rpg": 7.3,
+    "apg": 2.2,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.541
+   },
+   "college": "Bradley University"
+  }
+ },
+ {
+  "id": "rudy-gobert",
+  "name": "Rudy Gobert",
+  "universe": "Utah Jazz",
+  "archetype": "center",
+  "stats": {
+   "scoring": 45,
+   "playmaking": 11,
+   "rebounding": 90,
+   "defense": 50,
+   "shooting": 100,
+   "impact": 71
+  },
+  "tags": [
+   "all-nba",
+   "2020s"
+  ],
+  "facts": {
+   "heightIn": 85,
+   "pos": "center",
+   "team": "Utah Jazz",
+   "colors": [
+    "purple",
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "Utah Jazz",
+    "Minnesota Timberwolves"
+   ],
+   "from": 2013,
+   "to": 2026,
+   "allNba": 4,
+   "allStar": 3,
+   "peak": {
+    "season": "2021-22",
+    "team": "UTA",
+    "ppg": 14.3,
+    "rpg": 13.5,
+    "apg": 1.3,
+    "spg": 0.6,
+    "bpg": 2.7,
+    "ts": 0.683
+   }
+  }
+ },
+ {
+  "id": "grant-hill",
+  "name": "Grant Hill",
+  "universe": "Detroit Pistons",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 63,
+   "playmaking": 62,
+   "rebounding": 65,
+   "defense": 36,
+   "shooting": 48,
+   "impact": 75
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "small forward",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Detroit Pistons",
+    "Orlando Magic",
+    "Phoenix Suns",
+    "Los Angeles Clippers"
+   ],
+   "from": 1994,
+   "to": 2013,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 7,
+   "peak": {
+    "season": "1996-97",
+    "team": "DET",
+    "ppg": 20.2,
+    "rpg": 9.8,
+    "apg": 6.9,
+    "spg": 1.3,
+    "bpg": 0.6,
+    "ts": 0.537
+   },
+   "college": "Duke University"
+  }
+ },
+ {
+  "id": "chris-bosh",
+  "name": "Chris Bosh",
+  "universe": "Toronto Raptors",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 71,
+   "playmaking": 23,
+   "rebounding": 67,
+   "defense": 33,
+   "shooting": 74,
+   "impact": 72
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "power forward",
+   "team": "Toronto Raptors",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Toronto Raptors",
+    "Miami Heat"
+   ],
+   "from": 2003,
+   "to": 2016,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 11,
+   "peak": {
+    "season": "2009-10",
+    "team": "TOR",
+    "ppg": 22.7,
+    "rpg": 10,
+    "apg": 2.5,
+    "spg": 0.9,
+    "bpg": 1,
+    "ts": 0.569
+   },
+   "college": "Georgia Tech"
+  }
+ },
+ {
+  "id": "kawhi-leonard",
+  "name": "Kawhi Leonard",
+  "universe": "San Antonio Spurs",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 66,
+   "playmaking": 23,
+   "rebounding": 46,
+   "defense": 53,
+   "shooting": 100,
+   "impact": 87
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "forward",
+   "team": "San Antonio Spurs",
+   "colors": [
+    "silver",
+    "black"
+   ],
+   "teams": [
+    "San Antonio Spurs",
+    "Toronto Raptors",
+    "Los Angeles Clippers"
+   ],
+   "from": 2011,
+   "to": 2026,
+   "allNba": 6,
+   "allStar": 6,
+   "peak": {
+    "season": "2016-17",
+    "team": "SAS",
+    "ppg": 21.2,
+    "rpg": 6.8,
+    "apg": 2.6,
+    "spg": 1.8,
+    "bpg": 1,
+    "ts": 0.616
+   },
+   "college": "San Diego State University"
+  }
+ },
+ {
+  "id": "jerry-lucas",
+  "name": "Jerry Lucas",
+  "universe": "Cincinnati Royals",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 55,
+   "playmaking": 23,
+   "rebounding": 100,
+   "defense": 5,
+   "shooting": 82,
+   "impact": 49
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "power forward",
+   "team": "Cincinnati Royals",
+   "colors": [
+    "blue",
+    "white"
+   ],
+   "teams": [
+    "Cincinnati Royals",
+    "San Francisco Warriors",
+    "New York Knicks"
+   ],
+   "from": 1963,
+   "to": 1974,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 7,
+   "peak": {
+    "season": "1964-65",
+    "team": "CIN",
+    "ppg": 17.7,
+    "rpg": 17.4,
+    "apg": 2.6,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.578
+   },
+   "college": "Creighton University"
+  }
+ },
+ {
+  "id": "isiah-thomas",
+  "name": "Isiah Thomas",
+  "universe": "Detroit Pistons",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 67,
+   "playmaking": 100,
+   "rebounding": 27,
+   "defense": 60,
+   "shooting": 33,
+   "impact": 57
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "point guard",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Detroit Pistons"
+   ],
+   "from": 1981,
+   "to": 1994,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 12,
+   "peak": {
+    "season": "1984-85",
+    "team": "DET",
+    "ppg": 21.3,
+    "rpg": 4,
+    "apg": 11.1,
+    "spg": 2.5,
+    "bpg": 0.4,
+    "ts": 0.52
+   },
+   "college": "Indiana University Bloomington"
+  }
+ },
+ {
+  "id": "neil-johnston",
+  "name": "Neil Johnston",
+  "universe": "Philadelphia Warriors",
+  "archetype": "center",
+  "stats": {
+   "scoring": 69,
+   "playmaking": 29,
+   "rebounding": 83,
+   "defense": 5,
+   "shooting": 63,
+   "impact": 83
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "center",
+   "team": "Philadelphia Warriors",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "Philadelphia Warriors"
+   ],
+   "from": 1951,
+   "to": 1959,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 6,
+   "peak": {
+    "season": "1956-57",
+    "team": "PHW",
+    "ppg": 22.1,
+    "rpg": 12.5,
+    "apg": 3.2,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.555
+   },
+   "college": "Ohio State University"
+  }
+ },
+ {
+  "id": "kevin-mchale",
+  "name": "Kevin McHale",
+  "universe": "Boston Celtics",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 67,
+   "playmaking": 24,
+   "rebounding": 54,
+   "defense": 37,
+   "shooting": 100,
+   "impact": 67
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Boston Celtics"
+   ],
+   "from": 1980,
+   "to": 1993,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 7,
+   "peak": {
+    "season": "1986-87",
+    "team": "BOS",
+    "ppg": 21.3,
+    "rpg": 8.1,
+    "apg": 2.7,
+    "spg": 0.4,
+    "bpg": 2,
+    "ts": 0.623
+   },
+   "college": "University of Minnesota"
+  }
+ },
+ {
+  "id": "ben-wallace",
+  "name": "Ben Wallace",
+  "universe": "Detroit Pistons",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 20,
+   "playmaking": 14,
+   "rebounding": 88,
+   "defense": 62,
+   "shooting": 5,
+   "impact": 37
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "power forward",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Washington Bullets",
+    "Washington Wizards",
+    "Orlando Magic",
+    "Detroit Pistons",
+    "Chicago Bulls",
+    "Cleveland Cavaliers"
+   ],
+   "from": 1996,
+   "to": 2012,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 4,
+   "peak": {
+    "season": "2001-02",
+    "team": "DET",
+    "ppg": 6.4,
+    "rpg": 13.2,
+    "apg": 1.5,
+    "spg": 1.3,
+    "bpg": 2.3,
+    "ts": 0.47
+   },
+   "college": "Virginia Union University"
+  }
+ },
+ {
+  "id": "sidney-moncrief",
+  "name": "Sidney Moncrief",
+  "universe": "Milwaukee Bucks",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 62,
+   "playmaking": 43,
+   "rebounding": 45,
+   "defense": 42,
+   "shooting": 100,
+   "impact": 59
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "shooting guard",
+   "team": "Milwaukee Bucks",
+   "colors": [
+    "green",
+    "cream"
+   ],
+   "teams": [
+    "Milwaukee Bucks",
+    "Atlanta Hawks"
+   ],
+   "from": 1979,
+   "to": 1991,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 5,
+   "peak": {
+    "season": "1982-83",
+    "team": "MIL",
+    "ppg": 19.8,
+    "rpg": 6.7,
+    "apg": 4.8,
+    "spg": 1.7,
+    "bpg": 0.3,
+    "ts": 0.601
+   },
+   "college": "University of Arkansas"
+  }
+ },
+ {
+  "id": "bob-lanier",
+  "name": "Bob Lanier",
+  "universe": "Detroit Pistons",
+  "archetype": "center",
+  "stats": {
+   "scoring": 79,
+   "playmaking": 30,
+   "rebounding": 78,
+   "defense": 52,
+   "shooting": 78,
+   "impact": 71
+  },
+  "tags": [
+   "hall-of-fame",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "center",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Detroit Pistons",
+    "Milwaukee Bucks"
+   ],
+   "from": 1970,
+   "to": 1984,
+   "hof": true,
+   "allStar": 8,
+   "peak": {
+    "season": "1977-78",
+    "team": "DET",
+    "ppg": 25.3,
+    "rpg": 11.6,
+    "apg": 3.3,
+    "spg": 1.1,
+    "bpg": 2,
+    "ts": 0.573
+   },
+   "college": "St. Bonaventure University"
+  }
+ },
+ {
+  "id": "alex-english",
+  "name": "Alex English",
+  "universe": "Denver Nuggets",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 79,
+   "playmaking": 48,
+   "rebounding": 45,
+   "defense": 44,
+   "shooting": 96,
+   "impact": 67
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "forward",
+   "team": "Denver Nuggets",
+   "colors": [
+    "light blue",
+    "gold"
+   ],
+   "teams": [
+    "Milwaukee Bucks",
+    "Indiana Pacers",
+    "Denver Nuggets",
+    "Dallas Mavericks"
+   ],
+   "from": 1976,
+   "to": 1991,
+   "hof": true,
+   "allNba": 3,
+   "allStar": 8,
+   "peak": {
+    "season": "1982-83",
+    "team": "DEN",
+    "ppg": 25.4,
+    "rpg": 6.8,
+    "apg": 5.3,
+    "spg": 1.1,
+    "bpg": 1.5,
+    "ts": 0.596
+   },
+   "college": "Colgate University"
+  }
+ },
+ {
+  "id": "bailey-howell",
+  "name": "Bailey Howell",
+  "universe": "Detroit Pistons",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 62,
+   "playmaking": 21,
+   "rebounding": 84,
+   "defense": 5,
+   "shooting": 49,
+   "impact": 53
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "forward",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Detroit Pistons",
+    "Baltimore Bullets",
+    "Boston Celtics",
+    "Philadelphia 76ers"
+   ],
+   "from": 1959,
+   "to": 1971,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 6,
+   "peak": {
+    "season": "1962-63",
+    "team": "DET",
+    "ppg": 19.9,
+    "rpg": 12.6,
+    "apg": 2.4,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.539
+   },
+   "college": "Mississippi State University"
+  }
+ },
+ {
+  "id": "ed-macauley",
+  "name": "Ed Macauley",
+  "universe": "Boston Celtics",
+  "archetype": "center",
+  "stats": {
+   "scoring": 60,
+   "playmaking": 32,
+   "rebounding": 53,
+   "defense": 5,
+   "shooting": 54,
+   "impact": 68
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "center",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "STB",
+    "Boston Celtics",
+    "St. Louis Hawks"
+   ],
+   "from": 1949,
+   "to": 1959,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 7,
+   "peak": {
+    "season": "1952-53",
+    "team": "BOS",
+    "ppg": 19.2,
+    "rpg": 8,
+    "apg": 3.5,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.544
+   },
+   "college": "St. Louis University High School"
+  }
+ },
+ {
+  "id": "paul-george",
+  "name": "Paul George",
+  "universe": "Indiana Pacers",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 69,
+   "playmaking": 30,
+   "rebounding": 38,
+   "defense": 52,
+   "shooting": 75,
+   "impact": 63
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "small forward",
+   "team": "Indiana Pacers",
+   "colors": [
+    "navy",
+    "gold"
+   ],
+   "teams": [
+    "Indiana Pacers",
+    "Oklahoma City Thunder",
+    "Los Angeles Clippers",
+    "Philadelphia 76ers"
+   ],
+   "from": 2010,
+   "to": 2026,
+   "allNba": 6,
+   "allStar": 9,
+   "peak": {
+    "season": "2018-19",
+    "team": "OKC",
+    "ppg": 21.9,
+    "rpg": 5.7,
+    "apg": 3.3,
+    "spg": 2,
+    "bpg": 0.5,
+    "ts": 0.57
+   },
+   "college": "California State University, Fresno"
+  }
+ },
+ {
+  "id": "jack-sikma",
+  "name": "Jack Sikma",
+  "universe": "Seattle SuperSonics",
+  "archetype": "center",
+  "stats": {
+   "scoring": 58,
+   "playmaking": 27,
+   "rebounding": 69,
+   "defense": 37,
+   "shooting": 27,
+   "impact": 48
+  },
+  "tags": [
+   "hall-of-fame",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "center",
+   "team": "Seattle SuperSonics",
+   "colors": [
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "Seattle SuperSonics",
+    "Milwaukee Bucks"
+   ],
+   "from": 1977,
+   "to": 1991,
+   "hof": true,
+   "allStar": 7,
+   "peak": {
+    "season": "1981-82",
+    "team": "SEA",
+    "ppg": 18.7,
+    "rpg": 10.4,
+    "apg": 3,
+    "spg": 1,
+    "bpg": 1.1,
+    "ts": 0.512
+   },
+   "college": "Illinois Wesleyan University"
+  }
+ },
+ {
+  "id": "chris-mullin",
+  "name": "Chris Mullin",
+  "universe": "Golden State Warriors",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 83,
+   "playmaking": 46,
+   "rebounding": 39,
+   "defense": 54,
+   "shooting": 84,
+   "impact": 59
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "small forward",
+   "team": "Golden State Warriors",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "Golden State Warriors",
+    "Indiana Pacers"
+   ],
+   "from": 1985,
+   "to": 2001,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 5,
+   "peak": {
+    "season": "1989-90",
+    "team": "GSW",
+    "ppg": 26.5,
+    "rpg": 5.9,
+    "apg": 5.1,
+    "spg": 2.1,
+    "bpg": 0.5,
+    "ts": 0.581
+   },
+   "college": "St. John's University"
+  }
+ },
+ {
+  "id": "demar-derozan",
+  "name": "DeMar DeRozan",
+  "universe": "Toronto Raptors",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 73,
+   "playmaking": 37,
+   "rebounding": 30,
+   "defense": 27,
+   "shooting": 58,
+   "impact": 67
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "shooting guard",
+   "team": "Toronto Raptors",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Toronto Raptors",
+    "San Antonio Spurs",
+    "Chicago Bulls",
+    "Sacramento Kings"
+   ],
+   "from": 2009,
+   "to": 2026,
+   "allNba": 3,
+   "allStar": 6,
+   "peak": {
+    "season": "2016-17",
+    "team": "TOR",
+    "ppg": 23.5,
+    "rpg": 4.5,
+    "apg": 4,
+    "spg": 1,
+    "bpg": 0.3,
+    "ts": 0.55
+   },
+   "college": "University of Southern California"
+  }
+ },
+ {
+  "id": "sam-jones",
+  "name": "Sam Jones",
+  "universe": "Boston Celtics",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 81,
+   "playmaking": 25,
+   "rebounding": 34,
+   "defense": 5,
+   "shooting": 21,
+   "impact": 54
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "shooting guard",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Boston Celtics"
+   ],
+   "from": 1957,
+   "to": 1969,
+   "hof": true,
+   "allNba": 3,
+   "allStar": 5,
+   "peak": {
+    "season": "1965-66",
+    "team": "BOS",
+    "ppg": 25.9,
+    "rpg": 5.1,
+    "apg": 2.8,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.505
+   }
+  }
+ },
+ {
+  "id": "tiny-archibald",
+  "name": "Tiny Archibald",
+  "universe": "Boston Celtics",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 88,
+   "playmaking": 84,
+   "rebounding": 19,
+   "defense": 5,
+   "shooting": 77,
+   "impact": 73
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "point guard",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Cincinnati Royals",
+    "KCO",
+    "Kansas City Kings",
+    "NYN",
+    "Boston Celtics",
+    "Milwaukee Bucks"
+   ],
+   "from": 1970,
+   "to": 1984,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 6,
+   "peak": {
+    "season": "1972-73",
+    "team": "CIN",
+    "ppg": 28.2,
+    "rpg": 2.9,
+    "apg": 9.2,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.572
+   },
+   "college": "Fordham University"
+  }
+ },
+ {
+  "id": "wes-unseld",
+  "name": "Wes Unseld",
+  "universe": "Washington Bullets",
+  "archetype": "center",
+  "stats": {
+   "scoring": 41,
+   "playmaking": 33,
+   "rebounding": 100,
+   "defense": 5,
+   "shooting": 38,
+   "impact": 34
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "center",
+   "team": "Washington Bullets",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Baltimore Bullets",
+    "CAP",
+    "Washington Bullets"
+   ],
+   "from": 1968,
+   "to": 1981,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 5,
+   "peak": {
+    "season": "1972-73",
+    "team": "BAL",
+    "ppg": 13,
+    "rpg": 17.6,
+    "apg": 3.7,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.525
+   },
+   "college": "University of Louisville"
+  }
+ },
+ {
+  "id": "manu-ginobili",
+  "name": "Manu Ginóbili",
+  "universe": "San Antonio Spurs",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 52,
+   "playmaking": 32,
+   "rebounding": 29,
+   "defense": 37,
+   "shooting": 100,
+   "impact": 68
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "shooting guard",
+   "team": "San Antonio Spurs",
+   "colors": [
+    "silver",
+    "black"
+   ],
+   "teams": [
+    "San Antonio Spurs"
+   ],
+   "from": 2002,
+   "to": 2018,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 2,
+   "peak": {
+    "season": "2007-08",
+    "team": "SAS",
+    "ppg": 16.5,
+    "rpg": 4.4,
+    "apg": 3.5,
+    "spg": 1.5,
+    "bpg": 0.4,
+    "ts": 0.609
+   }
+  }
+ },
+ {
+  "id": "dave-cowens",
+  "name": "Dave Cowens",
+  "universe": "Boston Celtics",
+  "archetype": "center",
+  "stats": {
+   "scoring": 59,
+   "playmaking": 40,
+   "rebounding": 100,
+   "defense": 44,
+   "shooting": 5,
+   "impact": 41
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "center",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Boston Celtics",
+    "Milwaukee Bucks"
+   ],
+   "from": 1970,
+   "to": 1983,
+   "hof": true,
+   "allNba": 3,
+   "allStar": 8,
+   "peak": {
+    "season": "1974-75",
+    "team": "BOS",
+    "ppg": 19,
+    "rpg": 15.7,
+    "apg": 4.4,
+    "spg": 1.2,
+    "bpg": 1.3,
+    "ts": 0.476
+   },
+   "college": "Florida State University"
+  }
+ },
+ {
+  "id": "tim-hardaway",
+  "name": "Tim Hardaway",
+  "universe": "Golden State Warriors",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 46,
+   "playmaking": 79,
+   "rebounding": 26,
+   "defense": 48,
+   "shooting": 38,
+   "impact": 49
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 72,
+   "pos": "point guard",
+   "team": "Golden State Warriors",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "Golden State Warriors",
+    "Miami Heat",
+    "Indiana Pacers"
+   ],
+   "from": 1989,
+   "to": 2003,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 5,
+   "peak": {
+    "season": "1990-91",
+    "team": "GSW",
+    "ppg": 14.7,
+    "rpg": 3.9,
+    "apg": 8.7,
+    "spg": 2.1,
+    "bpg": 0.2,
+    "ts": 0.525
+   },
+   "college": "University of Texas at El Paso"
+  }
+ },
+ {
+  "id": "shawn-marion",
+  "name": "Shawn Marion",
+  "universe": "Phoenix Suns",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 61,
+   "playmaking": 17,
+   "rebounding": 75,
+   "defense": 65,
+   "shooting": 64,
+   "impact": 64
+  },
+  "tags": [
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "forward",
+   "team": "Phoenix Suns",
+   "colors": [
+    "purple",
+    "orange"
+   ],
+   "teams": [
+    "Phoenix Suns",
+    "Dallas Mavericks",
+    "Cleveland Cavaliers"
+   ],
+   "from": 1999,
+   "to": 2015,
+   "allNba": 2,
+   "allStar": 4,
+   "peak": {
+    "season": "2005-06",
+    "team": "PHO",
+    "ppg": 19.4,
+    "rpg": 11.3,
+    "apg": 1.9,
+    "spg": 2,
+    "bpg": 1.5,
+    "ts": 0.556
+   },
+   "college": "University of Nevada, Las Vegas"
+  }
+ },
+ {
+  "id": "george-mikan",
+  "name": "George Mikan",
+  "universe": "Minneapolis Lakers",
+  "archetype": "center",
+  "stats": {
+   "scoring": 86,
+   "playmaking": 26,
+   "rebounding": 5,
+   "defense": 5,
+   "shooting": 6,
+   "impact": 50
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "center",
+   "team": "Minneapolis Lakers",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "Minneapolis Lakers"
+   ],
+   "from": 1948,
+   "to": 1956,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 4,
+   "peak": {
+    "season": "1950-51",
+    "team": "MNL",
+    "ppg": 27.4,
+    "rpg": 0,
+    "apg": 2.9,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.487
+   },
+   "college": "DePaul University"
+  }
+ },
+ {
+  "id": "mitch-richmond",
+  "name": "Mitch Richmond",
+  "universe": "Sacramento Kings",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 72,
+   "playmaking": 29,
+   "rebounding": 22,
+   "defense": 37,
+   "shooting": 92,
+   "impact": 53
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 77,
+   "pos": "shooting guard",
+   "team": "Sacramento Kings",
+   "colors": [
+    "purple",
+    "silver"
+   ],
+   "teams": [
+    "Golden State Warriors",
+    "Sacramento Kings",
+    "Washington Wizards",
+    "Los Angeles Lakers"
+   ],
+   "from": 1988,
+   "to": 2002,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 6,
+   "peak": {
+    "season": "1996-97",
+    "team": "SAC",
+    "ppg": 23.1,
+    "rpg": 3.3,
+    "apg": 3.1,
+    "spg": 1.5,
+    "bpg": 0.2,
+    "ts": 0.591
+   },
+   "college": "Kansas State University"
+  }
+ },
+ {
+  "id": "joe-dumars",
+  "name": "Joe Dumars",
+  "universe": "Detroit Pistons",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 56,
+   "playmaking": 45,
+   "rebounding": 19,
+   "defense": 19,
+   "shooting": 62,
+   "impact": 33
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 75,
+   "pos": "shooting guard",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Detroit Pistons"
+   ],
+   "from": 1985,
+   "to": 1999,
+   "hof": true,
+   "allNba": 3,
+   "allStar": 6,
+   "peak": {
+    "season": "1990-91",
+    "team": "DET",
+    "ppg": 17.8,
+    "rpg": 2.8,
+    "apg": 4.9,
+    "spg": 0.8,
+    "bpg": 0,
+    "ts": 0.555
+   },
+   "college": "McNeese State University"
+  }
+ },
+ {
+  "id": "kevin-johnson",
+  "name": "Kevin Johnson",
+  "universe": "Phoenix Suns",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 70,
+   "playmaking": 100,
+   "rebounding": 24,
+   "defense": 31,
+   "shooting": 88,
+   "impact": 65
+  },
+  "tags": [
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "point guard",
+   "team": "Phoenix Suns",
+   "colors": [
+    "purple",
+    "orange"
+   ],
+   "teams": [
+    "Phoenix Suns"
+   ],
+   "from": 1989,
+   "to": 2000,
+   "allNba": 5,
+   "allStar": 3,
+   "peak": {
+    "season": "1990-91",
+    "team": "PHO",
+    "ppg": 22.5,
+    "rpg": 3.6,
+    "apg": 11.4,
+    "spg": 1.3,
+    "bpg": 0.2,
+    "ts": 0.585
+   },
+   "college": "University of Texas Rio Grande Valley"
+  }
+ },
+ {
+  "id": "willis-reed",
+  "name": "Willis Reed",
+  "universe": "New York Knicks",
+  "archetype": "center",
+  "stats": {
+   "scoring": 65,
+   "playmaking": 18,
+   "rebounding": 88,
+   "defense": 5,
+   "shooting": 47,
+   "impact": 52
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "center",
+   "team": "New York Knicks",
+   "colors": [
+    "blue",
+    "orange"
+   ],
+   "teams": [
+    "New York Knicks"
+   ],
+   "from": 1964,
+   "to": 1974,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 7,
+   "peak": {
+    "season": "1968-69",
+    "team": "NYK",
+    "ppg": 20.8,
+    "rpg": 13.2,
+    "apg": 2,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.537
+   },
+   "college": "Grambling State University"
+  }
+ },
+ {
+  "id": "alonzo-mourning",
+  "name": "Alonzo Mourning",
+  "universe": "Miami Heat",
+  "archetype": "center",
+  "stats": {
+   "scoring": 63,
+   "playmaking": 15,
+   "rebounding": 73,
+   "defense": 71,
+   "shooting": 69,
+   "impact": 77
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "center",
+   "team": "Miami Heat",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Charlotte Hornets",
+    "Miami Heat",
+    "New Jersey Nets"
+   ],
+   "from": 1992,
+   "to": 2008,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 7,
+   "peak": {
+    "season": "1999-00",
+    "team": "MIA",
+    "ppg": 20.1,
+    "rpg": 11,
+    "apg": 1.6,
+    "spg": 0.7,
+    "bpg": 3.9,
+    "ts": 0.563
+   },
+   "college": "Georgetown University"
+  }
+ },
+ {
+  "id": "vern-mikkelsen",
+  "name": "Vern Mikkelsen",
+  "universe": "Minneapolis Lakers",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 44,
+   "playmaking": 26,
+   "rebounding": 68,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 56
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "power forward",
+   "team": "Minneapolis Lakers",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "Minneapolis Lakers"
+   ],
+   "from": 1949,
+   "to": 1959,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 6,
+   "peak": {
+    "season": "1951-52",
+    "team": "MNL",
+    "ppg": 14.1,
+    "rpg": 10.2,
+    "apg": 2.8,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.446
+   },
+   "college": "University of Minnesota"
+  }
+ },
+ {
+  "id": "yao-ming",
+  "name": "Yao Ming",
+  "universe": "Houston Rockets",
+  "archetype": "center",
+  "stats": {
+   "scoring": 70,
+   "playmaking": 14,
+   "rebounding": 68,
+   "defense": 35,
+   "shooting": 93,
+   "impact": 81
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 90,
+   "pos": "center",
+   "team": "Houston Rockets",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "Houston Rockets"
+   ],
+   "from": 2002,
+   "to": 2011,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 8,
+   "peak": {
+    "season": "2006-07",
+    "team": "HOU",
+    "ppg": 22.3,
+    "rpg": 10.2,
+    "apg": 1.5,
+    "spg": 0.5,
+    "bpg": 1.6,
+    "ts": 0.592
+   },
+   "college": "Antai College of Economics and Management, Shanghai Jiao Tong University"
+  }
+ },
+ {
+  "id": "walt-bellamy",
+  "name": "Walt Bellamy",
+  "universe": "Atlanta Hawks",
+  "archetype": "center",
+  "stats": {
+   "scoring": 99,
+   "playmaking": 24,
+   "rebounding": 100,
+   "defense": 5,
+   "shooting": 62,
+   "impact": 72
+  },
+  "tags": [
+   "hall-of-fame",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "center",
+   "team": "Atlanta Hawks",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "CHP",
+    "CHZ",
+    "Baltimore Bullets",
+    "New York Knicks",
+    "Atlanta Hawks",
+    "NOJ"
+   ],
+   "from": 1961,
+   "to": 1975,
+   "hof": true,
+   "allStar": 4,
+   "peak": {
+    "season": "1962-63",
+    "team": "CHP",
+    "ppg": 31.6,
+    "rpg": 19,
+    "apg": 2.7,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.554
+   },
+   "college": "Indiana University"
+  }
+ },
+ {
+  "id": "amar-e-stoudemire",
+  "name": "Amar'e Stoudemire",
+  "universe": "Phoenix Suns",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 64,
+   "playmaking": 9,
+   "rebounding": 64,
+   "defense": 40,
+   "shooting": 100,
+   "impact": 87
+  },
+  "tags": [
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "Phoenix Suns",
+   "colors": [
+    "purple",
+    "orange"
+   ],
+   "teams": [
+    "Phoenix Suns",
+    "New York Knicks",
+    "Miami Heat"
+   ],
+   "from": 2002,
+   "to": 2016,
+   "allNba": 5,
+   "allStar": 6,
+   "peak": {
+    "season": "2007-08",
+    "team": "PHO",
+    "ppg": 20.4,
+    "rpg": 9.6,
+    "apg": 1,
+    "spg": 1,
+    "bpg": 1.3,
+    "ts": 0.637
+   }
+  }
+ },
+ {
+  "id": "al-horford",
+  "name": "Al Horford",
+  "universe": "Atlanta Hawks",
+  "archetype": "center",
+  "stats": {
+   "scoring": 54,
+   "playmaking": 29,
+   "rebounding": 68,
+   "defense": 38,
+   "shooting": 66,
+   "impact": 56
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "center",
+   "team": "Atlanta Hawks",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "Atlanta Hawks",
+    "Boston Celtics",
+    "Philadelphia 76ers",
+    "Oklahoma City Thunder",
+    "Golden State Warriors"
+   ],
+   "from": 2007,
+   "to": 2026,
+   "allNba": 1,
+   "allStar": 5,
+   "peak": {
+    "season": "2013-14",
+    "team": "ATL",
+    "ppg": 17.4,
+    "rpg": 10.2,
+    "apg": 3.2,
+    "spg": 1.1,
+    "bpg": 1.1,
+    "ts": 0.56
+   },
+   "college": "University of Florida"
+  }
+ },
+ {
+  "id": "chris-webber",
+  "name": "Chris Webber",
+  "universe": "Sacramento Kings",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 76,
+   "playmaking": 42,
+   "rebounding": 70,
+   "defense": 59,
+   "shooting": 42,
+   "impact": 71
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "Sacramento Kings",
+   "colors": [
+    "purple",
+    "silver"
+   ],
+   "teams": [
+    "Golden State Warriors",
+    "Washington Bullets",
+    "Washington Wizards",
+    "Sacramento Kings",
+    "Philadelphia 76ers"
+   ],
+   "from": 1993,
+   "to": 2008,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 5,
+   "peak": {
+    "season": "2000-01",
+    "team": "SAC",
+    "ppg": 24.5,
+    "rpg": 10.5,
+    "apg": 4.6,
+    "spg": 1.6,
+    "bpg": 1.7,
+    "ts": 0.53
+   },
+   "college": "University of Michigan"
+  }
+ },
+ {
+  "id": "bernard-king",
+  "name": "Bernard King",
+  "universe": "New Jersey Nets",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 82,
+   "playmaking": 19,
+   "rebounding": 34,
+   "defense": 25,
+   "shooting": 100,
+   "impact": 73
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "forward",
+   "team": "New Jersey Nets",
+   "colors": [
+    "navy",
+    "red"
+   ],
+   "teams": [
+    "New Jersey Nets",
+    "Utah Jazz",
+    "Golden State Warriors",
+    "New York Knicks",
+    "Washington Bullets"
+   ],
+   "from": 1977,
+   "to": 1993,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 4,
+   "peak": {
+    "season": "1984-85",
+    "team": "NYK",
+    "ppg": 26.3,
+    "rpg": 5.1,
+    "apg": 2.1,
+    "spg": 1,
+    "bpg": 0.2,
+    "ts": 0.619
+   },
+   "college": "University of Tennessee"
+  }
+ },
+ {
+  "id": "lenny-wilkens",
+  "name": "Lenny Wilkens",
+  "universe": "St. Louis Hawks",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 62,
+   "playmaking": 84,
+   "rebounding": 30,
+   "defense": 5,
+   "shooting": 24,
+   "impact": 46
+  },
+  "tags": [
+   "hall-of-fame",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "point guard",
+   "team": "St. Louis Hawks",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "St. Louis Hawks",
+    "Seattle SuperSonics",
+    "Cleveland Cavaliers",
+    "Portland Trail Blazers"
+   ],
+   "from": 1960,
+   "to": 1975,
+   "hof": true,
+   "allStar": 9,
+   "peak": {
+    "season": "1971-72",
+    "team": "SEA",
+    "ppg": 19.8,
+    "rpg": 4.5,
+    "apg": 9.2,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.509
+   },
+   "college": "Providence College"
+  }
+ },
+ {
+  "id": "kyle-lowry",
+  "name": "Kyle Lowry",
+  "universe": "Toronto Raptors",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 66,
+   "playmaking": 58,
+   "rebounding": 32,
+   "defense": 51,
+   "shooting": 81,
+   "impact": 61
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 72,
+   "pos": "point guard",
+   "team": "Toronto Raptors",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Memphis Grizzlies",
+    "Houston Rockets",
+    "Toronto Raptors",
+    "Miami Heat",
+    "Philadelphia 76ers"
+   ],
+   "from": 2006,
+   "to": 2026,
+   "allNba": 1,
+   "allStar": 6,
+   "peak": {
+    "season": "2016-17",
+    "team": "TOR",
+    "ppg": 21.2,
+    "rpg": 4.7,
+    "apg": 6.4,
+    "spg": 2.1,
+    "bpg": 0.4,
+    "ts": 0.578
+   },
+   "college": "Villanova University"
+  }
+ },
+ {
+  "id": "buck-williams",
+  "name": "Buck Williams",
+  "universe": "New Jersey Nets",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 48,
+   "playmaking": 12,
+   "rebounding": 82,
+   "defense": 37,
+   "shooting": 100,
+   "impact": 37
+  },
+  "tags": [
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "power forward",
+   "team": "New Jersey Nets",
+   "colors": [
+    "navy",
+    "red"
+   ],
+   "teams": [
+    "New Jersey Nets",
+    "Portland Trail Blazers",
+    "New York Knicks"
+   ],
+   "from": 1981,
+   "to": 1998,
+   "allNba": 1,
+   "allStar": 3,
+   "peak": {
+    "season": "1982-83",
+    "team": "NJN",
+    "ppg": 15.5,
+    "rpg": 12.3,
+    "apg": 1.3,
+    "spg": 1,
+    "bpg": 1,
+    "ts": 0.603
+   },
+   "college": "University of Maryland"
+  }
+ },
+ {
+  "id": "billy-cunningham",
+  "name": "Billy Cunningham",
+  "universe": "Philadelphia 76ers",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 73,
+   "playmaking": 54,
+   "rebounding": 82,
+   "defense": 5,
+   "shooting": 29,
+   "impact": 71
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "power forward",
+   "team": "Philadelphia 76ers",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "teams": [
+    "Philadelphia 76ers",
+    "CAR"
+   ],
+   "from": 1965,
+   "to": 1976,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 5,
+   "peak": {
+    "season": "1972-73",
+    "team": "PHI",
+    "ppg": 23.3,
+    "rpg": 12.2,
+    "apg": 5.9,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.515
+   },
+   "college": "University of North Carolina at Chapel Hill"
+  }
+ },
+ {
+  "id": "kyrie-irving",
+  "name": "Kyrie Irving",
+  "universe": "Cleveland Cavaliers",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 74,
+   "playmaking": 63,
+   "rebounding": 33,
+   "defense": 41,
+   "shooting": 93,
+   "impact": 79
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 74,
+   "pos": "point guard",
+   "team": "Cleveland Cavaliers",
+   "colors": [
+    "wine",
+    "gold"
+   ],
+   "teams": [
+    "Cleveland Cavaliers",
+    "Boston Celtics",
+    "Brooklyn Nets",
+    "Dallas Mavericks"
+   ],
+   "from": 2011,
+   "to": 2025,
+   "allNba": 3,
+   "allStar": 8,
+   "peak": {
+    "season": "2019-20",
+    "team": "BOS",
+    "ppg": 23.8,
+    "rpg": 5,
+    "apg": 6.9,
+    "spg": 1.5,
+    "bpg": 0.5,
+    "ts": 0.592
+   },
+   "college": "Duke University"
+  }
+ },
+ {
+  "id": "zelmo-beaty",
+  "name": "Zelmo Beaty",
+  "universe": "St. Louis Hawks",
+  "archetype": "center",
+  "stats": {
+   "scoring": 72,
+   "playmaking": 18,
+   "rebounding": 100,
+   "defense": 5,
+   "shooting": 100,
+   "impact": 70
+  },
+  "tags": [
+   "hall-of-fame",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "center",
+   "team": "St. Louis Hawks",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "St. Louis Hawks",
+    "Atlanta Hawks",
+    "UTS",
+    "Los Angeles Lakers"
+   ],
+   "from": 1962,
+   "to": 1975,
+   "hof": true,
+   "allStar": 5,
+   "peak": {
+    "season": "1971-72",
+    "team": "UTS",
+    "ppg": 22.9,
+    "rpg": 15.7,
+    "apg": 1.9,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.612
+   }
+  }
+ },
+ {
+  "id": "cliff-hagan",
+  "name": "Cliff Hagan",
+  "universe": "St. Louis Hawks",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 57,
+   "playmaking": 45,
+   "rebounding": 40,
+   "defense": 5,
+   "shooting": 65,
+   "impact": 78
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "small forward",
+   "team": "St. Louis Hawks",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "St. Louis Hawks",
+    "DLC"
+   ],
+   "from": 1956,
+   "to": 1970,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 6,
+   "peak": {
+    "season": "1968-69",
+    "team": "DLC",
+    "ppg": 18.2,
+    "rpg": 6,
+    "apg": 4.9,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.558
+   },
+   "college": "University of Kentucky"
+  }
+ },
+ {
+  "id": "detlef-schrempf",
+  "name": "Detlef Schrempf",
+  "universe": "Seattle SuperSonics",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 47,
+   "playmaking": 31,
+   "rebounding": 37,
+   "defense": 21,
+   "shooting": 70,
+   "impact": 46
+  },
+  "tags": [
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "Seattle SuperSonics",
+   "colors": [
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "Dallas Mavericks",
+    "Indiana Pacers",
+    "Seattle SuperSonics",
+    "Portland Trail Blazers"
+   ],
+   "from": 1985,
+   "to": 2001,
+   "allNba": 1,
+   "allStar": 3,
+   "peak": {
+    "season": "1994-95",
+    "team": "SEA",
+    "ppg": 15,
+    "rpg": 5.6,
+    "apg": 3.4,
+    "spg": 0.9,
+    "bpg": 0.1,
+    "ts": 0.564
+   }
+  }
+ },
+ {
+  "id": "shawn-kemp",
+  "name": "Shawn Kemp",
+  "universe": "Seattle SuperSonics",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 56,
+   "playmaking": 22,
+   "rebounding": 62,
+   "defense": 45,
+   "shooting": 27,
+   "impact": 64
+  },
+  "tags": [
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "Seattle SuperSonics",
+   "colors": [
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "Seattle SuperSonics",
+    "Cleveland Cavaliers",
+    "Portland Trail Blazers",
+    "Orlando Magic"
+   ],
+   "from": 1989,
+   "to": 2003,
+   "allNba": 3,
+   "allStar": 6,
+   "peak": {
+    "season": "1998-99",
+    "team": "CLE",
+    "ppg": 18,
+    "rpg": 9.3,
+    "apg": 2.5,
+    "spg": 1.4,
+    "bpg": 1.1,
+    "ts": 0.512
+   },
+   "college": "University of Kentucky"
+  }
+ },
+ {
+  "id": "dennis-johnson",
+  "name": "Dennis Johnson",
+  "universe": "Boston Celtics",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 59,
+   "playmaking": 37,
+   "rebounding": 34,
+   "defense": 53,
+   "shooting": 7,
+   "impact": 28
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "shooting guard",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Seattle SuperSonics",
+    "Phoenix Suns",
+    "Boston Celtics"
+   ],
+   "from": 1976,
+   "to": 1990,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 5,
+   "peak": {
+    "season": "1980-81",
+    "team": "SEA",
+    "ppg": 19,
+    "rpg": 5.1,
+    "apg": 4.1,
+    "spg": 1.8,
+    "bpg": 1,
+    "ts": 0.489
+   },
+   "college": "Los Angeles Harbor College"
+  }
+ },
+ {
+  "id": "dennis-rodman",
+  "name": "Dennis Rodman",
+  "universe": "Detroit Pistons",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 20,
+   "playmaking": 7,
+   "rebounding": 29,
+   "defense": 20,
+   "shooting": 67,
+   "impact": 30
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "forward",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Detroit Pistons",
+    "San Antonio Spurs",
+    "Chicago Bulls",
+    "Los Angeles Lakers",
+    "Dallas Mavericks"
+   ],
+   "from": 1986,
+   "to": 2000,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 2,
+   "peak": {
+    "season": "1987-88",
+    "team": "DET",
+    "ppg": 6.5,
+    "rpg": 4.3,
+    "apg": 0.7,
+    "spg": 0.5,
+    "bpg": 0.6,
+    "ts": 0.56
+   },
+   "college": "North Central Texas College"
+  }
+ },
+ {
+  "id": "maurice-cheeks",
+  "name": "Maurice Cheeks",
+  "universe": "Philadelphia 76ers",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 35,
+   "playmaking": 77,
+   "rebounding": 21,
+   "defense": 64,
+   "shooting": 75,
+   "impact": 37
+  },
+  "tags": [
+   "hall-of-fame",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "point guard",
+   "team": "Philadelphia 76ers",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "teams": [
+    "Philadelphia 76ers",
+    "New York Knicks",
+    "Atlanta Hawks",
+    "New Jersey Nets"
+   ],
+   "from": 1978,
+   "to": 1993,
+   "hof": true,
+   "allStar": 4,
+   "peak": {
+    "season": "1982-83",
+    "team": "PHI",
+    "ppg": 11.2,
+    "rpg": 3.1,
+    "apg": 8.4,
+    "spg": 2.6,
+    "bpg": 0.4,
+    "ts": 0.57
+   },
+   "college": "West Texas A&M University"
+  }
+ },
+ {
+  "id": "horace-grant",
+  "name": "Horace Grant",
+  "universe": "Chicago Bulls",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 40,
+   "playmaking": 21,
+   "rebounding": 56,
+   "defense": 39,
+   "shooting": 87,
+   "impact": 48
+  },
+  "tags": [
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "Chicago Bulls",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Chicago Bulls",
+    "Orlando Magic",
+    "Seattle SuperSonics",
+    "Los Angeles Lakers"
+   ],
+   "from": 1987,
+   "to": 2004,
+   "allStar": 1,
+   "peak": {
+    "season": "1991-92",
+    "team": "CHI",
+    "ppg": 12.8,
+    "rpg": 8.4,
+    "apg": 2.3,
+    "spg": 1.2,
+    "bpg": 0.9,
+    "ts": 0.585
+   },
+   "college": "Clemson University"
+  }
+ },
+ {
+  "id": "james-worthy",
+  "name": "James Worthy",
+  "universe": "Los Angeles Lakers",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 55,
+   "playmaking": 23,
+   "rebounding": 43,
+   "defense": 36,
+   "shooting": 100,
+   "impact": 47
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "forward",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Los Angeles Lakers"
+   ],
+   "from": 1982,
+   "to": 1994,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 7,
+   "peak": {
+    "season": "1985-86",
+    "team": "LAL",
+    "ppg": 17.6,
+    "rpg": 6.4,
+    "apg": 2.5,
+    "spg": 1.1,
+    "bpg": 0.8,
+    "ts": 0.601
+   },
+   "college": "University of North Carolina at Chapel Hill"
+  }
+ },
+ {
+  "id": "paul-westphal",
+  "name": "Paul Westphal",
+  "universe": "Phoenix Suns",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 67,
+   "playmaking": 52,
+   "rebounding": 16,
+   "defense": 40,
+   "shooting": 76,
+   "impact": 66
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "point guard",
+   "team": "Phoenix Suns",
+   "colors": [
+    "purple",
+    "orange"
+   ],
+   "teams": [
+    "Boston Celtics",
+    "Phoenix Suns",
+    "Seattle SuperSonics",
+    "New York Knicks"
+   ],
+   "from": 1972,
+   "to": 1984,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 5,
+   "peak": {
+    "season": "1977-78",
+    "team": "PHO",
+    "ppg": 21.3,
+    "rpg": 2.3,
+    "apg": 5.7,
+    "spg": 1.7,
+    "bpg": 0.3,
+    "ts": 0.571
+   },
+   "college": "University of Southern California"
+  }
+ },
+ {
+  "id": "bob-mcadoo",
+  "name": "Bob McAdoo",
+  "universe": "Buffalo Braves",
+  "archetype": "center",
+  "stats": {
+   "scoring": 95,
+   "playmaking": 21,
+   "rebounding": 100,
+   "defense": 73,
+   "shooting": 95,
+   "impact": 77
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "center",
+   "team": "Buffalo Braves",
+   "colors": [
+    "blue",
+    "orange"
+   ],
+   "teams": [
+    "Buffalo Braves",
+    "New York Knicks",
+    "Detroit Pistons",
+    "Los Angeles Lakers",
+    "Philadelphia 76ers"
+   ],
+   "from": 1972,
+   "to": 1986,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 5,
+   "peak": {
+    "season": "1974-75",
+    "team": "BUF",
+    "ppg": 30.6,
+    "rpg": 15.1,
+    "apg": 2.3,
+    "spg": 1.2,
+    "bpg": 3.3,
+    "ts": 0.594
+   },
+   "college": "University of North Carolina"
+  }
+ },
+ {
+  "id": "terry-porter",
+  "name": "Terry Porter",
+  "universe": "Portland Trail Blazers",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 55,
+   "playmaking": 83,
+   "rebounding": 23,
+   "defense": 42,
+   "shooting": 98,
+   "impact": 54
+  },
+  "tags": [
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 75,
+   "pos": "point guard",
+   "team": "Portland Trail Blazers",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Portland Trail Blazers",
+    "Minnesota Timberwolves",
+    "Miami Heat",
+    "San Antonio Spurs"
+   ],
+   "from": 1985,
+   "to": 2002,
+   "allStar": 2,
+   "peak": {
+    "season": "1990-91",
+    "team": "POR",
+    "ppg": 17.6,
+    "rpg": 3.4,
+    "apg": 9.1,
+    "spg": 1.9,
+    "bpg": 0.1,
+    "ts": 0.597
+   },
+   "college": "Santa Clara University"
+  }
+ },
+ {
+  "id": "richie-guerin",
+  "name": "Richie Guerin",
+  "universe": "New York Knicks",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 57,
+   "playmaking": 47,
+   "rebounding": 49,
+   "defense": 5,
+   "shooting": 24,
+   "impact": 53
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "shooting guard",
+   "team": "New York Knicks",
+   "colors": [
+    "blue",
+    "orange"
+   ],
+   "teams": [
+    "New York Knicks",
+    "St. Louis Hawks",
+    "Atlanta Hawks"
+   ],
+   "from": 1956,
+   "to": 1970,
+   "hof": true,
+   "allNba": 3,
+   "allStar": 6,
+   "peak": {
+    "season": "1959-60",
+    "team": "NYK",
+    "ppg": 18.2,
+    "rpg": 7.3,
+    "apg": 5.1,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.509
+   },
+   "college": "College of the Holy Cross"
+  }
+ },
+ {
+  "id": "harry-gallatin",
+  "name": "Harry Gallatin",
+  "universe": "New York Knicks",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 39,
+   "playmaking": 16,
+   "rebounding": 87,
+   "defense": 5,
+   "shooting": 37,
+   "impact": 69
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "power forward",
+   "team": "New York Knicks",
+   "colors": [
+    "blue",
+    "orange"
+   ],
+   "teams": [
+    "New York Knicks",
+    "Detroit Pistons"
+   ],
+   "from": 1948,
+   "to": 1958,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 7,
+   "peak": {
+    "season": "1953-54",
+    "team": "NYK",
+    "ppg": 12.4,
+    "rpg": 13.1,
+    "apg": 1.8,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.525
+   },
+   "college": "University of Iowa"
+  }
+ },
+ {
+  "id": "dave-bing",
+  "name": "Dave Bing",
+  "universe": "Detroit Pistons",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 72,
+   "playmaking": 54,
+   "rebounding": 28,
+   "defense": 5,
+   "shooting": 31,
+   "impact": 58
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 75,
+   "pos": "point guard",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Detroit Pistons",
+    "Washington Bullets",
+    "Boston Celtics"
+   ],
+   "from": 1966,
+   "to": 1978,
+   "hof": true,
+   "allNba": 3,
+   "allStar": 7,
+   "peak": {
+    "season": "1970-71",
+    "team": "DET",
+    "ppg": 22.9,
+    "rpg": 4.3,
+    "apg": 6,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.517
+   },
+   "college": "Syracuse University"
+  }
+ },
+ {
+  "id": "elton-brand",
+  "name": "Elton Brand",
+  "universe": "Los Angeles Clippers",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 63,
+   "playmaking": 23,
+   "rebounding": 63,
+   "defense": 46,
+   "shooting": 62,
+   "impact": 81
+  },
+  "tags": [
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "power forward",
+   "team": "Los Angeles Clippers",
+   "colors": [
+    "red",
+    "blue"
+   ],
+   "teams": [
+    "Chicago Bulls",
+    "Los Angeles Clippers",
+    "Philadelphia 76ers",
+    "Dallas Mavericks",
+    "Atlanta Hawks"
+   ],
+   "from": 1999,
+   "to": 2016,
+   "allNba": 1,
+   "allStar": 2,
+   "peak": {
+    "season": "2005-06",
+    "team": "LAC",
+    "ppg": 20,
+    "rpg": 9.5,
+    "apg": 2.6,
+    "spg": 0.8,
+    "bpg": 2.1,
+    "ts": 0.554
+   },
+   "college": "Duke University"
+  }
+ },
+ {
+  "id": "jeff-hornacek",
+  "name": "Jeff Hornacek",
+  "universe": "Phoenix Suns",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 42,
+   "playmaking": 54,
+   "rebounding": 23,
+   "defense": 38,
+   "shooting": 54,
+   "impact": 42
+  },
+  "tags": [
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 76,
+   "pos": "point guard",
+   "team": "Phoenix Suns",
+   "colors": [
+    "purple",
+    "orange"
+   ],
+   "teams": [
+    "Phoenix Suns",
+    "Philadelphia 76ers",
+    "Utah Jazz"
+   ],
+   "from": 1986,
+   "to": 2000,
+   "allStar": 1,
+   "peak": {
+    "season": "1989-90",
+    "team": "PHO",
+    "ppg": 13.5,
+    "rpg": 3.4,
+    "apg": 6,
+    "spg": 1.7,
+    "bpg": 0.1,
+    "ts": 0.545
+   },
+   "college": "Iowa State University"
+  }
+ },
+ {
+  "id": "lou-hudson",
+  "name": "Lou Hudson",
+  "universe": "Atlanta Hawks",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 85,
+   "playmaking": 31,
+   "rebounding": 42,
+   "defense": 5,
+   "shooting": 40,
+   "impact": 42
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 77,
+   "pos": "small forward",
+   "team": "Atlanta Hawks",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "St. Louis Hawks",
+    "Atlanta Hawks",
+    "Los Angeles Lakers"
+   ],
+   "from": 1966,
+   "to": 1979,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 6,
+   "peak": {
+    "season": "1973-74",
+    "team": "ATL",
+    "ppg": 27.1,
+    "rpg": 6.2,
+    "apg": 3.4,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.528
+   },
+   "college": "University of Minnesota"
+  }
+ },
+ {
+  "id": "bobby-jones",
+  "name": "Bobby Jones",
+  "universe": "Philadelphia 76ers",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 46,
+   "playmaking": 36,
+   "rebounding": 64,
+   "defense": 76,
+   "shooting": 100,
+   "impact": 51
+  },
+  "tags": [
+   "hall-of-fame",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "forward",
+   "team": "Philadelphia 76ers",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "teams": [
+    "DNA",
+    "Denver Nuggets",
+    "Philadelphia 76ers"
+   ],
+   "from": 1974,
+   "to": 1986,
+   "hof": true,
+   "allStar": 5,
+   "peak": {
+    "season": "1976-77",
+    "team": "DNA",
+    "ppg": 14.9,
+    "rpg": 9.5,
+    "apg": 4,
+    "spg": 2,
+    "bpg": 2.2,
+    "ts": 0.609
+   },
+   "college": "West Texas A&M University"
+  }
+ },
+ {
+  "id": "blake-griffin",
+  "name": "Blake Griffin",
+  "universe": "Los Angeles Clippers",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 56,
+   "playmaking": 34,
+   "rebounding": 55,
+   "defense": 35,
+   "shooting": 76,
+   "impact": 66
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "power forward",
+   "team": "Los Angeles Clippers",
+   "colors": [
+    "red",
+    "blue"
+   ],
+   "teams": [
+    "Los Angeles Clippers",
+    "Detroit Pistons",
+    "Brooklyn Nets",
+    "Boston Celtics"
+   ],
+   "from": 2010,
+   "to": 2023,
+   "allNba": 5,
+   "allStar": 6,
+   "peak": {
+    "season": "2013-14",
+    "team": "LAC",
+    "ppg": 18,
+    "rpg": 8.3,
+    "apg": 3.7,
+    "spg": 1.2,
+    "bpg": 0.6,
+    "ts": 0.572
+   },
+   "college": "University of Oklahoma"
+  }
+ },
+ {
+  "id": "larry-nance",
+  "name": "Larry Nance",
+  "universe": "Phoenix Suns",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 63,
+   "playmaking": 30,
+   "rebounding": 56,
+   "defense": 46,
+   "shooting": 100,
+   "impact": 57
+  },
+  "tags": [
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "Phoenix Suns",
+   "colors": [
+    "purple",
+    "orange"
+   ],
+   "teams": [
+    "Phoenix Suns",
+    "Cleveland Cavaliers"
+   ],
+   "from": 1981,
+   "to": 1994,
+   "allStar": 3,
+   "peak": {
+    "season": "1986-87",
+    "team": "PHO",
+    "ppg": 20.2,
+    "rpg": 8.5,
+    "apg": 3.3,
+    "spg": 1,
+    "bpg": 1.8,
+    "ts": 0.616
+   },
+   "college": "University of Wyoming"
+  }
+ },
+ {
+  "id": "deandre-jordan",
+  "name": "DeAndre Jordan",
+  "universe": "Los Angeles Clippers",
+  "archetype": "center",
+  "stats": {
+   "scoring": 38,
+   "playmaking": 14,
+   "rebounding": 100,
+   "defense": 24,
+   "shooting": 100,
+   "impact": 56
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "center",
+   "team": "Los Angeles Clippers",
+   "colors": [
+    "red",
+    "blue"
+   ],
+   "teams": [
+    "Los Angeles Clippers",
+    "Brooklyn Nets",
+    "Denver Nuggets",
+    "New Orleans Pelicans"
+   ],
+   "from": 2008,
+   "to": 2026,
+   "allNba": 3,
+   "allStar": 1,
+   "peak": {
+    "season": "2018-19",
+    "team": "LAC",
+    "ppg": 12,
+    "rpg": 15.2,
+    "apg": 1.5,
+    "spg": 0.5,
+    "bpg": 0.9,
+    "ts": 0.648
+   },
+   "college": "Texas A&M University"
+  }
+ },
+ {
+  "id": "rasheed-wallace",
+  "name": "Rasheed Wallace",
+  "universe": "Portland Trail Blazers",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 51,
+   "playmaking": 16,
+   "rebounding": 47,
+   "defense": 42,
+   "shooting": 64,
+   "impact": 49
+  },
+  "tags": [
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "power forward",
+   "team": "Portland Trail Blazers",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Washington Bullets",
+    "Portland Trail Blazers",
+    "Detroit Pistons",
+    "Boston Celtics",
+    "New York Knicks"
+   ],
+   "from": 1995,
+   "to": 2013,
+   "allStar": 4,
+   "peak": {
+    "season": "2000-01",
+    "team": "POR",
+    "ppg": 16.4,
+    "rpg": 7,
+    "apg": 1.8,
+    "spg": 1.1,
+    "bpg": 1.3,
+    "ts": 0.556
+   },
+   "college": "University of North Carolina at Chapel Hill"
+  }
+ },
+ {
+  "id": "kevin-love",
+  "name": "Kevin Love",
+  "universe": "Cleveland Cavaliers",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 57,
+   "playmaking": 21,
+   "rebounding": 93,
+   "defense": 23,
+   "shooting": 5,
+   "impact": 83
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "Cleveland Cavaliers",
+   "colors": [
+    "wine",
+    "gold"
+   ],
+   "teams": [
+    "Minnesota Timberwolves",
+    "Cleveland Cavaliers",
+    "Miami Heat",
+    "Utah Jazz"
+   ],
+   "from": 2008,
+   "to": 2026,
+   "allNba": 2,
+   "allStar": 5,
+   "peak": {
+    "season": "2013-14",
+    "team": "MIN",
+    "ppg": 18.3,
+    "rpg": 14,
+    "apg": 2.3,
+    "spg": 0.7,
+    "bpg": 0.5,
+    "ts": 0.458
+   },
+   "college": "Southern University"
+  }
+ },
+ {
+  "id": "jack-twyman",
+  "name": "Jack Twyman",
+  "universe": "Cincinnati Royals",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 54,
+   "playmaking": 14,
+   "rebounding": 43,
+   "defense": 5,
+   "shooting": 29,
+   "impact": 52
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "small forward",
+   "team": "Cincinnati Royals",
+   "colors": [
+    "blue",
+    "white"
+   ],
+   "teams": [
+    "Rochester Royals",
+    "Cincinnati Royals"
+   ],
+   "from": 1955,
+   "to": 1966,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 6,
+   "peak": {
+    "season": "1958-59",
+    "team": "CIN",
+    "ppg": 17.2,
+    "rpg": 6.4,
+    "apg": 1.5,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.514
+   },
+   "college": "University of Cincinnati"
+  }
+ },
+ {
+  "id": "gail-goodrich",
+  "name": "Gail Goodrich",
+  "universe": "Los Angeles Lakers",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 55,
+   "playmaking": 44,
+   "rebounding": 22,
+   "defense": 5,
+   "shooting": 34,
+   "impact": 45
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "shooting guard",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Los Angeles Lakers",
+    "Phoenix Suns",
+    "NOJ"
+   ],
+   "from": 1965,
+   "to": 1979,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 5,
+   "peak": {
+    "season": "1971-72",
+    "team": "LAL",
+    "ppg": 17.5,
+    "rpg": 3.3,
+    "apg": 4.8,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.521
+   },
+   "college": "University of California, Los Angeles"
+  }
+ },
+ {
+  "id": "spencer-haywood",
+  "name": "Spencer Haywood",
+  "universe": "Seattle SuperSonics",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 82,
+   "playmaking": 18,
+   "rebounding": 85,
+   "defense": 5,
+   "shooting": 39,
+   "impact": 59
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "power forward",
+   "team": "Seattle SuperSonics",
+   "colors": [
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "DNR",
+    "Seattle SuperSonics",
+    "New York Knicks",
+    "Los Angeles Lakers",
+    "Washington Bullets"
+   ],
+   "from": 1969,
+   "to": 1983,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 5,
+   "peak": {
+    "season": "1972-73",
+    "team": "SEA",
+    "ppg": 26.2,
+    "rpg": 12.7,
+    "apg": 2,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.527
+   },
+   "college": "University of Detroit Mercy"
+  }
+ },
+ {
+  "id": "tyson-chandler",
+  "name": "Tyson Chandler",
+  "universe": "Chicago Bulls",
+  "archetype": "center",
+  "stats": {
+   "scoring": 27,
+   "playmaking": 10,
+   "rebounding": 64,
+   "defense": 30,
+   "shooting": 100,
+   "impact": 45
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 84,
+   "pos": "center",
+   "team": "Chicago Bulls",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Chicago Bulls",
+    "New Orleans/Oklahoma City Hornets",
+    "New Orleans Hornets",
+    "Charlotte Bobcats",
+    "Dallas Mavericks",
+    "New York Knicks",
+    "Phoenix Suns",
+    "Houston Rockets"
+   ],
+   "from": 2001,
+   "to": 2020,
+   "allNba": 1,
+   "allStar": 1,
+   "peak": {
+    "season": "2014-15",
+    "team": "NYK",
+    "ppg": 8.7,
+    "rpg": 9.6,
+    "apg": 1.1,
+    "spg": 0.7,
+    "bpg": 1.1,
+    "ts": 0.615
+   }
+  }
+ },
+ {
+  "id": "vlade-divac",
+  "name": "Vlade Divac",
+  "universe": "Los Angeles Lakers",
+  "archetype": "center",
+  "stats": {
+   "scoring": 44,
+   "playmaking": 35,
+   "rebounding": 72,
+   "defense": 45,
+   "shooting": 55,
+   "impact": 47
+  },
+  "tags": [
+   "hall-of-fame",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 85,
+   "pos": "center",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Los Angeles Lakers",
+    "Charlotte Hornets",
+    "Sacramento Kings"
+   ],
+   "from": 1989,
+   "to": 2005,
+   "hof": true,
+   "allStar": 1,
+   "peak": {
+    "season": "1994-95",
+    "team": "LAL",
+    "ppg": 14.2,
+    "rpg": 10.8,
+    "apg": 3.9,
+    "spg": 1.2,
+    "bpg": 1.4,
+    "ts": 0.546
+   }
+  }
+ },
+ {
+  "id": "joel-embiid",
+  "name": "Joel Embiid",
+  "universe": "Philadelphia 76ers",
+  "archetype": "center",
+  "stats": {
+   "scoring": 100,
+   "playmaking": 38,
+   "rebounding": 68,
+   "defense": 46,
+   "shooting": 100,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "2020s"
+  ],
+  "facts": {
+   "heightIn": 84,
+   "pos": "center",
+   "team": "Philadelphia 76ers",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "teams": [
+    "Philadelphia 76ers"
+   ],
+   "from": 2016,
+   "to": 2026,
+   "allNba": 5,
+   "allStar": 7,
+   "peak": {
+    "season": "2023-24",
+    "team": "PHI",
+    "ppg": 33.1,
+    "rpg": 10.2,
+    "apg": 4.2,
+    "spg": 1,
+    "bpg": 1.7,
+    "ts": 0.655
+   },
+   "college": "University of Kansas"
+  }
+ },
+ {
+  "id": "george-mcginnis",
+  "name": "George McGinnis",
+  "universe": "INA",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 81,
+   "playmaking": 30,
+   "rebounding": 100,
+   "defense": 51,
+   "shooting": 31,
+   "impact": 73
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "power forward",
+   "team": "INA",
+   "teams": [
+    "INA",
+    "Philadelphia 76ers",
+    "Denver Nuggets",
+    "Indiana Pacers"
+   ],
+   "from": 1971,
+   "to": 1982,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 6,
+   "peak": {
+    "season": "1974-75",
+    "team": "INA",
+    "ppg": 25.9,
+    "rpg": 15,
+    "apg": 3.3,
+    "spg": 2,
+    "bpg": 0.5,
+    "ts": 0.518
+   },
+   "college": "Indiana University Bloomington"
+  }
+ },
+ {
+  "id": "tom-heinsohn",
+  "name": "Tom Heinsohn",
+  "universe": "Boston Celtics",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 67,
+   "playmaking": 17,
+   "rebounding": 66,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 46
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "power forward",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Boston Celtics"
+   ],
+   "from": 1956,
+   "to": 1965,
+   "hof": true,
+   "allNba": 4,
+   "allStar": 6,
+   "peak": {
+    "season": "1961-62",
+    "team": "BOS",
+    "ppg": 21.3,
+    "rpg": 9.9,
+    "apg": 1.9,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.45
+   },
+   "college": "College of the Holy Cross"
+  }
+ },
+ {
+  "id": "bill-laimbeer",
+  "name": "Bill Laimbeer",
+  "universe": "Detroit Pistons",
+  "archetype": "center",
+  "stats": {
+   "scoring": 43,
+   "playmaking": 29,
+   "rebounding": 81,
+   "defense": 34,
+   "shooting": 60,
+   "impact": 40
+  },
+  "tags": [
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "center",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Cleveland Cavaliers",
+    "Detroit Pistons"
+   ],
+   "from": 1980,
+   "to": 1994,
+   "allStar": 4,
+   "peak": {
+    "season": "1983-84",
+    "team": "DET",
+    "ppg": 13.6,
+    "rpg": 12.1,
+    "apg": 3.2,
+    "spg": 0.6,
+    "bpg": 1.4,
+    "ts": 0.552
+   },
+   "college": "University of Notre Dame"
+  }
+ },
+ {
+  "id": "eddie-jones",
+  "name": "Eddie Jones",
+  "universe": "Los Angeles Lakers",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 53,
+   "playmaking": 28,
+   "rebounding": 25,
+   "defense": 54,
+   "shooting": 93,
+   "impact": 43
+  },
+  "tags": [
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "shooting guard",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Los Angeles Lakers",
+    "Charlotte Hornets",
+    "Miami Heat",
+    "Memphis Grizzlies",
+    "Dallas Mavericks"
+   ],
+   "from": 1994,
+   "to": 2008,
+   "allNba": 1,
+   "allStar": 3,
+   "peak": {
+    "season": "1998-99",
+    "team": "LAL",
+    "ppg": 16.9,
+    "rpg": 3.8,
+    "apg": 3.1,
+    "spg": 2,
+    "bpg": 0.7,
+    "ts": 0.592
+   },
+   "college": "Mercer University"
+  }
+ },
+ {
+  "id": "walter-davis",
+  "name": "Walter Davis",
+  "universe": "Phoenix Suns",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 76,
+   "playmaking": 31,
+   "rebounding": 40,
+   "defense": 34,
+   "shooting": 80,
+   "impact": 61
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "shooting guard",
+   "team": "Phoenix Suns",
+   "colors": [
+    "purple",
+    "orange"
+   ],
+   "teams": [
+    "Phoenix Suns",
+    "Denver Nuggets"
+   ],
+   "from": 1977,
+   "to": 1992,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 6,
+   "peak": {
+    "season": "1978-79",
+    "team": "PHO",
+    "ppg": 24.2,
+    "rpg": 6,
+    "apg": 3.4,
+    "spg": 1.4,
+    "bpg": 0.2,
+    "ts": 0.577
+   },
+   "college": "University of North Carolina at Chapel Hill"
+  }
+ },
+ {
+  "id": "mike-conley",
+  "name": "Mike Conley",
+  "universe": "Memphis Grizzlies",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 48,
+   "playmaking": 56,
+   "rebounding": 20,
+   "defense": 30,
+   "shooting": 48,
+   "impact": 62
+  },
+  "tags": [
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "point guard",
+   "team": "Memphis Grizzlies",
+   "colors": [
+    "navy",
+    "light blue"
+   ],
+   "teams": [
+    "Memphis Grizzlies",
+    "Utah Jazz",
+    "Minnesota Timberwolves"
+   ],
+   "from": 2007,
+   "to": 2026,
+   "allStar": 1,
+   "peak": {
+    "season": "2016-17",
+    "team": "MEM",
+    "ppg": 15.3,
+    "rpg": 2.9,
+    "apg": 6.1,
+    "spg": 1.2,
+    "bpg": 0.3,
+    "ts": 0.538
+   },
+   "college": "Ohio State University"
+  }
+ },
+ {
+  "id": "nate-thurmond",
+  "name": "Nate Thurmond",
+  "universe": "San Francisco Warriors",
+  "archetype": "center",
+  "stats": {
+   "scoring": 58,
+   "playmaking": 23,
+   "rebounding": 100,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 39
+  },
+  "tags": [
+   "hall-of-fame",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "center",
+   "team": "San Francisco Warriors",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "San Francisco Warriors",
+    "Golden State Warriors",
+    "Chicago Bulls",
+    "Cleveland Cavaliers"
+   ],
+   "from": 1963,
+   "to": 1977,
+   "hof": true,
+   "allStar": 7,
+   "peak": {
+    "season": "1967-68",
+    "team": "SFW",
+    "ppg": 18.7,
+    "rpg": 21.3,
+    "apg": 2.6,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.48
+   },
+   "college": "Bowling Green State University"
+  }
+ },
+ {
+  "id": "glen-rice",
+  "name": "Glen Rice",
+  "universe": "Miami Heat",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 66,
+   "playmaking": 21,
+   "rebounding": 36,
+   "defense": 35,
+   "shooting": 60,
+   "impact": 43
+  },
+  "tags": [
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "forward",
+   "team": "Miami Heat",
+   "colors": [
+    "red",
+    "black"
+   ],
+   "teams": [
+    "Miami Heat",
+    "Charlotte Hornets",
+    "Los Angeles Lakers",
+    "New York Knicks",
+    "Houston Rockets",
+    "Los Angeles Clippers"
+   ],
+   "from": 1989,
+   "to": 2004,
+   "allNba": 2,
+   "allStar": 3,
+   "peak": {
+    "season": "1994-95",
+    "team": "MIA",
+    "ppg": 21.1,
+    "rpg": 5.4,
+    "apg": 2.3,
+    "spg": 1.4,
+    "bpg": 0.4,
+    "ts": 0.552
+   },
+   "college": "University of Michigan"
+  }
+ },
+ {
+  "id": "slater-martin",
+  "name": "Slater Martin",
+  "universe": "Minneapolis Lakers",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 31,
+   "playmaking": 33,
+   "rebounding": 16,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 13
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 70,
+   "pos": "shooting guard",
+   "team": "Minneapolis Lakers",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "Minneapolis Lakers",
+    "St. Louis Hawks"
+   ],
+   "from": 1949,
+   "to": 1960,
+   "hof": true,
+   "allNba": 5,
+   "allStar": 7,
+   "peak": {
+    "season": "1954-55",
+    "team": "MNL",
+    "ppg": 9.9,
+    "rpg": 2.4,
+    "apg": 3.7,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.449
+   },
+   "college": "University of Texas at Austin"
+  }
+ },
+ {
+  "id": "mark-price",
+  "name": "Mark Price",
+  "universe": "Cleveland Cavaliers",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 53,
+   "playmaking": 94,
+   "rebounding": 19,
+   "defense": 60,
+   "shooting": 100,
+   "impact": 59
+  },
+  "tags": [
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 72,
+   "pos": "point guard",
+   "team": "Cleveland Cavaliers",
+   "colors": [
+    "wine",
+    "gold"
+   ],
+   "teams": [
+    "Cleveland Cavaliers",
+    "Washington Bullets",
+    "Golden State Warriors",
+    "Orlando Magic"
+   ],
+   "from": 1986,
+   "to": 1998,
+   "allNba": 4,
+   "allStar": 4,
+   "peak": {
+    "season": "1991-92",
+    "team": "CLE",
+    "ppg": 16.9,
+    "rpg": 2.8,
+    "apg": 10.4,
+    "spg": 2.6,
+    "bpg": 0.1,
+    "ts": 0.61
+   },
+   "college": "Georgia Tech"
+  }
+ },
+ {
+  "id": "bob-dandridge",
+  "name": "Bob Dandridge",
+  "universe": "Milwaukee Bucks",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 62,
+   "playmaking": 28,
+   "rebounding": 46,
+   "defense": 42,
+   "shooting": 21,
+   "impact": 39
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "small forward",
+   "team": "Milwaukee Bucks",
+   "colors": [
+    "green",
+    "cream"
+   ],
+   "teams": [
+    "Milwaukee Bucks",
+    "Washington Bullets"
+   ],
+   "from": 1969,
+   "to": 1982,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 4,
+   "peak": {
+    "season": "1975-76",
+    "team": "MIL",
+    "ppg": 19.9,
+    "rpg": 6.9,
+    "apg": 3,
+    "spg": 1.5,
+    "bpg": 0.6,
+    "ts": 0.506
+   }
+  }
+ },
+ {
+  "id": "larry-foust",
+  "name": "Larry Foust",
+  "universe": "Fort Wayne Pistons",
+  "archetype": "center",
+  "stats": {
+   "scoring": 53,
+   "playmaking": 15,
+   "rebounding": 67,
+   "defense": 5,
+   "shooting": 75,
+   "impact": 66
+  },
+  "tags": [
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "center",
+   "team": "Fort Wayne Pistons",
+   "colors": [
+    "blue",
+    "white"
+   ],
+   "teams": [
+    "Fort Wayne Pistons",
+    "Minneapolis Lakers",
+    "St. Louis Hawks"
+   ],
+   "from": 1950,
+   "to": 1962,
+   "allNba": 2,
+   "allStar": 8,
+   "peak": {
+    "season": "1955-56",
+    "team": "FTW",
+    "ppg": 17,
+    "rpg": 10,
+    "apg": 1.7,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.57
+   },
+   "college": "La Salle University"
+  }
+ },
+ {
+  "id": "jayson-tatum",
+  "name": "Jayson Tatum",
+  "universe": "Boston Celtics",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 84,
+   "playmaking": 40,
+   "rebounding": 53,
+   "defense": 31,
+   "shooting": 82,
+   "impact": 65
+  },
+  "tags": [
+   "all-nba",
+   "2020s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "forward",
+   "team": "Boston Celtics",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Boston Celtics"
+   ],
+   "from": 2017,
+   "to": 2025,
+   "allNba": 4,
+   "allStar": 5,
+   "peak": {
+    "season": "2022-23",
+    "team": "BOS",
+    "ppg": 26.9,
+    "rpg": 8,
+    "apg": 4.4,
+    "spg": 1,
+    "bpg": 0.6,
+    "ts": 0.578
+   },
+   "college": "Duke University"
+  }
+ },
+ {
+  "id": "otis-thorpe",
+  "name": "Otis Thorpe",
+  "universe": "Houston Rockets",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 59,
+   "playmaking": 22,
+   "rebounding": 67,
+   "defense": 23,
+   "shooting": 100,
+   "impact": 37
+  },
+  "tags": [
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "Houston Rockets",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "Kansas City Kings",
+    "Sacramento Kings",
+    "Houston Rockets",
+    "Detroit Pistons",
+    "Washington Wizards",
+    "Miami Heat",
+    "Charlotte Hornets"
+   ],
+   "from": 1984,
+   "to": 2001,
+   "allStar": 1,
+   "peak": {
+    "season": "1987-88",
+    "team": "SAC",
+    "ppg": 18.9,
+    "rpg": 10,
+    "apg": 2.5,
+    "spg": 0.6,
+    "bpg": 0.7,
+    "ts": 0.6
+   },
+   "college": "Providence College"
+  }
+ },
+ {
+  "id": "karl-anthony-towns",
+  "name": "Karl-Anthony Towns",
+  "universe": "Minnesota Timberwolves",
+  "archetype": "center",
+  "stats": {
+   "scoring": 76,
+   "playmaking": 31,
+   "rebounding": 83,
+   "defense": 42,
+   "shooting": 100,
+   "impact": 81
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 84,
+   "pos": "center",
+   "team": "Minnesota Timberwolves",
+   "colors": [
+    "blue",
+    "green"
+   ],
+   "teams": [
+    "Minnesota Timberwolves",
+    "New York Knicks"
+   ],
+   "from": 2015,
+   "to": 2026,
+   "allNba": 2,
+   "allStar": 4,
+   "peak": {
+    "season": "2019-20",
+    "team": "MIN",
+    "ppg": 24.4,
+    "rpg": 12.4,
+    "apg": 3.4,
+    "spg": 0.9,
+    "bpg": 1.6,
+    "ts": 0.622
+   },
+   "college": "University of Kentucky"
+  }
+ },
+ {
+  "id": "jason-terry",
+  "name": "Jason Terry",
+  "universe": "Dallas Mavericks",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 48,
+   "playmaking": 29,
+   "rebounding": 17,
+   "defense": 27,
+   "shooting": 78,
+   "impact": 41
+  },
+  "tags": [
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 74,
+   "pos": "shooting guard",
+   "team": "Dallas Mavericks",
+   "colors": [
+    "blue",
+    "silver"
+   ],
+   "teams": [
+    "Atlanta Hawks",
+    "Dallas Mavericks",
+    "Boston Celtics",
+    "Brooklyn Nets",
+    "Houston Rockets",
+    "Milwaukee Bucks"
+   ],
+   "from": 1999,
+   "to": 2018,
+   "peak": {
+    "season": "2008-09",
+    "team": "DAL",
+    "ppg": 15.5,
+    "rpg": 2.5,
+    "apg": 3.2,
+    "spg": 1.1,
+    "bpg": 0.2,
+    "ts": 0.574
+   },
+   "college": "Ohio University"
+  }
+ },
+ {
+  "id": "a-c-green",
+  "name": "A.C. Green",
+  "universe": "Los Angeles Lakers",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 36,
+   "playmaking": 10,
+   "rebounding": 58,
+   "defense": 31,
+   "shooting": 84,
+   "impact": 32
+  },
+  "tags": [
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "power forward",
+   "team": "Los Angeles Lakers",
+   "colors": [
+    "purple",
+    "gold"
+   ],
+   "teams": [
+    "Los Angeles Lakers",
+    "Phoenix Suns",
+    "Dallas Mavericks",
+    "Miami Heat"
+   ],
+   "from": 1985,
+   "to": 2001,
+   "allStar": 1,
+   "peak": {
+    "season": "1988-89",
+    "team": "LAL",
+    "ppg": 11.4,
+    "rpg": 8.7,
+    "apg": 1.1,
+    "spg": 1.1,
+    "bpg": 0.5,
+    "ts": 0.581
+   },
+   "college": "Benson Polytechnic High School"
+  }
+ },
+ {
+  "id": "joe-johnson",
+  "name": "Joe Johnson",
+  "universe": "Atlanta Hawks",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 6,
+   "playmaking": 5,
+   "rebounding": 5,
+   "defense": 5,
+   "shooting": 100,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "2020s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "shooting guard",
+   "team": "Atlanta Hawks",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "Phoenix Suns",
+    "Atlanta Hawks",
+    "Brooklyn Nets",
+    "Utah Jazz",
+    "Boston Celtics"
+   ],
+   "from": 2003,
+   "to": 2022,
+   "allNba": 1,
+   "allStar": 7,
+   "peak": {
+    "season": "2022-23",
+    "team": "BOS",
+    "ppg": 2,
+    "rpg": 0,
+    "apg": 0,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 1
+   },
+   "college": "Louisiana State University"
+  }
+ },
+ {
+  "id": "anthony-mason",
+  "name": "Anthony Mason",
+  "universe": "New York Knicks",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 46,
+   "playmaking": 40,
+   "rebounding": 62,
+   "defense": 24,
+   "shooting": 100,
+   "impact": 38
+  },
+  "tags": [
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "forward",
+   "team": "New York Knicks",
+   "colors": [
+    "blue",
+    "orange"
+   ],
+   "teams": [
+    "New Jersey Nets",
+    "Denver Nuggets",
+    "New York Knicks",
+    "Charlotte Hornets",
+    "Miami Heat",
+    "Milwaukee Bucks"
+   ],
+   "from": 1989,
+   "to": 2003,
+   "allNba": 1,
+   "allStar": 1,
+   "peak": {
+    "season": "1996-97",
+    "team": "NYK",
+    "ppg": 14.6,
+    "rpg": 9.3,
+    "apg": 4.4,
+    "spg": 0.8,
+    "bpg": 0.4,
+    "ts": 0.61
+   },
+   "college": "Tennessee State University"
+  }
+ },
+ {
+  "id": "dave-debusschere",
+  "name": "Dave DeBusschere",
+  "universe": "Detroit Pistons",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 27,
+   "playmaking": 14,
+   "rebounding": 47,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 30
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "small forward",
+   "team": "Detroit Pistons",
+   "colors": [
+    "red",
+    "white",
+    "blue"
+   ],
+   "teams": [
+    "Detroit Pistons",
+    "New York Knicks"
+   ],
+   "from": 1962,
+   "to": 1974,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 8,
+   "peak": {
+    "season": "1964-65",
+    "team": "DET",
+    "ppg": 8.6,
+    "rpg": 7,
+    "apg": 1.5,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.425
+   },
+   "college": "University of Detroit Mercy"
+  }
+ },
+ {
+  "id": "louie-dampier",
+  "name": "Louie Dampier",
+  "universe": "KEN",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 65,
+   "playmaking": 32,
+   "rebounding": 31,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 38
+  },
+  "tags": [
+   "hall-of-fame",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 72,
+   "pos": "shooting guard",
+   "team": "KEN",
+   "teams": [
+    "KEN",
+    "San Antonio Spurs"
+   ],
+   "from": 1967,
+   "to": 1979,
+   "hof": true,
+   "allStar": 7,
+   "peak": {
+    "season": "1968-69",
+    "team": "KEN",
+    "ppg": 20.7,
+    "rpg": 4.6,
+    "apg": 3.6,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.469
+   },
+   "college": "University of Kentucky"
+  }
+ },
+ {
+  "id": "tom-chambers",
+  "name": "Tom Chambers",
+  "universe": "Seattle SuperSonics",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 5,
+   "playmaking": 5,
+   "rebounding": 8,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 100
+  },
+  "tags": [
+   "all-nba",
+   "1990s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "power forward",
+   "team": "Seattle SuperSonics",
+   "colors": [
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "San Diego Clippers",
+    "Seattle SuperSonics",
+    "Phoenix Suns",
+    "Utah Jazz",
+    "Charlotte Hornets",
+    "Philadelphia 76ers"
+   ],
+   "from": 1981,
+   "to": 1998,
+   "allNba": 2,
+   "allStar": 4,
+   "peak": {
+    "season": "1997-98",
+    "team": "CHH",
+    "ppg": 1.6,
+    "rpg": 1.2,
+    "apg": 0.3,
+    "spg": 0.1,
+    "bpg": 0,
+    "ts": 0.29
+   },
+   "college": "Georgia Tech"
+  }
+ },
+ {
+  "id": "earl-monroe",
+  "name": "Earl Monroe",
+  "universe": "New York Knicks",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 76,
+   "playmaking": 39,
+   "rebounding": 38,
+   "defense": 5,
+   "shooting": 31,
+   "impact": 36
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 75,
+   "pos": "shooting guard",
+   "team": "New York Knicks",
+   "colors": [
+    "blue",
+    "orange"
+   ],
+   "teams": [
+    "Baltimore Bullets",
+    "New York Knicks"
+   ],
+   "from": 1967,
+   "to": 1980,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 4,
+   "peak": {
+    "season": "1968-69",
+    "team": "BAL",
+    "ppg": 24.3,
+    "rpg": 5.7,
+    "apg": 4.3,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.518
+   },
+   "college": "Winston-Salem State University"
+  }
+ },
+ {
+  "id": "paul-millsap",
+  "name": "Paul Millsap",
+  "universe": "Utah Jazz",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 54,
+   "playmaking": 22,
+   "rebounding": 51,
+   "defense": 43,
+   "shooting": 82,
+   "impact": 54
+  },
+  "tags": [
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "forward",
+   "team": "Utah Jazz",
+   "colors": [
+    "purple",
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "Utah Jazz",
+    "Atlanta Hawks",
+    "Denver Nuggets"
+   ],
+   "from": 2006,
+   "to": 2021,
+   "allStar": 4,
+   "peak": {
+    "season": "2011-12",
+    "team": "UTA",
+    "ppg": 17.3,
+    "rpg": 7.6,
+    "apg": 2.5,
+    "spg": 1.4,
+    "bpg": 0.9,
+    "ts": 0.578
+   },
+   "college": "Louisiana Tech University"
+  }
+ },
+ {
+  "id": "terry-cummings",
+  "name": "Terry Cummings",
+  "universe": "Milwaukee Bucks",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 72,
+   "playmaking": 16,
+   "rebounding": 64,
+   "defense": 35,
+   "shooting": 48,
+   "impact": 56
+  },
+  "tags": [
+   "all-nba",
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "forward",
+   "team": "Milwaukee Bucks",
+   "colors": [
+    "green",
+    "cream"
+   ],
+   "teams": [
+    "San Diego Clippers",
+    "Milwaukee Bucks",
+    "San Antonio Spurs",
+    "Seattle SuperSonics",
+    "Golden State Warriors"
+   ],
+   "from": 1982,
+   "to": 2000,
+   "allNba": 2,
+   "allStar": 2,
+   "peak": {
+    "season": "1984-85",
+    "team": "SDC",
+    "ppg": 22.9,
+    "rpg": 9.6,
+    "apg": 1.7,
+    "spg": 1.1,
+    "bpg": 0.7,
+    "ts": 0.538
+   },
+   "college": "DePaul University"
+  }
+ },
+ {
+  "id": "sam-perkins",
+  "name": "Sam Perkins",
+  "universe": "Dallas Mavericks",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 34,
+   "playmaking": 15,
+   "rebounding": 49,
+   "defense": 28,
+   "shooting": 46,
+   "impact": 31
+  },
+  "tags": [
+   "1980s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "power forward",
+   "team": "Dallas Mavericks",
+   "colors": [
+    "blue",
+    "silver"
+   ],
+   "teams": [
+    "Dallas Mavericks",
+    "Los Angeles Lakers",
+    "Seattle SuperSonics",
+    "Indiana Pacers"
+   ],
+   "from": 1984,
+   "to": 2001,
+   "peak": {
+    "season": "1985-86",
+    "team": "DAL",
+    "ppg": 11,
+    "rpg": 7.4,
+    "apg": 1.6,
+    "spg": 0.8,
+    "bpg": 0.8,
+    "ts": 0.535
+   },
+   "college": "University of North Carolina at Chapel Hill"
+  }
+ },
+ {
+  "id": "marques-johnson",
+  "name": "Marques Johnson",
+  "universe": "Milwaukee Bucks",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 61,
+   "playmaking": 22,
+   "rebounding": 71,
+   "defense": 43,
+   "shooting": 69,
+   "impact": 66
+  },
+  "tags": [
+   "all-nba",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 79,
+   "pos": "small forward",
+   "team": "Milwaukee Bucks",
+   "colors": [
+    "green",
+    "cream"
+   ],
+   "teams": [
+    "Milwaukee Bucks",
+    "Los Angeles Clippers",
+    "Golden State Warriors"
+   ],
+   "from": 1977,
+   "to": 1990,
+   "allNba": 3,
+   "allStar": 5,
+   "peak": {
+    "season": "1978-79",
+    "team": "MIL",
+    "ppg": 19.5,
+    "rpg": 10.6,
+    "apg": 2.4,
+    "spg": 1.2,
+    "bpg": 1.3,
+    "ts": 0.563
+   },
+   "college": "University of California, Los Angeles"
+  }
+ },
+ {
+  "id": "larry-costello",
+  "name": "Larry Costello",
+  "universe": "Syracuse Nationals",
+  "archetype": "point guard",
+  "stats": {
+   "scoring": 44,
+   "playmaking": 57,
+   "rebounding": 36,
+   "defense": 5,
+   "shooting": 36,
+   "impact": 29
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 73,
+   "pos": "point guard",
+   "team": "Syracuse Nationals",
+   "colors": [
+    "green",
+    "white"
+   ],
+   "teams": [
+    "Philadelphia Warriors",
+    "Syracuse Nationals",
+    "Philadelphia 76ers"
+   ],
+   "from": 1954,
+   "to": 1968,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 6,
+   "peak": {
+    "season": "1960-61",
+    "team": "SYR",
+    "ppg": 14,
+    "rpg": 5.5,
+    "apg": 6.3,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.523
+   },
+   "college": "Niagara University"
+  }
+ },
+ {
+  "id": "jermaine-o-neal",
+  "name": "Jermaine O'Neal",
+  "universe": "Indiana Pacers",
+  "archetype": "center",
+  "stats": {
+   "scoring": 63,
+   "playmaking": 19,
+   "rebounding": 66,
+   "defense": 52,
+   "shooting": 7,
+   "impact": 61
+  },
+  "tags": [
+   "all-nba",
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "center",
+   "team": "Indiana Pacers",
+   "colors": [
+    "navy",
+    "gold"
+   ],
+   "teams": [
+    "Portland Trail Blazers",
+    "Indiana Pacers",
+    "Miami Heat",
+    "Boston Celtics",
+    "Phoenix Suns",
+    "Golden State Warriors"
+   ],
+   "from": 1996,
+   "to": 2014,
+   "allNba": 3,
+   "allStar": 6,
+   "peak": {
+    "season": "2004-05",
+    "team": "IND",
+    "ppg": 20.1,
+    "rpg": 10,
+    "apg": 2.1,
+    "spg": 0.8,
+    "bpg": 2.6,
+    "ts": 0.489
+   }
+  }
+ },
+ {
+  "id": "rudy-tomjanovich",
+  "name": "Rudy Tomjanovich",
+  "universe": "Houston Rockets",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 60,
+   "playmaking": 20,
+   "rebounding": 77,
+   "defense": 5,
+   "shooting": 28,
+   "impact": 47
+  },
+  "tags": [
+   "hall-of-fame",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "forward",
+   "team": "Houston Rockets",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "SDR",
+    "Houston Rockets"
+   ],
+   "from": 1970,
+   "to": 1981,
+   "hof": true,
+   "allStar": 5,
+   "peak": {
+    "season": "1973-74",
+    "team": "HOU",
+    "ppg": 19.3,
+    "rpg": 11.6,
+    "apg": 2.2,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.514
+   },
+   "college": "University of Michigan"
+  }
+ },
+ {
+  "id": "george-yardley",
+  "name": "George Yardley",
+  "universe": "Fort Wayne Pistons",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 67,
+   "playmaking": 19,
+   "rebounding": 70,
+   "defense": 5,
+   "shooting": 15,
+   "impact": 63
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 77,
+   "pos": "small forward",
+   "team": "Fort Wayne Pistons",
+   "colors": [
+    "blue",
+    "white"
+   ],
+   "teams": [
+    "Fort Wayne Pistons",
+    "Detroit Pistons",
+    "Syracuse Nationals"
+   ],
+   "from": 1953,
+   "to": 1960,
+   "hof": true,
+   "allNba": 2,
+   "allStar": 6,
+   "peak": {
+    "season": "1957-58",
+    "team": "FTW",
+    "ppg": 21.5,
+    "rpg": 10.5,
+    "apg": 2,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.498
+   },
+   "college": "Stanford University"
+  }
+ },
+ {
+  "id": "andre-iguodala",
+  "name": "Andre Iguodala",
+  "universe": "Philadelphia 76ers",
+  "archetype": "small forward",
+  "stats": {
+   "scoring": 57,
+   "playmaking": 52,
+   "rebounding": 38,
+   "defense": 50,
+   "shooting": 68,
+   "impact": 39
+  },
+  "tags": [
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 78,
+   "pos": "small forward",
+   "team": "Philadelphia 76ers",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "teams": [
+    "Philadelphia 76ers",
+    "Denver Nuggets",
+    "Golden State Warriors",
+    "Miami Heat"
+   ],
+   "from": 2004,
+   "to": 2023,
+   "allStar": 1,
+   "peak": {
+    "season": "2007-08",
+    "team": "PHI",
+    "ppg": 18.2,
+    "rpg": 5.7,
+    "apg": 5.7,
+    "spg": 2,
+    "bpg": 0.4,
+    "ts": 0.562
+   },
+   "college": "University of Arizona"
+  }
+ },
+ {
+  "id": "marc-gasol",
+  "name": "Marc Gasol",
+  "universe": "Memphis Grizzlies",
+  "archetype": "center",
+  "stats": {
+   "scoring": 45,
+   "playmaking": 33,
+   "rebounding": 48,
+   "defense": 40,
+   "shooting": 38,
+   "impact": 54
+  },
+  "tags": [
+   "all-nba",
+   "2010s"
+  ],
+  "facts": {
+   "heightIn": 83,
+   "pos": "center",
+   "team": "Memphis Grizzlies",
+   "colors": [
+    "navy",
+    "light blue"
+   ],
+   "teams": [
+    "Memphis Grizzlies",
+    "Toronto Raptors",
+    "Los Angeles Lakers"
+   ],
+   "from": 2008,
+   "to": 2021,
+   "allNba": 2,
+   "allStar": 3,
+   "peak": {
+    "season": "2014-15",
+    "team": "MEM",
+    "ppg": 14.6,
+    "rpg": 7.2,
+    "apg": 3.6,
+    "spg": 1,
+    "bpg": 1.3,
+    "ts": 0.526
+   }
+  }
+ },
+ {
+  "id": "clyde-lovellette",
+  "name": "Clyde Lovellette",
+  "universe": "Minneapolis Lakers",
+  "archetype": "center",
+  "stats": {
+   "scoring": 59,
+   "playmaking": 13,
+   "rebounding": 76,
+   "defense": 5,
+   "shooting": 5,
+   "impact": 64
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1950s"
+  ],
+  "facts": {
+   "heightIn": 81,
+   "pos": "center",
+   "team": "Minneapolis Lakers",
+   "colors": [
+    "blue",
+    "gold"
+   ],
+   "teams": [
+    "Minneapolis Lakers",
+    "Cincinnati Royals",
+    "St. Louis Hawks",
+    "Boston Celtics"
+   ],
+   "from": 1953,
+   "to": 1964,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 4,
+   "peak": {
+    "season": "1955-56",
+    "team": "MNL",
+    "ppg": 18.7,
+    "rpg": 11.5,
+    "apg": 1.4,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.479
+   },
+   "college": "University of Kansas"
+  }
+ },
+ {
+  "id": "rashard-lewis",
+  "name": "Rashard Lewis",
+  "universe": "Seattle SuperSonics",
+  "archetype": "forward",
+  "stats": {
+   "scoring": 63,
+   "playmaking": 21,
+   "rebounding": 33,
+   "defense": 38,
+   "shooting": 88,
+   "impact": 48
+  },
+  "tags": [
+   "2000s"
+  ],
+  "facts": {
+   "heightIn": 82,
+   "pos": "forward",
+   "team": "Seattle SuperSonics",
+   "colors": [
+    "green",
+    "gold"
+   ],
+   "teams": [
+    "Seattle SuperSonics",
+    "Orlando Magic",
+    "Washington Wizards",
+    "Miami Heat"
+   ],
+   "from": 1998,
+   "to": 2014,
+   "allStar": 2,
+   "peak": {
+    "season": "2006-07",
+    "team": "SEA",
+    "ppg": 20.1,
+    "rpg": 5,
+    "apg": 2.3,
+    "spg": 1.3,
+    "bpg": 0.6,
+    "ts": 0.585
+   }
+  }
+ },
+ {
+  "id": "luka-doncic",
+  "name": "Luka Dončić",
+  "universe": "Dallas Mavericks",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 100,
+   "playmaking": 84,
+   "rebounding": 58,
+   "defense": 47,
+   "shooting": 100,
+   "impact": 98
+  },
+  "tags": [
+   "all-nba",
+   "2020s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "shooting guard",
+   "team": "Dallas Mavericks",
+   "colors": [
+    "blue",
+    "silver"
+   ],
+   "teams": [
+    "Dallas Mavericks",
+    "Los Angeles Lakers"
+   ],
+   "from": 2018,
+   "to": 2026,
+   "allNba": 5,
+   "allStar": 5,
+   "peak": {
+    "season": "2026-27",
+    "team": "LAL",
+    "ppg": 35.1,
+    "rpg": 8.7,
+    "apg": 9.2,
+    "spg": 1.7,
+    "bpg": 0.6,
+    "ts": 0.623
+   }
+  }
+ },
+ {
+  "id": "connie-hawkins",
+  "name": "Connie Hawkins",
+  "universe": "Phoenix Suns",
+  "archetype": "power forward",
+  "stats": {
+   "scoring": 84,
+   "playmaking": 42,
+   "rebounding": 90,
+   "defense": 5,
+   "shooting": 98,
+   "impact": 98
+  },
+  "tags": [
+   "hall-of-fame",
+   "all-nba",
+   "1960s"
+  ],
+  "facts": {
+   "heightIn": 80,
+   "pos": "power forward",
+   "team": "Phoenix Suns",
+   "colors": [
+    "purple",
+    "orange"
+   ],
+   "teams": [
+    "PTP",
+    "MNP",
+    "Phoenix Suns",
+    "Los Angeles Lakers",
+    "Atlanta Hawks"
+   ],
+   "from": 1967,
+   "to": 1976,
+   "hof": true,
+   "allNba": 1,
+   "allStar": 6,
+   "peak": {
+    "season": "1968-69",
+    "team": "PTP",
+    "ppg": 26.8,
+    "rpg": 13.5,
+    "apg": 4.6,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.597
+   },
+   "college": "University of Iowa"
+  }
+ },
+ {
+  "id": "calvin-murphy",
+  "name": "Calvin Murphy",
+  "universe": "Houston Rockets",
+  "archetype": "shooting guard",
+  "stats": {
+   "scoring": 41,
+   "playmaking": 31,
+   "rebounding": 13,
+   "defense": 5,
+   "shooting": 44,
+   "impact": 44
+  },
+  "tags": [
+   "hall-of-fame",
+   "1970s"
+  ],
+  "facts": {
+   "heightIn": 69,
+   "pos": "shooting guard",
+   "team": "Houston Rockets",
+   "colors": [
+    "red",
+    "white"
+   ],
+   "teams": [
+    "SDR",
+    "Houston Rockets"
+   ],
+   "from": 1970,
+   "to": 1983,
+   "hof": true,
+   "allStar": 1,
+   "peak": {
+    "season": "1973-74",
+    "team": "HOU",
+    "ppg": 13,
+    "rpg": 1.9,
+    "apg": 3.4,
+    "spg": 0,
+    "bpg": 0,
+    "ts": 0.533
+   },
+   "college": "Niagara University"
+  }
+ }
+]

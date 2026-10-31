@@ -29,9 +29,18 @@ export const SCREEN_MISSIONS: Scenario[] = [
   { id: "all-around-screen", title: "Overall Best", blurb: "No lens. Pure greatness.", weights: { story: 1, acting: 1, visuals: 1, rewatch: 1, impact: 1, fun: 1 } },
 ];
 
+export const BASKETBALL_MISSIONS: Scenario[] = [
+  { id: "bucket-getters", title: "Bucket Getters", blurb: "Points, points and more points.", weights: { scoring: 3, shooting: 2, impact: 1.5, playmaking: 0.5, rebounding: 0.5, defense: 0.5 } },
+  { id: "two-way", title: "Two-Way Stars", blurb: "Score on one end, stop them on the other.", weights: { scoring: 2, defense: 2.5, impact: 1.5, rebounding: 1, shooting: 1, playmaking: 0.5 } },
+  { id: "pass-first", title: "Pass-First Offense", blurb: "Share the ball and shoot it well.", weights: { playmaking: 3, shooting: 2, scoring: 1.5, impact: 1, rebounding: 0.5, defense: 0.5 } },
+  { id: "paint-patrol", title: "Paint Patrol", blurb: "Own the glass and the rim.", weights: { rebounding: 3, defense: 2.5, impact: 1, scoring: 1, shooting: 0.5, playmaking: 0.5 } },
+  { id: "all-around-basketball", title: "Greatest Five", blurb: "No system. Pure quality.", weights: { scoring: 1, playmaking: 1, rebounding: 1, defense: 1, shooting: 1, impact: 1 } },
+];
+
 /** Missions that suit a character pool's stat keys. */
 export function missionsFor(poolId: string): Scenario[] {
   const keys = catalogMeta(poolId)?.statKeys ?? [];
+  if (keys.includes("playmaking")) return BASKETBALL_MISSIONS;
   if (keys.includes("shooting")) return FOOTBALL_MISSIONS;
   if (keys.includes("story")) return SCREEN_MISSIONS;
   return keys.includes("leadership") ? HISTORY_MISSIONS : SCENARIOS;
@@ -46,6 +55,7 @@ export function customMission(poolId: string, title: string, blurb: string): Sce
 
 const METRIC_LABEL: Record<string, string> = {
   power: "Strongest", intellect: "Smartest", speed: "Fastest", durability: "Toughest", combat: "Best fighter", teamwork: "Best teammate",
+  scoring: "Top scorer", playmaking: "Best playmaker", rebounding: "Best rebounder", defense: "Best defender", impact: "Biggest impact",
   pace: "Fastest", shooting: "Best finisher", passing: "Best passer", dribbling: "Best dribbler", defending: "Best defender", physical: "Strongest",
   story: "Best story", acting: "Best acting", visuals: "Best visuals", rewatch: "Most rewatchable", fun: "Most fun",
   leadership: "Best leader", courage: "Bravest", influence: "Most influential", charisma: "Most charming", strategy: "Best strategist",
