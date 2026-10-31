@@ -16,9 +16,9 @@ const memory = (): DailyStore & { builds: number } => {
 
 describe("daily puzzles", () => {
   it("numbers days from launch", () => {
-    expect(dayNumber("2026-11-01")).toBe(1);
-    expect(dayNumber("2026-11-30")).toBe(30);
-    expect(dayNumber("2027-01-01")).toBe(62);
+    expect(dayNumber("2026-10-31")).toBe(1);
+    expect(dayNumber("2026-11-30")).toBe(31);
+    expect(dayNumber("2027-01-01")).toBe(63);
   });
   it("rotates topics and keeps Summit and Hot Air on different topics each day", () => {
     for (const d of ["2026-11-01", "2026-11-02", "2026-12-25"]) expect(topicFor("summit", d)).not.toBe(topicFor("hotair", d));

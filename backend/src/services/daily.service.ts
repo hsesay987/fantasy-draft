@@ -6,7 +6,7 @@ export type DailyGame = (typeof DAILY_GAMES)[number];
 export const isDailyGame = (g: unknown): g is DailyGame => typeof g === "string" && (DAILY_GAMES as readonly string[]).includes(g);
 
 /** The first daily puzzle. Puzzle numbers count up from here. */
-export const LAUNCH_DAY = "2026-11-01";
+export const LAUNCH_DAY = "2026-10-31";
 export const dayKey = (now = new Date()) => now.toISOString().slice(0, 10);
 export const dayNumber = (day: string) => Math.floor((Date.parse(`${day}T00:00:00Z`) - Date.parse(`${LAUNCH_DAY}T00:00:00Z`)) / 86_400_000) + 1;
 
