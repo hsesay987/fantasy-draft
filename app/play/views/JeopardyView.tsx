@@ -47,14 +47,15 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
   const player = J.turnPlayer(s)!;
   const mine = ctl.controls(player);
   const cols = J.colsOf(s);
-  const cap = J.VALUES.reduce((a, b) => a + b, 0) * cols * 0.6;
+  // A solo climber can reach the summit only by getting every clue; with rivals the clues are shared, so less is needed.
+  const cap = J.VALUES.reduce((a, b) => a + b, 0) * cols * (s.players.length === 1 ? 1 : 0.6);
   const tierOf = (value: number) => J.VALUES.indexOf(value) + 1;
 
   return (
     <PixelShell world="summit">
       <div className="space-y-5">
         <PixelBox>
-          <p className="px-eyebrow">JEOPARDY · CLUE {s.resolved + 1}/{s.cells.length}</p>
+          <p className="px-eyebrow">SUMMIT · CLUE {s.resolved + 1}/{s.cells.length}</p>
           <h1 className="mt-2">{active ? `${active.cat} · ${active.value}M` : mine ? `${player}: CHOOSE A CLUE` : `${player} IS PICKING…`}</h1>
           <p className="px-note mt-2">{setup.mission.title}</p>
         </PixelBox>

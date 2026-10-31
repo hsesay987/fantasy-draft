@@ -570,3 +570,28 @@ model TriviaRating {
   @@unique([kind, targetId, clue, voter])
   @@index([kind, targetId])
 }
+
+/// The puzzle everyone plays on a given day, saved the first time it is asked for so it never changes that day.
+model DailyPuzzle {
+  id        String   @id @default(cuid())
+  game      String // "summit" | "hotair" | "costimation"
+  day       String // UTC date, YYYY-MM-DD
+  content   Json
+  createdAt DateTime @default(now())
+
+  @@unique([game, day])
+}
+
+/// One player's result for a daily puzzle. The first result counts; replays do not change it.
+model DailyResult {
+  id        String   @id @default(cuid())
+  game      String
+  day       String
+  player    String // anonymous id kept in the player's browser
+  score     Float // 0 to 1: how far along the journey they got
+  detail    Json?
+  createdAt DateTime @default(now())
+
+  @@unique([game, day, player])
+  @@index([game, day])
+}

@@ -10,7 +10,7 @@ import type { GameCtl } from "./useGame";
 import type { GameSetup } from "./types";
 
 /**
- * End screen for Jeopardy and Family Feud. No AI report: it shows the standings and then every question with
+ * End screen for Summit (Jeopardy-style board) and Hot Air (survey game). No AI report: it shows the standings and then every question with
  * the right answer in green and any wrong pick in red.
  */
 export function TriviaResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
@@ -34,7 +34,7 @@ export function TriviaResults({ setup, ctl, onAgain, onRematch }: { setup: GameS
       <div className="space-y-5">
         <WorldScene world={jeo ? "summit" : "sky"} caption="Final standings" actors={ranked.map(([p, v]) => ({ name: p, value: Math.max(0, v) / Math.max(1, ...ranked.map(([, x]) => x)) }))} />
         <PixelBox>
-          <p className="px-eyebrow">{jeo ? "JEOPARDY" : "FAMILY FEUD"} · FINAL SCORES</p>
+          <p className="px-eyebrow">{jeo ? "SUMMIT" : "HOT AIR"} · FINAL SCORES</p>
           <h1 className="mt-2">{tied ? "IT'S A TIE!" : `${top[0].toUpperCase()} WINS!`}</h1>
           <ol className="m-0 mt-4 grid list-none gap-2 p-0">
             {ranked.map(([p, v], i) => (
