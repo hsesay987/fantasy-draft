@@ -5,6 +5,7 @@ import * as FD from "../../topicDraft/formats/feud";
 import { surveysFor } from "../../topicDraft/trivia";
 import { useSound } from "../../components/SoundProvider";
 import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
+import { RateItem } from "../../components/pixel/RateItem";
 import { Sprite } from "../../components/pixel/Sprite";
 import { heart, strikeX } from "../../components/pixel/sprites";
 import { useAiTurn } from "./useAiTurn";
@@ -31,6 +32,7 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const player = FD.turnPlayer(s)!;
   const mine = ctl.controls(player);
   const r = s.rounds[s.round]!;
+  const prev = s.round > 0 ? s.rounds[s.round - 1] : null;
   const q = text.trim().toLowerCase();
   const suggestions = q.length >= 2 ? vocab.filter((v) => v.toLowerCase().includes(q) && !r.found[v]).slice(0, 6) : [];
   const submit = (answer: string) => {
@@ -78,6 +80,13 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
               </ul>
             )}
           </form>
+          {prev?.sid && (
+            <div className="mt-5 grid gap-3" aria-label="Rate the last survey">
+              <p className="px-eyebrow">HELP US PICK THE BEST QUESTIONS</p>
+              <p className="m-0 text-[22px] leading-tight">{prev.q} <span className="text-[var(--px-mint)]">Board: {prev.board.join(", ")}</span></p>
+              <RateItem key={prev.sid} kind="survey" id={prev.sid} label="Last survey" />
+            </div>
+          )}
           {r.wrong.length > 0 && <p className="mt-3 text-[22px] text-[var(--px-rose)]">NOT ON THE BOARD: {r.wrong.join(", ")}</p>}
         </PixelBox>
       </div>

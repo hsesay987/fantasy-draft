@@ -5,6 +5,7 @@ import * as J from "../../topicDraft/formats/jeopardy";
 import { useSound } from "../../components/SoundProvider";
 import { ClimbScene } from "../../components/pixel/ClimbScene";
 import { PixelBox, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
+import { RateItem } from "../../components/pixel/RateItem";
 import { Sprite } from "../../components/pixel/Sprite";
 import { gem, TIER_NAMES } from "../../components/pixel/sprites";
 import { useTypewriter } from "../../components/pixel/useTypewriter";
@@ -25,6 +26,7 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.resolved]);
   const active = s.active != null ? s.cells[s.active] : null;
+  const lastCell = s.last != null ? s.cells[s.last] : null;
   const text = useTypewriter(active?.q ?? "");
   if (s.done) return null;
   const player = J.turnPlayer(s)!;
@@ -75,6 +77,14 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
                   ))}
                 </div>
                 <p className="px-note mt-4">Rarer gems are worth more height. A wrong answer drops you the same amount.</p>
+                {lastCell?.catId && lastCell.clue != null && (
+                  <div className="mt-5 grid gap-3" aria-label="Rate the last clue">
+                    <p className="px-eyebrow">HELP US PICK THE BEST QUESTIONS</p>
+                    <p className="m-0 text-[22px] leading-tight">{lastCell.q} <span className="text-[var(--px-mint)]">Answer: {lastCell.answer}</span></p>
+                    <RateItem kind="clue" id={lastCell.catId} clue={lastCell.clue} label="This question" />
+                    <RateItem kind="category" id={lastCell.catId} label={`Category: ${lastCell.cat}`} />
+                  </div>
+                )}
               </div>
             )}
           </PixelBox>

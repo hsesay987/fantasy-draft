@@ -6,7 +6,7 @@ import { next, shuffle } from "../rng";
 
 export const VALUES = [100, 200, 300, 400];
 
-export type Cell = { cat: string; value: number; q: string; options: string[]; answer: string; done: boolean; by?: string; picked?: string; correct?: boolean };
+export type Cell = { catId?: string; clue?: number; cat: string; value: number; q: string; options: string[]; answer: string; done: boolean; by?: string; picked?: string; correct?: boolean };
 export type Right = { q: string; answer: string; cat: string };
 
 export type JeopardyState = {
@@ -45,7 +45,7 @@ export function init(o: { players: string[]; categories: TriviaCategory[]; avoid
       const clue = c.clues[row]!;
       const [options, ns] = shuffle([clue.right, ...clue.wrong], seed);
       seed = ns;
-      cells[row * cols.length + col] = { cat: c.name, value, q: clue.q, options, answer: clue.right, done: false };
+      cells[row * cols.length + col] = { catId: c.id, clue: row, cat: c.name, value, q: clue.q, options, answer: clue.right, done: false };
     });
   });
   return { players: o.players, cats: cols.map((c) => c.name), cells, active: null, resolved: 0, last: null, points: Object.fromEntries(o.players.map((p) => [p, 0])), right: Object.fromEntries(o.players.map((p) => [p, []])), tried: Object.fromEntries(o.players.map((p) => [p, 0])), done: cells.length === 0, seed };
