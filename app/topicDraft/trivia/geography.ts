@@ -1,0 +1,34 @@
+import type { TriviaSet } from "./types";
+
+export const geography: TriviaSet = {
+  quiz: [
+    ["Capitals", 1, "What is the capital of France?", "Paris", "Lyon", "Marseille", "Nice"],
+    ["Capitals", 2, "What is the capital of Australia?", "Canberra", "Sydney", "Melbourne", "Perth"],
+    ["Capitals", 3, "What is the capital of Canada?", "Ottawa", "Toronto", "Vancouver", "Montreal"],
+    ["Capitals", 4, "What is the capital of Turkey?", "Ankara", "Istanbul", "Izmir", "Antalya"],
+    ["Capitals", 4, "What is the capital of Nigeria?", "Abuja", "Lagos", "Kano", "Ibadan"],
+    ["Rivers & Mountains", 1, "What is the highest mountain on Earth?", "Mount Everest", "K2", "Kilimanjaro", "Mont Blanc"],
+    ["Rivers & Mountains", 2, "Which river flows through Egypt?", "Nile", "Amazon", "Tigris", "Congo"],
+    ["Rivers & Mountains", 3, "The Andes mountains run along which continent?", "South America", "Africa", "Asia", "Europe"],
+    ["Rivers & Mountains", 4, "Which river flows through Baghdad?", "Tigris", "Euphrates", "Jordan", "Indus"],
+    ["Rivers & Mountains", 4, "What is the highest mountain in Africa?", "Kilimanjaro", "Mount Kenya", "Mount Elgon", "Ras Dashen"],
+    ["Continents & Oceans", 1, "Which is the largest ocean?", "Pacific", "Atlantic", "Indian", "Arctic"],
+    ["Continents & Oceans", 2, "Which is the largest continent by area?", "Asia", "Africa", "North America", "Europe"],
+    ["Continents & Oceans", 3, "How many continents are there in the common seven-continent model?", "Seven", "Five", "Six", "Eight"],
+    ["Continents & Oceans", 4, "Which ocean lies between Africa and Australia?", "Indian", "Pacific", "Atlantic", "Southern"],
+    ["Continents & Oceans", 4, "Which is the largest hot desert in the world?", "Sahara", "Gobi", "Kalahari", "Arabian"],
+    ["Countries", 1, "Which country is shaped like a boot?", "Italy", "Spain", "Greece", "Chile"],
+    ["Countries", 2, "Which is the largest country in the world by area?", "Russia", "Canada", "China", "United States"],
+    ["Countries", 3, "Which country has the most people (as of 2023)?", "India", "China", "United States", "Indonesia"],
+    ["Countries", 4, "Which country is made up of more than 17,000 islands?", "Indonesia", "Philippines", "Japan", "Greece"],
+    ["Countries", 4, "Which landlocked country sits entirely inside South Africa?", "Lesotho", "Eswatini", "Botswana", "Malawi"],
+  ],
+  surveys: [
+    ["Name a country in Europe", "France|Germany|Spain|Italy|United Kingdom", "Brazil|Egypt|Japan|Canada"],
+    ["Name a famous river", "Nile|Amazon|Mississippi|Thames|Danube", "Everest|Sahara|Pacific|Alps"],
+    ["Name a country in Africa", "Egypt|Nigeria|South Africa|Kenya|Morocco", "Peru|India|Fiji|Portugal"],
+    ["Name a big city in the United States", "New York|Los Angeles|Chicago|Houston|Miami", "Toronto|London|Madrid|Sydney"],
+    ["Name a country in South America", "Brazil|Argentina|Colombia|Peru|Chile", "Mexico|Cuba|Spain|Panama"],
+    ["Name a famous desert", "Sahara|Gobi|Kalahari|Mojave|Atacama", "Amazon|Andes|Siberia|Alps"],
+  ],
+};

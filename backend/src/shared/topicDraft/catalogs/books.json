@@ -1,0 +1,889 @@
+[
+ {
+  "id": "harry-potter-and-the-philosopher-s-stone",
+  "name": "Harry Potter and the Philosopher's Stone",
+  "universe": "Fantasy",
+  "archetype": "J. K. Rowling",
+  "stats": {
+   "plot": 88,
+   "prose": 75,
+   "characters": 92,
+   "worldbuilding": 95,
+   "legacy": 97,
+   "pageturner": 95
+  },
+  "tags": [
+   "series",
+   "young-adult"
+  ],
+  "q": "Harry Potter and the Philosopher's Stone"
+ },
+ {
+  "id": "the-lord-of-the-rings",
+  "name": "The Lord of the Rings",
+  "universe": "Fantasy",
+  "archetype": "J. R. R. Tolkien",
+  "stats": {
+   "plot": 92,
+   "prose": 88,
+   "characters": 88,
+   "worldbuilding": 99,
+   "legacy": 99,
+   "pageturner": 75
+  },
+  "tags": [
+   "classic",
+   "epic"
+  ],
+  "q": "The Lord of the Rings"
+ },
+ {
+  "id": "the-hobbit",
+  "name": "The Hobbit",
+  "universe": "Fantasy",
+  "archetype": "J. R. R. Tolkien",
+  "stats": {
+   "plot": 85,
+   "prose": 85,
+   "characters": 85,
+   "worldbuilding": 92,
+   "legacy": 95,
+   "pageturner": 85
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "The Hobbit"
+ },
+ {
+  "id": "a-game-of-thrones",
+  "name": "A Game of Thrones",
+  "universe": "Fantasy",
+  "archetype": "George R. R. Martin",
+  "stats": {
+   "plot": 94,
+   "prose": 82,
+   "characters": 95,
+   "worldbuilding": 96,
+   "legacy": 88,
+   "pageturner": 92
+  },
+  "tags": [
+   "series",
+   "epic"
+  ],
+  "q": "A Game of Thrones"
+ },
+ {
+  "id": "the-name-of-the-wind",
+  "name": "The Name of the Wind",
+  "universe": "Fantasy",
+  "archetype": "Patrick Rothfuss",
+  "stats": {
+   "plot": 85,
+   "prose": 92,
+   "characters": 85,
+   "worldbuilding": 88,
+   "legacy": 70,
+   "pageturner": 88
+  },
+  "tags": [],
+  "q": "The Name of the Wind"
+ },
+ {
+  "id": "nineteen-eighty-four",
+  "name": "Nineteen Eighty-Four",
+  "universe": "Dystopian",
+  "archetype": "George Orwell",
+  "stats": {
+   "plot": 88,
+   "prose": 88,
+   "characters": 80,
+   "worldbuilding": 92,
+   "legacy": 99,
+   "pageturner": 82
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Nineteen Eighty-Four"
+ },
+ {
+  "id": "brave-new-world",
+  "name": "Brave New World",
+  "universe": "Dystopian",
+  "archetype": "Aldous Huxley",
+  "stats": {
+   "plot": 80,
+   "prose": 85,
+   "characters": 72,
+   "worldbuilding": 90,
+   "legacy": 92,
+   "pageturner": 70
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Brave New World"
+ },
+ {
+  "id": "the-handmaid-s-tale",
+  "name": "The Handmaid's Tale",
+  "universe": "Dystopian",
+  "archetype": "Margaret Atwood",
+  "stats": {
+   "plot": 86,
+   "prose": 90,
+   "characters": 85,
+   "worldbuilding": 88,
+   "legacy": 90,
+   "pageturner": 82
+  },
+  "tags": [],
+  "q": "The Handmaid's Tale"
+ },
+ {
+  "id": "the-hunger-games",
+  "name": "The Hunger Games",
+  "universe": "Dystopian",
+  "archetype": "Suzanne Collins",
+  "stats": {
+   "plot": 90,
+   "prose": 72,
+   "characters": 85,
+   "worldbuilding": 82,
+   "legacy": 85,
+   "pageturner": 97
+  },
+  "tags": [
+   "series",
+   "young-adult"
+  ],
+  "q": "The Hunger Games"
+ },
+ {
+  "id": "fahrenheit-451",
+  "name": "Fahrenheit 451",
+  "universe": "Dystopian",
+  "archetype": "Ray Bradbury",
+  "stats": {
+   "plot": 80,
+   "prose": 88,
+   "characters": 72,
+   "worldbuilding": 82,
+   "legacy": 90,
+   "pageturner": 78
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Fahrenheit 451"
+ },
+ {
+  "id": "dune",
+  "name": "Dune",
+  "universe": "Science Fiction",
+  "archetype": "Frank Herbert",
+  "stats": {
+   "plot": 92,
+   "prose": 82,
+   "characters": 88,
+   "worldbuilding": 99,
+   "legacy": 96,
+   "pageturner": 78
+  },
+  "tags": [
+   "epic"
+  ],
+  "q": "Dune (novel)"
+ },
+ {
+  "id": "foundation",
+  "name": "Foundation",
+  "universe": "Science Fiction",
+  "archetype": "Isaac Asimov",
+  "stats": {
+   "plot": 85,
+   "prose": 70,
+   "characters": 65,
+   "worldbuilding": 92,
+   "legacy": 92,
+   "pageturner": 72
+  },
+  "tags": [
+   "series"
+  ],
+  "q": "Foundation (Asimov novel)"
+ },
+ {
+  "id": "the-hitchhiker-s-guide-to-the-galaxy",
+  "name": "The Hitchhiker's Guide to the Galaxy",
+  "universe": "Science Fiction",
+  "archetype": "Douglas Adams",
+  "stats": {
+   "plot": 80,
+   "prose": 92,
+   "characters": 88,
+   "worldbuilding": 88,
+   "legacy": 90,
+   "pageturner": 88
+  },
+  "tags": [
+   "comedy"
+  ],
+  "q": "The Hitchhiker's Guide to the Galaxy (novel)"
+ },
+ {
+  "id": "frankenstein",
+  "name": "Frankenstein",
+  "universe": "Science Fiction",
+  "archetype": "Mary Shelley",
+  "stats": {
+   "plot": 82,
+   "prose": 85,
+   "characters": 85,
+   "worldbuilding": 75,
+   "legacy": 97,
+   "pageturner": 72
+  },
+  "tags": [
+   "classic",
+   "gothic"
+  ],
+  "q": "Frankenstein"
+ },
+ {
+  "id": "project-hail-mary",
+  "name": "Project Hail Mary",
+  "universe": "Science Fiction",
+  "archetype": "Andy Weir",
+  "stats": {
+   "plot": 92,
+   "prose": 72,
+   "characters": 85,
+   "worldbuilding": 80,
+   "legacy": 65,
+   "pageturner": 97
+  },
+  "tags": [],
+  "q": "Project Hail Mary"
+ },
+ {
+  "id": "the-martian",
+  "name": "The Martian",
+  "universe": "Science Fiction",
+  "archetype": "Andy Weir",
+  "stats": {
+   "plot": 88,
+   "prose": 72,
+   "characters": 82,
+   "worldbuilding": 78,
+   "legacy": 72,
+   "pageturner": 95
+  },
+  "tags": [],
+  "q": "The Martian (Weir novel)"
+ },
+ {
+  "id": "pride-and-prejudice",
+  "name": "Pride and Prejudice",
+  "universe": "Romance",
+  "archetype": "Jane Austen",
+  "stats": {
+   "plot": 85,
+   "prose": 94,
+   "characters": 96,
+   "worldbuilding": 75,
+   "legacy": 98,
+   "pageturner": 80
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Pride and Prejudice"
+ },
+ {
+  "id": "jane-eyre",
+  "name": "Jane Eyre",
+  "universe": "Romance",
+  "archetype": "Charlotte Brontë",
+  "stats": {
+   "plot": 85,
+   "prose": 90,
+   "characters": 92,
+   "worldbuilding": 72,
+   "legacy": 92,
+   "pageturner": 78
+  },
+  "tags": [
+   "classic",
+   "gothic"
+  ],
+  "q": "Jane Eyre"
+ },
+ {
+  "id": "wuthering-heights",
+  "name": "Wuthering Heights",
+  "universe": "Romance",
+  "archetype": "Emily Brontë",
+  "stats": {
+   "plot": 82,
+   "prose": 90,
+   "characters": 90,
+   "worldbuilding": 75,
+   "legacy": 92,
+   "pageturner": 72
+  },
+  "tags": [
+   "classic",
+   "gothic"
+  ],
+  "q": "Wuthering Heights"
+ },
+ {
+  "id": "the-notebook",
+  "name": "The Notebook",
+  "universe": "Romance",
+  "archetype": "Nicholas Sparks",
+  "stats": {
+   "plot": 75,
+   "prose": 65,
+   "characters": 78,
+   "worldbuilding": 50,
+   "legacy": 65,
+   "pageturner": 85
+  },
+  "tags": [],
+  "q": "The Notebook (novel)"
+ },
+ {
+  "id": "to-kill-a-mockingbird",
+  "name": "To Kill a Mockingbird",
+  "universe": "Literary",
+  "archetype": "Harper Lee",
+  "stats": {
+   "plot": 88,
+   "prose": 92,
+   "characters": 95,
+   "worldbuilding": 78,
+   "legacy": 98,
+   "pageturner": 85
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "To Kill a Mockingbird"
+ },
+ {
+  "id": "the-great-gatsby",
+  "name": "The Great Gatsby",
+  "universe": "Literary",
+  "archetype": "F. Scott Fitzgerald",
+  "stats": {
+   "plot": 82,
+   "prose": 98,
+   "characters": 88,
+   "worldbuilding": 80,
+   "legacy": 97,
+   "pageturner": 80
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "The Great Gatsby"
+ },
+ {
+  "id": "the-catcher-in-the-rye",
+  "name": "The Catcher in the Rye",
+  "universe": "Literary",
+  "archetype": "J. D. Salinger",
+  "stats": {
+   "plot": 70,
+   "prose": 88,
+   "characters": 88,
+   "worldbuilding": 65,
+   "legacy": 92,
+   "pageturner": 75
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "The Catcher in the Rye"
+ },
+ {
+  "id": "one-hundred-years-of-solitude",
+  "name": "One Hundred Years of Solitude",
+  "universe": "Literary",
+  "archetype": "Gabriel García Márquez",
+  "stats": {
+   "plot": 85,
+   "prose": 98,
+   "characters": 90,
+   "worldbuilding": 95,
+   "legacy": 97,
+   "pageturner": 70
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "One Hundred Years of Solitude"
+ },
+ {
+  "id": "beloved",
+  "name": "Beloved",
+  "universe": "Literary",
+  "archetype": "Toni Morrison",
+  "stats": {
+   "plot": 85,
+   "prose": 97,
+   "characters": 92,
+   "worldbuilding": 82,
+   "legacy": 92,
+   "pageturner": 70
+  },
+  "tags": [],
+  "q": "Beloved (novel)"
+ },
+ {
+  "id": "moby-dick",
+  "name": "Moby-Dick",
+  "universe": "Literary",
+  "archetype": "Herman Melville",
+  "stats": {
+   "plot": 78,
+   "prose": 90,
+   "characters": 85,
+   "worldbuilding": 82,
+   "legacy": 97,
+   "pageturner": 50
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Moby-Dick"
+ },
+ {
+  "id": "war-and-peace",
+  "name": "War and Peace",
+  "universe": "Literary",
+  "archetype": "Leo Tolstoy",
+  "stats": {
+   "plot": 88,
+   "prose": 92,
+   "characters": 95,
+   "worldbuilding": 92,
+   "legacy": 98,
+   "pageturner": 55
+  },
+  "tags": [
+   "classic",
+   "epic"
+  ],
+  "q": "War and Peace"
+ },
+ {
+  "id": "crime-and-punishment",
+  "name": "Crime and Punishment",
+  "universe": "Literary",
+  "archetype": "Fyodor Dostoevsky",
+  "stats": {
+   "plot": 88,
+   "prose": 90,
+   "characters": 95,
+   "worldbuilding": 80,
+   "legacy": 97,
+   "pageturner": 75
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Crime and Punishment"
+ },
+ {
+  "id": "the-kite-runner",
+  "name": "The Kite Runner",
+  "universe": "Literary",
+  "archetype": "Khaled Hosseini",
+  "stats": {
+   "plot": 88,
+   "prose": 85,
+   "characters": 92,
+   "worldbuilding": 78,
+   "legacy": 82,
+   "pageturner": 88
+  },
+  "tags": [],
+  "q": "The Kite Runner"
+ },
+ {
+  "id": "things-fall-apart",
+  "name": "Things Fall Apart",
+  "universe": "Literary",
+  "archetype": "Chinua Achebe",
+  "stats": {
+   "plot": 85,
+   "prose": 90,
+   "characters": 90,
+   "worldbuilding": 85,
+   "legacy": 95,
+   "pageturner": 78
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Things Fall Apart"
+ },
+ {
+  "id": "don-quixote",
+  "name": "Don Quixote",
+  "universe": "Literary",
+  "archetype": "Miguel de Cervantes",
+  "stats": {
+   "plot": 80,
+   "prose": 88,
+   "characters": 92,
+   "worldbuilding": 80,
+   "legacy": 99,
+   "pageturner": 60
+  },
+  "tags": [
+   "classic",
+   "comedy"
+  ],
+  "q": "Don Quixote"
+ },
+ {
+  "id": "of-mice-and-men",
+  "name": "Of Mice and Men",
+  "universe": "Literary",
+  "archetype": "John Steinbeck",
+  "stats": {
+   "plot": 85,
+   "prose": 88,
+   "characters": 90,
+   "worldbuilding": 70,
+   "legacy": 92,
+   "pageturner": 85
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Of Mice and Men"
+ },
+ {
+  "id": "the-da-vinci-code",
+  "name": "The Da Vinci Code",
+  "universe": "Thriller",
+  "archetype": "Dan Brown",
+  "stats": {
+   "plot": 88,
+   "prose": 55,
+   "characters": 65,
+   "worldbuilding": 72,
+   "legacy": 75,
+   "pageturner": 97
+  },
+  "tags": [],
+  "q": "The Da Vinci Code"
+ },
+ {
+  "id": "gone-girl",
+  "name": "Gone Girl",
+  "universe": "Thriller",
+  "archetype": "Gillian Flynn",
+  "stats": {
+   "plot": 95,
+   "prose": 82,
+   "characters": 90,
+   "worldbuilding": 65,
+   "legacy": 80,
+   "pageturner": 97
+  },
+  "tags": [],
+  "q": "Gone Girl (novel)"
+ },
+ {
+  "id": "the-girl-with-the-dragon-tattoo",
+  "name": "The Girl with the Dragon Tattoo",
+  "universe": "Thriller",
+  "archetype": "Stieg Larsson",
+  "stats": {
+   "plot": 90,
+   "prose": 72,
+   "characters": 88,
+   "worldbuilding": 75,
+   "legacy": 80,
+   "pageturner": 92
+  },
+  "tags": [
+   "series"
+  ],
+  "q": "The Girl with the Dragon Tattoo"
+ },
+ {
+  "id": "and-then-there-were-none",
+  "name": "And Then There Were None",
+  "universe": "Mystery",
+  "archetype": "Agatha Christie",
+  "stats": {
+   "plot": 97,
+   "prose": 78,
+   "characters": 80,
+   "worldbuilding": 72,
+   "legacy": 95,
+   "pageturner": 97
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "And Then There Were None"
+ },
+ {
+  "id": "the-hound-of-the-baskervilles",
+  "name": "The Hound of the Baskervilles",
+  "universe": "Mystery",
+  "archetype": "Arthur Conan Doyle",
+  "stats": {
+   "plot": 88,
+   "prose": 82,
+   "characters": 90,
+   "worldbuilding": 78,
+   "legacy": 92,
+   "pageturner": 90
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "The Hound of the Baskervilles"
+ },
+ {
+  "id": "it",
+  "name": "It",
+  "universe": "Horror",
+  "archetype": "Stephen King",
+  "stats": {
+   "plot": 88,
+   "prose": 80,
+   "characters": 92,
+   "worldbuilding": 88,
+   "legacy": 88,
+   "pageturner": 85
+  },
+  "tags": [],
+  "q": "It (novel)"
+ },
+ {
+  "id": "the-shining",
+  "name": "The Shining",
+  "universe": "Horror",
+  "archetype": "Stephen King",
+  "stats": {
+   "plot": 88,
+   "prose": 82,
+   "characters": 88,
+   "worldbuilding": 82,
+   "legacy": 90,
+   "pageturner": 90
+  },
+  "tags": [],
+  "q": "The Shining (novel)"
+ },
+ {
+  "id": "dracula",
+  "name": "Dracula",
+  "universe": "Horror",
+  "archetype": "Bram Stoker",
+  "stats": {
+   "plot": 82,
+   "prose": 80,
+   "characters": 82,
+   "worldbuilding": 85,
+   "legacy": 97,
+   "pageturner": 78
+  },
+  "tags": [
+   "classic",
+   "gothic"
+  ],
+  "q": "Dracula"
+ },
+ {
+  "id": "the-little-prince",
+  "name": "The Little Prince",
+  "universe": "Children's",
+  "archetype": "Antoine de Saint-Exupéry",
+  "stats": {
+   "plot": 75,
+   "prose": 92,
+   "characters": 85,
+   "worldbuilding": 85,
+   "legacy": 97,
+   "pageturner": 85
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "The Little Prince"
+ },
+ {
+  "id": "charlotte-s-web",
+  "name": "Charlotte's Web",
+  "universe": "Children's",
+  "archetype": "E. B. White",
+  "stats": {
+   "plot": 80,
+   "prose": 88,
+   "characters": 90,
+   "worldbuilding": 70,
+   "legacy": 92,
+   "pageturner": 85
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Charlotte's Web"
+ },
+ {
+  "id": "matilda",
+  "name": "Matilda",
+  "universe": "Children's",
+  "archetype": "Roald Dahl",
+  "stats": {
+   "plot": 82,
+   "prose": 85,
+   "characters": 92,
+   "worldbuilding": 75,
+   "legacy": 88,
+   "pageturner": 92
+  },
+  "tags": [],
+  "q": "Matilda (novel)"
+ },
+ {
+  "id": "the-lion-the-witch-and-the-wardrobe",
+  "name": "The Lion, the Witch and the Wardrobe",
+  "universe": "Children's",
+  "archetype": "C. S. Lewis",
+  "stats": {
+   "plot": 85,
+   "prose": 82,
+   "characters": 85,
+   "worldbuilding": 92,
+   "legacy": 95,
+   "pageturner": 88
+  },
+  "tags": [
+   "series",
+   "classic"
+  ],
+  "q": "The Lion, the Witch and the Wardrobe"
+ },
+ {
+  "id": "alice-s-adventures-in-wonderland",
+  "name": "Alice's Adventures in Wonderland",
+  "universe": "Children's",
+  "archetype": "Lewis Carroll",
+  "stats": {
+   "plot": 72,
+   "prose": 90,
+   "characters": 90,
+   "worldbuilding": 95,
+   "legacy": 98,
+   "pageturner": 78
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Alice's Adventures in Wonderland"
+ },
+ {
+  "id": "the-book-thief",
+  "name": "The Book Thief",
+  "universe": "Historical",
+  "archetype": "Markus Zusak",
+  "stats": {
+   "plot": 85,
+   "prose": 90,
+   "characters": 92,
+   "worldbuilding": 80,
+   "legacy": 82,
+   "pageturner": 85
+  },
+  "tags": [
+   "young-adult"
+  ],
+  "q": "The Book Thief"
+ },
+ {
+  "id": "the-alchemist",
+  "name": "The Alchemist",
+  "universe": "Literary",
+  "archetype": "Paulo Coelho",
+  "stats": {
+   "plot": 72,
+   "prose": 75,
+   "characters": 65,
+   "worldbuilding": 70,
+   "legacy": 85,
+   "pageturner": 88
+  },
+  "tags": [],
+  "q": "The Alchemist (novel)"
+ },
+ {
+  "id": "sapiens",
+  "name": "Sapiens",
+  "universe": "Nonfiction",
+  "archetype": "Yuval Noah Harari",
+  "stats": {
+   "plot": 72,
+   "prose": 85,
+   "characters": 40,
+   "worldbuilding": 85,
+   "legacy": 85,
+   "pageturner": 88
+  },
+  "tags": [
+   "nonfiction"
+  ],
+  "q": "Sapiens: A Brief History of Humankind"
+ },
+ {
+  "id": "the-diary-of-a-young-girl",
+  "name": "The Diary of a Young Girl",
+  "universe": "Nonfiction",
+  "archetype": "Anne Frank",
+  "stats": {
+   "plot": 70,
+   "prose": 85,
+   "characters": 95,
+   "worldbuilding": 70,
+   "legacy": 99,
+   "pageturner": 82
+  },
+  "tags": [
+   "nonfiction",
+   "classic"
+  ],
+  "q": "The Diary of a Young Girl"
+ },
+ {
+  "id": "les-misrables",
+  "name": "Les Misérables",
+  "universe": "Historical",
+  "archetype": "Victor Hugo",
+  "stats": {
+   "plot": 92,
+   "prose": 90,
+   "characters": 95,
+   "worldbuilding": 88,
+   "legacy": 98,
+   "pageturner": 65
+  },
+  "tags": [
+   "classic",
+   "epic"
+  ],
+  "q": "Les Misérables"
+ }
+]

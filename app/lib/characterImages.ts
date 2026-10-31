@@ -92,7 +92,10 @@ async function heroImage(name: string): Promise<string | null> {
   return idx.get(norm(name)) || null;
 }
 
-const PROVIDERS: Record<string, (name: string) => Promise<string | null>> = { wiki: wikiImage, poke: pokeImage, anilist: aniImage, hero: heroImage };
+/** Flags come straight from flagcdn by ISO code (Wikipedia flag images are filtered out above). */
+const flagImage = async (code: string) => (/^[a-z]{2}(-[a-z]{3})?$/.test(code) ? `https://flagcdn.com/w320/${code}.png` : null);
+
+const PROVIDERS: Record<string, (name: string) => Promise<string | null>> = { wiki: wikiImage, poke: pokeImage, anilist: aniImage, hero: heroImage, flag: flagImage };
 export const imagesEnabled = () => process.env.NEXT_PUBLIC_CHARACTER_IMAGES !== "off";
 
 /** `query` is "kind:name". Returns an image URL or null. */

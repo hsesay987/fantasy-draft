@@ -1,0 +1,962 @@
+[
+ {
+  "id": "pizza-margherita",
+  "name": "Pizza Margherita",
+  "universe": "Italian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 92,
+   "comfort": 90,
+   "health": 45,
+   "spice": 15,
+   "presentation": 75,
+   "versatility": 85
+  },
+  "tags": [
+   "classic",
+   "street"
+  ]
+ },
+ {
+  "id": "sushi",
+  "name": "Sushi",
+  "universe": "Japanese",
+  "archetype": "Main",
+  "stats": {
+   "taste": 90,
+   "comfort": 60,
+   "health": 85,
+   "spice": 20,
+   "presentation": 97,
+   "versatility": 60
+  },
+  "tags": [
+   "classic",
+   "seafood"
+  ]
+ },
+ {
+  "id": "ramen",
+  "name": "Ramen",
+  "universe": "Japanese",
+  "archetype": "Soup",
+  "stats": {
+   "taste": 93,
+   "comfort": 95,
+   "health": 50,
+   "spice": 45,
+   "presentation": 80,
+   "versatility": 70
+  },
+  "tags": [
+   "comfort",
+   "noodles"
+  ]
+ },
+ {
+  "id": "tacos-al-pastor",
+  "name": "Tacos al Pastor",
+  "universe": "Mexican",
+  "archetype": "Street Food",
+  "stats": {
+   "taste": 94,
+   "comfort": 80,
+   "health": 55,
+   "spice": 70,
+   "presentation": 72,
+   "versatility": 85
+  },
+  "tags": [
+   "street",
+   "spicy"
+  ]
+ },
+ {
+  "id": "pad-thai",
+  "name": "Pad Thai",
+  "universe": "Thai",
+  "archetype": "Main",
+  "stats": {
+   "taste": 88,
+   "comfort": 82,
+   "health": 60,
+   "spice": 50,
+   "presentation": 75,
+   "versatility": 70
+  },
+  "tags": [
+   "noodles",
+   "street"
+  ]
+ },
+ {
+  "id": "butter-chicken",
+  "name": "Butter Chicken",
+  "universe": "Indian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 93,
+   "comfort": 94,
+   "health": 40,
+   "spice": 55,
+   "presentation": 72,
+   "versatility": 70
+  },
+  "tags": [
+   "comfort",
+   "curry"
+  ]
+ },
+ {
+  "id": "biryani",
+  "name": "Biryani",
+  "universe": "Indian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 94,
+   "comfort": 88,
+   "health": 55,
+   "spice": 70,
+   "presentation": 80,
+   "versatility": 72
+  },
+  "tags": [
+   "rice",
+   "celebration"
+  ]
+ },
+ {
+  "id": "croissant",
+  "name": "Croissant",
+  "universe": "French",
+  "archetype": "Breakfast",
+  "stats": {
+   "taste": 88,
+   "comfort": 80,
+   "health": 25,
+   "spice": 1,
+   "presentation": 85,
+   "versatility": 60
+  },
+  "tags": [
+   "bakery",
+   "breakfast"
+  ]
+ },
+ {
+  "id": "cheeseburger",
+  "name": "Cheeseburger",
+  "universe": "American",
+  "archetype": "Street Food",
+  "stats": {
+   "taste": 90,
+   "comfort": 93,
+   "health": 25,
+   "spice": 15,
+   "presentation": 65,
+   "versatility": 80
+  },
+  "tags": [
+   "classic",
+   "fast"
+  ]
+ },
+ {
+  "id": "fried-chicken",
+  "name": "Fried Chicken",
+  "universe": "American",
+  "archetype": "Main",
+  "stats": {
+   "taste": 91,
+   "comfort": 94,
+   "health": 20,
+   "spice": 35,
+   "presentation": 60,
+   "versatility": 82
+  },
+  "tags": [
+   "comfort",
+   "fast"
+  ]
+ },
+ {
+  "id": "paella",
+  "name": "Paella",
+  "universe": "Spanish",
+  "archetype": "Main",
+  "stats": {
+   "taste": 89,
+   "comfort": 78,
+   "health": 65,
+   "spice": 30,
+   "presentation": 92,
+   "versatility": 60
+  },
+  "tags": [
+   "rice",
+   "seafood",
+   "celebration"
+  ]
+ },
+ {
+  "id": "pho",
+  "name": "Pho",
+  "universe": "Vietnamese",
+  "archetype": "Soup",
+  "stats": {
+   "taste": 90,
+   "comfort": 92,
+   "health": 75,
+   "spice": 35,
+   "presentation": 78,
+   "versatility": 60
+  },
+  "tags": [
+   "comfort",
+   "noodles"
+  ]
+ },
+ {
+  "id": "peking-duck",
+  "name": "Peking Duck",
+  "universe": "Chinese",
+  "archetype": "Main",
+  "stats": {
+   "taste": 92,
+   "comfort": 70,
+   "health": 45,
+   "spice": 15,
+   "presentation": 95,
+   "versatility": 45
+  },
+  "tags": [
+   "celebration"
+  ]
+ },
+ {
+  "id": "dim-sum",
+  "name": "Dim Sum",
+  "universe": "Chinese",
+  "archetype": "Snack",
+  "stats": {
+   "taste": 90,
+   "comfort": 85,
+   "health": 55,
+   "spice": 20,
+   "presentation": 90,
+   "versatility": 80
+  },
+  "tags": [
+   "sharing"
+  ]
+ },
+ {
+  "id": "kimchi-jjigae",
+  "name": "Kimchi Jjigae",
+  "universe": "Korean",
+  "archetype": "Soup",
+  "stats": {
+   "taste": 86,
+   "comfort": 90,
+   "health": 75,
+   "spice": 80,
+   "presentation": 60,
+   "versatility": 60
+  },
+  "tags": [
+   "spicy",
+   "comfort"
+  ]
+ },
+ {
+  "id": "korean-fried-chicken",
+  "name": "Korean Fried Chicken",
+  "universe": "Korean",
+  "archetype": "Street Food",
+  "stats": {
+   "taste": 91,
+   "comfort": 88,
+   "health": 25,
+   "spice": 60,
+   "presentation": 72,
+   "versatility": 75
+  },
+  "tags": [
+   "fast",
+   "spicy"
+  ]
+ },
+ {
+  "id": "bibimbap",
+  "name": "Bibimbap",
+  "universe": "Korean",
+  "archetype": "Main",
+  "stats": {
+   "taste": 87,
+   "comfort": 80,
+   "health": 85,
+   "spice": 55,
+   "presentation": 90,
+   "versatility": 75
+  },
+  "tags": [
+   "rice",
+   "healthy"
+  ]
+ },
+ {
+  "id": "lasagna",
+  "name": "Lasagna",
+  "universe": "Italian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 91,
+   "comfort": 96,
+   "health": 35,
+   "spice": 15,
+   "presentation": 70,
+   "versatility": 60
+  },
+  "tags": [
+   "comfort",
+   "classic"
+  ]
+ },
+ {
+  "id": "carbonara",
+  "name": "Carbonara",
+  "universe": "Italian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 90,
+   "comfort": 92,
+   "health": 35,
+   "spice": 10,
+   "presentation": 70,
+   "versatility": 50
+  },
+  "tags": [
+   "pasta",
+   "classic"
+  ]
+ },
+ {
+  "id": "risotto",
+  "name": "Risotto",
+  "universe": "Italian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 86,
+   "comfort": 88,
+   "health": 50,
+   "spice": 5,
+   "presentation": 82,
+   "versatility": 70
+  },
+  "tags": [
+   "rice"
+  ]
+ },
+ {
+  "id": "tiramisu",
+  "name": "Tiramisu",
+  "universe": "Italian",
+  "archetype": "Dessert",
+  "stats": {
+   "taste": 92,
+   "comfort": 85,
+   "health": 20,
+   "spice": 1,
+   "presentation": 85,
+   "versatility": 35
+  },
+  "tags": [
+   "dessert",
+   "sweet"
+  ]
+ },
+ {
+  "id": "gelato",
+  "name": "Gelato",
+  "universe": "Italian",
+  "archetype": "Dessert",
+  "stats": {
+   "taste": 91,
+   "comfort": 85,
+   "health": 30,
+   "spice": 1,
+   "presentation": 80,
+   "versatility": 70
+  },
+  "tags": [
+   "dessert",
+   "sweet"
+  ]
+ },
+ {
+  "id": "falafel",
+  "name": "Falafel",
+  "universe": "Middle Eastern",
+  "archetype": "Street Food",
+  "stats": {
+   "taste": 85,
+   "comfort": 75,
+   "health": 75,
+   "spice": 30,
+   "presentation": 65,
+   "versatility": 80
+  },
+  "tags": [
+   "street",
+   "vegetarian"
+  ]
+ },
+ {
+  "id": "hummus",
+  "name": "Hummus",
+  "universe": "Middle Eastern",
+  "archetype": "Snack",
+  "stats": {
+   "taste": 82,
+   "comfort": 78,
+   "health": 85,
+   "spice": 10,
+   "presentation": 60,
+   "versatility": 92
+  },
+  "tags": [
+   "vegetarian",
+   "sharing"
+  ]
+ },
+ {
+  "id": "shawarma",
+  "name": "Shawarma",
+  "universe": "Middle Eastern",
+  "archetype": "Street Food",
+  "stats": {
+   "taste": 92,
+   "comfort": 88,
+   "health": 50,
+   "spice": 45,
+   "presentation": 65,
+   "versatility": 80
+  },
+  "tags": [
+   "street"
+  ]
+ },
+ {
+  "id": "moussaka",
+  "name": "Moussaka",
+  "universe": "Greek",
+  "archetype": "Main",
+  "stats": {
+   "taste": 85,
+   "comfort": 90,
+   "health": 50,
+   "spice": 20,
+   "presentation": 70,
+   "versatility": 45
+  },
+  "tags": [
+   "comfort"
+  ]
+ },
+ {
+  "id": "greek-salad",
+  "name": "Greek Salad",
+  "universe": "Greek",
+  "archetype": "Side",
+  "stats": {
+   "taste": 78,
+   "comfort": 50,
+   "health": 97,
+   "spice": 5,
+   "presentation": 75,
+   "versatility": 65
+  },
+  "tags": [
+   "healthy",
+   "vegetarian"
+  ]
+ },
+ {
+  "id": "fish-and-chips",
+  "name": "Fish and Chips",
+  "universe": "British",
+  "archetype": "Main",
+  "stats": {
+   "taste": 84,
+   "comfort": 92,
+   "health": 30,
+   "spice": 5,
+   "presentation": 55,
+   "versatility": 55
+  },
+  "tags": [
+   "classic",
+   "seafood"
+  ]
+ },
+ {
+  "id": "full-english-breakfast",
+  "name": "Full English Breakfast",
+  "universe": "British",
+  "archetype": "Breakfast",
+  "stats": {
+   "taste": 85,
+   "comfort": 95,
+   "health": 20,
+   "spice": 10,
+   "presentation": 60,
+   "versatility": 50
+  },
+  "tags": [
+   "breakfast",
+   "comfort"
+  ]
+ },
+ {
+  "id": "poutine",
+  "name": "Poutine",
+  "universe": "Canadian",
+  "archetype": "Snack",
+  "stats": {
+   "taste": 84,
+   "comfort": 95,
+   "health": 15,
+   "spice": 5,
+   "presentation": 40,
+   "versatility": 55
+  },
+  "tags": [
+   "comfort",
+   "fast"
+  ]
+ },
+ {
+  "id": "croque-monsieur",
+  "name": "Croque Monsieur",
+  "universe": "French",
+  "archetype": "Snack",
+  "stats": {
+   "taste": 84,
+   "comfort": 88,
+   "health": 30,
+   "spice": 5,
+   "presentation": 70,
+   "versatility": 55
+  },
+  "tags": [
+   "bakery"
+  ]
+ },
+ {
+  "id": "ratatouille",
+  "name": "Ratatouille",
+  "universe": "French",
+  "archetype": "Main",
+  "stats": {
+   "taste": 82,
+   "comfort": 80,
+   "health": 92,
+   "spice": 15,
+   "presentation": 85,
+   "versatility": 70
+  },
+  "tags": [
+   "vegetarian",
+   "healthy"
+  ]
+ },
+ {
+  "id": "crme-brle",
+  "name": "Crème Brûlée",
+  "universe": "French",
+  "archetype": "Dessert",
+  "stats": {
+   "taste": 91,
+   "comfort": 82,
+   "health": 20,
+   "spice": 1,
+   "presentation": 92,
+   "versatility": 30
+  },
+  "tags": [
+   "dessert",
+   "sweet"
+  ]
+ },
+ {
+  "id": "churros",
+  "name": "Churros",
+  "universe": "Spanish",
+  "archetype": "Dessert",
+  "stats": {
+   "taste": 88,
+   "comfort": 88,
+   "health": 20,
+   "spice": 5,
+   "presentation": 60,
+   "versatility": 55
+  },
+  "tags": [
+   "dessert",
+   "street"
+  ]
+ },
+ {
+  "id": "guacamole",
+  "name": "Guacamole",
+  "universe": "Mexican",
+  "archetype": "Snack",
+  "stats": {
+   "taste": 86,
+   "comfort": 70,
+   "health": 88,
+   "spice": 35,
+   "presentation": 65,
+   "versatility": 90
+  },
+  "tags": [
+   "vegetarian",
+   "sharing"
+  ]
+ },
+ {
+  "id": "enchiladas",
+  "name": "Enchiladas",
+  "universe": "Mexican",
+  "archetype": "Main",
+  "stats": {
+   "taste": 87,
+   "comfort": 90,
+   "health": 50,
+   "spice": 60,
+   "presentation": 65,
+   "versatility": 70
+  },
+  "tags": [
+   "comfort"
+  ]
+ },
+ {
+  "id": "feijoada",
+  "name": "Feijoada",
+  "universe": "Brazilian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 86,
+   "comfort": 92,
+   "health": 50,
+   "spice": 25,
+   "presentation": 60,
+   "versatility": 50
+  },
+  "tags": [
+   "comfort"
+  ]
+ },
+ {
+  "id": "po-de-queijo",
+  "name": "Pão de Queijo",
+  "universe": "Brazilian",
+  "archetype": "Snack",
+  "stats": {
+   "taste": 85,
+   "comfort": 88,
+   "health": 30,
+   "spice": 1,
+   "presentation": 60,
+   "versatility": 70
+  },
+  "tags": [
+   "bakery"
+  ]
+ },
+ {
+  "id": "jollof-rice",
+  "name": "Jollof Rice",
+  "universe": "West African",
+  "archetype": "Main",
+  "stats": {
+   "taste": 90,
+   "comfort": 90,
+   "health": 60,
+   "spice": 65,
+   "presentation": 70,
+   "versatility": 75
+  },
+  "tags": [
+   "rice",
+   "celebration",
+   "spicy"
+  ]
+ },
+ {
+  "id": "bunny-chow",
+  "name": "Bunny Chow",
+  "universe": "South African",
+  "archetype": "Street Food",
+  "stats": {
+   "taste": 84,
+   "comfort": 88,
+   "health": 45,
+   "spice": 70,
+   "presentation": 50,
+   "versatility": 55
+  },
+  "tags": [
+   "curry",
+   "street"
+  ]
+ },
+ {
+  "id": "doro-wat",
+  "name": "Doro Wat",
+  "universe": "Ethiopian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 87,
+   "comfort": 85,
+   "health": 65,
+   "spice": 80,
+   "presentation": 70,
+   "versatility": 50
+  },
+  "tags": [
+   "spicy",
+   "curry"
+  ]
+ },
+ {
+  "id": "tagine",
+  "name": "Tagine",
+  "universe": "Moroccan",
+  "archetype": "Main",
+  "stats": {
+   "taste": 88,
+   "comfort": 85,
+   "health": 75,
+   "spice": 45,
+   "presentation": 88,
+   "versatility": 65
+  },
+  "tags": [
+   "slow-cooked"
+  ]
+ },
+ {
+  "id": "green-curry",
+  "name": "Green Curry",
+  "universe": "Thai",
+  "archetype": "Main",
+  "stats": {
+   "taste": 89,
+   "comfort": 85,
+   "health": 70,
+   "spice": 80,
+   "presentation": 78,
+   "versatility": 70
+  },
+  "tags": [
+   "curry",
+   "spicy"
+  ]
+ },
+ {
+  "id": "tom-yum",
+  "name": "Tom Yum",
+  "universe": "Thai",
+  "archetype": "Soup",
+  "stats": {
+   "taste": 88,
+   "comfort": 82,
+   "health": 80,
+   "spice": 85,
+   "presentation": 75,
+   "versatility": 55
+  },
+  "tags": [
+   "spicy",
+   "seafood"
+  ]
+ },
+ {
+  "id": "rendang",
+  "name": "Rendang",
+  "universe": "Indonesian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 93,
+   "comfort": 88,
+   "health": 55,
+   "spice": 70,
+   "presentation": 72,
+   "versatility": 55
+  },
+  "tags": [
+   "curry",
+   "slow-cooked"
+  ]
+ },
+ {
+  "id": "nasi-goreng",
+  "name": "Nasi Goreng",
+  "universe": "Indonesian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 86,
+   "comfort": 88,
+   "health": 55,
+   "spice": 55,
+   "presentation": 65,
+   "versatility": 85
+  },
+  "tags": [
+   "rice",
+   "street"
+  ]
+ },
+ {
+  "id": "pierogi",
+  "name": "Pierogi",
+  "universe": "Polish",
+  "archetype": "Main",
+  "stats": {
+   "taste": 83,
+   "comfort": 92,
+   "health": 45,
+   "spice": 5,
+   "presentation": 60,
+   "versatility": 75
+  },
+  "tags": [
+   "comfort",
+   "dumplings"
+  ]
+ },
+ {
+  "id": "goulash",
+  "name": "Goulash",
+  "universe": "Hungarian",
+  "archetype": "Soup",
+  "stats": {
+   "taste": 85,
+   "comfort": 93,
+   "health": 60,
+   "spice": 45,
+   "presentation": 60,
+   "versatility": 60
+  },
+  "tags": [
+   "comfort"
+  ]
+ },
+ {
+  "id": "mac-and-cheese",
+  "name": "Mac and Cheese",
+  "universe": "American",
+  "archetype": "Side",
+  "stats": {
+   "taste": 85,
+   "comfort": 97,
+   "health": 20,
+   "spice": 1,
+   "presentation": 45,
+   "versatility": 70
+  },
+  "tags": [
+   "comfort"
+  ]
+ },
+ {
+  "id": "pancakes",
+  "name": "Pancakes",
+  "universe": "American",
+  "archetype": "Breakfast",
+  "stats": {
+   "taste": 86,
+   "comfort": 92,
+   "health": 25,
+   "spice": 1,
+   "presentation": 70,
+   "versatility": 80
+  },
+  "tags": [
+   "breakfast",
+   "sweet"
+  ]
+ },
+ {
+  "id": "chocolate-brownie",
+  "name": "Chocolate Brownie",
+  "universe": "American",
+  "archetype": "Dessert",
+  "stats": {
+   "taste": 92,
+   "comfort": 90,
+   "health": 10,
+   "spice": 1,
+   "presentation": 65,
+   "versatility": 65
+  },
+  "tags": [
+   "dessert",
+   "sweet"
+  ]
+ },
+ {
+  "id": "ceviche",
+  "name": "Ceviche",
+  "universe": "Peruvian",
+  "archetype": "Main",
+  "stats": {
+   "taste": 87,
+   "comfort": 55,
+   "health": 92,
+   "spice": 55,
+   "presentation": 88,
+   "versatility": 55
+  },
+  "tags": [
+   "seafood",
+   "healthy"
+  ]
+ },
+ {
+  "id": "xiaolongbao",
+  "name": "Xiaolongbao",
+  "universe": "Chinese",
+  "archetype": "Snack",
+  "stats": {
+   "taste": 92,
+   "comfort": 85,
+   "health": 50,
+   "spice": 10,
+   "presentation": 88,
+   "versatility": 40
+  },
+  "tags": [
+   "dumplings"
+  ]
+ },
+ {
+  "id": "mapo-tofu",
+  "name": "Mapo Tofu",
+  "universe": "Chinese",
+  "archetype": "Main",
+  "stats": {
+   "taste": 88,
+   "comfort": 85,
+   "health": 65,
+   "spice": 90,
+   "presentation": 60,
+   "versatility": 60
+  },
+  "tags": [
+   "spicy"
+  ]
+ }
+]

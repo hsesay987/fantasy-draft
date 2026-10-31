@@ -16,7 +16,7 @@ const setupFor = (format: FormatId, pool = "superheroes", players = ["A", "B"]):
 
 describe("new formats play to the end with AI and produce judged teams", () => {
   for (const format of ["keep", "feud", "jeopardy"] as FormatId[]) {
-    for (const pool of ["superheroes", "history", "football", "shows"]) {
+    for (const pool of ["superheroes", "history", "football", "shows", "food", "geography", "flags", "books", "music"]) {
       it(`${format} / ${pool}`, () => {
         const setup = setupFor(format, pool);
         let s = initGame(setup, 0);

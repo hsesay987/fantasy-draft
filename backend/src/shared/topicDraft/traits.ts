@@ -12,6 +12,11 @@ const STAT: Record<string, string> = {
   utility: "usefulness", tech: "tech", stealth: "stealth", range: "reach", damage: "damage", firepower: "firepower",
   story: "storytelling", acting: "acting", visuals: "visuals", rewatch: "rewatch value", impact: "cultural impact", fun: "fun",
   pace: "pace", shooting: "shooting", passing: "passing", dribbling: "dribbling", defending: "defending", physical: "physicality",
+  taste: "taste", comfort: "comfort", health: "healthiness", spice: "heat", presentation: "presentation", versatility: "versatility",
+  economy: "wealth", military: "military might", landscape: "scenery", culture: "culture", cuisine: "food", climate: "weather",
+  colors: "colour", symbolism: "symbolism", simplicity: "simplicity", recognition: "recognisability", uniqueness: "uniqueness", boldness: "boldness",
+  plot: "plot", prose: "writing", characters: "characters", worldbuilding: "worldbuilding", legacy: "legacy", pageturner: "page-turning pull",
+  vocals: "vocals", songwriting: "songwriting", hits: "hit count", stage: "stage presence", longevity: "longevity",
   leadership: "leadership", courage: "courage", influence: "influence", charisma: "charisma", strategy: "strategy",
   scoring: "scoring", playmaking: "playmaking", rebounding: "rebounding", defense: "defense", athleticism: "athleticism",
 };
@@ -35,6 +40,11 @@ export const VOICES: Record<string, Voice> = {
   films: v((u) => `Genre: ${u}`, (a) => `Style: ${a}`),
   shows: v((u) => `Genre: ${u}`, (a) => `Style: ${a}`),
   nba: v((u) => `Spent the most seasons with ${u}`, (a) => `Plays ${a}`),
+  food: v((u) => `${u} cuisine`, (a) => `Served as: ${a}`),
+  geography: v((u) => `Found in ${u}`, (a) => `Known as: ${a}`),
+  flags: v((u) => `Flies in ${u}`, (a) => `Design: ${a}`),
+  books: v((u) => `Genre: ${u}`, (a) => `Written by ${a}`),
+  music: v((u) => `Genre: ${u}`, (a) => `A ${a.toLowerCase()}`),
 };
 const FALLBACK: Voice = v((u) => `Category: ${u}`, (a) => `Type: ${a}`);
 

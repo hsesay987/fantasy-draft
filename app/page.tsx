@@ -7,7 +7,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { Sparkles, Bot, RotateCcw, LogIn, Users } from "lucide-react";
 import { GameTile, PageShell } from "./components/ui";
-import { TOPICS } from "./play/categories";
+import { TOPIC_GROUPS, topicsIn } from "./play/categories";
 import { formatMeta } from "./play/formats";
 import { loadPrefs, resumable, savePrefs } from "./play/storage";
 import { createRoom, saveToken } from "./play/onlineApi";
@@ -17,10 +17,11 @@ import type { GameSetup } from "./play/types";
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 320, damping: 28 } } };
 
-function Group({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
+function Group({ id, title, sub, small, children }: { id?: string; title: string; sub: string; small?: boolean; children: React.ReactNode }) {
+  const Heading = small ? "h3" : "h2";
   return (
-    <section className="space-y-4">
-      <div><h2 className="text-2xl">{title}</h2><p className="text-sm text-muted-foreground">{sub}</p></div>
+    <section id={id} className="scroll-mt-24 space-y-4">
+      <div><Heading className={small ? "text-xl" : "text-2xl"}>{title}</Heading><p className="text-sm text-muted-foreground">{sub}</p></div>
       <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {children}
       </motion.div>
@@ -91,11 +92,22 @@ export default function Home() {
         )}
       </motion.header>
 
-      <Group title="Choose the TopPic" sub="Pick a topic, then how to play it: auctions, blind rankings, stat drafts and more.">
-        {TOPICS.map((t) => (
-          <motion.div key={t.id} variants={item}><GameTile title={t.title} blurb={t.blurb} iconSrc={t.iconSrc} gradient={t.gradient} href={`/category/${t.id}`} /></motion.div>
+      <section className="space-y-8" aria-labelledby="topics-heading">
+        <div>
+          <h2 id="topics-heading" className="text-2xl">Choose the TopPic</h2>
+          <p className="text-sm text-muted-foreground">Pick a topic, then how to play it: auctions, blind rankings, stat drafts and more.</p>
+          <nav aria-label="Topic groups" className="mt-3 flex flex-wrap gap-2">
+            {TOPIC_GROUPS.map((g) => <a key={g.id} href={`#topics-${g.id}`} className="inline-flex min-h-9 items-center rounded-full border border-white/15 bg-white/5 px-3 text-sm font-semibold hover:bg-white/10">{g.title}</a>)}
+          </nav>
+        </div>
+        {TOPIC_GROUPS.map((g) => (
+          <Group key={g.id} id={`topics-${g.id}`} title={g.title} sub={g.blurb} small>
+            {topicsIn(g.id).map((t) => (
+              <motion.div key={t.id} variants={item}><GameTile title={t.title} blurb={t.blurb} iconSrc={t.iconSrc} gradient={t.gradient} href={`/category/${t.id}`} /></motion.div>
+            ))}
+          </Group>
         ))}
-      </Group>
+      </section>
     </PageShell>
   );
 }

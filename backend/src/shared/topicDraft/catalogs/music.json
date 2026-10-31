@@ -1,0 +1,859 @@
+[
+ {
+  "id": "the-beatles",
+  "name": "The Beatles",
+  "universe": "Rock",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 99,
+   "hits": 99,
+   "stage": 80,
+   "legacy": 99,
+   "longevity": 70
+  },
+  "tags": [
+   "classic",
+   "british"
+  ],
+  "q": "The Beatles"
+ },
+ {
+  "id": "queen",
+  "name": "Queen",
+  "universe": "Rock",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 98,
+   "songwriting": 90,
+   "hits": 95,
+   "stage": 99,
+   "legacy": 97,
+   "longevity": 80
+  },
+  "tags": [
+   "classic",
+   "british"
+  ],
+  "q": "Queen (band)"
+ },
+ {
+  "id": "led-zeppelin",
+  "name": "Led Zeppelin",
+  "universe": "Rock",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 90,
+   "songwriting": 90,
+   "hits": 85,
+   "stage": 92,
+   "legacy": 95,
+   "longevity": 72
+  },
+  "tags": [
+   "classic",
+   "british"
+  ],
+  "q": "Led Zeppelin"
+ },
+ {
+  "id": "the-rolling-stones",
+  "name": "The Rolling Stones",
+  "universe": "Rock",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 82,
+   "songwriting": 90,
+   "hits": 90,
+   "stage": 95,
+   "legacy": 95,
+   "longevity": 99
+  },
+  "tags": [
+   "classic",
+   "british"
+  ],
+  "q": "The Rolling Stones"
+ },
+ {
+  "id": "pink-floyd",
+  "name": "Pink Floyd",
+  "universe": "Rock",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 78,
+   "songwriting": 95,
+   "hits": 82,
+   "stage": 90,
+   "legacy": 95,
+   "longevity": 80
+  },
+  "tags": [
+   "classic",
+   "british"
+  ],
+  "q": "Pink Floyd"
+ },
+ {
+  "id": "nirvana",
+  "name": "Nirvana",
+  "universe": "Rock",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 82,
+   "songwriting": 88,
+   "hits": 82,
+   "stage": 85,
+   "legacy": 92,
+   "longevity": 35
+  },
+  "tags": [
+   "grunge"
+  ],
+  "q": "Nirvana (band)"
+ },
+ {
+  "id": "ac-dc",
+  "name": "AC/DC",
+  "universe": "Rock",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 75,
+   "songwriting": 78,
+   "hits": 85,
+   "stage": 95,
+   "legacy": 88,
+   "longevity": 92
+  },
+  "tags": [],
+  "q": "AC/DC"
+ },
+ {
+  "id": "coldplay",
+  "name": "Coldplay",
+  "universe": "Rock",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 82,
+   "songwriting": 82,
+   "hits": 92,
+   "stage": 90,
+   "legacy": 80,
+   "longevity": 85
+  },
+  "tags": [
+   "british"
+  ],
+  "q": "Coldplay"
+ },
+ {
+  "id": "elvis-presley",
+  "name": "Elvis Presley",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 92,
+   "songwriting": 60,
+   "hits": 97,
+   "stage": 95,
+   "legacy": 99,
+   "longevity": 70
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Elvis Presley"
+ },
+ {
+  "id": "bruce-springsteen",
+  "name": "Bruce Springsteen",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 80,
+   "songwriting": 92,
+   "hits": 85,
+   "stage": 98,
+   "legacy": 90,
+   "longevity": 96
+  },
+  "tags": [],
+  "q": "Bruce Springsteen"
+ },
+ {
+  "id": "david-bowie",
+  "name": "David Bowie",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 95,
+   "hits": 85,
+   "stage": 92,
+   "legacy": 97,
+   "longevity": 90
+  },
+  "tags": [
+   "british"
+  ],
+  "q": "David Bowie"
+ },
+ {
+  "id": "elton-john",
+  "name": "Elton John",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 88,
+   "songwriting": 92,
+   "hits": 95,
+   "stage": 92,
+   "legacy": 95,
+   "longevity": 97
+  },
+  "tags": [
+   "british"
+  ],
+  "q": "Elton John"
+ },
+ {
+  "id": "michael-jackson",
+  "name": "Michael Jackson",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 95,
+   "songwriting": 88,
+   "hits": 99,
+   "stage": 99,
+   "legacy": 99,
+   "longevity": 85
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Michael Jackson"
+ },
+ {
+  "id": "madonna",
+  "name": "Madonna",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 78,
+   "songwriting": 82,
+   "hits": 95,
+   "stage": 95,
+   "legacy": 95,
+   "longevity": 95
+  },
+  "tags": [],
+  "q": "Madonna"
+ },
+ {
+  "id": "prince",
+  "name": "Prince",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 90,
+   "songwriting": 97,
+   "hits": 88,
+   "stage": 98,
+   "legacy": 95,
+   "longevity": 85
+  },
+  "tags": [],
+  "q": "Prince (musician)"
+ },
+ {
+  "id": "whitney-houston",
+  "name": "Whitney Houston",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 99,
+   "songwriting": 50,
+   "hits": 95,
+   "stage": 88,
+   "legacy": 92,
+   "longevity": 70
+  },
+  "tags": [],
+  "q": "Whitney Houston"
+ },
+ {
+  "id": "mariah-carey",
+  "name": "Mariah Carey",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 98,
+   "songwriting": 82,
+   "hits": 96,
+   "stage": 82,
+   "legacy": 90,
+   "longevity": 90
+  },
+  "tags": [],
+  "q": "Mariah Carey"
+ },
+ {
+  "id": "beyonc",
+  "name": "Beyoncé",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 95,
+   "songwriting": 85,
+   "hits": 95,
+   "stage": 99,
+   "legacy": 92,
+   "longevity": 90
+  },
+  "tags": [],
+  "q": "Beyoncé"
+ },
+ {
+  "id": "taylor-swift",
+  "name": "Taylor Swift",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 82,
+   "songwriting": 97,
+   "hits": 98,
+   "stage": 92,
+   "legacy": 90,
+   "longevity": 92
+  },
+  "tags": [],
+  "q": "Taylor Swift"
+ },
+ {
+  "id": "adele",
+  "name": "Adele",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 97,
+   "songwriting": 88,
+   "hits": 92,
+   "stage": 82,
+   "legacy": 85,
+   "longevity": 75
+  },
+  "tags": [
+   "british"
+  ],
+  "q": "Adele"
+ },
+ {
+  "id": "lady-gaga",
+  "name": "Lady Gaga",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 92,
+   "songwriting": 88,
+   "hits": 90,
+   "stage": 96,
+   "legacy": 85,
+   "longevity": 80
+  },
+  "tags": [],
+  "q": "Lady Gaga"
+ },
+ {
+  "id": "rihanna",
+  "name": "Rihanna",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 60,
+   "hits": 97,
+   "stage": 82,
+   "legacy": 85,
+   "longevity": 75
+  },
+  "tags": [],
+  "q": "Rihanna"
+ },
+ {
+  "id": "bruno-mars",
+  "name": "Bruno Mars",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 92,
+   "songwriting": 88,
+   "hits": 92,
+   "stage": 96,
+   "legacy": 75,
+   "longevity": 78
+  },
+  "tags": [],
+  "q": "Bruno Mars"
+ },
+ {
+  "id": "ed-sheeran",
+  "name": "Ed Sheeran",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 80,
+   "songwriting": 90,
+   "hits": 95,
+   "stage": 82,
+   "legacy": 72,
+   "longevity": 78
+  },
+  "tags": [
+   "british"
+  ],
+  "q": "Ed Sheeran"
+ },
+ {
+  "id": "abba",
+  "name": "ABBA",
+  "universe": "Pop",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 88,
+   "songwriting": 92,
+   "hits": 95,
+   "stage": 82,
+   "legacy": 92,
+   "longevity": 85
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "ABBA"
+ },
+ {
+  "id": "billie-eilish",
+  "name": "Billie Eilish",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 82,
+   "songwriting": 88,
+   "hits": 88,
+   "stage": 80,
+   "legacy": 72,
+   "longevity": 55
+  },
+  "tags": [],
+  "q": "Billie Eilish"
+ },
+ {
+  "id": "the-weeknd",
+  "name": "The Weeknd",
+  "universe": "R&B",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 92,
+   "songwriting": 82,
+   "hits": 95,
+   "stage": 85,
+   "legacy": 75,
+   "longevity": 72
+  },
+  "tags": [],
+  "q": "The Weeknd"
+ },
+ {
+  "id": "stevie-wonder",
+  "name": "Stevie Wonder",
+  "universe": "Soul",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 95,
+   "songwriting": 98,
+   "hits": 92,
+   "stage": 88,
+   "legacy": 97,
+   "longevity": 95
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Stevie Wonder"
+ },
+ {
+  "id": "aretha-franklin",
+  "name": "Aretha Franklin",
+  "universe": "Soul",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 99,
+   "songwriting": 70,
+   "hits": 90,
+   "stage": 88,
+   "legacy": 97,
+   "longevity": 92
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Aretha Franklin"
+ },
+ {
+  "id": "marvin-gaye",
+  "name": "Marvin Gaye",
+  "universe": "Soul",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 95,
+   "songwriting": 88,
+   "hits": 88,
+   "stage": 82,
+   "legacy": 92,
+   "longevity": 70
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Marvin Gaye"
+ },
+ {
+  "id": "bob-marley",
+  "name": "Bob Marley",
+  "universe": "Reggae",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 95,
+   "hits": 90,
+   "stage": 90,
+   "legacy": 97,
+   "longevity": 60
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Bob Marley"
+ },
+ {
+  "id": "frank-sinatra",
+  "name": "Frank Sinatra",
+  "universe": "Jazz",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 96,
+   "songwriting": 40,
+   "hits": 92,
+   "stage": 90,
+   "legacy": 97,
+   "longevity": 97
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Frank Sinatra"
+ },
+ {
+  "id": "louis-armstrong",
+  "name": "Louis Armstrong",
+  "universe": "Jazz",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 70,
+   "hits": 85,
+   "stage": 90,
+   "legacy": 98,
+   "longevity": 92
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Louis Armstrong"
+ },
+ {
+  "id": "ella-fitzgerald",
+  "name": "Ella Fitzgerald",
+  "universe": "Jazz",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 99,
+   "songwriting": 40,
+   "hits": 82,
+   "stage": 85,
+   "legacy": 95,
+   "longevity": 95
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Ella Fitzgerald"
+ },
+ {
+  "id": "johnny-cash",
+  "name": "Johnny Cash",
+  "universe": "Country",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 82,
+   "songwriting": 90,
+   "hits": 85,
+   "stage": 90,
+   "legacy": 95,
+   "longevity": 95
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Johnny Cash"
+ },
+ {
+  "id": "dolly-parton",
+  "name": "Dolly Parton",
+  "universe": "Country",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 90,
+   "songwriting": 95,
+   "hits": 88,
+   "stage": 90,
+   "legacy": 92,
+   "longevity": 99
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Dolly Parton"
+ },
+ {
+  "id": "bob-dylan",
+  "name": "Bob Dylan",
+  "universe": "Folk",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 60,
+   "songwriting": 99,
+   "hits": 82,
+   "stage": 78,
+   "legacy": 99,
+   "longevity": 99
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Bob Dylan"
+ },
+ {
+  "id": "eminem",
+  "name": "Eminem",
+  "universe": "Hip-Hop",
+  "archetype": "Rapper",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 95,
+   "hits": 95,
+   "stage": 90,
+   "legacy": 92,
+   "longevity": 85
+  },
+  "tags": [],
+  "q": "Eminem"
+ },
+ {
+  "id": "kendrick-lamar",
+  "name": "Kendrick Lamar",
+  "universe": "Hip-Hop",
+  "archetype": "Rapper",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 98,
+   "hits": 88,
+   "stage": 90,
+   "legacy": 88,
+   "longevity": 75
+  },
+  "tags": [],
+  "q": "Kendrick Lamar"
+ },
+ {
+  "id": "jay-z",
+  "name": "Jay-Z",
+  "universe": "Hip-Hop",
+  "archetype": "Rapper",
+  "stats": {
+   "vocals": 80,
+   "songwriting": 92,
+   "hits": 92,
+   "stage": 85,
+   "legacy": 92,
+   "longevity": 92
+  },
+  "tags": [],
+  "q": "Jay-Z"
+ },
+ {
+  "id": "tupac-shakur",
+  "name": "Tupac Shakur",
+  "universe": "Hip-Hop",
+  "archetype": "Rapper",
+  "stats": {
+   "vocals": 82,
+   "songwriting": 92,
+   "hits": 88,
+   "stage": 85,
+   "legacy": 95,
+   "longevity": 40
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Tupac Shakur"
+ },
+ {
+  "id": "kanye-west",
+  "name": "Kanye West",
+  "universe": "Hip-Hop",
+  "archetype": "Rapper",
+  "stats": {
+   "vocals": 70,
+   "songwriting": 92,
+   "hits": 92,
+   "stage": 88,
+   "legacy": 90,
+   "longevity": 82
+  },
+  "tags": [],
+  "q": "Kanye West"
+ },
+ {
+  "id": "drake",
+  "name": "Drake",
+  "universe": "Hip-Hop",
+  "archetype": "Rapper",
+  "stats": {
+   "vocals": 78,
+   "songwriting": 82,
+   "hits": 99,
+   "stage": 82,
+   "legacy": 82,
+   "longevity": 85
+  },
+  "tags": [],
+  "q": "Drake (musician)"
+ },
+ {
+  "id": "daft-punk",
+  "name": "Daft Punk",
+  "universe": "Electronic",
+  "archetype": "Duo",
+  "stats": {
+   "vocals": 40,
+   "songwriting": 88,
+   "hits": 85,
+   "stage": 95,
+   "legacy": 92,
+   "longevity": 88
+  },
+  "tags": [],
+  "q": "Daft Punk"
+ },
+ {
+  "id": "bad-bunny",
+  "name": "Bad Bunny",
+  "universe": "Latin",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 78,
+   "songwriting": 82,
+   "hits": 95,
+   "stage": 90,
+   "legacy": 75,
+   "longevity": 60
+  },
+  "tags": [],
+  "q": "Bad Bunny"
+ },
+ {
+  "id": "shakira",
+  "name": "Shakira",
+  "universe": "Latin",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 85,
+   "hits": 92,
+   "stage": 95,
+   "legacy": 82,
+   "longevity": 90
+  },
+  "tags": [],
+  "q": "Shakira"
+ },
+ {
+  "id": "bts",
+  "name": "BTS",
+  "universe": "K-Pop",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 75,
+   "hits": 95,
+   "stage": 97,
+   "legacy": 82,
+   "longevity": 65
+  },
+  "tags": [],
+  "q": "BTS"
+ },
+ {
+  "id": "metallica",
+  "name": "Metallica",
+  "universe": "Metal",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 78,
+   "songwriting": 88,
+   "hits": 85,
+   "stage": 96,
+   "legacy": 92,
+   "longevity": 96
+  },
+  "tags": [],
+  "q": "Metallica"
+ },
+ {
+  "id": "fleetwood-mac",
+  "name": "Fleetwood Mac",
+  "universe": "Rock",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 88,
+   "songwriting": 92,
+   "hits": 88,
+   "stage": 82,
+   "legacy": 90,
+   "longevity": 88
+  },
+  "tags": [
+   "classic"
+  ],
+  "q": "Fleetwood Mac"
+ },
+ {
+  "id": "u2",
+  "name": "U2",
+  "universe": "Rock",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 85,
+   "hits": 88,
+   "stage": 96,
+   "legacy": 88,
+   "longevity": 97
+  },
+  "tags": [],
+  "q": "U2"
+ }
+]

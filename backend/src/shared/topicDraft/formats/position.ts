@@ -27,6 +27,41 @@ const R = (id: string, label: string, weights: Record<string, number>): Role => 
 
 /** Role sets that suit each topic. Anything not listed uses the standard Captain/Healer/Tank set. */
 export const POOL_ROLES: Record<string, Role[]> = {
+  food: [
+    R("starter", "Starter", { presentation: 2.5, taste: 2, health: 1 }),
+    R("main", "Main Course", { taste: 3, comfort: 2 }),
+    R("side", "Side Dish", { versatility: 3, health: 1.5, taste: 1 }),
+    R("wildcard", "Spicy Wildcard", { spice: 3, taste: 1.5 }),
+    R("dessert", "Dessert", { comfort: 2.5, presentation: 2, taste: 2 }),
+  ],
+  geography: [
+    R("capital", "Seat of Power", { economy: 3, military: 2 }),
+    R("beach", "Beach Escape", { climate: 3, landscape: 2 }),
+    R("adventure", "Adventure Base", { landscape: 3, climate: 1 }),
+    R("kitchen", "World Kitchen", { cuisine: 3, culture: 1.5 }),
+    R("museum", "Culture Trip", { culture: 3, cuisine: 1, landscape: 1 }),
+  ],
+  flags: [
+    R("poster", "Poster Flag", { boldness: 3, colors: 2 }),
+    R("minimal", "Minimalist", { simplicity: 3, recognition: 1.5 }),
+    R("story", "Storyteller", { symbolism: 3, uniqueness: 1 }),
+    R("icon", "Instant Icon", { recognition: 3, simplicity: 1 }),
+    R("oddball", "Oddball", { uniqueness: 3, colors: 1.5 }),
+  ],
+  books: [
+    R("opener", "First Read", { pageturner: 3, plot: 1.5 }),
+    R("classic", "The Classic", { legacy: 3, prose: 2 }),
+    R("escape", "Escape Hatch", { worldbuilding: 3, plot: 1.5 }),
+    R("heart", "Heartbreaker", { characters: 3, prose: 1.5 }),
+    R("twist", "Twist Machine", { plot: 3, pageturner: 2 }),
+  ],
+  music: [
+    R("headliner", "Headliner", { stage: 3, hits: 2 }),
+    R("voice", "The Voice", { vocals: 3, stage: 1 }),
+    R("writer", "Songwriter", { songwriting: 3, legacy: 1 }),
+    R("hitmaker", "Hitmaker", { hits: 3, vocals: 1 }),
+    R("legend", "Living Legend", { longevity: 3, legacy: 2 }),
+  ],
   nba: [
     R("pg", "Point Guard", { playmaking: 3, shooting: 1.5, scoring: 1 }),
     R("sg", "Shooting Guard", { scoring: 3, shooting: 2, defense: 0.8 }),

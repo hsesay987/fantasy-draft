@@ -37,10 +37,61 @@ export const BASKETBALL_MISSIONS: Scenario[] = [
   { id: "all-around-basketball", title: "Greatest Five", blurb: "No system. Pure quality.", weights: { scoring: 1, playmaking: 1, rebounding: 1, defense: 1, shooting: 1, impact: 1 } },
 ];
 
+export const FOOD_MISSIONS: Scenario[] = [
+  { id: "dinner-date", title: "Impress on a Dinner Date", blurb: "Looks stunning, tastes better.", weights: { presentation: 3, taste: 2.5, health: 1, comfort: 1, spice: 0.5, versatility: 0.5 } },
+  { id: "rainy-night", title: "Rainy Night In", blurb: "Warm, filling, no effort.", weights: { comfort: 3, taste: 2.5, versatility: 1, spice: 1, presentation: 0.5, health: 0.5 } },
+  { id: "food-festival", title: "Win a Street Food Festival", blurb: "Big flavour that travels.", weights: { taste: 3, versatility: 2.5, spice: 1.5, comfort: 1.5, presentation: 1, health: 0.5 } },
+  { id: "training-camp", title: "Fuel an Athlete", blurb: "Healthy food that still tastes good.", weights: { health: 3, taste: 1.5, versatility: 1.5, comfort: 1, presentation: 0.5, spice: 0.5 } },
+  { id: "heat-challenge", title: "Spice Challenge", blurb: "Bring the heat, keep the flavour.", weights: { spice: 3, taste: 2.5, comfort: 1, presentation: 1, health: 0.5, versatility: 0.5 } },
+  { id: "all-around-food", title: "Greatest Menu", blurb: "No theme. Pure flavour.", weights: { taste: 1, comfort: 1, health: 1, spice: 1, presentation: 1, versatility: 1 } },
+];
+
+export const COUNTRY_MISSIONS: Scenario[] = [
+  { id: "build-a-superpower", title: "Build a Superpower", blurb: "Money and might run the world.", weights: { economy: 3, military: 3, culture: 1, landscape: 0.5, cuisine: 0.5, climate: 0.5 } },
+  { id: "dream-holiday", title: "Plan the Dream Holiday", blurb: "Views, food and sunshine.", weights: { landscape: 3, climate: 2.5, cuisine: 2.5, culture: 2, economy: 0.5, military: 0 } },
+  { id: "foodie-tour", title: "Go on a Food Tour", blurb: "Eat your way around the world.", weights: { cuisine: 3, culture: 2, climate: 1, landscape: 1, economy: 0.5, military: 0 } },
+  { id: "great-outdoors", title: "Into the Wild", blurb: "Mountains, forests, coastlines.", weights: { landscape: 3, climate: 1.5, culture: 1, cuisine: 0.5, economy: 0.5, military: 0.5 } },
+  { id: "cultural-capital", title: "Cultural Capital", blurb: "Art, history and soft power.", weights: { culture: 3, cuisine: 1.5, economy: 1.5, landscape: 1, climate: 0.5, military: 0.5 } },
+  { id: "all-around-geography", title: "Best Places on Earth", blurb: "No theme. The best all-rounders.", weights: { economy: 1, military: 1, landscape: 1, culture: 1, cuisine: 1, climate: 1 } },
+];
+
+// Flags and books are judged on a lens, like films and shows.
+export const FLAG_MISSIONS: Scenario[] = [
+  { id: "design-award", title: "Design Award", blurb: "Simple, bold and memorable.", weights: { simplicity: 3, boldness: 2.5, uniqueness: 2, recognition: 1, colors: 1, symbolism: 1 } },
+  { id: "most-meaningful", title: "Most Meaningful", blurb: "Every colour and shape tells a story.", weights: { symbolism: 3, uniqueness: 1.5, colors: 1, recognition: 1, boldness: 1, simplicity: 0.5 } },
+  { id: "most-colourful", title: "Most Colourful", blurb: "Bright, busy and beautiful.", weights: { colors: 3, boldness: 2, uniqueness: 1.5, symbolism: 1, recognition: 0.5, simplicity: 0.5 } },
+  { id: "instantly-known", title: "Instantly Recognised", blurb: "Anyone could name it in a second.", weights: { recognition: 3, simplicity: 1.5, boldness: 1.5, uniqueness: 1.5, colors: 0.5, symbolism: 0.5 } },
+  { id: "one-of-a-kind", title: "One of a Kind", blurb: "Nothing else looks like it.", weights: { uniqueness: 3, boldness: 2, symbolism: 1.5, colors: 1, recognition: 1, simplicity: 0 } },
+  { id: "all-around-flags", title: "Best Flags Overall", blurb: "No lens. The best design.", weights: { colors: 1, symbolism: 1, simplicity: 1, recognition: 1, uniqueness: 1, boldness: 1 } },
+];
+
+export const BOOK_MISSIONS: Scenario[] = [
+  { id: "book-club", title: "Book Club Pick", blurb: "Something to talk about for hours.", weights: { characters: 3, prose: 2, plot: 2, legacy: 1.5, worldbuilding: 1, pageturner: 1 } },
+  { id: "beach-read", title: "Beach Read", blurb: "Impossible to put down.", weights: { pageturner: 3, plot: 2.5, characters: 1.5, worldbuilding: 1, prose: 0.5, legacy: 0.5 } },
+  { id: "literature-prize", title: "Literature Prize", blurb: "Beautiful writing that lasts.", weights: { prose: 3, legacy: 2.5, characters: 2, plot: 1, worldbuilding: 1, pageturner: 0.5 } },
+  { id: "escape-reality", title: "Escape Reality", blurb: "Worlds you could live in.", weights: { worldbuilding: 3, plot: 2, pageturner: 1.5, characters: 1.5, prose: 1, legacy: 0.5 } },
+  { id: "desert-island", title: "Desert Island Shelf", blurb: "The books you'd read forever.", weights: { legacy: 2.5, characters: 2, prose: 2, plot: 2, worldbuilding: 1.5, pageturner: 1 } },
+  { id: "all-around-books", title: "Greatest Bookshelf", blurb: "No lens. Pure greatness.", weights: { plot: 1, prose: 1, characters: 1, worldbuilding: 1, legacy: 1, pageturner: 1 } },
+];
+
+export const MUSIC_MISSIONS: Scenario[] = [
+  { id: "headline-festival", title: "Headline a Festival", blurb: "Hits and a show nobody forgets.", weights: { stage: 3, hits: 2.5, vocals: 1.5, legacy: 1, songwriting: 1, longevity: 0.5 } },
+  { id: "road-trip", title: "Road Trip Playlist", blurb: "Every song a singalong.", weights: { hits: 3, vocals: 2, songwriting: 1.5, stage: 0.5, legacy: 1, longevity: 1 } },
+  { id: "record-label", title: "Start a Record Label", blurb: "Songwriters who last decades.", weights: { songwriting: 3, longevity: 2.5, hits: 2, legacy: 1.5, vocals: 1, stage: 0.5 } },
+  { id: "vocal-showdown", title: "Vocal Showdown", blurb: "Only the voice matters.", weights: { vocals: 3, stage: 1.5, hits: 1, songwriting: 0.5, legacy: 1, longevity: 0.5 } },
+  { id: "hall-of-fame", title: "Hall of Fame", blurb: "Who changed music forever?", weights: { legacy: 3, songwriting: 2, longevity: 2, hits: 1.5, stage: 1, vocals: 1 } },
+  { id: "all-around-music", title: "Greatest Lineup", blurb: "No theme. Pure talent.", weights: { vocals: 1, songwriting: 1, hits: 1, stage: 1, legacy: 1, longevity: 1 } },
+];
+
 /** Missions that suit a character pool's stat keys. */
 export function missionsFor(poolId: string): Scenario[] {
   const keys = catalogMeta(poolId)?.statKeys ?? [];
   if (keys.includes("playmaking")) return BASKETBALL_MISSIONS;
+  if (keys.includes("taste")) return FOOD_MISSIONS;
+  if (keys.includes("economy")) return COUNTRY_MISSIONS;
+  if (keys.includes("symbolism")) return FLAG_MISSIONS;
+  if (keys.includes("prose")) return BOOK_MISSIONS;
+  if (keys.includes("vocals")) return MUSIC_MISSIONS;
   if (keys.includes("shooting")) return FOOTBALL_MISSIONS;
   if (keys.includes("story")) return SCREEN_MISSIONS;
   return keys.includes("leadership") ? HISTORY_MISSIONS : SCENARIOS;
@@ -58,6 +109,11 @@ const METRIC_LABEL: Record<string, string> = {
   scoring: "Top scorer", playmaking: "Best playmaker", rebounding: "Best rebounder", defense: "Best defender", impact: "Biggest impact",
   pace: "Fastest", shooting: "Best finisher", passing: "Best passer", dribbling: "Best dribbler", defending: "Best defender", physical: "Strongest",
   story: "Best story", acting: "Best acting", visuals: "Best visuals", rewatch: "Most rewatchable", fun: "Most fun",
+  taste: "Tastiest", comfort: "Most comforting", health: "Healthiest", spice: "Spiciest", presentation: "Best looking", versatility: "Most versatile",
+  economy: "Richest", military: "Strongest military", landscape: "Best scenery", culture: "Richest culture", cuisine: "Best food", climate: "Best weather",
+  colors: "Most colourful", symbolism: "Most meaningful", simplicity: "Simplest", recognition: "Most recognisable", uniqueness: "Most unique", boldness: "Boldest",
+  plot: "Best plot", prose: "Best writing", characters: "Best characters", worldbuilding: "Best world", legacy: "Biggest legacy", pageturner: "Biggest page-turner",
+  vocals: "Best voice", songwriting: "Best songwriter", hits: "Most hits", stage: "Best live show", longevity: "Longest career",
   leadership: "Best leader", courage: "Bravest", influence: "Most influential", charisma: "Most charming", strategy: "Best strategist",
 };
 

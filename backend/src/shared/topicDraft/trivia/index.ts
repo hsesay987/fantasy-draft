@@ -12,12 +12,17 @@ import { history } from "./history";
 import { football } from "./football";
 import { films } from "./films";
 import { shows } from "./shows";
+import { food } from "./food";
+import { geography } from "./geography";
+import { flags } from "./flags";
+import { books } from "./books";
+import { music } from "./music";
 
 const SETS: Record<string, TriviaSet> = {
   superheroes,
   villains,
   "heroes-villains": { quiz: [...superheroes.quiz, ...villains.quiz], surveys: [...superheroes.surveys, ...villains.surveys] },
-  anime, pokemon, videogames, disney, movies, history, football, films, shows,
+  anime, pokemon, videogames, disney, movies, history, football, films, shows, food, geography, flags, books, music,
 };
 
 // A pool made of other pools: it plays with their questions combined.
