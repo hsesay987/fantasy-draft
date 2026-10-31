@@ -11,6 +11,8 @@ import * as A from "../../topicDraft/formats/auction";
 import { itemScore } from "../../topicDraft/scorer";
 import { useSound } from "../../components/SoundProvider";
 import { GameFrame } from "../GameFrame";
+import { BlindLot } from "./BlindLot";
+import { pickClues } from "../../topicDraft/traits";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
@@ -20,8 +22,9 @@ const hash = (s: string) => {
   return (h >>> 0) / 4294967296;
 };
 
+// In a blind auction the bots only have clues to go on, so their estimates are looser.
 const valueOf = (setup: GameSetup, a: A.AuctionState, p: string, item: { id: string; stats: Record<string, number> }) =>
-  (itemScore(item as never, setup.mission.weights) / 100) * (a.budget / a.teamSize) * 1.9 * (0.75 + 0.55 * hash(p + item.id));
+  (itemScore(item as never, setup.mission.weights) / 100) * (a.budget / a.teamSize) * 1.9 * (0.75 + 0.55 * hash(p + item.id)) * (setup.opts.blind ? 0.7 + 0.6 * hash(`${p}|blind|${item.id}`) : 1);
 
 export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
@@ -113,6 +116,8 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
   const span = a.bid.by ? Math.max(a.baseMs, a.bumpMs) : a.openMs;
   const frac = a.deadline ? Math.max(0, Math.min(1, (a.deadline - now) / span)) : 0;
   const opening = A.opener(a);
+  const blind = setup.opts.blind;
+  const clues = blind && lot ? pickClues(setup.pool, lot, setup.opts.clues, setup.seed, ctl.pool) : [];
 
   const bid = (p: string, amount: number) => {
     const v = A.validateBid(a, p, amount);
@@ -165,8 +170,12 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
 
         {lot && (
           <motion.div key={lot.id} initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 26 }} className="mx-auto max-w-md space-y-4">
-            <div className="flex justify-center"><CharacterAvatar name={lot.name} query={lot.q} size={140} className="!rounded-3xl shadow-[0_0_40px_-10px_var(--primary)]" /></div>
-            <HeroCard item={lot} compact />
+            {blind ? <BlindLot clues={clues} number={Math.min(a.index + 1, a.queue.length)} /> : (
+              <>
+                <div className="flex justify-center"><CharacterAvatar name={lot.name} query={lot.q} size={140} className="!rounded-3xl shadow-[0_0_40px_-10px_var(--primary)]" /></div>
+                <HeroCard item={lot} compact />
+              </>
+            )}
             <Card className="flex items-center justify-between">
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">High bid</p>
@@ -218,7 +227,8 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
           {sold && (
             <motion.div key={`${sold.itemId}-${a.index}`} initial={{ opacity: 0, scale: 2.2, rotate: -14 }} animate={{ opacity: 1, scale: 1, rotate: -6 }} exit={{ opacity: 0, y: 10 }} transition={{ type: "spring", stiffness: 320, damping: 16 }} className="mx-auto max-w-md rounded-2xl border-4 border-double px-4 py-3 text-center" style={{ borderColor: sold.by ? "var(--accent)" : "var(--muted-foreground)" }}>
               <p className="font-display text-3xl" style={{ color: sold.by ? "var(--accent)" : "var(--muted-foreground)" }}><Gavel className="mr-2 inline h-6 w-6" aria-hidden />{sold.by ? "SOLD!" : "NO SALE"}</p>
-              <p className="text-sm text-muted-foreground">{sold.by ? `${ctl.byId(sold.itemId)?.name} → ${sold.by} for $${sold.price}` : `${ctl.byId(sold.itemId)?.name} went unsold`}</p>
+              <p className="text-sm text-muted-foreground">{sold.by ? `${blind ? "It was " : ""}${ctl.byId(sold.itemId)?.name} → ${sold.by} for $${sold.price}` : `${blind ? "It was " : ""}${ctl.byId(sold.itemId)?.name}${blind ? ", unsold" : " went unsold"}`}</p>
+              {blind && ctl.byId(sold.itemId) && <div className="mt-2 flex justify-center"><CharacterAvatar name={ctl.byId(sold.itemId)!.name} query={ctl.byId(sold.itemId)!.q} size={64} className="!rounded-xl" /></div>}
             </motion.div>
           )}
         </AnimatePresence>

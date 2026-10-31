@@ -26,6 +26,9 @@ export type Opts = {
   // auction
   budget: number;
   lotSeconds: number;
+  /** Blind lots: bid on a few clues about the item and find out who it is when it sells. */
+  blind: boolean;
+  clues: number;
   // position
   handExtra: number;
   // blind
@@ -65,6 +68,8 @@ export const DEFAULT_OPTS: Opts = {
   rerolls: 1,
   budget: 20,
   lotSeconds: 15,
+  blind: false,
+  clues: 3,
   handExtra: 2,
   rankSize: 6,
 };
