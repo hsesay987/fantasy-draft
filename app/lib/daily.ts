@@ -7,9 +7,9 @@ export const DAILY_TITLES: Record<DailyGame, string> = { summit: "Summit", hotai
 export const DAILY_WORLD: Record<DailyGame, "summit" | "sky" | "launch"> = { summit: "summit", hotair: "sky", costimation: "launch" };
 export const isDailyGame = (g: string): g is DailyGame => (DAILY_GAMES as string[]).includes(g);
 
-/** Puzzle numbers count up from the first daily (1 November 2026, UTC). */
+/** Puzzle numbers count up from the first daily (31 October 2026, UTC). */
 export const todayKey = () => new Date().toISOString().slice(0, 10);
-export const todayNumber = () => Math.floor((Date.parse(`${todayKey()}T00:00:00Z`) - Date.parse("2026-11-01T00:00:00Z")) / 86_400_000) + 1;
+export const todayNumber = () => Math.floor((Date.parse(`${todayKey()}T00:00:00Z`) - Date.parse("2026-10-31T00:00:00Z")) / 86_400_000) + 1;
 
 export type Puzzle = { game: DailyGame; day: string; number: number; content: any };
 export type Stats = { players: number; average: number; percentile: number | null; buckets: number[]; best: number };
