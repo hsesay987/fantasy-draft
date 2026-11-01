@@ -1,0 +1,34 @@
+import type { TriviaSet } from "./types";
+
+export const books: TriviaSet = {
+  quiz: [
+    ["Authors", 1, "Who wrote the Harry Potter books?", "J. K. Rowling", "Roald Dahl", "C. S. Lewis", "Philip Pullman"],
+    ["Authors", 2, "Who wrote Pride and Prejudice?", "Jane Austen", "Charlotte Brontë", "Emily Brontë", "Mary Shelley"],
+    ["Authors", 3, "Who wrote Nineteen Eighty-Four?", "George Orwell", "Aldous Huxley", "Ray Bradbury", "H. G. Wells"],
+    ["Authors", 4, "Who wrote One Hundred Years of Solitude?", "Gabriel García Márquez", "Jorge Luis Borges", "Isabel Allende", "Pablo Neruda"],
+    ["Authors", 4, "Who wrote Things Fall Apart?", "Chinua Achebe", "Wole Soyinka", "Ngũgĩ wa Thiong'o", "Chimamanda Ngozi Adichie"],
+    ["Characters", 1, "In which book series is Hermione Granger a character?", "Harry Potter", "Narnia", "Percy Jackson", "The Hunger Games"],
+    ["Characters", 2, "Who is the hobbit hero of The Hobbit?", "Bilbo Baggins", "Frodo Baggins", "Samwise Gamgee", "Peregrin Took"],
+    ["Characters", 3, "Which detective lives at 221B Baker Street?", "Sherlock Holmes", "Hercule Poirot", "Miss Marple", "Philip Marlowe"],
+    ["Characters", 4, "Which captain hunts the white whale in Moby-Dick?", "Ahab", "Nemo", "Hook", "Flint"],
+    ["Characters", 4, "Who narrates The Great Gatsby?", "Nick Carraway", "Jay Gatsby", "Tom Buchanan", "Daisy Buchanan"],
+    ["Opening Lines", 1, "Which book begins 'In a hole in the ground there lived a hobbit'?", "The Hobbit", "The Lord of the Rings", "Watership Down", "Narnia"],
+    ["Opening Lines", 2, "Which book begins 'It was a bright cold day in April, and the clocks were striking thirteen'?", "Nineteen Eighty-Four", "Brave New World", "Fahrenheit 451", "Animal Farm"],
+    ["Opening Lines", 3, "Which novel begins 'Call me Ishmael'?", "Moby-Dick", "Treasure Island", "Robinson Crusoe", "Lord of the Flies"],
+    ["Opening Lines", 4, "Which novel begins 'It was the best of times, it was the worst of times'?", "A Tale of Two Cities", "Great Expectations", "Oliver Twist", "Bleak House"],
+    ["Opening Lines", 4, "Which novel begins 'It is a truth universally acknowledged'?", "Pride and Prejudice", "Emma", "Jane Eyre", "Middlemarch"],
+    ["Worlds & Places", 1, "What is the name of the wizarding school in Harry Potter?", "Hogwarts", "Narnia", "Rivendell", "Camelot"],
+    ["Worlds & Places", 2, "Which magical land is reached through a wardrobe?", "Narnia", "Oz", "Wonderland", "Neverland"],
+    ["Worlds & Places", 3, "In The Hunger Games, what is the name of the nation?", "Panem", "Gilead", "Oceania", "Westeros"],
+    ["Worlds & Places", 4, "On which desert planet is Dune set?", "Arrakis", "Tatooine", "Caladan", "Giedi Prime"],
+    ["Worlds & Places", 4, "In The Handmaid's Tale, what is the country called?", "Gilead", "Panem", "Oceania", "Airstrip One"],
+  ],
+  surveys: [
+    ["Name a famous author", "Shakespeare|J. K. Rowling|Stephen King|Charles Dickens|Jane Austen", "Picasso|Mozart|Einstein|Beethoven"],
+    ["Name a Harry Potter character", "Harry|Hermione|Ron|Dumbledore|Voldemort", "Frodo|Gandalf|Katniss|Aslan"],
+    ["Name a book series", "Harry Potter|The Hunger Games|Twilight|Narnia|Percy Jackson", "Star Wars|Marvel|Toy Story|Pokémon"],
+    ["Name a Stephen King book", "It|The Shining|Carrie|Misery|Pet Sematary", "Dracula|Frankenstein|Jaws|Psycho"],
+    ["Name a book genre", "Mystery|Romance|Fantasy|Horror|Science fiction", "Jazz|Pop|Opera|Sitcom"],
+    ["Name a Roald Dahl book", "Matilda|Charlie and the Chocolate Factory|The BFG|The Witches|James and the Giant Peach", "Peter Pan|Holes|Wonder|Coraline"],
+  ],
+};

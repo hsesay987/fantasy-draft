@@ -11,7 +11,7 @@ const lebron: Item = {
 
 describe("blind auction clues", () => {
   it("every pool can describe every item without saying its name", () => {
-    for (const pool of ["superheroes", "villains", "anime", "pokemon", "videogames", "disney", "movies", "history", "football", "films", "shows", "nba"]) {
+    for (const pool of ["superheroes", "villains", "anime", "pokemon", "videogames", "disney", "movies", "history", "football", "films", "shows", "nba", "food", "geography", "flags", "books", "music"]) {
       const items = getCatalog(pool);
       for (const item of items.slice(0, 12)) {
         const clues = pickClues(pool, item, 3, 7, items);

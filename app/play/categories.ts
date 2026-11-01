@@ -95,6 +95,31 @@ export const CATEGORIES: Category[] = [
     recommended: [{ format: "auction", why: "Bid blind on clues: height, team colours, best season" }, { format: "snake", why: "Draft your all-time starting five" }],
     defaults: { teamSize: 5, missionId: "all-around-basketball", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
+  {
+    id: "food", title: "Food", blurb: "Dishes from every kitchen in the world.", iconSrc: "/icons/food.svg", gradient: "from-amber-600/40 to-accent/20",
+    recommended: [{ format: "position", why: "Plan a five-course menu" }, { format: "blind", why: "Rank the tastiest" }],
+    defaults: { teamSize: 5, missionId: "food-festival", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
+  {
+    id: "geography", title: "Geography", blurb: "Countries, from superpowers to island hideaways.", iconSrc: "/icons/globe.svg", gradient: "from-teal-600/40 to-primary/20",
+    recommended: [{ format: "auction", why: "Bid for the best places on Earth" }, { format: "position", why: "Build your dream world tour" }],
+    defaults: { teamSize: 5, missionId: "dream-holiday", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
+  {
+    id: "flags", title: "Flags", blurb: "The world\u2019s flags, judged on design.", iconSrc: "/icons/flag.svg", gradient: "from-red-600/40 to-accent/20",
+    recommended: [{ format: "blind", why: "Rank each flag as it flies in" }, { format: "keep", why: "Keep the best, bin the rest" }],
+    defaults: { teamSize: 5, missionId: "design-award", rankSize: 8, timerSeconds: 20, budget: 25 },
+  },
+  {
+    id: "books", title: "Books", blurb: "Classics, page-turners and epic series.", iconSrc: "/icons/book.svg", gradient: "from-yellow-700/40 to-primary/20",
+    recommended: [{ format: "snake", why: "Draft your dream bookshelf" }, { format: "blind", why: "Rank the greatest reads" }],
+    defaults: { teamSize: 5, missionId: "book-club", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
+  {
+    id: "music", title: "Music", blurb: "Legends, bands and today\u2019s hitmakers.", iconSrc: "/icons/music.svg", gradient: "from-violet-600/40 to-accent/20",
+    recommended: [{ format: "position", why: "Book a festival lineup" }, { format: "auction", why: "Bid like a record label" }],
+    defaults: { teamSize: 5, missionId: "headline-festival", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
 ];
 
 /** Spin Draft is the default way in for every topic; each topic's other best fits follow it. */
@@ -131,11 +156,19 @@ export const CLASSIC_ONLY: Omit<Category, "recommended" | "defaults">[] = [
 ];
 
 export type Topic = { id: string; title: string; blurb: string; iconSrc: string; gradient: string };
-const HOME_ORDER = ["fictional", "superheroes", "villains", "heroes-villains", "anime", "pokemon", "videogames", "disney", "movies", "films", "shows", "history", "nba", "nfl", "football", "cartoon"];
-/** Every topic in one list, for the home page: draft pools and classic leagues side by side. */
+/** Topics grouped under a main heading on the home page, in display order. */
+export const TOPIC_GROUPS: { id: string; title: string; blurb: string; ids: string[] }[] = [
+  { id: "characters", title: "Characters", blurb: "Heroes, villains and icons from every universe.", ids: ["fictional", "superheroes", "villains", "heroes-villains", "anime", "pokemon", "videogames", "disney", "movies", "cartoon"] },
+  { id: "sports", title: "Sports", blurb: "Real players, real stats.", ids: ["nba", "nfl", "football"] },
+  { id: "entertainment", title: "Entertainment", blurb: "What you watch, read and listen to.", ids: ["films", "shows", "music", "books"] },
+  { id: "world", title: "The World", blurb: "Places, flags, food and the people who made history.", ids: ["geography", "flags", "food", "history"] },
+];
+const HOME_ORDER = TOPIC_GROUPS.flatMap((g) => g.ids);
+/** Every topic in one list: draft pools and classic leagues side by side. */
 export const TOPICS: Topic[] = [...CATEGORIES.filter((c) => !c.hidden), ...CLASSIC_ONLY]
   .sort((a, b) => (HOME_ORDER.indexOf(a.id) + 1 || 99) - (HOME_ORDER.indexOf(b.id) + 1 || 99));
 export const topic = (id: string): Topic | undefined => TOPICS.find((t) => t.id === id);
+export const topicsIn = (groupId: string): Topic[] => TOPIC_GROUPS.find((g) => g.id === groupId)?.ids.map((id) => topic(id)).filter((t): t is Topic => !!t) ?? [];
 
 export const FORMAT_WHY: Record<FormatId, string> = {
   snake: "Take turns picking",

@@ -1,0 +1,892 @@
+[
+ {
+  "id": "united-states",
+  "name": "United States",
+  "universe": "North America",
+  "archetype": "Superpower",
+  "stats": {
+   "economy": 99,
+   "military": 99,
+   "landscape": 88,
+   "culture": 92,
+   "cuisine": 75,
+   "climate": 75
+  },
+  "tags": [
+   "g7",
+   "big"
+  ],
+  "q": "Tourism in the United States"
+ },
+ {
+  "id": "china",
+  "name": "China",
+  "universe": "Asia",
+  "archetype": "Superpower",
+  "stats": {
+   "economy": 95,
+   "military": 95,
+   "landscape": 85,
+   "culture": 93,
+   "cuisine": 92,
+   "climate": 70
+  },
+  "tags": [
+   "big"
+  ],
+  "q": "Tourism in China"
+ },
+ {
+  "id": "japan",
+  "name": "Japan",
+  "universe": "Asia",
+  "archetype": "Island Nation",
+  "stats": {
+   "economy": 90,
+   "military": 70,
+   "landscape": 82,
+   "culture": 96,
+   "cuisine": 96,
+   "climate": 72
+  },
+  "tags": [
+   "g7",
+   "island"
+  ],
+  "q": "Tourism in Japan"
+ },
+ {
+  "id": "germany",
+  "name": "Germany",
+  "universe": "Europe",
+  "archetype": "Industrial Power",
+  "stats": {
+   "economy": 92,
+   "military": 70,
+   "landscape": 70,
+   "culture": 88,
+   "cuisine": 70,
+   "climate": 58
+  },
+  "tags": [
+   "g7"
+  ],
+  "q": "Tourism in Germany"
+ },
+ {
+  "id": "india",
+  "name": "India",
+  "universe": "Asia",
+  "archetype": "Rising Power",
+  "stats": {
+   "economy": 85,
+   "military": 88,
+   "landscape": 85,
+   "culture": 95,
+   "cuisine": 95,
+   "climate": 70
+  },
+  "tags": [
+   "big"
+  ],
+  "q": "Tourism in India"
+ },
+ {
+  "id": "united-kingdom",
+  "name": "United Kingdom",
+  "universe": "Europe",
+  "archetype": "Island Nation",
+  "stats": {
+   "economy": 88,
+   "military": 82,
+   "landscape": 65,
+   "culture": 94,
+   "cuisine": 62,
+   "climate": 50
+  },
+  "tags": [
+   "g7",
+   "island"
+  ],
+  "q": "Tourism in the United Kingdom"
+ },
+ {
+  "id": "france",
+  "name": "France",
+  "universe": "Europe",
+  "archetype": "Cultural Power",
+  "stats": {
+   "economy": 88,
+   "military": 82,
+   "landscape": 82,
+   "culture": 97,
+   "cuisine": 98,
+   "climate": 74
+  },
+  "tags": [
+   "g7"
+  ],
+  "q": "Tourism in France"
+ },
+ {
+  "id": "italy",
+  "name": "Italy",
+  "universe": "Europe",
+  "archetype": "Cultural Power",
+  "stats": {
+   "economy": 82,
+   "military": 65,
+   "landscape": 85,
+   "culture": 97,
+   "cuisine": 99,
+   "climate": 82
+  },
+  "tags": [
+   "g7"
+  ],
+  "q": "Tourism in Italy"
+ },
+ {
+  "id": "brazil",
+  "name": "Brazil",
+  "universe": "South America",
+  "archetype": "Rising Power",
+  "stats": {
+   "economy": 78,
+   "military": 70,
+   "landscape": 97,
+   "culture": 88,
+   "cuisine": 82,
+   "climate": 85
+  },
+  "tags": [
+   "big",
+   "tropical"
+  ],
+  "q": "Tourism in Brazil"
+ },
+ {
+  "id": "canada",
+  "name": "Canada",
+  "universe": "North America",
+  "archetype": "Wilderness",
+  "stats": {
+   "economy": 85,
+   "military": 55,
+   "landscape": 95,
+   "culture": 78,
+   "cuisine": 60,
+   "climate": 40
+  },
+  "tags": [
+   "g7",
+   "big"
+  ],
+  "q": "Tourism in Canada"
+ },
+ {
+  "id": "russia",
+  "name": "Russia",
+  "universe": "Europe",
+  "archetype": "Superpower",
+  "stats": {
+   "economy": 72,
+   "military": 96,
+   "landscape": 88,
+   "culture": 85,
+   "cuisine": 62,
+   "climate": 30
+  },
+  "tags": [
+   "big"
+  ],
+  "q": "Tourism in Russia"
+ },
+ {
+  "id": "australia",
+  "name": "Australia",
+  "universe": "Oceania",
+  "archetype": "Island Nation",
+  "stats": {
+   "economy": 82,
+   "military": 58,
+   "landscape": 92,
+   "culture": 75,
+   "cuisine": 65,
+   "climate": 88
+  },
+  "tags": [
+   "big",
+   "island"
+  ],
+  "q": "Tourism in Australia"
+ },
+ {
+  "id": "south-korea",
+  "name": "South Korea",
+  "universe": "Asia",
+  "archetype": "Tech Power",
+  "stats": {
+   "economy": 85,
+   "military": 78,
+   "landscape": 70,
+   "culture": 92,
+   "cuisine": 90,
+   "climate": 65
+  },
+  "tags": [
+   "tech"
+  ],
+  "q": "Tourism in South Korea"
+ },
+ {
+  "id": "mexico",
+  "name": "Mexico",
+  "universe": "North America",
+  "archetype": "Cultural Power",
+  "stats": {
+   "economy": 72,
+   "military": 55,
+   "landscape": 88,
+   "culture": 92,
+   "cuisine": 96,
+   "climate": 85
+  },
+  "tags": [],
+  "q": "Tourism in Mexico"
+ },
+ {
+  "id": "spain",
+  "name": "Spain",
+  "universe": "Europe",
+  "archetype": "Cultural Power",
+  "stats": {
+   "economy": 78,
+   "military": 60,
+   "landscape": 82,
+   "culture": 92,
+   "cuisine": 92,
+   "climate": 88
+  },
+  "tags": [],
+  "q": "Tourism in Spain"
+ },
+ {
+  "id": "egypt",
+  "name": "Egypt",
+  "universe": "Africa",
+  "archetype": "Ancient Land",
+  "stats": {
+   "economy": 55,
+   "military": 65,
+   "landscape": 75,
+   "culture": 96,
+   "cuisine": 70,
+   "climate": 82
+  },
+  "tags": [
+   "ancient"
+  ],
+  "q": "Tourism in Egypt"
+ },
+ {
+  "id": "greece",
+  "name": "Greece",
+  "universe": "Europe",
+  "archetype": "Ancient Land",
+  "stats": {
+   "economy": 55,
+   "military": 50,
+   "landscape": 88,
+   "culture": 95,
+   "cuisine": 88,
+   "climate": 90
+  },
+  "tags": [
+   "ancient",
+   "island"
+  ],
+  "q": "Tourism in Greece"
+ },
+ {
+  "id": "turkey",
+  "name": "Turkey",
+  "universe": "Asia",
+  "archetype": "Crossroads",
+  "stats": {
+   "economy": 68,
+   "military": 75,
+   "landscape": 82,
+   "culture": 90,
+   "cuisine": 92,
+   "climate": 78
+  },
+  "tags": [],
+  "q": "Tourism in Turkey"
+ },
+ {
+  "id": "switzerland",
+  "name": "Switzerland",
+  "universe": "Europe",
+  "archetype": "Alpine",
+  "stats": {
+   "economy": 92,
+   "military": 30,
+   "landscape": 96,
+   "culture": 75,
+   "cuisine": 70,
+   "climate": 60
+  },
+  "tags": [
+   "alpine"
+  ],
+  "q": "Tourism in Switzerland"
+ },
+ {
+  "id": "norway",
+  "name": "Norway",
+  "universe": "Europe",
+  "archetype": "Wilderness",
+  "stats": {
+   "economy": 88,
+   "military": 40,
+   "landscape": 98,
+   "culture": 72,
+   "cuisine": 55,
+   "climate": 35
+  },
+  "tags": [
+   "nordic"
+  ],
+  "q": "Tourism in Norway"
+ },
+ {
+  "id": "iceland",
+  "name": "Iceland",
+  "universe": "Europe",
+  "archetype": "Wilderness",
+  "stats": {
+   "economy": 75,
+   "military": 1,
+   "landscape": 99,
+   "culture": 68,
+   "cuisine": 45,
+   "climate": 25
+  },
+  "tags": [
+   "island",
+   "nordic"
+  ],
+  "q": "Tourism in Iceland"
+ },
+ {
+  "id": "new-zealand",
+  "name": "New Zealand",
+  "universe": "Oceania",
+  "archetype": "Island Nation",
+  "stats": {
+   "economy": 72,
+   "military": 30,
+   "landscape": 99,
+   "culture": 70,
+   "cuisine": 60,
+   "climate": 75
+  },
+  "tags": [
+   "island"
+  ],
+  "q": "Tourism in New Zealand"
+ },
+ {
+  "id": "thailand",
+  "name": "Thailand",
+  "universe": "Asia",
+  "archetype": "Tropical",
+  "stats": {
+   "economy": 62,
+   "military": 50,
+   "landscape": 88,
+   "culture": 88,
+   "cuisine": 96,
+   "climate": 85
+  },
+  "tags": [
+   "tropical"
+  ],
+  "q": "Tourism in Thailand"
+ },
+ {
+  "id": "indonesia",
+  "name": "Indonesia",
+  "universe": "Asia",
+  "archetype": "Island Nation",
+  "stats": {
+   "economy": 68,
+   "military": 60,
+   "landscape": 92,
+   "culture": 82,
+   "cuisine": 85,
+   "climate": 85
+  },
+  "tags": [
+   "island",
+   "tropical",
+   "big"
+  ],
+  "q": "Tourism in Indonesia"
+ },
+ {
+  "id": "vietnam",
+  "name": "Vietnam",
+  "universe": "Asia",
+  "archetype": "Rising Power",
+  "stats": {
+   "economy": 60,
+   "military": 60,
+   "landscape": 88,
+   "culture": 82,
+   "cuisine": 92,
+   "climate": 80
+  },
+  "tags": [],
+  "q": "Tourism in Vietnam"
+ },
+ {
+  "id": "argentina",
+  "name": "Argentina",
+  "universe": "South America",
+  "archetype": "Wilderness",
+  "stats": {
+   "economy": 58,
+   "military": 45,
+   "landscape": 95,
+   "culture": 85,
+   "cuisine": 82,
+   "climate": 75
+  },
+  "tags": [
+   "big"
+  ],
+  "q": "Tourism in Argentina"
+ },
+ {
+  "id": "peru",
+  "name": "Peru",
+  "universe": "South America",
+  "archetype": "Ancient Land",
+  "stats": {
+   "economy": 52,
+   "military": 40,
+   "landscape": 95,
+   "culture": 88,
+   "cuisine": 92,
+   "climate": 70
+  },
+  "tags": [
+   "ancient"
+  ],
+  "q": "Tourism in Peru"
+ },
+ {
+  "id": "south-africa",
+  "name": "South Africa",
+  "universe": "Africa",
+  "archetype": "Crossroads",
+  "stats": {
+   "economy": 58,
+   "military": 50,
+   "landscape": 95,
+   "culture": 82,
+   "cuisine": 72,
+   "climate": 85
+  },
+  "tags": [],
+  "q": "Tourism in South Africa"
+ },
+ {
+  "id": "nigeria",
+  "name": "Nigeria",
+  "universe": "Africa",
+  "archetype": "Rising Power",
+  "stats": {
+   "economy": 60,
+   "military": 55,
+   "landscape": 72,
+   "culture": 88,
+   "cuisine": 80,
+   "climate": 70
+  },
+  "tags": [],
+  "q": "Tourism in Nigeria"
+ },
+ {
+  "id": "kenya",
+  "name": "Kenya",
+  "universe": "Africa",
+  "archetype": "Wilderness",
+  "stats": {
+   "economy": 45,
+   "military": 35,
+   "landscape": 96,
+   "culture": 80,
+   "cuisine": 62,
+   "climate": 82
+  },
+  "tags": [
+   "safari"
+  ],
+  "q": "Tourism in Kenya"
+ },
+ {
+  "id": "morocco",
+  "name": "Morocco",
+  "universe": "Africa",
+  "archetype": "Crossroads",
+  "stats": {
+   "economy": 52,
+   "military": 45,
+   "landscape": 88,
+   "culture": 88,
+   "cuisine": 92,
+   "climate": 85
+  },
+  "tags": [],
+  "q": "Tourism in Morocco"
+ },
+ {
+  "id": "saudi-arabia",
+  "name": "Saudi Arabia",
+  "universe": "Asia",
+  "archetype": "Oil Power",
+  "stats": {
+   "economy": 82,
+   "military": 72,
+   "landscape": 70,
+   "culture": 70,
+   "cuisine": 65,
+   "climate": 45
+  },
+  "tags": [
+   "oil"
+  ],
+  "q": "Tourism in Saudi Arabia"
+ },
+ {
+  "id": "united-arab-emirates",
+  "name": "United Arab Emirates",
+  "universe": "Asia",
+  "archetype": "Oil Power",
+  "stats": {
+   "economy": 85,
+   "military": 55,
+   "landscape": 65,
+   "culture": 65,
+   "cuisine": 70,
+   "climate": 50
+  },
+  "tags": [
+   "oil"
+  ],
+  "q": "Tourism in the United Arab Emirates"
+ },
+ {
+  "id": "israel",
+  "name": "Israel",
+  "universe": "Asia",
+  "archetype": "Tech Power",
+  "stats": {
+   "economy": 80,
+   "military": 85,
+   "landscape": 65,
+   "culture": 85,
+   "cuisine": 82,
+   "climate": 80
+  },
+  "tags": [
+   "tech"
+  ],
+  "q": "Tourism in Israel"
+ },
+ {
+  "id": "singapore",
+  "name": "Singapore",
+  "universe": "Asia",
+  "archetype": "City-State",
+  "stats": {
+   "economy": 95,
+   "military": 45,
+   "landscape": 40,
+   "culture": 78,
+   "cuisine": 92,
+   "climate": 70
+  },
+  "tags": [
+   "city",
+   "tech"
+  ],
+  "q": "Tourism in Singapore"
+ },
+ {
+  "id": "netherlands",
+  "name": "Netherlands",
+  "universe": "Europe",
+  "archetype": "Trading Nation",
+  "stats": {
+   "economy": 88,
+   "military": 50,
+   "landscape": 50,
+   "culture": 85,
+   "cuisine": 55,
+   "climate": 55
+  },
+  "tags": [
+   "trade"
+  ],
+  "q": "Tourism in the Netherlands"
+ },
+ {
+  "id": "sweden",
+  "name": "Sweden",
+  "universe": "Europe",
+  "archetype": "Nordic",
+  "stats": {
+   "economy": 85,
+   "military": 55,
+   "landscape": 85,
+   "culture": 82,
+   "cuisine": 60,
+   "climate": 40
+  },
+  "tags": [
+   "nordic"
+  ],
+  "q": "Tourism in Sweden"
+ },
+ {
+  "id": "finland",
+  "name": "Finland",
+  "universe": "Europe",
+  "archetype": "Nordic",
+  "stats": {
+   "economy": 80,
+   "military": 55,
+   "landscape": 85,
+   "culture": 75,
+   "cuisine": 50,
+   "climate": 30
+  },
+  "tags": [
+   "nordic"
+  ],
+  "q": "Tourism in Finland"
+ },
+ {
+  "id": "ireland",
+  "name": "Ireland",
+  "universe": "Europe",
+  "archetype": "Island Nation",
+  "stats": {
+   "economy": 85,
+   "military": 15,
+   "landscape": 82,
+   "culture": 88,
+   "cuisine": 60,
+   "climate": 52
+  },
+  "tags": [
+   "island"
+  ],
+  "q": "Tourism in Ireland"
+ },
+ {
+  "id": "portugal",
+  "name": "Portugal",
+  "universe": "Europe",
+  "archetype": "Trading Nation",
+  "stats": {
+   "economy": 65,
+   "military": 40,
+   "landscape": 82,
+   "culture": 85,
+   "cuisine": 85,
+   "climate": 88
+  },
+  "tags": [],
+  "q": "Tourism in Portugal"
+ },
+ {
+  "id": "poland",
+  "name": "Poland",
+  "universe": "Europe",
+  "archetype": "Industrial Power",
+  "stats": {
+   "economy": 70,
+   "military": 65,
+   "landscape": 72,
+   "culture": 80,
+   "cuisine": 70,
+   "climate": 50
+  },
+  "tags": [],
+  "q": "Tourism in Poland"
+ },
+ {
+  "id": "ukraine",
+  "name": "Ukraine",
+  "universe": "Europe",
+  "archetype": "Breadbasket",
+  "stats": {
+   "economy": 45,
+   "military": 70,
+   "landscape": 72,
+   "culture": 80,
+   "cuisine": 72,
+   "climate": 55
+  },
+  "tags": [],
+  "q": "Tourism in Ukraine"
+ },
+ {
+  "id": "pakistan",
+  "name": "Pakistan",
+  "universe": "Asia",
+  "archetype": "Rising Power",
+  "stats": {
+   "economy": 45,
+   "military": 80,
+   "landscape": 85,
+   "culture": 82,
+   "cuisine": 85,
+   "climate": 65
+  },
+  "tags": [],
+  "q": "Tourism in Pakistan"
+ },
+ {
+  "id": "iran",
+  "name": "Iran",
+  "universe": "Asia",
+  "archetype": "Ancient Land",
+  "stats": {
+   "economy": 55,
+   "military": 75,
+   "landscape": 82,
+   "culture": 92,
+   "cuisine": 88,
+   "climate": 65
+  },
+  "tags": [
+   "ancient"
+  ],
+  "q": "Tourism in Iran"
+ },
+ {
+  "id": "cuba",
+  "name": "Cuba",
+  "universe": "North America",
+  "archetype": "Island Nation",
+  "stats": {
+   "economy": 30,
+   "military": 35,
+   "landscape": 82,
+   "culture": 88,
+   "cuisine": 70,
+   "climate": 88
+  },
+  "tags": [
+   "island",
+   "tropical"
+  ],
+  "q": "Tourism in Cuba"
+ },
+ {
+  "id": "jamaica",
+  "name": "Jamaica",
+  "universe": "North America",
+  "archetype": "Island Nation",
+  "stats": {
+   "economy": 35,
+   "military": 10,
+   "landscape": 85,
+   "culture": 92,
+   "cuisine": 82,
+   "climate": 92
+  },
+  "tags": [
+   "island",
+   "tropical"
+  ],
+  "q": "Tourism in Jamaica"
+ },
+ {
+  "id": "chile",
+  "name": "Chile",
+  "universe": "South America",
+  "archetype": "Wilderness",
+  "stats": {
+   "economy": 65,
+   "military": 45,
+   "landscape": 97,
+   "culture": 75,
+   "cuisine": 72,
+   "climate": 72
+  },
+  "tags": [],
+  "q": "Tourism in Chile"
+ },
+ {
+  "id": "colombia",
+  "name": "Colombia",
+  "universe": "South America",
+  "archetype": "Tropical",
+  "stats": {
+   "economy": 55,
+   "military": 50,
+   "landscape": 92,
+   "culture": 85,
+   "cuisine": 80,
+   "climate": 85
+  },
+  "tags": [
+   "tropical"
+  ],
+  "q": "Tourism in Colombia"
+ },
+ {
+  "id": "nepal",
+  "name": "Nepal",
+  "universe": "Asia",
+  "archetype": "Alpine",
+  "stats": {
+   "economy": 25,
+   "military": 20,
+   "landscape": 99,
+   "culture": 80,
+   "cuisine": 65,
+   "climate": 55
+  },
+  "tags": [
+   "alpine"
+  ],
+  "q": "Tourism in Nepal"
+ },
+ {
+  "id": "maldives",
+  "name": "Maldives",
+  "universe": "Asia",
+  "archetype": "Island Nation",
+  "stats": {
+   "economy": 40,
+   "military": 1,
+   "landscape": 92,
+   "culture": 60,
+   "cuisine": 55,
+   "climate": 95
+  },
+  "tags": [
+   "island",
+   "tropical"
+  ],
+  "q": "Tourism in the Maldives"
+ }
+]

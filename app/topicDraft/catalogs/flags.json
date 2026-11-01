@@ -1,0 +1,1001 @@
+[
+ {
+  "id": "japan",
+  "name": "Japan",
+  "universe": "Asia",
+  "archetype": "Plain Field",
+  "stats": {
+   "colors": 55,
+   "symbolism": 85,
+   "simplicity": 99,
+   "recognition": 98,
+   "uniqueness": 90,
+   "boldness": 92
+  },
+  "tags": [
+   "simple",
+   "red"
+  ],
+  "q": "jp"
+ },
+ {
+  "id": "canada",
+  "name": "Canada",
+  "universe": "North America",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 60,
+   "symbolism": 90,
+   "simplicity": 88,
+   "recognition": 99,
+   "uniqueness": 95,
+   "boldness": 92
+  },
+  "tags": [
+   "leaf",
+   "red"
+  ],
+  "q": "ca"
+ },
+ {
+  "id": "united-states",
+  "name": "United States",
+  "universe": "North America",
+  "archetype": "Stars and Stripes",
+  "stats": {
+   "colors": 75,
+   "symbolism": 92,
+   "simplicity": 45,
+   "recognition": 99,
+   "uniqueness": 82,
+   "boldness": 85
+  },
+  "tags": [
+   "stars",
+   "stripes"
+  ],
+  "q": "us"
+ },
+ {
+  "id": "united-kingdom",
+  "name": "United Kingdom",
+  "universe": "Europe",
+  "archetype": "Crosses",
+  "stats": {
+   "colors": 75,
+   "symbolism": 90,
+   "simplicity": 40,
+   "recognition": 98,
+   "uniqueness": 88,
+   "boldness": 85
+  },
+  "tags": [
+   "crosses"
+  ],
+  "q": "gb"
+ },
+ {
+  "id": "brazil",
+  "name": "Brazil",
+  "universe": "South America",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 92,
+   "symbolism": 88,
+   "simplicity": 40,
+   "recognition": 95,
+   "uniqueness": 95,
+   "boldness": 90
+  },
+  "tags": [
+   "stars",
+   "green"
+  ],
+  "q": "br"
+ },
+ {
+  "id": "south-africa",
+  "name": "South Africa",
+  "universe": "Africa",
+  "archetype": "Bands",
+  "stats": {
+   "colors": 99,
+   "symbolism": 92,
+   "simplicity": 50,
+   "recognition": 88,
+   "uniqueness": 97,
+   "boldness": 92
+  },
+  "tags": [
+   "colourful"
+  ],
+  "q": "za"
+ },
+ {
+  "id": "nepal",
+  "name": "Nepal",
+  "universe": "Asia",
+  "archetype": "Unique Shape",
+  "stats": {
+   "colors": 70,
+   "symbolism": 90,
+   "simplicity": 55,
+   "recognition": 85,
+   "uniqueness": 99,
+   "boldness": 88
+  },
+  "tags": [
+   "unique-shape"
+  ],
+  "q": "np"
+ },
+ {
+  "id": "switzerland",
+  "name": "Switzerland",
+  "universe": "Europe",
+  "archetype": "Crosses",
+  "stats": {
+   "colors": 55,
+   "symbolism": 85,
+   "simplicity": 98,
+   "recognition": 95,
+   "uniqueness": 92,
+   "boldness": 95
+  },
+  "tags": [
+   "square",
+   "red"
+  ],
+  "q": "ch"
+ },
+ {
+  "id": "south-korea",
+  "name": "South Korea",
+  "universe": "Asia",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 70,
+   "symbolism": 97,
+   "simplicity": 45,
+   "recognition": 88,
+   "uniqueness": 96,
+   "boldness": 75
+  },
+  "tags": [
+   "symbols"
+  ],
+  "q": "kr"
+ },
+ {
+  "id": "mexico",
+  "name": "Mexico",
+  "universe": "North America",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 85,
+   "symbolism": 97,
+   "simplicity": 45,
+   "recognition": 92,
+   "uniqueness": 88,
+   "boldness": 85
+  },
+  "tags": [
+   "emblem",
+   "tricolour"
+  ],
+  "q": "mx"
+ },
+ {
+  "id": "bhutan",
+  "name": "Bhutan",
+  "universe": "Asia",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 80,
+   "symbolism": 96,
+   "simplicity": 35,
+   "recognition": 70,
+   "uniqueness": 99,
+   "boldness": 90
+  },
+  "tags": [
+   "dragon"
+  ],
+  "q": "bt"
+ },
+ {
+  "id": "sri-lanka",
+  "name": "Sri Lanka",
+  "universe": "Asia",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 80,
+   "symbolism": 95,
+   "simplicity": 30,
+   "recognition": 65,
+   "uniqueness": 96,
+   "boldness": 88
+  },
+  "tags": [
+   "lion"
+  ],
+  "q": "lk"
+ },
+ {
+  "id": "wales",
+  "name": "Wales",
+  "universe": "Europe",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 80,
+   "symbolism": 90,
+   "simplicity": 45,
+   "recognition": 88,
+   "uniqueness": 99,
+   "boldness": 96
+  },
+  "tags": [
+   "dragon"
+  ],
+  "q": "gb-wls"
+ },
+ {
+  "id": "kenya",
+  "name": "Kenya",
+  "universe": "Africa",
+  "archetype": "Bands",
+  "stats": {
+   "colors": 85,
+   "symbolism": 94,
+   "simplicity": 50,
+   "recognition": 80,
+   "uniqueness": 92,
+   "boldness": 92
+  },
+  "tags": [
+   "shield"
+  ],
+  "q": "ke"
+ },
+ {
+  "id": "jamaica",
+  "name": "Jamaica",
+  "universe": "North America",
+  "archetype": "Saltire",
+  "stats": {
+   "colors": 82,
+   "symbolism": 85,
+   "simplicity": 85,
+   "recognition": 90,
+   "uniqueness": 95,
+   "boldness": 92
+  },
+  "tags": [
+   "saltire"
+  ],
+  "q": "jm"
+ },
+ {
+  "id": "turkey",
+  "name": "Turkey",
+  "universe": "Asia",
+  "archetype": "Crescent",
+  "stats": {
+   "colors": 55,
+   "symbolism": 88,
+   "simplicity": 92,
+   "recognition": 92,
+   "uniqueness": 82,
+   "boldness": 92
+  },
+  "tags": [
+   "crescent",
+   "red"
+  ],
+  "q": "tr"
+ },
+ {
+  "id": "israel",
+  "name": "Israel",
+  "universe": "Asia",
+  "archetype": "Stripes",
+  "stats": {
+   "colors": 45,
+   "symbolism": 96,
+   "simplicity": 80,
+   "recognition": 92,
+   "uniqueness": 85,
+   "boldness": 70
+  },
+  "tags": [
+   "star"
+  ],
+  "q": "il"
+ },
+ {
+  "id": "lebanon",
+  "name": "Lebanon",
+  "universe": "Asia",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 60,
+   "symbolism": 92,
+   "simplicity": 70,
+   "recognition": 82,
+   "uniqueness": 95,
+   "boldness": 85
+  },
+  "tags": [
+   "cedar"
+  ],
+  "q": "lb"
+ },
+ {
+  "id": "cyprus",
+  "name": "Cyprus",
+  "universe": "Europe",
+  "archetype": "Map",
+  "stats": {
+   "colors": 50,
+   "symbolism": 85,
+   "simplicity": 75,
+   "recognition": 70,
+   "uniqueness": 95,
+   "boldness": 55
+  },
+  "tags": [
+   "map"
+  ],
+  "q": "cy"
+ },
+ {
+  "id": "kiribati",
+  "name": "Kiribati",
+  "universe": "Oceania",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 85,
+   "symbolism": 90,
+   "simplicity": 40,
+   "recognition": 45,
+   "uniqueness": 96,
+   "boldness": 88
+  },
+  "tags": [
+   "sun",
+   "bird"
+  ],
+  "q": "ki"
+ },
+ {
+  "id": "seychelles",
+  "name": "Seychelles",
+  "universe": "Africa",
+  "archetype": "Rays",
+  "stats": {
+   "colors": 97,
+   "symbolism": 80,
+   "simplicity": 70,
+   "recognition": 55,
+   "uniqueness": 97,
+   "boldness": 92
+  },
+  "tags": [
+   "colourful"
+  ],
+  "q": "sc"
+ },
+ {
+  "id": "mozambique",
+  "name": "Mozambique",
+  "universe": "Africa",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 88,
+   "symbolism": 92,
+   "simplicity": 35,
+   "recognition": 60,
+   "uniqueness": 96,
+   "boldness": 88
+  },
+  "tags": [
+   "rifle"
+  ],
+  "q": "mz"
+ },
+ {
+  "id": "germany",
+  "name": "Germany",
+  "universe": "Europe",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 70,
+   "symbolism": 82,
+   "simplicity": 95,
+   "recognition": 96,
+   "uniqueness": 70,
+   "boldness": 82
+  },
+  "tags": [
+   "tricolour",
+   "stripes"
+  ],
+  "q": "de"
+ },
+ {
+  "id": "france",
+  "name": "France",
+  "universe": "Europe",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 70,
+   "symbolism": 92,
+   "simplicity": 97,
+   "recognition": 97,
+   "uniqueness": 70,
+   "boldness": 80
+  },
+  "tags": [
+   "tricolour"
+  ],
+  "q": "fr"
+ },
+ {
+  "id": "italy",
+  "name": "Italy",
+  "universe": "Europe",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 72,
+   "symbolism": 85,
+   "simplicity": 97,
+   "recognition": 94,
+   "uniqueness": 65,
+   "boldness": 78
+  },
+  "tags": [
+   "tricolour"
+  ],
+  "q": "it"
+ },
+ {
+  "id": "ireland",
+  "name": "Ireland",
+  "universe": "Europe",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 72,
+   "symbolism": 90,
+   "simplicity": 97,
+   "recognition": 85,
+   "uniqueness": 62,
+   "boldness": 75
+  },
+  "tags": [
+   "tricolour"
+  ],
+  "q": "ie"
+ },
+ {
+  "id": "belgium",
+  "name": "Belgium",
+  "universe": "Europe",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 72,
+   "symbolism": 75,
+   "simplicity": 97,
+   "recognition": 80,
+   "uniqueness": 65,
+   "boldness": 80
+  },
+  "tags": [
+   "tricolour"
+  ],
+  "q": "be"
+ },
+ {
+  "id": "netherlands",
+  "name": "Netherlands",
+  "universe": "Europe",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 65,
+   "symbolism": 78,
+   "simplicity": 97,
+   "recognition": 85,
+   "uniqueness": 60,
+   "boldness": 72
+  },
+  "tags": [
+   "tricolour",
+   "stripes"
+  ],
+  "q": "nl"
+ },
+ {
+  "id": "russia",
+  "name": "Russia",
+  "universe": "Europe",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 65,
+   "symbolism": 78,
+   "simplicity": 96,
+   "recognition": 88,
+   "uniqueness": 55,
+   "boldness": 72
+  },
+  "tags": [
+   "tricolour",
+   "stripes"
+  ],
+  "q": "ru"
+ },
+ {
+  "id": "sweden",
+  "name": "Sweden",
+  "universe": "Europe",
+  "archetype": "Nordic Cross",
+  "stats": {
+   "colors": 65,
+   "symbolism": 82,
+   "simplicity": 92,
+   "recognition": 90,
+   "uniqueness": 80,
+   "boldness": 85
+  },
+  "tags": [
+   "nordic"
+  ],
+  "q": "se"
+ },
+ {
+  "id": "norway",
+  "name": "Norway",
+  "universe": "Europe",
+  "archetype": "Nordic Cross",
+  "stats": {
+   "colors": 70,
+   "symbolism": 82,
+   "simplicity": 85,
+   "recognition": 85,
+   "uniqueness": 75,
+   "boldness": 85
+  },
+  "tags": [
+   "nordic"
+  ],
+  "q": "no"
+ },
+ {
+  "id": "denmark",
+  "name": "Denmark",
+  "universe": "Europe",
+  "archetype": "Nordic Cross",
+  "stats": {
+   "colors": 55,
+   "symbolism": 92,
+   "simplicity": 95,
+   "recognition": 85,
+   "uniqueness": 82,
+   "boldness": 90
+  },
+  "tags": [
+   "nordic",
+   "red"
+  ],
+  "q": "dk"
+ },
+ {
+  "id": "finland",
+  "name": "Finland",
+  "universe": "Europe",
+  "archetype": "Nordic Cross",
+  "stats": {
+   "colors": 50,
+   "symbolism": 82,
+   "simplicity": 95,
+   "recognition": 80,
+   "uniqueness": 72,
+   "boldness": 75
+  },
+  "tags": [
+   "nordic"
+  ],
+  "q": "fi"
+ },
+ {
+  "id": "iceland",
+  "name": "Iceland",
+  "universe": "Europe",
+  "archetype": "Nordic Cross",
+  "stats": {
+   "colors": 68,
+   "symbolism": 85,
+   "simplicity": 85,
+   "recognition": 75,
+   "uniqueness": 72,
+   "boldness": 82
+  },
+  "tags": [
+   "nordic"
+  ],
+  "q": "is"
+ },
+ {
+  "id": "greece",
+  "name": "Greece",
+  "universe": "Europe",
+  "archetype": "Stripes",
+  "stats": {
+   "colors": 55,
+   "symbolism": 90,
+   "simplicity": 70,
+   "recognition": 88,
+   "uniqueness": 82,
+   "boldness": 82
+  },
+  "tags": [
+   "stripes",
+   "cross"
+  ],
+  "q": "gr"
+ },
+ {
+  "id": "china",
+  "name": "China",
+  "universe": "Asia",
+  "archetype": "Stars",
+  "stats": {
+   "colors": 55,
+   "symbolism": 92,
+   "simplicity": 82,
+   "recognition": 95,
+   "uniqueness": 80,
+   "boldness": 92
+  },
+  "tags": [
+   "stars",
+   "red"
+  ],
+  "q": "cn"
+ },
+ {
+  "id": "india",
+  "name": "India",
+  "universe": "Asia",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 82,
+   "symbolism": 96,
+   "simplicity": 72,
+   "recognition": 92,
+   "uniqueness": 88,
+   "boldness": 82
+  },
+  "tags": [
+   "tricolour",
+   "wheel"
+  ],
+  "q": "in"
+ },
+ {
+  "id": "argentina",
+  "name": "Argentina",
+  "universe": "South America",
+  "archetype": "Stripes",
+  "stats": {
+   "colors": 60,
+   "symbolism": 90,
+   "simplicity": 80,
+   "recognition": 90,
+   "uniqueness": 85,
+   "boldness": 75
+  },
+  "tags": [
+   "sun"
+  ],
+  "q": "ar"
+ },
+ {
+  "id": "australia",
+  "name": "Australia",
+  "universe": "Oceania",
+  "archetype": "Ensign",
+  "stats": {
+   "colors": 60,
+   "symbolism": 88,
+   "simplicity": 45,
+   "recognition": 88,
+   "uniqueness": 60,
+   "boldness": 72
+  },
+  "tags": [
+   "stars",
+   "ensign"
+  ],
+  "q": "au"
+ },
+ {
+  "id": "new-zealand",
+  "name": "New Zealand",
+  "universe": "Oceania",
+  "archetype": "Ensign",
+  "stats": {
+   "colors": 60,
+   "symbolism": 88,
+   "simplicity": 48,
+   "recognition": 82,
+   "uniqueness": 58,
+   "boldness": 72
+  },
+  "tags": [
+   "stars",
+   "ensign"
+  ],
+  "q": "nz"
+ },
+ {
+  "id": "vietnam",
+  "name": "Vietnam",
+  "universe": "Asia",
+  "archetype": "Stars",
+  "stats": {
+   "colors": 55,
+   "symbolism": 85,
+   "simplicity": 95,
+   "recognition": 82,
+   "uniqueness": 75,
+   "boldness": 95
+  },
+  "tags": [
+   "star",
+   "red"
+  ],
+  "q": "vn"
+ },
+ {
+  "id": "bangladesh",
+  "name": "Bangladesh",
+  "universe": "Asia",
+  "archetype": "Plain Field",
+  "stats": {
+   "colors": 55,
+   "symbolism": 85,
+   "simplicity": 95,
+   "recognition": 75,
+   "uniqueness": 80,
+   "boldness": 85
+  },
+  "tags": [
+   "disc",
+   "green"
+  ],
+  "q": "bd"
+ },
+ {
+  "id": "palau",
+  "name": "Palau",
+  "universe": "Oceania",
+  "archetype": "Plain Field",
+  "stats": {
+   "colors": 55,
+   "symbolism": 82,
+   "simplicity": 97,
+   "recognition": 50,
+   "uniqueness": 85,
+   "boldness": 82
+  },
+  "tags": [
+   "disc",
+   "blue"
+  ],
+  "q": "pw"
+ },
+ {
+  "id": "ghana",
+  "name": "Ghana",
+  "universe": "Africa",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 82,
+   "symbolism": 92,
+   "simplicity": 75,
+   "recognition": 78,
+   "uniqueness": 85,
+   "boldness": 88
+  },
+  "tags": [
+   "star",
+   "tricolour"
+  ],
+  "q": "gh"
+ },
+ {
+  "id": "nigeria",
+  "name": "Nigeria",
+  "universe": "Africa",
+  "archetype": "Tricolour",
+  "stats": {
+   "colors": 50,
+   "symbolism": 80,
+   "simplicity": 97,
+   "recognition": 82,
+   "uniqueness": 70,
+   "boldness": 78
+  },
+  "tags": [
+   "tricolour",
+   "green"
+  ],
+  "q": "ng"
+ },
+ {
+  "id": "ethiopia",
+  "name": "Ethiopia",
+  "universe": "Africa",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 82,
+   "symbolism": 92,
+   "simplicity": 60,
+   "recognition": 72,
+   "uniqueness": 85,
+   "boldness": 85
+  },
+  "tags": [
+   "star"
+  ],
+  "q": "et"
+ },
+ {
+  "id": "morocco",
+  "name": "Morocco",
+  "universe": "Africa",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 50,
+   "symbolism": 88,
+   "simplicity": 92,
+   "recognition": 75,
+   "uniqueness": 85,
+   "boldness": 92
+  },
+  "tags": [
+   "star",
+   "red"
+  ],
+  "q": "ma"
+ },
+ {
+  "id": "saudi-arabia",
+  "name": "Saudi Arabia",
+  "universe": "Asia",
+  "archetype": "Emblem",
+  "stats": {
+   "colors": 45,
+   "symbolism": 97,
+   "simplicity": 60,
+   "recognition": 85,
+   "uniqueness": 92,
+   "boldness": 82
+  },
+  "tags": [
+   "script",
+   "green"
+  ],
+  "q": "sa"
+ },
+ {
+  "id": "pakistan",
+  "name": "Pakistan",
+  "universe": "Asia",
+  "archetype": "Crescent",
+  "stats": {
+   "colors": 50,
+   "symbolism": 92,
+   "simplicity": 85,
+   "recognition": 80,
+   "uniqueness": 82,
+   "boldness": 85
+  },
+  "tags": [
+   "crescent",
+   "green"
+  ],
+  "q": "pk"
+ },
+ {
+  "id": "qatar",
+  "name": "Qatar",
+  "universe": "Asia",
+  "archetype": "Unique Shape",
+  "stats": {
+   "colors": 45,
+   "symbolism": 85,
+   "simplicity": 88,
+   "recognition": 70,
+   "uniqueness": 92,
+   "boldness": 85
+  },
+  "tags": [
+   "serrated"
+  ],
+  "q": "qa"
+ },
+ {
+  "id": "ukraine",
+  "name": "Ukraine",
+  "universe": "Europe",
+  "archetype": "Bands",
+  "stats": {
+   "colors": 60,
+   "symbolism": 92,
+   "simplicity": 99,
+   "recognition": 92,
+   "uniqueness": 72,
+   "boldness": 88
+  },
+  "tags": [
+   "bicolour"
+  ],
+  "q": "ua"
+ },
+ {
+  "id": "poland",
+  "name": "Poland",
+  "universe": "Europe",
+  "archetype": "Bands",
+  "stats": {
+   "colors": 45,
+   "symbolism": 82,
+   "simplicity": 99,
+   "recognition": 82,
+   "uniqueness": 55,
+   "boldness": 72
+  },
+  "tags": [
+   "bicolour"
+  ],
+  "q": "pl"
+ },
+ {
+  "id": "indonesia",
+  "name": "Indonesia",
+  "universe": "Asia",
+  "archetype": "Bands",
+  "stats": {
+   "colors": 45,
+   "symbolism": 85,
+   "simplicity": 99,
+   "recognition": 78,
+   "uniqueness": 50,
+   "boldness": 82
+  },
+  "tags": [
+   "bicolour",
+   "red"
+  ],
+  "q": "id"
+ },
+ {
+  "id": "scotland",
+  "name": "Scotland",
+  "universe": "Europe",
+  "archetype": "Saltire",
+  "stats": {
+   "colors": 50,
+   "symbolism": 92,
+   "simplicity": 95,
+   "recognition": 88,
+   "uniqueness": 82,
+   "boldness": 85
+  },
+  "tags": [
+   "saltire",
+   "cross"
+  ],
+  "q": "gb-sct"
+ }
+]

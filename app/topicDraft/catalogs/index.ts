@@ -11,6 +11,11 @@ import football from "./football.json";
 import films from "./films.json";
 import shows from "./shows.json";
 import nba from "./nba.json";
+import food from "./food.json";
+import geography from "./geography.json";
+import flags from "./flags.json";
+import books from "./books.json";
+import music from "./music.json";
 import weapons from "./weapons.json";
 import gadgets from "./gadgets.json";
 import allies from "./allies.json";
@@ -38,12 +43,14 @@ const dedupe = (...lists: Item[][]): Item[] => {
 /** Which public image source suits each pool (none = initials avatar). Query format: "kind:name". */
 const IMAGE_KIND: Record<string, string> = {
   superheroes: "hero", villains: "hero", "heroes-villains": "hero", anime: "anilist", pokemon: "poke", history: "wiki", football: "wiki", films: "wiki", shows: "wiki", nba: "wiki",
+  food: "wiki", geography: "wiki", books: "wiki", music: "wiki", flags: "flag",
 };
 
-/** Attach an image lookup key to every item so pictures can be fetched lazily. */
+/** Attach an image lookup key to every item so pictures can be fetched lazily. A catalog row may carry its own `q`
+ * (an exact Wikipedia title, or a flag code) when the name alone would find the wrong page. */
 const withQuery = (list: Item[], pool: string): Item[] => {
   const kind = IMAGE_KIND[pool];
-  return kind ? list.map((i) => ({ ...i, q: `${kind}:${i.name}` })) : list;
+  return kind ? list.map((i) => ({ ...i, q: `${kind}:${i.q ?? i.name}` })) : list;
 };
 
 const all = withQuery(superheroesAll as Item[], "superheroes");
@@ -64,6 +71,11 @@ const DATA: Record<string, Item[]> = {
   films: withQuery(films as Item[], "films"),
   shows: withQuery(shows as Item[], "shows"),
   nba: withQuery(nba as Item[], "nba"),
+  food: withQuery(food as Item[], "food"),
+  geography: withQuery(geography as Item[], "geography"),
+  flags: withQuery(flags as Item[], "flags"),
+  books: withQuery(books as Item[], "books"),
+  music: withQuery(music as Item[], "music"),
   weapons: withQuery(weapons as Item[], "weapons"),
   gadgets: withQuery(gadgets as Item[], "gadgets"),
   allies: withQuery(allies as Item[], "allies"),
@@ -92,6 +104,11 @@ export const CATALOG_META: CatalogMeta[] = [
   { id: "films", title: "Films", blurb: "Classics, blockbusters and cult hits.", statKeys: keysOf("films"), kind: "character" },
   { id: "shows", title: "TV Shows", blurb: "Binge-worthy series, all genres.", statKeys: keysOf("shows"), kind: "character" },
   { id: "nba", title: "NBA Legends", blurb: "All-time greats with real heights, teams and best seasons.", statKeys: keysOf("nba"), kind: "character" },
+  { id: "food", title: "Food", blurb: "Dishes from every kitchen in the world.", statKeys: keysOf("food"), kind: "character" },
+  { id: "geography", title: "Geography", blurb: "Countries, from superpowers to island hideaways.", statKeys: keysOf("geography"), kind: "character" },
+  { id: "flags", title: "Flags", blurb: "The world\u2019s flags, judged on design.", statKeys: keysOf("flags"), kind: "character" },
+  { id: "books", title: "Books", blurb: "Classics, page-turners and epic series.", statKeys: keysOf("books"), kind: "character" },
+  { id: "music", title: "Music", blurb: "Legends, bands and today\u2019s hitmakers.", statKeys: keysOf("music"), kind: "character" },
   { id: "weapons", title: "Weapons", blurb: "Blades, blasters and artifacts.", statKeys: keysOf("weapons"), kind: "item" },
   { id: "gadgets", title: "Gadgets", blurb: "Tech and gear.", statKeys: keysOf("gadgets"), kind: "item" },
   { id: "allies", title: "Allies & Sidekicks", blurb: "Villain help and loyal partners.", statKeys: keysOf("allies"), kind: "item" },

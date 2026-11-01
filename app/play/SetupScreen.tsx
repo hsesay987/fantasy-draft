@@ -31,7 +31,8 @@ const ROLL_COPY: Record<FormatId, string> = {
   feud: "",
   jeopardy: "",
 };
-const SCREEN_POOLS = new Set(["films", "shows"]);
+// Topics judged on a lens (what the night is for) rather than a mission, so there is no "write your own".
+const SCREEN_POOLS = new Set(["films", "shows", "flags", "books"]);
 const QUIZ_FORMATS = new Set<FormatId>(["keep", "feud", "jeopardy"]);
 const SOLO_FORMATS = new Set<FormatId>(["blind", "loadout", "position", "keep", "feud", "jeopardy"]);
 
