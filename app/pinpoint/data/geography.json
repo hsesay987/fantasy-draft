@@ -1,0 +1,572 @@
+{
+ "pool": "geography",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "continent",
+   "label": "Continent",
+   "kind": "cat"
+  },
+  {
+   "key": "population",
+   "label": "Population",
+   "kind": "num",
+   "close": 0.4,
+   "rel": true,
+   "fmt": "big"
+  },
+  {
+   "key": "area",
+   "label": "Area",
+   "kind": "num",
+   "close": 0.4,
+   "rel": true,
+   "fmt": "big",
+   "unit": "km²"
+  },
+  {
+   "key": "gdp",
+   "label": "GDP per person",
+   "kind": "num",
+   "close": 0.35,
+   "rel": true,
+   "fmt": "big",
+   "unit": "$"
+  },
+  {
+   "key": "language",
+   "label": "Language",
+   "kind": "set"
+  },
+  {
+   "key": "drives",
+   "label": "Drives on",
+   "kind": "cat"
+  }
+ ],
+ "facts": {
+  "united-states": {
+   "continent": "North America",
+   "population": 340110988,
+   "area": 9826675,
+   "gdp": 84534,
+   "language": [
+    "Hawaiian",
+    "Spanish",
+    "Samoan"
+   ],
+   "drives": "Right"
+  },
+  "china": {
+   "continent": "Asia",
+   "population": 1404890000,
+   "area": 9596961,
+   "gdp": 12786,
+   "language": [
+    "Putonghua"
+   ],
+   "drives": "Right"
+  },
+  "japan": {
+   "continent": "Asia",
+   "population": 123802000,
+   "area": 377973.68,
+   "gdp": 34177,
+   "language": [
+    "Japanese"
+   ],
+   "drives": "Left"
+  },
+  "germany": {
+   "continent": "Europe",
+   "population": 83467117,
+   "area": 357587.77,
+   "gdp": 48788,
+   "language": [
+    "German"
+   ],
+   "drives": "Right"
+  },
+  "india": {
+   "continent": "Asia",
+   "population": 1326093247,
+   "area": 3287263,
+   "gdp": 2553,
+   "language": [
+    "Hindi",
+    "English"
+   ],
+   "drives": "Left"
+  },
+  "united-kingdom": {
+   "continent": "Europe",
+   "population": 67326569,
+   "area": 242495,
+   "gdp": 45609,
+   "language": [
+    "English"
+   ],
+   "drives": "Left"
+  },
+  "france": {
+   "continent": "Europe",
+   "population": 68605616,
+   "area": 643801,
+   "gdp": 40564,
+   "language": [
+    "French"
+   ],
+   "drives": "Right"
+  },
+  "italy": {
+   "continent": "Europe",
+   "population": 58850717,
+   "area": 302068,
+   "gdp": 34162,
+   "language": [
+    "Italian"
+   ],
+   "drives": "Right"
+  },
+  "brazil": {
+   "continent": "South America",
+   "population": 214211951,
+   "area": 8515767,
+   "gdp": 8964,
+   "language": [
+    "Portuguese"
+   ],
+   "drives": "Right"
+  },
+  "canada": {
+   "continent": "North America",
+   "population": 36991981,
+   "area": 9984670,
+   "language": [
+    "English",
+    "French"
+   ],
+   "drives": "Right"
+  },
+  "russia": {
+   "continent": "Europe",
+   "population": 146119928,
+   "area": 17075400,
+   "gdp": 15333,
+   "language": [
+    "Russian"
+   ],
+   "drives": "Right"
+  },
+  "australia": {
+   "continent": "Oceania",
+   "population": 27614411,
+   "area": 7692024,
+   "gdp": 63627,
+   "language": [
+    "English"
+   ],
+   "drives": "Left"
+  },
+  "south-korea": {
+   "continent": "Asia",
+   "population": 51466201,
+   "area": 100295,
+   "gdp": 32356,
+   "language": [
+    "Korean",
+    "Korean Sign Language"
+   ],
+   "drives": "Right"
+  },
+  "mexico": {
+   "continent": "North America",
+   "population": 132274416,
+   "area": 1972550,
+   "gdp": 10691,
+   "language": [
+    "Spanish",
+    "Nahuatl",
+    "Yucatec Maya"
+   ],
+   "drives": "Right"
+  },
+  "spain": {
+   "continent": "Europe",
+   "population": 48592909,
+   "area": 505990,
+   "gdp": 28760,
+   "language": [
+    "Spanish"
+   ],
+   "drives": "Right"
+  },
+  "egypt": {
+   "continent": "Africa",
+   "population": 114535772,
+   "area": 1010407.87,
+   "gdp": 4162,
+   "language": [
+    "Arabic"
+   ],
+   "drives": "Right"
+  },
+  "greece": {
+   "continent": "Europe",
+   "population": 10482487,
+   "area": 131957,
+   "gdp": 20898,
+   "language": [
+    "Greek"
+   ],
+   "drives": "Right"
+  },
+  "turkey": {
+   "continent": "Asia",
+   "population": 85372377,
+   "area": 783562,
+   "gdp": 10612,
+   "language": [
+    "Turkish"
+   ],
+   "drives": "Right"
+  },
+  "switzerland": {
+   "continent": "Europe",
+   "population": 9104063,
+   "area": 41291,
+   "gdp": 88719,
+   "language": [
+    "German",
+    "Italian",
+    "French"
+   ],
+   "drives": "Right"
+  },
+  "norway": {
+   "continent": "Europe",
+   "population": 5627400,
+   "area": 385207,
+   "gdp": 102937,
+   "language": [
+    "Bokmål",
+    "Sámi",
+    "Nynorsk"
+   ],
+   "drives": "Right"
+  },
+  "iceland": {
+   "continent": "Europe",
+   "population": 364260,
+   "area": 103004,
+   "gdp": 76433,
+   "language": [
+    "Icelandic"
+   ],
+   "drives": "Right"
+  },
+  "new-zealand": {
+   "continent": "Oceania",
+   "population": 5307800,
+   "area": 268021,
+   "gdp": 46579,
+   "language": [
+    "Māori",
+    "New Zealand Sign Language",
+    "English"
+   ],
+   "drives": "Left"
+  },
+  "thailand": {
+   "continent": "Asia",
+   "population": 66188503,
+   "area": 513119.5,
+   "gdp": 7484,
+   "language": [
+    "Thai"
+   ],
+   "drives": "Left"
+  },
+  "indonesia": {
+   "continent": "Asia",
+   "population": 275439000,
+   "area": 1904570,
+   "gdp": 4789,
+   "language": [
+    "Indonesian"
+   ],
+   "drives": "Left"
+  },
+  "vietnam": {
+   "continent": "Asia",
+   "population": 96208984,
+   "area": 331690,
+   "gdp": 4249,
+   "language": [
+    "Vietnamese"
+   ],
+   "drives": "Right"
+  },
+  "argentina": {
+   "continent": "South America",
+   "population": 47327407,
+   "area": 2780400,
+   "gdp": 13370,
+   "language": [
+    "Spanish"
+   ],
+   "drives": "Right"
+  },
+  "peru": {
+   "continent": "South America",
+   "population": 34157732,
+   "area": 1285216,
+   "gdp": 7103,
+   "language": [
+    "Spanish",
+    "Aymara",
+    "Quechua"
+   ],
+   "drives": "Right"
+  },
+  "south-africa": {
+   "continent": "Africa",
+   "population": 62027503,
+   "area": 1221037,
+   "gdp": 6543,
+   "language": [
+    "English",
+    "Afrikaans",
+    "Southern Ndebele"
+   ],
+   "drives": "Left"
+  },
+  "nigeria": {
+   "continent": "Africa",
+   "population": 211400708,
+   "area": 923768,
+   "gdp": 2258,
+   "language": [
+    "English"
+   ],
+   "drives": "Right"
+  },
+  "kenya": {
+   "continent": "Africa",
+   "population": 48468138,
+   "area": 581309,
+   "gdp": 2340,
+   "language": [
+    "Swahili",
+    "English"
+   ],
+   "drives": "Left"
+  },
+  "morocco": {
+   "continent": "Africa",
+   "population": 36828330,
+   "area": 446550,
+   "gdp": 3643,
+   "language": [
+    "Arabic",
+    "Standard Moroccan Tamazight"
+   ],
+   "drives": "Right"
+  },
+  "saudi-arabia": {
+   "continent": "Asia",
+   "population": 33000000,
+   "area": 2250000,
+   "gdp": 33580,
+   "language": [
+    "Arabic"
+   ],
+   "drives": "Right"
+  },
+  "united-arab-emirates": {
+   "continent": "Asia",
+   "population": 9890400,
+   "area": 83600,
+   "gdp": 51316,
+   "language": [
+    "Arabic"
+   ],
+   "drives": "Right"
+  },
+  "israel": {
+   "continent": "Asia",
+   "population": 9840000,
+   "area": 20770,
+   "gdp": 52917,
+   "language": [
+    "Hebrew"
+   ],
+   "drives": "Right"
+  },
+  "singapore": {
+   "continent": "Asia",
+   "population": 5866139,
+   "area": 719.1,
+   "gdp": 79573,
+   "language": [
+    "English",
+    "Malay",
+    "Standard Chinese"
+   ],
+   "drives": "Left"
+  },
+  "netherlands": {
+   "continent": "Europe",
+   "population": 17942942,
+   "area": 37378,
+   "gdp": 55237,
+   "language": [
+    "Dutch"
+   ],
+   "drives": "Right"
+  },
+  "sweden": {
+   "continent": "Europe",
+   "population": 10609460,
+   "area": 447425.16,
+   "gdp": 55228,
+   "language": [
+    "Swedish"
+   ],
+   "drives": "Right"
+  },
+  "finland": {
+   "continent": "Europe",
+   "population": 5652881,
+   "area": 338478.34,
+   "gdp": 49678,
+   "language": [
+    "Finnish",
+    "Swedish"
+   ],
+   "drives": "Right"
+  },
+  "ireland": {
+   "continent": "Europe",
+   "population": 5149139,
+   "area": 69797,
+   "gdp": 102783,
+   "language": [
+    "Irish",
+    "English"
+   ],
+   "drives": "Left"
+  },
+  "portugal": {
+   "continent": "Europe",
+   "population": 10347892,
+   "area": 92225,
+   "gdp": 24348,
+   "language": [
+    "Portuguese"
+   ],
+   "drives": "Right"
+  },
+  "poland": {
+   "continent": "Europe",
+   "population": 37563071,
+   "area": 312683,
+   "gdp": 18321,
+   "language": [
+    "Polish"
+   ],
+   "drives": "Right"
+  },
+  "ukraine": {
+   "continent": "Europe",
+   "population": 41167335,
+   "area": 603550,
+   "gdp": 3899,
+   "language": [
+    "Ukrainian"
+   ],
+   "drives": "Right"
+  },
+  "pakistan": {
+   "continent": "Asia",
+   "population": 223773700,
+   "area": 881913,
+   "gdp": 1683,
+   "language": [
+    "English",
+    "Urdu"
+   ],
+   "drives": "Left"
+  },
+  "iran": {
+   "continent": "Asia",
+   "population": 92417700,
+   "area": 1648195,
+   "gdp": 4204,
+   "language": [
+    "Persian"
+   ],
+   "drives": "Right"
+  },
+  "cuba": {
+   "continent": "North America",
+   "population": 10985974,
+   "area": 109884,
+   "language": [
+    "Spanish"
+   ],
+   "drives": "Right"
+  },
+  "jamaica": {
+   "continent": "North America",
+   "population": 2697983,
+   "area": 10991.90954,
+   "gdp": 6337,
+   "language": [
+    "English",
+    "Jamaican Patois"
+   ],
+   "drives": "Left"
+  },
+  "chile": {
+   "continent": "South America",
+   "population": 19458000,
+   "area": 756102,
+   "gdp": 15471,
+   "language": [
+    "Spanish"
+   ],
+   "drives": "Right"
+  },
+  "colombia": {
+   "continent": "South America",
+   "population": 52321152,
+   "area": 1141748,
+   "gdp": 6574,
+   "language": [
+    "Spanish"
+   ],
+   "drives": "Right"
+  },
+  "nepal": {
+   "continent": "Asia",
+   "population": 29164578,
+   "area": 147181.254346,
+   "gdp": 1400,
+   "language": [
+    "Nepali"
+   ],
+   "drives": "Left"
+  },
+  "maldives": {
+   "continent": "Asia",
+   "population": 436330,
+   "area": 298,
+   "gdp": 14186,
+   "language": [
+    "Maldivian"
+   ],
+   "drives": "Left"
+  }
+ }
+}

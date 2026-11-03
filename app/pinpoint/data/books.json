@@ -1,0 +1,548 @@
+{
+ "pool": "books",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "author",
+   "label": "Author",
+   "kind": "cat"
+  },
+  {
+   "key": "year",
+   "label": "Published",
+   "kind": "num",
+   "close": 15,
+   "fmt": "year"
+  },
+  {
+   "key": "genre",
+   "label": "Genre",
+   "kind": "set"
+  },
+  {
+   "key": "language",
+   "label": "Language",
+   "kind": "cat"
+  },
+  {
+   "key": "nationality",
+   "label": "Author from",
+   "kind": "cat"
+  }
+ ],
+ "facts": {
+  "harry-potter-and-the-philosopher-s-stone": {
+   "author": "J. K. Rowling",
+   "year": 1997,
+   "genre": [
+    "young adult fiction",
+    "fantasy",
+    "adventure fiction"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom"
+  },
+  "the-lord-of-the-rings": {
+   "author": "J. R. R. Tolkien",
+   "year": 1954,
+   "genre": [
+    "fantasy",
+    "high fantasy",
+    "adventure fiction"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom"
+  },
+  "the-hobbit": {
+   "author": "J. R. R. Tolkien",
+   "year": 1937,
+   "genre": [
+    "juvenile fantasy",
+    "young adult fiction",
+    "fairy tale"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom"
+  },
+  "a-game-of-thrones": {
+   "author": "George R. R. Martin",
+   "year": 1996,
+   "genre": [
+    "high fantasy",
+    "fantasy"
+   ],
+   "language": "American English",
+   "nationality": "United States"
+  },
+  "the-name-of-the-wind": {
+   "author": "Patrick Rothfuss",
+   "year": 2007,
+   "genre": [
+    "heroic fantasy",
+    "high fantasy",
+    "fantasy"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "nineteen-eighty-four": {
+   "author": "George Orwell",
+   "year": 1949,
+   "genre": [
+    "social science fiction",
+    "political fiction",
+    "science fiction"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom"
+  },
+  "brave-new-world": {
+   "author": "Aldous Huxley",
+   "year": 1932,
+   "genre": [
+    "parody",
+    "political fiction",
+    "science fiction"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom"
+  },
+  "the-handmaid-s-tale": {
+   "author": "Margaret Atwood",
+   "year": 1985,
+   "genre": [
+    "feminist science fiction",
+    "social science fiction novel",
+    "science fiction"
+   ],
+   "language": "English",
+   "nationality": "Canada"
+  },
+  "the-hunger-games": {
+   "author": "Suzanne Collins",
+   "year": 2008,
+   "genre": [
+    "young adult fiction",
+    "science fiction literature",
+    "post-apocalyptic literature"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "fahrenheit-451": {
+   "author": "Ray Bradbury",
+   "year": 1953,
+   "genre": [
+    "science fiction",
+    "philosophical fiction",
+    "dystopian fiction"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "dune": {
+   "author": "Frank Herbert",
+   "year": 1965,
+   "genre": [
+    "soft science fiction",
+    "planetary romance",
+    "social science fiction"
+   ],
+   "language": "American English",
+   "nationality": "United States"
+  },
+  "foundation": {
+   "author": "Isaac Asimov",
+   "year": 1951,
+   "genre": [
+    "science fiction"
+   ],
+   "language": "English",
+   "nationality": "Russian Socialist Federative Soviet Republic"
+  },
+  "the-hitchhiker-s-guide-to-the-galaxy": {
+   "year": 1979,
+   "genre": [
+    "science fiction comedy",
+    "comic novel",
+    "science fiction"
+   ],
+   "language": "British English",
+   "nationality": "United Kingdom"
+  },
+  "frankenstein": {
+   "author": "Mary Shelley",
+   "year": 1818,
+   "genre": [
+    "epistolary novel",
+    "body horror literature",
+    "Gothic fiction"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom of Great Britain and Ireland"
+  },
+  "project-hail-mary": {
+   "author": "Andy Weir",
+   "year": 2021,
+   "genre": [
+    "science fiction"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "the-martian": {
+   "author": "Andy Weir",
+   "year": 2011,
+   "genre": [
+    "hard science fiction"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "pride-and-prejudice": {
+   "author": "Jane Austen",
+   "year": 1813,
+   "genre": [
+    "novel of manners",
+    "satirical fiction",
+    "psychological fiction"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom of Great Britain and Ireland"
+  },
+  "jane-eyre": {
+   "author": "Charlotte Brontë",
+   "year": 1847,
+   "genre": [
+    "education novel",
+    "autobiographical novel",
+    "Gothic fiction"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom of Great Britain and Ireland"
+  },
+  "wuthering-heights": {
+   "author": "Emily Brontë",
+   "year": 1847,
+   "genre": [
+    "Gothic fiction",
+    "Victorian literature",
+    "romantic fiction"
+   ],
+   "language": "British English",
+   "nationality": "United Kingdom of Great Britain and Ireland"
+  },
+  "the-notebook": {
+   "author": "Nicholas Sparks",
+   "year": 1996,
+   "genre": [
+    "romance"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "to-kill-a-mockingbird": {
+   "author": "Harper Lee",
+   "year": 1960,
+   "genre": [
+    "Bildungsroman",
+    "Southern Gothic",
+    "social fiction"
+   ],
+   "language": "American English",
+   "nationality": "United States"
+  },
+  "the-great-gatsby": {
+   "author": "F. Scott Fitzgerald",
+   "year": 1925,
+   "genre": [
+    "tragedy",
+    "Great American Novel"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "the-catcher-in-the-rye": {
+   "author": "J. D. Salinger",
+   "year": 1951,
+   "genre": [
+    "Bildungsroman"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "one-hundred-years-of-solitude": {
+   "author": "Gabriel García Márquez",
+   "year": 1967,
+   "genre": [
+    "magic realism"
+   ],
+   "language": "Spanish",
+   "nationality": "Colombia"
+  },
+  "beloved": {
+   "author": "Toni Morrison",
+   "year": 1987,
+   "genre": [
+    "magic realist fiction",
+    "historical fiction"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "moby-dick": {
+   "author": "Herman Melville",
+   "year": 1851,
+   "genre": [
+    "nautical fiction",
+    "adventure fiction"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "war-and-peace": {
+   "author": "Leo Tolstoy",
+   "year": 1869,
+   "genre": [
+    "romantic fiction",
+    "war fiction",
+    "philosophical fiction"
+   ],
+   "language": "Russian",
+   "nationality": "Russian Empire"
+  },
+  "crime-and-punishment": {
+   "author": "Fyodor Dostoyevsky",
+   "year": 1866,
+   "genre": [
+    "philosophical fiction",
+    "serialized fiction",
+    "crime fiction"
+   ],
+   "language": "Russian",
+   "nationality": "Russian Empire"
+  },
+  "the-kite-runner": {
+   "author": "Khaled Hosseini",
+   "year": 2003,
+   "language": "English",
+   "nationality": "United States"
+  },
+  "things-fall-apart": {
+   "author": "Chinua Achebe",
+   "year": 1958,
+   "genre": [
+    "fiction literature",
+    "historical fiction"
+   ],
+   "language": "English",
+   "nationality": "Colonial Nigeria"
+  },
+  "don-quixote": {
+   "author": "Miguel de Cervantes",
+   "year": 1605,
+   "genre": [
+    "chivalric romance",
+    "adventure fiction",
+    "parody"
+   ],
+   "language": "Early Modern Spanish",
+   "nationality": "Crown of Castile"
+  },
+  "of-mice-and-men": {
+   "author": "John Steinbeck",
+   "year": 1937,
+   "genre": [
+    "short novel",
+    "social novel"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "the-da-vinci-code": {
+   "author": "Dan Brown",
+   "year": 2003,
+   "genre": [
+    "conspiracy fiction",
+    "esoteric novel",
+    "crime fiction"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "gone-girl": {
+   "author": "Gillian Flynn",
+   "year": 2012,
+   "genre": [
+    "thriller"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "the-girl-with-the-dragon-tattoo": {
+   "author": "Stieg Larsson",
+   "year": 2005,
+   "genre": [
+    "Nordic noir",
+    "crime fiction",
+    "thriller"
+   ],
+   "language": "Swedish",
+   "nationality": "Sweden"
+  },
+  "and-then-there-were-none": {
+   "author": "Agatha Christie",
+   "year": 1939,
+   "genre": [
+    "crime fiction"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom"
+  },
+  "the-hound-of-the-baskervilles": {
+   "author": "Arthur Conan Doyle",
+   "year": 1902,
+   "genre": [
+    "crime fiction",
+    "mystery fiction",
+    "detective fiction"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom of Great Britain and Ireland"
+  },
+  "it": {
+   "author": "Stephen King",
+   "year": 1986,
+   "genre": [
+    "horror fiction"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "the-shining": {
+   "author": "Stephen King",
+   "year": 1977,
+   "genre": [
+    "psychological horror fiction",
+    "Gothic fiction",
+    "thriller"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "dracula": {
+   "author": "Bram Stoker",
+   "year": 1897,
+   "genre": [
+    "epistolary fiction",
+    "Gothic fiction",
+    "horror fiction"
+   ],
+   "language": "English",
+   "nationality": "United Kingdom of Great Britain and Ireland"
+  },
+  "the-little-prince": {
+   "author": "Antoine de Saint-Exupéry",
+   "year": 1943,
+   "genre": [
+    "lyrical novel",
+    "philosophical fiction",
+    "tale"
+   ],
+   "language": "French",
+   "nationality": "France"
+  },
+  "charlotte-s-web": {
+   "author": "E. B. White",
+   "year": 1952,
+   "genre": [
+    "fairy tale",
+    "children's fiction",
+    "fantasy"
+   ],
+   "language": "English",
+   "nationality": "United States"
+  },
+  "matilda": {
+   "author": "Roald Dahl",
+   "year": 1986,
+   "genre": [
+    "fantasy"
+   ],
+   "language": "English",
+   "nationality": "Norway"
+  },
+  "the-lion-the-witch-and-the-wardrobe": {
+   "author": "C. S. Lewis",
+   "year": 1950,
+   "genre": [
+    "fantasy",
+    "children's fiction"
+   ],
+   "language": "British English",
+   "nationality": "United Kingdom"
+  },
+  "alice-s-adventures-in-wonderland": {
+   "author": "Lewis Carroll",
+   "year": 1865,
+   "genre": [
+    "fairy tale",
+    "literary nonsense",
+    "children's fiction"
+   ],
+   "language": "British English",
+   "nationality": "United Kingdom of Great Britain and Ireland"
+  },
+  "the-book-thief": {
+   "author": "Markus Zusak",
+   "year": 2006,
+   "genre": [
+    "young adult fiction",
+    "historical fiction",
+    "Holocaust fiction"
+   ],
+   "language": "English",
+   "nationality": "Australia"
+  },
+  "the-alchemist": {
+   "author": "Paulo Coelho",
+   "year": 1988,
+   "genre": [
+    "adventure fiction",
+    "fantasy"
+   ],
+   "language": "Portuguese",
+   "nationality": "Brazil"
+  },
+  "sapiens": {
+   "author": "Yuval Noah Harari",
+   "year": 2011,
+   "genre": [
+    "popularisation of science",
+    "anthropology"
+   ],
+   "language": "Hebrew",
+   "nationality": "Israel"
+  },
+  "the-diary-of-a-young-girl": {
+   "author": "Anne Frank",
+   "year": 1947,
+   "genre": [
+    "autobiography",
+    "diary literature",
+    "Holocaust literature"
+   ],
+   "language": "Dutch",
+   "nationality": "Nazi Germany"
+  },
+  "les-misrables": {
+   "year": 1862,
+   "genre": [
+    "tragedy",
+    "historical fiction"
+   ],
+   "language": "French",
+   "nationality": "France"
+  }
+ }
+}

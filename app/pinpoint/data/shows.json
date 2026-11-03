@@ -1,0 +1,839 @@
+{
+ "pool": "shows",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "start",
+   "label": "Premiered",
+   "kind": "num",
+   "close": 4,
+   "fmt": "year"
+  },
+  {
+   "key": "end",
+   "label": "Ended",
+   "kind": "num",
+   "close": 4,
+   "fmt": "year"
+  },
+  {
+   "key": "network",
+   "label": "Network",
+   "kind": "set"
+  },
+  {
+   "key": "genre",
+   "label": "Genre",
+   "kind": "set"
+  },
+  {
+   "key": "seasons",
+   "label": "Seasons",
+   "kind": "num",
+   "close": 2,
+   "fmt": "int"
+  },
+  {
+   "key": "country",
+   "label": "Country",
+   "kind": "cat"
+  }
+ ],
+ "facts": {
+  "breaking-bad": {
+   "start": 2008,
+   "end": 2013,
+   "network": [
+    "AMC"
+   ],
+   "genre": [
+    "crime",
+    "drama",
+    "thriller"
+   ],
+   "seasons": 5,
+   "country": "United States"
+  },
+  "the-wire": {
+   "start": 2002,
+   "end": 2008,
+   "network": [
+    "HBO"
+   ],
+   "genre": [
+    "crime",
+    "drama",
+    "police"
+   ],
+   "seasons": 5,
+   "country": "United States"
+  },
+  "game-of-thrones": {
+   "start": 2011,
+   "end": 2019,
+   "network": [
+    "HBO"
+   ],
+   "genre": [
+    "action",
+    "adventure",
+    "fantasy"
+   ],
+   "seasons": 8,
+   "country": "United States"
+  },
+  "the-sopranos": {
+   "start": 1999,
+   "end": 2007,
+   "network": [
+    "HBO"
+   ],
+   "genre": [
+    "crime",
+    "drama"
+   ],
+   "seasons": 6,
+   "country": "United States"
+  },
+  "friends": {
+   "start": 1994,
+   "end": 2004,
+   "network": [
+    "NBC"
+   ],
+   "genre": [
+    "comedy",
+    "romance",
+    "sitcom"
+   ],
+   "seasons": 10,
+   "country": "United States"
+  },
+  "the-office-us": {
+   "start": 2005,
+   "end": 2013,
+   "network": [
+    "NBC"
+   ],
+   "genre": [
+    "sitcom",
+    "mockumentary"
+   ],
+   "seasons": 9,
+   "country": "United States"
+  },
+  "seinfeld": {
+   "start": 1989,
+   "end": 1998,
+   "network": [
+    "NBC"
+   ],
+   "genre": [
+    "sitcom"
+   ],
+   "seasons": 9,
+   "country": "United States"
+  },
+  "stranger-things": {
+   "start": 2016,
+   "end": 2025,
+   "network": [
+    "Netflix"
+   ],
+   "genre": [
+    "science fiction",
+    "horror",
+    "drama"
+   ],
+   "seasons": 5,
+   "country": "United States"
+  },
+  "better-call-saul": {
+   "start": 2015,
+   "end": 2022,
+   "network": [
+    "AMC"
+   ],
+   "genre": [
+    "legal drama",
+    "crime",
+    "drama fiction"
+   ],
+   "seasons": 6,
+   "country": "United States"
+  },
+  "succession": {
+   "start": 2018,
+   "end": 2023,
+   "network": [
+    "HBO"
+   ],
+   "genre": [
+    "comedy drama"
+   ],
+   "seasons": 4,
+   "country": "United States"
+  },
+  "chernobyl": {
+   "start": 2019,
+   "end": 2019,
+   "network": [
+    "HBO",
+    "Sky Atlantic"
+   ],
+   "genre": [
+    "historical drama"
+   ],
+   "country": "United States"
+  },
+  "black-mirror": {
+   "start": 2011,
+   "network": [
+    "Channel 4",
+    "Netflix"
+   ],
+   "genre": [
+    "science fiction",
+    "drama",
+    "anthology series"
+   ],
+   "seasons": 7,
+   "country": "United Kingdom"
+  },
+  "the-mandalorian": {
+   "start": 2019,
+   "network": [
+    "Disney+"
+   ],
+   "genre": [
+    "science fiction",
+    "space Western",
+    "adventure"
+   ],
+   "seasons": 3,
+   "country": "United States"
+  },
+  "avatar-the-last-airbender": {
+   "start": 2005,
+   "end": 2008,
+   "network": [
+    "Nickelodeon"
+   ],
+   "genre": [
+    "fantasy",
+    "comedy drama",
+    "children's"
+   ],
+   "seasons": 3,
+   "country": "United States"
+  },
+  "rick-and-morty": {
+   "start": 2013,
+   "network": [
+    "Adult Swim"
+   ],
+   "genre": [
+    "sitcom",
+    "science fiction",
+    "black comedy"
+   ],
+   "seasons": 8,
+   "country": "United States"
+  },
+  "the-simpsons": {
+   "start": 1989,
+   "network": [
+    "Fox Broadcasting Company"
+   ],
+   "genre": [
+    "animated sitcom",
+    "satire",
+    "black comedy"
+   ],
+   "seasons": 38,
+   "country": "United States"
+  },
+  "south-park": {
+   "start": 1997,
+   "network": [
+    "Comedy Central",
+    "Paramount Comedy"
+   ],
+   "genre": [
+    "comedy",
+    "surreal humour",
+    "raunchy comedy"
+   ],
+   "seasons": 29,
+   "country": "United States"
+  },
+  "attack-on-titan": {
+   "start": 2013,
+   "end": 2023,
+   "genre": [
+    "adventure anime and manga",
+    "dark fantasy",
+    "post-apocalyptic anime and manga"
+   ],
+   "seasons": 4,
+   "country": "Japan"
+  },
+  "death-note": {
+   "start": 2003,
+   "end": 2006,
+   "genre": [
+    "mystery anime and manga",
+    "supernatural anime and manga",
+    "thriller anime and manga"
+   ],
+   "country": "Japan"
+  },
+  "fullmetal-alchemist-brotherhood": {
+   "start": 2009,
+   "end": 2010,
+   "network": [
+    "MBS"
+   ],
+   "genre": [
+    "adventure anime and manga",
+    "dark fantasy",
+    "steampunk"
+   ],
+   "seasons": 1,
+   "country": "Japan"
+  },
+  "dragon-ball-z": {
+   "start": 1989,
+   "end": 1996,
+   "network": [
+    "Fuji Television"
+   ],
+   "genre": [
+    "action anime and manga",
+    "adventure anime and manga",
+    "fantasy anime and manga"
+   ],
+   "seasons": 1,
+   "country": "Japan"
+  },
+  "naruto": {
+   "start": 2002,
+   "end": 2007,
+   "genre": [
+    "action anime and manga",
+    "adventure anime and manga",
+    "comedy anime and manga"
+   ],
+   "seasons": 9,
+   "country": "Japan"
+  },
+  "sherlock": {
+   "start": 2010,
+   "end": 2017,
+   "network": [
+    "BBC One"
+   ],
+   "genre": [
+    "crime",
+    "detective",
+    "drama"
+   ],
+   "seasons": 4,
+   "country": "United Kingdom"
+  },
+  "peaky-blinders": {
+   "start": 2013,
+   "end": 2022,
+   "network": [
+    "BBC Two"
+   ],
+   "genre": [
+    "drama",
+    "historical drama",
+    "crime"
+   ],
+   "seasons": 6,
+   "country": "United Kingdom"
+  },
+  "the-crown": {
+   "start": 2016,
+   "end": 2023,
+   "network": [
+    "Netflix"
+   ],
+   "genre": [
+    "drama",
+    "historical"
+   ],
+   "seasons": 6,
+   "country": "United Kingdom"
+  },
+  "house-of-the-dragon": {
+   "start": 2022,
+   "network": [
+    "HBO"
+   ],
+   "genre": [
+    "fantasy",
+    "drama"
+   ],
+   "seasons": 3,
+   "country": "United States"
+  },
+  "the-last-of-us": {
+   "start": 2023,
+   "network": [
+    "HBO"
+   ],
+   "genre": [
+    "thriller",
+    "drama",
+    "post-apocalyptic"
+   ],
+   "seasons": 2,
+   "country": "United States"
+  },
+  "squid-game": {
+   "start": 2021,
+   "end": 2025,
+   "network": [
+    "Netflix"
+   ],
+   "genre": [
+    "thriller",
+    "action",
+    "mystery"
+   ],
+   "seasons": 3,
+   "country": "South Korea"
+  },
+  "money-heist": {
+   "start": 2017,
+   "end": 2021,
+   "network": [
+    "Antena 3"
+   ],
+   "genre": [
+    "action",
+    "black comedy",
+    "buddy"
+   ],
+   "seasons": 3,
+   "country": "Spain"
+  },
+  "dark": {
+   "start": 2017,
+   "end": 2020,
+   "network": [
+    "Netflix"
+   ],
+   "genre": [
+    "science fiction",
+    "drama",
+    "thriller"
+   ],
+   "seasons": 3,
+   "country": "Germany"
+  },
+  "lost": {
+   "start": 2004,
+   "end": 2010,
+   "network": [
+    "American Broadcasting Company"
+   ],
+   "genre": [
+    "science fiction",
+    "drama",
+    "adventure"
+   ],
+   "seasons": 6,
+   "country": "United States"
+  },
+  "the-walking-dead": {
+   "start": 2003,
+   "end": 2022,
+   "network": [
+    "AMC"
+   ],
+   "genre": [
+    "horror",
+    "drama",
+    "post-apocalyptic"
+   ],
+   "seasons": 11,
+   "country": "United States"
+  },
+  "westworld": {
+   "start": 2016,
+   "end": 2022,
+   "network": [
+    "HBO"
+   ],
+   "genre": [
+    "science fiction",
+    "Westerns on television",
+    "drama"
+   ],
+   "seasons": 4,
+   "country": "United States"
+  },
+  "mad-men": {
+   "start": 2007,
+   "end": 2015,
+   "network": [
+    "AMC"
+   ],
+   "genre": [
+    "drama"
+   ],
+   "seasons": 7,
+   "country": "United States"
+  },
+  "the-bear": {
+   "start": 2022,
+   "end": 2026,
+   "network": [
+    "Hulu",
+    "FX on Hulu"
+   ],
+   "genre": [
+    "comedy drama"
+   ],
+   "seasons": 5,
+   "country": "United States"
+  },
+  "ted-lasso": {
+   "start": 2020,
+   "end": 2023,
+   "network": [
+    "Apple TV"
+   ],
+   "genre": [
+    "comedy"
+   ],
+   "seasons": 4,
+   "country": "United States"
+  },
+  "arrested-development": {
+   "start": 2003,
+   "end": 2019,
+   "network": [
+    "Fox Broadcasting Company",
+    "Netflix"
+   ],
+   "genre": [
+    "comedy"
+   ],
+   "seasons": 5,
+   "country": "United States"
+  },
+  "parks-and-recreation": {
+   "start": 2009,
+   "end": 2015,
+   "network": [
+    "NBC"
+   ],
+   "genre": [
+    "sitcom",
+    "mockumentary"
+   ],
+   "seasons": 7,
+   "country": "United States"
+  },
+  "how-i-met-your-mother": {
+   "start": 2005,
+   "end": 2014,
+   "network": [
+    "CBS"
+   ],
+   "genre": [
+    "comedy drama",
+    "sitcom",
+    "romantic comedy"
+   ],
+   "seasons": 9,
+   "country": "United States"
+  },
+  "brooklyn-nine-nine": {
+   "start": 2013,
+   "end": 2021,
+   "network": [
+    "NBC"
+   ],
+   "genre": [
+    "sitcom",
+    "police procedural"
+   ],
+   "seasons": 8,
+   "country": "United States"
+  },
+  "modern-family": {
+   "start": 2009,
+   "end": 2020,
+   "network": [
+    "American Broadcasting Company"
+   ],
+   "genre": [
+    "sitcom",
+    "mockumentary",
+    "LGBT-related"
+   ],
+   "seasons": 11,
+   "country": "United States"
+  },
+  "the-big-bang-theory": {
+   "start": 2007,
+   "end": 2019,
+   "network": [
+    "CBS"
+   ],
+   "genre": [
+    "sitcom"
+   ],
+   "seasons": 12,
+   "country": "United States"
+  },
+  "narcos": {
+   "start": 2015,
+   "end": 2017,
+   "network": [
+    "Netflix"
+   ],
+   "genre": [
+    "drama",
+    "crime",
+    "biographical"
+   ],
+   "seasons": 3,
+   "country": "United States"
+  },
+  "ozark": {
+   "start": 2017,
+   "end": 2022,
+   "network": [
+    "Netflix"
+   ],
+   "genre": [
+    "drama",
+    "crime"
+   ],
+   "seasons": 4,
+   "country": "United States"
+  },
+  "true-detective": {
+   "start": 2014,
+   "network": [
+    "HBO"
+   ],
+   "genre": [
+    "drama",
+    "neo-noir",
+    "crime"
+   ],
+   "seasons": 4,
+   "country": "United States"
+  },
+  "fargo": {
+   "start": 2014,
+   "network": [
+    "FX"
+   ],
+   "genre": [
+    "psychological thriller",
+    "comedy drama",
+    "crime"
+   ],
+   "seasons": 5,
+   "country": "United States"
+  },
+  "doctor-who": {
+   "start": 1963,
+   "network": [
+    "BBC One"
+   ],
+   "genre": [
+    "science fiction",
+    "action",
+    "time-travel fiction"
+   ],
+   "seasons": 41,
+   "country": "United Kingdom"
+  },
+  "star-trek-the-next-generation": {
+   "start": 1987,
+   "end": 1994,
+   "network": [
+    "broadcast syndication"
+   ],
+   "genre": [
+    "science fiction",
+    "adventure"
+   ],
+   "seasons": 7,
+   "country": "United States"
+  },
+  "buffy-the-vampire-slayer": {
+   "start": 1997,
+   "end": 2003,
+   "network": [
+    "The WB",
+    "UPN"
+   ],
+   "genre": [
+    "fantasy",
+    "horror",
+    "drama"
+   ],
+   "seasons": 7,
+   "country": "United States"
+  },
+  "the-x-files": {
+   "start": 1993,
+   "end": 2018,
+   "network": [
+    "Fox Broadcasting Company"
+   ],
+   "genre": [
+    "science fiction",
+    "thriller",
+    "horror"
+   ],
+   "seasons": 11,
+   "country": "United States"
+  },
+  "twin-peaks": {
+   "start": 1990,
+   "end": 1991,
+   "network": [
+    "American Broadcasting Company"
+   ],
+   "genre": [
+    "drama",
+    "thriller",
+    "horror"
+   ],
+   "seasons": 3,
+   "country": "United States"
+  },
+  "gilmore-girls": {
+   "start": 2000,
+   "end": 2007,
+   "network": [
+    "The WB",
+    "The CW"
+   ],
+   "genre": [
+    "comedy drama",
+    "youth series"
+   ],
+   "seasons": 7,
+   "country": "United States"
+  },
+  "spongebob-squarepants": {
+   "start": 1999,
+   "network": [
+    "Nickelodeon",
+    "ARB Günəş"
+   ],
+   "genre": [
+    "animated sitcom",
+    "comedy",
+    "fantasy"
+   ],
+   "seasons": 16,
+   "country": "United States"
+  },
+  "bluey": {
+   "start": 2018,
+   "network": [
+    "ABC Kids"
+   ],
+   "genre": [
+    "children's",
+    "adventure"
+   ],
+   "seasons": 3,
+   "country": "Australia"
+  },
+  "arcane": {
+   "start": 2021,
+   "end": 2024,
+   "network": [
+    "Netflix",
+    "Tencent Video"
+   ],
+   "genre": [
+    "adventure",
+    "fantasy",
+    "action"
+   ],
+   "seasons": 2,
+   "country": "United States"
+  },
+  "severance": {
+   "start": 2022,
+   "network": [
+    "Apple TV"
+   ],
+   "genre": [
+    "thriller",
+    "psychological thriller",
+    "drama"
+   ],
+   "seasons": 2,
+   "country": "United States"
+  },
+  "euphoria": {
+   "start": 2019,
+   "network": [
+    "HBO"
+   ],
+   "genre": [
+    "LGBT-related",
+    "teen drama television"
+   ],
+   "seasons": 3,
+   "country": "United States"
+  },
+  "yellowstone": {
+   "start": 2018,
+   "end": 2024,
+   "network": [
+    "Paramount Network"
+   ],
+   "genre": [
+    "drama",
+    "Westerns on television"
+   ],
+   "seasons": 5,
+   "country": "United States"
+  },
+  "band-of-brothers": {
+   "start": 2001,
+   "end": 2001,
+   "network": [
+    "HBO"
+   ],
+   "genre": [
+    "war",
+    "drama",
+    "historical"
+   ],
+   "seasons": 1,
+   "country": "United States"
+  },
+  "the-boys": {
+   "start": 2019,
+   "network": [
+    "Amazon Prime Video"
+   ],
+   "genre": [
+    "action",
+    "fantasy",
+    "crime"
+   ],
+   "seasons": 5,
+   "country": "United States"
+  }
+ }
+}

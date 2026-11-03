@@ -1,0 +1,380 @@
+{
+ "pool": "videogames",
+ "source": "Wikidata and the Superhero API",
+ "columns": [
+  {
+   "key": "universe",
+   "label": "Universe",
+   "kind": "cat"
+  },
+  {
+   "key": "debut",
+   "label": "First appeared",
+   "kind": "num",
+   "close": 8,
+   "fmt": "year"
+  },
+  {
+   "key": "creator",
+   "label": "Created by",
+   "kind": "set"
+  },
+  {
+   "key": "species",
+   "label": "Species",
+   "kind": "cat"
+  },
+  {
+   "key": "gender",
+   "label": "Gender",
+   "kind": "cat"
+  },
+  {
+   "key": "side",
+   "label": "Side",
+   "kind": "cat"
+  }
+ ],
+ "facts": {
+  "mario": {
+   "universe": "Nintendo",
+   "debut": 1981,
+   "creator": [
+    "Shigeru Miyamoto"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "luigi": {
+   "universe": "Nintendo",
+   "debut": 1983,
+   "creator": [
+    "Shigeru Miyamoto"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "link": {
+   "universe": "Nintendo",
+   "debut": 1986,
+   "creator": [
+    "Shigeru Miyamoto"
+   ],
+   "species": "Hylian",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "samus-aran": {
+   "universe": "Nintendo",
+   "debut": 1986,
+   "creator": [
+    "Makoto Kano"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "kirby": {
+   "universe": "Nintendo",
+   "debut": 1992,
+   "creator": [
+    "Masahiro Sakurai"
+   ],
+   "species": "Extraterrestrial",
+   "gender": "Gender not disclosed in work",
+   "side": "Hero"
+  },
+  "donkey-kong": {
+   "universe": "Nintendo",
+   "debut": 1981,
+   "creator": [
+    "Shigeru Miyamoto"
+   ],
+   "species": "Gorilla",
+   "gender": "Male organism",
+   "side": "Hero"
+  },
+  "pikachu": {
+   "universe": "Nintendo",
+   "debut": 1996,
+   "creator": [
+    "Atsuko Nishida"
+   ],
+   "species": "Electric-type Pokémon",
+   "side": "Hero"
+  },
+  "fox-mccloud": {
+   "universe": "Nintendo",
+   "debut": 1993,
+   "creator": [
+    "Shigeru Miyamoto",
+    "Takaya Imamura"
+   ],
+   "species": "Anthropomorphic fox",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "sonic": {
+   "universe": "Sega",
+   "debut": 1990,
+   "creator": [
+    "Yuji Naka",
+    "Naoto Ohshima",
+    "Hirokazu Yasuhara"
+   ],
+   "species": "Anthropomorphic hedgehog",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "tails": {
+   "universe": "Sega",
+   "debut": 1992,
+   "creator": [
+    "Yasushi Yamaguchi"
+   ],
+   "species": "Anthropomorphic fox",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "knuckles": {
+   "universe": "Sega",
+   "debut": 1994,
+   "species": "Anthropomorphic echidna",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "mega-man": {
+   "universe": "Capcom",
+   "debut": 1987,
+   "creator": [
+    "Akira Kitamura"
+   ],
+   "species": "Robot",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "chun-li": {
+   "universe": "Capcom",
+   "debut": 1991,
+   "creator": [
+    "Akira Nishitani"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "cloud-strife": {
+   "universe": "Final Fantasy",
+   "debut": 1997,
+   "creator": [
+    "Tetsuya Nomura"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "tifa-lockhart": {
+   "universe": "Final Fantasy",
+   "debut": 1997,
+   "creator": [
+    "Tetsuya Nomura"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "aerith": {
+   "universe": "Final Fantasy",
+   "debut": 1997,
+   "creator": [
+    "Yoshinori Kitase"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "lara-croft": {
+   "universe": "Adventure",
+   "debut": 1996,
+   "creator": [
+    "Toby Gard"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "nathan-drake": {
+   "universe": "Adventure",
+   "debut": 2007,
+   "creator": [
+    "Amy Hennig"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "master-chief": {
+   "universe": "Shooter",
+   "debut": 2001,
+   "creator": [
+    "Bungie"
+   ],
+   "species": "Human / Altered",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "doomguy": {
+   "universe": "Shooter",
+   "debut": 1993,
+   "creator": [
+    "John Romero"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "solid-snake": {
+   "universe": "Stealth",
+   "debut": 1987,
+   "creator": [
+    "Hideo Kojima"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "geralt-of-rivia": {
+   "universe": "RPG",
+   "debut": 1986,
+   "creator": [
+    "Andrzej Sapkowski"
+   ],
+   "species": "Witcher",
+   "gender": "Male"
+  },
+  "ezio-auditore": {
+   "universe": "Stealth",
+   "debut": 2009,
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "pac-man": {
+   "universe": "Arcade",
+   "debut": 1980,
+   "creator": [
+    "Tōru Iwatani"
+   ],
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "crash-bandicoot": {
+   "universe": "Platformer",
+   "debut": 1996,
+   "creator": [
+    "Andy Gavin",
+    "Jason Rubin"
+   ],
+   "species": "Marsupial",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "spyro": {
+   "universe": "Platformer",
+   "debut": 1998,
+   "creator": [
+    "Charles Zembillas"
+   ],
+   "species": "Dragon",
+   "gender": "Male organism",
+   "side": "Hero"
+  },
+  "ratchet": {
+   "universe": "Platformer",
+   "debut": 2002,
+   "creator": [
+    "Insomniac Games"
+   ],
+   "species": "Duo",
+   "side": "Hero"
+  },
+  "gordon-freeman": {
+   "universe": "Shooter",
+   "debut": 1998,
+   "creator": [
+    "Gabe Newell"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "commander-shepard": {
+   "universe": "RPG",
+   "debut": 2007,
+   "species": "Human",
+   "gender": "Gender determined by the player",
+   "side": "Hero"
+  },
+  "bayonetta": {
+   "universe": "Action",
+   "debut": 2009,
+   "creator": [
+    "Hideki Kamiya"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  },
+  "jill-valentine": {
+   "universe": "Survival",
+   "debut": 1996,
+   "creator": [
+    "Shinji Mikami"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "isaac-clarke": {
+   "universe": "Survival",
+   "debut": 2008,
+   "creator": [
+    "Glen Schofield"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "tracer": {
+   "universe": "Overwatch",
+   "debut": 2016,
+   "creator": [
+    "Blizzard Entertainment"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "mercy": {
+   "universe": "Overwatch",
+   "debut": 2016,
+   "creator": [
+    "Blizzard Entertainment"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "reinhardt": {
+   "universe": "Overwatch",
+   "debut": 2016,
+   "creator": [
+    "Jeff Kaplan"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  }
+ }
+}

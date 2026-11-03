@@ -1,0 +1,306 @@
+{
+ "pool": "disney",
+ "source": "Wikidata and the Superhero API",
+ "columns": [
+  {
+   "key": "universe",
+   "label": "Universe",
+   "kind": "cat"
+  },
+  {
+   "key": "debut",
+   "label": "First appeared",
+   "kind": "num",
+   "close": 8,
+   "fmt": "year"
+  },
+  {
+   "key": "creator",
+   "label": "Created by",
+   "kind": "set"
+  },
+  {
+   "key": "species",
+   "label": "Species",
+   "kind": "cat"
+  },
+  {
+   "key": "gender",
+   "label": "Gender",
+   "kind": "cat"
+  }
+ ],
+ "facts": {
+  "mickey-mouse": {
+   "universe": "Disney",
+   "debut": 1928,
+   "creator": [
+    "Walt Disney",
+    "Ub Iwerks"
+   ],
+   "species": "Anthropomorphic mouse",
+   "gender": "Male"
+  },
+  "elsa": {
+   "universe": "Disney",
+   "debut": 2013,
+   "creator": [
+    "Chris Buck",
+    "Jennifer Lee"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  },
+  "simba": {
+   "universe": "Disney",
+   "debut": 1994,
+   "creator": [
+    "Irene Mecchi",
+    "Jonathan Roberts",
+    "Linda Woolverton"
+   ],
+   "species": "Anthropomorphic lion",
+   "gender": "Male"
+  },
+  "aladdin": {
+   "universe": "Disney",
+   "debut": 1992,
+   "creator": [
+    "Ron Clements",
+    "John Musker"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "genie": {
+   "universe": "Disney",
+   "debut": 1992,
+   "creator": [
+    "Eric Goldberg"
+   ],
+   "gender": "Male"
+  },
+  "mulan": {
+   "universe": "Disney",
+   "debut": 1998,
+   "creator": [
+    "Robert D. San Souci"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  },
+  "hercules": {
+   "universe": "Disney",
+   "species": "Demi-God",
+   "gender": "Male"
+  },
+  "moana": {
+   "universe": "Disney",
+   "debut": 2016,
+   "creator": [
+    "Ron Clements",
+    "John Musker"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  },
+  "maui": {
+   "universe": "Disney",
+   "debut": 2016,
+   "creator": [
+    "Ron Clements",
+    "John Musker"
+   ],
+   "species": "Shapeshifter",
+   "gender": "Male"
+  },
+  "rapunzel": {
+   "universe": "Disney",
+   "debut": 2010,
+   "creator": [
+    "Glen Keane"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  },
+  "tarzan": {
+   "universe": "Disney",
+   "debut": 1914,
+   "creator": [
+    "Edgar Rice Burroughs"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "stitch": {
+   "universe": "Disney",
+   "debut": 2002,
+   "creator": [
+    "Chris Sanders"
+   ],
+   "species": "Extraterrestrial",
+   "gender": "Male"
+  },
+  "baymax": {
+   "universe": "Disney",
+   "debut": 1998,
+   "species": "Human",
+   "gender": "Male"
+  },
+  "woody": {
+   "universe": "Pixar",
+   "debut": 1995,
+   "creator": [
+    "John Lasseter",
+    "Andrew Stanton",
+    "Pete Docter"
+   ],
+   "gender": "Male"
+  },
+  "buzz-lightyear": {
+   "universe": "Pixar",
+   "debut": 1995,
+   "creator": [
+    "John Lasseter",
+    "Pete Docter",
+    "Andrew Stanton"
+   ],
+   "gender": "Male"
+  },
+  "mike-wazowski": {
+   "universe": "Pixar",
+   "debut": 2001,
+   "creator": [
+    "Pete Docter",
+    "Jill Culton",
+    "Jeff Pidgeon"
+   ],
+   "species": "Creature",
+   "gender": "Male"
+  },
+  "lightning-mcqueen": {
+   "universe": "Pixar",
+   "debut": 2006,
+   "creator": [
+    "John Lasseter",
+    "Joe Ranft"
+   ],
+   "species": "Anthropomorphic motor car",
+   "gender": "Male"
+  },
+  "wall-e": {
+   "universe": "Pixar",
+   "debut": 2008,
+   "creator": [
+    "Andrew Stanton",
+    "Pete Docter"
+   ],
+   "species": "Robot",
+   "gender": "Male"
+  },
+  "mr-incredible": {
+   "universe": "Pixar",
+   "debut": 2004,
+   "creator": [
+    "Brad Bird"
+   ],
+   "species": "Super",
+   "gender": "Male"
+  },
+  "elastigirl": {
+   "universe": "Pixar",
+   "debut": 2004,
+   "creator": [
+    "Brad Bird"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  },
+  "jack-jack": {
+   "universe": "Pixar",
+   "species": "Human",
+   "gender": "Male"
+  },
+  "merida": {
+   "universe": "Disney",
+   "debut": 2012,
+   "creator": [
+    "Brenda Chapman"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  },
+  "scar": {
+   "universe": "Disney",
+   "debut": 1994,
+   "creator": [
+    "Irene Mecchi",
+    "Jonathan Roberts",
+    "Linda Woolverton"
+   ],
+   "species": "Anthropomorphic lion",
+   "gender": "Male"
+  },
+  "maleficent": {
+   "universe": "Disney",
+   "debut": 1959,
+   "creator": [
+    "Marc Davis"
+   ],
+   "gender": "Female"
+  },
+  "ursula": {
+   "universe": "Disney",
+   "debut": 1989,
+   "creator": [
+    "Ron Clements"
+   ],
+   "gender": "Female"
+  },
+  "captain-hook": {
+   "universe": "Disney",
+   "debut": 1904,
+   "creator": [
+    "J. M. Barrie"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "gaston": {
+   "universe": "Disney",
+   "debut": 1991,
+   "creator": [
+    "Linda Woolverton"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "jafar": {
+   "universe": "Disney",
+   "debut": 1992,
+   "creator": [
+    "Andreas Deja"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "olaf": {
+   "universe": "Disney",
+   "debut": 2013,
+   "creator": [
+    "Chris Buck"
+   ],
+   "species": "Anthropomorphic snowman",
+   "gender": "Male"
+  },
+  "mushu": {
+   "universe": "Disney",
+   "debut": 1998,
+   "creator": [
+    "Robert D. San Souci"
+   ],
+   "species": "Anthropomorphic dragon",
+   "gender": "Male"
+  }
+ }
+}

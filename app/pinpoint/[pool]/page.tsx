@@ -7,20 +7,21 @@ import { ArrowDown, ArrowUp, Check, Copy, Crosshair, Shuffle } from "lucide-reac
 import { Button, PageHeader, PageShell, Panel, controlCls } from "../../components/ui";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { useSound } from "../../components/SoundProvider";
-import { catalogMeta, getCatalog } from "../../topicDraft/catalogs";
-import { statName } from "../../topicDraft/traits";
-import { MAX_GUESSES, compare, dailyAnswer, dayNumber, shareGrid, type Hint } from "../../topicDraft/pinpoint";
+import { MAX_GUESSES, compare, dailyAnswer, dayNumber, formatValue, shareGrid, type Hint } from "../engine";
+import { PINPOINT_DATA } from "../data";
 import type { Item } from "../../topicDraft/types";
-import { PINPOINT_TOPICS, loadPinpoint, savePinpoint } from "../topics";
+import { PINPOINT_TOPICS, loadPinpoint, pinpointPicks, savePinpoint } from "../topics";
 import { track } from "../../lib/analytics";
 
-const HEAT = { hit: "bg-emerald-500/25 border-emerald-400/60", warm: "bg-amber-400/20 border-amber-300/50", cold: "bg-white/5 border-white/10" } as const;
+const HEAT = { hit: "bg-emerald-500/25 border-emerald-400/60", warm: "bg-amber-400/20 border-amber-300/50", cold: "bg-white/5 border-white/10", none: "bg-transparent border-dashed border-white/10 text-muted-foreground" } as const;
 
 export default function PinpointGame() {
   const { pool } = useParams<{ pool: string }>();
   const topic = PINPOINT_TOPICS.find((t) => t.id === pool);
-  const items = useMemo(() => getCatalog(pool), [pool]);
-  const keys = catalogMeta(pool)?.statKeys ?? [];
+  const items = useMemo(() => pinpointPicks(pool), [pool]);
+  const data = PINPOINT_DATA[pool];
+  const columns = data?.columns ?? [];
+  const facts = data?.facts ?? {};
   const day = dayNumber();
   const { play } = useSound();
   const [practice, setPractice] = useState<Item | null>(null);
@@ -35,7 +36,7 @@ export default function PinpointGame() {
 
   if (!topic || !answer) return notFound();
   const byId = new Map(items.map((i) => [i.id, i]));
-  const hints: Hint[] = guesses.map((id) => compare(byId.get(id)!, answer, keys)).filter((h) => h.item);
+  const hints: Hint[] = guesses.filter((id) => byId.has(id)).map((id) => compare(byId.get(id)!, answer, columns, facts));
   const won = hints.some((h) => h.correct);
   const over = won || hints.length >= MAX_GUESSES;
   const q = text.trim().toLowerCase();
@@ -46,7 +47,7 @@ export default function PinpointGame() {
     const next = [...guesses, item.id];
     setGuesses(next);
     setText("");
-    const h = compare(item, answer, keys);
+    const h = compare(item, answer, columns, facts);
     const done = h.correct || next.length >= MAX_GUESSES;
     play(h.correct ? "win" : done ? "lose" : h.closeness >= 70 ? "reveal" : "click");
     if (!practice) savePinpoint(pool, day, { guesses: next, over: done, won: h.correct });
@@ -96,7 +97,7 @@ export default function PinpointGame() {
             <div className="min-w-0">
               <p className="text-sm text-muted-foreground">{won ? `Got it in ${hints.length}!` : "Out of guesses. It was"}</p>
               <p className="truncate text-2xl font-semibold">{answer.name}</p>
-              <p className="text-sm text-muted-foreground">{answer.universe} · {answer.archetype}</p>
+              <p className="text-sm text-muted-foreground">{columns.slice(0, 3).map((c) => formatValue(c, facts[answer.id]?.[c.key])).join(" · ")}</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -118,19 +119,14 @@ export default function PinpointGame() {
               </div>
               <span className="shrink-0 text-xl font-semibold tabular-nums" aria-label={`${h.closeness} percent close`}>{h.closeness}%</span>
             </div>
-            <div className="flex flex-wrap gap-1.5 text-xs">
-              <span className={`rounded-full border px-2.5 py-1 ${h.universe ? HEAT.hit : HEAT.cold}`}>{h.item.universe}{h.universe ? " ✓" : ""}</span>
-              <span className={`rounded-full border px-2.5 py-1 ${h.archetype ? HEAT.hit : HEAT.cold}`}>{h.item.archetype}{h.archetype ? " ✓" : ""}</span>
-              {h.shared.map((t) => <span key={t} className={`rounded-full border px-2.5 py-1 ${HEAT.hit}`}>#{t}</span>)}
-            </div>
-            <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
-              {h.stats.map((s) => (
-                <div key={s.key} className={`rounded-lg border px-2 py-1.5 text-center ${HEAT[s.heat]}`}>
-                  <p className="truncate text-[11px] uppercase tracking-wide text-muted-foreground">{statName(s.key)}</p>
-                  <p className="flex items-center justify-center gap-0.5 font-semibold tabular-nums">
-                    {s.guess}
-                    {s.dir === "up" && <ArrowUp className="h-3.5 w-3.5" aria-label="answer is higher" />}
-                    {s.dir === "down" && <ArrowDown className="h-3.5 w-3.5" aria-label="answer is lower" />}
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+              {h.cells.map((c, k) => (
+                <div key={c.key} className={`min-w-0 rounded-lg border px-2 py-1.5 ${HEAT[c.heat]}`}>
+                  <p className="truncate text-[11px] uppercase tracking-wide text-muted-foreground">{columns[k]!.label}</p>
+                  <p className="flex items-start gap-1 text-sm font-semibold leading-snug">
+                    <span className="min-w-0 break-words">{c.text}</span>
+                    {c.dir === "up" && <ArrowUp className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-label="answer is higher" />}
+                    {c.dir === "down" && <ArrowDown className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-label="answer is lower" />}
                   </p>
                 </div>
               ))}
@@ -143,8 +139,10 @@ export default function PinpointGame() {
         <Panel title="How to play">
           <ul className="space-y-1 text-sm text-muted-foreground">
             <li><Crosshair className="mr-1 inline h-4 w-4" aria-hidden /> Guess any {topic.title.toLowerCase()} pick. The closeness score shows how near you are.</li>
-            <li>Green tags match the answer: same group, same type, shared tags.</li>
-            <li>Each stat shows your guess's value. The arrow says if the answer's is higher or lower; green is within 4, yellow within 12.</li>
+            <li>Each guess shows real facts: {columns.map((c) => c.label.toLowerCase()).join(", ")}.</li>
+            <li>Green matches the answer exactly. Yellow is close, or shares some of the answer's list.</li>
+            <li>Arrows say if the answer's number is higher or lower.</li>
+            <li className="text-xs">Facts from {data?.source}.</li>
           </ul>
         </Panel>
       )}

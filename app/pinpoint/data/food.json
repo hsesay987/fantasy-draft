@@ -1,0 +1,656 @@
+{
+ "pool": "food",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "country",
+   "label": "From",
+   "kind": "cat"
+  },
+  {
+   "key": "continent",
+   "label": "Continent",
+   "kind": "cat"
+  },
+  {
+   "key": "type",
+   "label": "Type",
+   "kind": "set"
+  },
+  {
+   "key": "ingredients",
+   "label": "Made with",
+   "kind": "set"
+  }
+ ],
+ "facts": {
+  "pizza-margherita": {
+   "country": "Italy",
+   "continent": "Europe",
+   "type": [
+    "Neapolitan pizza"
+   ],
+   "ingredients": [
+    "San Marzano tomato",
+    "extra virgin olive oil",
+    "basil",
+    "table salt",
+    "mozzarella"
+   ]
+  },
+  "sushi": {
+   "country": "Japan",
+   "continent": "Asia",
+   "type": [
+    "raw fish dish",
+    "seafood dish"
+   ],
+   "ingredients": [
+    "raw fish",
+    "sumeshi"
+   ]
+  },
+  "ramen": {
+   "country": "People's Republic of China",
+   "continent": "Asia",
+   "type": [
+    "noodle soup"
+   ],
+   "ingredients": [
+    "Youmian",
+    "Japanese noodles",
+    "noodle",
+    "broth"
+   ]
+  },
+  "tacos-al-pastor": {
+   "country": "Mexico",
+   "continent": "North America",
+   "type": [
+    "taco",
+    "shawarma"
+   ],
+   "ingredients": [
+    "pineapple",
+    "pork"
+   ]
+  },
+  "pad-thai": {
+   "country": "Thailand",
+   "continent": "Asia",
+   "type": [
+    "noodle dish"
+   ],
+   "ingredients": [
+    "rice noodle",
+    "chicken egg",
+    "tofu",
+    "Tamarindus indica",
+    "peanut"
+   ]
+  },
+  "butter-chicken": {
+   "country": "India",
+   "continent": "Asia",
+   "type": [
+    "chicken dish",
+    "food"
+   ],
+   "ingredients": [
+    "chicken as food"
+   ]
+  },
+  "croissant": {
+   "country": "France",
+   "continent": "Europe",
+   "type": [
+    "viennoiserie",
+    "pastry"
+   ],
+   "ingredients": [
+    "puff pastry",
+    "butter"
+   ]
+  },
+  "cheeseburger": {
+   "country": "United States",
+   "continent": "North America",
+   "type": [
+    "sandwich",
+    "hamburger"
+   ],
+   "ingredients": [
+    "bun",
+    "patty",
+    "cheese"
+   ]
+  },
+  "paella": {
+   "country": "Spain",
+   "continent": "Europe",
+   "type": [
+    "rice dish"
+   ],
+   "ingredients": [
+    "rice",
+    "olive oil",
+    "saffron",
+    "Phaseolus lunatus",
+    "rice as food"
+   ]
+  },
+  "pho": {
+   "country": "Vietnam",
+   "continent": "Asia",
+   "type": [
+    "noodle soup",
+    "dish"
+   ],
+   "ingredients": [
+    "rice noodle"
+   ]
+  },
+  "peking-duck": {
+   "country": "People's Republic of China",
+   "continent": "Asia",
+   "type": [
+    "roast duck"
+   ],
+   "ingredients": [
+    "tianmianjiang",
+    "cucumber",
+    "duck meat",
+    "Spring pancake",
+    "Welsh onion"
+   ]
+  },
+  "dim-sum": {
+   "country": "People's Republic of China",
+   "continent": "Asia",
+   "type": [
+    "stuffed pasta"
+   ],
+   "ingredients": [
+    "pasta",
+    "meat",
+    "vegetable",
+    "seafood",
+    "fruit"
+   ]
+  },
+  "kimchi-jjigae": {
+   "country": "Korea",
+   "continent": "Asia",
+   "type": [
+    "jjigae",
+    "food"
+   ],
+   "ingredients": [
+    "Kimchi"
+   ]
+  },
+  "korean-fried-chicken": {
+   "country": "South Korea",
+   "continent": "Asia",
+   "type": [
+    "fried chicken"
+   ],
+   "ingredients": [
+    "chicken as food"
+   ]
+  },
+  "bibimbap": {
+   "country": "Korea",
+   "continent": "Asia",
+   "type": [
+    "rice dish"
+   ],
+   "ingredients": [
+    "namul",
+    "gochujang",
+    "egg as food",
+    "meat",
+    "rice"
+   ]
+  },
+  "lasagna": {
+   "country": "Italy",
+   "continent": "Europe",
+   "type": [
+    "pasta dish"
+   ],
+   "ingredients": [
+    "Parmesan",
+    "béchamel",
+    "lasagne sheet",
+    "ragù"
+   ]
+  },
+  "carbonara": {
+   "country": "Italy",
+   "continent": "Europe",
+   "type": [
+    "spaghetti"
+   ],
+   "ingredients": [
+    "guanciale",
+    "peppercorn",
+    "pecorino",
+    "egg as food",
+    "table salt"
+   ]
+  },
+  "risotto": {
+   "country": "Italy",
+   "continent": "Europe",
+   "type": [
+    "rice dish",
+    "first course"
+   ],
+   "ingredients": [
+    "rice",
+    "butter",
+    "Allium",
+    "Parmesan",
+    "white wine"
+   ]
+  },
+  "tiramisu": {
+   "country": "Italy",
+   "continent": "Europe",
+   "type": [
+    "dessert with spoon"
+   ],
+   "ingredients": [
+    "cocoa powder",
+    "chicken egg",
+    "mascarpone",
+    "Savoiarde PAT",
+    "coffee"
+   ]
+  },
+  "gelato": {
+   "country": "Italy",
+   "continent": "Europe",
+   "type": [
+    "ice cream",
+    "frozen dessert"
+   ],
+   "ingredients": [
+    "sugar",
+    "cream",
+    "milk"
+   ]
+  },
+  "falafel": {
+   "country": "Israeli cuisine",
+   "type": [
+    "dish",
+    "minced food ball"
+   ],
+   "ingredients": [
+    "broad bean",
+    "chickpea",
+    "cumin seed",
+    "coriander seed",
+    "mahleb"
+   ]
+  },
+  "hummus": {
+   "country": "Near East",
+   "continent": "Eurasia",
+   "type": [
+    "condiment",
+    "purée"
+   ],
+   "ingredients": [
+    "mashed chickpea",
+    "olive oil",
+    "garlic",
+    "tehina",
+    "lemon juice"
+   ]
+  },
+  "shawarma": {
+   "country": "Levant",
+   "continent": "Asia",
+   "type": [
+    "stuffed flatbread",
+    "wrap"
+   ],
+   "ingredients": [
+    "meat",
+    "sauce",
+    "vegetable",
+    "pita",
+    "lavash"
+   ]
+  },
+  "moussaka": {
+   "country": "Greece",
+   "continent": "Europe",
+   "type": [
+    "dish"
+   ],
+   "ingredients": [
+    "eggplant",
+    "minced meat",
+    "Capsicum",
+    "tomato",
+    "onion"
+   ]
+  },
+  "greek-salad": {
+   "country": "Greece",
+   "continent": "Europe",
+   "type": [
+    "salad"
+   ],
+   "ingredients": [
+    "tomato",
+    "cucumber",
+    "onion",
+    "olive oil",
+    "table salt"
+   ]
+  },
+  "fish-and-chips": {
+   "country": "England",
+   "continent": "Europe",
+   "type": [
+    "fish dish",
+    "potato dish"
+   ],
+   "ingredients": [
+    "fish",
+    "potato",
+    "fries",
+    "fish as food",
+    "Gadus morhua"
+   ]
+  },
+  "croque-monsieur": {
+   "country": "France",
+   "continent": "Europe",
+   "type": [
+    "ham and cheese sandwich",
+    "meat pastry"
+   ],
+   "ingredients": [
+    "pan loaf",
+    "ham",
+    "Emmental"
+   ]
+  },
+  "ratatouille": {
+   "country": "France",
+   "continent": "Europe",
+   "type": [
+    "stew",
+    "dish"
+   ],
+   "ingredients": [
+    "zucchini",
+    "marjoram",
+    "eggplant",
+    "bell pepper",
+    "tomato"
+   ]
+  },
+  "crme-brle": {
+   "country": "France",
+   "continent": "Europe",
+   "type": [
+    "custard pudding"
+   ],
+   "ingredients": [
+    "custard",
+    "caramel",
+    "egg as food"
+   ]
+  },
+  "churros": {
+   "country": "Spain",
+   "continent": "Europe",
+   "type": [
+    "fritter",
+    "confectionery"
+   ],
+   "ingredients": [
+    "flour"
+   ]
+  },
+  "guacamole": {
+   "country": "Mexico",
+   "continent": "North America",
+   "type": [
+    "dip",
+    "food"
+   ],
+   "ingredients": [
+    "avocado",
+    "lime juice",
+    "cilantro",
+    "jalapeño",
+    "table salt"
+   ]
+  },
+  "enchiladas": {
+   "country": "Mexico",
+   "continent": "North America",
+   "type": [
+    "dish",
+    "stuffed flatbread"
+   ],
+   "ingredients": [
+    "corn tortilla",
+    "hot sauce",
+    "meat"
+   ]
+  },
+  "feijoada": {
+   "country": "Portugal",
+   "continent": "Europe",
+   "type": [
+    "stew",
+    "pork dish"
+   ],
+   "ingredients": [
+    "Phaseolus vulgaris",
+    "rice",
+    "pork"
+   ]
+  },
+  "po-de-queijo": {
+   "country": "Brazil",
+   "continent": "South America",
+   "type": [
+    "bread",
+    "baked good"
+   ],
+   "ingredients": [
+    "cassava root"
+   ]
+  },
+  "jollof-rice": {
+   "country": "Senegal",
+   "continent": "Africa",
+   "type": [
+    "rice"
+   ],
+   "ingredients": [
+    "rice",
+    "tomato",
+    "palm oil",
+    "peppercorn",
+    "water"
+   ]
+  },
+  "bunny-chow": {
+   "country": "South Africa",
+   "continent": "Africa",
+   "type": [
+    "dish"
+   ],
+   "ingredients": [
+    "white bread",
+    "curry"
+   ]
+  },
+  "doro-wat": {
+   "country": "Ethiopia",
+   "continent": "Africa",
+   "type": [
+    "stew"
+   ],
+   "ingredients": [
+    "meat"
+   ]
+  },
+  "tagine": {
+   "country": "Maghreb",
+   "continent": "Africa",
+   "type": [
+    "stew"
+   ],
+   "ingredients": [
+    "meat"
+   ]
+  },
+  "green-curry": {
+   "country": "Thailand",
+   "continent": "Asia",
+   "type": [
+    "Thai curry"
+   ],
+   "ingredients": [
+    "Thai eggplant",
+    "green curry paste",
+    "coconut milk"
+   ]
+  },
+  "tom-yum": {
+   "country": "Thailand",
+   "continent": "Asia",
+   "type": [
+    "hot and sour soup"
+   ],
+   "ingredients": [
+    "chili pepper",
+    "nam phrik phao",
+    "stock",
+    "Kaffir Lime Leaf",
+    "galangal"
+   ]
+  },
+  "rendang": {
+   "country": "Indonesia",
+   "continent": "Asia",
+   "type": [
+    "meat dish",
+    "chicken dish"
+   ],
+   "ingredients": [
+    "meat",
+    "coconut cream",
+    "spice",
+    "Cymbopogon citratus",
+    "Tilia leaf"
+   ]
+  },
+  "nasi-goreng": {
+   "country": "Indonesia",
+   "continent": "Asia",
+   "type": [
+    "fried rice"
+   ],
+   "ingredients": [
+    "rice",
+    "chicken egg",
+    "cooking oil",
+    "shallot",
+    "Allium sativum"
+   ]
+  },
+  "pierogi": {
+   "country": "Poland",
+   "continent": "Europe",
+   "type": [
+    "stuffed pasta"
+   ],
+   "ingredients": [
+    "potato"
+   ]
+  },
+  "goulash": {
+   "country": "Kingdom of Hungary",
+   "continent": "Europe",
+   "type": [
+    "soup"
+   ],
+   "ingredients": [
+    "meat",
+    "onion",
+    "carrot",
+    "paprika",
+    "olive oil"
+   ]
+  },
+  "mac-and-cheese": {
+   "country": "United Kingdom",
+   "continent": "Europe",
+   "type": [
+    "pasta dish"
+   ],
+   "ingredients": [
+    "macaroni",
+    "Cheddar cheese",
+    "cheddar sauce",
+    "butter",
+    "wheat flour"
+   ]
+  },
+  "pancakes": {
+   "country": "United States",
+   "continent": "North America",
+   "type": [
+    "battercake",
+    "pancake"
+   ],
+   "ingredients": [
+    "milk",
+    "flour",
+    "egg as food",
+    "oil"
+   ]
+  },
+  "ceviche": {
+   "country": "Peru",
+   "continent": "South America",
+   "type": [
+    "raw fish dish"
+   ],
+   "ingredients": [
+    "lemon juice",
+    "peppercorn",
+    "fish as food",
+    "shellfish",
+    "maize"
+   ]
+  },
+  "xiaolongbao": {
+   "country": "People's Republic of China",
+   "continent": "Asia",
+   "type": [
+    "baozi"
+   ],
+   "ingredients": [
+    "pork",
+    "dough",
+    "Lentinula edodes",
+    "Napa cabbage",
+    "Auricularia heimuer"
+   ]
+  }
+ }
+}

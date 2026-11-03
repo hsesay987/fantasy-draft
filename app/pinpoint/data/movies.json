@@ -1,0 +1,314 @@
+{
+ "pool": "movies",
+ "source": "Wikidata and the Superhero API",
+ "columns": [
+  {
+   "key": "universe",
+   "label": "Universe",
+   "kind": "cat"
+  },
+  {
+   "key": "debut",
+   "label": "First appeared",
+   "kind": "num",
+   "close": 8,
+   "fmt": "year"
+  },
+  {
+   "key": "creator",
+   "label": "Created by",
+   "kind": "set"
+  },
+  {
+   "key": "species",
+   "label": "Species",
+   "kind": "cat"
+  },
+  {
+   "key": "gender",
+   "label": "Gender",
+   "kind": "cat"
+  }
+ ],
+ "facts": {
+  "john-wick": {
+   "universe": "John Wick",
+   "debut": 2014,
+   "creator": [
+    "Derek Kolstad"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "indiana-jones": {
+   "universe": "Indiana Jones",
+   "debut": 1981,
+   "creator": [
+    "George Lucas"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "james-bond": {
+   "universe": "James Bond",
+   "debut": 1953,
+   "creator": [
+    "Ian Fleming"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "ethan-hunt": {
+   "universe": "Spy",
+   "debut": 1996,
+   "creator": [
+    "David Koepp"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "ellen-ripley": {
+   "universe": "Alien universe",
+   "debut": 1979,
+   "creator": [
+    "Dan O'Bannon"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  },
+  "rocky-balboa": {
+   "universe": "Sports",
+   "debut": 1976,
+   "creator": [
+    "Sylvester Stallone"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "jack-sparrow": {
+   "universe": "Pirates of the Caribbean",
+   "debut": 2003,
+   "creator": [
+    "Ted Elliott",
+    "Terry Rossio"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "aragorn": {
+   "universe": "Tolkien's legendarium",
+   "debut": 1954,
+   "creator": [
+    "J. R. R. Tolkien"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "gandalf": {
+   "universe": "Tolkien's legendarium",
+   "debut": 1937,
+   "creator": [
+    "J. R. R. Tolkien"
+   ],
+   "species": "Maiar",
+   "gender": "Male"
+  },
+  "legolas": {
+   "universe": "Tolkien's legendarium",
+   "creator": [
+    "J. R. R. Tolkien"
+   ],
+   "species": "Middle-earth elf",
+   "gender": "Male"
+  },
+  "darth-vader": {
+   "universe": "Star Wars",
+   "debut": 1976,
+   "creator": [
+    "George Lucas"
+   ],
+   "species": "Cyborg",
+   "gender": "Male"
+  },
+  "han-solo": {
+   "universe": "Star Wars",
+   "debut": 1976,
+   "creator": [
+    "George Lucas"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "princess-leia": {
+   "universe": "Star Wars",
+   "debut": 1976,
+   "creator": [
+    "George Lucas"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  },
+  "yoda": {
+   "universe": "Star Wars",
+   "debut": 1980,
+   "creator": [
+    "George Lucas"
+   ],
+   "species": "Yoda's species",
+   "gender": "Male"
+  },
+  "luke-skywalker": {
+   "universe": "Star Wars",
+   "debut": 1976,
+   "creator": [
+    "George Lucas"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "katniss-everdeen": {
+   "universe": "The Hunger Games universe",
+   "debut": 2008,
+   "creator": [
+    "Suzanne Collins"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  },
+  "harry-potter": {
+   "universe": "Wizarding World",
+   "debut": 1997,
+   "creator": [
+    "J. K. Rowling"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "hermione-granger": {
+   "universe": "Wizarding World",
+   "debut": 1997,
+   "creator": [
+    "J. K. Rowling"
+   ],
+   "species": "Wizard in the Harry Potter universe",
+   "gender": "Female"
+  },
+  "gollum": {
+   "universe": "Tolkien's legendarium",
+   "debut": 1937,
+   "species": "Hobbit",
+   "gender": "Male"
+  },
+  "optimus-prime": {
+   "universe": "Transformers",
+   "species": "Autobot",
+   "gender": "Male"
+  },
+  "the-terminator": {
+   "universe": "Terminator",
+   "debut": 1984,
+   "creator": [
+    "James Cameron",
+    "Gale Anne Hurd"
+   ],
+   "species": "Terminator"
+  },
+  "ghostface": {
+   "universe": "Scream",
+   "debut": 1996,
+   "creator": [
+    "Kevin Williamson"
+   ],
+   "species": "Profession"
+  },
+  "hannibal-lecter": {
+   "universe": "Thriller",
+   "debut": 1981,
+   "creator": [
+    "Thomas Harris"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "mad-max": {
+   "universe": "Action",
+   "debut": 1979,
+   "creator": [
+    "George Miller",
+    "Byron Kennedy"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "jason-bourne": {
+   "universe": "Spy",
+   "debut": 1980,
+   "creator": [
+    "Robert Ludlum"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "hans-gruber": {
+   "universe": "Action",
+   "debut": 1988,
+   "creator": [
+    "Roderick Thorp"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "shrek": {
+   "universe": "Shrek",
+   "debut": 1990,
+   "creator": [
+    "William Steig"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "donkey": {
+   "universe": "Shrek universe",
+   "debut": 2001,
+   "creator": [
+    "William Steig"
+   ],
+   "species": "Anthropomorphic mule",
+   "gender": "Male organism"
+  },
+  "king-kong": {
+   "universe": "King Kong",
+   "debut": 1933,
+   "creator": [
+    "Edgar Wallace",
+    "Merian C. Cooper"
+   ],
+   "species": "Animal",
+   "gender": "Male organism"
+  },
+  "godzilla": {
+   "universe": "Godzilla",
+   "debut": 1954,
+   "creator": [
+    "Tomoyuki Tanaka",
+    "Eiji Tsuburaya",
+    "Ishirō Honda"
+   ],
+   "species": "Kaiju"
+  },
+  "rambo": {
+   "universe": "Action",
+   "species": "Human",
+   "gender": "Male"
+  },
+  "wednesday-addams": {
+   "universe": "Horror",
+   "debut": 1944,
+   "creator": [
+    "Charles Addams"
+   ],
+   "species": "Human",
+   "gender": "Female"
+  }
+ }
+}

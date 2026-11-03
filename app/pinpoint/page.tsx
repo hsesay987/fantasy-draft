@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Crosshair } from "lucide-react";
 import { GameTile, PageHeader, PageShell } from "../components/ui";
 import { PINPOINT_TOPICS, loadPinpoint } from "./topics";
-import { dayNumber } from "../topicDraft/pinpoint";
+import { dayNumber } from "./engine";
 
 /** Pick a topic for today's Pinpoint. Topics you already solved today show your result. */
 export default function PinpointHub() {

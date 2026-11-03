@@ -1,0 +1,1365 @@
+{
+ "pool": "superheroes",
+ "source": "Wikidata and the Superhero API",
+ "columns": [
+  {
+   "key": "universe",
+   "label": "Universe",
+   "kind": "cat"
+  },
+  {
+   "key": "debut",
+   "label": "First appeared",
+   "kind": "num",
+   "close": 8,
+   "fmt": "year"
+  },
+  {
+   "key": "creator",
+   "label": "Created by",
+   "kind": "set"
+  },
+  {
+   "key": "species",
+   "label": "Species",
+   "kind": "cat"
+  },
+  {
+   "key": "gender",
+   "label": "Gender",
+   "kind": "cat"
+  },
+  {
+   "key": "side",
+   "label": "Side",
+   "kind": "cat"
+  },
+  {
+   "key": "teams",
+   "label": "Teams",
+   "kind": "set"
+  }
+ ],
+ "facts": {
+  "superman": {
+   "universe": "DC",
+   "debut": 1938,
+   "creator": [
+    "Jerry Siegel",
+    "Joe Shuster"
+   ],
+   "species": "Kryptonian",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Daily Planet",
+    "Justice League",
+    "Legion of Super-Heroes"
+   ]
+  },
+  "batman": {
+   "universe": "DC",
+   "debut": 1939,
+   "creator": [
+    "Bob Kane",
+    "Bill Finger"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "Bat-Family",
+    "Outsiders",
+    "Wayne Enterprises"
+   ]
+  },
+  "wonder-woman": {
+   "universe": "DC",
+   "debut": 1941,
+   "creator": [
+    "William Moulton Marston",
+    "H. G. Peter",
+    "Elizabeth Holloway Marston"
+   ],
+   "species": "Amazon",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "Justice Society of America",
+    "Star Sapphires",
+    "Justice League Dark"
+   ]
+  },
+  "the-flash": {
+   "universe": "DC",
+   "creator": [
+    "Gardner Fox",
+    "Harry Lampert"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "green-lantern-hal-jordan": {
+   "universe": "DC",
+   "debut": 1959,
+   "species": "Green Lantern",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Green Lantern Corps",
+    "Justice League",
+    "U.S. Air Force",
+    "White Lantern Corps"
+   ]
+  },
+  "aquaman": {
+   "universe": "DC",
+   "debut": 1941,
+   "creator": [
+    "Mort Weisinger",
+    "Paul Norris"
+   ],
+   "species": "Atlantean",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "Justice League International",
+    "Justice League Europe",
+    "Justice League Task Force"
+   ]
+  },
+  "cyborg": {
+   "universe": "DC",
+   "debut": 1980,
+   "creator": [
+    "Marv Wolfman"
+   ],
+   "species": "Cyborg",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Titans",
+    "Teen Titans",
+    "Justice League"
+   ]
+  },
+  "martian-manhunter": {
+   "universe": "DC",
+   "debut": 1955,
+   "species": "Martian",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "Justice League International",
+    "Stormwatch",
+    "Justice League United"
+   ]
+  },
+  "shazam": {
+   "universe": "DC",
+   "debut": 1940,
+   "creator": [
+    "C. C. Beck",
+    "Bill Parker"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "Justice Society of America",
+    "Justice League International",
+    "Marvel Family"
+   ]
+  },
+  "green-arrow": {
+   "universe": "DC",
+   "debut": 1941,
+   "creator": [
+    "Mort Weisinger",
+    "George Papp"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "Outsiders",
+    "Seven Soldiers of Victory"
+   ]
+  },
+  "black-canary": {
+   "universe": "DC",
+   "debut": 1947,
+   "creator": [
+    "Robert Kanigher"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "Justice Society of America",
+    "Justice League",
+    "Birds of Prey"
+   ]
+  },
+  "nightwing": {
+   "universe": "DC",
+   "debut": 1963,
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "robin-damian-wayne": {
+   "universe": "DC",
+   "debut": 1987,
+   "creator": [
+    "Grant Morrison",
+    "Andy Kubert"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Batman Family",
+    "League of Assassins",
+    "Teen Titans",
+    "Justice League"
+   ]
+  },
+  "supergirl": {
+   "universe": "DC",
+   "debut": 1958,
+   "creator": [
+    "Curt Swan"
+   ],
+   "species": "Kryptonian",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "batgirl": {
+   "universe": "DC",
+   "creator": [
+    "Bill Finger",
+    "Sheldon Moldoff"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "raven": {
+   "universe": "DC",
+   "debut": 1980,
+   "creator": [
+    "George Pérez",
+    "Marv Wolfman"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "Teen Titans",
+    "Titans",
+    "Sentinels of Magic",
+    "Night Force"
+   ]
+  },
+  "beast-boy": {
+   "universe": "DC",
+   "debut": 1965,
+   "creator": [
+    "Arnold Drake",
+    "Bob Brown"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Teen Titans",
+    "Doom Patrol",
+    "Justice League",
+    "Young Justice"
+   ]
+  },
+  "zatanna": {
+   "universe": "DC",
+   "debut": 1964,
+   "creator": [
+    "Gardner Fox",
+    "Murphy Anderson"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "Justice League Dark",
+    "Justice League",
+    "Sentinels of Magic",
+    "Seven Soldiers"
+   ]
+  },
+  "hawkgirl": {
+   "universe": "DC",
+   "debut": 1940,
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "All-Star Squadron",
+    "Justice Society of America",
+    "Birds of Prey"
+   ]
+  },
+  "booster-gold": {
+   "universe": "DC",
+   "debut": 1986,
+   "creator": [
+    "Dan Jurgens"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "Justice League International",
+    "A.R.G.U.S.",
+    "Extreme Justice"
+   ]
+  },
+  "swamp-thing": {
+   "universe": "DC",
+   "debut": 1971,
+   "species": "God / Eternal",
+   "gender": "Neutral sex",
+   "side": "Villain",
+   "teams": [
+    "Justice League",
+    "Justice League Dark",
+    "Lords of Chaos",
+    "Justice League United"
+   ]
+  },
+  "plastic-man": {
+   "universe": "DC",
+   "debut": 1941,
+   "creator": [
+    "Jack Cole"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "Federal Bureau of Investigation",
+    "All-Star Squadron",
+    "Freedom Fighters"
+   ]
+  },
+  "static": {
+   "universe": "DC",
+   "debut": 1993,
+   "creator": [
+    "Dwayne McDuffie",
+    "Denys Cowan"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "S.T.A.R. Labs",
+    "Teen Titans",
+    "Young Justice"
+   ]
+  },
+  "atom-ray-palmer": {
+   "universe": "DC",
+   "debut": 1961,
+   "creator": [
+    "Gardner Fox",
+    "Julius Schwartz",
+    "Gil Kane"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "Teen Titans",
+    "Indigo Tribe",
+    "S.H.A.D.E."
+   ]
+  },
+  "captain-atom": {
+   "universe": "DC",
+   "debut": 1960,
+   "species": "Human / Radiation",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "United States Air Force",
+    "Justice League International",
+    "L.A.W.",
+    "Justice League"
+   ]
+  },
+  "catwoman": {
+   "universe": "DC",
+   "debut": 1940,
+   "creator": [
+    "Bob Kane",
+    "Bill Finger"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "Justice League",
+    "Outsiders",
+    "Gotham City Sirens",
+    "Birds of Prey"
+   ]
+  },
+  "spider-man-peter-parker": {
+   "universe": "Marvel",
+   "debut": 1962,
+   "creator": [
+    "Stan Lee",
+    "Steve Ditko"
+   ],
+   "species": "Mutate",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "Daily Bugle",
+    "Fantastic Four",
+    "Future Foundation"
+   ]
+  },
+  "miles-morales": {
+   "universe": "Marvel",
+   "debut": 2011,
+   "creator": [
+    "Brian Michael Bendis",
+    "Sara Pichelli"
+   ],
+   "species": "Mutate",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "Young Avengers",
+    "Champions",
+    "The Ultimates"
+   ]
+  },
+  "iron-man": {
+   "universe": "Marvel",
+   "debut": 1962,
+   "creator": [
+    "Stan Lee",
+    "Larry Lieber",
+    "Don Heck"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "Department of Defense",
+    "Guardians of the Galaxy",
+    "Illuminati"
+   ]
+  },
+  "thor": {
+   "universe": "Marvel",
+   "debut": 1962,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby",
+    "Larry Lieber"
+   ],
+   "species": "Asgardian",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers"
+   ]
+  },
+  "hulk": {
+   "universe": "Marvel",
+   "debut": 1962,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Human / Radiation",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "Defenders",
+    "Horsemen of Apocalypse",
+    "Fantastic Four"
+   ]
+  },
+  "doctor-strange": {
+   "universe": "Marvel",
+   "debut": 1963,
+   "creator": [
+    "Stan Lee",
+    "Steve Ditko"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "Defenders",
+    "Illuminati",
+    "Infinity Watch"
+   ]
+  },
+  "black-panther": {
+   "universe": "Marvel",
+   "debut": 1966,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "Fantastic Four",
+    "Mighty Avengers",
+    "Fantastic Force"
+   ]
+  },
+  "vision": {
+   "universe": "Marvel",
+   "debut": 1968,
+   "creator": [
+    "Roy Thomas",
+    "John Buscema"
+   ],
+   "species": "Android",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "West Coast Avengers",
+    "Avengers A.I.",
+    "Defenders"
+   ]
+  },
+  "ant-man": {
+   "universe": "Marvel",
+   "debut": 1962,
+   "creator": [
+    "Stan Lee"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers"
+   ]
+  },
+  "falcon": {
+   "universe": "Marvel",
+   "debut": 1969,
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "S.H.I.E.L.D.",
+    "\"Defenders for a Day\"",
+    "Heroes for Hire"
+   ]
+  },
+  "winter-soldier": {
+   "universe": "Marvel",
+   "debut": 1941,
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "New Avengers",
+    "All-Winners Squad",
+    "Invaders"
+   ]
+  },
+  "war-machine": {
+   "universe": "Marvel",
+   "debut": 1979,
+   "creator": [
+    "David Michelinie",
+    "John Byrne",
+    "Bob Layton"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "The Crew",
+    "Force Works",
+    "Initiative"
+   ]
+  },
+  "wolverine": {
+   "universe": "Marvel",
+   "debut": 1974,
+   "creator": [
+    "Len Wein",
+    "John Romita Sr."
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "X-Men",
+    "Avengers",
+    "X-Force",
+    "Team X"
+   ]
+  },
+  "storm": {
+   "universe": "Marvel",
+   "debut": 1975,
+   "creator": [
+    "Len Wein",
+    "Dave Cockrum"
+   ],
+   "species": "Mutant",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "X-Men",
+    "Avengers",
+    "Fantastic Four",
+    "Swordbearers of Krakoa"
+   ]
+  },
+  "cyclops": {
+   "universe": "Marvel",
+   "debut": 1963,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "X-Men",
+    "X-Force",
+    "X-Factor",
+    "Phoenix Five"
+   ]
+  },
+  "jean-grey": {
+   "universe": "Marvel",
+   "debut": 1963,
+   "creator": [
+    "Stan Lee"
+   ],
+   "species": "Mutant",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "X-Men",
+    "Quiet Council of Krakoa",
+    "Muir Island X-Men",
+    "X-Terminators"
+   ]
+  },
+  "professor-x": {
+   "universe": "Marvel",
+   "debut": 1963,
+   "creator": [
+    "Stan Lee"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "X-Men",
+    "Illuminati",
+    "X-Corporation",
+    "The Twelve"
+   ]
+  },
+  "beast": {
+   "universe": "Marvel",
+   "debut": 1963,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "X-Men",
+    "Avengers",
+    "Defenders",
+    "X-Factor"
+   ]
+  },
+  "colossus": {
+   "universe": "Marvel",
+   "debut": 1975,
+   "creator": [
+    "Len Wein"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "X-Men",
+    "Excalibur",
+    "Acolytes",
+    "X-Force"
+   ]
+  },
+  "nightcrawler": {
+   "universe": "Marvel",
+   "debut": 1975,
+   "creator": [
+    "Chris Claremont",
+    "Dave Cockrum"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "X-Men",
+    "Excalibur",
+    "Quiet Council of Krakoa"
+   ]
+  },
+  "rogue": {
+   "universe": "Marvel",
+   "debut": 1981,
+   "creator": [
+    "Chris Claremont",
+    "Michael Golden"
+   ],
+   "species": "Mutant",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "X-Men",
+    "Brotherhood of Evil Mutants",
+    "X-Treme X-Men"
+   ]
+  },
+  "gambit": {
+   "universe": "Marvel",
+   "debut": 1990,
+   "creator": [
+    "Chris Claremont",
+    "Mike Collins",
+    "Jim Lee"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "X-Men",
+    "X-Factor",
+    "Excalibur",
+    "Marauders"
+   ]
+  },
+  "deadpool": {
+   "universe": "Marvel",
+   "debut": 1991,
+   "creator": [
+    "Rob Liefeld",
+    "Fabian Nicieza"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "teams": [
+    "X-Men",
+    "Avengers",
+    "Deadpool Corps",
+    "Frightful Four"
+   ]
+  },
+  "punisher": {
+   "universe": "Marvel",
+   "debut": 1974,
+   "creator": [
+    "Gerry Conway",
+    "John Romita Sr.",
+    "Ross Andru"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "U.S. Marine Corps",
+    "Force Reconnaissance",
+    "Thunderbolts",
+    "Savage Avengers"
+   ]
+  },
+  "luke-cage": {
+   "universe": "Marvel",
+   "debut": 1972,
+   "creator": [
+    "Archie Goodwin",
+    "John Romita Sr.",
+    "George Tuska"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "New Avengers",
+    "Heroes for Hire",
+    "Defenders"
+   ]
+  },
+  "jessica-jones": {
+   "universe": "Marvel",
+   "debut": 1963,
+   "creator": [
+    "Brian Michael Bendis",
+    "Michael Gaydos"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "New Avengers",
+    "Defenders",
+    "The Pulse Magazine",
+    "A-Force"
+   ]
+  },
+  "iron-fist": {
+   "universe": "Marvel",
+   "debut": 1974,
+   "creator": [
+    "Roy Thomas",
+    "Gil Kane",
+    "Bill Everett"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "New Avengers",
+    "Heroes for Hire",
+    "Defenders"
+   ]
+  },
+  "moon-knight": {
+   "universe": "Marvel",
+   "debut": 1975,
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "Secret Avengers",
+    "West Coast Avengers",
+    "Defenders"
+   ]
+  },
+  "ghost-rider": {
+   "universe": "Marvel",
+   "debut": 1972,
+   "species": "Demon",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Midnight Sons",
+    "New Fantastic Four",
+    "Defenders",
+    "New Avengers"
+   ]
+  },
+  "silver-surfer": {
+   "universe": "Marvel",
+   "debut": 1966,
+   "creator": [
+    "Jack Kirby"
+   ],
+   "species": "Alien",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "United Front",
+    "Defenders",
+    "The Order",
+    "God Squad"
+   ]
+  },
+  "mr-fantastic": {
+   "universe": "Marvel",
+   "debut": 1961,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Mutate",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Fantastic Four",
+    "Avengers",
+    "Future Foundation",
+    "Defenders"
+   ]
+  },
+  "invisible-woman": {
+   "universe": "Marvel",
+   "debut": 1961,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Human / Radiation",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "Fantastic Four",
+    "Avengers",
+    "Lady Liberators",
+    "Fantastic Four Incorporated"
+   ]
+  },
+  "human-torch": {
+   "universe": "Marvel",
+   "debut": 1961,
+   "creator": [
+    "Jack Kirby",
+    "Stan Lee"
+   ],
+   "species": "Human / Radiation",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Fantastic Four",
+    "Avengers",
+    "Future Foundation",
+    "Fantastic Force"
+   ]
+  },
+  "the-thing": {
+   "universe": "Marvel",
+   "debut": 1961,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Mutate",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Fantastic Four",
+    "Avengers",
+    "Guardians of the Galaxy",
+    "Future Foundation"
+   ]
+  },
+  "she-hulk": {
+   "universe": "Marvel",
+   "debut": 1979,
+   "creator": [
+    "Stan Lee",
+    "John Buscema"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "A-Force",
+    "Defenders",
+    "Fantastic Force"
+   ]
+  },
+  "star-lord": {
+   "universe": "Marvel",
+   "debut": 1976,
+   "creator": [
+    "Keith Giffen",
+    "Ron Lim"
+   ],
+   "species": "Human-Spartoi",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Guardians of the Galaxy",
+    "Infinity Watch",
+    "United Front",
+    "Nova Corps"
+   ]
+  },
+  "gamora": {
+   "universe": "Marvel",
+   "debut": 1975,
+   "creator": [
+    "Jim Starlin"
+   ],
+   "species": "Zen-Whoberian",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "Guardians of the Galaxy",
+    "Infinity Watch",
+    "Phalanx",
+    "Graces"
+   ]
+  },
+  "groot": {
+   "universe": "Marvel",
+   "debut": 1960,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby",
+    "Larry Lieber"
+   ],
+   "species": "Flora Colossus",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Guardians of the Galaxy",
+    "S.H.I.E.L.D. Paranormal Containment Unit",
+    "Nova Corps"
+   ]
+  },
+  "rocket-raccoon": {
+   "universe": "Marvel",
+   "debut": 1976,
+   "creator": [
+    "Bill Mantlo",
+    "Keith Giffen"
+   ],
+   "species": "Animal",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Guardians of the Galaxy",
+    "Avengers",
+    "Nova Corps"
+   ]
+  },
+  "drax": {
+   "universe": "Marvel",
+   "debut": 1973,
+   "species": "Mutate",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Guardians of the Galaxy",
+    "Infinity Watch",
+    "Legion of the Unliving",
+    "Phalanx"
+   ]
+  },
+  "blade": {
+   "universe": "Marvel",
+   "debut": 1973,
+   "species": "Vampire",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "MI: 13",
+    "Nightstalkers",
+    "Vanguard"
+   ]
+  },
+  "shang-chi": {
+   "universe": "Marvel",
+   "debut": 1973,
+   "creator": [
+    "Steve Englehart",
+    "Jim Starlin"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "Agents of Atlas",
+    "Five Weapons Society",
+    "MI-6"
+   ]
+  },
+  "ms-marvel-kamala-khan": {
+   "universe": "Marvel",
+   "debut": 2013,
+   "creator": [
+    "Sana Amanat"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero",
+   "teams": [
+    "Avengers",
+    "Young Avengers",
+    "Champions",
+    "Secret Warriors"
+   ]
+  },
+  "hercules": {
+   "universe": "Marvel",
+   "debut": 1943,
+   "species": "Demi-God",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Olympians",
+    "Argonauts",
+    "Avengers",
+    "Champions"
+   ]
+  },
+  "spawn": {
+   "universe": "Indie",
+   "debut": 1992,
+   "creator": [
+    "Todd McFarlane",
+    "Alan Moore"
+   ],
+   "species": "Demon",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "CIA",
+    "Secret Service",
+    "U.S. Marine Corps",
+    "Force Reconnaissance"
+   ]
+  },
+  "hellboy": {
+   "universe": "Indie",
+   "debut": 1993,
+   "creator": [
+    "Mike Mignola"
+   ],
+   "species": "Demon",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "B.P.R.D."
+   ]
+  },
+  "invincible": {
+   "universe": "Indie",
+   "debut": 2002,
+   "creator": [
+    "Robert Kirkman",
+    "Cory Walker"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "The Pact",
+    "Guardians of the Globe"
+   ]
+  },
+  "omni-man": {
+   "universe": "Indie",
+   "debut": 2003,
+   "creator": [
+    "Robert Kirkman",
+    "Cory Walker"
+   ],
+   "species": "Viltrumite",
+   "gender": "Male",
+   "teams": [
+    "Guardians of the Globe"
+   ]
+  },
+  "atom-eve": {
+   "universe": "Indie",
+   "debut": 2003,
+   "creator": [
+    "Robert Kirkman",
+    "Cory Walker"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "the-tick": {
+   "universe": "Indie",
+   "debut": 1986,
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "savage-dragon": {
+   "universe": "Indie",
+   "debut": 1982,
+   "creator": [
+    "Erik Larsen"
+   ],
+   "species": "Extraterrestrials in fiction",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "Chicago Police Department"
+   ]
+  },
+  "hit-girl": {
+   "universe": "Indie",
+   "debut": 2008,
+   "creator": [
+    "Mark Millar"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "rorschach": {
+   "universe": "Indie",
+   "debut": 1986,
+   "creator": [
+    "Alan Moore",
+    "Dave Gibbons"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "dr-manhattan": {
+   "universe": "Indie",
+   "debut": 1986,
+   "creator": [
+    "Alan Moore",
+    "Dave Gibbons"
+   ],
+   "species": "Cosmic entity",
+   "gender": "Male",
+   "teams": [
+    "United States Department of Defense"
+   ]
+  },
+  "billy-butcher": {
+   "universe": "Indie",
+   "debut": 2006,
+   "creator": [
+    "Garth Ennis",
+    "Darick Robertson"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "mr-incredible": {
+   "universe": "Indie",
+   "debut": 2004,
+   "creator": [
+    "Brad Bird"
+   ],
+   "species": "Super",
+   "gender": "Male",
+   "side": "Hero"
+  },
+  "elastigirl": {
+   "universe": "Indie",
+   "debut": 2004,
+   "creator": [
+    "Brad Bird"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "mothra": {
+   "universe": "Indie",
+   "debut": 1961,
+   "creator": [
+    "Nakamura Shinichiro",
+    "Yoshie Hotta"
+   ],
+   "species": "Butterfly",
+   "gender": "Female",
+   "side": "Hero"
+  },
+  "harley-quinn": {
+   "universe": "DC",
+   "debut": 1992,
+   "creator": [
+    "Paul Dini",
+    "Bruce Timm"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "side": "Villain",
+   "teams": [
+    "Suicide Squad",
+    "Gotham City Sirens",
+    "Secret Six",
+    "Justice League"
+   ]
+  },
+  "black-adam": {
+   "universe": "DC",
+   "debut": 1945,
+   "creator": [
+    "Otto Binder",
+    "C. C. Beck"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "side": "Villain",
+   "teams": [
+    "Injustice League",
+    "Legion of Doom",
+    "Secret Society of Super Villains",
+    "Black Marvel Family"
+   ]
+  },
+  "venom": {
+   "universe": "Marvel",
+   "debut": 1984,
+   "creator": [
+    "David Michelinie"
+   ],
+   "species": "Symbiote",
+   "gender": "Male",
+   "side": "Villain",
+   "teams": [
+    "Sinister Six",
+    "Dark Avengers",
+    "Thunderbolts",
+    "Secret Avengers"
+   ]
+  },
+  "deathlok": {
+   "universe": "Marvel",
+   "debut": 1974,
+   "species": "Cyborg",
+   "gender": "Male",
+   "side": "Hero",
+   "teams": [
+    "S.H.I.E.L.D.",
+    "CIA"
+   ]
+  }
+ }
+}
