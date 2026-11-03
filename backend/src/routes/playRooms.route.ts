@@ -95,10 +95,15 @@ router.post("/:code/start", async (req, res) => {
   res.json(snapshot(room, req.body?.token));
 });
 
-router.post("/:code/action", (req, res) => {
+router.post("/:code/action", async (req, res) => {
   const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "Room not found" });
   if (!seatFor(room, req.body?.token)) return res.status(403).json({ error: "Not in this room" });
+  // Imposter clues are free text that everyone sees.
+  if (req.body?.action?.type === "clue" && String(req.body.action.text ?? "").trim()) {
+    const mod = await moderate([String(req.body.action.text).slice(0, 40)]);
+    if (!mod.ok) return res.status(400).json({ ok: false, error: mod.reason });
+  }
   const r = act(room, req.body?.token, req.body?.action);
   res.status(r.ok ? 200 : 409).json({ ...r, snapshot: snapshot(room, req.body?.token) });
 });

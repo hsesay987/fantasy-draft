@@ -111,7 +111,7 @@
 .pixel[data-world="launch"] .px-box::before { content: ""; position: absolute; left: 8px; right: 8px; top: 10px; height: 2px; pointer-events: none; background: repeating-linear-gradient(90deg, #4cc9f0 0 2px, transparent 2px 22px); opacity: .5; }
 .px-world { position: relative; background: var(--px-ink); padding: 4px; box-shadow: 0 0 0 4px var(--px-ink), 0 8px 0 0 #0006; }
 .px-world canvas { image-rendering: pixelated; }
-.px-world-tier { position: absolute; left: 6px; transform: translateY(-50%); font-family: var(--px-head); font-size: 7px; color: #fff; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; opacity: .85; }
+.px-world-tier { position: absolute; left: 6px; transform: translateY(-50%); white-space: nowrap; font-family: var(--px-head); font-size: 7px; color: #fff; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; opacity: .85; }
 @media (min-width: 768px) { .px-world-tier { font-size: 9px; left: 10px; } }
 /* Climbing worlds: every checkpoint label in one column on the left edge, with a tick pointing at its level. */
 .px-world-tier.side { padding: 2px 6px 2px 4px; background: rgba(10, 8, 30, .55); border-left: 3px solid #fff; }
@@ -151,3 +151,35 @@
 .px-track-legend span.lead { color: var(--px-gold); }
 .px-track-legend i { width: 12px; height: 12px; display: inline-block; }
 @media (max-width: 640px) { .px-track-bar .tick em { display: none; } .px-track-bar { margin-bottom: 14px; } }
+
+/* ---------- phones ---------- */
+@media (max-width: 640px) {
+  .pixel { font-size: 19px; }
+  .pixel h1 { font-size: 24px; }
+  .px-pad { padding: 14px 12px; }
+  .px-box { margin: 4px 2px; }
+  .px-q { font-size: 24px; min-height: 0; }
+  .px-opt { font-size: 22px; padding: 12px 12px 12px 34px; min-height: 52px; }
+  .px-opt .badge { float: none; display: inline-block; margin-left: 8px; vertical-align: middle; }
+  .px-score { gap: 6px; }
+  .px-score li { font-size: 19px; padding: 4px 8px; gap: 6px; }
+  .px-btn { padding: 12px 14px; font-size: 10px; }
+  /* The Summit board: one row per category (name, then its four camps) instead of four squeezed columns. */
+  .px-board { grid-template-columns: 1fr !important; gap: 10px; }
+  .px-cat { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 8px; margin: 4px; }
+  .px-cat h3 { grid-column: 1 / -1; min-height: 0; font-size: 10px; margin: 0; overflow-wrap: anywhere; }
+  .px-tile { min-height: 56px; padding: 8px 2px; font-size: 10px; }
+  /* Hot Air answer board */
+  .px-ans { grid-template-columns: 30px minmax(0, 1fr) auto; min-height: 48px; padding: 0 8px; gap: 8px; }
+  .px-ans .tx { font-size: 22px; }
+  .px-ans .pt { font-size: 9px; }
+  .px-term .in { min-width: 0; }
+  .px-term input, .px-term .in span { font-size: 24px; }
+  .px-world-tier.side { padding: 1px 4px 1px 3px; border-left-width: 2px; }
+  .px-world-tier.side::after { width: 6px; }
+  .px-track { padding: 18px 6px 4px; }
+  .px-track-legend { font-size: 17px; gap: 4px 12px; }
+  .px-banner b { font-size: 20px; }
+  .px-toggles { grid-template-columns: 1fr; }
+  .px-lane { grid-template-columns: 64px minmax(0, 1fr) 44px; gap: 6px; }
+}

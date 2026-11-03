@@ -18,7 +18,7 @@ const STAT: Record<string, string> = {
   leadership: "leadership", courage: "courage", influence: "influence", charisma: "charisma", strategy: "strategy",
   scoring: "scoring", playmaking: "playmaking", rebounding: "rebounding", defense: "defense", athleticism: "athleticism",
 };
-const statName = (k: string) => STAT[k] ?? k;
+export const statName = (k: string) => STAT[k] ?? k;
 
 type Voice = { universe: (u: string) => string; archetype: (a: string) => string };
 const v = (universe: Voice["universe"], archetype: Voice["archetype"]): Voice => ({ universe, archetype });

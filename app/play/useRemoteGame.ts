@@ -6,6 +6,7 @@ import { applyAction, poolFor, type Action } from "../topicDraft/core";
 import { API_URL, getRoom, loadToken, sendAction, type RoomSnapshot } from "./onlineApi";
 import type { GameCtl } from "./useGame";
 import { trackAction } from "./trackAction";
+import { PARTY_FORMATS } from "./types";
 
 /** Live view of an online room: polls + socket pushes, with optimistic local moves. */
 export function useRemoteRoom(code: string) {
@@ -53,8 +54,9 @@ export function useRemoteRoom(code: string) {
       const tk = token.current ?? loadToken(code);
       if (!tk) return;
       if (snapRef.current?.setup) trackAction(snapRef.current.setup, a, true);
-      // Optimistic: apply locally right away, then take the server's answer.
-      setSnap((cur) => (cur?.state && cur.setup ? { ...cur, state: applyAction(cur.setup, cur.state, a, Date.now() + offset) } : cur));
+      // Optimistic: apply locally right away, then take the server's answer. Party games hide secrets from each
+      // seat, so a local guess could be scored against a blank; those wait for the server.
+      setSnap((cur) => (cur?.state && cur.setup && !PARTY_FORMATS.has(cur.setup.format) ? { ...cur, state: applyAction(cur.setup, cur.state, a, Date.now() + offset) } : cur));
       void sendAction(code, tk, a).then((r) => {
         const s = (r.data as { snapshot?: RoomSnapshot }).snapshot;
         if (s) {

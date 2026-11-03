@@ -58,16 +58,17 @@ export function JeopardyView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
 
   return (
     <PixelShell world="summit">
-      <div className="space-y-5">
+      {/* On phones an open clue jumps above the mountain so the question and answers fit without scrolling. */}
+      <div className="flex flex-col gap-5">
         <PixelBox>
           <p className="px-eyebrow">SUMMIT · CLUE {s.resolved + 1}/{s.cells.length}</p>
           <h1 className="mt-2">{active ? `${active.cat} · ${active.value}M` : mine ? `${player}: CHOOSE A CLUE` : `${player} IS PICKING…`}</h1>
           <p className="px-note mt-2">{setup.mission.title}</p>
         </PixelBox>
         <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]}M`, active: p === player, color: color(p) }))} />
-        <WorldScene world="summit" caption="The climb" actors={s.players.map((p) => ({ name: p, value: climbOf(s.points[p]!, cap), color: color(p) }))}
-          flash={s.last != null ? { key: s.resolved, good: !!s.cells[s.last]!.correct } : undefined} />
-        <div>
+        <div className="max-sm:order-2"><WorldScene world="summit" caption="The climb" actors={s.players.map((p) => ({ name: p, value: climbOf(s.points[p]!, cap), color: color(p) }))}
+          flash={s.last != null ? { key: s.resolved, good: !!s.cells[s.last]!.correct } : undefined} /></div>
+        <div className={active || shown ? "max-sm:order-1" : "max-sm:order-3"}>
           <PixelBox>
             {shown ? (
               <section className="grid gap-4" aria-label="Answer">

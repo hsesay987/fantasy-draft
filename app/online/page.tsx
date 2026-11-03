@@ -10,6 +10,7 @@ import { GameTile, PageShell, Panel } from "../components/ui";
 import { FORMATS } from "../play/formats";
 import { PARTY } from "../topicDraft/games";
 import { STAT_LEAGUES } from "../lib/statRooms";
+import { PartyLaunch } from "../play/PartyLaunch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 type League = "NBA" | "NFL" | "CARTOON";
@@ -195,6 +196,8 @@ function OnlinePageInner() {
           <button type="submit" disabled={code.length < 4 || finding || loading} className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-6 font-semibold text-black disabled:opacity-50"><Search className="h-4 w-4" aria-hidden /> {finding ? "Looking…" : "Join"}</button>
         </form>
       </Panel>
+
+      <PartyLaunch />
 
       <section className="space-y-4">
         <div><h2 className="text-2xl">Host a room</h2><p className="text-sm text-muted-foreground">Pick a game to open a room with it, or open an empty room from the home page and switch games all night. Stat drafts need a login.</p></div>

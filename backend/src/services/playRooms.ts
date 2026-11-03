@@ -11,14 +11,21 @@ import type { QuizData } from "../shared/topicDraft/trivia/types";
 import { applyAction, autoAction, buildTeams, currentTurn, initGame, isDone, QUICK_FORMATS, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
 import { CATALOG_META, getCatalog } from "../shared/topicDraft/catalogs";
 import type { GameSetup, FormatId } from "../shared/play/types";
-import { DEFAULT_OPTS } from "../shared/play/types";
+import { DEFAULT_OPTS, PARTY_FORMATS } from "../shared/play/types";
 import * as A from "../shared/topicDraft/formats/auction";
 import * as B from "../shared/topicDraft/formats/blind";
 import * as P from "../shared/topicDraft/formats/position";
+import * as IM from "../shared/topicDraft/formats/imposter";
+import * as V from "../shared/topicDraft/formats/vote";
+import { deckOf } from "../shared/topicDraft/party/decks";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy"];
-const MAX_SEATS = 6;
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote"];
+/** Party games take a bigger group; drafts and trivia stay at six. */
+const MAX_SEATS = 10;
+const DRAFT_SEATS = 6;
+/** An empty room (no game picked yet) takes the bigger party group; picking a draft caps it at six. */
+const seatCap = (format: FormatId | undefined) => (!format || PARTY_FORMATS.has(format) ? MAX_SEATS : DRAFT_SEATS);
 const MAX_ROOMS = 500;
 const ROOM_TTL_MS = 6 * 60 * 60 * 1000;
 const AFK_TURN_MS = 120_000;
@@ -69,6 +76,7 @@ export function sanitizeSetup(input: any): GameSetup | null {
   if (!input || typeof input !== "object") return null;
   const format = input.format as FormatId;
   if (!FORMAT_IDS.includes(format)) return null;
+  if (PARTY_FORMATS.has(format)) return sanitizeParty(format, input);
   const isLoadout = format === "loadout";
   const pool = isLoadout ? "loadout" : clean(input.pool, 30);
   const meta = CATALOG_META.find((m) => m.id === pool);
@@ -125,9 +133,28 @@ export function sanitizeSetup(input: any): GameSetup | null {
     budget: num(o.budget, 10, 100, 20), lotSeconds: num(o.lotSeconds, 5, 30, 15),
     handExtra: num(o.handExtra, 0, 4, 2), rankSize: num(o.rankSize, 4, 10, 6),
   };
-  if (!isLoadout && poolSize < MAX_SEATS * 2) return null;
+  if (!isLoadout && poolSize < DRAFT_SEATS * 2) return null;
 
   return { id: "", format, pool, players: [], aiPlayers: [], mission, mystery: !!input.mystery, loadout, roles: format === "position" ? roles : [], opts, seed: 0 };
+}
+
+/** Party games: Imposter needs a character topic, vote games need a card deck. */
+function sanitizeParty(format: FormatId, input: any): GameSetup | null {
+  const pool = clean(input.pool, 30);
+  const o = input.opts ?? {};
+  if (format === "imposter") {
+    const meta = CATALOG_META.find((m) => m.id === pool);
+    if (!meta || meta.kind !== "character" || getCatalog(pool).length < IM.OPTION_COUNT) return null;
+  } else if (!deckOf(pool)) return null;
+  const title = format === "imposter" ? `Imposter: ${CATALOG_META.find((m) => m.id === pool)!.title}` : deckOf(pool)!.title;
+  const opts = {
+    ...DEFAULT_OPTS,
+    timerSeconds: null,
+    teamSize: format === "imposter" ? num(o.teamSize, 1, 3, 2) : num(o.teamSize, 3, 15, 8),
+    ending: (o.ending === "vote" ? "vote" : "guess") as "guess" | "vote",
+    avoid: (Array.isArray(o.avoid) ? o.avoid : []).slice(0, 200).map((x: any) => clean(x, 40)),
+  };
+  return { id: "", format, pool, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
 }
 
 const code = () => {
@@ -240,7 +267,7 @@ export function joinRoom(c: string, name: string): { room: Room; seat: Seat } | 
   if (room.status === "playing") return { error: "A game is running. You can join when it ends." };
   const n = clean(name, 20);
   if (!n) return { error: "Enter a name" };
-  if (room.seats.length >= MAX_SEATS) return { error: "Room is full" };
+  if (room.seats.length >= seatCap(room.setup?.format)) return { error: `Room is full (${seatCap(room.setup?.format)} players for this game)` };
   if (room.seats.some((s) => s.name.toLowerCase() === n.toLowerCase())) return { error: "That name is taken" };
   const seat: Seat = { name: n, token: crypto.randomBytes(16).toString("hex"), left: false };
   room.seats.push(seat);
@@ -258,8 +285,11 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
   if (room.status === "playing") return { error: "Already started" };
   if (!room.setup) return { error: "Pick a game first" };
   if (room.status === "done") resetToLobby(room);
-  if (room.seats.length < 2) return { error: "Need at least 2 players" };
+  const min = room.setup.format === "imposter" ? 3 : 2;
+  if (room.seats.length < min) return { error: `Need at least ${min} players` };
+  if (room.seats.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
   room.setup = { ...room.setup, players: room.seats.map((s) => s.name), seed: (Math.random() * 2 ** 31) | 0 };
+  if (room.setup.format === "vote") room.setup.opts = { ...room.setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
   room.state = initGame(room.setup, Date.now());
   room.status = "playing";
   room.freshQuiz = false;
@@ -287,7 +317,7 @@ export function leaveRoom(room: Room, token: unknown) {
   bump(room);
 }
 
-const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer"]);
+const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "next"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
   const seat = seatFor(room, token);
@@ -328,6 +358,12 @@ function finish(room: Room) {
   const { teams } = buildTeams(setup, room.state!);
   const record = { format: setup.format, pool: setup.pool, winner: null as string | null };
   room.played = [...room.played, record].slice(-30);
+  // Party games are scored by their own rules; no AI report.
+  if (PARTY_FORMATS.has(setup.format)) {
+    record.winner = triviaWinner(room.state!);
+    if (setup.format === "vote") room.seen = [...room.seen, ...(room.state as V.VoteState).cards.map((c) => c.id)].slice(-400);
+    return;
+  }
   // Trivia games show the right answers instead of an AI report.
   if (setup.format === "jeopardy" || setup.format === "feud") {
     record.winner = triviaWinner(room.state!);
@@ -353,6 +389,12 @@ function finish(room: Room) {
 function autoplay(room: Room, name: string): Action | null {
   const s = room.state!;
   const { format } = room.setup!;
+  if (format === "imposter") {
+    const x = s as IM.ImposterState;
+    if (x.phase === "clue" && IM.turnPlayer(x) === name) return { type: "clue", by: name, text: "" };
+    return null; // votes and guesses run out on their own clocks
+  }
+  if (format === "vote") return null;
   if (format === "auction") {
     const a = s as A.AuctionState;
     if (a.nominate?.offer) return A.nominator(a) === name ? { type: "nominate", by: name, itemId: a.nominate.offer[0]! } : null;
@@ -426,6 +468,8 @@ function redact(room: Room, me: string | null): GameState | null {
     const p = s as P.PositionState;
     return { ...p, hands: Object.fromEntries(Object.entries(p.hands).map(([k, v]) => [k, k === me ? v : v.map(() => "?")])), assign: Object.fromEntries(Object.entries(p.assign).map(([k, v]) => [k, k === me ? v : {}])), unused: [], roll: p.roll ? { ...p.roll, pool: [], offers: Object.fromEntries(Object.entries(p.roll.offers).map(([k, v]) => [k, k === me ? v : {}])) } : undefined };
   }
+  if (room.setup.format === "imposter") return IM.redactFor(s as IM.ImposterState, me);
+  if (room.setup.format === "vote") return V.redactFor(s as V.VoteState, me);
   if (room.setup.format === "blind") {
     const b = s as B.BlindState;
     return { ...b, ranks: Object.fromEntries(Object.entries(b.ranks).map(([k, v]) => [k, k === me ? v : v.map((x) => (x == null ? null : "?"))])) };

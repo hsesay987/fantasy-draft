@@ -14,6 +14,8 @@ export default function FeedbackWidget() {
   const pathname = usePathname() || "";
   // Sticky action bars live at the bottom of /play pages; keep the button clear of them.
   const lifted = pathname.startsWith("/play") || pathname.startsWith("/draft/new");
+  // In a game the pill would sit on the board; on phones it shrinks to a small icon there.
+  const inGame = /^\/(play\/[^/]+\/game|room\/|daily\/|pinpoint\/|costimation)/.test(pathname);
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<FeedbackType>("feedback");
   const [category, setCategory] = useState("idea");
@@ -61,7 +63,7 @@ export default function FeedbackWidget() {
   }
 
   return (
-    <div className={`fixed ${lifted ? "bottom-40 md:bottom-24" : "bottom-20 md:bottom-4"} right-4 z-50 flex flex-col items-end gap-3`}>
+    <div className={`fixed ${lifted && !inGame ? "bottom-40 md:bottom-24" : "bottom-20 md:bottom-4"} right-4 z-50 flex flex-col items-end gap-3`}>
       {open && (
         <div className="w-80 rounded-2xl border border-white/10 bg-card/95 shadow-2xl backdrop-blur">
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
@@ -180,10 +182,11 @@ export default function FeedbackWidget() {
           setStatus("idle");
           setError(null);
         }}
-        className="flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-900/50 hover:bg-[#8b5cf6]"
+        aria-label="Feedback"
+        className={`flex items-center gap-2 rounded-full bg-primary text-sm font-semibold text-white shadow-lg shadow-indigo-900/50 hover:bg-[#8b5cf6] ${inGame ? "p-2.5 opacity-80 md:px-4 md:py-2 md:opacity-100" : "px-4 py-2"}`}
       >
         <MessageCircle className="h-4 w-4" />
-        Feedback
+        <span className={inGame ? "hidden md:inline" : ""}>Feedback</span>
       </button>
     </div>
   );

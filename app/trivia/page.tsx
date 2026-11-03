@@ -62,6 +62,15 @@ export default function TriviaHub() {
             );
           })}
         </div>
+
+        <PixelBox className="flex flex-wrap items-center justify-between gap-4">
+          <div className="max-w-2xl">
+            <p className="px-eyebrow">NEW · DAILY</p>
+            <h2 className="mt-2">Pinpoint</h2>
+            <p className="px-note mt-2">Guess today&apos;s hidden pick in any topic. Every guess shows how close you are: same group, same type, and higher or lower on every stat.</p>
+          </div>
+          <Link href="/pinpoint" className="px-btn gold no-underline">PLAY PINPOINT</Link>
+        </PixelBox>
       </div>
     </PixelShell>
   );
