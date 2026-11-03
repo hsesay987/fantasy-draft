@@ -1,0 +1,628 @@
+{
+ "pool": "flags",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "continent",
+   "label": "Continent",
+   "kind": "cat"
+  },
+  {
+   "key": "colours",
+   "label": "Colours",
+   "kind": "set"
+  },
+  {
+   "key": "count",
+   "label": "No. of colours",
+   "kind": "num",
+   "close": 1,
+   "fmt": "int"
+  },
+  {
+   "key": "adopted",
+   "label": "Flag adopted",
+   "kind": "num",
+   "close": 20,
+   "fmt": "year"
+  },
+  {
+   "key": "population",
+   "label": "Population",
+   "kind": "num",
+   "close": 0.4,
+   "rel": true,
+   "fmt": "big"
+  }
+ ],
+ "facts": {
+  "japan": {
+   "continent": "Asia",
+   "colours": [
+    "White",
+    "Red"
+   ],
+   "count": 2,
+   "adopted": 1870,
+   "population": 123802000
+  },
+  "canada": {
+   "continent": "North America",
+   "colours": [
+    "Red",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1965,
+   "population": 36991981
+  },
+  "united-states": {
+   "continent": "North America",
+   "colours": [
+    "Red",
+    "White",
+    "Blue"
+   ],
+   "count": 3,
+   "adopted": 1777,
+   "population": 340110988
+  },
+  "united-kingdom": {
+   "continent": "Europe",
+   "colours": [
+    "Blue",
+    "Red",
+    "White"
+   ],
+   "count": 3,
+   "adopted": 1801,
+   "population": 67326569
+  },
+  "brazil": {
+   "continent": "South America",
+   "colours": [
+    "Green",
+    "Yellow",
+    "Blue",
+    "White"
+   ],
+   "count": 4,
+   "adopted": 1889,
+   "population": 214211951
+  },
+  "south-africa": {
+   "continent": "Africa",
+   "colours": [
+    "Red",
+    "Blue",
+    "Black",
+    "Green",
+    "White",
+    "Yellow"
+   ],
+   "count": 6,
+   "adopted": 1994,
+   "population": 62027503
+  },
+  "nepal": {
+   "continent": "Asia",
+   "colours": [
+    "Red",
+    "Blue",
+    "White"
+   ],
+   "count": 3,
+   "adopted": 1962,
+   "population": 29164578
+  },
+  "switzerland": {
+   "continent": "Europe",
+   "colours": [
+    "Red",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1889,
+   "population": 9104063
+  },
+  "south-korea": {
+   "continent": "Asia",
+   "colours": [
+    "White",
+    "Red",
+    "Blue",
+    "Black"
+   ],
+   "count": 4,
+   "adopted": 1883,
+   "population": 51466201
+  },
+  "mexico": {
+   "continent": "North America",
+   "colours": [
+    "Green",
+    "White",
+    "Red"
+   ],
+   "count": 3,
+   "adopted": 1810,
+   "population": 132274416
+  },
+  "bhutan": {
+   "continent": "Asia",
+   "colours": [
+    "Yellow",
+    "Orange",
+    "Black",
+    "White"
+   ],
+   "count": 4,
+   "adopted": 1969,
+   "population": 787424
+  },
+  "sri-lanka": {
+   "continent": "Asia",
+   "colours": [
+    "Red",
+    "Yellow",
+    "Green",
+    "Orange"
+   ],
+   "count": 4,
+   "adopted": 1972,
+   "population": 21444000
+  },
+  "wales": {
+   "continent": "Europe",
+   "colours": [
+    "White",
+    "Green",
+    "Red"
+   ],
+   "count": 3,
+   "adopted": 1959,
+   "population": 3131640
+  },
+  "kenya": {
+   "continent": "Africa",
+   "colours": [
+    "Black",
+    "White",
+    "Red",
+    "Green"
+   ],
+   "count": 4,
+   "adopted": 1963,
+   "population": 48468138
+  },
+  "jamaica": {
+   "continent": "North America",
+   "colours": [
+    "Yellow",
+    "Green",
+    "Black"
+   ],
+   "count": 3,
+   "adopted": 1962,
+   "population": 2697983
+  },
+  "turkey": {
+   "continent": "Asia",
+   "colours": [
+    "Red",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1844,
+   "population": 85372377
+  },
+  "israel": {
+   "continent": "Asia",
+   "colours": [
+    "White",
+    "Blue"
+   ],
+   "count": 2,
+   "adopted": 1948,
+   "population": 9840000
+  },
+  "lebanon": {
+   "continent": "Asia",
+   "colours": [
+    "Red",
+    "White",
+    "Green"
+   ],
+   "count": 3,
+   "adopted": 1943,
+   "population": 6100075
+  },
+  "cyprus": {
+   "continent": "Europe",
+   "colours": [
+    "White",
+    "Copper",
+    "Green"
+   ],
+   "count": 3,
+   "adopted": 1960,
+   "population": 1344976
+  },
+  "kiribati": {
+   "continent": "Oceania",
+   "colours": [
+    "Red",
+    "Blue",
+    "White",
+    "Yellow"
+   ],
+   "count": 4,
+   "adopted": 1979,
+   "population": 134518
+  },
+  "seychelles": {
+   "continent": "Africa",
+   "colours": [
+    "Blue",
+    "Yellow",
+    "Red",
+    "White",
+    "Green"
+   ],
+   "count": 5,
+   "adopted": 1996,
+   "population": 119773
+  },
+  "mozambique": {
+   "continent": "Africa",
+   "colours": [
+    "Green",
+    "Black",
+    "Yellow",
+    "White",
+    "Red"
+   ],
+   "count": 5,
+   "adopted": 1983,
+   "population": 29668834
+  },
+  "germany": {
+   "continent": "Europe",
+   "colours": [
+    "Black",
+    "Red",
+    "Yellow"
+   ],
+   "count": 3,
+   "adopted": 1917,
+   "population": 83467117
+  },
+  "france": {
+   "continent": "Europe",
+   "colours": [
+    "Blue",
+    "White",
+    "Red"
+   ],
+   "count": 3,
+   "adopted": 1853,
+   "population": 68605616
+  },
+  "italy": {
+   "continent": "Europe",
+   "colours": [
+    "Green",
+    "White",
+    "Red"
+   ],
+   "count": 3,
+   "adopted": 1946,
+   "population": 58850717
+  },
+  "ireland": {
+   "continent": "Europe",
+   "colours": [
+    "Green",
+    "White",
+    "Orange"
+   ],
+   "count": 3,
+   "adopted": 1922,
+   "population": 5149139
+  },
+  "belgium": {
+   "continent": "Europe",
+   "colours": [
+    "Black",
+    "Yellow",
+    "Red"
+   ],
+   "count": 3,
+   "adopted": 1831,
+   "population": 11825551
+  },
+  "netherlands": {
+   "continent": "Europe",
+   "colours": [
+    "Red",
+    "White",
+    "Blue"
+   ],
+   "count": 3,
+   "adopted": 1937,
+   "population": 17942942
+  },
+  "russia": {
+   "continent": "Europe",
+   "colours": [
+    "White",
+    "Blue",
+    "Red"
+   ],
+   "count": 3,
+   "adopted": 1696,
+   "population": 146119928
+  },
+  "sweden": {
+   "continent": "Europe",
+   "colours": [
+    "Blue",
+    "Yellow"
+   ],
+   "count": 2,
+   "adopted": 1906,
+   "population": 10609460
+  },
+  "norway": {
+   "continent": "Europe",
+   "colours": [
+    "Red",
+    "Blue",
+    "White"
+   ],
+   "count": 3,
+   "adopted": 1821,
+   "population": 5627400
+  },
+  "denmark": {
+   "continent": "Europe",
+   "colours": [
+    "Red",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1748,
+   "population": 5822863
+  },
+  "finland": {
+   "continent": "Europe",
+   "colours": [
+    "Blue",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1918,
+   "population": 5652881
+  },
+  "iceland": {
+   "continent": "Europe",
+   "colours": [
+    "Red",
+    "Blue",
+    "White"
+   ],
+   "count": 3,
+   "adopted": 1944,
+   "population": 364260
+  },
+  "greece": {
+   "continent": "Europe",
+   "colours": [
+    "Blue",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1822,
+   "population": 10482487
+  },
+  "china": {
+   "continent": "Asia",
+   "colours": [
+    "Red",
+    "Yellow"
+   ],
+   "count": 2,
+   "adopted": 1949,
+   "population": 1404890000
+  },
+  "india": {
+   "continent": "Asia",
+   "colours": [
+    "Orange",
+    "White",
+    "Green",
+    "Blue"
+   ],
+   "count": 4,
+   "adopted": 1947,
+   "population": 1326093247
+  },
+  "argentina": {
+   "continent": "South America",
+   "colours": [
+    "Blue",
+    "White",
+    "Yellow"
+   ],
+   "count": 3,
+   "adopted": 1812,
+   "population": 47327407
+  },
+  "australia": {
+   "continent": "Oceania",
+   "colours": [
+    "Blue",
+    "Red",
+    "White"
+   ],
+   "count": 3,
+   "adopted": 1901,
+   "population": 27614411
+  },
+  "new-zealand": {
+   "continent": "Oceania",
+   "colours": [
+    "Blue",
+    "Red",
+    "White"
+   ],
+   "count": 3,
+   "adopted": 1903,
+   "population": 5307800
+  },
+  "vietnam": {
+   "continent": "Asia",
+   "colours": [
+    "Red",
+    "Yellow"
+   ],
+   "count": 2,
+   "adopted": 1955,
+   "population": 96208984
+  },
+  "bangladesh": {
+   "continent": "Asia",
+   "colours": [
+    "Green",
+    "Red"
+   ],
+   "count": 2,
+   "adopted": 1972,
+   "population": 171466990
+  },
+  "palau": {
+   "continent": "Oceania",
+   "colours": [
+    "Blue",
+    "Yellow"
+   ],
+   "count": 2,
+   "adopted": 1981,
+   "population": 21729
+  },
+  "ghana": {
+   "continent": "Africa",
+   "colours": [
+    "Red",
+    "Yellow",
+    "Green",
+    "Black"
+   ],
+   "count": 4,
+   "adopted": 1957,
+   "population": 32833031
+  },
+  "nigeria": {
+   "continent": "Africa",
+   "colours": [
+    "Green",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1960,
+   "population": 211400708
+  },
+  "ethiopia": {
+   "continent": "Africa",
+   "colours": [
+    "Green",
+    "Yellow",
+    "Red",
+    "Blue"
+   ],
+   "count": 4,
+   "adopted": 1778,
+   "population": 128691692
+  },
+  "morocco": {
+   "continent": "Africa",
+   "colours": [
+    "Red",
+    "Green"
+   ],
+   "count": 2,
+   "adopted": 1915,
+   "population": 36828330
+  },
+  "saudi-arabia": {
+   "continent": "Asia",
+   "colours": [
+    "Green",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1973,
+   "population": 33000000
+  },
+  "pakistan": {
+   "continent": "Asia",
+   "colours": [
+    "Green",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1947,
+   "population": 223773700
+  },
+  "qatar": {
+   "continent": "Asia",
+   "colours": [
+    "White",
+    "Red"
+   ],
+   "count": 2,
+   "adopted": 1971,
+   "population": 2639211
+  },
+  "ukraine": {
+   "continent": "Europe",
+   "colours": [
+    "Blue",
+    "Yellow"
+   ],
+   "count": 2,
+   "adopted": 1992,
+   "population": 41167335
+  },
+  "poland": {
+   "continent": "Europe",
+   "colours": [
+    "White",
+    "Red"
+   ],
+   "count": 2,
+   "adopted": 1919,
+   "population": 37563071
+  },
+  "indonesia": {
+   "continent": "Asia",
+   "colours": [
+    "Red",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1945,
+   "population": 275439000
+  },
+  "scotland": {
+   "continent": "Europe",
+   "colours": [
+    "Blue",
+    "White"
+   ],
+   "count": 2,
+   "adopted": 1500,
+   "population": 5404700
+  }
+ }
+}

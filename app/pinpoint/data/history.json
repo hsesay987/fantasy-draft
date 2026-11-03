@@ -1,0 +1,510 @@
+{
+ "pool": "history",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "born",
+   "label": "Born",
+   "kind": "num",
+   "close": 50,
+   "fmt": "year"
+  },
+  {
+   "key": "died",
+   "label": "Died",
+   "kind": "num",
+   "close": 50,
+   "fmt": "year"
+  },
+  {
+   "key": "age",
+   "label": "Lived to",
+   "kind": "num",
+   "close": 8,
+   "fmt": "int"
+  },
+  {
+   "key": "country",
+   "label": "Country",
+   "kind": "cat"
+  },
+  {
+   "key": "occupation",
+   "label": "Known as",
+   "kind": "set"
+  },
+  {
+   "key": "gender",
+   "label": "Gender",
+   "kind": "cat"
+  }
+ ],
+ "facts": {
+  "napoleon-bonaparte": {
+   "born": 1769,
+   "died": 1821,
+   "age": 52,
+   "country": "France",
+   "occupation": [
+    "politician",
+    "art collector",
+    "emperor"
+   ],
+   "gender": "Male"
+  },
+  "cleopatra": {
+   "born": -69,
+   "died": -30,
+   "age": 39,
+   "country": "Ptolemaic Kingdom",
+   "occupation": [
+    "sovereign",
+    "monarch"
+   ],
+   "gender": "Female"
+  },
+  "julius-caesar": {
+   "born": -100,
+   "died": -44,
+   "age": 56,
+   "country": "Ancient Rome",
+   "occupation": [
+    "orator",
+    "memoirist",
+    "ruler"
+   ],
+   "gender": "Male"
+  },
+  "alexander-the-great": {
+   "born": -356,
+   "died": -323,
+   "age": 33,
+   "country": "Macedonia",
+   "occupation": [
+    "politician",
+    "military leader",
+    "monarch"
+   ],
+   "gender": "Male"
+  },
+  "genghis-khan": {
+   "born": 1162,
+   "died": 1227,
+   "age": 65,
+   "country": "Mongol Empire",
+   "occupation": [
+    "military leader",
+    "traditional leader or chief",
+    "monarch"
+   ],
+   "gender": "Male"
+  },
+  "leonardo-da-vinci": {
+   "born": 1452,
+   "died": 1519,
+   "age": 67,
+   "country": "Republic of Florence",
+   "occupation": [
+    "painter",
+    "engineer",
+    "astronomer"
+   ],
+   "gender": "Male"
+  },
+  "albert-einstein": {
+   "born": 1879,
+   "died": 1955,
+   "age": 76,
+   "country": "Kingdom of Württemberg",
+   "occupation": [
+    "theoretical physicist",
+    "philosopher of science",
+    "inventor"
+   ],
+   "gender": "Male"
+  },
+  "isaac-newton": {
+   "born": 1642,
+   "died": 1727,
+   "age": 85,
+   "country": "Kingdom of England",
+   "occupation": [
+    "mathematician",
+    "philosopher"
+   ],
+   "gender": "Male"
+  },
+  "marie-curie": {
+   "born": 1867,
+   "died": 1934,
+   "age": 67,
+   "country": "Russian Empire",
+   "occupation": [
+    "physicist",
+    "chemist",
+    "university teacher"
+   ],
+   "gender": "Female"
+  },
+  "nikola-tesla": {
+   "born": 1856,
+   "died": 1943,
+   "age": 87,
+   "country": "Austrian Empire",
+   "occupation": [
+    "inventor",
+    "electrical engineer",
+    "physicist"
+   ],
+   "gender": "Male"
+  },
+  "abraham-lincoln": {
+   "born": 1809,
+   "died": 1865,
+   "age": 56,
+   "country": "United States",
+   "occupation": [
+    "politician",
+    "postmaster",
+    "lawyer"
+   ],
+   "gender": "Male"
+  },
+  "winston-churchill": {
+   "born": 1874,
+   "died": 1965,
+   "age": 91,
+   "country": "United Kingdom",
+   "occupation": [
+    "politician",
+    "historian"
+   ],
+   "gender": "Male"
+  },
+  "joan-of-arc": {
+   "born": 1412,
+   "died": 1431,
+   "age": 19,
+   "country": "Kingdom of France",
+   "occupation": [
+    "military personnel",
+    "religious leader"
+   ],
+   "gender": "Female"
+  },
+  "sun-tzu": {
+   "born": -544,
+   "died": -496,
+   "age": 48,
+   "country": "Qi",
+   "occupation": [
+    "writer",
+    "philosopher",
+    "military personnel"
+   ],
+   "gender": "Male"
+  },
+  "queen-elizabeth-i": {
+   "born": 1533,
+   "died": 1603,
+   "age": 70,
+   "country": "Kingdom of England",
+   "occupation": [
+    "queen"
+   ],
+   "gender": "Female"
+  },
+  "mahatma-gandhi": {
+   "born": 1869,
+   "died": 1948,
+   "age": 79,
+   "country": "India",
+   "occupation": [
+    "politician",
+    "barrister",
+    "political writer"
+   ],
+   "gender": "Male"
+  },
+  "martin-luther-king-jr": {
+   "born": 1929,
+   "died": 1968,
+   "age": 39,
+   "country": "United States",
+   "occupation": [
+    "pastor",
+    "preacher",
+    "civil rights advocate"
+   ],
+   "gender": "Male"
+  },
+  "nelson-mandela": {
+   "born": 1918,
+   "died": 2013,
+   "age": 95,
+   "country": "South Africa",
+   "occupation": [
+    "politician",
+    "autobiographer",
+    "lawyer"
+   ],
+   "gender": "Male"
+  },
+  "harriet-tubman": {
+   "born": 1820,
+   "died": 1913,
+   "age": 93,
+   "country": "United States",
+   "occupation": [
+    "writer",
+    "nurse",
+    "human rights defender"
+   ],
+   "gender": "Female"
+  },
+  "aristotle": {
+   "born": -384,
+   "died": -322,
+   "age": 62,
+   "occupation": [
+    "philosopher"
+   ],
+   "gender": "Male"
+  },
+  "socrates": {
+   "born": -470,
+   "died": -399,
+   "age": 71,
+   "country": "Classical Athens",
+   "occupation": [
+    "philosopher",
+    "teacher",
+    "writer"
+   ],
+   "gender": "Male"
+  },
+  "william-shakespeare": {
+   "born": 1564,
+   "died": 1616,
+   "age": 52,
+   "country": "Kingdom of England",
+   "occupation": [
+    "playwright",
+    "poet",
+    "stage actor"
+   ],
+   "gender": "Male"
+  },
+  "mozart": {
+   "born": 1756,
+   "died": 1791,
+   "age": 35,
+   "country": "Prince-Archbishopric of Salzburg",
+   "occupation": [
+    "composer",
+    "music educator",
+    "pianist"
+   ],
+   "gender": "Male"
+  },
+  "pablo-picasso": {
+   "born": 1881,
+   "died": 1973,
+   "age": 92,
+   "country": "Spain",
+   "occupation": [
+    "painter",
+    "sculptor",
+    "printmaker"
+   ],
+   "gender": "Male"
+  },
+  "amelia-earhart": {
+   "born": 1897,
+   "died": 1939,
+   "age": 42,
+   "country": "United States",
+   "occupation": [
+    "aircraft pilot",
+    "memoirist",
+    "travel writer"
+   ],
+   "gender": "Female"
+  },
+  "neil-armstrong": {
+   "born": 1930,
+   "died": 2012,
+   "age": 82,
+   "country": "United States",
+   "occupation": [
+    "United States Naval Aviator",
+    "test pilot",
+    "university teacher"
+   ],
+   "gender": "Male"
+  },
+  "christopher-columbus": {
+   "born": 1451,
+   "died": 1506,
+   "age": 55,
+   "country": "Republic of Genoa",
+   "occupation": [
+    "explorer",
+    "seafarer",
+    "traveler"
+   ],
+   "gender": "Male"
+  },
+  "marco-polo": {
+   "born": 1254,
+   "died": 1324,
+   "age": 70,
+   "country": "Republic of Venice",
+   "occupation": [
+    "merchant",
+    "diplomat",
+    "ambassador"
+   ],
+   "gender": "Male"
+  },
+  "charles-darwin": {
+   "born": 1809,
+   "died": 1882,
+   "age": 73,
+   "country": "United Kingdom of Great Britain and Ireland",
+   "occupation": [
+    "geologist",
+    "explorer",
+    "travel writer"
+   ],
+   "gender": "Male"
+  },
+  "galileo-galilei": {
+   "born": 1564,
+   "died": 1642,
+   "age": 78,
+   "country": "Duchy of Florence",
+   "occupation": [
+    "astronomer",
+    "philosopher",
+    "mathematician"
+   ],
+   "gender": "Male"
+  },
+  "steve-jobs": {
+   "born": 1955,
+   "died": 2011,
+   "age": 56,
+   "country": "United States",
+   "occupation": [
+    "entrepreneur",
+    "inventor",
+    "designer"
+   ],
+   "gender": "Male"
+  },
+  "henry-ford": {
+   "born": 1863,
+   "died": 1947,
+   "age": 84,
+   "country": "United States",
+   "occupation": [
+    "entrepreneur",
+    "inventor",
+    "writer"
+   ],
+   "gender": "Male"
+  },
+  "bruce-lee": {
+   "born": 1940,
+   "died": 1973,
+   "age": 33,
+   "country": "British Hong Kong",
+   "occupation": [
+    "film director",
+    "television actor",
+    "film actor"
+   ],
+   "gender": "Male"
+  },
+  "muhammad-ali": {
+   "born": 1942,
+   "died": 2016,
+   "age": 74,
+   "country": "United States",
+   "occupation": [
+    "boxer"
+   ],
+   "gender": "Male"
+  },
+  "rosa-parks": {
+   "born": 1913,
+   "died": 2005,
+   "age": 92,
+   "country": "United States",
+   "occupation": [
+    "autobiographer",
+    "human rights defender",
+    "civil rights advocate"
+   ],
+   "gender": "Female"
+  },
+  "confucius": {
+   "born": -551,
+   "died": -479,
+   "age": 72,
+   "country": "Lu",
+   "occupation": [
+    "philosopher",
+    "teacher",
+    "writer"
+   ],
+   "gender": "Male"
+  },
+  "hannibal-barca": {
+   "born": -247,
+   "died": -183,
+   "age": 64,
+   "country": "Ancient Carthage",
+   "occupation": [
+    "politician",
+    "military leader"
+   ],
+   "gender": "Male"
+  },
+  "queen-victoria": {
+   "born": 1819,
+   "died": 1901,
+   "age": 82,
+   "country": "United Kingdom of Great Britain and Ireland",
+   "occupation": [
+    "monarch"
+   ],
+   "gender": "Female"
+  },
+  "catherine-the-great": {
+   "born": 1729,
+   "died": 1796,
+   "age": 67,
+   "country": "Russian Empire",
+   "occupation": [
+    "politician",
+    "monarch",
+    "art collector"
+   ],
+   "gender": "Female"
+  },
+  "benjamin-franklin": {
+   "born": 1706,
+   "died": 1790,
+   "age": 84,
+   "country": "British America",
+   "occupation": [
+    "politician",
+    "diplomat",
+    "polymath"
+   ],
+   "gender": "Male"
+  }
+ }
+}

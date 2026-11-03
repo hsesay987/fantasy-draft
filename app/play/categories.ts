@@ -180,6 +180,8 @@ export const FORMAT_WHY: Record<FormatId, string> = {
   keep: "Keep or delete every reveal",
   feud: "Name the survey's top answers",
   jeopardy: "Choose clues, win the board",
+  imposter: "Find the one who doesn't know the secret",
+  vote: "Vote together, read the room",
 };
 
 /** Formats that make sense for a category (Loadout needs hero-ish items). */

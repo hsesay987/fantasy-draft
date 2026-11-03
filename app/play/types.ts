@@ -3,7 +3,10 @@ import type { LoadoutMission } from "../topicDraft/formats/loadout";
 import type { Role } from "../topicDraft/formats/position";
 import type { QuizData } from "../topicDraft/trivia/types";
 
-export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy";
+export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote";
+
+/** Party games: online only, played on phones in one room. `pool` is a topic (Imposter) or a card deck (vote games). */
+export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote"]);
 
 export type Opts = {
   teamSize: number;
@@ -33,6 +36,8 @@ export type Opts = {
   handExtra: number;
   // blind
   rankSize: number;
+  /** Imposter: "guess" lets the imposter name the secret any time; "vote" leaves it to the vote. */
+  ending: "guess" | "vote";
 };
 
 export type GameSetup = {
@@ -72,6 +77,7 @@ export const DEFAULT_OPTS: Opts = {
   clues: 3,
   handExtra: 2,
   rankSize: 6,
+  ending: "guess",
 };
 
 export function snakeConfig(setup: GameSetup): Config {

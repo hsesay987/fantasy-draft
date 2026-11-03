@@ -1,0 +1,819 @@
+{
+ "pool": "music",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "kind",
+   "label": "Act",
+   "kind": "cat"
+  },
+  {
+   "key": "start",
+   "label": "Active from",
+   "kind": "num",
+   "close": 5,
+   "fmt": "year"
+  },
+  {
+   "key": "genre",
+   "label": "Genre",
+   "kind": "set"
+  },
+  {
+   "key": "country",
+   "label": "From",
+   "kind": "cat"
+  },
+  {
+   "key": "members",
+   "label": "Members",
+   "kind": "num",
+   "close": 1,
+   "fmt": "int"
+  },
+  {
+   "key": "label",
+   "label": "Record label",
+   "kind": "set"
+  }
+ ],
+ "facts": {
+  "the-beatles": {
+   "kind": "Group",
+   "start": 1960,
+   "genre": [
+    "rock",
+    "pop",
+    "hard rock"
+   ],
+   "country": "United Kingdom",
+   "members": 4,
+   "label": [
+    "Apple Records",
+    "Capitol Records",
+    "Parlophone"
+   ]
+  },
+  "queen": {
+   "kind": "Group",
+   "start": 1970,
+   "genre": [
+    "progressive rock",
+    "glam rock",
+    "hard rock"
+   ],
+   "country": "United Kingdom",
+   "members": 4,
+   "label": [
+    "Elektra",
+    "Capitol Records",
+    "EMI Records"
+   ]
+  },
+  "led-zeppelin": {
+   "kind": "Group",
+   "start": 1968,
+   "genre": [
+    "hard rock",
+    "blues rock",
+    "rock"
+   ],
+   "country": "England",
+   "members": 4,
+   "label": [
+    "Atlantic Records",
+    "Decca",
+    "Swan Song Records"
+   ]
+  },
+  "the-rolling-stones": {
+   "kind": "Group",
+   "start": 1962,
+   "genre": [
+    "rock",
+    "blues rock",
+    "psychedelic rock"
+   ],
+   "country": "United Kingdom",
+   "members": 13,
+   "label": [
+    "Polydor Records",
+    "Columbia Records",
+    "Atlantic Records"
+   ]
+  },
+  "pink-floyd": {
+   "kind": "Group",
+   "start": 1965,
+   "genre": [
+    "progressive rock",
+    "psychedelic rock",
+    "art rock"
+   ],
+   "country": "United Kingdom",
+   "members": 7,
+   "label": [
+    "Tower Records",
+    "Harvest",
+    "Capitol Records"
+   ]
+  },
+  "nirvana": {
+   "kind": "Group",
+   "start": 1987,
+   "genre": [
+    "alternative rock",
+    "grunge"
+   ],
+   "country": "United States",
+   "members": 7,
+   "label": [
+    "DGC Records",
+    "Geffen Records",
+    "Sub Pop"
+   ]
+  },
+  "ac-dc": {
+   "kind": "Group",
+   "start": 1973,
+   "genre": [
+    "hard rock",
+    "rock and roll",
+    "blues rock"
+   ],
+   "country": "Australia",
+   "members": 6,
+   "label": [
+    "Columbia Records",
+    "Sony Music",
+    "Interscope Records"
+   ]
+  },
+  "coldplay": {
+   "kind": "Group",
+   "start": 1997,
+   "genre": [
+    "alternative rock",
+    "pop"
+   ],
+   "country": "United Kingdom",
+   "members": 4,
+   "label": [
+    "Capitol Records",
+    "Atlantic Records",
+    "Parlophone"
+   ]
+  },
+  "elvis-presley": {
+   "kind": "Solo artist",
+   "start": 1954,
+   "genre": [
+    "rock and roll",
+    "pop",
+    "rockabilly"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Sun Records",
+    "RCA Victor"
+   ]
+  },
+  "bruce-springsteen": {
+   "kind": "Solo artist",
+   "start": 1969,
+   "genre": [
+    "rock"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Columbia Records"
+   ]
+  },
+  "david-bowie": {
+   "kind": "Solo artist",
+   "start": 1964,
+   "genre": [
+    "pop",
+    "rock",
+    "glam rock"
+   ],
+   "country": "United Kingdom",
+   "members": 1,
+   "label": [
+    "Iso (record label)",
+    "Columbia Records",
+    "Decca"
+   ]
+  },
+  "elton-john": {
+   "kind": "Solo artist",
+   "start": 1962,
+   "genre": [
+    "rock",
+    "pop rock",
+    "glam rock"
+   ],
+   "country": "United Kingdom",
+   "members": 1,
+   "label": [
+    "Universal Records",
+    "Island Records",
+    "Philips Records"
+   ]
+  },
+  "michael-jackson": {
+   "kind": "Solo artist",
+   "start": 1964,
+   "genre": [
+    "pop",
+    "contemporary R&B",
+    "soul"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Epic Records",
+    "Sony Music",
+    "Motown"
+   ]
+  },
+  "madonna": {
+   "kind": "Solo artist",
+   "start": 1979,
+   "genre": [
+    "pop",
+    "dance",
+    "electronic"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Sire",
+    "Warner Bros. Records",
+    "Maverick"
+   ]
+  },
+  "prince": {
+   "kind": "Solo artist",
+   "start": 1978,
+   "genre": [
+    "pop rock",
+    "synth funk",
+    "contemporary R&B"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Paisley Park Records",
+    "Arista Records",
+    "Warner Bros. Records"
+   ]
+  },
+  "whitney-houston": {
+   "kind": "Solo artist",
+   "start": 1976,
+   "genre": [
+    "pop",
+    "rhythm and blues",
+    "soul"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Arista Records",
+    "RCA Records"
+   ]
+  },
+  "mariah-carey": {
+   "kind": "Solo artist",
+   "start": 1988,
+   "genre": [
+    "contemporary R&B",
+    "pop",
+    "adult contemporary"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Def Jam Recordings",
+    "Columbia Records",
+    "Epic Records"
+   ]
+  },
+  "beyonc": {
+   "kind": "Solo artist",
+   "start": 1990,
+   "genre": [
+    "pop",
+    "contemporary R&B",
+    "country"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Parkwood Entertainment",
+    "Columbia Records",
+    "Music World Entertainment"
+   ]
+  },
+  "taylor-swift": {
+   "kind": "Solo artist",
+   "start": 2003,
+   "genre": [
+    "pop",
+    "country"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Big Machine Records",
+    "Republic Records"
+   ]
+  },
+  "adele": {
+   "kind": "Solo artist",
+   "start": 2006,
+   "genre": [
+    "pop",
+    "blue-eyed soul",
+    "rhythm and blues"
+   ],
+   "country": "United Kingdom",
+   "members": 1,
+   "label": [
+    "XL Recordings",
+    "Columbia Records",
+    "Sony Music"
+   ]
+  },
+  "lady-gaga": {
+   "kind": "Solo artist",
+   "start": 2005,
+   "genre": [
+    "electropop",
+    "dance-pop",
+    "electronic dance"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Interscope Records",
+    "Universal Music Group"
+   ]
+  },
+  "rihanna": {
+   "kind": "Solo artist",
+   "start": 2003,
+   "genre": [
+    "pop",
+    "dancehall",
+    "contemporary R&B"
+   ],
+   "country": "Barbados",
+   "members": 1,
+   "label": [
+    "Roc Nation",
+    "Def Jam Recordings",
+    "Westbury Road Entertainment"
+   ]
+  },
+  "bruno-mars": {
+   "kind": "Solo artist",
+   "start": 1990,
+   "genre": [
+    "pop",
+    "contemporary R&B",
+    "hip-hop"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Atlantic Records",
+    "Universal Motown Records",
+    "Elektra"
+   ]
+  },
+  "ed-sheeran": {
+   "kind": "Solo artist",
+   "start": 2004,
+   "genre": [
+    "pop",
+    "folk",
+    "hip-hop"
+   ],
+   "country": "United Kingdom",
+   "members": 1,
+   "label": [
+    "Asylum Records",
+    "Atlantic Records",
+    "Elektra"
+   ]
+  },
+  "abba": {
+   "kind": "Group",
+   "start": 1972,
+   "genre": [
+    "pop",
+    "pop rock",
+    "Europop"
+   ],
+   "country": "Sweden",
+   "members": 4,
+   "label": [
+    "Polydor Records",
+    "Polar",
+    "Atlantic Records"
+   ]
+  },
+  "billie-eilish": {
+   "kind": "Solo artist",
+   "start": 2015,
+   "genre": [
+    "electropop",
+    "indie pop",
+    "alternative pop"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Darkroom",
+    "Interscope Records"
+   ]
+  },
+  "the-weeknd": {
+   "kind": "Solo artist",
+   "start": 2009,
+   "genre": [
+    "alternative R&B",
+    "pop",
+    "electropop"
+   ],
+   "country": "Canada",
+   "members": 1,
+   "label": [
+    "XO",
+    "Republic Records"
+   ]
+  },
+  "stevie-wonder": {
+   "kind": "Solo artist",
+   "start": 1961,
+   "genre": [
+    "rhythm and blues",
+    "soul",
+    "funk"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Motown"
+   ]
+  },
+  "aretha-franklin": {
+   "kind": "Solo artist",
+   "start": 1956,
+   "genre": [
+    "soul",
+    "funk",
+    "gospel"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Arista Records",
+    "Atlantic Records",
+    "Battle Records"
+   ]
+  },
+  "marvin-gaye": {
+   "kind": "Solo artist",
+   "start": 1959,
+   "genre": [
+    "soul",
+    "pop",
+    "rhythm and blues"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Motown",
+    "Columbia Records"
+   ]
+  },
+  "bob-marley": {
+   "kind": "Solo artist",
+   "start": 1962,
+   "genre": [
+    "reggae",
+    "ska",
+    "rocksteady"
+   ],
+   "country": "Jamaica",
+   "members": 1,
+   "label": [
+    "Studio One",
+    "Beverley's Records",
+    "Wail N Soul M"
+   ]
+  },
+  "frank-sinatra": {
+   "kind": "Solo artist",
+   "start": 1935,
+   "genre": [
+    "vocal jazz",
+    "big band",
+    "blues"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Columbia Records",
+    "Capitol Records",
+    "Warner Bros. Records"
+   ]
+  },
+  "louis-armstrong": {
+   "kind": "Solo artist",
+   "start": 1914,
+   "genre": [
+    "jazz"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "ABC Records",
+    "Audio Fidelity",
+    "Columbia Records"
+   ]
+  },
+  "ella-fitzgerald": {
+   "kind": "Solo artist",
+   "start": 1934,
+   "genre": [
+    "jazz",
+    "swing",
+    "traditional pop"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Capitol Records",
+    "Decca",
+    "Verve Records"
+   ]
+  },
+  "johnny-cash": {
+   "kind": "Solo artist",
+   "start": 1954,
+   "genre": [
+    "country",
+    "outlaw country",
+    "gospel"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Sun Records",
+    "Charly Records",
+    "Columbia Records"
+   ]
+  },
+  "dolly-parton": {
+   "kind": "Solo artist",
+   "start": 1959,
+   "genre": [
+    "country",
+    "ballad",
+    "gospel"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Asylum Records",
+    "Columbia Records",
+    "Decca"
+   ]
+  },
+  "bob-dylan": {
+   "kind": "Solo artist",
+   "start": 1962,
+   "genre": [
+    "rock",
+    "blues",
+    "country"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Columbia Records",
+    "Asylum Records"
+   ]
+  },
+  "eminem": {
+   "kind": "Solo artist",
+   "start": 1988,
+   "genre": [
+    "hip-hop",
+    "horrorcore",
+    "hardcore hip-hop"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Shady Records",
+    "Interscope Records",
+    "Aftermath Entertainment"
+   ]
+  },
+  "kendrick-lamar": {
+   "kind": "Solo artist",
+   "start": 2003,
+   "genre": [
+    "West Coast hip-hop",
+    "progressive rap",
+    "alternative hip-hop"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "PGLang",
+    "Interscope Records",
+    "Top Dawg Entertainment"
+   ]
+  },
+  "jay-z": {
+   "kind": "Solo artist",
+   "start": 1986,
+   "genre": [
+    "East Coast hip-hop",
+    "mafioso rap",
+    "gangsta rap"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Roc-A-Fella Records",
+    "Roc Nation",
+    "Atlantic Records"
+   ]
+  },
+  "tupac-shakur": {
+   "kind": "Solo artist",
+   "start": 1989,
+   "genre": [
+    "West Coast hip-hop",
+    "gangsta rap",
+    "political hip-hop"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "Death Row Records",
+    "Interscope Records",
+    "Amaru Entertainment"
+   ]
+  },
+  "kanye-west": {
+   "kind": "Solo artist",
+   "start": 1996,
+   "genre": [
+    "hip-hop",
+    "pop",
+    "electronic"
+   ],
+   "country": "United States",
+   "members": 1,
+   "label": [
+    "GOOD Music",
+    "Roc-A-Fella Records",
+    "Def Jam Recordings"
+   ]
+  },
+  "drake": {
+   "kind": "Solo artist",
+   "start": 2001,
+   "genre": [
+    "hip-hop",
+    "contemporary R&B",
+    "pop"
+   ],
+   "country": "Canada",
+   "members": 1,
+   "label": [
+    "OVO Sound",
+    "Republic Records",
+    "Young Money Entertainment"
+   ]
+  },
+  "daft-punk": {
+   "kind": "Group",
+   "start": 1993,
+   "genre": [
+    "house",
+    "electronic",
+    "French house"
+   ],
+   "country": "France",
+   "members": 2,
+   "label": [
+    "Soma Quality Recordings",
+    "Virgin Records",
+    "Columbia Records"
+   ]
+  },
+  "bad-bunny": {
+   "kind": "Solo artist",
+   "start": 2013,
+   "genre": [
+    "Latin trap",
+    "reggaeton"
+   ],
+   "country": "Puerto Rico",
+   "members": 1,
+   "label": [
+    "Hear This Music",
+    "Rimas Entertainment"
+   ]
+  },
+  "shakira": {
+   "kind": "Solo artist",
+   "start": 1990,
+   "genre": [
+    "pop",
+    "Latin pop",
+    "pop rock"
+   ],
+   "country": "Spain",
+   "members": 1,
+   "label": [
+    "Sony Music",
+    "Epic Records",
+    "Sony BMG Music Entertainment, Inc."
+   ]
+  },
+  "bts": {
+   "kind": "Group",
+   "start": 2013,
+   "genre": [
+    "K-pop",
+    "dance-pop",
+    "Korean hip-hop"
+   ],
+   "country": "South Korea",
+   "members": 7,
+   "label": [
+    "Avex Trax",
+    "Def Jam Japan",
+    "Columbia Records"
+   ]
+  },
+  "metallica": {
+   "kind": "Group",
+   "start": 1981,
+   "genre": [
+    "thrash metal",
+    "heavy metal"
+   ],
+   "country": "United States",
+   "members": 10,
+   "label": [
+    "Warner Bros. Records",
+    "Megaforce Records",
+    "Elektra"
+   ]
+  },
+  "fleetwood-mac": {
+   "kind": "Group",
+   "start": 1967,
+   "genre": [
+    "rock",
+    "instrumental rock",
+    "blues rock"
+   ],
+   "country": "United Kingdom",
+   "label": [
+    "Sanctuary Records",
+    "Sire",
+    "Columbia Records"
+   ]
+  },
+  "u2": {
+   "kind": "Group",
+   "start": 1976,
+   "genre": [
+    "alternative rock",
+    "post-punk",
+    "soft rock"
+   ],
+   "country": "Ireland",
+   "members": 5,
+   "label": [
+    "Island Records",
+    "Interscope Records",
+    "Columbia Records"
+   ]
+  }
+ }
+}

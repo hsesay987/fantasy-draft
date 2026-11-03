@@ -1,0 +1,527 @@
+{
+ "pool": "pokemon",
+ "source": "PokéAPI",
+ "columns": [
+  {
+   "key": "type",
+   "label": "Type",
+   "kind": "set"
+  },
+  {
+   "key": "generation",
+   "label": "Generation",
+   "kind": "num",
+   "close": 1,
+   "fmt": "int"
+  },
+  {
+   "key": "stage",
+   "label": "Evolution stage",
+   "kind": "num",
+   "close": 0,
+   "fmt": "int"
+  },
+  {
+   "key": "height",
+   "label": "Height",
+   "kind": "num",
+   "close": 0.5,
+   "fmt": "dec1",
+   "unit": "m"
+  },
+  {
+   "key": "weight",
+   "label": "Weight",
+   "kind": "num",
+   "close": 0.35,
+   "rel": true,
+   "fmt": "dec1",
+   "unit": "kg"
+  },
+  {
+   "key": "color",
+   "label": "Colour",
+   "kind": "cat"
+  },
+  {
+   "key": "legendary",
+   "label": "Class",
+   "kind": "cat"
+  }
+ ],
+ "facts": {
+  "charizard": {
+   "type": [
+    "Fire",
+    "Flying"
+   ],
+   "generation": 1,
+   "stage": 3,
+   "height": 1.7,
+   "weight": 90.5,
+   "color": "Red",
+   "legendary": "Regular"
+  },
+  "blastoise": {
+   "type": [
+    "Water"
+   ],
+   "generation": 1,
+   "stage": 3,
+   "height": 1.6,
+   "weight": 85.5,
+   "color": "Blue",
+   "legendary": "Regular"
+  },
+  "venusaur": {
+   "type": [
+    "Grass",
+    "Poison"
+   ],
+   "generation": 1,
+   "stage": 3,
+   "height": 2,
+   "weight": 100,
+   "color": "Green",
+   "legendary": "Regular"
+  },
+  "pikachu": {
+   "type": [
+    "Electric"
+   ],
+   "generation": 1,
+   "stage": 2,
+   "height": 0.4,
+   "weight": 6,
+   "color": "Yellow",
+   "legendary": "Regular"
+  },
+  "raichu": {
+   "type": [
+    "Electric"
+   ],
+   "generation": 1,
+   "stage": 3,
+   "height": 0.8,
+   "weight": 30,
+   "color": "Yellow",
+   "legendary": "Regular"
+  },
+  "gengar": {
+   "type": [
+    "Ghost",
+    "Poison"
+   ],
+   "generation": 1,
+   "stage": 3,
+   "height": 1.5,
+   "weight": 40.5,
+   "color": "Purple",
+   "legendary": "Regular"
+  },
+  "alakazam": {
+   "type": [
+    "Psychic"
+   ],
+   "generation": 1,
+   "stage": 3,
+   "height": 1.5,
+   "weight": 48,
+   "color": "Brown",
+   "legendary": "Regular"
+  },
+  "machamp": {
+   "type": [
+    "Fighting"
+   ],
+   "generation": 1,
+   "stage": 3,
+   "height": 1.6,
+   "weight": 130,
+   "color": "Gray",
+   "legendary": "Regular"
+  },
+  "gyarados": {
+   "type": [
+    "Water",
+    "Flying"
+   ],
+   "generation": 1,
+   "stage": 2,
+   "height": 6.5,
+   "weight": 235,
+   "color": "Blue",
+   "legendary": "Regular"
+  },
+  "dragonite": {
+   "type": [
+    "Dragon",
+    "Flying"
+   ],
+   "generation": 1,
+   "stage": 3,
+   "height": 2.2,
+   "weight": 210,
+   "color": "Brown",
+   "legendary": "Regular"
+  },
+  "snorlax": {
+   "type": [
+    "Normal"
+   ],
+   "generation": 1,
+   "stage": 2,
+   "height": 2.1,
+   "weight": 460,
+   "color": "Black",
+   "legendary": "Regular"
+  },
+  "lapras": {
+   "type": [
+    "Water",
+    "Ice"
+   ],
+   "generation": 1,
+   "stage": 1,
+   "height": 2.5,
+   "weight": 220,
+   "color": "Blue",
+   "legendary": "Regular"
+  },
+  "eevee": {
+   "type": [
+    "Normal"
+   ],
+   "generation": 1,
+   "stage": 1,
+   "height": 0.3,
+   "weight": 6.5,
+   "color": "Brown",
+   "legendary": "Regular"
+  },
+  "vaporeon": {
+   "type": [
+    "Water"
+   ],
+   "generation": 1,
+   "stage": 2,
+   "height": 1,
+   "weight": 29,
+   "color": "Blue",
+   "legendary": "Regular"
+  },
+  "jolteon": {
+   "type": [
+    "Electric"
+   ],
+   "generation": 1,
+   "stage": 2,
+   "height": 0.8,
+   "weight": 24.5,
+   "color": "Yellow",
+   "legendary": "Regular"
+  },
+  "flareon": {
+   "type": [
+    "Fire"
+   ],
+   "generation": 1,
+   "stage": 2,
+   "height": 0.9,
+   "weight": 25,
+   "color": "Red",
+   "legendary": "Regular"
+  },
+  "mewtwo": {
+   "type": [
+    "Psychic"
+   ],
+   "generation": 1,
+   "stage": 1,
+   "height": 2,
+   "weight": 122,
+   "color": "Purple",
+   "legendary": "Legendary"
+  },
+  "mew": {
+   "type": [
+    "Psychic"
+   ],
+   "generation": 1,
+   "stage": 1,
+   "height": 0.4,
+   "weight": 4,
+   "color": "Pink",
+   "legendary": "Mythical"
+  },
+  "articuno": {
+   "type": [
+    "Ice",
+    "Flying"
+   ],
+   "generation": 1,
+   "stage": 1,
+   "height": 1.7,
+   "weight": 55.4,
+   "color": "Blue",
+   "legendary": "Legendary"
+  },
+  "zapdos": {
+   "type": [
+    "Electric",
+    "Flying"
+   ],
+   "generation": 1,
+   "stage": 1,
+   "height": 1.6,
+   "weight": 52.6,
+   "color": "Yellow",
+   "legendary": "Legendary"
+  },
+  "moltres": {
+   "type": [
+    "Fire",
+    "Flying"
+   ],
+   "generation": 1,
+   "stage": 1,
+   "height": 2,
+   "weight": 60,
+   "color": "Yellow",
+   "legendary": "Legendary"
+  },
+  "lucario": {
+   "type": [
+    "Fighting",
+    "Steel"
+   ],
+   "generation": 4,
+   "stage": 2,
+   "height": 1.2,
+   "weight": 54,
+   "color": "Blue",
+   "legendary": "Regular"
+  },
+  "garchomp": {
+   "type": [
+    "Dragon",
+    "Ground"
+   ],
+   "generation": 4,
+   "stage": 3,
+   "height": 1.9,
+   "weight": 95,
+   "color": "Blue",
+   "legendary": "Regular"
+  },
+  "metagross": {
+   "type": [
+    "Steel",
+    "Psychic"
+   ],
+   "generation": 3,
+   "stage": 3,
+   "height": 1.6,
+   "weight": 550,
+   "color": "Blue",
+   "legendary": "Regular"
+  },
+  "tyranitar": {
+   "type": [
+    "Rock",
+    "Dark"
+   ],
+   "generation": 2,
+   "stage": 3,
+   "height": 2,
+   "weight": 202,
+   "color": "Green",
+   "legendary": "Regular"
+  },
+  "scizor": {
+   "type": [
+    "Bug",
+    "Steel"
+   ],
+   "generation": 2,
+   "stage": 2,
+   "height": 1.8,
+   "weight": 118,
+   "color": "Red",
+   "legendary": "Regular"
+  },
+  "umbreon": {
+   "type": [
+    "Dark"
+   ],
+   "generation": 2,
+   "stage": 2,
+   "height": 1,
+   "weight": 27,
+   "color": "Black",
+   "legendary": "Regular"
+  },
+  "espeon": {
+   "type": [
+    "Psychic"
+   ],
+   "generation": 2,
+   "stage": 2,
+   "height": 0.9,
+   "weight": 26.5,
+   "color": "Purple",
+   "legendary": "Regular"
+  },
+  "greninja": {
+   "type": [
+    "Water",
+    "Dark"
+   ],
+   "generation": 6,
+   "stage": 3,
+   "height": 1.5,
+   "weight": 40,
+   "color": "Blue",
+   "legendary": "Regular"
+  },
+  "blaziken": {
+   "type": [
+    "Fire",
+    "Fighting"
+   ],
+   "generation": 3,
+   "stage": 3,
+   "height": 1.9,
+   "weight": 52,
+   "color": "Red",
+   "legendary": "Regular"
+  },
+  "gardevoir": {
+   "type": [
+    "Psychic",
+    "Fairy"
+   ],
+   "generation": 3,
+   "stage": 3,
+   "height": 1.6,
+   "weight": 48.4,
+   "color": "White",
+   "legendary": "Regular"
+  },
+  "salamence": {
+   "type": [
+    "Dragon",
+    "Flying"
+   ],
+   "generation": 3,
+   "stage": 3,
+   "height": 1.5,
+   "weight": 102.6,
+   "color": "Blue",
+   "legendary": "Regular"
+  },
+  "rayquaza": {
+   "type": [
+    "Dragon",
+    "Flying"
+   ],
+   "generation": 3,
+   "stage": 1,
+   "height": 7,
+   "weight": 206.5,
+   "color": "Green",
+   "legendary": "Legendary"
+  },
+  "kyogre": {
+   "type": [
+    "Water"
+   ],
+   "generation": 3,
+   "stage": 1,
+   "height": 4.5,
+   "weight": 352,
+   "color": "Blue",
+   "legendary": "Legendary"
+  },
+  "groudon": {
+   "type": [
+    "Ground"
+   ],
+   "generation": 3,
+   "stage": 1,
+   "height": 3.5,
+   "weight": 950,
+   "color": "Red",
+   "legendary": "Legendary"
+  },
+  "arceus": {
+   "type": [
+    "Normal"
+   ],
+   "generation": 4,
+   "stage": 1,
+   "height": 3.2,
+   "weight": 320,
+   "color": "White",
+   "legendary": "Mythical"
+  },
+  "togekiss": {
+   "type": [
+    "Fairy",
+    "Flying"
+   ],
+   "generation": 4,
+   "stage": 3,
+   "height": 1.5,
+   "weight": 38,
+   "color": "White",
+   "legendary": "Regular"
+  },
+  "charmander": {
+   "type": [
+    "Fire"
+   ],
+   "generation": 1,
+   "stage": 1,
+   "height": 0.6,
+   "weight": 8.5,
+   "color": "Red",
+   "legendary": "Regular"
+  },
+  "squirtle": {
+   "type": [
+    "Water"
+   ],
+   "generation": 1,
+   "stage": 1,
+   "height": 0.5,
+   "weight": 9,
+   "color": "Blue",
+   "legendary": "Regular"
+  },
+  "bulbasaur": {
+   "type": [
+    "Grass",
+    "Poison"
+   ],
+   "generation": 1,
+   "stage": 1,
+   "height": 0.7,
+   "weight": 6.9,
+   "color": "Green",
+   "legendary": "Regular"
+  },
+  "jigglypuff": {
+   "type": [
+    "Normal",
+    "Fairy"
+   ],
+   "generation": 1,
+   "stage": 2,
+   "height": 0.5,
+   "weight": 5.5,
+   "color": "Pink",
+   "legendary": "Regular"
+  }
+ }
+}

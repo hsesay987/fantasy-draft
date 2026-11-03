@@ -1,0 +1,318 @@
+{
+ "pool": "anime",
+ "source": "AniList",
+ "columns": [
+  {
+   "key": "series",
+   "label": "Series",
+   "kind": "cat"
+  },
+  {
+   "key": "debut",
+   "label": "Debut",
+   "kind": "num",
+   "close": 5,
+   "fmt": "year"
+  },
+  {
+   "key": "gender",
+   "label": "Gender",
+   "kind": "cat"
+  },
+  {
+   "key": "studio",
+   "label": "Studio",
+   "kind": "cat"
+  },
+  {
+   "key": "favourites",
+   "label": "Fan favourites",
+   "kind": "num",
+   "close": 0.4,
+   "rel": true,
+   "fmt": "big"
+  }
+ ],
+ "facts": {
+  "goku": {
+   "series": "Dragon Ball",
+   "debut": 1986,
+   "gender": "Male",
+   "studio": "Toei Animation",
+   "favourites": 9727
+  },
+  "vegeta": {
+   "series": "Dragon Ball",
+   "debut": 1989,
+   "gender": "Male",
+   "studio": "Toei Animation",
+   "favourites": 7397
+  },
+  "gohan": {
+   "series": "Dragon Ball",
+   "debut": 1989,
+   "gender": "Male",
+   "studio": "Toei Animation",
+   "favourites": 3834
+  },
+  "piccolo": {
+   "series": "Dragon Ball",
+   "debut": 1986,
+   "gender": "Male",
+   "studio": "Toei Animation",
+   "favourites": 3559
+  },
+  "naruto-uzumaki": {
+   "series": "Naruto",
+   "debut": 2002,
+   "gender": "Male",
+   "studio": "Studio Pierrot",
+   "favourites": 18875
+  },
+  "sasuke-uchiha": {
+   "series": "Naruto",
+   "debut": 2002,
+   "gender": "Male",
+   "studio": "Studio Pierrot",
+   "favourites": 13530
+  },
+  "kakashi-hatake": {
+   "series": "Naruto",
+   "debut": 2002,
+   "gender": "Male",
+   "studio": "Studio Pierrot",
+   "favourites": 21343
+  },
+  "itachi-uchiha": {
+   "series": "Naruto",
+   "debut": 2002,
+   "gender": "Male",
+   "studio": "Studio Pierrot",
+   "favourites": 22028
+  },
+  "luffy": {
+   "series": "One Piece",
+   "debut": 1998,
+   "gender": "Male",
+   "studio": "Production I.G",
+   "favourites": 35992
+  },
+  "roronoa-zoro": {
+   "series": "One Piece",
+   "debut": 1998,
+   "gender": "Male",
+   "studio": "Production I.G",
+   "favourites": 28824
+  },
+  "sanji": {
+   "series": "One Piece",
+   "debut": 1999,
+   "gender": "Male",
+   "studio": "Toei Animation",
+   "favourites": 15264
+  },
+  "nami": {
+   "series": "One Piece",
+   "debut": 1998,
+   "gender": "Female",
+   "studio": "Production I.G",
+   "favourites": 10196
+  },
+  "trafalgar-law": {
+   "series": "One Piece",
+   "debut": 1999,
+   "gender": "Male",
+   "studio": "Toei Animation",
+   "favourites": 10341
+  },
+  "ichigo-kurosaki": {
+   "series": "Bleach",
+   "debut": 2004,
+   "gender": "Male",
+   "studio": "Studio Pierrot",
+   "favourites": 14708
+  },
+  "rukia-kuchiki": {
+   "series": "Bleach",
+   "debut": 2004,
+   "gender": "Female",
+   "studio": "Studio Pierrot",
+   "favourites": 7477
+  },
+  "edward-elric": {
+   "series": "Fullmetal Alchemist",
+   "debut": 2003,
+   "gender": "Male",
+   "studio": "bones",
+   "favourites": 19314
+  },
+  "alphonse-elric": {
+   "series": "Fullmetal Alchemist",
+   "debut": 2003,
+   "gender": "Male",
+   "studio": "bones",
+   "favourites": 7373
+  },
+  "roy-mustang": {
+   "series": "Fullmetal Alchemist",
+   "debut": 2003,
+   "gender": "Male",
+   "studio": "bones",
+   "favourites": 14517
+  },
+  "eren-yeager": {
+   "series": "Attack on Titan",
+   "debut": 2013,
+   "gender": "Male",
+   "studio": "WIT STUDIO",
+   "favourites": 31967
+  },
+  "levi-ackerman": {
+   "series": "Attack on Titan",
+   "debut": 2013,
+   "gender": "Male",
+   "studio": "WIT STUDIO",
+   "favourites": 38619
+  },
+  "mikasa-ackerman": {
+   "series": "Attack on Titan",
+   "debut": 2013,
+   "gender": "Female",
+   "studio": "WIT STUDIO",
+   "favourites": 25730
+  },
+  "deku-izuku-midoriya": {
+   "series": "My Hero Academia",
+   "debut": 2016,
+   "gender": "Male",
+   "studio": "bones",
+   "favourites": 13934
+  },
+  "all-might": {
+   "series": "My Hero Academia",
+   "debut": 2016,
+   "gender": "Male",
+   "studio": "bones",
+   "favourites": 6860
+  },
+  "bakugo": {
+   "series": "My Hero Academia",
+   "debut": 2016,
+   "gender": "Male",
+   "studio": "bones",
+   "favourites": 16247
+  },
+  "todoroki": {
+   "series": "My Hero Academia",
+   "debut": 2016,
+   "gender": "Male",
+   "studio": "bones",
+   "favourites": 16807
+  },
+  "tanjiro-kamado": {
+   "series": "Demon Slayer",
+   "debut": 2019,
+   "gender": "Male",
+   "studio": "ufotable",
+   "favourites": 17991
+  },
+  "zenitsu": {
+   "series": "Demon Slayer",
+   "debut": 2019,
+   "gender": "Male",
+   "studio": "ufotable",
+   "favourites": 13808
+  },
+  "giyu-tomioka": {
+   "series": "Demon Slayer",
+   "debut": 2019,
+   "gender": "Male",
+   "studio": "ufotable",
+   "favourites": 12479
+  },
+  "gojo-satoru": {
+   "series": "Jujutsu Kaisen",
+   "debut": 2018,
+   "gender": "Male",
+   "studio": "Yokohama Animation Lab",
+   "favourites": 39205
+  },
+  "sukuna": {
+   "series": "Jujutsu Kaisen",
+   "debut": 2020,
+   "gender": "Male",
+   "studio": "MAPPA",
+   "favourites": 11899
+  },
+  "saitama": {
+   "series": "One Punch Man",
+   "debut": 2015,
+   "gender": "Male",
+   "studio": "MADHOUSE",
+   "favourites": 15088
+  },
+  "genos": {
+   "series": "One Punch Man",
+   "debut": 2015,
+   "gender": "Male",
+   "studio": "MADHOUSE",
+   "favourites": 6485
+  },
+  "killua-zoldyck": {
+   "series": "Hunter x Hunter",
+   "debut": 1999,
+   "gender": "Male",
+   "studio": "Nippon Animation",
+   "favourites": 34972
+  },
+  "gon-freecss": {
+   "series": "Hunter x Hunter",
+   "debut": 1998,
+   "gender": "Male",
+   "studio": "Studio Pierrot",
+   "favourites": 15489
+  },
+  "hisoka": {
+   "series": "Hunter x Hunter",
+   "debut": 1999,
+   "gender": "Male",
+   "studio": "Nippon Animation",
+   "favourites": 14283
+  },
+  "lelouch": {
+   "series": "Code Geass",
+   "debut": 2006,
+   "gender": "Male",
+   "studio": "Sunrise",
+   "favourites": 28276
+  },
+  "l-lawliet": {
+   "series": "Death Note",
+   "debut": 2006,
+   "gender": "Male",
+   "studio": "MADHOUSE",
+   "favourites": 26876
+  },
+  "spike-spiegel": {
+   "series": "Cowboy Bebop",
+   "debut": 1998,
+   "gender": "Male",
+   "studio": "Sunrise",
+   "favourites": 14331
+  },
+  "kirito": {
+   "series": "Sword Art Online",
+   "debut": 2012,
+   "gender": "Male",
+   "studio": "A-1 Pictures",
+   "favourites": 8825
+  },
+  "sailor-moon": {
+   "series": "Sailor Moon",
+   "debut": 1992,
+   "gender": "Female",
+   "studio": "Toei Animation",
+   "favourites": 2666
+  }
+ }
+}

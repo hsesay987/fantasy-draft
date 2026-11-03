@@ -1,0 +1,870 @@
+{
+ "pool": "films",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "year",
+   "label": "Released",
+   "kind": "num",
+   "close": 5,
+   "fmt": "year"
+  },
+  {
+   "key": "director",
+   "label": "Director",
+   "kind": "set"
+  },
+  {
+   "key": "genre",
+   "label": "Genre",
+   "kind": "set"
+  },
+  {
+   "key": "runtime",
+   "label": "Runtime",
+   "kind": "num",
+   "close": 15,
+   "fmt": "int",
+   "unit": "min"
+  },
+  {
+   "key": "country",
+   "label": "Country",
+   "kind": "cat"
+  },
+  {
+   "key": "box",
+   "label": "Box office",
+   "kind": "num",
+   "close": 0.35,
+   "rel": true,
+   "fmt": "big",
+   "unit": "$"
+  }
+ ],
+ "facts": {
+  "the-godfather": {
+   "year": 1972,
+   "director": [
+    "Francis Ford Coppola"
+   ],
+   "genre": [
+    "epic",
+    "gangster",
+    "crime"
+   ],
+   "runtime": 175,
+   "country": "United States",
+   "box": 270007394
+  },
+  "the-shawshank-redemption": {
+   "year": 1994,
+   "director": [
+    "Frank Darabont"
+   ],
+   "genre": [
+    "drama",
+    "buddy",
+    "prison"
+   ],
+   "runtime": 142,
+   "country": "United States",
+   "box": 28817291
+  },
+  "the-dark-knight": {
+   "year": 2008,
+   "genre": [
+    "action",
+    "neo-noir",
+    "crime thriller"
+   ],
+   "runtime": 155,
+   "country": "United States",
+   "box": 1006234167
+  },
+  "pulp-fiction": {
+   "year": 1994,
+   "director": [
+    "Quentin Tarantino"
+   ],
+   "genre": [
+    "independent",
+    "crime",
+    "crime drama"
+   ],
+   "runtime": 154,
+   "country": "United States",
+   "box": 213928762
+  },
+  "inception": {
+   "year": 2010,
+   "genre": [
+    "heist",
+    "science fiction",
+    "thriller"
+   ],
+   "runtime": 148,
+   "country": "United Kingdom",
+   "box": 836848102
+  },
+  "the-matrix": {
+   "year": 1999,
+   "director": [
+    "Lana Wachowski",
+    "Lilly Wachowski"
+   ],
+   "genre": [
+    "thriller",
+    "dystopian",
+    "cyberpunk"
+   ],
+   "runtime": 136,
+   "country": "United States",
+   "box": 467222728
+  },
+  "forrest-gump": {
+   "year": 1994,
+   "director": [
+    "Robert Zemeckis"
+   ],
+   "genre": [
+    "coming-of-age",
+    "flashback",
+    "comedy"
+   ],
+   "runtime": 142,
+   "country": "United States",
+   "box": 678151134
+  },
+  "star-wars-a-new-hope": {
+   "year": 1977,
+   "director": [
+    "George Lucas"
+   ],
+   "genre": [
+    "space opera",
+    "science fiction",
+    "action"
+   ],
+   "runtime": 121,
+   "country": "United States",
+   "box": 775398007
+  },
+  "jurassic-park": {
+   "year": 1993,
+   "director": [
+    "Steven Spielberg"
+   ],
+   "genre": [
+    "science fiction",
+    "adventure",
+    "action"
+   ],
+   "runtime": 127,
+   "country": "United States",
+   "box": 1030314141
+  },
+  "titanic": {
+   "year": 1997,
+   "director": [
+    "James Cameron"
+   ],
+   "genre": [
+    "disaster",
+    "drama",
+    "romance"
+   ],
+   "runtime": 194,
+   "country": "United States",
+   "box": 1850197130
+  },
+  "avatar": {
+   "year": 2009,
+   "director": [
+    "James Cameron"
+   ],
+   "genre": [
+    "science fiction",
+    "action",
+    "adventure"
+   ],
+   "runtime": 162,
+   "country": "United States",
+   "box": 2847379794
+  },
+  "avengers-endgame": {
+   "year": 2019,
+   "director": [
+    "Anthony Russo",
+    "Joe Russo"
+   ],
+   "genre": [
+    "superhero",
+    "action",
+    "adventure"
+   ],
+   "runtime": 181,
+   "country": "United States",
+   "box": 2797501328
+  },
+  "parasite": {
+   "year": 2019,
+   "director": [
+    "Bong Joon-ho"
+   ],
+   "genre": [
+    "comedy drama",
+    "black comedy",
+    "thriller"
+   ],
+   "runtime": 132,
+   "country": "South Korea",
+   "box": 263136741
+  },
+  "interstellar": {
+   "year": 2014,
+   "genre": [
+    "science fiction",
+    "adventure",
+    "dystopian"
+   ],
+   "runtime": 169,
+   "country": "United States",
+   "box": 701729206
+  },
+  "fight-club": {
+   "year": 1999,
+   "director": [
+    "David Fincher"
+   ],
+   "genre": [
+    "flashback",
+    "drama",
+    "thriller"
+   ],
+   "runtime": 139,
+   "country": "United States",
+   "box": 101209702
+  },
+  "gladiator": {
+   "year": 2000,
+   "director": [
+    "Ridley Scott"
+   ],
+   "genre": [
+    "sword-and-sandal",
+    "melodrama",
+    "action"
+   ],
+   "runtime": 155,
+   "country": "United Kingdom",
+   "box": 460583960
+  },
+  "the-lord-of-the-rings-the-return-of-the-king": {
+   "year": 2003,
+   "director": [
+    "Peter Jackson"
+   ],
+   "genre": [
+    "fantasy",
+    "adventure"
+   ],
+   "runtime": 200,
+   "country": "New Zealand",
+   "box": 1138063541
+  },
+  "back-to-the-future": {
+   "year": 1985,
+   "director": [
+    "Robert Zemeckis"
+   ],
+   "genre": [
+    "science fiction",
+    "adventure",
+    "comedy"
+   ],
+   "runtime": 115,
+   "country": "United States",
+   "box": 212836762
+  },
+  "toy-story": {
+   "year": 1995,
+   "director": [
+    "John Lasseter"
+   ],
+   "genre": [
+    "buddy",
+    "fantasy",
+    "adventure"
+   ],
+   "runtime": 80,
+   "country": "United States",
+   "box": 394436586
+  },
+  "the-lion-king": {
+   "year": 1994,
+   "director": [
+    "Roger Allers",
+    "Rob Minkoff"
+   ],
+   "genre": [
+    "musical",
+    "drama",
+    "adventure"
+   ],
+   "runtime": 88,
+   "country": "United States",
+   "box": 968511805
+  },
+  "spirited-away": {
+   "year": 2001,
+   "director": [
+    "Hayao Miyazaki"
+   ],
+   "genre": [
+    "fantasy",
+    "fantasy anime and manga",
+    "children's"
+   ],
+   "runtime": 125,
+   "country": "Japan",
+   "box": 355725195
+  },
+  "schindler-s-list": {
+   "year": 1993,
+   "director": [
+    "Steven Spielberg"
+   ],
+   "genre": [
+    "anti-war",
+    "biographical",
+    "drama"
+   ],
+   "runtime": 195,
+   "country": "United States",
+   "box": 322139355
+  },
+  "goodfellas": {
+   "year": 1990,
+   "director": [
+    "Martin Scorsese"
+   ],
+   "genre": [
+    "biographical",
+    "gangster",
+    "crime thriller"
+   ],
+   "runtime": 145,
+   "country": "United States",
+   "box": 47036784
+  },
+  "se7en": {
+   "year": 1995,
+   "director": [
+    "David Fincher"
+   ],
+   "genre": [
+    "crime",
+    "mystery",
+    "buddy cop"
+   ],
+   "runtime": 127,
+   "country": "United States",
+   "box": 327333559
+  },
+  "the-silence-of-the-lambs": {
+   "year": 1991,
+   "director": [
+    "Jonathan Demme"
+   ],
+   "genre": [
+    "thriller",
+    "horror",
+    "psychological horror"
+   ],
+   "runtime": 118,
+   "country": "United States",
+   "box": 272742922
+  },
+  "whiplash": {
+   "year": 2014,
+   "director": [
+    "Damien Chazelle"
+   ],
+   "genre": [
+    "musical",
+    "drama"
+   ],
+   "runtime": 106,
+   "country": "United States",
+   "box": 49396747
+  },
+  "mad-max-fury-road": {
+   "year": 2015,
+   "director": [
+    "George Miller"
+   ],
+   "genre": [
+    "action",
+    "adventure",
+    "science fiction"
+   ],
+   "runtime": 120,
+   "country": "Australia",
+   "box": 375709470
+  },
+  "terminator-2-judgment-day": {
+   "year": 1991,
+   "director": [
+    "James Cameron"
+   ],
+   "genre": [
+    "action",
+    "thriller",
+    "science fiction"
+   ],
+   "runtime": 137,
+   "country": "United States",
+   "box": 520881154
+  },
+  "alien": {
+   "year": 1979,
+   "director": [
+    "Ridley Scott"
+   ],
+   "genre": [
+    "horror",
+    "science fiction",
+    "thriller"
+   ],
+   "runtime": 117,
+   "country": "United States",
+   "box": 106285522
+  },
+  "die-hard": {
+   "year": 1988,
+   "director": [
+    "John McTiernan"
+   ],
+   "genre": [
+    "action",
+    "action thriller",
+    "Christmas"
+   ],
+   "runtime": 131,
+   "country": "United States",
+   "box": 141603197
+  },
+  "the-princess-bride": {
+   "year": 1987,
+   "director": [
+    "Rob Reiner"
+   ],
+   "genre": [
+    "romantic comedy",
+    "fantasy",
+    "pirate"
+   ],
+   "runtime": 94,
+   "country": "United States",
+   "box": 30857814
+  },
+  "superbad": {
+   "year": 2007,
+   "director": [
+    "Greg Mottola"
+   ],
+   "genre": [
+    "comedy",
+    "sex comedy",
+    "coming-of-age"
+   ],
+   "runtime": 114,
+   "country": "United States"
+  },
+  "anchorman": {
+   "year": 2004,
+   "director": [
+    "Adam McKay"
+   ],
+   "genre": [
+    "comedy"
+   ],
+   "runtime": 95,
+   "country": "United States"
+  },
+  "get-out": {
+   "year": 2017,
+   "director": [
+    "Jordan Peele"
+   ],
+   "genre": [
+    "horror",
+    "mystery",
+    "comedy horror"
+   ],
+   "runtime": 104,
+   "country": "United States",
+   "box": 255745157
+  },
+  "a-quiet-place": {
+   "year": 2018,
+   "director": [
+    "John Krasinski"
+   ],
+   "genre": [
+    "horror",
+    "thriller",
+    "science fiction"
+   ],
+   "runtime": 90,
+   "country": "United States",
+   "box": 340952971
+  },
+  "oppenheimer": {
+   "year": 2023,
+   "genre": [
+    "historical",
+    "biographical",
+    "thriller"
+   ],
+   "runtime": 180.15,
+   "country": "United States",
+   "box": 955300000
+  },
+  "barbie": {
+   "year": 2023,
+   "director": [
+    "Greta Gerwig"
+   ],
+   "genre": [
+    "romantic comedy",
+    "adventure",
+    "comedy"
+   ],
+   "runtime": 114,
+   "country": "United States",
+   "box": 1345183126
+  },
+  "dune-part-two": {
+   "year": 2024,
+   "director": [
+    "Denis Villeneuve"
+   ],
+   "genre": [
+    "science fiction",
+    "action",
+    "adventure"
+   ],
+   "runtime": 165,
+   "country": "United States"
+  },
+  "everything-everywhere-all-at-once": {
+   "year": 2022,
+   "director": [
+    "Dan Kwan",
+    "Daniel Scheinert"
+   ],
+   "genre": [
+    "science fiction",
+    "action",
+    "comedy drama"
+   ],
+   "runtime": 139,
+   "country": "United States",
+   "box": 97737200
+  },
+  "spider-man-into-the-spider-verse": {
+   "year": 2018,
+   "director": [
+    "Peter Ramsey",
+    "Rodney Rothman"
+   ],
+   "genre": [
+    "action",
+    "adventure",
+    "science fiction"
+   ],
+   "runtime": 116,
+   "country": "United States",
+   "box": 363800000
+  },
+  "finding-nemo": {
+   "year": 2003,
+   "director": [
+    "Andrew Stanton",
+    "Lee Unkrich"
+   ],
+   "genre": [
+    "adventure",
+    "family",
+    "comedy"
+   ],
+   "runtime": 100,
+   "country": "United States",
+   "box": 969023261
+  },
+  "up": {
+   "year": 1964,
+   "director": [
+    "Michael Apted",
+    "Paul Almond"
+   ],
+   "genre": [
+    "documentary"
+   ],
+   "country": "United Kingdom"
+  },
+  "inglourious-basterds": {
+   "year": 2009,
+   "director": [
+    "Quentin Tarantino"
+   ],
+   "genre": [
+    "war",
+    "alternate history",
+    "drama"
+   ],
+   "runtime": 153,
+   "country": "Germany",
+   "box": 321457747
+  },
+  "saving-private-ryan": {
+   "year": 1998,
+   "director": [
+    "Steven Spielberg"
+   ],
+   "genre": [
+    "war",
+    "drama",
+    "action"
+   ],
+   "runtime": 169,
+   "country": "United States",
+   "box": 482349603
+  },
+  "the-departed": {
+   "year": 2006,
+   "director": [
+    "Martin Scorsese"
+   ],
+   "genre": [
+    "crime thriller",
+    "drama",
+    "crime"
+   ],
+   "runtime": 151,
+   "country": "United States",
+   "box": 291480452
+  },
+  "casablanca": {
+   "year": 1942,
+   "director": [
+    "Michael Curtiz"
+   ],
+   "genre": [
+    "romance",
+    "war",
+    "drama"
+   ],
+   "runtime": 102,
+   "country": "United States"
+  },
+  "citizen-kane": {
+   "year": 1941,
+   "director": [
+    "Orson Welles"
+   ],
+   "genre": [
+    "drama",
+    "fiction",
+    "flashback"
+   ],
+   "runtime": 119,
+   "country": "United States"
+  },
+  "ratatouille": {
+   "year": 2007,
+   "director": [
+    "Brad Bird",
+    "Jan Pinkava"
+   ],
+   "genre": [
+    "buddy",
+    "coming-of-age",
+    "flashback"
+   ],
+   "runtime": 110,
+   "country": "United States",
+   "box": 623722818
+  },
+  "home-alone": {
+   "year": 1990,
+   "director": [
+    "Chris Columbus"
+   ],
+   "genre": [
+    "comedy",
+    "family",
+    "adventure"
+   ],
+   "runtime": 103,
+   "country": "United States",
+   "box": 476684675
+  },
+  "the-social-network": {
+   "year": 2010,
+   "director": [
+    "David Fincher"
+   ],
+   "genre": [
+    "biographical",
+    "trial",
+    "drama"
+   ],
+   "runtime": 121,
+   "country": "United States",
+   "box": 96962694
+  },
+  "black-panther": {
+   "year": 2018,
+   "director": [
+    "Ryan Coogler"
+   ],
+   "genre": [
+    "superhero",
+    "action",
+    "adventure"
+   ],
+   "runtime": 134,
+   "country": "United States",
+   "box": 1347597973
+  },
+  "top-gun-maverick": {
+   "year": 2022,
+   "director": [
+    "Joseph Kosinski"
+   ],
+   "genre": [
+    "action",
+    "drama",
+    "adventure"
+   ],
+   "runtime": 130,
+   "country": "United States",
+   "box": 1443725344
+  },
+  "joker": {
+   "year": 2019,
+   "director": [
+    "Todd Phillips"
+   ],
+   "genre": [
+    "crime",
+    "thriller",
+    "drama"
+   ],
+   "runtime": 122,
+   "country": "United States",
+   "box": 1074458282
+  },
+  "shrek": {
+   "year": 2001,
+   "director": [
+    "Andrew Adamson",
+    "Vicky Jenson"
+   ],
+   "genre": [
+    "fantasy",
+    "buddy",
+    "fantasy comedy"
+   ],
+   "runtime": 90,
+   "country": "United States",
+   "box": 488351320
+  },
+  "harry-potter-and-the-prisoner-of-azkaban": {
+   "year": 2004,
+   "director": [
+    "Alfonso Cuarón"
+   ],
+   "genre": [
+    "fantasy",
+    "children's",
+    "werewolf"
+   ],
+   "runtime": 141,
+   "country": "United States",
+   "box": 797361618
+  },
+  "rocky": {
+   "year": 1976,
+   "director": [
+    "John G. Avildsen"
+   ],
+   "genre": [
+    "drama",
+    "action",
+    "boxing"
+   ],
+   "runtime": 119,
+   "country": "United States",
+   "box": 117235147
+  },
+  "l-on-the-professional": {
+   "year": 1994,
+   "director": [
+    "Luc Besson"
+   ],
+   "genre": [
+    "crime thriller",
+    "buddy",
+    "gangster"
+   ],
+   "runtime": 110,
+   "country": "France",
+   "box": 45284974
+  },
+  "the-big-lebowski": {
+   "year": 1998,
+   "director": [
+    "Joel Coen",
+    "Ethan Coen"
+   ],
+   "genre": [
+    "comedy",
+    "crime",
+    "comedy of error"
+   ],
+   "runtime": 117,
+   "country": "United States",
+   "box": 46000000
+  },
+  "memento": {
+   "year": 2000,
+   "genre": [
+    "neo-noir",
+    "mystery",
+    "flashback"
+   ],
+   "runtime": 113,
+   "country": "United States",
+   "box": 39665951
+  },
+  "coco": {
+   "year": 2017,
+   "director": [
+    "Lee Unkrich",
+    "Adrian Molina"
+   ],
+   "genre": [
+    "musical",
+    "fantasy",
+    "adventure"
+   ],
+   "runtime": 109,
+   "country": "United States",
+   "box": 807817888
+  }
+ }
+}

@@ -206,12 +206,23 @@ export const SUMMIT: World = {
     px(ctx, 36, 496, "#7a4a2a", 18, 10); for (let k = 0; k < 6; k++) px(ctx, 34 + k, 495 - k, "#b23a48", 22 - k * 2, 1);
     px(ctx, 41, 499, "#ffd23f", 3, 3); px(ctx, 48, 500, "#3a2416", 3, 6); px(ctx, 50, 486, "#5a4535", 2, 6);
     px(ctx, 74, 496, "#5a4535", 1, 10); px(ctx, 70, 496, "#c9a46b", 10, 3);
-    // the trail
+    // the trail: a worn path a few pixels wide, painted in passes (shadow, verge, tread), dirt low down and trodden
+    // snow up high, with pebbles along the edge and log steps on the steepest legs
+    const trail: { x: number; y: number; k: number }[] = [];
     for (let i = 1; i < TRAIL_POINTS.length; i++) {
       const [x0, y0] = TRAIL_POINTS[i - 1]!, [x1, y1] = TRAIL_POINTS[i]!;
-      const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0));
-      for (let k = 0; k < n; k += 2) px(ctx, x0 + ((x1 - x0) * k) / n, y0 + ((y1 - y0) * k) / n, "#3c3550");
+      const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2);
+      for (let k = 0; k < n; k++) trail.push({ x: x0 + ((x1 - x0) * k) / n, y: y0 + ((y1 - y0) * k) / n, k: trail.length });
     }
+    const snowy = (y: number) => y < 236;
+    for (const p of trail) px(ctx, p.x - 2, p.y + 1, snowy(p.y) ? "#7d8db0" : "#2b2433", 5, 2);
+    for (const p of trail) px(ctx, p.x - 2, p.y - 1, snowy(p.y) ? "#aab6d2" : "#5a4030", 5, 3);
+    for (const p of trail) px(ctx, p.x - 1, p.y, snowy(p.y) ? "#eef2fa" : "#b08a5a", 3, 1);
+    for (const p of trail) if (p.k % 3 === 0) px(ctx, p.x, p.y - 1, snowy(p.y) ? "#ffffff" : "#c9a46b");
+    trail.forEach((p) => {
+      if (p.k % 23 === 0) px(ctx, p.x + (p.k % 2 ? 3 : -4), p.y, snowy(p.y) ? "#8a96b5" : "#8a8fa3", 2, 1); // pebbles on the verge
+      if (!snowy(p.y) && p.k % 28 === 0) px(ctx, p.x - 2, p.y, "#6b4a2a", 5, 1); // log steps
+    });
     // a stone cairn with a pennant at each checkpoint, and an empty pole on the summit for the winner's flag
     SUMMIT.checkpoints.slice(1, -1).forEach((cp) => {
       const p = summitPath(cp.at);

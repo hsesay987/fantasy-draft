@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { PartyLaunch } from "../play/PartyLaunch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -144,6 +145,8 @@ export default function TopPicLandingPage() {
           enforced for sports pools.
         </p>
       </header>
+
+      <div className="mb-10"><PartyLaunch /></div>
 
       {error && (
         <div className="mb-6 rounded-lg bg-red-900/30 border border-red-500/50 px-4 py-3 text-sm text-red-200">

@@ -69,7 +69,8 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
   return (
     <PixelShell world="sky">
-      <div className="space-y-5">
+      {/* On phones the board and the answer box come before the sky, so you can play without scrolling. */}
+      <div className="flex flex-col gap-5">
         <PixelBox>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="px-eyebrow">HOT AIR · ROUND {s.round + 1}/{s.rounds.length}</p>
@@ -80,10 +81,10 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <h1 className="mt-3">{r.q.toUpperCase()}</h1>
         </PixelBox>
         <PixelScore rows={s.players.map((p) => ({ name: p, value: `${s.points[p]} PTS`, active: p === player, color: playerColor(s.players, p) }))} />
-        <WorldScene world="sky" caption="Altitude" actors={s.players.map((p) => ({ name: p, value: Math.min(1, s.points[p]! / (125 * s.rounds.length * (s.players.length === 1 ? 1 : 0.55))), color: playerColor(s.players, p) }))}
-          flash={events.current.key ? { key: events.current.key, good: events.current.good } : undefined} />
+        <div className="max-sm:order-2"><WorldScene world="sky" caption="Altitude" actors={s.players.map((p) => ({ name: p, value: Math.min(1, s.points[p]! / (125 * s.rounds.length * (s.players.length === 1 ? 1 : 0.55))), color: playerColor(s.players, p) }))}
+          flash={events.current.key ? { key: events.current.key, good: events.current.good } : undefined} /></div>
         {done ? (
-          <PixelBox>
+          <PixelBox className="max-sm:order-1">
             <p className="px-eyebrow">ROUND OVER · HERE ARE THE ANSWERS</p>
             <h2 className="mt-2">{done.q.toUpperCase()}</h2>
             <ol className="m-0 mt-4 grid list-none gap-3 bg-[var(--px-ink)] p-3" aria-label="All answers">
@@ -104,13 +105,13 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
             <div className="mt-4"><PixelButton onClick={() => setReview(null)}>CONTINUE</PixelButton></div>
           </PixelBox>
         ) : (
-        <PixelBox>
+        <PixelBox className="max-sm:order-1">
           <ol className="m-0 grid list-none gap-3 bg-[var(--px-ink)] p-3" aria-label="Survey board">
             {r.board.map((a, i) => (
               <li key={a} className={`px-ans ${r.found[a] ? "open" : ""}`}>
                 <span className="rk">{i + 1}</span>
                 <span className="tx">{r.found[a] ? a : "????????"}</span>
-                <span className="pt">{r.found[a] ? `${RANK_ALTITUDE[i]} · ${r.found[a]}` : `${RANK_ALTITUDE[i]} · ${FD.BOARD_POINTS[i]}`}</span>
+                <span className="pt"><span className="max-sm:hidden">{RANK_ALTITUDE[i]} · </span>{r.found[a] ? r.found[a] : FD.BOARD_POINTS[i]}</span>
               </li>
             ))}
           </ol>

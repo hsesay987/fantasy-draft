@@ -1,0 +1,127 @@
+// Imposter: everyone but one player sees a secret pick from the topic. Players take turns giving a one-line clue
+// that proves they know it without giving it away. The imposter bluffs. Then everyone votes on who the imposter is.
+// With ending "guess" the imposter may name the secret at any point (right wins, wrong loses), and a caught
+// imposter gets one last guess. With ending "vote" the vote alone decides it.
+import type { Item } from "../types";
+import { shuffle } from "../rng";
+
+export type Ending = "guess" | "vote";
+export type ImposterPhase = "clue" | "vote" | "guess" | "done";
+export const CLUE_MS = 60_000;
+export const VOTE_MS = 60_000;
+export const GUESS_MS = 30_000;
+export const OPTION_COUNT = 12;
+
+export type ImposterState = {
+  players: string[];
+  /** The secret pick. Hidden from the imposter until the end (the server blanks it). */
+  secret: string;
+  secretId: string;
+  topic: string;
+  /** Names the imposter picks a guess from: the secret plus look-alikes from the same topic. */
+  options: string[];
+  /** Hidden from everyone else until the end (the server blanks it). */
+  imposter: string;
+  order: string[];
+  rounds: number;
+  clues: { by: string; text: string }[];
+  phase: ImposterPhase;
+  ending: Ending;
+  /** Who each player accused; others only see that someone has voted. */
+  votes: Record<string, string>;
+  caught: boolean | null;
+  guess: string | null;
+  winner: "imposter" | "crew" | null;
+  points: Record<string, number>;
+  phaseAt: number;
+  done: boolean;
+  seed: number;
+};
+
+const fold = (t: string) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+
+/** A clue may not contain the secret or any long word from its name (so "Spider" is out for Spider-Man). */
+export function givesAway(clue: string, secret: string): boolean {
+  const c = ` ${fold(clue)} `;
+  const words = fold(secret).split(" ").filter((w) => w.length >= 4);
+  return c.includes(` ${fold(secret)} `) || words.some((w) => c.includes(w));
+}
+
+export function init(o: { players: string[]; pool: Item[]; topic: string; rounds: number; ending: Ending; seed: number; now: number }): ImposterState {
+  let seed = o.seed;
+  const [deck, s1] = shuffle(o.pool, seed);
+  seed = s1;
+  const secret = deck[0]!;
+  // Look-alikes first (same universe or archetype), so the guess is not a giveaway.
+  const near = deck.slice(1).filter((i) => i.universe === secret.universe || i.archetype === secret.archetype);
+  const rest = deck.slice(1).filter((i) => !near.includes(i));
+  const [opts, s2] = shuffle([secret, ...[...near, ...rest].slice(0, OPTION_COUNT - 1)], seed);
+  seed = s2;
+  const [order, s3] = shuffle(o.players, seed);
+  seed = s3;
+  const [who, s4] = shuffle(o.players, seed);
+  seed = s4;
+  return {
+    players: o.players, secret: secret.name, secretId: secret.id, topic: o.topic, options: opts.map((i) => i.name), imposter: who[0]!,
+    order, rounds: Math.max(1, Math.min(3, o.rounds)), clues: [], phase: "clue", ending: o.ending, votes: {}, caught: null, guess: null, winner: null,
+    points: Object.fromEntries(o.players.map((p) => [p, 0])), phaseAt: o.now, done: false, seed,
+  };
+}
+
+export const turnPlayer = (s: ImposterState) => (s.phase === "clue" ? s.order[s.clues.length % s.order.length]! : null);
+const totalClues = (s: ImposterState) => s.rounds * s.order.length;
+
+function finish(s: ImposterState, winner: "imposter" | "crew", now: number, extra: Partial<ImposterState> = {}): ImposterState {
+  const points = Object.fromEntries(s.players.map((p) => [p, winner === "imposter" ? (p === s.imposter ? 3 : 0) : p === s.imposter ? 0 : 2]));
+  return { ...s, ...extra, phase: "done", winner, points, phaseAt: now, done: true };
+}
+
+/** One clue on your turn. Empty text passes (used when the clock runs out). */
+export function clue(s: ImposterState, by: string, text: string, now: number): ImposterState {
+  if (s.phase !== "clue" || turnPlayer(s) !== by) return s;
+  const t = text.replace(/\s+/g, " ").trim().slice(0, 40);
+  if (t && by !== s.imposter && givesAway(t, s.secret)) return s;
+  if (t && s.clues.some((c) => fold(c.text) === fold(t))) return s; // no copying someone else's clue word for word
+  const clues = [...s.clues, { by, text: t || "(passed)" }];
+  return { ...s, clues, phase: clues.length >= totalClues(s) ? "vote" : "clue", phaseAt: now };
+}
+
+/** Everyone votes for who they think the imposter is (not themselves). The last vote settles it. */
+export function accuse(s: ImposterState, by: string, target: string, now: number): ImposterState {
+  if (s.phase !== "vote" || by === target || !s.players.includes(target) || s.votes[by]) return s;
+  const next = { ...s, votes: { ...s.votes, [by]: target } };
+  return Object.keys(next.votes).length >= s.players.length ? tally(next, now) : next;
+}
+
+/** Count the votes. A clear top pick that is the imposter catches them; a tie or a wrong pick lets them escape. */
+export function tally(s: ImposterState, now: number): ImposterState {
+  const count: Record<string, number> = {};
+  for (const t of Object.values(s.votes)) count[t] = (count[t] ?? 0) + 1;
+  const ranked = Object.entries(count).sort((a, b) => b[1] - a[1]);
+  const caught = !!ranked[0] && ranked[0][1] !== ranked[1]?.[1] && ranked[0][0] === s.imposter;
+  if (!caught) return finish(s, "imposter", now, { caught: false });
+  return s.ending === "guess" ? { ...s, caught: true, phase: "guess", phaseAt: now } : finish(s, "crew", now, { caught: true });
+}
+
+/** The imposter names the secret: any time during clues (ending "guess"), or as a last chance once caught. */
+export function guess(s: ImposterState, by: string, name: string, now: number): ImposterState {
+  if (by !== s.imposter || s.done || !s.options.includes(name)) return s;
+  if (!(s.phase === "guess" || (s.phase === "clue" && s.ending === "guess"))) return s;
+  return finish(s, name === s.secret ? "imposter" : "crew", now, { guess: name });
+}
+
+/** Clocks: a slow clue passes, a slow vote is counted as it stands, a slow last guess loses. */
+export function tick(s: ImposterState, now: number): ImposterState {
+  if (s.done) return s;
+  if (s.phase === "clue" && now - s.phaseAt > CLUE_MS) return clue(s, turnPlayer(s)!, "", now);
+  if (s.phase === "vote" && now - s.phaseAt > VOTE_MS) return tally(s, now);
+  if (s.phase === "guess" && now - s.phaseAt > GUESS_MS) return finish(s, "crew", now, { guess: null });
+  return s;
+}
+
+/** What one player is allowed to see while the game runs. */
+export function redactFor(s: ImposterState, me: string | null): ImposterState {
+  if (s.done) return s;
+  const votes = s.phase === "vote" ? Object.fromEntries(Object.keys(s.votes).map((k) => [k, k === me ? s.votes[k]! : "?"])) : s.votes;
+  return me === s.imposter ? { ...s, secret: "", secretId: "", votes } : { ...s, imposter: "", votes };
+}

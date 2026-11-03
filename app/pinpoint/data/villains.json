@@ -1,0 +1,844 @@
+{
+ "pool": "villains",
+ "source": "Wikidata and the Superhero API",
+ "columns": [
+  {
+   "key": "universe",
+   "label": "Universe",
+   "kind": "cat"
+  },
+  {
+   "key": "debut",
+   "label": "First appeared",
+   "kind": "num",
+   "close": 8,
+   "fmt": "year"
+  },
+  {
+   "key": "creator",
+   "label": "Created by",
+   "kind": "set"
+  },
+  {
+   "key": "species",
+   "label": "Species",
+   "kind": "cat"
+  },
+  {
+   "key": "gender",
+   "label": "Gender",
+   "kind": "cat"
+  },
+  {
+   "key": "teams",
+   "label": "Teams",
+   "kind": "set"
+  }
+ ],
+ "facts": {
+  "darth-vader": {
+   "universe": "Star Wars",
+   "debut": 1976,
+   "creator": [
+    "George Lucas"
+   ],
+   "species": "Cyborg",
+   "gender": "Male",
+   "teams": [
+    "Jedi Order",
+    "Galactic Republic",
+    "Sith Order",
+    "Galactic Empire"
+   ]
+  },
+  "emperor-palpatine": {
+   "universe": "Star Wars",
+   "debut": 1980,
+   "creator": [
+    "George Lucas"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Sith Order",
+    "Galactic Republic",
+    "Trade Federation",
+    "Confederacy of Independent Systems"
+   ]
+  },
+  "sauron": {
+   "universe": "Fantasy",
+   "debut": 1937,
+   "creator": [
+    "J. R. R. Tolkien"
+   ],
+   "species": "Maiar",
+   "gender": "Male"
+  },
+  "voldemort": {
+   "universe": "Fantasy",
+   "debut": 1997,
+   "creator": [
+    "J. K. Rowling"
+   ],
+   "species": "Wizard",
+   "gender": "Male"
+  },
+  "saruman": {
+   "universe": "Fantasy",
+   "debut": 1954,
+   "creator": [
+    "J. R. R. Tolkien"
+   ],
+   "species": "Istari",
+   "gender": "Male"
+  },
+  "hannibal-lecter": {
+   "universe": "Horror",
+   "debut": 1981,
+   "creator": [
+    "Thomas Harris"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "freddy-krueger": {
+   "universe": "Horror",
+   "debut": 1984,
+   "creator": [
+    "Wes Craven"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "jason-voorhees": {
+   "universe": "Horror",
+   "debut": 1980,
+   "creator": [
+    "Sean S. Cunningham"
+   ],
+   "species": "Demon",
+   "gender": "Male"
+  },
+  "michael-myers": {
+   "universe": "Horror",
+   "debut": 1978,
+   "creator": [
+    "John Carpenter",
+    "Debra Hill"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "pennywise": {
+   "universe": "Horror",
+   "debut": 1986,
+   "creator": [
+    "Stephen King"
+   ],
+   "species": "Demon"
+  },
+  "xenomorph": {
+   "universe": "Horror",
+   "debut": 1979,
+   "creator": [
+    "Ridley Scott",
+    "H. R. Giger"
+   ],
+   "species": "Extraterrestrial species"
+  },
+  "t-1000": {
+   "universe": "Sci-Fi",
+   "debut": 1991,
+   "creator": [
+    "James Cameron",
+    "William Wisher Jr."
+   ],
+   "species": "Android",
+   "gender": "Male"
+  },
+  "agent-smith": {
+   "universe": "Sci-Fi",
+   "debut": 1999,
+   "creator": [
+    "the Wachowskis"
+   ],
+   "species": "Computer virus",
+   "gender": "Male"
+  },
+  "hal-9000": {
+   "universe": "Sci-Fi",
+   "debut": 2001,
+   "creator": [
+    "Arthur C. Clarke",
+    "Stanley Kubrick"
+   ],
+   "species": "Computer",
+   "gender": "Male"
+  },
+  "gollum": {
+   "universe": "Fantasy",
+   "debut": 1937,
+   "species": "Hobbit",
+   "gender": "Male"
+  },
+  "maleficent": {
+   "universe": "Disney",
+   "debut": 1959,
+   "creator": [
+    "Marc Davis"
+   ],
+   "gender": "Female",
+   "teams": [
+    "Disney Villains"
+   ]
+  },
+  "ursula": {
+   "universe": "Disney",
+   "debut": 1989,
+   "creator": [
+    "Ron Clements"
+   ],
+   "gender": "Female",
+   "teams": [
+    "Disney Villains"
+   ]
+  },
+  "scar": {
+   "universe": "Disney",
+   "debut": 1994,
+   "creator": [
+    "Irene Mecchi",
+    "Jonathan Roberts",
+    "Linda Woolverton"
+   ],
+   "species": "Anthropomorphic lion",
+   "gender": "Male"
+  },
+  "jafar": {
+   "universe": "Disney",
+   "debut": 1992,
+   "creator": [
+    "Andreas Deja"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "cruella-de-vil": {
+   "universe": "Disney",
+   "debut": 1956,
+   "creator": [
+    "Dodie Smith"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "teams": [
+    "Disney villains"
+   ]
+  },
+  "captain-hook": {
+   "universe": "Disney",
+   "debut": 1904,
+   "creator": [
+    "J. M. Barrie"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "gaston": {
+   "universe": "Disney",
+   "debut": 1991,
+   "creator": [
+    "Linda Woolverton"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Disney Villains"
+   ]
+  },
+  "joker": {
+   "universe": "DC",
+   "debut": 1940,
+   "creator": [
+    "Jerry Robinson",
+    "Bill Finger",
+    "Bob Kane"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Injustice League",
+    "Legion of Doom"
+   ]
+  },
+  "lex-luthor": {
+   "universe": "DC",
+   "debut": 1940,
+   "creator": [
+    "Jerry Siegel",
+    "Joe Shuster"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "darkseid": {
+   "universe": "DC",
+   "debut": 1970,
+   "creator": [
+    "Jack Kirby"
+   ],
+   "species": "New God",
+   "gender": "Male",
+   "teams": [
+    "Darkseid's Elite",
+    "Female Furies",
+    "Intergang",
+    "Secret Society of Super Villains"
+   ]
+  },
+  "thanos": {
+   "universe": "Marvel",
+   "debut": 1973,
+   "creator": [
+    "Jim Starlin",
+    "Zak Penn",
+    "Joss Whedon"
+   ],
+   "species": "Eternal",
+   "gender": "Male",
+   "teams": [
+    "Infinity Watch",
+    "Black Order"
+   ]
+  },
+  "loki": {
+   "universe": "Marvel",
+   "debut": 1949,
+   "creator": [
+    "Stan Lee"
+   ],
+   "species": "Asgardian",
+   "gender": "Genderfluid",
+   "teams": [
+    "Cabal",
+    "Mighty Avengers",
+    "Acts of Vengeance",
+    "Young Avengers"
+   ]
+  },
+  "doctor-doom": {
+   "universe": "Marvel",
+   "debut": 1962,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Acts of Vengeance",
+    "Cabal",
+    "Intelligencia",
+    "Future Foundation"
+   ]
+  },
+  "magneto": {
+   "universe": "Marvel",
+   "debut": 1963,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "teams": [
+    "Brotherhood of Mutants",
+    "X-Men",
+    "New Mutants",
+    "Hellfire Club"
+   ]
+  },
+  "kingpin": {
+   "universe": "Marvel",
+   "debut": 1967,
+   "creator": [
+    "Stan Lee",
+    "John Romita Sr."
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Hydra",
+    "The Hand",
+    "Emissaries of Evil",
+    "Thunderbolts"
+   ]
+  },
+  "dr-eggman": {
+   "universe": "Games",
+   "debut": 1991,
+   "creator": [
+    "Naoto Ohshima"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "bowser": {
+   "universe": "Games",
+   "debut": 1985,
+   "creator": [
+    "Shigeru Miyamoto"
+   ],
+   "species": "Koopa",
+   "gender": "Male"
+  },
+  "ganondorf": {
+   "universe": "Games",
+   "debut": 1986,
+   "creator": [
+    "Shigeru Miyamoto"
+   ],
+   "species": "Gerudo",
+   "gender": "Male"
+  },
+  "handsome-jack": {
+   "universe": "Games",
+   "debut": 2012,
+   "creator": [
+    "Gearbox Software"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "glados": {
+   "universe": "Games",
+   "debut": 2007,
+   "creator": [
+    "Erik Wolpaw",
+    "Kim Swift"
+   ],
+   "species": "Robot",
+   "gender": "Female"
+  },
+  "frieza": {
+   "universe": "Anime",
+   "debut": 1989,
+   "creator": [
+    "Akira Toriyama"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "light-yagami": {
+   "universe": "Anime",
+   "debut": 2004,
+   "creator": [
+    "Tsugumi Ohba",
+    "Takeshi Obata"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "madara-uchiha": {
+   "universe": "Anime",
+   "debut": 2007,
+   "creator": [
+    "Masashi Kishimoto"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "dio-brando": {
+   "universe": "Anime",
+   "debut": 1987,
+   "creator": [
+    "Hirohiko Araki"
+   ],
+   "gender": "Male"
+  },
+  "mr-burns": {
+   "universe": "TV",
+   "debut": 1989,
+   "creator": [
+    "Matt Groening"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "walter-white": {
+   "universe": "TV",
+   "debut": 2008,
+   "creator": [
+    "Vince Gilligan"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Gustavo Fring"
+   ]
+  },
+  "homelander": {
+   "universe": "Indie",
+   "debut": 2006,
+   "creator": [
+    "Garth Ennis",
+    "Darick Robertson"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Vought-American"
+   ]
+  },
+  "deathstroke": {
+   "universe": "DC",
+   "debut": 1980,
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Secret Society of Super Villains",
+    "Injustice League",
+    "H.I.V.E.",
+    "United States Army"
+   ]
+  },
+  "bane": {
+   "universe": "DC",
+   "debut": 1993,
+   "creator": [
+    "Chuck Dixon",
+    "Doug Moench",
+    "Graham Nolan"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Suicide Squad",
+    "Secret Society of Super Villains",
+    "Secret Six",
+    "League of Assassins"
+   ]
+  },
+  "sinestro": {
+   "universe": "DC",
+   "debut": 1961,
+   "creator": [
+    "John Broome",
+    "Gil Kane"
+   ],
+   "species": "Korugaran",
+   "gender": "Male",
+   "teams": [
+    "Sinestro Corps",
+    "Legion of Doom",
+    "Injustice League",
+    "Secret Society of Super Villains"
+   ]
+  },
+  "poison-ivy": {
+   "universe": "DC",
+   "debut": 1966,
+   "creator": [
+    "Robert Kanigher",
+    "Sheldon Moldoff"
+   ],
+   "species": "Human",
+   "gender": "Female",
+   "teams": [
+    "Injustice League",
+    "Legion of Doom",
+    "Suicide Squad",
+    "Justice League"
+   ]
+  },
+  "two-face": {
+   "universe": "DC",
+   "debut": 1942,
+   "creator": [
+    "Bob Kane",
+    "Bill Finger"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Secret Society of Super Villains",
+    "Legion of Doom",
+    "Injustice League"
+   ]
+  },
+  "ra-s-al-ghul": {
+   "universe": "DC",
+   "debut": 1971,
+   "creator": [
+    "Dennis O'Neil",
+    "Julius Schwartz",
+    "Neal Adams"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "League of Assassins",
+    "Secret Society of Super Villains",
+    "Legion of Doom"
+   ]
+  },
+  "brainiac": {
+   "universe": "DC",
+   "debut": 1958,
+   "creator": [
+    "Otto Binder",
+    "Al Plastino"
+   ],
+   "species": "Android",
+   "gender": "Male",
+   "teams": [
+    "Anti-Justice League",
+    "Legion of Doom"
+   ]
+  },
+  "doomsday": {
+   "universe": "DC",
+   "debut": 1992,
+   "creator": [
+    "Dan Jurgens"
+   ],
+   "species": "Alien",
+   "gender": "Male"
+  },
+  "scarecrow": {
+   "universe": "DC",
+   "debut": 1941,
+   "creator": [
+    "Bob Kane",
+    "Bill Finger"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Legion of Doom",
+    "Injustice Gang",
+    "Secret Society of Super Villains",
+    "Injustice League"
+   ]
+  },
+  "cheetah": {
+   "universe": "DC",
+   "debut": 1943,
+   "species": "Human",
+   "gender": "Female",
+   "teams": [
+    "Legion of Doom",
+    "Suicide Squad",
+    "Injustice League",
+    "Villainy Inc."
+   ]
+  },
+  "killer-croc": {
+   "universe": "DC",
+   "debut": 1983,
+   "creator": [
+    "Gerry Conway",
+    "Gene Colan"
+   ],
+   "species": "Metahuman",
+   "gender": "Male",
+   "teams": [
+    "Secret Society of Super Villains",
+    "Suicide Squad",
+    "Injustice League"
+   ]
+  },
+  "captain-cold": {
+   "universe": "DC",
+   "debut": 1957,
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Legion of Doom",
+    "Secret Society of Super Villains",
+    "Injustice League",
+    "Rogues"
+   ]
+  },
+  "green-goblin": {
+   "universe": "Marvel",
+   "debut": 1964,
+   "creator": [
+    "Stan Lee",
+    "Steve Ditko"
+   ],
+   "species": "Human",
+   "gender": "Male"
+  },
+  "ultron": {
+   "universe": "Marvel",
+   "debut": 1968,
+   "creator": [
+    "Roy Thomas",
+    "John Buscema"
+   ],
+   "species": "Android",
+   "gender": "Male",
+   "teams": [
+    "Masters of Evil",
+    "Lethal Legion",
+    "Sons of Yinsen",
+    "Phalanx"
+   ]
+  },
+  "red-skull": {
+   "universe": "Marvel",
+   "debut": 1941,
+   "creator": [
+    "Joe Simon",
+    "Jack Kirby",
+    "France Herron"
+   ],
+   "species": "Mutate",
+   "gender": "Male",
+   "teams": [
+    "Nazi Germany",
+    "SS-Oberführer",
+    "Kronas Corporation",
+    "U.L.T.I.M.A.T.U.M."
+   ]
+  },
+  "hela": {
+   "universe": "Marvel",
+   "debut": 1964,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Asgardian",
+   "gender": "Female",
+   "teams": [
+    "Hell-Lords",
+    "Black Order"
+   ]
+  },
+  "galactus": {
+   "universe": "Marvel",
+   "debut": 1966,
+   "creator": [
+    "Stan Lee",
+    "Jack Kirby"
+   ],
+   "species": "Cosmic Entity",
+   "gender": "Male",
+   "teams": [
+    "God Squad",
+    "Ultimates"
+   ]
+  },
+  "mystique": {
+   "universe": "Marvel",
+   "debut": 1978,
+   "creator": [
+    "Chris Claremont",
+    "Dave Cockrum"
+   ],
+   "species": "Mutant",
+   "gender": "Female",
+   "teams": [
+    "Brotherhood of Mutants",
+    "X-Men",
+    "Dark X-Men",
+    "DARPA"
+   ]
+  },
+  "sabretooth": {
+   "universe": "Marvel",
+   "debut": 1977,
+   "creator": [
+    "Chris Claremont",
+    "John Byrne"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "teams": [
+    "Brotherhood of Mutants",
+    "X-Men",
+    "Team X",
+    "Marauders"
+   ]
+  },
+  "apocalypse": {
+   "universe": "Marvel",
+   "debut": 1985,
+   "creator": [
+    "Louise Simonson",
+    "Jackson Guice",
+    "Bob Layton"
+   ],
+   "species": "Mutant",
+   "gender": "Male",
+   "teams": [
+    "Four Horsemen",
+    "Dark Riders",
+    "Clan Akkaba",
+    "Alliance of Evil"
+   ]
+  },
+  "dormammu": {
+   "universe": "Marvel",
+   "debut": 1964,
+   "creator": [
+    "Stan Lee",
+    "Steve Ditko"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Mindless Ones"
+   ]
+  },
+  "doctor-octopus": {
+   "universe": "Marvel",
+   "debut": 1963,
+   "creator": [
+    "Stan Lee",
+    "Steve Ditko"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Sinister Six",
+    "Masters of Evil",
+    "Thunderbolts",
+    "Legion Accursed"
+   ]
+  },
+  "sandman": {
+   "universe": "Marvel",
+   "debut": 1963,
+   "creator": [
+    "Stan Lee",
+    "Steve Ditko"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Sinister Six",
+    "Frightful Four",
+    "Avengers",
+    "Wild Pack"
+   ]
+  },
+  "mysterio": {
+   "universe": "Marvel",
+   "debut": 1964,
+   "creator": [
+    "Stan Lee",
+    "Steve Ditko"
+   ],
+   "species": "Human",
+   "gender": "Male",
+   "teams": [
+    "Sinister Six",
+    "Maggia"
+   ]
+  }
+ }
+}

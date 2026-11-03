@@ -23,6 +23,9 @@ import { KeepView } from "./views/KeepView";
 import { FeudView } from "./views/FeudView";
 import { JeopardyView } from "./views/JeopardyView";
 import { TriviaResults } from "./TriviaResults";
+import { ImposterResults, ImposterView } from "./views/ImposterView";
+import { VoteResults, VoteView } from "./views/VoteView";
+import { PARTY_FORMATS } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -34,7 +37,7 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const finished = done ? buildTeams(setup, ctl.state) : null;
   // Trivia games show the answers instead of asking the AI judge for a report.
-  const trivia = setup.format === "jeopardy" || setup.format === "feud";
+  const trivia = setup.format === "jeopardy" || setup.format === "feud" || PARTY_FORMATS.has(setup.format);
 
   useEffect(() => {
     if (!done) return;
@@ -65,6 +68,8 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verdictWinner]);
 
+  if (done && setup.format === "imposter") return <ImposterResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
+  if (done && setup.format === "vote") return <VoteResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && finished && trivia) return <TriviaResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
 
   if (done && finished) {
@@ -99,6 +104,10 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
       return <FeudView setup={setup} ctl={ctl} />;
     case "jeopardy":
       return <JeopardyView setup={setup} ctl={ctl} />;
+    case "imposter":
+      return <ImposterView setup={setup} ctl={ctl} />;
+    case "vote":
+      return <VoteView setup={setup} ctl={ctl} />;
     default:
       return <SnakeView setup={setup} ctl={ctl} />;
   }

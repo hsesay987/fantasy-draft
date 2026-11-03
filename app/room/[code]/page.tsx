@@ -7,7 +7,9 @@ import { Check, Copy, Crown, ExternalLink, LogOut, Play, RefreshCw, Shuffle, Tro
 import { Button, Card, GameTile, PageHeader, PageShell, Panel, controlCls } from "../../components/ui";
 import { GameBody } from "../../play/GameScreen";
 import SetupScreen from "../../play/SetupScreen";
-import { FORMATS, formatMeta } from "../../play/formats";
+import { FORMATS, PARTY_GAMES, formatMeta } from "../../play/formats";
+import { PartySetup } from "../../play/PartySetup";
+import { deckOf } from "../../topicDraft/party/decks";
 import { category } from "../../play/categories";
 import { clearToken, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setStatLink, startRoom, type RoomSnapshot } from "../../play/onlineApi";
 import { useRemoteCtl, useRemoteRoom } from "../../play/useRemoteGame";
@@ -15,7 +17,7 @@ import { loadPrefs, savePrefs } from "../../play/storage";
 import { useAuth } from "../../hooks/useAuth";
 import { openStatRoom, STAT_LEAGUES, statRoomHref, type League } from "../../lib/statRooms";
 import { track } from "../../lib/analytics";
-import type { FormatId, GameSetup } from "../../play/types";
+import { PARTY_FORMATS, type FormatId, type GameSetup } from "../../play/types";
 
 /**
  * One room for a whole evening: friends join once, the host picks a game, everyone plays, and when it ends the
@@ -128,8 +130,14 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   const setup = snap.setup;
   const meta = setup ? formatMeta(setup.format) : null;
   const cat = setup ? category(setup.pool) : null;
+  const party = !!setup && PARTY_FORMATS.has(setup.format);
+  const cap = !setup || party ? 10 : 6; // an empty room takes a party-sized group; drafts cap it at six
+  const poolTitle = setup ? (setup.format === "vote" ? deckOf(setup.pool)?.title : cat?.title) : null;
 
   // Picking a game: the full setup screen for that format, saving to the room.
+  if (isHost && (picking === "imposter" || picking === "vote")) {
+    return <PartySetup format={picking} room={{ code, token, pool: setup?.pool, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
+  }
   if (isHost && picking && picking !== "menu") {
     return <SetupScreen format={picking} room={{ code, token, pool: setup?.pool, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
   }
@@ -167,16 +175,16 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
 
   return (
     <PageShell width="md">
-      <PageHeader title={`Room ${code}`} subtitle={setup && meta ? `Next up: ${meta.title}${cat ? ` · ${cat.title}` : ""}` : isHost ? "Pick a game to play" : "The host is picking a game"} icon={meta?.icon ?? Users} gradient={meta?.gradient} />
+      <PageHeader title={`Room ${code}`} subtitle={setup && meta ? `Next up: ${meta.title}${poolTitle && setup.format !== "vote" ? ` · ${poolTitle}` : setup.format === "vote" ? ` · ${poolTitle}` : ""}` : isHost ? "Pick a game to play" : "The host is picking a game"} icon={meta?.icon ?? Users} gradient={meta?.gradient} />
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Panel title="Invite friends" hint="Share the code or the link. Up to 6 players. Friends can join between games too.">
+        <Panel title="Invite friends" hint={`Share the code or the link. Up to ${cap} players${cap === 10 ? " (drafts and trivia take 6)" : " (party games take 10)"}. Friends can join between games too.`}>
           <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/30 px-4 py-3">
             <span className="font-display text-4xl tracking-[0.2em]">{code}</span>
             <Button variant="ghost" onClick={copy}>{copied ? <Check className="h-4 w-4" aria-hidden /> : <Copy className="h-4 w-4" aria-hidden />} {copied ? "Copied" : "Copy link"}</Button>
           </div>
         </Panel>
-        <Panel title={`Players (${snap.seats.length}/6)`}>
+        <Panel title={`Players (${snap.seats.length}/${cap})`}>
           <ul className="space-y-2">
             {snap.seats.map((s) => {
               const wins = snap.played.filter((g) => g.winner === s.name).length;
@@ -203,8 +211,8 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
           <div className="flex flex-wrap items-center gap-4">
             <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${meta.gradient}`}><meta.icon className="h-7 w-7 text-white" aria-hidden /></span>
             <div className="min-w-0 flex-1">
-              <div className="text-lg font-semibold">{meta.title}{cat ? ` · ${cat.title}` : ""}</div>
-              <div className="text-sm text-muted-foreground">{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</div>
+              <div className="text-lg font-semibold">{meta.title}{poolTitle ? ` · ${poolTitle}` : ""}</div>
+              <div className="text-sm text-muted-foreground">{party ? (setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}</div>
             </div>
             {isHost && <Button variant="ghost" onClick={() => setPicking("menu")}><RefreshCw className="h-4 w-4" aria-hidden /> Change game</Button>}
           </div>
@@ -220,6 +228,13 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
               {setup && <Button variant="ghost" onClick={() => setPicking(null)}>Keep {meta?.title}</Button>}
             </div>
           </div>
+          <h3 className="text-lg">Party games <span className="text-sm font-normal text-muted-foreground">· up to 10 players, best with a group</span></h3>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {PARTY_GAMES.map((f) => (
+              <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} badge="New" onClick={() => setPicking(f.id)} />
+            ))}
+          </div>
+          <h3 className="text-lg">Drafts and trivia <span className="text-sm font-normal text-muted-foreground">· up to 6 players</span></h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {FORMATS.filter((f) => f.id !== "loadout").map((f) => (
               <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} onClick={() => setPicking(f.id as FormatId)} />
@@ -235,7 +250,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
         <Panel title="Played tonight">
           <ol className="space-y-1 text-sm">
             {snap.played.slice().reverse().map((g, i) => (
-              <li key={i} className="flex justify-between gap-3 rounded-lg bg-white/5 px-3 py-2"><span>{formatMeta(g.format)?.title}{category(g.pool) ? ` · ${category(g.pool)!.title}` : ""}</span><span className="text-muted-foreground">{g.winner ? `${g.winner} won` : "no winner"}</span></li>
+              <li key={i} className="flex justify-between gap-3 rounded-lg bg-white/5 px-3 py-2"><span>{formatMeta(g.format)?.title}{g.format === "vote" ? ` · ${deckOf(g.pool)?.title ?? ""}` : category(g.pool) ? ` · ${category(g.pool)!.title}` : ""}</span><span className="text-muted-foreground">{g.winner ? `${g.winner} won` : "no winner"}</span></li>
             ))}
           </ol>
         </Panel>
