@@ -331,7 +331,7 @@ export function leaveRoom(room: Room, token: unknown) {
   bump(room);
 }
 
-const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "next"]);
+const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "next"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
   const seat = seatFor(room, token);
@@ -477,13 +477,14 @@ export function startTicker() {
 function redact(room: Room, me: string | null): GameState | null {
   const s = room.state;
   if (!s) return null;
+  // Vote games go through their redaction even when done: with Show votes off the final screen must stay secret too.
+  if (room.setup?.format === "vote") return V.redactFor(s as V.VoteState, me, room.status === "done");
   if (room.status === "done" || !room.setup) return s;
   if (room.setup.format === "position") {
     const p = s as P.PositionState;
     return { ...p, hands: Object.fromEntries(Object.entries(p.hands).map(([k, v]) => [k, k === me ? v : v.map(() => "?")])), assign: Object.fromEntries(Object.entries(p.assign).map(([k, v]) => [k, k === me ? v : {}])), unused: [], roll: p.roll ? { ...p.roll, pool: [], offers: Object.fromEntries(Object.entries(p.roll.offers).map(([k, v]) => [k, k === me ? v : {}])) } : undefined };
   }
   if (room.setup.format === "imposter") return IM.redactFor(s as IM.ImposterState, me);
-  if (room.setup.format === "vote") return V.redactFor(s as V.VoteState, me);
   if (room.setup.format === "blind") {
     const b = s as B.BlindState;
     return { ...b, ranks: Object.fromEntries(Object.entries(b.ranks).map(([k, v]) => [k, k === me ? v : v.map((x) => (x == null ? null : "?"))])) };

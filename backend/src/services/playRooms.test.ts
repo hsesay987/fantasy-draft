@@ -290,12 +290,53 @@ describe("party rooms", () => {
     const c = joinRoom(made.room.code, "Cy") as any;
     expect(startRoom(made.room, made.seat.token)).toEqual({ ok: true });
     for (let round = 0; round < 3; round++) {
-      expect(act(made.room, made.seat.token, { type: "vote", side: "a" }).ok).toBe(true);
-      expect(act(made.room, b.seat.token, { type: "vote", side: "a" }).ok).toBe(true);
-      expect(act(made.room, c.seat.token, { type: "vote", side: "a" }).ok).toBe(true);
+      for (const tok of [made.seat.token, b.seat.token, c.seat.token]) expect(act(made.room, tok, { type: "vote", side: "a" }).ok).toBe(true);
+      expect(made.room.state.phase).toBe("guess");
+      for (const [tok, me] of [[made.seat.token, "Ann"], [b.seat.token, "Bob"], [c.seat.token, "Cy"]] as const)
+        for (const t of ["Ann", "Bob", "Cy"].filter((x) => x !== me)) expect(act(made.room, tok, { type: "guessVote", target: t, side: "a" }).ok).toBe(true);
       act(made.room, made.seat.token, { type: "next" });
     }
     expect(made.room.status).toBe("done");
-    expect(made.room.state.points).toEqual({ Ann: 3, Bob: 3, Cy: 3 });
+    expect(made.room.state.points).toEqual({ Ann: 6, Bob: 6, Cy: 6 }); // two right guesses a card
+  });
+
+  it("Show votes off never sends other players' votes or guesses, even after the game ends", () => {
+    const made = createRoom({ ...party("vote", "icks"), opts: { teamSize: 3, showVotes: false } }, "Ann") as any;
+    const toks: Record<string, string> = { Ann: made.seat.token, Bob: (joinRoom(made.room.code, "Bob") as any).seat.token, Cy: (joinRoom(made.room.code, "Cy") as any).seat.token };
+    expect(startRoom(made.room, toks.Ann)).toEqual({ ok: true });
+    const names = Object.keys(toks);
+    const sides: Record<string, string> = { Ann: "a", Bob: "b", Cy: "b" };
+    // Only seat A's own entries may ever reach A.
+    const check = (phase: string) => {
+      const st = snapshot(made.room, toks.Ann).state;
+      expect(st.phase).toBe(phase);
+      const others = ["Bob", "Cy"];
+      for (const h of st.history) {
+        expect(Object.keys(h.votes).filter((k) => others.includes(k))).toEqual([]);
+        expect(Object.keys(h.guesses).filter((k) => others.includes(k))).toEqual([]);
+        expect(Object.keys(h.gained).filter((k) => others.includes(k))).toEqual([]);
+      }
+      expect(Object.values(st.votes).filter((v) => v !== "?").length).toBeLessThanOrEqual(1);
+      expect(Object.keys(st.guesses).filter((k) => others.includes(k))).toEqual([]);
+    };
+    for (let round = 0; round < 3; round++) {
+      for (const n of names) act(made.room, toks[n], { type: "vote", side: sides[n] });
+      check("guess");
+      const st = snapshot(made.room, toks.Ann).state;
+      expect(Object.keys(st.points)).toEqual(["Ann"]);
+      for (const n of names) for (const t of names.filter((x) => x !== n)) act(made.room, toks[n], { type: "guessVote", target: t, side: sides[t] });
+      check("reveal");
+      if (round < 2) expect(Object.keys(snapshot(made.room, toks.Ann).state.points)).toEqual(["Ann"]);
+      act(made.room, toks.Ann, { type: "next" });
+    }
+    expect(made.room.status).toBe("done");
+    const fin = snapshot(made.room, toks.Ann).state;
+    expect(fin.history).toHaveLength(3);
+    for (const h of fin.history) {
+      expect(Object.keys(h.votes)).toEqual(["Ann"]);
+      expect(Object.keys(h.guesses)).toEqual(["Ann"]);
+    }
+    expect(Object.keys(fin.votes).filter((k) => k !== "Ann")).toEqual([]);
+    expect(Object.keys(fin.points).sort()).toEqual(["Ann", "Bob", "Cy"]);
   });
 });

@@ -48,6 +48,7 @@ export type Action =
   | { type: "accuse"; by: string; target: string }
   | { type: "guess"; by: string; name: string }
   | { type: "vote"; by: string; side: string }
+  | { type: "guessVote"; by: string; target: string; side: string }
   | { type: "next"; by: string };
 
 export type Extra = { kind: "order"; title: string; names: string[] } | null;
@@ -94,7 +95,7 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "imposter":
       return IM.init({ players: setup.players, pool, topic: catalogMeta(setup.pool)?.title ?? setup.pool, rounds: o.teamSize, ending: o.ending, seed: setup.seed, now });
     case "vote":
-      return V.init({ players: setup.players, deck: setup.pool, cards: deckOf(setup.pool)?.cards ?? [], rounds: o.teamSize, avoid: o.avoid, seed: setup.seed, now });
+      return V.init({ players: setup.players, deck: setup.pool, cards: deckOf(setup.pool)?.cards ?? [], rounds: o.teamSize, avoid: o.avoid, showVotes: o.showVotes, drinking: o.drinking, seed: setup.seed, now });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }
@@ -224,6 +225,7 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
     case "vote": {
       const x = s as V.VoteState;
       if (a.type === "vote") return V.vote(x, a.by, String(a.side), now);
+      if (a.type === "guessVote") return V.guessVote(x, a.by, String(a.target ?? ""), String(a.side), now);
       if (a.type === "next") return V.nextCard(x, now);
       if (a.type === "tick") return V.tick(x, now);
       return s;
