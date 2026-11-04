@@ -301,7 +301,7 @@ describe("party rooms", () => {
   });
 
   it("Show votes off never sends other players' votes or guesses, even after the game ends", () => {
-    const made = createRoom({ ...party("vote", "icks"), opts: { teamSize: 3, showVotes: false } }, "Ann") as any;
+    const made = createRoom({ ...party("vote", "icks"), opts: { teamSize: 3, showVotes: false, drinking: true } }, "Ann") as any;
     const toks: Record<string, string> = { Ann: made.seat.token, Bob: (joinRoom(made.room.code, "Bob") as any).seat.token, Cy: (joinRoom(made.room.code, "Cy") as any).seat.token };
     expect(startRoom(made.room, toks.Ann)).toEqual({ ok: true });
     const names = Object.keys(toks);
@@ -326,6 +326,9 @@ describe("party rooms", () => {
       expect(Object.keys(st.points)).toEqual(["Ann"]);
       for (const n of names) for (const t of names.filter((x) => x !== n)) act(made.room, toks[n], { type: "guessVote", target: t, side: sides[t] });
       check("reveal");
+      const calls = snapshot(made.room, toks.Ann).state.drinks.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls.every((c: any) => c.to === "all")).toBe(true);
       if (round < 2) expect(Object.keys(snapshot(made.room, toks.Ann).state.points)).toEqual(["Ann"]);
       act(made.room, toks.Ann, { type: "next" });
     }
@@ -338,5 +341,24 @@ describe("party rooms", () => {
     }
     expect(Object.keys(fin.votes).filter((k) => k !== "Ann")).toEqual([]);
     expect(Object.keys(fin.points).sort()).toEqual(["Ann", "Bob", "Cy"]);
+  });
+
+  it("does not send drink calls addressed to a seat that left", () => {
+    const made = createRoom({ ...party("vote", "icks"), opts: { teamSize: 3, drinking: true } }, "Ann") as any;
+    const toks: Record<string, string> = { Ann: made.seat.token, Bob: (joinRoom(made.room.code, "Bob") as any).seat.token, Cy: (joinRoom(made.room.code, "Cy") as any).seat.token, Di: (joinRoom(made.room.code, "Di") as any).seat.token };
+    expect(startRoom(made.room, toks.Ann)).toEqual({ ok: true });
+    const names = Object.keys(toks);
+    const sides: Record<string, string> = { Ann: "a", Bob: "b", Cy: "a", Di: "a" };
+    for (const n of names) act(made.room, toks[n], { type: "vote", side: sides[n] });
+    // Everyone reads Bob wrong, so he gets a hand-out call; Cy reads nobody right and gets the worst read too.
+    for (const n of names) for (const t of names.filter((x) => x !== n)) act(made.room, toks[n], { type: "guessVote", target: t, side: t === "Bob" ? "a" : n === "Cy" ? "b" : sides[t] });
+    expect(made.room.state.phase).toBe("reveal");
+    const toNames = (tok: string) => snapshot(made.room, tok).state.drinks.calls.map((c: any) => c.to);
+    expect(toNames(toks.Ann)).toEqual(expect.arrayContaining(["Bob", "Cy"]));
+    leaveRoom(made.room, toks.Bob);
+    expect(snapshot(made.room, toks.Ann).seats.find((s: any) => s.name === "Bob").left).toBe(true);
+    expect(toNames(toks.Ann)).not.toContain("Bob");
+    expect(toNames(toks.Ann)).toContain("Cy");
+    expect(made.room.state.drinks.calls.map((c: any) => c.to)).toContain("Bob"); // the room's own state is untouched
   });
 });

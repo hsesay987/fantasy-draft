@@ -83,6 +83,57 @@ describe("imposter", () => {
   });
 });
 
+describe("imposter drinking", () => {
+  const begin = (ending: IM.Ending = "vote", drinking = true) => IM.init({ players, pool: getCatalog("superheroes"), topic: "Superheroes", rounds: 1, ending, drinking, seed: 7, now: 0 });
+  /** Everyone votes the imposter out, except crew members listed in `wrong`, who pick another crew member. */
+  const voteOut = (s: IM.ImposterState, wrong: string[] = []) => {
+    const c = crew(s);
+    s = giveClues(s);
+    for (const p of c) s = IM.accuse(s, p, wrong.includes(p) ? c.find((x) => x !== p)! : s.imposter, 2);
+    return IM.accuse(s, s.imposter, c[0]!, 2);
+  };
+
+  it("a crew win calls 2 sips for the imposter and 1 for each player who voted wrong", () => {
+    const start0 = begin();
+    const wrongOne = crew(start0)[0]!;
+    const s = voteOut(start0, [wrongOne]);
+    expect(s.winner).toBe("crew");
+    expect(s.drinks!.calls).toHaveLength(2);
+    expect(s.drinks!.calls[0]).toMatchObject({ to: s.imposter, sips: 2 });
+    expect(s.drinks!.calls[1]).toMatchObject({ to: wrongOne, sips: 1 });
+    expect(s.drinks!.totals[s.imposter]).toBe(2);
+    expect(s.drinks!.seq).toBe(1);
+  });
+
+  it("the imposter's own bluff vote does not add a wrong-vote sip", () => {
+    const s = voteOut(begin());
+    expect(s.drinks!.calls.map((c) => c.to)).toEqual([s.imposter]);
+  });
+
+  it("an imposter win calls hand out 3 and nothing else", () => {
+    const g = begin("guess");
+    const s = IM.guess(g, g.imposter, g.secret, 1);
+    expect(s.winner).toBe("imposter");
+    expect(s.drinks!.calls).toHaveLength(1);
+    expect(s.drinks!.calls[0]).toMatchObject({ to: s.imposter, sips: 3, handsOut: true });
+    expect(s.drinks!.totals[s.imposter]).toBe(0);
+  });
+
+  it("a wrong guess before any vote is a crew win with only the imposter sipping", () => {
+    const g = begin("guess");
+    const s = IM.guess(g, g.imposter, g.options.find((o) => o !== g.secret)!, 1);
+    expect(s.winner).toBe("crew");
+    expect(s.drinks!.calls.map((c) => [c.to, c.sips])).toEqual([[s.imposter, 2]]);
+  });
+
+  it("has no drinks with drinking off, and none called before the game ends", () => {
+    const off = begin("vote", false);
+    expect(off.drinks).toBeUndefined();
+    expect(voteOut(off).drinks).toBeUndefined();
+    expect(begin().drinks!.calls).toEqual([]);
+  });
+});
+
 describe("vote games", () => {
   const deck = DECKS.find((d) => d.id === "icks")!;
   const happen = DECKS.find((d) => d.id === "happen")!;
@@ -208,6 +259,13 @@ describe("vote games", () => {
     const calls = s.drinks!.calls;
     expect(calls).toContainEqual(expect.objectContaining({ to: "A", sips: 1, handsOut: true }));
     expect(calls).toContainEqual(expect.objectContaining({ to: "A", sips: 1, reason: "Worst read of the card" }));
+  });
+
+  it("guessVote ignores anyone who is not a player, whatever their name", () => {
+    const s = allVote(begin(), { A: "a", B: "b", C: "b" });
+    expect(s.phase).toBe("guess");
+    for (const by of ["Zed", "constructor", "__proto__"]) expect(V.guessVote(s, by, "A", "a", 0)).toBe(s);
+    expect(V.guessVote({ ...s, targets: { ...s.targets, Zed: ["A"] } }, "Zed", "A", "a", 0).guesses.Zed).toBeUndefined();
   });
 
   it("leaves drinks off unless asked", () => {

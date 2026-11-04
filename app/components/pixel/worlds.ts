@@ -8,7 +8,7 @@ export type Actor = { name: string; value: number; color?: string };
 export type Checkpoint = { name: string; at: number };
 
 export type World = {
-  id: "summit" | "sky" | "launch";
+  id: "summit" | "sky" | "launch" | "hall" | "ball";
   /** Size of the whole map. */
   fullW: number;
   fullH: number;
@@ -379,7 +379,380 @@ export const LAUNCH: World = {
   camera: (p) => ({ x: clamp(p.x - 110, 0, L_W - 320), y: 0 }),
 };
 
-export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH };
+// ======================= HALL: a small-town polling hall at dusk =======================
+// One fixed room with no camera moves: a window onto the town, a notice board, the clerk's table with the ballot box,
+// and a row of booths. Bunting, lamps, a ticking clock, the clerk and the curtains give it idle life.
+const HALL_W = 180, HALL_H = 76, HALL_FLOOR = 58;
+const HALL_CLERK = ["...gggg...", "..gggggg..", "..ssssss..", "..GeGGeG..", "..ssssss..", "...smms...", "..cccccc..", ".cccWWccc.", ".cccWWccc.", ".cc.WW.cc.", ".cc.WW.cc.", ".cc.WW.cc."];
+const HALL_LETTERS: Record<string, string[]> = { V: ["X.X", "X.X", "X.X", "X.X", ".X."], O: ["XXX", "X.X", "X.X", "X.X", "XXX"], T: ["XXX", ".X.", ".X.", ".X.", ".X."], E: ["XXX", "X..", "XX.", "X..", "XXX"], H: ["X.X", "X.X", "XXX", "X.X", "X.X"], R: ["XX.", "X.X", "XX.", "X.X", "X.X"] };
+const HALL_BOOTHS = [131, 148, 165];
+
+/** Which floor row a y falls in, given where each row starts. */
+const bandOf = (y: number, bands: number[]) => { let r = 0; while (r < bands.length - 1 && y >= bands[r + 1]!) r++; return r; };
+
+function hallBackdrop(ctx: CanvasRenderingContext2D) {
+  // Sage plaster wall, brighter low down where the lamps reach, joined by dithering.
+  ditherSky(ctx, 0, 0, HALL_W, 46, [[0, "#2f4239"], [0.45, "#40584a"], [1, "#587359"]]);
+  for (let i = 0; i < 90; i++) px(ctx, noise1(i, 21) * HALL_W, 8 + noise1(i, 22) * 36, "#4d6752");
+  // Ceiling beam with joints.
+  px(ctx, 0, 0, "#3a2416", HALL_W, 5);
+  px(ctx, 0, 0, "#5d3b22", HALL_W, 1);
+  px(ctx, 0, 5, "#1d1009", HALL_W, 1);
+  for (let x = 14; x < HALL_W; x += 28) px(ctx, x, 1, "#1d1009", 1, 4);
+
+  // Wooden wainscot with framed panels and a rail.
+  px(ctx, 0, 46, "#5b3a20", HALL_W, 12);
+  px(ctx, 0, 45, "#8a5c32", HALL_W, 1);
+  px(ctx, 0, 46, "#2a180c", HALL_W, 1);
+  for (let x = 2; x < HALL_W; x += 16) {
+    px(ctx, x, 48, "#472c17", 13, 8);
+    px(ctx, x, 48, "#2a180c", 13, 1);
+    px(ctx, x, 48, "#2a180c", 1, 8);
+    px(ctx, x, 55, "#6e4728", 13, 1);
+    px(ctx, x + 12, 48, "#6e4728", 1, 8);
+    for (let k = 0; k < 8; k++) if ((x + k) % 3 === 0) px(ctx, x + 3 + (k * 7) % 8, 50 + k % 5, "#523319");
+  }
+  // Checkered lino: bands get deeper and the tile edges converge toward the back wall.
+  for (let y = HALL_FLOOR; y < HALL_H; y++) {
+    const row = bandOf(y, [58, 60, 63, 67, 71]);
+    for (let x = 0; x < HALL_W; x++) {
+      const light = (Math.floor((x - 90) / (7 + (y - HALL_FLOOR) * 0.8)) + row) & 1;
+      const back = y < 62 && (y - HALL_FLOOR) * 4 < BAYER[y & 3]![x & 3]!;
+      px(ctx, x, y, light ? (back ? "#a89d7b" : "#d5caa3") : back ? "#3d5345" : "#54705d");
+    }
+  }
+  px(ctx, 0, HALL_FLOOR, "#1d1009", HALL_W, 1);
+
+  // The window: dusk over a little town, with a church steeple and lit windows.
+  const wx = 6, wy = 11, ww = 28, wh = 31;
+  px(ctx, wx - 2, wy - 2, "#3a2416", ww + 4, wh + 4);
+  px(ctx, wx - 1, wy - 1, "#6e4728", ww + 2, wh + 2);
+  ditherSky(ctx, wx, wy, ww, wh, [[0, "#1f2157"], [0.4, "#62408a"], [0.72, "#d9607a"], [1, "#ffb25a"]]);
+  disc(ctx, wx + 21, wy + 19, 3, () => "#ffe0a0");
+  for (let x = 0; x < ww; x++) { const h = 4 + Math.round(2 * Math.sin(x / 4) + noise1(x >> 2, 3) * 2); px(ctx, wx + x, wy + wh - h, "#2a2147", 1, h); }
+  for (const [hx, hw, hh] of [[1, 7, 7], [17, 8, 8]] as const) {
+    px(ctx, wx + hx, wy + wh - hh, "#1c1633", hw, hh);
+    for (let r = 0; r < 3; r++) px(ctx, wx + hx + 2 - r, wy + wh - hh - 3 + r, "#1c1633", hw - 4 + r * 2, 1);
+    px(ctx, wx + hx + 2, wy + wh - hh + 2, "#ffd23f", 2, 2);
+  }
+  // Steeple.
+  px(ctx, wx + 10, wy + wh - 13, "#1c1633", 5, 13);
+  for (let r = 0; r < 7; r++) px(ctx, wx + 12 - (r >> 1), wy + wh - 20 + r, "#1c1633", 1 + (r >> 1) * 2, 1);
+  px(ctx, wx + 12, wy + wh - 23, "#1c1633", 1, 3);
+  px(ctx, wx + 11, wy + wh - 22, "#1c1633", 3, 1);
+  px(ctx, wx + 12, wy + wh - 10, "#ffd23f", 1, 3);
+  px(ctx, wx + 13, wy, "#3a2416", 2, wh);
+  px(ctx, wx, wy + 14, "#3a2416", ww, 2);
+  px(ctx, wx - 3, wy + wh + 2, "#8a5c32", ww + 6, 2);
+  px(ctx, wx - 3, wy + wh + 4, "#2a180c", ww + 6, 1);
+
+  // Notice board: cork, pinned papers, a rosette.
+  const nx = 40, ny = 13;
+  px(ctx, nx - 2, ny - 2, "#3a2416", 28, 28);
+  px(ctx, nx - 1, ny - 1, "#6e4728", 26, 26);
+  for (let y = 0; y < 24; y++) for (let x = 0; x < 24; x++) px(ctx, nx + x, ny + y, noise2(x / 2, y / 2, 5) > 0.55 ? "#a4743f" : noise1(x * 31 + y, 6) > 0.8 ? "#7c5228" : "#b98a50");
+  const paper = (x: number, y: number, w: number, h: number, pin: string) => {
+    px(ctx, x + 1, y + 1, "#5a3a1c", w, h);
+    px(ctx, x, y, "#f3ead0", w, h);
+    for (let l = 3; l < h - 1; l += 2) px(ctx, x + 1, y + l, "#a69c82", w - 2 - (l % 4 ? 1 : 0), 1);
+    px(ctx, x + (w >> 1), y, pin);
+  };
+  paper(nx + 2, ny + 2, 9, 11, "#d9402f");
+  paper(nx + 13, ny + 3, 9, 8, "#2f6fb0");
+  paper(nx + 4, ny + 15, 11, 7, "#ffd23f");
+  disc(ctx, nx + 19, ny + 17, 3, (dx, dy) => (dx * dx + dy * dy <= 1 ? "#ffd23f" : "#d9402f"));
+  px(ctx, nx + 17, ny + 20, "#d9402f", 1, 3);
+  px(ctx, nx + 21, ny + 20, "#d9402f", 1, 3);
+
+  // Sign over the table.
+  px(ctx, 84, 6, "#1d1009", 1, 4);
+  px(ctx, 117, 6, "#1d1009", 1, 4);
+  px(ctx, 82, 10, "#1d1009", 38, 11);
+  px(ctx, 83, 11, "#f3ead0", 36, 9);
+  px(ctx, 83, 19, "#c9bd98", 36, 1);
+  [..."VOTE"].forEach((ch, i) => HALL_LETTERS[ch]!.forEach((row, ry) => [...row].forEach((c, rx) => { if (c === "X") px(ctx, 89 + i * 6 + rx, 13 + ry, i % 2 ? "#2f6fb0" : "#c8392b"); })));
+  px(ctx, 85, 13, "#c8392b");
+  px(ctx, 116, 13, "#c8392b");
+
+  // Flagpole with a gold finial (the flag itself ripples in the frame).
+  px(ctx, 71, 13, "#d8c98f", 1, 45);
+  px(ctx, 72, 13, "#7c6a3a", 1, 45);
+  px(ctx, 70, 11, "#ffd23f", 3, 2);
+  px(ctx, 68, 56, "#2a180c", 7, 2);
+
+  // Clock case.
+  disc(ctx, 124, 16, 5, () => "#3a2416");
+  disc(ctx, 124, 16, 4, () => "#f3ead0");
+  px(ctx, 124, 12, "#1d1009");
+  px(ctx, 124, 20, "#1d1009");
+  px(ctx, 120, 16, "#1d1009");
+  px(ctx, 128, 16, "#1d1009");
+
+  // Voting booths along the back wall.
+  for (const bx of HALL_BOOTHS) {
+    px(ctx, bx, 22, "#2a180c", 15, 37);
+    px(ctx, bx + 1, 23, "#1a1410", 13, 35);
+    px(ctx, bx - 1, 19, "#6e4728", 17, 4);
+    px(ctx, bx - 1, 19, "#a06f3e", 17, 1);
+    px(ctx, bx - 1, 22, "#2a180c", 17, 1);
+    for (let x = 0; x < 15; x++) px(ctx, bx + x, 23, x % 4 < 2 ? "#c8392b" : "#f3ead0", 1, 3);
+    px(ctx, bx, 26, "#1d1009", 15, 1);
+  }
+
+  // The clerk's table behind a bunting cloth, with ballots and the box on top.
+  drawSprite(ctx, HALL_CLERK, { g: "#c9ccd6", s: "#e8b890", G: "#22223a", e: "#ffffff", m: "#a8644a", c: "#7c3a5e", W: "#f3ead0" }, 84, 31);
+  px(ctx, 76, 43, "#8a5c32", 46, 3);
+  px(ctx, 76, 43, "#c28c52", 46, 1);
+  px(ctx, 76, 46, "#27406e", 46, 12);
+  for (let x = 76; x < 122; x++) {
+    const stripe = Math.floor((x - 76) / 5) % 2;
+    px(ctx, x, 46, stripe ? "#f3ead0" : "#c8392b", 1, 5);
+    if ((x + 2) % 4 === 0) px(ctx, x, 51, "#ffd23f");
+  }
+  px(ctx, 76, 57, "#14233f", 46, 1);
+  px(ctx, 78, 40, "#f3ead0", 6, 3);
+  px(ctx, 78, 41, "#c9bd98", 6, 1);
+  // Ballot box: wood, a slot, a brass lock.
+  px(ctx, 101, 32, "#2a180c", 16, 11);
+  px(ctx, 102, 33, "#8a5c32", 14, 9);
+  px(ctx, 102, 33, "#c28c52", 14, 2);
+  px(ctx, 105, 33, "#1d1009", 8, 1);
+  for (let k = 0; k < 6; k++) px(ctx, 103 + k * 2, 36 + (k % 3), "#6e4728");
+  px(ctx, 108, 38, "#ffd23f", 2, 3);
+  px(ctx, 108, 40, "#a87a1c", 2, 1);
+
+  // Warm pools of lamplight on the floor, thinning out with dithering.
+  for (const lx of [55, 148]) for (let y = HALL_FLOOR + 1; y < HALL_H; y++) for (let x = lx - 26; x < lx + 26; x++) {
+    const d = Math.hypot((x - lx) / 26, (y - 66) / 9);
+    if (d < 1 && (1 - d) * 22 > BAYER[y & 3]![x & 3]! + 0.5) px(ctx, x, y, "rgba(255,236,170,0.34)");
+  }
+}
+
+export const HALL: World = {
+  id: "hall", fullW: HALL_W, fullH: HALL_H, viewW: HALL_W, viewH: HALL_H,
+  checkpoints: [{ name: "Polling hall", at: 0 }],
+  backdrop: hallBackdrop,
+  frame: (ctx, t) => {
+    // Town lights and first stars through the glass.
+    for (let i = 0; i < 6; i++) if ((t + i * 9) % 34 > 3) px(ctx, 7 + noise1(i, 31) * 26, 12 + noise1(i, 32) * 9, "#ffffff");
+    // Flag.
+    for (let cx = 0; cx < 11; cx++) {
+      const wave = Math.round(Math.sin(t / 4 + cx * 0.8) * (cx / 10) * 1.4);
+      for (let r = 0; r < 7; r++) px(ctx, 73 + cx, 14 + r + wave, cx < 4 && r < 3 ? (cx + r) % 2 ? "#f3ead0" : "#27406e" : r % 2 ? "#f3ead0" : "#c8392b");
+    }
+    // Bunting along the beam.
+    for (let i = 0; i < 15; i++) {
+      const x = 2 + i * 12, sag = Math.sin(((x % 60) / 60) * Math.PI) * 2.5, sway = Math.round(Math.sin(t / 7 + i * 0.6));
+      px(ctx, x - 2, 6 + sag, "#d8cfa8", 13, 1);
+      const c = ["#c8392b", "#f3ead0", "#2f6fb0"][i % 3]!;
+      for (let r = 0; r < 4; r++) px(ctx, x + r + sway * (r >> 1), 7 + sag + r, c, 7 - r * 2 > 0 ? 7 - r * 2 : 1, 1);
+    }
+    // Pendant lamps with a rare flicker.
+    for (const [i, lx] of [55, 148].entries()) {
+      const dim = (t + i * 47) % 113 < 3;
+      px(ctx, lx, 5, "#1d1009", 1, 2);
+      px(ctx, lx - 3, 7, "#27406e", 7, 2);
+      px(ctx, lx - 2, 6, "#3c5a92", 5, 1);
+      px(ctx, lx - 1, 9, dim ? "#b8944a" : "#fff4c8", 3, 1);
+    }
+    // Clock hands: a second hand that ticks, a minute hand that crawls.
+    const sec = (Math.floor(t / 14) % 60) / 60 * Math.PI * 2, min = (t / 8000) * Math.PI * 2 + 2;
+    for (let r = 1; r <= 3; r++) px(ctx, 124 + Math.sin(sec) * r, 16 - Math.cos(sec) * r, "#c8392b");
+    for (let r = 1; r <= 2; r++) px(ctx, 124 + Math.sin(min) * r, 16 - Math.cos(min) * r, "#1d1009");
+    px(ctx, 124, 16, "#1d1009");
+    // Booth curtains sway; somebody's shoes shuffle under the middle one.
+    HALL_BOOTHS.forEach((bx, i) => {
+      for (let x = 0; x < 13; x++) {
+        const fold = (x + Math.round(Math.sin(t / 9 + i) * 1.2)) % 4;
+        const c = fold === 0 ? "#141d3f" : fold === 1 ? "#27406e" : fold === 2 ? "#3c5a92" : "#27406e";
+        px(ctx, bx + 1 + x, 27, c, 1, i === 1 ? 26 : 30);
+      }
+    });
+    const shuffle = t % 40 < 4 ? 1 : 0;
+    px(ctx, HALL_BOOTHS[1]! + 4 + shuffle, 53, "#3a3550", 2, 5);
+    px(ctx, HALL_BOOTHS[1]! + 9 - shuffle, 53, "#3a3550", 2, 5);
+    px(ctx, HALL_BOOTHS[1]! + 3 + shuffle, 57, "#14101f", 3, 1);
+    px(ctx, HALL_BOOTHS[1]! + 9 - shuffle, 57, "#14101f", 3, 1);
+    // The clerk blinks and now and then stamps a ballot.
+    if (t % 47 < 2) { px(ctx, 87, 34, "#e8b890"); px(ctx, 90, 34, "#e8b890"); }
+    const stamp = t % 70;
+    const ay = stamp < 3 ? 38 : stamp < 5 ? 41 : 42;
+    px(ctx, 80, ay - 1, "#7c3a5e", 4, 3);
+    px(ctx, 79, ay + 1, "#e8b890", 2, 1);
+    if (stamp >= 3 && stamp < 30) px(ctx, 80, 41, "#c8392b", 2, 1);
+    // Dust drifting through the lamplight.
+    for (let i = 0; i < 12; i++) {
+      const lx = i % 2 ? 148 : 55, y = 12 + ((noise1(i, 41) * 44 + t * (0.05 + noise1(i, 42) * 0.08)) % 44);
+      px(ctx, lx + Math.sin(t / 19 + i * 2) * (3 + (y - 8) * 0.25), y, "#fff4c8");
+    }
+  },
+  pos: () => ({ x: 90, y: 34 }),
+  camera: () => ({ x: 0, y: 0 }),
+};
+
+// ======================= BALL: a masked ball by moonlight =======================
+// Arched windows, velvet drapes and a candle chandelier over a marble floor, with masked couples waltzing round it.
+const BALL_W = 180, BALL_H = 76, BALL_FLOOR = 50;
+const BALL_WINDOWS = [34, 78, 122];
+const BALL_COUPLE = ["..hh.kk..", ".hhh.kkk.", "..mm.mm..", "..ss.ss..", "..GG.BB..", ".GGGBBBB.", ".gGGBBBB.", "..GG.BB..", "..GG.BB..", ".GGG.BB..", ".GGGGBB..", "GGgGGBB..", "GGgGGBB..", "GgGGgB.B."];
+const BALL_COUPLE_2 = ["..hh.kk..", ".hhh.kkk.", "..mm.mm..", "..ss.ss..", "..GG.BB..", ".GGGBBBB.", ".gGGBBBB.", "..GG.BB..", "..GG.BB..", "..GGGBB..", ".GGGGBB..", ".GGgGGBB.", "GGGgGGBB.", "GGgGGgB.B"];
+const BALL_GOWNS = [["#b3203f", "#7a1230", "#2a1208"], ["#1f8a8a", "#125c63", "#e8c26a"], ["#e0a93b", "#a8741c", "#3a1a10"], ["#7c4dd6", "#52309c", "#1d1409"]] as const;
+
+function ballBackdrop(ctx: CanvasRenderingContext2D) {
+  // Plum wall, dithered darker up top, with a faint gold damask.
+  ditherSky(ctx, 0, 0, BALL_W, BALL_FLOOR, [[0, "#1a0a26"], [0.5, "#2c1238"], [1, "#451a48"]]);
+  for (let y = 8; y < BALL_FLOOR; y += 8) for (let x = (y % 16 ? 4 : 0); x < BALL_W; x += 8) {
+    px(ctx, x, y, "#6a3a5c");
+    px(ctx, x - 1, y + 1, "#5a2c52", 3, 1);
+    px(ctx, x, y + 2, "#6a3a5c");
+  }
+  // Cornice.
+  px(ctx, 0, 0, "#120618", BALL_W, 3);
+  px(ctx, 0, 3, "#e8c26a", BALL_W, 1);
+  px(ctx, 0, 4, "#8a6a2a", BALL_W, 1);
+  for (let x = 2; x < BALL_W; x += 6) px(ctx, x, 5, "#8a6a2a", 3, 1);
+
+  // Arched windows onto the night.
+  BALL_WINDOWS.forEach((wx, wi) => {
+    const w = 24, top = 8, bottom = 46, cx = wx + 12;
+    const inArch = (x: number, y: number, grow: number) => {
+      const r = 12 + grow;
+      if (y < top + 12) { const dx = x - cx + 0.5, dy = y - (top + 12); return dx * dx + dy * dy <= r * r; }
+      return x >= wx - grow && x < wx + w + grow && y < bottom + grow;
+    };
+    for (let y = top - 3; y < bottom + 3; y++) for (let x = wx - 3; x < wx + w + 3; x++) {
+      if (inArch(x, y, 0)) {
+        const f = (y - top) / (bottom - top);
+        const band = f < 0.4 ? ["#0c1038", "#141a52"] : f < 0.75 ? ["#141a52", "#232a78"] : ["#232a78", "#3c3f9a"];
+        const m = ((f * 8) % 1) * 16 > BAYER[y & 3]![x & 3]! + 0.5;
+        px(ctx, x, y, m ? band[1]! : band[0]!);
+      } else if (inArch(x, y, 1)) px(ctx, x, y, "#e8c26a");
+      else if (inArch(x, y, 2)) px(ctx, x, y, "#6a4a1a");
+    }
+    if (wi === 2) {
+      disc(ctx, cx + 3, 20, 6, (dx, dy) => (dx + dy > 3 ? "#cdd6f0" : (dx * 3 + dy * 5) % 7 === 0 ? "#dbe2f5" : "#f4f6ff"));
+      for (let x = -9; x < 9; x++) if ((x & 1) === 0) px(ctx, cx + x, 29 + (x & 3 ? 0 : 1), "#3c3f9a", 3, 1);
+    }
+    // Mullions.
+    px(ctx, cx, top, "#6a4a1a", 1, bottom - top);
+    for (const y of [20, 33]) px(ctx, wx, y, "#6a4a1a", w, 1);
+    px(ctx, wx - 3, bottom + 1, "#e8c26a", w + 6, 2);
+    px(ctx, wx - 3, bottom + 3, "#6a4a1a", w + 6, 1);
+  });
+
+  // Marble pillars between the windows.
+  for (const x of [64, 108]) {
+    px(ctx, x, 8, "#cfc6d8", 8, BALL_FLOOR - 8);
+    px(ctx, x, 8, "#f1ebf5", 2, BALL_FLOOR - 8);
+    px(ctx, x + 6, 8, "#8d84a0", 2, BALL_FLOOR - 8);
+    for (let y = 10; y < BALL_FLOOR; y += 2) px(ctx, x + 3 + Math.round(noise1(y, x) * 2), y, "#a79dba");
+    px(ctx, x - 1, 6, "#e8c26a", 10, 3);
+    px(ctx, x - 1, 8, "#8a6a2a", 10, 1);
+    px(ctx, x - 1, BALL_FLOOR - 3, "#e8c26a", 10, 3);
+    px(ctx, x - 1, BALL_FLOOR - 1, "#8a6a2a", 10, 1);
+  }
+
+  // Polished marble checks, edges converging toward the wall, with a vein here and there.
+  for (let y = BALL_FLOOR; y < BALL_H; y++) {
+    const row = bandOf(y, [50, 52, 55, 59, 64, 70]);
+    for (let x = 0; x < BALL_W; x++) {
+      const dark = (Math.floor((x - 90) / (8 + (y - BALL_FLOOR) * 0.7)) + row) & 1;
+      const vein = noise2(x / 5, y / 2, 9) > 0.72;
+      const back = y < 54 && (y - BALL_FLOOR) * 4 < BAYER[y & 3]![x & 3]!;
+      px(ctx, x, y, dark ? (vein ? "#34204e" : back ? "#140a22" : "#21123a") : vein ? "#8e83a8" : back ? "#7a6f94" : "#b6accb");
+    }
+  }
+  px(ctx, 0, BALL_FLOOR, "#e8c26a", BALL_W, 1);
+  // Moonlight falling from the windows onto the marble.
+  for (const wx of BALL_WINDOWS) for (let y = BALL_FLOOR + 1; y < BALL_H; y++) {
+    const shift = (y - BALL_FLOOR) * 0.5;
+    for (let x = Math.floor(wx + 2 - shift); x < wx + 22 - shift * 0.4; x++) if ((x + y) % 2 === 0 && x >= 0 && x < BALL_W) px(ctx, x, y, "rgba(170,190,255,0.32)");
+  }
+
+  // Velvet drapes with a swag and gold tassels.
+  const drape = (x0: number, x1: number, flip: boolean) => {
+    for (let x = x0; x < x1; x++) {
+      const k = flip ? x1 - 1 - x : x - x0;
+      const fold = k % 6;
+      const c = fold < 2 ? "#a81c3a" : fold < 4 ? "#7a1230" : "#4f0a22";
+      const tie = 34 + Math.round((k / (x1 - x0)) * 5);
+      px(ctx, x, 5, c, 1, tie - 5);
+      px(ctx, x, tie + 2, c, 1, Math.max(0, BALL_H - tie - 2 - (k > 12 ? 40 : 0)));
+    }
+    const tx = flip ? x0 : x1 - 6;
+    px(ctx, tx, 38, "#e8c26a", 6, 2);
+    px(ctx, tx + 2, 40, "#e8c26a", 2, 5);
+    px(ctx, tx + 2, 44, "#8a6a2a", 2, 1);
+    for (let x = x0; x < x1; x++) px(ctx, x, 5 + Math.round(Math.abs(Math.sin((x - x0) / 5)) * 3), "#e8c26a");
+  };
+  drape(0, 22, false);
+  drape(BALL_W - 22, BALL_W, true);
+}
+
+export const BALL: World = {
+  id: "ball", fullW: BALL_W, fullH: BALL_H, viewW: BALL_W, viewH: BALL_H,
+  checkpoints: [{ name: "Ballroom", at: 0 }],
+  backdrop: ballBackdrop,
+  frame: (ctx, t) => {
+    // Stars prickle in the outer windows.
+    for (let i = 0; i < 9; i++) {
+      if ((t + i * 11) % 29 < 3) continue;
+      const wx = BALL_WINDOWS[i % 3]!;
+      if (wx === 78 && i % 2) continue;
+      px(ctx, wx + 2 + noise1(i, 51) * 20, 16 + noise1(i, 52) * 16, "#ffffff");
+    }
+    // Waltzing couples, drawn back to front around the floor.
+    const couples = [0, 1, 2, 3].map((i) => {
+      const a = t / 42 + (i / 4) * Math.PI * 2;
+      return { i, x: 90 + Math.cos(a) * 54, y: 59 + Math.sin(a) * 4.5, step: Math.floor(t / 5 + i) % 2 };
+    }).sort((p, q) => p.y - q.y);
+    for (const c of couples) {
+      const [gown, shade, hair] = BALL_GOWNS[c.i]!;
+      const flip = Math.floor((t + c.i * 3) / 14) % 2 === 1;
+      const rows = c.step ? BALL_COUPLE : BALL_COUPLE_2;
+      const y = Math.round(c.y) - 12 + (c.step ? 0 : -1);
+      for (let k = 0; k < 8; k++) px(ctx, Math.round(c.x) - 4 + k, y + 14, "rgba(5,2,20,0.55)");
+      drawSprite(ctx, flip ? rows.map((r) => [...r].reverse().join("")) : rows, { h: hair, k: "#141020", m: ["#ffd23f", "#f4f6ff", "#ff4d6d", "#3ddc97"][c.i]!, s: "#f0c8a0", G: gown, g: shade, B: "#191426" }, Math.round(c.x) - 4, y);
+    }
+    // Chandelier: a chain, a gold cage, candles that flicker, a dithered halo. It sways a hair.
+    const sway = Math.round(Math.sin(t / 22));
+    const cx = 90 + sway;
+    for (let r = 0; r < 2; r++) px(ctx, 90, 5 + r * 2, "#e8c26a");
+    for (let y = -14; y <= 14; y++) for (let x = -24; x <= 24; x++) {
+      const d = Math.hypot(x / 1.7, y);
+      if (d > 14 || d < 6) continue;
+      if ((14 - d) * 1.1 > BAYER[(y + 16) & 3]![(x + 24) & 3]! && (x + y + 40) % 2 === 0) px(ctx, cx + x, 19 + y, "rgba(255,216,130,0.3)");
+    }
+    // Two tiers of curved gold arms on a central stem.
+    px(ctx, cx - 1, 10, "#8a6a2a", 3, 16);
+    px(ctx, cx, 10, "#ffe9a8", 1, 16);
+    px(ctx, cx - 2, 26, "#e8c26a", 5, 2);
+    for (let k = -3; k <= 3; k++) {
+      if (k === 0) continue;
+      const x = cx + k * 6, a = Math.abs(k);
+      px(ctx, Math.min(cx, x), 22 - a, "#e8c26a", Math.abs(x - cx) + 1, 1);
+      px(ctx, Math.min(cx, x), 23 - a, "#8a6a2a", Math.abs(x - cx) + 1, 1);
+      px(ctx, x, 19 - a, "#e8c26a", 1, 3);
+      px(ctx, x - 1, 18 - a, "#e8c26a", 3, 1);
+      px(ctx, x, 15 - a, "#f4f6ff", 1, 3);
+      const lick = (Math.floor(t / 2) + a * 2 + (k > 0 ? 1 : 0)) % 3;
+      px(ctx, x, 14 - a, "#ffb347");
+      px(ctx, x, 13 - a - (lick === 0 ? 1 : 0), lick === 1 ? "#ff8a3a" : "#fff4c8");
+      px(ctx, x, 24 - a + (Math.floor(t / 13 + k) % 2), "#cfe6ff");
+    }
+    px(ctx, cx, 28, "#cfe6ff", 1, 2);
+    // Petals drifting down.
+    for (let i = 0; i < 14; i++) {
+      const y = (noise1(i, 61) * BALL_H + t * (0.16 + noise1(i, 62) * 0.12)) % BALL_H;
+      const x = 22 + noise1(i, 63) * 136 + Math.sin(t / 11 + i) * 3;
+      px(ctx, x, y, ["#ff4d6d", "#ffd23f", "#f4f6ff"][i % 3]!);
+    }
+  },
+  pos: () => ({ x: 90, y: 40 }),
+  camera: () => ({ x: 0, y: 0 }),
+};
+
+export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL };
 
 /** The last checkpoint reached at a fraction of the journey. */
 export function checkpointAt(world: World, f: number): Checkpoint {

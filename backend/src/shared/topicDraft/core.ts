@@ -95,7 +95,7 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "jeopardy":
       return J.init({ players: setup.players, categories: setup.quiz?.categories?.length ? setup.quiz.categories : bundledCategories(setup.pool), avoid: o.avoid, seed: setup.seed });
     case "imposter":
-      return IM.init({ players: setup.players, pool, topic: catalogMeta(setup.pool)?.title ?? setup.pool, rounds: o.teamSize, ending: o.ending, seed: setup.seed, now });
+      return IM.init({ players: setup.players, pool, topic: catalogMeta(setup.pool)?.title ?? setup.pool, rounds: o.teamSize, ending: o.ending, drinking: o.drinking, seed: setup.seed, now });
     case "vote":
       return V.init({ players: setup.players, deck: setup.pool, cards: deckOf(setup.pool)?.cards ?? [], rounds: o.teamSize, avoid: o.avoid, showVotes: o.showVotes, drinking: o.drinking, seed: setup.seed, now });
     default:

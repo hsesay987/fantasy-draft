@@ -27,7 +27,7 @@ export const FORMATS: FormatMeta[] = [
 /** Party games: online rooms only, everyone on their own phone. Kept apart so they never show up as solo games. */
 export const PARTY_GAMES: FormatMeta[] = [
   { id: "imposter", title: "Imposter", tagline: "Everyone knows the secret pick except one. Find the faker.", how: ["Everyone but the imposter sees a secret pick from the topic.", "Take turns giving one clue without giving it away.", "Vote out the imposter. The imposter wins by blending in or naming the secret."], icon: VenetianMask, gradient: "from-red-700/50 to-primary/20", usesPool: true },
-  { id: "vote", title: "Vote Games", tagline: "Who's Wrong, Icks, Ultimatums, Did That Happen. Everyone votes at once.", how: ["A card shows a scenario with two sides.", "Everyone votes in secret, then the split is revealed.", "Score by reading the room, or by knowing what really happened."], icon: Vote, gradient: "from-teal-600/50 to-primary/20", usesPool: false },
+  { id: "vote", title: "Vote Games", tagline: "Who's Wrong, Icks, Ultimatums, Did That Happen. Everyone votes at once.", how: ["A card shows a scenario with two sides.", "Everyone votes in secret, then guesses how the others voted.", "Score for every right guess, or when nobody reads you. Did That Happen also pays for the truth."], icon: Vote, gradient: "from-teal-600/50 to-primary/20", usesPool: false },
 ];
 
 export const formatMeta = (id: string) => FORMATS.find((f) => f.id === id) ?? PARTY_GAMES.find((f) => f.id === id);

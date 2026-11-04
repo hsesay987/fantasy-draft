@@ -492,6 +492,14 @@ function redact(room: Room, me: string | null): GameState | null {
   return s;
 }
 
+/** Sip cards are for people still at the table: drop calls addressed to a seat that left. */
+function withoutLeftDrinks(room: Room, state: GameState | null): GameState | null {
+  const drinks = state && "drinks" in state ? state.drinks : undefined;
+  if (!drinks) return state;
+  const left = new Set(room.seats.filter((s) => s.left).map((s) => s.name));
+  return { ...state, drinks: { ...drinks, calls: drinks.calls.filter((c) => !left.has(c.to)) } } as GameState;
+}
+
 export function snapshot(room: Room, token: unknown) {
   const seat = seatFor(room, token);
   return {
@@ -502,7 +510,7 @@ export function snapshot(room: Room, token: unknown) {
     setup: room.setup,
     seats: room.seats.map((s, i) => ({ name: s.name, host: i === 0, left: s.left })),
     me: seat?.name ?? null,
-    state: redact(room, seat?.name ?? null),
+    state: withoutLeftDrinks(room, redact(room, seat?.name ?? null)),
     verdict: room.status === "done" ? room.verdict : null,
     played: room.played,
     statLink: room.statLink,

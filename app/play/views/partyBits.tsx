@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sprite } from "../../components/pixel/Sprite";
 import { hero, type Sprite as SpriteData } from "../../components/pixel/sprites";
 import type { DrinkCall } from "../../topicDraft/party/drinks";
@@ -19,31 +19,63 @@ const DROP: SpriteData = {
 
 export const WATER_LINE = "Water counts and nobody has to drink.";
 
+/** The small line every drinking screen carries. */
+export const WaterLine = () => <p className="tavern-water"><Sprite sprite={DROP} size={14} /> {WATER_LINE}</p>;
+
 /** Host switch for sip cards. Turning it on needs the host to confirm everyone is of legal drinking age. */
 export function DrinkingToggle({ value, onChange }: { value: boolean; onChange: (on: boolean) => void }) {
   const [asking, setAsking] = useState(false);
+  const switchRef = useRef<HTMLButtonElement>(null);
+  const close = () => {
+    setAsking(false);
+    switchRef.current?.focus();
+  };
+  useEffect(() => {
+    if (!asking) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [asking]);
   return (
     <div className="tavern-toggle">
-      <button type="button" role="switch" aria-checked={value} onClick={() => (value ? onChange(false) : setAsking(true))} className={`tavern-switch ${value ? "on" : ""}`}>
+      <button ref={switchRef} type="button" role="switch" aria-checked={value} onClick={() => (value ? onChange(false) : setAsking(true))} className={`tavern-switch ${value ? "on" : ""}`}>
         <Sprite sprite={MUG} size={28} />
         <span className="txt"><b>Drinking mode</b><span>{value ? "On. Cards will hand out sips." : "Off. Sip cards stay hidden."}</span></span>
         <span className="pip" aria-hidden>{value ? "ON" : "OFF"}</span>
       </button>
-      <p className="tavern-water"><Sprite sprite={DROP} size={14} /> {WATER_LINE}</p>
+      <WaterLine />
       {asking && (
         <div className="tavern-modal" role="dialog" aria-modal="true" aria-label="Drinking mode">
           <div className="tavern-sheet">
             <Sprite sprite={MUG} size={40} />
             <p>Everyone playing is of legal drinking age.</p>
-            <p className="tavern-water"><Sprite sprite={DROP} size={14} /> {WATER_LINE}</p>
+            <WaterLine />
             <div className="row">
-              <button type="button" className="tavern-btn go" onClick={() => { setAsking(false); onChange(true); }}>Yes, turn it on</button>
-              <button type="button" className="tavern-btn" onClick={() => setAsking(false)}>Cancel</button>
+              <button type="button" className="tavern-btn go" onClick={() => { close(); onChange(true); }}>Yes, turn it on</button>
+              <button type="button" className="tavern-btn" autoFocus onClick={close}>Cancel</button>
             </div>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+const BOOTH: SpriteData = {
+  rows: ["XXXXXXXXXX", "XRWRWRWRWX", "XXXXXXXXXX", ".XBNBNBNX.", ".XBNBNBNX.", ".XBNBNBNX.", ".XBNBNBNX.", ".XBNBNBNX.", ".X..KK..X.", ".X..KK..X."],
+  pal: { X: "#2a180c", R: "#c8392b", W: "#f3ead0", B: "#27406e", N: "#3c5a92", K: "#14101f" },
+};
+
+/** Host switch for the vote reveal: open the booths, or keep every vote secret for the whole game. */
+export function ShowVotesToggle({ value, onChange }: { value: boolean; onChange: (on: boolean) => void }) {
+  return (
+    <button type="button" role="switch" aria-checked={value} onClick={() => onChange(!value)} className={`tavern-switch hall ${value ? "on" : ""}`}>
+      <Sprite sprite={BOOTH} size={28} />
+      <span className="txt"><b>Show votes</b><span>{value ? "On. The booths open after each card." : "Off. Votes stay secret, and only totals show at the end."}</span></span>
+      <span className="pip" aria-hidden>{value ? "ON" : "OFF"}</span>
+    </button>
   );
 }
 
@@ -62,23 +94,27 @@ export function DrinkCard({ calls, seq, names = [] }: { calls: DrinkCall[]; seq:
   }, [seq]);
   if (shown !== seq || calls.length === 0) return null;
   return (
-    <div className="tavern-card" role="status" aria-live="polite" onClick={() => setShown(-1)}>
-      <ul>
-        {calls.map((c, i) => (
-          <li key={`${seq}-${i}`} className={c.water ? "water" : ""}>
-            <Sprite sprite={c.water ? DROP : c.to === "all" ? MUG : playerSprite(Math.max(0, names.indexOf(c.to)))} size={24} />
-            <span className="who"><b>{c.to === "all" ? "Everyone" : c.to}</b><span>{c.reason}</span></span>
-            <span className="sips">{c.water ? "Water" : c.handsOut ? `Hand out ${c.sips}` : `${c.sips} ${c.sips === 1 ? "sip" : "sips"}`}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="tavern-water"><Sprite sprite={DROP} size={14} /> {WATER_LINE}</p>
-      <span className="hint">Tap to close</span>
+    <div className="tavern-card" onClick={() => setShown(-1)}>
+      <div className="said" role="status" aria-live="polite">
+        <ul>
+          {calls.map((c, i) => (
+            <li key={`${seq}-${i}`} className={c.water ? "water" : ""}>
+              <Sprite sprite={c.water ? DROP : c.to === "all" ? MUG : playerSprite(Math.max(0, names.indexOf(c.to)))} size={24} />
+              <span className="who"><b>{c.to === "all" ? "Everyone" : c.to}</b><span>{c.reason}</span></span>
+              <span className="sips">{c.water ? "Water" : c.handsOut ? `Hand out ${c.sips}` : `${c.sips} ${c.sips === 1 ? "sip" : "sips"}`}</span>
+            </li>
+          ))}
+        </ul>
+        <WaterLine />
+      </div>
+      <button type="button" className="hint" onClick={() => setShown(-1)}>Close</button>
     </div>
   );
 }
 
-/** A countdown for timed party phases, read against the server clock. */
+const CLOCK_TICKS = 10;
+
+/** A countdown for timed party phases, read against the server clock: a pixel read-out over a draining row of ticks. */
 export function PartyClock({ deadline, offset, total }: { deadline: number; offset: number; total: number }) {
   const [now, setNow] = useState(() => Date.now() + offset);
   useEffect(() => {
@@ -86,23 +122,12 @@ export function PartyClock({ deadline, offset, total }: { deadline: number; offs
     return () => clearInterval(id);
   }, [offset]);
   const left = Math.max(0, Math.ceil((deadline - now) / 1000));
-  const frac = Math.max(0, Math.min(1, (deadline - now) / total));
+  const lit = Math.ceil(Math.max(0, Math.min(1, (deadline - now) / total)) * CLOCK_TICKS);
   return (
-    <span className={`relative grid h-12 w-12 shrink-0 place-items-center rounded-full font-semibold tabular-nums ${left <= 5 ? "text-accent" : ""}`} role="timer" aria-label={`${left} seconds left`}
-      style={{ background: `conic-gradient(var(--secondary) ${frac * 360}deg, rgba(255,255,255,0.08) 0)` }}>
-      <span className="grid h-10 w-10 place-items-center rounded-full bg-background">{left}</span>
+    <span className={`px-clock ${left <= 5 ? "low" : ""}`} role="timer" aria-label={`${left} seconds left`}>
+      <b>{left}</b>
+      <span className="ticks" aria-hidden>{Array.from({ length: CLOCK_TICKS }, (_, i) => <i key={i} className={i < lit ? "on" : ""} />)}</span>
     </span>
-  );
-}
-
-/** Who is in the game, with whoever's turn it is lit up. */
-export function PlayerDots({ players, active }: { players: string[]; active: string | null }) {
-  return (
-    <ul className="flex flex-wrap gap-1.5" aria-label="Turn order">
-      {players.map((p) => (
-        <li key={p} className={`rounded-full px-2.5 py-1 text-xs ${p === active ? "bg-secondary font-semibold text-black" : "bg-white/5 text-muted-foreground"}`}>{p}</li>
-      ))}
-    </ul>
   );
 }
 
@@ -120,7 +145,7 @@ export function VoteBooths({ players, voted, reveal, labels }: { players: string
           <li key={p} className={`booth ${inside ? "in" : ""} ${reveal ? "open" : ""}`}>
             <span className="cabin" aria-hidden>
               <span className="roof" />
-              <span className="walker"><Sprite sprite={hero(i)} size={22} /></span>
+              <span className="walker"><Sprite sprite={playerSprite(i)} size={24} /></span>
               <span className="curtain" />
               {side && <span className={`sign ${side}`}>{side === "a" ? "A" : "B"}</span>}
             </span>

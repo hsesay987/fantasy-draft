@@ -1,20 +1,49 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Eye, EyeOff, Send, VenetianMask } from "lucide-react";
 import * as IM from "../../topicDraft/formats/imposter";
-import { Button, Panel, PageShell, controlCls } from "../../components/ui";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
+import { PixelBox, PixelButton, PixelShell } from "../../components/pixel/PixelUI";
+import { Sprite } from "../../components/pixel/Sprite";
+import { WorldScene } from "../../components/pixel/WorldScene";
+import type { Sprite as SpriteData } from "../../components/pixel/sprites";
 import { useSound } from "../../components/SoundProvider";
-import { PartyClock, PlayerDots } from "./partyBits";
+import { DrinkCard, PartyClock, playerSprite, WaterLine } from "./partyBits";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
+const SCENE = "A moonlit ballroom with a candle chandelier and masked couples waltzing";
+
+const MASK_COLORS = ["#ffd23f", "#f4f6ff", "#ff4d6d", "#f4f6ff", "#c084fc", "#ffd23f"];
+/** A half-mask cut to sit on a player sprite, the same size so the two line up. */
+const faceMask = (seat: number): SpriteData => ({
+  rows: ["......F.", ".....F..", ".MMMMMM.", "MM0MM0MM", "..M..M..", "........", "........", "........", "........", "........"],
+  pal: { M: MASK_COLORS[seat % MASK_COLORS.length]!, 0: "#0d0414", F: "#e8c26a" },
+});
+const VENETIAN: SpriteData = {
+  rows: ["GG............GG", "GWGG........GGWG", "GWWWGGGGGGGGWWWG", "GWWWWWWWWWWWWWWG", "GWW00WWWWWW00WWG", ".GW000WWWW000WG.", ".GWWWWWGGWWWWWG.", "..GGWSG..GSWGG..", "....GG....GG...."],
+  pal: { G: "#e8c26a", W: "#b3203f", S: "#7a1230", 0: "#0d0414" },
+};
+const ENVELOPE: SpriteData = {
+  rows: ["XXXXXXXXXXXXXXXX", "XWWWWWWWWWWWWWWX", "XXWWWWWWWWWWWWXX", "XDXWWWWWWWWWWXDX", "XDDXWWWWWWWWXDDX", "XDDDXWWRRWWXDDDX", "XDDDDXRRRRXDDDDX", "XDDDXDRRRRDXDDDX", "XDDXDDDRRDDDXDDX", "XDXDDDDDDDDDDXDX", "XXDDDDDDDDDDDDXX", "XXXXXXXXXXXXXXXX"],
+  pal: { X: "#2b1420", W: "#fff7e6", D: "#e4d6b4", R: "#b3203f" },
+};
+
+/** A player at the ball: their usual sprite wearing a mask. */
+function MaskedPlayer({ seat, size = 24 }: { seat: number; size?: number }) {
+  return (
+    <span className="masked">
+      <Sprite sprite={playerSprite(seat)} size={size} />
+      <Sprite sprite={faceMask(seat)} size={size} className="mask" />
+    </span>
+  );
+}
+
 /**
- * Imposter on a phone. Your secret card is hidden behind a tap so nobody can read it over your shoulder.
- * Clues build up in a list, then everyone votes. The imposter gets a "name the secret" button.
+ * Imposter on a phone, at a masked ball. Your secret card is a sealed invitation so nobody can read it over your
+ * shoulder. Clues build up on the dance card, then everyone votes. The imposter gets a "name the secret" button.
  */
-export function ImposterView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
+export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as IM.ImposterState;
   const me = ctl.me ?? "";
@@ -26,8 +55,9 @@ export function ImposterView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
   const turn = IM.turnPlayer(s);
   const myTurn = turn === me;
   const secretItem = ctl.pool.find((i) => i.id === s.secretId);
+  const seat = (p: string) => Math.max(0, s.players.indexOf(p));
 
-  useEffect(() => window.scrollTo(0, 0), []);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   const clueCount = useRef(s.clues.length);
   useEffect(() => {
     if (s.clues.length > clueCount.current) play("click");
@@ -50,130 +80,187 @@ export function ImposterView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl })
   };
 
   const round = Math.min(s.rounds, Math.floor(s.clues.length / s.order.length) + 1);
-  const deadline = s.phaseAt + (s.phase === "clue" ? IM.CLUE_MS : s.phase === "vote" ? IM.VOTE_MS : IM.GUESS_MS);
+  const phaseMs = s.phase === "clue" ? IM.CLUE_MS : s.phase === "vote" ? IM.VOTE_MS : IM.GUESS_MS;
 
   return (
-    <PageShell width="sm" className="space-y-4">
-      <header className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-widest text-secondary">Imposter · {s.topic}</p>
-          <h1 className="truncate text-2xl">
-            {s.phase === "clue" ? `Round ${round} of ${s.rounds}` : s.phase === "vote" ? "Who's the imposter?" : "Last chance"}
-          </h1>
-        </div>
-        <PartyClock deadline={deadline} offset={ctl.offset} total={s.phase === "clue" ? IM.CLUE_MS : s.phase === "vote" ? IM.VOTE_MS : IM.GUESS_MS} />
-      </header>
+    <PixelShell world="ball">
+      <div className="party-page">
+        <header className="party-sign ball-sign">
+          <div>
+            <p className="eyebrow">Imposter · {s.topic}</p>
+            <h1>{s.phase === "clue" ? `Round ${round} of ${s.rounds}` : s.phase === "vote" ? "Who's the imposter?" : "Last chance"}</h1>
+          </div>
+          <PartyClock deadline={s.phaseAt + phaseMs} offset={ctl.offset} total={phaseMs} />
+        </header>
 
-      {/* The secret card: tap to show, tap again to hide. */}
-      <button type="button" onClick={() => setPeek((p) => !p)} aria-pressed={peek}
-        className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition-colors ${amImposter ? "border-accent/50 bg-accent/10" : "border-secondary/40 bg-primary/15"}`}>
-        {peek ? (
-          amImposter ? (
-            <>
-              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-accent/30"><VenetianMask className="h-8 w-8" aria-hidden /></span>
-              <span className="min-w-0"><b className="block text-lg">You're the imposter</b><span className="text-sm text-muted-foreground">Blend in. Topic: {s.topic}.{s.ending === "guess" ? " Name the secret to win." : ""}</span></span>
-            </>
+        <WorldScene world="ball" actors={[]} labels={false} track={false} caption={SCENE} />
+
+        {/* The secret card: tap to show, tap again to hide. It looks the same for everyone until it is opened. */}
+        <button type="button" onClick={() => setPeek((p) => !p)} aria-pressed={peek} className={`ball-card ${peek && amImposter ? "mask-card" : ""}`}>
+          {peek ? (
+            amImposter ? (
+              <>
+                <span className="ball-mask-idle"><Sprite sprite={VENETIAN} size={64} /></span>
+                <span className="txt"><b>You&apos;re the imposter</b><span className="sub">Blend in. Topic: {s.topic}.{s.ending === "guess" ? " Name the secret to win." : ""} Tap to hide.</span></span>
+              </>
+            ) : (
+              <>
+                <span className="frame"><CharacterAvatar name={s.secret} query={secretItem?.q} size={56} /></span>
+                <span className="txt"><b>{s.secret}</b><span className="sub">The secret. Don&apos;t say it. Tap to hide.</span></span>
+              </>
+            )
           ) : (
             <>
-              <CharacterAvatar name={s.secret} query={secretItem?.q} size={56} className="shrink-0 rounded-2xl" />
-              <span className="min-w-0"><b className="block truncate text-lg">{s.secret}</b><span className="text-sm text-muted-foreground">The secret. Don't say it.</span></span>
+              <span className="seal"><Sprite sprite={ENVELOPE} size={64} /></span>
+              <span className="txt"><b>Tap to see your card</b><span className="sub">Keep your screen hidden</span></span>
             </>
-          )
-        ) : (
-          <>
-            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white/10"><Eye className="h-7 w-7" aria-hidden /></span>
-            <span><b className="block text-lg">Tap to see your card</b><span className="text-sm text-muted-foreground">Keep your screen hidden</span></span>
-          </>
-        )}
-        {peek && <EyeOff className="ml-auto h-5 w-5 shrink-0 text-muted-foreground" aria-label="Tap to hide" />}
-      </button>
+          )}
+        </button>
 
-      <Panel title="Clues">
-        {s.clues.length === 0 ? <p className="text-sm text-muted-foreground">No clues yet. {turn} goes first.</p> : (
-          <ol className="space-y-2">
-            {s.clues.map((c, i) => (
-              <li key={i} className="flex items-baseline gap-3 rounded-xl bg-white/5 px-3 py-2">
-                <span className="w-24 shrink-0 truncate text-sm font-semibold text-secondary">{c.by}</span>
-                <span className="min-w-0 break-words">{c.text}</span>
+        <section className="ball-dance" aria-label="Clues">
+          <h2>Clues</h2>
+          {s.clues.length === 0 ? <p className="none">No clues yet. {turn} goes first.</p> : (
+            <ol className="ball-clues">
+              {s.clues.map((c, i) => (
+                <li key={i}>
+                  <MaskedPlayer seat={seat(c.by)} size={20} />
+                  <span className="who">{c.by}</span>
+                  <span className="said">{c.text}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+
+        <div className="ball-floor">
+          <ul aria-label="Turn order">
+            {s.order.map((p) => (
+              <li key={p} className={p === turn ? "turn" : ""} aria-current={p === turn ? "true" : undefined}>
+                <MaskedPlayer seat={seat(p)} />
+                <span className="name">{p}</span>
               </li>
             ))}
-          </ol>
-        )}
-        <PlayerDots players={s.order} active={turn} />
-      </Panel>
+          </ul>
+        </div>
 
-      {s.phase === "clue" && (
-        myTurn ? (
-          <div className="space-y-2">
-            <div className="flex gap-2">
-              <input className={controlCls} maxLength={40} autoFocus placeholder="One short clue" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} aria-label="Your clue" enterKeyHint="send" />
-              <Button variant="accent" onClick={send} disabled={!text.trim()} aria-label="Send clue"><Send className="h-4 w-4" aria-hidden /></Button>
+        {s.phase === "clue" && (
+          myTurn ? (
+            <div>
+              <div className="px-term ball-term">
+                <div className="in">
+                  <span aria-hidden>&gt;</span>
+                  <input maxLength={40} autoFocus placeholder="One short clue" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} aria-label="Your clue" enterKeyHint="send" />
+                </div>
+                <PixelButton variant="gold" onClick={send} disabled={!text.trim()} aria-label="Send clue">Send</PixelButton>
+              </div>
+              {error && <p role="alert" className="ball-err">{error}</p>}
             </div>
-            {error && <p role="alert" className="text-sm text-accent">{error}</p>}
-          </div>
-        ) : (
-          <p className="text-center text-muted-foreground">Waiting for {turn}'s clue…</p>
-        )
-      )}
+          ) : (
+            <p className="ball-wait">Waiting for {turn}&apos;s clue…</p>
+          )
+        )}
 
-      {s.phase === "vote" && (
-        <Panel title={s.votes[me] ? "Vote locked in" : "Vote for the imposter"} hint={`${Object.keys(s.votes).length} of ${s.players.length} voted`}>
-          <div className="grid grid-cols-2 gap-2">
-            {s.players.filter((p) => p !== me).map((p) => (
-              <Button key={p} variant={s.votes[me] === p ? "accent" : "ghost"} disabled={!!s.votes[me]} onClick={() => ctl.dispatch({ type: "accuse", by: me, target: p })} className="truncate">{p}</Button>
-            ))}
-          </div>
-        </Panel>
-      )}
-
-      {s.phase === "guess" && (
-        <p className="rounded-2xl border border-accent/40 bg-accent/10 p-4 text-center">{amImposter ? "You were caught! Name the secret to steal the win." : `${s.imposter || "The imposter"} was caught and gets one guess at the secret…`}</p>
-      )}
-
-      {amImposter && (s.phase === "guess" || (s.phase === "clue" && s.ending === "guess")) && (
-        guessing || s.phase === "guess" ? (
-          <Panel title="Name the secret" hint="Right wins it for you. Wrong loses it.">
-            <div className="grid grid-cols-2 gap-2">
-              {s.options.map((o) => (
-                <Button key={o} variant="ghost" className="justify-start truncate text-left" onClick={() => ctl.dispatch({ type: "guess", by: me, name: o })}>{o}</Button>
+        {s.phase === "vote" && (
+          <PixelBox as="section" pad={false} className="ball-panel">
+            <div className="top">
+              <h2>{s.votes[me] ? "Vote locked in" : "Vote for the imposter"}</h2>
+              <p className="hint">{Object.keys(s.votes).length} of {s.players.length} voted</p>
+            </div>
+            <div className="ball-grid">
+              {s.players.filter((p) => p !== me).map((p) => (
+                <button key={p} type="button" disabled={!!s.votes[me]} aria-pressed={s.votes[me] === p} onClick={() => ctl.dispatch({ type: "accuse", by: me, target: p })} className={`ball-opt ${s.votes[me] === p ? "on" : ""}`}>
+                  <MaskedPlayer seat={seat(p)} />
+                  <span className="name">{p}</span>
+                </button>
               ))}
             </div>
-            {s.phase === "clue" && <Button variant="ghost" className="w-full" onClick={() => setGuessing(false)}>Not yet</Button>}
-          </Panel>
-        ) : (
-          <Button variant="primary" className="w-full" onClick={() => setGuessing(true)}><VenetianMask className="h-4 w-4" aria-hidden /> I know the secret</Button>
-        )
-      )}
-    </PageShell>
+          </PixelBox>
+        )}
+
+        {s.phase === "guess" && (
+          <p className="ball-alert">{amImposter ? "You were caught! Name the secret to steal the win." : `${s.imposter || "The imposter"} was caught and gets one guess at the secret…`}</p>
+        )}
+
+        {amImposter && (s.phase === "guess" || (s.phase === "clue" && s.ending === "guess")) && (
+          guessing || s.phase === "guess" ? (
+            <PixelBox as="section" pad={false} className="ball-panel">
+              <div className="top">
+                <h2>Name the secret</h2>
+                <p className="hint">Right wins it for you. Wrong loses it.</p>
+              </div>
+              <div className="ball-grid">
+                {s.options.map((o) => (
+                  <button key={o} type="button" className="ball-opt" onClick={() => ctl.dispatch({ type: "guess", by: me, name: o })}><span>{o}</span></button>
+                ))}
+              </div>
+              {s.phase === "clue" && <PixelButton variant="alt" className="mt-2 w-[calc(100%-8px)]" onClick={() => setGuessing(false)}>Not yet</PixelButton>}
+            </PixelBox>
+          ) : (
+            <PixelButton variant="gold" className="w-[calc(100%-8px)]" onClick={() => setGuessing(true)}>I know the secret</PixelButton>
+          )
+        )}
+
+        {s.drinks && <WaterLine />}
+        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} names={s.players} />}
+      </div>
+    </PixelShell>
   );
 }
 
-/** Final screen: who the imposter was, the secret, and how it ended. */
+/** Final screen, masks off: who the imposter was, the secret, and how it ended. */
 export function ImposterResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
   const s = ctl.state as IM.ImposterState;
   const item = ctl.pool.find((i) => i.id === s.secretId);
+  const seat = (p: string) => Math.max(0, s.players.indexOf(p));
   const how = s.guess
     ? s.guess === s.secret ? `${s.imposter} named the secret.` : `${s.imposter} guessed ${s.guess}. Wrong!`
     : s.caught ? `${s.imposter} was voted out.` : `The vote missed. ${s.imposter} got away.`;
   return (
-    <PageShell width="sm" className="space-y-4 text-center">
-      <p className="text-xs font-semibold uppercase tracking-widest text-secondary">Imposter · {s.topic}</p>
-      <h1 className="text-4xl">{s.winner === "imposter" ? "The imposter wins" : "The crew wins"}</h1>
-      <p className="text-muted-foreground">{how}</p>
-      <div className="flex items-center justify-center gap-4 rounded-2xl border border-white/10 bg-card/70 p-4">
-        <CharacterAvatar name={s.secret} query={item?.q} size={64} className="rounded-2xl" />
-        <div className="text-left"><p className="text-sm text-muted-foreground">The secret was</p><p className="text-xl font-semibold">{s.secret}</p><p className="text-sm text-muted-foreground">Imposter: <b className="text-accent">{s.imposter}</b></p></div>
+    <PixelShell world="ball">
+      <div className="party-page">
+        <WorldScene world="ball" actors={[]} labels={false} track={false} caption={SCENE} />
+        <div className="party-sign ball-sign px-confetti" style={{ display: "block", textAlign: "center" }}>
+          <p className="eyebrow">Imposter · {s.topic}</p>
+          <h1>{s.winner === "imposter" ? "The imposter wins" : "The crew wins"}</h1>
+          <p className="m-0 mt-1">{how}</p>
+        </div>
+        <PixelBox as="section" pad={false} className="ball-reveal">
+          <span className="ball-unmask">
+            <Sprite sprite={playerSprite(seat(s.imposter))} size={56} />
+            <span className="fallen"><Sprite sprite={VENETIAN} size={36} /></span>
+          </span>
+          <div className="txt">
+            <p className="lab">Under the mask</p>
+            <p className="big">{s.imposter}</p>
+          </div>
+        </PixelBox>
+        <PixelBox as="section" pad={false} className="ball-reveal">
+          <span className="frame"><CharacterAvatar name={s.secret} query={item?.q} size={64} /></span>
+          <div className="txt">
+            <p className="lab">The secret was</p>
+            <p className="big">{s.secret}</p>
+          </div>
+        </PixelBox>
+        <PixelBox as="section" pad={false} className="ball-panel">
+          <div className="top"><h2>Votes</h2></div>
+          <ul className="ball-votes">
+            {Object.entries(s.votes).map(([by, t]) => (
+              <li key={by}>
+                <MaskedPlayer seat={seat(by)} />
+                <span className="name">{by}</span>
+                <span className={`t ${t === s.imposter ? "hit" : ""}`}>{t}</span>
+              </li>
+            ))}
+            {!Object.keys(s.votes).length && <li><span className="name" style={{ gridColumn: "1 / -1", maxWidth: "none" }}>It ended before the vote.</span></li>}
+          </ul>
+        </PixelBox>
+        <div className="party-actions">
+          {onRematch && <PixelButton variant="gold" onClick={onRematch}>Play again</PixelButton>}
+          <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
+        </div>
+        {s.drinks && <WaterLine />}
+        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} names={s.players} />}
       </div>
-      <Panel title="Votes">
-        <ul className="space-y-1 text-left text-sm">
-          {Object.entries(s.votes).map(([by, t]) => <li key={by} className="flex justify-between rounded-lg bg-white/5 px-3 py-2"><span>{by}</span><span className={t === s.imposter ? "text-emerald-400" : "text-muted-foreground"}>{t}</span></li>)}
-          {!Object.keys(s.votes).length && <li className="text-muted-foreground">It ended before the vote.</li>}
-        </ul>
-      </Panel>
-      <div className="flex flex-wrap justify-center gap-2">
-        {onRematch && <Button variant="accent" onClick={onRematch}>Play again</Button>}
-        <Button variant="ghost" onClick={onAgain}>Pick another game</Button>
-      </div>
-    </PageShell>
+    </PixelShell>
   );
 }

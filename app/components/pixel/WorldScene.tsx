@@ -118,7 +118,7 @@ export function WorldScene({ world, actors, flash, caption, labels = true, track
     <figure className="px-world m-0" data-world={world}>
       <div className="relative overflow-hidden">
         <canvas ref={ref} width={w.viewW} height={w.viewH} className="block h-auto w-full" role="img"
-          aria-label={`${caption ?? "Progress"}: ${actors.map((a) => `${a.name} at ${checkpointAt(w, a.value).name}`).join(", ")}`} />
+          aria-label={actors.length ? `${caption ?? "Progress"}: ${actors.map((a) => `${a.name} at ${checkpointAt(w, a.value).name}`).join(", ")}` : caption} />
         {labels && (
           <ol className="pointer-events-none absolute inset-0 m-0 list-none p-0" aria-hidden>
             {marks.map((cp, i) => <li key={cp.name} ref={(el) => { labelRefs.current[i] = el; }} className={`px-world-tier ${cp.at < 0 ? "under" : ""} ${w.id === "launch" ? "" : "side"}`} style={{ opacity: 0 }}>{cp.name.toUpperCase()}</li>)}

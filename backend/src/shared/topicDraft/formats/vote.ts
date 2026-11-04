@@ -74,7 +74,7 @@ function toGuess(s: VoteState, now: number): VoteState {
 /** Sips for the card just scored. With Show votes off nothing may name anybody, so it is one group toast. */
 function drinkCalls(s: VoteState, card: VoteCard, h: VoteHistory): DrinkCall[] {
   if (!s.showVotes) return [{ to: "all", sips: 1, reason: "The room toasts that card" }];
-  const calls: DrinkCall[] = h.nobodyGot.map((p) => ({ to: p, sips: 1, reason: "Nobody read you. Hand out 1", handsOut: true }));
+  const calls: DrinkCall[] = h.nobodyGot.map((p) => ({ to: p, sips: 1, reason: "Nobody read you", handsOut: true }));
   const read = Object.entries(s.guesses).map(([by, g]) => ({ by, made: Object.keys(g).length, right: Object.entries(g).filter(([t, v]) => h.votes[t] === v).length })).filter((x) => x.made > 0);
   const low = Math.min(...read.map((x) => x.right));
   const worst = read.filter((x) => x.right === low);
@@ -117,7 +117,7 @@ export function vote(s: VoteState, by: string, side: string, now: number): VoteS
 
 /** `by` says how `target` voted. Only assigned targets count, once each; unanswered guesses simply score nothing. */
 export function guessVote(s: VoteState, by: string, target: string, side: string, now: number): VoteState {
-  if (s.done || s.phase !== "guess" || !s.targets[by]?.includes(target) || (side !== "a" && side !== "b") || s.guesses[by]?.[target]) return s;
+  if (!s.players.includes(by) || s.done || s.phase !== "guess" || !s.targets[by]?.includes(target) || (side !== "a" && side !== "b") || s.guesses[by]?.[target]) return s;
   const next = { ...s, guesses: { ...s.guesses, [by]: { ...s.guesses[by], [target]: side as Side } } };
   const all = Object.entries(next.targets).every(([p, t]) => t.every((x) => next.guesses[p]?.[x]));
   return all ? reveal(next, now) : next;
