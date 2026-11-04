@@ -137,14 +137,18 @@ The hidden-category game. **It is not a party game.** It lives in the Trivia hub
 4. A wrong guess removes that option and reveals the next clue. Out of clues with no right guess is a loss.
 5. Score: right on clue 1 earns 6 points, down to 1 point on clue 6. Share result is a grid like Pinpoint's.
 
-**Content:** categories must be true facts. Build them offline into JSON, extending the approach in `scripts/buildPinpoint.ts`, from shared values in the real-fact data: for example "Directed by Christopher Nolan", "Debuted in the 1960s" or "Played for Real Madrid".
+**Content:** categories must be true facts. Build them offline into JSON, extending the approach in `scripts/buildPinpoint.ts`: for example "Directed by Christopher Nolan", "Debuted in the 1960s" or "Played for Real Madrid".
+
+**Clue pool:** each topic gets its own wider pool pulled from Wikidata, including things outside the draft catalogs. This pool is separate from draft picks and never changes what can be drafted. It stores each entry's name, image lookup, facts and fame signal.
+
+**Amount and schedule:** about 60 categories per topic, giving two months of dailies with no repeats. Dailies follow a fixed no-repeat schedule rather than Pinpoint's hash. Practice rounds draw from a separate set of categories, so they never spoil a daily.
 
 Quality rules:
 
-- A category needs at least 6 picks, and must be neither too broad (no "Male" or "Human") nor a rewording of something obvious.
+- A category needs at least 6 members, and must be neither too broad (no "Male" or "Human") nor a rewording of something obvious.
 - Clue order runs from least to most famous within the category. Use a real fame signal such as Wikipedia pageviews or sitelinks, stored by the build script.
 - The 7 wrong options come from the same topic, and are close enough to be tempting, with a mix of fact types so the options don't give away the answer's type. A clue pick must not also fit a wrong option shown in that round.
-- Each topic needs at least 15 usable categories. If a topic falls short from existing columns, the script should fetch more facts for it. Hand-written categories are allowed only when their membership is checked against facts.
+- Each topic needs about 60 usable daily categories, plus its practice set. If a topic falls short, widen its clue pool or fetch more facts. Hand-written categories are allowed only when their membership is checked against facts.
 
 Do not add a separate Common Thread room mode in this project.
 
@@ -168,7 +172,7 @@ A climbing quiz in the Trivia hub, as a fourth world. Original name and pixel-ar
 - **Safe ledges:** at rungs 4 and 8. A wrong answer drops you to your last ledge's points.
 - **Walk away:** on any question before answering, keep your current points.
 - **Lifelines, once each per climb:** Cut Two (remove two wrong options), Crowd Poll (a simulated poll that leans right, less reliably on higher rungs), Swap (replace the question at the same tier).
-- **Playing with friends:** free play can be played in an online room: everyone answers the same questions at the same time with their own lifelines and walks away on their own. Highest points wins. This is not a party format in the setup list; it follows how Summit and Hot Air work online.
+- **Playing with friends:** this project ships solo and daily only, and friends compare daily scores. An everyone-climbs-at-once room mode is a follow-up, because Summit's turn-based online play can't be reused for it.
 - **Tension:** build it with original sound cues and a growing height on screen.
 
 Fall back to the bundled bank if the server has too few fresh clues, as Summit does.
@@ -197,11 +201,17 @@ A generic social deduction game, with the app as narrator, played on phones with
 
 **Copy:** an original, playful narrator voice. Keep it light, without gore.
 
+## Decided by the owner
+
+- Common Thread uses a wider clue pool from Wikidata for each topic.
+- Common Thread has about 60 categories per topic on a no-repeat schedule, with a separate practice set.
+- Top Rung ships solo and daily first, with room play as a follow-up.
+
 ## Testing
 
 - Engine tests for each format: scoring, phase changes, timers, tuning at minimum and maximum player counts.
 - Redaction tests: hidden votes, In-Sync target, Mafia roles and night actions must never reach the wrong seat. Cover Show votes off specifically.
-- Common Thread data test: every topic has at least 15 categories, 6 clues each, and no clue fits a wrong option.
+- Common Thread data test: every topic has about 60 daily categories with no repeats on the schedule, a separate practice set, 6 clues each, and no clue fits a wrong option.
 - Browser check at phone width with real rooms for every new screen.
 
 ## Left to the builder
@@ -219,7 +229,7 @@ A generic social deduction game, with the app as narrator, played on phones with
 - The In-Sync topic list.
 - Drinking callouts capped at 3 sips, with a legal-age confirmation.
 - Common Thread and Top Rung having daily puzzles.
-- Top Rung's online room play, and Common Thread staying solo.
+- Common Thread staying solo.
 - Mafia role counts, including the doctor and detective.
 - Drinking limits of 3 sips per round and 10 per game, display-only handing out, and a group toast replacing named callouts while Show votes is off.
 - Other players' totals hidden until the final screen while Show votes is off.
