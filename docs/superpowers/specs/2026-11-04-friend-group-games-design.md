@@ -207,6 +207,10 @@ A generic social deduction game, with the app as narrator, played on phones with
 - Common Thread has about 60 categories per topic on a no-repeat schedule, with a separate practice set.
 - Top Rung ships solo and daily first, with room play as a follow-up.
 
+## Art direction (owner decision)
+
+For now, every new game's UI is pixel art of the highest quality, each with a suitable theme of its own. The plan lists the themes. Player-chosen pixel characters are a later project.
+
 ## Testing
 
 - Engine tests for each format: scoring, phase changes, timers, tuning at minimum and maximum player counts.

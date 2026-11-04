@@ -21,6 +21,9 @@
 - Every screen must work at 375px wide, including 12-player lists, with no horizontal page scroll.
 - After changing anything in `app/topicDraft` or `app/play/types.ts`, run `npm run sync:shared` and include `backend/src/shared` in the commit.
 - Web typecheck: `npx tsc --noEmit -p .`. Backend typecheck: `cd backend && npx tsc --noEmit`. Tests: `npx vitest run`. All must pass before each commit.
+- All new game screens use high-quality pixel art as their whole UI, built on `app/components/pixel/` (`PixelShell`, `PixelBox`, `WorldScene`, `Sprite`, `pixel.css`), never plain cards over the old party UI. Each game has its own theme. Art is original and drawn in code, with hard edges, limited palettes, dithering, and idle motion. Text must stay readable at 375px.
+- Themes: Vote games, a small-town polling hall. Drinking cards, a tavern. In-Sync, a late-night radio station with a signal scope. Common Thread, a detective's corkboard with red string. Party trivia, a retro arcade quiz cabinet. Top Rung, a ladder up a tall lighthouse at dusk. Mafia, a rainy noir town that shifts between night and day. Existing Imposter screens get a masked-ball theme in Task 3.
+- Player-chosen pixel characters are out of scope (owner: later). Use existing `hero(i)` sprites, and keep player sprite lookup in one helper so it can be swapped later.
 - Fetches to Wikidata use a generic User-Agent, never the owner's personal email.
 
 ## Review Focus
