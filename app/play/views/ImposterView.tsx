@@ -201,7 +201,7 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         )}
 
         {s.drinks && <WaterLine />}
-        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} names={s.players} />}
+        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.seed} names={s.players} />}
       </div>
     </PixelShell>
   );
@@ -259,7 +259,7 @@ export function ImposterResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onA
           <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
         </div>
         {s.drinks && <WaterLine />}
-        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} names={s.players} />}
+        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.seed} names={s.players} />}
       </div>
     </PixelShell>
   );

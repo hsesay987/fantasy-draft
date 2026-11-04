@@ -110,13 +110,38 @@ describe("imposter drinking", () => {
     expect(s.drinks!.calls.map((c) => c.to)).toEqual([s.imposter]);
   });
 
-  it("an imposter win calls hand out 3 and nothing else", () => {
+  it("an imposter who names the secret before any vote hands out 3, and nobody counts as voting wrong", () => {
     const g = begin("guess");
     const s = IM.guess(g, g.imposter, g.secret, 1);
     expect(s.winner).toBe("imposter");
     expect(s.drinks!.calls).toHaveLength(1);
     expect(s.drinks!.calls[0]).toMatchObject({ to: s.imposter, sips: 3, handsOut: true });
     expect(s.drinks!.totals[s.imposter]).toBe(0);
+  });
+
+  it("when the vote misses, the imposter hands out 3 and each crew member who voted wrong sips 1", () => {
+    let s = giveClues(begin());
+    const c = crew(s);
+    s = IM.accuse(s, c[0]!, c[1]!, 2);
+    s = IM.accuse(s, c[1]!, c[0]!, 2);
+    s = IM.accuse(s, c[2]!, s.imposter, 2); // voted right: no sip
+    s = IM.accuse(s, s.imposter, c[2]!, 2); // the imposter's bluff: no sip
+    expect(s.winner).toBe("imposter");
+    expect(s.drinks!.calls).toHaveLength(3);
+    expect(s.drinks!.calls[0]).toMatchObject({ to: s.imposter, sips: 3, handsOut: true });
+    expect(s.drinks!.calls.slice(1).map((x) => [x.to, x.sips]).sort()).toEqual([[c[0]!, 1], [c[1]!, 1]].sort());
+    expect(s.drinks!.totals[s.imposter]).toBe(0);
+  });
+
+  it("a caught imposter who steals the win still leaves the wrong voters with 1 each", () => {
+    const start0 = begin("guess");
+    const wrongOne = crew(start0)[0]!;
+    const caught = voteOut(start0, [wrongOne]);
+    expect(caught.phase).toBe("guess");
+    expect(caught.drinks!.calls).toEqual([]);
+    const s = IM.guess(caught, caught.imposter, caught.secret, 3);
+    expect(s.winner).toBe("imposter");
+    expect(s.drinks!.calls.map((x) => [x.to, x.sips, !!x.handsOut])).toEqual([[s.imposter, 3, true], [wrongOne, 1, false]]);
   });
 
   it("a wrong guess before any vote is a crew win with only the imposter sipping", () => {

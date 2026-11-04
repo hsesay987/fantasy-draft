@@ -81,18 +81,42 @@ export function ShowVotesToggle({ value, onChange }: { value: boolean; onChange:
 
 const DRINK_MS = 4000;
 
+/** Remembers for this tab which sip cards have been shown, per room and game, so a refresh or a later screen does not call them again. */
+const drinkSeenKey = (game: number, seq: number) => `toppic:drink-seen:${window.location.pathname}:${game}:${seq}`;
+const drinkSeen = (game: number, seq: number) => {
+  try {
+    return window.sessionStorage.getItem(drinkSeenKey(game, seq)) !== null;
+  } catch {
+    return false;
+  }
+};
+const markDrinkSeen = (game: number, seq: number) => {
+  try {
+    window.sessionStorage.setItem(drinkSeenKey(game, seq), "1");
+  } catch {
+    /* storage unavailable: the card may show again, which is harmless */
+  }
+};
+
 /**
- * Sip cards for this round, as a tavern slate. Shows for 4 seconds, tap to dismiss, and shows again whenever
- * `seq` changes. `names` maps a card's player to a seat so the sprite matches the rest of the game.
+ * Sip cards for this round, as a tavern slate. Shows for 4 seconds, tap to dismiss, and shows once per `seq`: a card
+ * this tab already showed stays closed. `game` is the game's seed. `names` maps a card's player to a seat so the sprite
+ * matches the rest of the game.
  */
-export function DrinkCard({ calls, seq, names = [] }: { calls: DrinkCall[]; seq: number; names?: string[] }) {
-  const [shown, setShown] = useState(seq);
+export function DrinkCard({ calls, seq, game, names = [] }: { calls: DrinkCall[]; seq: number; game: number; names?: string[] }) {
+  const [shown, setShown] = useState(() => (drinkSeen(game, seq) ? -1 : seq));
+  const claimed = useRef<number | null>(null); // this mount's card, so React's dev re-run of the effect does not hide it
+  const hasCalls = calls.length > 0;
   useEffect(() => {
+    if (!hasCalls) return;
+    if (claimed.current !== seq && drinkSeen(game, seq)) return setShown(-1);
+    claimed.current = seq;
+    markDrinkSeen(game, seq);
     setShown(seq);
     const id = setTimeout(() => setShown(-1), DRINK_MS);
     return () => clearTimeout(id);
-  }, [seq]);
-  if (shown !== seq || calls.length === 0) return null;
+  }, [seq, game, hasCalls]);
+  if (shown !== seq || !hasCalls) return null;
   return (
     <div className="tavern-card" onClick={() => setShown(-1)}>
       <div className="said" role="status" aria-live="polite">

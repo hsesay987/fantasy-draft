@@ -75,11 +75,14 @@ export function init(o: { players: string[]; pool: Item[]; topic: string; rounds
 export const turnPlayer = (s: ImposterState) => (s.phase === "clue" ? s.order[s.clues.length % s.order.length]! : null);
 const totalClues = (s: ImposterState) => s.rounds * s.order.length;
 
-/** Sips at the end of the game. The imposter's own vote was a bluff, so it never counts as voting wrong. */
+/**
+ * Sips at the end of the game: the imposter's call, then 1 for each crew member who voted wrong. Before any vote there
+ * are no wrong voters. The imposter's own vote was a bluff, so it never counts as voting wrong.
+ */
 function drinkCalls(s: ImposterState, winner: "imposter" | "crew"): DrinkCall[] {
-  if (winner === "imposter") return [{ to: s.imposter, sips: 3, reason: "Got away with it", handsOut: true }];
   const wrong = Object.entries(s.votes).filter(([by, t]) => by !== s.imposter && t !== s.imposter).map(([by]) => by);
-  return [{ to: s.imposter, sips: 2, reason: "Unmasked at the ball" }, ...wrong.map((p) => ({ to: p, sips: 1, reason: "Danced with the wrong suspect" }))];
+  const imposter: DrinkCall = winner === "imposter" ? { to: s.imposter, sips: 3, reason: "Got away with it", handsOut: true } : { to: s.imposter, sips: 2, reason: "Unmasked at the ball" };
+  return [imposter, ...wrong.map((p) => ({ to: p, sips: 1, reason: "Danced with the wrong suspect" }))];
 }
 
 function finish(s: ImposterState, winner: "imposter" | "crew", now: number, extra: Partial<ImposterState> = {}): ImposterState {

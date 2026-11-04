@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as V from "../../topicDraft/formats/vote";
 import { deckOf, type VoteCard } from "../../topicDraft/party/decks";
 import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
@@ -13,10 +13,6 @@ import type { GameSetup } from "../types";
 
 const SCENE = "A small-town polling hall with a clerk, a ballot box and voting booths";
 
-/** The sip card a reveal already showed on this phone, so the results screen does not call the last card twice. */
-let seenDrinks = "";
-const drinksKey = (s: V.VoteState) => `${s.seed}:${s.drinks?.seq}`;
-
 /** Vote games on a phone, in a small-town polling hall: vote on a ballot, guess how the others voted, then the booths open. */
 export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
@@ -28,17 +24,12 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const reveal = s.phase === "reveal" ? s.history[s.history.length - 1]! : null;
   const voted = new Set(Object.keys(s.votes));
   const gain = reveal?.gained[me] ?? 0;
-  const [drinkCardOn, setDrinkCardOn] = useState(s.phase === "reveal");
 
   useEffect(() => { window.scrollTo(0, 0); }, [s.round]); // each new card starts at the top of the screen
   const phaseRef = useRef(s.phase);
   useEffect(() => {
     if (s.phase === "reveal" && phaseRef.current !== "reveal") play(gain > 0 ? "win" : "reveal");
     phaseRef.current = s.phase;
-    if (s.phase === "reveal") {
-      setDrinkCardOn(true); // not before a reveal: a refresh mid-card must not call the last card again
-      seenDrinks = drinksKey(s);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.phase]);
 
@@ -47,7 +38,7 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const count = (side: V.Side) => (open ? Object.values(open).filter((v) => v === side).length : 0);
   const total = open ? Math.max(1, Object.keys(open).length) : 1;
   const sides: { id: V.Side; label: string }[] = [{ id: "a", label: card.a }, { id: "b", label: card.b }];
-  const status = s.phase === "guess" ? null : mine ? `Locked in. Waiting for ${s.players.length - voted.size} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
+  const status = s.phase !== "vote" ? null : mine ? `Locked in. Waiting for ${s.players.length - voted.size} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
 
   return (
     <PixelShell world="hall">
@@ -104,7 +95,7 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
         {s.showVotes && <div className="hall-score"><Scores points={s.points} me={me} /></div>}
         {s.drinks && <WaterLine />}
-        {s.drinks && drinkCardOn && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} names={s.players} />}
+        {s.drinks && s.phase === "reveal" && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.seed} names={s.players} />}
       </div>
     </PixelShell>
   );
@@ -227,7 +218,7 @@ export function VoteResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain
           <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
         </div>
         {s.drinks && <WaterLine />}
-        {s.drinks && seenDrinks !== drinksKey(s) && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} names={s.players} />}
+        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.seed} names={s.players} />}
       </div>
     </PixelShell>
   );
