@@ -8,7 +8,7 @@ export type Actor = { name: string; value: number; color?: string };
 export type Checkpoint = { name: string; at: number };
 
 export type World = {
-  id: "summit" | "sky" | "launch" | "hall" | "ball";
+  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio";
   /** Size of the whole map. */
   fullW: number;
   fullH: number;
@@ -752,7 +752,240 @@ export const BALL: World = {
   camera: () => ({ x: 0, y: 0 }),
 };
 
-export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL };
+// ======================= STUDIO: a late-night radio station =======================
+// The booth at a quarter to three: foam on the walls, the city and the station's own mast through the glass, an ON AIR
+// box, a tape machine with turning reels, and a host in headphones leaning into a boom mic over a glowing desk.
+const STU_W = 180, STU_H = 76, STU_DESK = 49;
+const STU_WIN = { x: 5, y: 8, w: 52, h: 35 };
+const STU_MAST = { x: 19, top: 14 };
+const STU_REELS: [number, number][] = [[140, 18], [163, 18]];
+const STU_GLYPHS: Record<string, string[]> = {
+  O: ["XXX", "X.X", "X.X", "X.X", "XXX"], N: ["X.X", "XXX", "XXX", "XXX", "X.X"], A: [".X.", "X.X", "XXX", "X.X", "X.X"], I: ["X", "X", "X", "X", "X"], R: ["XX.", "X.X", "XX.", "X.X", "X.X"],
+  "2": ["XXX", "..X", "XXX", "X..", "XXX"], "4": ["X.X", "X.X", "XXX", "..X", "..X"], "7": ["XXX", "..X", ".X.", ".X.", ".X."],
+};
+const STU_HOST = [
+  "....BBBBBB....",
+  "...BhhhhhhB...",
+  "..BhhhhhhhhB..",
+  "..BhhsshshhB..",
+  ".EEssssssssEE.",
+  ".EEsGssssGsEE.",
+  ".EEssssssssEE.",
+  "...ssssssss...",
+  "....ssssss....",
+  "...cCCCCCCc...",
+  "..cccCCCCccc..",
+  ".ccccCCCCcccc.",
+  ".cccccWWccccc.",
+  ".cccccWWccccc.",
+  ".cccccccccccc.",
+  ".cccccccccccc.",
+  ".ccc.cccc.ccc.",
+  ".ccc.cccc.ccc.",
+  ".sss......sss.",
+];
+const STU_HOST_PAL = { B: "#c9ccd6", h: "#3a2233", s: "#e0a982", G: "#1a1030", E: "#e8344a", c: "#2f6f73", C: "#3f8f8c", W: "#f4eeda" };
+
+const stuText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, c: string) => {
+  let at = x;
+  for (const ch of text) {
+    const g = STU_GLYPHS[ch];
+    if (g) g.forEach((row, ry) => [...row].forEach((v, rx) => { if (v === "X") px(ctx, at + rx, y + ry, c); }));
+    at += (g?.[0]!.length ?? 2) + 1;
+  }
+};
+
+function studioBackdrop(ctx: CanvasRenderingContext2D) {
+  // Midnight-blue wall, a little lighter down by the desk lamps.
+  ditherSky(ctx, 0, 0, STU_W, STU_DESK, [[0, "#0d0b24"], [0.55, "#17143a"], [1, "#241c4e"]]);
+  // Egg-crate acoustic foam behind the host: each tile is a pyramid lit from above.
+  for (let ty = 7; ty < 46; ty += 7) for (let tx = 62; tx < 126; tx += 7) {
+    for (let y = 0; y < 6; y++) for (let x = 0; x < 6; x++) {
+      const up = y < Math.min(x, 5 - x) + 1, side = x < 3;
+      px(ctx, tx + x, ty + y, up ? "#3b3273" : side ? "#2a2358" : "#1d1842");
+    }
+    px(ctx, tx + 2, ty + 2, "#463c85", 2, 1);
+  }
+  // Ceiling with a run of cable tray.
+  px(ctx, 0, 0, "#07061a", STU_W, 4);
+  px(ctx, 0, 4, "#2f2a5e", STU_W, 1);
+  px(ctx, 0, 5, "#04030f", STU_W, 1);
+  for (let x = 4; x < STU_W; x += 12) px(ctx, x, 1, "#1b1842", 6, 2);
+
+  // The booth window over the sleeping city.
+  const { x: wx, y: wy, w: ww, h: wh } = STU_WIN;
+  px(ctx, wx - 3, wy - 3, "#04030f", ww + 6, wh + 6);
+  px(ctx, wx - 2, wy - 2, "#4a4570", ww + 4, wh + 4);
+  px(ctx, wx - 2, wy - 2, "#6c6794", ww + 4, 1);
+  px(ctx, wx - 1, wy - 1, "#04030f", ww + 2, wh + 2);
+  ditherSky(ctx, wx, wy, ww, wh, [[0, "#060824"], [0.5, "#141247"], [0.82, "#3a2468"], [1, "#7a3a78"]]);
+  const r = rng(29);
+  for (let i = 0; i < 26; i++) px(ctx, wx + r() * ww, wy + r() * 20, r() > 0.7 ? "#ffffff" : "#8f93d6");
+  disc(ctx, wx + 41, wy + 8, 5, (dx, dy) => ((dx + 2) ** 2 + (dy + 1) ** 2 < 3 || (dx - 2) ** 2 + (dy - 2) ** 2 < 2 ? "#cfc9a8" : dx + dy > 4 ? "#d8d2b2" : "#f6f0d0"));
+  // Far skyline, then near blocks with lit windows.
+  for (let x = 0; x < ww; x++) { const h = 8 + Math.round(noise1(x >> 2, 40) * 9); px(ctx, wx + x, wy + wh - h, "#241a50", 1, h); }
+  const blocks: [number, number, number][] = [[0, 8, 13], [9, 6, 9], [24, 7, 16], [32, 9, 11], [42, 10, 18]];
+  for (const [bx, bw, bh] of blocks) {
+    px(ctx, wx + bx, wy + wh - bh, "#0f0c2c", bw, bh);
+    px(ctx, wx + bx, wy + wh - bh, "#2c2560", 1, bh);
+    for (let y = bh - 2; y > 1; y -= 3) for (let x = 1; x < bw - 1; x += 2) if (noise1(x * 7 + y * 3 + bx, 41) > 0.62) px(ctx, wx + bx + x, wy + wh - y, noise1(x + y, 42) > 0.5 ? "#ffd23f" : "#ff9f5a");
+  }
+  // The station's lattice mast, stayed with thin wires.
+  const { x: mx, top: mt } = STU_MAST;
+  const base = wy + wh;
+  for (let y = mt; y < base; y++) {
+    const half = Math.floor((y - mt) / 11);
+    px(ctx, mx - half, y, "#b8b4dc");
+    px(ctx, mx + half + 1, y, "#6c6794");
+    if ((y - mt) % 3 === 0) px(ctx, mx - half, y, "#8d89b8", half * 2 + 2, 1);
+  }
+  for (let k = 0; k < 11; k++) { px(ctx, mx - 2 - k, mt + 6 + k * 2, "#3b3575"); px(ctx, mx + 3 + k, mt + 6 + k * 2, "#3b3575"); }
+  // Glass glare and the sill.
+  for (let k = 0; k < 16; k++) if (k % 2) px(ctx, wx + 8 + k, wy + 22 - k, "rgba(190,200,255,.22)", 1, 1);
+  px(ctx, wx - 4, wy + wh + 3, "#6c6794", ww + 8, 1);
+  px(ctx, wx - 4, wy + wh + 4, "#2a2654", ww + 8, 2);
+
+  // The ON AIR box: the frame here, the light in the frame loop.
+  px(ctx, 71, 8, "#04030f", 36, 11);
+  px(ctx, 72, 9, "#2a2654", 34, 9);
+  px(ctx, 88, 5, "#04030f", 2, 3);
+  // Wall clock, a red-LED 2:47.
+  px(ctx, 111, 9, "#04030f", 15, 9);
+  px(ctx, 112, 10, "#1a0408", 13, 7);
+  stuText(ctx, "2", 113, 11, "#ff4d4d");
+  stuText(ctx, "47", 118, 11, "#ff4d4d");
+
+  // The tape machine: a steel cabinet, two reel wells, a head block, and a rack of meters under it.
+  px(ctx, 129, 7, "#04030f", 47, 42);
+  px(ctx, 130, 8, "#5a5a7a", 45, 40);
+  px(ctx, 130, 8, "#8b8ba8", 45, 1);
+  px(ctx, 130, 8, "#74749a", 1, 40);
+  px(ctx, 174, 8, "#33334e", 1, 40);
+  for (const [cx, cy] of STU_REELS) disc(ctx, cx, cy, 9, (dx, dy) => (dx * dx + dy * dy > 64 ? "#2c2c44" : "#1a1a2c"));
+  px(ctx, 147, 25, "#2c2c44", 11, 4);
+  px(ctx, 149, 26, "#c9ccd6", 7, 2);
+  for (const x of [138, 167]) for (let k = 0; k < 8; k++) px(ctx, x + (x === 138 ? k * 1.3 : -k * 1.3), 26 - (k >> 2), "#14141f");
+  px(ctx, 132, 30, "#2c2c44", 41, 1);
+  px(ctx, 133, 32, "#0b0b18", 39, 8); // meter window
+  for (const x of [133, 153]) { px(ctx, x, 32, "#e8dcb0", 19, 8); for (let k = 0; k < 7; k++) px(ctx, x + 2 + k * 2.4, 33 + Math.abs(k - 3) * 0.5, k > 4 ? "#c8392b" : "#3a3020"); }
+  for (let i = 0; i < 6; i++) { px(ctx, 134 + i * 7, 42, "#0b0b18", 5, 4); px(ctx, 134 + i * 7, 42, i === 1 ? "#c8392b" : "#c9ccd6", 5, 3); px(ctx, 134 + i * 7, 44, "#6c6c88", 5, 1); }
+
+  // The desk: a walnut top and a console with faders, knobs and meter wells.
+  ditherSky(ctx, 0, STU_DESK, STU_W, 6, [[0, "#7a4c28"], [1, "#54321a"]]);
+  px(ctx, 0, STU_DESK, "#b4794a", STU_W, 1);
+  px(ctx, 0, STU_DESK + 6, "#1a0d06", STU_W, 1);
+  ditherSky(ctx, 0, STU_DESK + 7, STU_W, STU_H - STU_DESK - 7, [[0, "#2a2a44"], [1, "#14142a"]]);
+  px(ctx, 0, STU_DESK + 7, "#4a4a6e", STU_W, 1);
+  // Fader channels.
+  for (let i = 0; i < 9; i++) {
+    const x = 60 + i * 7;
+    px(ctx, x + 2, 59, "#07071a", 1, 15);
+    disc(ctx, x + 2, 58, 1, () => (i % 3 === 0 ? "#ffd23f" : i % 3 === 1 ? "#4cc9f0" : "#ff4d6d"));
+  }
+  // Turntable on the left of the desk, in its own plinth.
+  px(ctx, 6, 44, "#04030f", 42, 7);
+  px(ctx, 7, 45, "#4a2c17", 40, 5);
+  px(ctx, 7, 45, "#7a4c28", 40, 1);
+  px(ctx, 6, 57, "#07071a", 44, 17);
+  px(ctx, 7, 58, "#1c1c34", 42, 15);
+  // Meter wells either side of the faders, a tiny scope in the left one.
+  px(ctx, 9, 60, "#04100d", 38, 11);
+  px(ctx, 125, 58, "#07071a", 49, 16);
+  // Coffee on the right of the desk.
+  px(ctx, 109, 42, "#04030f", 9, 8);
+  px(ctx, 110, 43, "#e8e2d0", 7, 6);
+  px(ctx, 110, 43, "#3a2212", 7, 1);
+  px(ctx, 110, 47, "#c8392b", 7, 1);
+  px(ctx, 117, 44, "#e8e2d0", 2, 1); px(ctx, 118, 45, "#e8e2d0", 1, 2); px(ctx, 117, 47, "#e8e2d0", 2, 1);
+  // The boom arm: clamped to the desk, up to an elbow under the clock, then across to the mic.
+  for (let k = 0; k < 28; k++) { px(ctx, 124 - k * 0.07, STU_DESK - k, "#04030f", 2, 1); px(ctx, 124 - k * 0.07, STU_DESK - k, "#8d89b8"); }
+  for (let k = 0; k < 18; k++) { px(ctx, 122 - k, 21 + k * 0.56, "#04030f", 1, 2); px(ctx, 122 - k, 21 + k * 0.56, "#8d89b8"); }
+  px(ctx, 121, 20, "#c9ccd6", 3, 3);
+  px(ctx, 122, STU_DESK - 1, "#04030f", 5, 2);
+}
+
+export const STUDIO: World = {
+  id: "studio", fullW: STU_W, fullH: STU_H, viewW: STU_W, viewH: STU_H,
+  checkpoints: [{ name: "Radio booth", at: 0 }],
+  backdrop: studioBackdrop,
+  frame: (ctx, t) => {
+    // Stars prickle; the mast's lamp blinks slowly; a few windows go dark and come back.
+    for (let i = 0; i < 6; i++) if ((t + i * 13) % 37 < 3) px(ctx, STU_WIN.x + noise1(i, 71) * STU_WIN.w, STU_WIN.y + noise1(i, 72) * 18, "#ffffff");
+    const beacon = t % 28 < 12;
+    px(ctx, STU_MAST.x, STU_MAST.top - 1, beacon ? "#ff3b3b" : "#5a1414", 2, 2);
+    if (beacon) { px(ctx, STU_MAST.x - 1, STU_MAST.top, "rgba(255,70,70,.5)"); px(ctx, STU_MAST.x + 2, STU_MAST.top, "rgba(255,70,70,.5)"); px(ctx, STU_MAST.x, STU_MAST.top - 2, "rgba(255,70,70,.5)", 2, 1); }
+    // A little radio pulse rings out from the mast now and then.
+    const ring = t % 56;
+    if (ring < 18) for (let a = -2; a <= 2; a++) { const d = 3 + ring * 0.8; const ang = -Math.PI / 2 + a * 0.28; px(ctx, STU_MAST.x + Math.cos(ang) * d * 1.4, STU_MAST.top + Math.sin(ang) * d * 0.5, ring < 9 ? "#ff9f9f" : "#7a3a5e"); }
+
+    // ON AIR, glowing, with the rare tube flicker.
+    const dim = t % 131 < 2;
+    px(ctx, 72, 9, dim ? "#5a1420" : "#d4243a", 34, 9);
+    px(ctx, 72, 9, dim ? "#6a1a26" : "#f0506a", 34, 1);
+    stuText(ctx, "ON", 76, 11, dim ? "#c98a8a" : "#fff4ea");
+    stuText(ctx, "AIR", 91, 11, dim ? "#c98a8a" : "#fff4ea");
+    if (!dim) for (let k = 0; k < 40; k++) { const gx = 66 + noise1(k, 74) * 46, gy = 5 + noise1(k, 75) * 18; if (gx < 71 || gx > 106 || gy > 19) px(ctx, gx, gy, "rgba(255,70,90,.32)"); }
+
+    // The clock's colon ticks over.
+    if (t % 14 < 7) { px(ctx, 116, 12, "#ff4d4d"); px(ctx, 116, 14, "#ff4d4d"); }
+
+    // Tape reels turn, the left emptying into the right.
+    STU_REELS.forEach(([cx, cy], i) => {
+      const r = i === 0 ? 7 : 5, a = (t * (i === 0 ? 0.16 : 0.22));
+      for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) { const d = x * x + y * y; if (d <= r * r && d > 4) px(ctx, cx + x, cy + y, d > (r - 1) * (r - 1) ? "#3e2a1c" : "#55392a"); }
+      for (let k = 0; k < 3; k++) { const ang = a + (k * Math.PI * 2) / 3; for (let d = 1; d <= r - 1; d++) px(ctx, cx + Math.cos(ang) * d, cy + Math.sin(ang) * d, "#c9ccd6"); }
+      px(ctx, cx - 1, cy - 1, "#fff4ea", 2, 2);
+    });
+    // Meter needles swing with the program.
+    [0, 1].forEach((i) => {
+      const x = 133 + i * 20, swing = 0.5 + Math.sin(t / 4 + i) * 0.25 + (noise1(Math.floor(t / 3), i + 80) - 0.5) * 0.35;
+      const nx = x + 9 + (swing - 0.5) * 14;
+      for (let k = 0; k < 6; k++) px(ctx, x + 9 + ((nx - x - 9) * k) / 6, 39 - k, "#1a1030");
+    });
+
+    // The turntable: a record going round under a slim arm.
+    for (let y = -2; y <= 2; y++) for (let x = -9; x <= 9; x++) if ((x * x) / 81 + (y * y) / 4 <= 1) px(ctx, 20 + x, 47 + y, "#0b0b18");
+    const spin = Math.round(Math.cos(t * 0.5) * 6), spinY = Math.round(Math.sin(t * 0.5));
+    px(ctx, 20 + spin, 47 + spinY, "#4a4a78", 2, 1);
+    px(ctx, 19, 47, "#ff4d6d", 3, 1);
+    px(ctx, 37, 45, "#c9ccd6", 2, 2);
+    for (let k = 0; k < 8; k++) px(ctx, 37 - k, 46 + k * 0.1, "#c9ccd6");
+    // Steam off the coffee.
+    for (let k = 0; k < 4; k++) { const age = (t * 0.5 + k * 5) % 18; if (age < 13) px(ctx, 112 + Math.sin(age * 0.5 + k) * 1.5, 41 - age, age < 7 ? "#a9a6d0" : "#4f4a85"); }
+
+    // The host: a slow nod to the music, a blink, and now and then a word to the mic.
+    const nod = Math.floor(t / 7) % 2;
+    drawSprite(ctx, STU_HOST, STU_HOST_PAL, 79, 31 + nod);
+    if (t % 53 < 2) { px(ctx, 83, 36 + nod, "#e0a982"); px(ctx, 88, 36 + nod, "#e0a982"); }
+    const talking = t % 90 < 40 && Math.floor(t / 3) % 2 === 0;
+    px(ctx, 85, 38 + nod, talking ? "#6e2b2b" : "#a8644a", 3, talking ? 2 : 1);
+    // The desk front hides the host's lap, and the mic hangs off the boom in front of them.
+    px(ctx, 0, STU_DESK, "#b4794a", STU_W, 1);
+    ctx.fillStyle = "#7a4c28"; ctx.fillRect(75, STU_DESK + 1, 22, 1);
+        px(ctx, 97, 31, "#04030f", 8, 7);
+    px(ctx, 98, 32, "#55556e", 6, 5);
+    for (let k = 0; k < 3; k++) px(ctx, 99 + k * 2, 33, "#8d8da8", 1, 3);
+    px(ctx, 98, 32, "#a9a9c0", 6, 1);
+
+    // The desk comes alive: fader caps drift, channel meters bounce, a tiny wave runs in the left well.
+    for (let i = 0; i < 9; i++) {
+      const y = 62 + Math.round(4 + Math.sin(t / (14 + i * 3) + i * 1.7) * 4);
+      px(ctx, 60 + i * 7, y, "#04030f", 5, 3);
+      px(ctx, 60 + i * 7, y, "#e8e2d0", 5, 2);
+    }
+    for (let x = 0; x < 36; x++) { const y = 65 + Math.round(Math.sin(x * 0.55 + t * 0.35) * 3.4); px(ctx, 10 + x, y, x % 2 ? "#5dffb0" : "#2fa77f"); }
+    for (let c = 0; c < 8; c++) {
+      const level = Math.round(3 + noise1(Math.floor(t / 2) + c, 90) * 10 * (0.6 + Math.sin(t / 9 + c) * 0.4));
+      for (let k = 0; k < 13; k++) px(ctx, 127 + c * 6, 72 - k, k < level ? (k > 10 ? "#ff4d4d" : k > 7 ? "#ffd23f" : "#5dffb0") : "#14283a", 4, 1);
+    }
+    // The desk lamp's warm spill, thrown across the wood.
+    for (let i = 0; i < 26; i++) { const x = 48 + noise1(i, 95) * 60, y = STU_DESK + 1 + noise1(i, 96) * 5; px(ctx, x, y, "rgba(255,216,140,.22)"); }
+  },
+  pos: () => ({ x: 90, y: 34 }),
+  camera: () => ({ x: 0, y: 0 }),
+};
+
+export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO };
 
 /** The last checkpoint reached at a fraction of the journey. */
 export function checkpointAt(world: World, f: number): Checkpoint {

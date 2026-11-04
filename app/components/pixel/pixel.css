@@ -378,3 +378,107 @@
 .party-page h1 { font-size: 34px; }
 .party-page h2 { font-size: 28px; }
 .party-page .ball-card b, .party-page .ball-reveal .big { font: 400 30px/1 var(--px-body); }
+
+/* ---------- In-Sync: a late-night radio station ---------- */
+.pixel[data-world="studio"] { --px-bg: #0c0a22; --px-bg2: #100d2b; --px-panel: #1d1a44; --px-panel2: #2c2760; --px-ink: #04030f; --px-fg: #f6f1df; --px-dim: #b0acd8; --px-lav: #ffbe6b; --px-rose: #e8344a; --px-gold: #ffb347; --px-mint: #5dffb0; --px-sky: #7fc8ff; --px-violet: #3b3273;
+  background: #0c0a22 repeating-linear-gradient(0deg, #100d2b 0 2px, #0c0a22 2px 8px); }
+.sync-sign { position: relative; margin: 4px; background: #2c2c48; box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 3px 0 0 #55557a, inset 0 -3px 0 0 #17172c; }
+.sync-sign .eyebrow { color: var(--px-gold); }
+.sync-sign h1 { color: #fff; }
+.pixel[data-world="studio"] .px-world { box-shadow: 0 0 0 4px var(--px-ink), 0 8px 0 0 #0006; }
+
+/* The on-air strip: who has the mic, and the clue on an amber ticker. */
+.sync-air { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; margin: 4px; padding: 8px 10px; background: #1a0d0a; box-shadow: 0 0 0 4px var(--px-ink), inset 0 0 0 2px #4a1a1e; }
+.sync-air .who { display: inline-flex; align-items: center; gap: 6px; max-width: 34vw; min-width: 0; }
+.sync-air .who > span { display: grid; min-width: 0; font-size: 20px; line-height: 1; color: var(--px-fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sync-air .who b { font: 400 8px/1.5 var(--px-head); color: #ff6b7e; }
+.sync-air .ticker { margin: 0; min-width: 0; font-size: 28px; line-height: 1.02; color: var(--px-gold); text-shadow: 0 0 6px #ff8a1f66; overflow-wrap: anywhere; }
+.sync-air .ticker.waiting { font-size: 21px; color: #d9a464; text-shadow: none; }
+
+/* The scope: a steel bezel around the glass, the ends of the line as engraved plates. */
+.sync-scope { position: relative; margin: 4px; padding: 8px 8px 0; background: #2c2c48; box-shadow: 0 0 0 4px var(--px-ink), inset 0 3px 0 0 #55557a, 0 8px 0 0 #0006; }
+.sync-glass { position: relative; display: grid; justify-items: center; background: #000; box-shadow: 0 0 0 3px #000; overflow: hidden; line-height: 0; }
+.pixel .sync-canvas { image-rendering: pixelated; max-width: 100%; }
+.sync-canvas.live { cursor: ew-resize; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; overscroll-behavior: contain; }
+.sync-canvas:focus-visible { outline: 3px dashed var(--px-gold); outline-offset: -3px; }
+.sync-ends { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 8px 0; font-size: 22px; line-height: 1.02; color: var(--px-fg); }
+.sync-ends span { display: flex; align-items: flex-start; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
+.sync-ends .right { justify-content: flex-end; text-align: right; }
+.sync-ends i { flex: none; width: 0; height: 0; margin-top: 5px; border-block: 6px solid transparent; }
+.sync-ends .left i { border-right: 8px solid var(--px-gold); }
+.sync-ends .right i { border-left: 8px solid var(--px-gold); }
+
+.sync-standby { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); padding: 8px 10px; font: 400 12px/1.2 var(--px-head); color: #8dffc9; background: #04100dd9; box-shadow: 0 0 0 2px #176b52; animation: sync-blink 1.4s steps(2) infinite; }
+@keyframes sync-blink { 50% { opacity: .35; } }
+.sync-verdict { position: absolute; left: 50%; top: 6px; display: grid; justify-items: center; gap: 4px; padding: 6px 10px; line-height: 1.1; transform: translateX(-50%); font: 400 10px/1.2 var(--px-head); color: #04030f; background: var(--px-gold); box-shadow: 0 0 0 3px #000; pointer-events: none; white-space: nowrap; animation: sync-stamp .3s steps(3) 1.9s both; }
+.sync-verdict b { font: 400 18px/1 var(--px-head); }
+.sync-verdict.p4 { background: #fbfff0; box-shadow: 0 0 0 3px #000, 0 0 0 6px #ffd23f; }
+.sync-verdict.p0 { color: #d7d4ee; background: #2a2654; }
+@keyframes sync-stamp { 0% { opacity: 0; transform: translateX(-50%) scale(1.8); } 100% { opacity: 1; transform: translateX(-50%) scale(1); } }
+
+/* Lock bar, and lamps that follow the server: a move puts them all out. */
+.sync-lock { display: grid; gap: 6px; margin: 4px; padding: 10px; background: var(--px-panel); box-shadow: 0 0 0 4px var(--px-ink); }
+.sync-hint { margin: 0; font-size: 20px; line-height: 1.05; color: var(--px-dim); }
+.sync-lock-btn { width: calc(100% - 8px); font-size: 13px; min-height: 56px; }
+.pixel .sync-lock-btn:disabled { opacity: 1; color: #04030f; background: var(--px-mint); }
+.sync-lamps { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; margin: 0; font-size: 21px; line-height: 1; }
+.sync-lamps .lamps { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.sync-lamps i { width: 12px; height: 12px; background: #3a1a22; box-shadow: 0 0 0 2px #000; }
+.sync-lamps i.on { background: var(--px-mint); box-shadow: 0 0 0 2px #000, 0 0 8px #5dffb0; }
+
+/* The clue giver's desk. */
+.sync-desk { display: grid; gap: 6px; margin: 4px; padding: 10px; background: var(--px-panel); box-shadow: 0 0 0 4px var(--px-ink); }
+.sync-desk label { font-size: 21px; line-height: 1.05; color: var(--px-gold); }
+.sync-desk .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 0 10px; background: var(--px-ink); box-shadow: 0 0 0 3px var(--px-panel2); }
+.sync-desk input { width: 100%; min-width: 0; padding: 10px 0; border: 0; color: var(--px-gold); background: transparent; font: 400 26px/1.1 var(--px-body); caret-color: var(--px-gold); }
+.sync-desk input::placeholder { color: #7f7a9e; }
+.sync-desk input:focus-visible { outline: 0; }
+.sync-desk .row:focus-within { box-shadow: 0 0 0 3px var(--px-gold); }
+.sync-desk .count { font: 400 9px/1 var(--px-head); color: var(--px-dim); }
+.sync-desk .px-btn { width: calc(100% - 8px); }
+
+/* The crew: every seat, on one screen even at twelve. */
+.sync-crew { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; margin: 4px; padding: 0; list-style: none; }
+.sync-crew li { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 2px 6px; padding: 4px 6px; background: var(--px-ink); box-shadow: inset 0 0 0 2px #1d1a44; min-width: 0; }
+.sync-crew li.me { box-shadow: inset 0 0 0 2px var(--px-sky); }
+.sync-crew li.locked { box-shadow: inset 0 0 0 2px var(--px-mint); }
+.sync-crew li.host { background: #2a0d14; }
+.sync-crew .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 19px; line-height: 1.1; }
+.sync-crew .tag { grid-column: 1 / -1; font: 400 7px/1.3 var(--px-head); color: #ff6b7e; }
+.sync-crew .tag.lock { color: var(--px-mint); }
+.sync-total { margin: 4px; padding: 6px 10px; text-align: center; font-size: 21px; background: var(--px-ink); }
+.sync-total b { font: 400 13px var(--px-head); color: var(--px-gold); }
+
+/* The round's result, and the end-of-show log. */
+.sync-log { padding: 12px; background: var(--px-panel); }
+.sync-log h2 { margin: 0 0 4px; font-size: 24px; color: var(--px-mint); }
+.sync-log h2.miss { color: var(--px-dim); }
+.sync-log .line { margin: 0 0 8px; font-size: 21px; line-height: 1.05; }
+.sync-log .line b { font-weight: 400; color: var(--px-gold); }
+.sync-banner { display: block; padding: 16px 12px; text-align: center; }
+.sync-banner .eyebrow { margin: 0 0 6px; font: 400 9px/1.4 var(--px-head); }
+.sync-banner h1 { margin: 0 0 4px; font-size: 32px; text-shadow: 3px 3px 0 #000; overflow-wrap: anywhere; }
+.sync-banner .big { margin: 0; font-size: 24px; color: var(--px-fg); }
+.sync-banner .big b { font: 400 24px var(--px-head); color: var(--px-gold); }
+.sync-banner .note { margin: 2px 0 0; font-size: 19px; color: var(--px-dim); }
+.sync-rounds { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.sync-rounds li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 8px; padding: 6px 8px; background: var(--px-ink); }
+.sync-rounds .pts { align-self: start; padding-top: 3px; font: 400 11px/1 var(--px-head); color: var(--px-dim); }
+.sync-rounds .p4 .pts { color: #fff; } .sync-rounds .p3 .pts { color: var(--px-mint); } .sync-rounds .p2 .pts { color: var(--px-gold); }
+.sync-rounds .body { min-width: 0; }
+.sync-rounds p { margin: 0; line-height: 1.05; overflow-wrap: anywhere; }
+.sync-rounds .pair { font-size: 19px; color: var(--px-dim); }
+.sync-rounds .clue { font-size: 21px; }
+.sync-rounds .clue canvas { display: inline-block; vertical-align: -1px; }
+.sync-rounds .mini { position: relative; display: block; height: 10px; margin: 5px 4px 2px; background: linear-gradient(#a8702c, #a8702c) 0 50% / 100% 2px no-repeat; }
+.sync-rounds .mini i { position: absolute; top: 0; width: 4px; height: 10px; margin-left: -2px; }
+.sync-rounds .mini .t { background: var(--px-mint); }
+.sync-rounds .mini .m { background: #ff5a3c; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sync-scope[data-phase="reveal"] .sync-glass { animation: sync-fade .6s linear both; }
+  .sync-verdict { animation: none; }
+  .sync-standby { animation: none; }
+}
+@keyframes sync-fade { from { opacity: 0; } to { opacity: 1; } }
+.sync-scene-low { order: 1; }

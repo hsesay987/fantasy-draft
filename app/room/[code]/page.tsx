@@ -10,6 +10,7 @@ import SetupScreen from "../../play/SetupScreen";
 import { FORMATS, PARTY_GAMES, formatMeta } from "../../play/formats";
 import { PartySetup } from "../../play/PartySetup";
 import { deckOf } from "../../topicDraft/party/decks";
+import { insyncDeckOf } from "../../topicDraft/party/insyncDecks";
 import { category } from "../../play/categories";
 import { clearToken, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setStatLink, startRoom, type RoomSnapshot } from "../../play/onlineApi";
 import { useRemoteCtl, useRemoteRoom } from "../../play/useRemoteGame";
@@ -132,10 +133,10 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   const cat = setup ? category(setup.pool) : null;
   const party = !!setup && PARTY_FORMATS.has(setup.format);
   const cap = !setup || party ? 12 : 6; // an empty room takes a party-sized group; drafts cap it at six
-  const poolTitle = setup ? (setup.format === "vote" ? deckOf(setup.pool)?.title : cat?.title) : null;
+  const poolTitle = setup ? (setup.format === "vote" ? deckOf(setup.pool)?.title : setup.format === "insync" ? insyncDeckOf(setup.pool)?.title : cat?.title) : null;
 
   // Picking a game: the full setup screen for that format, saving to the room.
-  if (isHost && (picking === "imposter" || picking === "vote")) {
+  if (isHost && (picking === "imposter" || picking === "vote" || picking === "insync")) {
     return <PartySetup format={picking} room={{ code, token, pool: setup?.pool, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
   }
   if (isHost && picking && picking !== "menu") {
@@ -175,7 +176,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
 
   return (
     <PageShell width="md">
-      <PageHeader title={`Room ${code}`} subtitle={setup && meta ? `Next up: ${meta.title}${poolTitle && setup.format !== "vote" ? ` · ${poolTitle}` : setup.format === "vote" ? ` · ${poolTitle}` : ""}` : isHost ? "Pick a game to play" : "The host is picking a game"} icon={meta?.icon ?? Users} gradient={meta?.gradient} />
+      <PageHeader title={`Room ${code}`} subtitle={setup && meta ? `Next up: ${meta.title}${poolTitle ? ` · ${poolTitle}` : ""}` : isHost ? "Pick a game to play" : "The host is picking a game"} icon={meta?.icon ?? Users} gradient={meta?.gradient} />
 
       <div className="grid gap-6 md:grid-cols-2">
         <Panel title="Invite friends" hint={`Share the code or the link. Up to ${cap} players${cap === 12 ? " (drafts and trivia take 6)" : " (party games take 12)"}. Friends can join between games too.`}>
@@ -212,7 +213,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
             <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${meta.gradient}`}><meta.icon className="h-7 w-7 text-white" aria-hidden /></span>
             <div className="min-w-0 flex-1">
               <div className="text-lg font-semibold">{meta.title}{poolTitle ? ` · ${poolTitle}` : ""}</div>
-              <div className="text-sm text-muted-foreground">{party ? (setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}</div>
+              <div className="text-sm text-muted-foreground">{party ? (setup.format === "insync" ? `${Math.max(4, snap.seats.length)} rounds · one group score · 2+ players` : setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}</div>
             </div>
             {isHost && <Button variant="ghost" onClick={() => setPicking("menu")}><RefreshCw className="h-4 w-4" aria-hidden /> Change game</Button>}
           </div>
@@ -250,7 +251,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
         <Panel title="Played tonight">
           <ol className="space-y-1 text-sm">
             {snap.played.slice().reverse().map((g, i) => (
-              <li key={i} className="flex justify-between gap-3 rounded-lg bg-white/5 px-3 py-2"><span>{formatMeta(g.format)?.title}{g.format === "vote" ? ` · ${deckOf(g.pool)?.title ?? ""}` : category(g.pool) ? ` · ${category(g.pool)!.title}` : ""}</span><span className="text-muted-foreground">{g.winner ? `${g.winner} won` : "no winner"}</span></li>
+              <li key={i} className="flex justify-between gap-3 rounded-lg bg-white/5 px-3 py-2"><span>{formatMeta(g.format)?.title}{g.format === "vote" ? ` · ${deckOf(g.pool)?.title ?? ""}` : g.format === "insync" ? ` · ${insyncDeckOf(g.pool)?.title ?? ""}` : category(g.pool) ? ` · ${category(g.pool)!.title}` : ""}</span><span className="text-muted-foreground">{g.winner ? `${g.winner} won` : g.format === "insync" ? "played together" : "no winner"}</span></li>
             ))}
           </ol>
         </Panel>

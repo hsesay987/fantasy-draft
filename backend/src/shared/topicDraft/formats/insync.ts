@@ -11,7 +11,7 @@ export type { Pair };
 export const CLUE_MS = 45_000;
 export const TUNE_MS = 60_000;
 export const REVEAL_MS = 10_000;
-const CLUE_MAX = 80;
+export const CLUE_MAX = 40;
 
 export type InSyncHistory = { pair: Pair; clue: string; target: number; marker: number; points: number; giver: string; skipped?: boolean };
 

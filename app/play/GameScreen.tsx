@@ -25,6 +25,7 @@ import { JeopardyView } from "./views/JeopardyView";
 import { TriviaResults } from "./TriviaResults";
 import { ImposterResults, ImposterView } from "./views/ImposterView";
 import { VoteResults, VoteView } from "./views/VoteView";
+import { InSyncResults, InSyncView } from "./views/InSyncView";
 import { PARTY_FORMATS } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -70,6 +71,7 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
 
   if (done && setup.format === "imposter") return <ImposterResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "vote") return <VoteResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
+  if (done && setup.format === "insync") return <InSyncResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && finished && trivia) return <TriviaResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
 
   if (done && finished) {
@@ -108,6 +110,8 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
       return <ImposterView setup={setup} ctl={ctl} />;
     case "vote":
       return <VoteView setup={setup} ctl={ctl} />;
+    case "insync":
+      return <InSyncView setup={setup} ctl={ctl} />;
     default:
       return <SnakeView setup={setup} ctl={ctl} />;
   }

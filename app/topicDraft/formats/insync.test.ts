@@ -113,7 +113,7 @@ describe("in-sync rounds", () => {
     expect(lock(tuning, "A", 0)).toBe(tuning); // the giver cannot lock
     expect(next(tuning, 0)).toBe(tuning);
     expect(clue(tuning, "A", "x".repeat(500), 0)).toBe(tuning);
-    expect(clue(s, "A", "x".repeat(500), 0).clue.length).toBeLessThanOrEqual(80);
+    expect(clue(s, "A", "x".repeat(500), 0).clue.length).toBe(40);
   });
 
   it("skips the round with no score when the giver gives no clue before the timer", () => {
