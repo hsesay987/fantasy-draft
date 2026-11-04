@@ -6,6 +6,8 @@
 // imposter gets one last guess. With ending "vote" the vote alone decides it.
 import type { Item } from "../types";
 import { shuffle } from "../rng";
+import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
+import { normalizeClue } from "../party/clueText";
 
 export type Ending = "guess" | "vote";
 export type ImposterPhase = "clue" | "vote" | "guess" | "done";
@@ -35,6 +37,7 @@ export type ImposterState = {
   guess: string | null;
   winner: "imposter" | "crew" | null;
   points: Record<string, number>;
+  drinks?: DrinkState;
   phaseAt: number;
   done: boolean;
   seed: number;
@@ -49,7 +52,7 @@ export function givesAway(clue: string, secret: string): boolean {
   return c.includes(` ${fold(secret)} `) || words.some((w) => c.includes(w));
 }
 
-export function init(o: { players: string[]; pool: Item[]; topic: string; rounds: number; ending: Ending; seed: number; now: number }): ImposterState {
+export function init(o: { players: string[]; pool: Item[]; topic: string; rounds: number; ending: Ending; drinking?: boolean; seed: number; now: number }): ImposterState {
   let seed = o.seed;
   const [deck, s1] = shuffle(o.pool, seed);
   seed = s1;
@@ -66,22 +69,33 @@ export function init(o: { players: string[]; pool: Item[]; topic: string; rounds
   return {
     players: o.players, secret: secret.name, secretId: secret.id, topic: o.topic, options: opts.map((i) => i.name), imposter: who[0]!,
     order, rounds: Math.max(1, Math.min(3, o.rounds)), clues: [], phase: "clue", ending: o.ending, votes: {}, caught: null, guess: null, winner: null,
-    points: Object.fromEntries(o.players.map((p) => [p, 0])), phaseAt: o.now, done: false, seed,
+    points: Object.fromEntries(o.players.map((p) => [p, 0])), ...(o.drinking ? { drinks: initDrinks(o.players) } : {}), phaseAt: o.now, done: false, seed,
   };
 }
 
 export const turnPlayer = (s: ImposterState) => (s.phase === "clue" ? s.order[s.clues.length % s.order.length]! : null);
 const totalClues = (s: ImposterState) => s.rounds * s.order.length;
 
+/**
+ * Sips at the end of the game: the imposter's call, then 1 for each crew member who voted wrong. Before any vote there
+ * are no wrong voters. The imposter's own vote was a bluff, so it never counts as voting wrong.
+ */
+function drinkCalls(s: ImposterState, winner: "imposter" | "crew"): DrinkCall[] {
+  const wrong = Object.entries(s.votes).filter(([by, t]) => by !== s.imposter && t !== s.imposter).map(([by]) => by);
+  const imposter: DrinkCall = winner === "imposter" ? { to: s.imposter, sips: 3, reason: "Got away with it", handsOut: true } : { to: s.imposter, sips: 2, reason: "Unmasked at the ball" };
+  return [imposter, ...wrong.map((p) => ({ to: p, sips: 1, reason: "Danced with the wrong suspect" }))];
+}
+
 function finish(s: ImposterState, winner: "imposter" | "crew", now: number, extra: Partial<ImposterState> = {}): ImposterState {
   const points = Object.fromEntries(s.players.map((p) => [p, winner === "imposter" ? (p === s.imposter ? 3 : 0) : p === s.imposter ? 0 : 2]));
-  return { ...s, ...extra, phase: "done", winner, points, phaseAt: now, done: true };
+  const drinks = s.drinks ? addCalls(s.drinks, drinkCalls(s, winner), s.players) : undefined;
+  return { ...s, ...extra, phase: "done", winner, points, ...(drinks ? { drinks } : {}), phaseAt: now, done: true };
 }
 
 /** One clue on your turn. Empty text passes (used when the clock runs out). */
 export function clue(s: ImposterState, by: string, text: string, now: number): ImposterState {
   if (s.phase !== "clue" || turnPlayer(s) !== by) return s;
-  const t = text.replace(/\s+/g, " ").trim().slice(0, 40);
+  const t = normalizeClue(text);
   if (t && by !== s.imposter && givesAway(t, s.secret)) return s;
   if (t && s.clues.some((c) => fold(c.text) === fold(t))) return s; // no copying someone else's clue word for word
   const clues = [...s.clues, { by, text: t || "(passed)" }];

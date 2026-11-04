@@ -1,0 +1,8 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "web", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev", "--", "-p", "3001"], "port": 3001 },
+    { "name": "api-local", "runtimeExecutable": "bash", "runtimeArgs": ["-c", "cd backend && PORT=4001 CORS_ORIGIN=http://localhost:3001 npx ts-node --transpile-only src/server.ts"], "port": 4001 },
+    { "name": "web-local", "runtimeExecutable": "bash", "runtimeArgs": ["-c", "NEXT_PUBLIC_API_URL=http://localhost:4001 npx next dev -p 3001"], "port": 3001 }
+  ]
+}

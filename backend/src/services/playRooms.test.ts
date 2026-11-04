@@ -249,14 +249,14 @@ describe("playing", () => {
 describe("party rooms", () => {
   const party = (format: "imposter" | "vote", pool: string) => ({ format, pool, opts: { teamSize: format === "imposter" ? 1 : 3, ending: "vote" } });
 
-  it("takes up to 10 players, needs 3 for Imposter, and hides the secret from the imposter", () => {
+  it("takes up to 12 players, needs 3 for Imposter, and hides the secret from the imposter", () => {
     const made = createRoom(party("imposter", "superheroes"), "Ann") as any;
     expect(made.room).toBeDefined();
     const tokens: Record<string, string> = { Ann: made.seat.token };
     const b = joinRoom(made.room.code, "Bob") as any;
     tokens.Bob = b.seat.token;
     expect(startRoom(made.room, tokens.Ann)).toEqual({ error: "Need at least 3 players" });
-    for (let i = 0; i < 8; i++) joinRoom(made.room.code, `P${i}`);
+    for (let i = 0; i < 10; i++) joinRoom(made.room.code, `P${i}`);
     expect((joinRoom(made.room.code, "Late") as any).error).toMatch(/^Room is full/);
     expect(startRoom(made.room, tokens.Ann)).toEqual({ ok: true });
     const st = made.room.state;
@@ -267,17 +267,192 @@ describe("party rooms", () => {
     expect(snapshot(made.room, crewToken).state.secret).toBe(st.secret);
   });
 
+  it("a 12th player can join an empty room, a 13th cannot, and a vote game needs 3 players", () => {
+    const empty = createRoom(null, "H0") as any;
+    for (let i = 1; i < 12; i++) expect((joinRoom(empty.room.code, `H${i}`) as any).error).toBeUndefined();
+    expect((joinRoom(empty.room.code, "H12") as any).error).toMatch(/^Room is full/);
+    const made = createRoom(party("vote", "icks"), "Ann") as any;
+    joinRoom(made.room.code, "Bob");
+    expect(startRoom(made.room, made.seat.token)).toEqual({ error: "Need at least 3 players" });
+  });
+
+  it("keeps drinking off unless asked and cleans team settings", () => {
+    const off = createRoom(party("vote", "icks"), "Ann") as any;
+    expect(off.room.setup.opts).toMatchObject({ drinking: false, showVotes: true, teams: 0, teamMap: {} });
+    const on = createRoom({ ...party("vote", "icks"), opts: { teamSize: 3, drinking: true, showVotes: false, teams: 2, teamMap: { Ann: 1, Bob: 5, Cy: "x" } } }, "Ann") as any;
+    expect(on.room.setup.opts).toMatchObject({ drinking: true, showVotes: false, teams: 2, teamMap: { Ann: 1 } });
+  });
+
   it("rejects unknown decks and runs a vote game to the end", () => {
     expect(createRoom(party("vote", "nope"), "Ann")).toEqual({ error: "Invalid game setup" });
     const made = createRoom(party("vote", "icks"), "Ann") as any;
     const b = joinRoom(made.room.code, "Bob") as any;
+    const c = joinRoom(made.room.code, "Cy") as any;
     expect(startRoom(made.room, made.seat.token)).toEqual({ ok: true });
     for (let round = 0; round < 3; round++) {
-      expect(act(made.room, made.seat.token, { type: "vote", side: "a" }).ok).toBe(true);
-      expect(act(made.room, b.seat.token, { type: "vote", side: "a" }).ok).toBe(true);
+      for (const tok of [made.seat.token, b.seat.token, c.seat.token]) expect(act(made.room, tok, { type: "vote", side: "a" }).ok).toBe(true);
+      expect(made.room.state.phase).toBe("guess");
+      for (const [tok, me] of [[made.seat.token, "Ann"], [b.seat.token, "Bob"], [c.seat.token, "Cy"]] as const)
+        for (const t of ["Ann", "Bob", "Cy"].filter((x) => x !== me)) expect(act(made.room, tok, { type: "guessVote", target: t, side: "a" }).ok).toBe(true);
       act(made.room, made.seat.token, { type: "next" });
     }
     expect(made.room.status).toBe("done");
-    expect(made.room.state.points).toEqual({ Ann: 3, Bob: 3 });
+    expect(made.room.state.points).toEqual({ Ann: 6, Bob: 6, Cy: 6 }); // two right guesses a card
+  });
+
+  it("Show votes off never sends other players' votes or guesses, even after the game ends", () => {
+    const made = createRoom({ ...party("vote", "icks"), opts: { teamSize: 3, showVotes: false, drinking: true } }, "Ann") as any;
+    const toks: Record<string, string> = { Ann: made.seat.token, Bob: (joinRoom(made.room.code, "Bob") as any).seat.token, Cy: (joinRoom(made.room.code, "Cy") as any).seat.token };
+    expect(startRoom(made.room, toks.Ann)).toEqual({ ok: true });
+    const names = Object.keys(toks);
+    const sides: Record<string, string> = { Ann: "a", Bob: "b", Cy: "b" };
+    // Only seat A's own entries may ever reach A.
+    const check = (phase: string) => {
+      const st = snapshot(made.room, toks.Ann).state;
+      expect(st.phase).toBe(phase);
+      const others = ["Bob", "Cy"];
+      for (const h of st.history) {
+        expect(Object.keys(h.votes).filter((k) => others.includes(k))).toEqual([]);
+        expect(Object.keys(h.guesses).filter((k) => others.includes(k))).toEqual([]);
+        expect(Object.keys(h.gained).filter((k) => others.includes(k))).toEqual([]);
+      }
+      expect(Object.values(st.votes).filter((v) => v !== "?").length).toBeLessThanOrEqual(1);
+      expect(Object.keys(st.guesses).filter((k) => others.includes(k))).toEqual([]);
+    };
+    for (let round = 0; round < 3; round++) {
+      for (const n of names) act(made.room, toks[n], { type: "vote", side: sides[n] });
+      check("guess");
+      const st = snapshot(made.room, toks.Ann).state;
+      expect(Object.keys(st.points)).toEqual(["Ann"]);
+      for (const n of names) for (const t of names.filter((x) => x !== n)) act(made.room, toks[n], { type: "guessVote", target: t, side: sides[t] });
+      check("reveal");
+      const calls = snapshot(made.room, toks.Ann).state.drinks.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls.every((c: any) => c.to === "all")).toBe(true);
+      if (round < 2) expect(Object.keys(snapshot(made.room, toks.Ann).state.points)).toEqual(["Ann"]);
+      act(made.room, toks.Ann, { type: "next" });
+    }
+    expect(made.room.status).toBe("done");
+    const fin = snapshot(made.room, toks.Ann).state;
+    expect(fin.history).toHaveLength(3);
+    for (const h of fin.history) {
+      expect(Object.keys(h.votes)).toEqual(["Ann"]);
+      expect(Object.keys(h.guesses)).toEqual(["Ann"]);
+    }
+    expect(Object.keys(fin.votes).filter((k) => k !== "Ann")).toEqual([]);
+    expect(Object.keys(fin.points).sort()).toEqual(["Ann", "Bob", "Cy"]);
+  });
+
+  it("does not send drink calls addressed to a seat that left", () => {
+    const made = createRoom({ ...party("vote", "icks"), opts: { teamSize: 3, drinking: true } }, "Ann") as any;
+    const toks: Record<string, string> = { Ann: made.seat.token, Bob: (joinRoom(made.room.code, "Bob") as any).seat.token, Cy: (joinRoom(made.room.code, "Cy") as any).seat.token, Di: (joinRoom(made.room.code, "Di") as any).seat.token };
+    expect(startRoom(made.room, toks.Ann)).toEqual({ ok: true });
+    const names = Object.keys(toks);
+    const sides: Record<string, string> = { Ann: "a", Bob: "b", Cy: "a", Di: "a" };
+    for (const n of names) act(made.room, toks[n], { type: "vote", side: sides[n] });
+    // Everyone reads Bob wrong, so he gets a hand-out call; Cy reads nobody right and gets the worst read too.
+    for (const n of names) for (const t of names.filter((x) => x !== n)) act(made.room, toks[n], { type: "guessVote", target: t, side: t === "Bob" ? "a" : n === "Cy" ? "b" : sides[t] });
+    expect(made.room.state.phase).toBe("reveal");
+    const toNames = (tok: string) => snapshot(made.room, tok).state.drinks.calls.map((c: any) => c.to);
+    expect(toNames(toks.Ann)).toEqual(expect.arrayContaining(["Bob", "Cy"]));
+    leaveRoom(made.room, toks.Bob);
+    expect(snapshot(made.room, toks.Ann).seats.find((s: any) => s.name === "Bob").left).toBe(true);
+    expect(toNames(toks.Ann)).not.toContain("Bob");
+    expect(toNames(toks.Ann)).toContain("Cy");
+    expect(made.room.state.drinks.calls.map((c: any) => c.to)).toContain("Bob"); // the room's own state is untouched
+  });
+
+  it("never sends the setup seed to a seat while a party game runs", () => {
+    const cases: [any, string[]][] = [
+      [{ format: "insync", pool: "music", opts: {} }, ["Ann", "Bob"]],
+      [{ format: "imposter", pool: "superheroes", opts: { teamSize: 1 } }, ["Ann", "Bob", "Cy"]],
+      [{ format: "vote", pool: "icks", opts: { teamSize: 3 } }, ["Ann", "Bob", "Cy"]],
+    ];
+    for (const [setup, names] of cases) {
+      const made = createRoom(setup, names[0]!) as any;
+      const toks: Record<string, string> = { [names[0]!]: made.seat.token };
+      for (const n of names.slice(1)) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+      expect(startRoom(made.room, toks.Ann)).toEqual({ ok: true });
+      expect(made.room.setup.seed).not.toBe(0);
+      for (const n of names) {
+        expect(snapshot(made.room, toks[n]).setup.seed, `${setup.format} ${n}`).toBe(0);
+        expect(snapshot(made.room, toks[n]).setup.players).toEqual(names);
+      }
+      expect(snapshot(made.room, "bad token").setup.seed).toBe(0);
+    }
+  });
+
+  describe("In-Sync", () => {
+    const sync = (extra: any = {}) => ({ format: "insync", pool: "music", opts: { teamSize: 15, ...extra } });
+    const seated = (names: string[], setup: any = sync()) => {
+      const made = createRoom(setup, names[0]!) as any;
+      const toks: Record<string, string> = { [names[0]!]: made.seat.token };
+      for (const n of names.slice(1)) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+      return { room: made.room, toks };
+    };
+
+    it("rejects unknown decks, plays with 2 players and ignores the round count a client sends", () => {
+      expect(createRoom({ ...sync(), pool: "nope" }, "Ann")).toEqual({ error: "Invalid game setup" });
+      const { room, toks } = seated(["Ann", "Bob"]);
+      expect(startRoom(room, toks.Ann)).toEqual({ ok: true });
+      expect(room.state.pairs).toHaveLength(4);
+    });
+
+    it("sends the hidden target only to the clue giver until the reveal", () => {
+      const { room, toks } = seated(["Ann", "Bob", "Cy"]);
+      startRoom(room, toks.Ann);
+      const giverName = room.state.players[room.state.giverAt % room.state.players.length];
+      const guesser = ["Ann", "Bob", "Cy"].find((n) => n !== giverName)!;
+      const hidden = room.state.target;
+      expect(snapshot(room, toks[giverName]).state.target).toBe(hidden);
+      expect(snapshot(room, toks[guesser]).state.target).toBe(-1);
+      expect(snapshot(room, toks[guesser]).state.seed).toBe(0);
+      expect(act(room, toks[giverName], { type: "clue", text: "Sunday morning" }).ok).toBe(true);
+      expect(snapshot(room, toks[guesser]).state.target).toBe(-1);
+      expect(snapshot(room, toks[guesser]).state.clue).toBe("Sunday morning");
+      expect(JSON.stringify(snapshot(room, toks[guesser]).state)).not.toContain(`"target":${hidden}`);
+      // Out-of-turn and garbage actions leave the room unchanged.
+      expect(act(room, toks[giverName], { type: "move", pos: 10 }).ok).toBe(false);
+      expect(act(room, toks[guesser], { type: "move", pos: "abc" }).ok).toBe(false);
+      expect(act(room, toks[guesser], { type: "move", pos: NaN }).ok).toBe(false);
+      expect(act(room, toks[guesser], { type: "move", pos: 9999 }).ok).toBe(true);
+      expect(room.state.marker).toBe(100);
+      expect(act(room, toks[guesser], { type: "clue", text: "sneaky" }).ok).toBe(false);
+      for (const n of ["Ann", "Bob", "Cy"].filter((x) => x !== giverName)) act(room, toks[n], { type: "lock" });
+      expect(room.state.phase).toBe("reveal");
+      expect(snapshot(room, toks[guesser]).state.target).toBe(hidden);
+    });
+
+    it("ends with no winner, remembers the pairs and gives a rematch fresh ones", () => {
+      const { room, toks } = seated(["Ann", "Bob"]);
+      startRoom(room, toks.Ann);
+      const names = ["Ann", "Bob"];
+      for (let i = 0; i < 4; i++) {
+        const g = room.state.players[room.state.giverAt % room.state.players.length];
+        act(room, toks[g], { type: "clue", text: "hi" });
+        act(room, toks[names.find((n) => n !== g)!], { type: "lock" });
+        act(room, toks.Ann, { type: "next" });
+      }
+      expect(room.status).toBe("done");
+      expect(room.played.at(-1)).toMatchObject({ format: "insync", pool: "music", winner: null });
+      const first = room.state.pairs.map((p: any) => p.id);
+      expect(room.seen).toEqual(expect.arrayContaining(first));
+      expect(startRoom(room, toks.Ann)).toEqual({ ok: true });
+      const again = room.state.pairs.map((p: any) => p.id);
+      expect(again.filter((id: string) => first.includes(id))).toEqual([]);
+    });
+
+    it("a missing clue giver and gone guessers never hold the room up", () => {
+      const { room, toks } = seated(["Ann", "Bob", "Cy"]);
+      startRoom(room, toks.Ann);
+      const start = room.state.phaseAt;
+      tickRooms(start + 46_000);
+      expect(room.state.round).toBe(1);
+      expect(room.state.history[0].skipped).toBe(true);
+      const g = room.state.players[room.state.giverAt % room.state.players.length];
+      act(room, toks[g], { type: "clue", text: "late" });
+      tickRooms(room.state.phaseAt + 61_000);
+      expect(room.state.phase).toBe("reveal");
+    });
   });
 });

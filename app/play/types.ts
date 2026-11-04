@@ -3,10 +3,10 @@ import type { LoadoutMission } from "../topicDraft/formats/loadout";
 import type { Role } from "../topicDraft/formats/position";
 import type { QuizData } from "../topicDraft/trivia/types";
 
-export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote";
+export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote" | "insync";
 
 /** Party games: online only, played on phones in one room. `pool` is a topic (Imposter) or a card deck (vote games). */
-export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote"]);
+export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote", "insync"]);
 
 export type Opts = {
   teamSize: number;
@@ -38,6 +38,14 @@ export type Opts = {
   rankSize: number;
   /** Imposter: "guess" lets the imposter name the secret any time; "vote" leaves it to the vote. */
   ending: "guess" | "vote";
+  /** Party games: sip cards on. Off by default. */
+  drinking: boolean;
+  /** Party games: show who voted what on the reveal. */
+  showVotes: boolean;
+  /** Party games: number of teams, 0 for none. */
+  teams: number;
+  /** Party games: player name to team index. */
+  teamMap: Record<string, number>;
 };
 
 export type GameSetup = {
@@ -78,6 +86,10 @@ export const DEFAULT_OPTS: Opts = {
   handExtra: 2,
   rankSize: 6,
   ending: "guess",
+  drinking: false,
+  showVotes: true,
+  teams: 0,
+  teamMap: {},
 };
 
 export function snakeConfig(setup: GameSetup): Config {

@@ -1,6 +1,7 @@
 import { getFeud, getJeopardy, isTriviaPool } from "../services/trivia.service";
 import { moderate, userText } from "../lib/moderation";
 import { Router } from "express";
+import { normalizeClue } from "../shared/topicDraft/party/clueText";
 import { act, backToLobby, createRoom, getRoom, giveQuiz, joinRoom, leaveRoom, needsQuiz, seatFor, seenIn, setGame, setStatLink, snapshot, startRoom } from "../services/playRooms";
 
 const router = Router();
@@ -99,9 +100,11 @@ router.post("/:code/action", async (req, res) => {
   const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "Room not found" });
   if (!seatFor(room, req.body?.token)) return res.status(403).json({ error: "Not in this room" });
-  // Imposter clues are free text that everyone sees.
-  if (req.body?.action?.type === "clue" && String(req.body.action.text ?? "").trim()) {
-    const mod = await moderate([String(req.body.action.text).slice(0, 40)]);
+  // Clues are free text that everyone sees: check exactly what the engine would store.
+  if (req.body?.action?.type === "clue") {
+    const text = req.body.action.text;
+    if (typeof text !== "string") return res.status(400).json({ ok: false, error: "Invalid clue" });
+    const mod = await moderate([normalizeClue(text)]);
     if (!mod.ok) return res.status(400).json({ ok: false, error: mod.reason });
   }
   const r = act(room, req.body?.token, req.body?.action);

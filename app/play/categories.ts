@@ -182,6 +182,7 @@ export const FORMAT_WHY: Record<FormatId, string> = {
   jeopardy: "Choose clues, win the board",
   imposter: "Find the one who doesn't know the secret",
   vote: "Vote together, read the room",
+  insync: "Give one clue, tune in together",
 };
 
 /** Formats that make sense for a category (Loadout needs hero-ish items). */

@@ -17,13 +17,17 @@ import * as B from "../shared/topicDraft/formats/blind";
 import * as P from "../shared/topicDraft/formats/position";
 import * as IM from "../shared/topicDraft/formats/imposter";
 import * as V from "../shared/topicDraft/formats/vote";
+import * as IS from "../shared/topicDraft/formats/insync";
 import { deckOf } from "../shared/topicDraft/party/decks";
+import { insyncDeckOf } from "../shared/topicDraft/party/insyncDecks";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote"];
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync"];
 /** Party games take a bigger group; drafts and trivia stay at six. */
-const MAX_SEATS = 10;
+const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
+/** Fewest players each game starts with; anything not listed needs 2. */
+export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, vote: 3 };
 /** An empty room (no game picked yet) takes the bigger party group; picking a draft caps it at six. */
 const seatCap = (format: FormatId | undefined) => (!format || PARTY_FORMATS.has(format) ? MAX_SEATS : DRAFT_SEATS);
 const MAX_ROOMS = 500;
@@ -138,21 +142,35 @@ export function sanitizeSetup(input: any): GameSetup | null {
   return { id: "", format, pool, players: [], aiPlayers: [], mission, mystery: !!input.mystery, loadout, roles: format === "position" ? roles : [], opts, seed: 0 };
 }
 
-/** Party games: Imposter needs a character topic, vote games need a card deck. */
+/** Party games: Imposter needs a character topic, vote games need a card deck, In-Sync a pair deck. */
 function sanitizeParty(format: FormatId, input: any): GameSetup | null {
   const pool = clean(input.pool, 30);
   const o = input.opts ?? {};
   if (format === "imposter") {
     const meta = CATALOG_META.find((m) => m.id === pool);
     if (!meta || meta.kind !== "character" || getCatalog(pool).length < IM.OPTION_COUNT) return null;
+  } else if (format === "insync") {
+    if (!insyncDeckOf(pool)) return null;
   } else if (!deckOf(pool)) return null;
-  const title = format === "imposter" ? `Imposter: ${CATALOG_META.find((m) => m.id === pool)!.title}` : deckOf(pool)!.title;
+  const teams = num(o.teams, 0, 4, 0);
+  const teamMap: Record<string, number> = {};
+  if (teams > 0 && o.teamMap && typeof o.teamMap === "object") {
+    for (const [k, v] of Object.entries(o.teamMap).slice(0, MAX_SEATS)) {
+      const name = clean(k, 20), t = Math.floor(Number(v));
+      if (name && Number.isInteger(t) && t >= 0 && t < teams) teamMap[name] = t;
+    }
+  }
+  const title = format === "imposter" ? `Imposter: ${CATALOG_META.find((m) => m.id === pool)!.title}` : format === "insync" ? `In-Sync: ${insyncDeckOf(pool)!.title}` : deckOf(pool)!.title;
   const opts = {
     ...DEFAULT_OPTS,
     timerSeconds: null,
     teamSize: format === "imposter" ? num(o.teamSize, 1, 3, 2) : num(o.teamSize, 3, 15, 8),
     ending: (o.ending === "vote" ? "vote" : "guess") as "guess" | "vote",
     avoid: (Array.isArray(o.avoid) ? o.avoid : []).slice(0, 200).map((x: any) => clean(x, 40)),
+    drinking: o.drinking === true,
+    showVotes: o.showVotes !== false,
+    teams,
+    teamMap,
   };
   return { id: "", format, pool, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
 }
@@ -285,11 +303,11 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
   if (room.status === "playing") return { error: "Already started" };
   if (!room.setup) return { error: "Pick a game first" };
   if (room.status === "done") resetToLobby(room);
-  const min = room.setup.format === "imposter" ? 3 : 2;
+  const min = MIN_PLAYERS[room.setup.format] ?? 2;
   if (room.seats.length < min) return { error: `Need at least ${min} players` };
   if (room.seats.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
   room.setup = { ...room.setup, players: room.seats.map((s) => s.name), seed: (Math.random() * 2 ** 31) | 0 };
-  if (room.setup.format === "vote") room.setup.opts = { ...room.setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
+  if (room.setup.format === "vote" || room.setup.format === "insync") room.setup.opts = { ...room.setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
   room.state = initGame(room.setup, Date.now());
   room.status = "playing";
   room.freshQuiz = false;
@@ -317,7 +335,7 @@ export function leaveRoom(room: Room, token: unknown) {
   bump(room);
 }
 
-const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "next"]);
+const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
   const seat = seatFor(room, token);
@@ -360,7 +378,8 @@ function finish(room: Room) {
   room.played = [...room.played, record].slice(-30);
   // Party games are scored by their own rules; no AI report.
   if (PARTY_FORMATS.has(setup.format)) {
-    record.winner = triviaWinner(room.state!);
+    record.winner = setup.format === "insync" ? null : triviaWinner(room.state!); // In-Sync is co-operative: no winner
+    if (setup.format === "insync") room.seen = [...room.seen, ...(room.state as IS.InSyncState).pairs.map((q) => q.id)].slice(-400);
     if (setup.format === "vote") room.seen = [...room.seen, ...(room.state as V.VoteState).cards.map((c) => c.id)].slice(-400);
     return;
   }
@@ -394,7 +413,7 @@ function autoplay(room: Room, name: string): Action | null {
     if (x.phase === "clue" && IM.turnPlayer(x) === name) return { type: "clue", by: name, text: "" };
     return null; // votes and guesses run out on their own clocks
   }
-  if (format === "vote") return null;
+  if (format === "vote" || format === "insync") return null; // every phase ends on its own clock
   if (format === "auction") {
     const a = s as A.AuctionState;
     if (a.nominate?.offer) return A.nominator(a) === name ? { type: "nominate", by: name, itemId: a.nominate.offer[0]! } : null;
@@ -463,18 +482,28 @@ export function startTicker() {
 function redact(room: Room, me: string | null): GameState | null {
   const s = room.state;
   if (!s) return null;
+  // Vote games go through their redaction even when done: with Show votes off the final screen must stay secret too.
+  if (room.setup?.format === "vote") return V.redactFor(s as V.VoteState, me, room.status === "done");
+  if (room.setup?.format === "insync") return IS.redactFor(s as IS.InSyncState, me); // opens up by itself once the game is done
   if (room.status === "done" || !room.setup) return s;
   if (room.setup.format === "position") {
     const p = s as P.PositionState;
     return { ...p, hands: Object.fromEntries(Object.entries(p.hands).map(([k, v]) => [k, k === me ? v : v.map(() => "?")])), assign: Object.fromEntries(Object.entries(p.assign).map(([k, v]) => [k, k === me ? v : {}])), unused: [], roll: p.roll ? { ...p.roll, pool: [], offers: Object.fromEntries(Object.entries(p.roll.offers).map(([k, v]) => [k, k === me ? v : {}])) } : undefined };
   }
   if (room.setup.format === "imposter") return IM.redactFor(s as IM.ImposterState, me);
-  if (room.setup.format === "vote") return V.redactFor(s as V.VoteState, me);
   if (room.setup.format === "blind") {
     const b = s as B.BlindState;
     return { ...b, ranks: Object.fromEntries(Object.entries(b.ranks).map(([k, v]) => [k, k === me ? v : v.map((x) => (x == null ? null : "?"))])) };
   }
   return s;
+}
+
+/** Sip cards are for people still at the table: drop calls addressed to a seat that left. */
+function withoutLeftDrinks(room: Room, state: GameState | null): GameState | null {
+  const drinks = state && "drinks" in state ? state.drinks : undefined;
+  if (!drinks) return state;
+  const left = new Set(room.seats.filter((s) => s.left).map((s) => s.name));
+  return { ...state, drinks: { ...drinks, calls: drinks.calls.filter((c) => !left.has(c.to)) } } as GameState;
 }
 
 export function snapshot(room: Room, token: unknown) {
@@ -484,10 +513,11 @@ export function snapshot(room: Room, token: unknown) {
     status: room.status,
     version: room.version,
     serverNow: Date.now(),
-    setup: room.setup,
+    // The setup seed rebuilds every shuffle and hidden pick, so a running party game never sends it.
+    setup: room.setup && PARTY_FORMATS.has(room.setup.format) && room.status !== "done" ? { ...room.setup, seed: 0 } : room.setup,
     seats: room.seats.map((s, i) => ({ name: s.name, host: i === 0, left: s.left })),
     me: seat?.name ?? null,
-    state: redact(room, seat?.name ?? null),
+    state: withoutLeftDrinks(room, redact(room, seat?.name ?? null)),
     verdict: room.status === "done" ? room.verdict : null,
     played: room.played,
     statLink: room.statLink,

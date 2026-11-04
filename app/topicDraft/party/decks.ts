@@ -14,7 +14,7 @@ export const DECKS: Deck[] = [
     id: "wrong",
     title: "Who's Wrong?",
     blurb: "Two sides of a messy story. Pick who's in the wrong.",
-    how: "Score by siding with most of the room.",
+    how: "Score by guessing how your friends voted.",
     cards: pairs("wrong", [
       ["Sam's roommate ate Sam's labelled leftovers, then left $10 on the counter. Sam is still furious.", "Sam", "The roommate"],
       ["Priya RSVP'd yes to a wedding, skipped it for a concert, and sent a big gift. The couple has stopped talking to her.", "Priya", "The couple"],
@@ -40,7 +40,7 @@ export const DECKS: Deck[] = [
     id: "icks",
     title: "Icks",
     blurb: "Is it an instant turn-off or totally fine?",
-    how: "Score by siding with most of the room.",
+    how: "Score by guessing how your friends voted.",
     cards: opinion("icks", "Ick", "No ick", [
       "They clap when the plane lands.",
       "They chew with their mouth open.",
@@ -68,7 +68,7 @@ export const DECKS: Deck[] = [
     id: "ultimatum",
     title: "Ultimatums",
     blurb: "Two tough choices. You have to pick one.",
-    how: "Score by siding with most of the room.",
+    how: "Score by guessing how your friends voted.",
     cards: pairs("ult", [
       ["You must pick one", "Never use your phone after 8pm", "Never eat out again"],
       ["You must pick one", "Always be 10 minutes late", "Always be 2 hours early"],
@@ -94,7 +94,7 @@ export const DECKS: Deck[] = [
     id: "happen",
     title: "Did That Happen?",
     blurb: "A wild TV moment. Real plot or made up?",
-    how: "Score by getting it right.",
+    how: "Score by knowing the truth and guessing how your friends voted.",
     cards: facts("happen", [
       ["On The Office, Michael hits Meredith with his car in the office car park.", true, "The Office · 'Fun Run'"],
       ["On The Office, Dwight sets a fire in the office to test everyone's fire safety.", true, "The Office · 'Stress Relief'"],
