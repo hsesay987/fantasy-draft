@@ -75,6 +75,8 @@ A host setting, **Show votes** (on by default), controls the reveal:
 - **On:** the booths open and everyone sees how each person voted and who guessed them right.
 - **Off:** votes stay secret for the whole game, including the results screen. Players see only their own score changes and whether they were the "nobody got you" scorer. The server must not send other players' votes or guesses to any phone while this is off.
 
+While Show votes is off, other players' totals also stay hidden until the final screen, because comparing totals between cards would reveal who scored. The final screen shows totals only. Vote-game drinking callouts must not expose votes in this mode, so the named callouts are replaced with a group toast (see Drinking mode).
+
 Each phase has its own timer. Unanswered guesses simply score nothing. The rework adds a guess phase and removes `scoringSide` majority scoring. Keep the pixel voting booths.
 
 ## Drinking mode
@@ -85,6 +87,9 @@ An off-by-default toggle on every party game's setup screen. Turning it on asks 
 - Every drinking screen has a small line saying water counts and nobody has to drink.
 - Callouts are server-decided, so every phone shows the same thing. They appear at the end of a round or phase, as a short animated pixel card with the player's sprite, a funny reason and the sip count. They never block play for more than a few seconds, and can be tapped past.
 - Eliminated or disconnected players are skipped.
+- **Pacing limits:** a player gets at most 3 sips per round and at most 10 sips per game. Once a player reaches 10, callouts skip them and show a playful "you're done, water break" card once. The server tracks these totals.
+- **Handing out sips is display-only:** the card says "Sam hands out 3" and the room settles it out loud. There is no picker, phase or action for it.
+- **Show votes off:** vote-game callouts that would name a voter's result (nobody guessed you, worst guesser, everyone fooled) are replaced with one group toast of 1 sip per card, the same on every phone.
 
 Starting rules (copy can be sharpened, the reasons should be playful):
 
@@ -216,3 +221,5 @@ A generic social deduction game, with the app as narrator, played on phones with
 - Common Thread and Top Rung having daily puzzles.
 - Top Rung's online room play, and Common Thread staying solo.
 - Mafia role counts, including the doctor and detective.
+- Drinking limits of 3 sips per round and 10 per game, display-only handing out, and a group toast replacing named callouts while Show votes is off.
+- Other players' totals hidden until the final screen while Show votes is off.
