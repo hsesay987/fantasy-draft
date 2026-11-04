@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gray-on-color",
+        "value": "*",
+        "files": [
+          "app/draft/components/DraftChrome.tsx"
+        ],
+        "createdAt": "2026-10-31T12:26:19.208Z",
+        "reason": "Claude: text-slate-950 is near-black on emerald-400, about 10:1 contrast, not washed-out gray"
+      }
+    ]
+  }
+}
