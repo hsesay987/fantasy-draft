@@ -96,11 +96,11 @@ describe("in-sync rounds", () => {
     const tuning = clue(clueing, "A", "x", 0);
     expect(move(tuning, giver(tuning), 10, 0)).toBe(tuning);
     expect(move(tuning, "B", NaN, 0)).toBe(tuning);
-    expect(move(tuning, "B", Infinity, 0).marker).toBe(100);
     expect(move(tuning, "B", 500, 0).marker).toBe(100);
     expect(move(tuning, "B", -20, 0).marker).toBe(0);
     expect(move(tuning, "Zed", 20, 0)).toBe(tuning);
     expect(move(tuning, "B", 33.6, 0).marker).toBe(34);
+    for (const bad of [null, "", "40", [], false, true, undefined, {}, Infinity, -Infinity]) expect(move(tuning, "B", bad as any, 0), String(bad)).toBe(tuning);
   });
 
   it("ignores clues from the wrong player, empty clues, repeats and the wrong phase", () => {
@@ -183,9 +183,12 @@ describe("in-sync secrecy", () => {
 
   it("does not leak the seed or an in-progress target through the history", () => {
     const s = pin(start(["A", "B", "C"]), 61);
-    expect(redactFor(s, "B").seed).toBe(0);
-    expect(JSON.stringify(redactFor(s, "B"))).not.toContain("61");
-    expect(redactFor(s, "B").history).toEqual([]);
+    const r = redactFor(s, "B");
+    expect(r.seed).toBe(0);
+    expect(r.target).toBe(-1);
+    expect(r.history).toEqual([]);
+    expect(r.marker).toBe(50);
+    expect(redactFor(s, "A").seed).toBe(0);
   });
 
   it("shows everything once the game is done", () => {

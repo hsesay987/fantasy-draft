@@ -513,7 +513,8 @@ export function snapshot(room: Room, token: unknown) {
     status: room.status,
     version: room.version,
     serverNow: Date.now(),
-    setup: room.setup,
+    // The setup seed rebuilds every shuffle and hidden pick, so a running party game never sends it.
+    setup: room.setup && PARTY_FORMATS.has(room.setup.format) && room.status !== "done" ? { ...room.setup, seed: 0 } : room.setup,
     seats: room.seats.map((s, i) => ({ name: s.name, host: i === 0, left: s.left })),
     me: seat?.name ?? null,
     state: withoutLeftDrinks(room, redact(room, seat?.name ?? null)),

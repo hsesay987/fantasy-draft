@@ -362,6 +362,26 @@ describe("party rooms", () => {
     expect(made.room.state.drinks.calls.map((c: any) => c.to)).toContain("Bob"); // the room's own state is untouched
   });
 
+  it("never sends the setup seed to a seat while a party game runs", () => {
+    const cases: [any, string[]][] = [
+      [{ format: "insync", pool: "music", opts: {} }, ["Ann", "Bob"]],
+      [{ format: "imposter", pool: "superheroes", opts: { teamSize: 1 } }, ["Ann", "Bob", "Cy"]],
+      [{ format: "vote", pool: "icks", opts: { teamSize: 3 } }, ["Ann", "Bob", "Cy"]],
+    ];
+    for (const [setup, names] of cases) {
+      const made = createRoom(setup, names[0]!) as any;
+      const toks: Record<string, string> = { [names[0]!]: made.seat.token };
+      for (const n of names.slice(1)) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+      expect(startRoom(made.room, toks.Ann)).toEqual({ ok: true });
+      expect(made.room.setup.seed).not.toBe(0);
+      for (const n of names) {
+        expect(snapshot(made.room, toks[n]).setup.seed, `${setup.format} ${n}`).toBe(0);
+        expect(snapshot(made.room, toks[n]).setup.players).toEqual(names);
+      }
+      expect(snapshot(made.room, "bad token").setup.seed).toBe(0);
+    }
+  });
+
   describe("In-Sync", () => {
     const sync = (extra: any = {}) => ({ format: "insync", pool: "music", opts: { teamSize: 15, ...extra } });
     const seated = (names: string[], setup: any = sync()) => {

@@ -244,7 +244,7 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
     case "insync": {
       const x = s as IS.InSyncState;
       if (a.type === "clue") return IS.clue(x, a.by, String(a.text ?? ""), now);
-      if (a.type === "move") return IS.move(x, a.by, Number(a.pos), now);
+      if (a.type === "move") return IS.move(x, a.by, a.pos, now);
       if (a.type === "lock") return IS.lock(x, a.by, now);
       if (a.type === "next") return IS.next(x, now);
       if (a.type === "tick") return IS.tick(x, now);

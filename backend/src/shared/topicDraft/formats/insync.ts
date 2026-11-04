@@ -119,7 +119,7 @@ export function clue(s: InSyncState, by: string, text: string, now: number): InS
 
 /** A guesser drags the shared marker. Moving it takes back every lock, so a lock always means this spot. */
 export function move(s: InSyncState, by: string, pos: number, _now: number): InSyncState {
-  if (s.done || s.phase !== "tune" || !s.players.includes(by) || by === giver(s) || typeof pos !== "number" || Number.isNaN(pos)) return s;
+  if (s.done || s.phase !== "tune" || !s.players.includes(by) || by === giver(s) || typeof pos !== "number" || !Number.isFinite(pos)) return s;
   const marker = Math.round(Math.max(0, Math.min(100, pos)));
   if (marker === s.marker) return s;
   return { ...s, marker, markerBy: by, locks: [] };
@@ -129,8 +129,8 @@ export function move(s: InSyncState, by: string, pos: number, _now: number): InS
 export function lock(s: InSyncState, by: string, now: number): InSyncState {
   if (s.done || s.phase !== "tune" || !s.players.includes(by) || by === giver(s) || s.locks.includes(by)) return s;
   const locks = [...s.locks, by];
-  const next = { ...s, locks };
-  return locks.length * 2 > guessers(s).length ? reveal(next, now) : next;
+  const locked = { ...s, locks };
+  return locks.length * 2 > guessers(s).length ? reveal(locked, now) : locked;
 }
 
 /** Anyone can move on once the reveal has been read. */
