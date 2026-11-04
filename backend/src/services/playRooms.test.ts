@@ -249,14 +249,14 @@ describe("playing", () => {
 describe("party rooms", () => {
   const party = (format: "imposter" | "vote", pool: string) => ({ format, pool, opts: { teamSize: format === "imposter" ? 1 : 3, ending: "vote" } });
 
-  it("takes up to 10 players, needs 3 for Imposter, and hides the secret from the imposter", () => {
+  it("takes up to 12 players, needs 3 for Imposter, and hides the secret from the imposter", () => {
     const made = createRoom(party("imposter", "superheroes"), "Ann") as any;
     expect(made.room).toBeDefined();
     const tokens: Record<string, string> = { Ann: made.seat.token };
     const b = joinRoom(made.room.code, "Bob") as any;
     tokens.Bob = b.seat.token;
     expect(startRoom(made.room, tokens.Ann)).toEqual({ error: "Need at least 3 players" });
-    for (let i = 0; i < 8; i++) joinRoom(made.room.code, `P${i}`);
+    for (let i = 0; i < 10; i++) joinRoom(made.room.code, `P${i}`);
     expect((joinRoom(made.room.code, "Late") as any).error).toMatch(/^Room is full/);
     expect(startRoom(made.room, tokens.Ann)).toEqual({ ok: true });
     const st = made.room.state;
@@ -267,17 +267,35 @@ describe("party rooms", () => {
     expect(snapshot(made.room, crewToken).state.secret).toBe(st.secret);
   });
 
+  it("a 12th player can join an empty room, a 13th cannot, and a vote game needs 3 players", () => {
+    const empty = createRoom(null, "H0") as any;
+    for (let i = 1; i < 12; i++) expect((joinRoom(empty.room.code, `H${i}`) as any).error).toBeUndefined();
+    expect((joinRoom(empty.room.code, "H12") as any).error).toMatch(/^Room is full/);
+    const made = createRoom(party("vote", "icks"), "Ann") as any;
+    joinRoom(made.room.code, "Bob");
+    expect(startRoom(made.room, made.seat.token)).toEqual({ error: "Need at least 3 players" });
+  });
+
+  it("keeps drinking off unless asked and cleans team settings", () => {
+    const off = createRoom(party("vote", "icks"), "Ann") as any;
+    expect(off.room.setup.opts).toMatchObject({ drinking: false, showVotes: true, teams: 0, teamMap: {} });
+    const on = createRoom({ ...party("vote", "icks"), opts: { teamSize: 3, drinking: true, showVotes: false, teams: 2, teamMap: { Ann: 1, Bob: 5, Cy: "x" } } }, "Ann") as any;
+    expect(on.room.setup.opts).toMatchObject({ drinking: true, showVotes: false, teams: 2, teamMap: { Ann: 1 } });
+  });
+
   it("rejects unknown decks and runs a vote game to the end", () => {
     expect(createRoom(party("vote", "nope"), "Ann")).toEqual({ error: "Invalid game setup" });
     const made = createRoom(party("vote", "icks"), "Ann") as any;
     const b = joinRoom(made.room.code, "Bob") as any;
+    const c = joinRoom(made.room.code, "Cy") as any;
     expect(startRoom(made.room, made.seat.token)).toEqual({ ok: true });
     for (let round = 0; round < 3; round++) {
       expect(act(made.room, made.seat.token, { type: "vote", side: "a" }).ok).toBe(true);
       expect(act(made.room, b.seat.token, { type: "vote", side: "a" }).ok).toBe(true);
+      expect(act(made.room, c.seat.token, { type: "vote", side: "a" }).ok).toBe(true);
       act(made.room, made.seat.token, { type: "next" });
     }
     expect(made.room.status).toBe("done");
-    expect(made.room.state.points).toEqual({ Ann: 3, Bob: 3 });
+    expect(made.room.state.points).toEqual({ Ann: 3, Bob: 3, Cy: 3 });
   });
 });

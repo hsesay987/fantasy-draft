@@ -9,6 +9,7 @@ import { formatMeta } from "./formats";
 import { category } from "./categories";
 import { setRoomGame } from "./onlineApi";
 import { DEFAULT_OPTS, type GameSetup } from "./types";
+import { DrinkingToggle } from "./views/partyBits";
 
 /** Topics Imposter can use: any character pool big enough for a secret plus look-alikes to guess from. */
 export const IMPOSTER_TOPICS = CATALOG_META.filter((m) => m.kind === "character" && getCatalog(m.id).length >= OPTION_COUNT);
@@ -19,6 +20,7 @@ export function PartySetup({ format, room }: { format: "imposter" | "vote"; room
   const [pool, setPool] = useState(() => (format === "imposter" ? (IMPOSTER_TOPICS.some((t) => t.id === room.pool) ? room.pool! : "superheroes") : DECKS.some((d) => d.id === room.pool) ? room.pool! : DECKS[0]!.id));
   const [length, setLength] = useState(format === "imposter" ? 2 : 8);
   const [ending, setEnding] = useState<"guess" | "vote">("guess");
+  const [drinking, setDrinking] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +29,7 @@ export function PartySetup({ format, room }: { format: "imposter" | "vote"; room
     setError(null);
     const setup: GameSetup = {
       id: "", format, pool, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -79,6 +81,10 @@ export function PartySetup({ format, room }: { format: "imposter" | "vote"; room
           </div>
         </Panel>
       )}
+
+      <Panel title="Drinking mode" hint="Optional. Off by default.">
+        <DrinkingToggle value={drinking} onChange={setDrinking} />
+      </Panel>
 
       {error && <p role="alert" className="text-sm text-accent">{error}</p>}
       <div className="flex gap-3">

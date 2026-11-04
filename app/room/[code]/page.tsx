@@ -131,7 +131,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   const meta = setup ? formatMeta(setup.format) : null;
   const cat = setup ? category(setup.pool) : null;
   const party = !!setup && PARTY_FORMATS.has(setup.format);
-  const cap = !setup || party ? 10 : 6; // an empty room takes a party-sized group; drafts cap it at six
+  const cap = !setup || party ? 12 : 6; // an empty room takes a party-sized group; drafts cap it at six
   const poolTitle = setup ? (setup.format === "vote" ? deckOf(setup.pool)?.title : cat?.title) : null;
 
   // Picking a game: the full setup screen for that format, saving to the room.
@@ -178,7 +178,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
       <PageHeader title={`Room ${code}`} subtitle={setup && meta ? `Next up: ${meta.title}${poolTitle && setup.format !== "vote" ? ` · ${poolTitle}` : setup.format === "vote" ? ` · ${poolTitle}` : ""}` : isHost ? "Pick a game to play" : "The host is picking a game"} icon={meta?.icon ?? Users} gradient={meta?.gradient} />
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Panel title="Invite friends" hint={`Share the code or the link. Up to ${cap} players${cap === 10 ? " (drafts and trivia take 6)" : " (party games take 10)"}. Friends can join between games too.`}>
+        <Panel title="Invite friends" hint={`Share the code or the link. Up to ${cap} players${cap === 12 ? " (drafts and trivia take 6)" : " (party games take 12)"}. Friends can join between games too.`}>
           <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/30 px-4 py-3">
             <span className="font-display text-4xl tracking-[0.2em]">{code}</span>
             <Button variant="ghost" onClick={copy}>{copied ? <Check className="h-4 w-4" aria-hidden /> : <Copy className="h-4 w-4" aria-hidden />} {copied ? "Copied" : "Copy link"}</Button>
@@ -228,7 +228,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
               {setup && <Button variant="ghost" onClick={() => setPicking(null)}>Keep {meta?.title}</Button>}
             </div>
           </div>
-          <h3 className="text-lg">Party games <span className="text-sm font-normal text-muted-foreground">· up to 10 players, best with a group</span></h3>
+          <h3 className="text-lg">Party games <span className="text-sm font-normal text-muted-foreground">· up to 12 players, best with a group</span></h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {PARTY_GAMES.map((f) => (
               <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} badge="New" onClick={() => setPicking(f.id)} />

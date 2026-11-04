@@ -40,6 +40,14 @@ export type Opts = {
   rankSize: number;
   /** Imposter: "guess" lets the imposter name the secret any time; "vote" leaves it to the vote. */
   ending: "guess" | "vote";
+  /** Party games: sip cards on. Off by default. */
+  drinking: boolean;
+  /** Party games: show who voted what on the reveal. */
+  showVotes: boolean;
+  /** Party games: number of teams, 0 for none. */
+  teams: number;
+  /** Party games: player name to team index. */
+  teamMap: Record<string, number>;
 };
 
 export type GameSetup = {
@@ -80,6 +88,10 @@ export const DEFAULT_OPTS: Opts = {
   handExtra: 2,
   rankSize: 6,
   ending: "guess",
+  drinking: false,
+  showVotes: true,
+  teams: 0,
+  teamMap: {},
 };
 
 export function snakeConfig(setup: GameSetup): Config {

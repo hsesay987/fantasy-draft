@@ -2,7 +2,81 @@
 
 import { useEffect, useState } from "react";
 import { Sprite } from "../../components/pixel/Sprite";
-import { hero } from "../../components/pixel/sprites";
+import { hero, type Sprite as SpriteData } from "../../components/pixel/sprites";
+import type { DrinkCall } from "../../topicDraft/party/drinks";
+
+/** The pixel character for the player in seat `i`. The one place to swap in player-chosen characters later. */
+export const playerSprite = (i: number): SpriteData => hero(i);
+
+const MUG: SpriteData = {
+  rows: ["..FFFFFF....", "..FFFFFF....", ".XWWWWWWX...", ".XAAAAAAXXX.", ".XAAAAAAX.X.", ".XAAAAAAX.X.", ".XAAAAAAXXX.", ".XAAAAAAX...", "..XXXXXX...."],
+  pal: { X: "#2b1a0e", W: "#fff4d6", A: "#e0a030", F: "#fff4d6" },
+};
+const DROP: SpriteData = {
+  rows: ["...X....", "..XXX...", "..XXX...", ".XXXXX..", "XXXXXXX.", "XXXXXXX.", ".XXXXX..", "..XXX..."],
+  pal: { X: "#7dd3fc" },
+};
+
+export const WATER_LINE = "Water counts and nobody has to drink.";
+
+/** Host switch for sip cards. Turning it on needs the host to confirm everyone is of legal drinking age. */
+export function DrinkingToggle({ value, onChange }: { value: boolean; onChange: (on: boolean) => void }) {
+  const [asking, setAsking] = useState(false);
+  return (
+    <div className="tavern-toggle">
+      <button type="button" role="switch" aria-checked={value} onClick={() => (value ? onChange(false) : setAsking(true))} className={`tavern-switch ${value ? "on" : ""}`}>
+        <Sprite sprite={MUG} size={28} />
+        <span className="txt"><b>Drinking mode</b><span>{value ? "On. Cards will hand out sips." : "Off. Sip cards stay hidden."}</span></span>
+        <span className="pip" aria-hidden>{value ? "ON" : "OFF"}</span>
+      </button>
+      <p className="tavern-water"><Sprite sprite={DROP} size={14} /> {WATER_LINE}</p>
+      {asking && (
+        <div className="tavern-modal" role="dialog" aria-modal="true" aria-label="Drinking mode">
+          <div className="tavern-sheet">
+            <Sprite sprite={MUG} size={40} />
+            <p>Everyone playing is of legal drinking age.</p>
+            <p className="tavern-water"><Sprite sprite={DROP} size={14} /> {WATER_LINE}</p>
+            <div className="row">
+              <button type="button" className="tavern-btn go" onClick={() => { setAsking(false); onChange(true); }}>Yes, turn it on</button>
+              <button type="button" className="tavern-btn" onClick={() => setAsking(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const DRINK_MS = 4000;
+
+/**
+ * Sip cards for this round, as a tavern slate. Shows for 4 seconds, tap to dismiss, and shows again whenever
+ * `seq` changes. `names` maps a card's player to a seat so the sprite matches the rest of the game.
+ */
+export function DrinkCard({ calls, seq, names = [] }: { calls: DrinkCall[]; seq: number; names?: string[] }) {
+  const [shown, setShown] = useState(seq);
+  useEffect(() => {
+    setShown(seq);
+    const id = setTimeout(() => setShown(-1), DRINK_MS);
+    return () => clearTimeout(id);
+  }, [seq]);
+  if (shown !== seq || calls.length === 0) return null;
+  return (
+    <div className="tavern-card" role="status" aria-live="polite" onClick={() => setShown(-1)}>
+      <ul>
+        {calls.map((c, i) => (
+          <li key={`${seq}-${i}`} className={c.water ? "water" : ""}>
+            <Sprite sprite={c.water ? DROP : c.to === "all" ? MUG : playerSprite(Math.max(0, names.indexOf(c.to)))} size={24} />
+            <span className="who"><b>{c.to === "all" ? "Everyone" : c.to}</b><span>{c.reason}</span></span>
+            <span className="sips">{c.water ? "Water" : c.handsOut ? `Hand out ${c.sips}` : `${c.sips} ${c.sips === 1 ? "sip" : "sips"}`}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="tavern-water"><Sprite sprite={DROP} size={14} /> {WATER_LINE}</p>
+      <span className="hint">Tap to close</span>
+    </div>
+  );
+}
 
 /** A countdown for timed party phases, read against the server clock. */
 export function PartyClock({ deadline, offset, total }: { deadline: number; offset: number; total: number }) {
