@@ -39,7 +39,7 @@
 
 **Files:**
 - Create: `app/topicDraft/party/drinks.ts`, `app/topicDraft/party/drinks.test.ts`
-- Modify: `app/play/types.ts`, `backend/src/services/playRooms.ts:23-29,141-158,288-289`, `app/room/[code]/page.tsx:134,181,231`, `app/play/PartySetup.tsx`, `app/play/views/partyBits.tsx`, `app/play/pixel.css` (or the file holding `.party-booths`)
+- Modify: `app/play/types.ts`, `backend/src/services/playRooms.ts:23-29,141-158,288-289`, `app/room/[code]/page.tsx:134,181,231`, `app/play/PartySetup.tsx`, `app/play/views/partyBits.tsx`, `app/globals.css`
 
 **Interfaces:**
 - Produces:
