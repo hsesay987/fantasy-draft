@@ -18,14 +18,16 @@ import * as FD from "./formats/feud";
 import * as J from "./formats/jeopardy";
 import * as IM from "./formats/imposter";
 import * as V from "./formats/vote";
+import * as IS from "./formats/insync";
 import { deckOf } from "./party/decks";
+import { insyncDeckOf } from "./party/insyncDecks";
 import { bundledCategories, surveysFor } from "./trivia";
 import { catalogMeta } from "./catalogs";
 import type { Item, State } from "./types";
 import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
-export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState;
+export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState;
 
 /** Every action says who is acting; the server checks that against the seat's token. */
 export type Action =
@@ -51,6 +53,7 @@ export type Action =
   | { type: "guess"; by: string; name: string }
   | { type: "vote"; by: string; side: string }
   | { type: "guessVote"; by: string; target: string; side: string }
+  | { type: "move"; by: string; pos: number }
   | { type: "next"; by: string };
 
 export type Extra = { kind: "order"; title: string; names: string[] } | null;
@@ -98,6 +101,8 @@ export function initGame(setup: GameSetup, now: number): GameState {
       return IM.init({ players: setup.players, pool, topic: catalogMeta(setup.pool)?.title ?? setup.pool, rounds: o.teamSize, ending: o.ending, drinking: o.drinking, seed: setup.seed, now });
     case "vote":
       return V.init({ players: setup.players, deck: setup.pool, cards: deckOf(setup.pool)?.cards ?? [], rounds: o.teamSize, avoid: o.avoid, showVotes: o.showVotes, drinking: o.drinking, seed: setup.seed, now });
+    case "insync":
+      return IS.init({ players: setup.players, deck: setup.pool, pairs: insyncDeckOf(setup.pool)?.pairs ?? [], rounds: Math.max(4, setup.players.length), avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }
@@ -138,6 +143,10 @@ export function currentTurn(setup: GameSetup, s: GameState): string | null {
       return J.turnPlayer(s as J.JeopardyState);
     case "imposter":
       return IM.turnPlayer(s as IM.ImposterState);
+    case "insync": {
+      const x = s as IS.InSyncState;
+      return x.phase === "clue" ? IS.giver(x) : null;
+    }
     default:
       return null;
   }
@@ -230,6 +239,15 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       if (a.type === "guessVote") return V.guessVote(x, a.by, String(a.target ?? ""), String(a.side), now);
       if (a.type === "next") return V.nextCard(x, now);
       if (a.type === "tick") return V.tick(x, now);
+      return s;
+    }
+    case "insync": {
+      const x = s as IS.InSyncState;
+      if (a.type === "clue") return IS.clue(x, a.by, String(a.text ?? ""), now);
+      if (a.type === "move") return IS.move(x, a.by, Number(a.pos), now);
+      if (a.type === "lock") return IS.lock(x, a.by, now);
+      if (a.type === "next") return IS.next(x, now);
+      if (a.type === "tick") return IS.tick(x, now);
       return s;
     }
   }
@@ -364,6 +382,11 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
     case "vote": {
       const pts = (s as { points: Record<string, number> }).points;
       return { extra: null, teams: setup.players.map((player) => ({ player, baseline: pts[player] ?? 0, items: [] })) };
+    }
+    case "insync": {
+      // Co-operative: the group score is everyone's score.
+      const score = (s as IS.InSyncState).score;
+      return { extra: null, teams: setup.players.map((player) => ({ player, baseline: score, items: [] })) };
     }
     case "jeopardy": {
       const j = s as J.JeopardyState;

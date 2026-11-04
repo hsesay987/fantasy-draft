@@ -17,10 +17,12 @@ import * as B from "../shared/topicDraft/formats/blind";
 import * as P from "../shared/topicDraft/formats/position";
 import * as IM from "../shared/topicDraft/formats/imposter";
 import * as V from "../shared/topicDraft/formats/vote";
+import * as IS from "../shared/topicDraft/formats/insync";
 import { deckOf } from "../shared/topicDraft/party/decks";
+import { insyncDeckOf } from "../shared/topicDraft/party/insyncDecks";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote"];
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync"];
 /** Party games take a bigger group; drafts and trivia stay at six. */
 const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
@@ -140,13 +142,15 @@ export function sanitizeSetup(input: any): GameSetup | null {
   return { id: "", format, pool, players: [], aiPlayers: [], mission, mystery: !!input.mystery, loadout, roles: format === "position" ? roles : [], opts, seed: 0 };
 }
 
-/** Party games: Imposter needs a character topic, vote games need a card deck. */
+/** Party games: Imposter needs a character topic, vote games need a card deck, In-Sync a pair deck. */
 function sanitizeParty(format: FormatId, input: any): GameSetup | null {
   const pool = clean(input.pool, 30);
   const o = input.opts ?? {};
   if (format === "imposter") {
     const meta = CATALOG_META.find((m) => m.id === pool);
     if (!meta || meta.kind !== "character" || getCatalog(pool).length < IM.OPTION_COUNT) return null;
+  } else if (format === "insync") {
+    if (!insyncDeckOf(pool)) return null;
   } else if (!deckOf(pool)) return null;
   const teams = num(o.teams, 0, 4, 0);
   const teamMap: Record<string, number> = {};
@@ -156,7 +160,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
       if (name && Number.isInteger(t) && t >= 0 && t < teams) teamMap[name] = t;
     }
   }
-  const title = format === "imposter" ? `Imposter: ${CATALOG_META.find((m) => m.id === pool)!.title}` : deckOf(pool)!.title;
+  const title = format === "imposter" ? `Imposter: ${CATALOG_META.find((m) => m.id === pool)!.title}` : format === "insync" ? `In-Sync: ${insyncDeckOf(pool)!.title}` : deckOf(pool)!.title;
   const opts = {
     ...DEFAULT_OPTS,
     timerSeconds: null,
@@ -303,7 +307,7 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
   if (room.seats.length < min) return { error: `Need at least ${min} players` };
   if (room.seats.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
   room.setup = { ...room.setup, players: room.seats.map((s) => s.name), seed: (Math.random() * 2 ** 31) | 0 };
-  if (room.setup.format === "vote") room.setup.opts = { ...room.setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
+  if (room.setup.format === "vote" || room.setup.format === "insync") room.setup.opts = { ...room.setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
   room.state = initGame(room.setup, Date.now());
   room.status = "playing";
   room.freshQuiz = false;
@@ -331,7 +335,7 @@ export function leaveRoom(room: Room, token: unknown) {
   bump(room);
 }
 
-const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "next"]);
+const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
   const seat = seatFor(room, token);
@@ -374,7 +378,8 @@ function finish(room: Room) {
   room.played = [...room.played, record].slice(-30);
   // Party games are scored by their own rules; no AI report.
   if (PARTY_FORMATS.has(setup.format)) {
-    record.winner = triviaWinner(room.state!);
+    record.winner = setup.format === "insync" ? null : triviaWinner(room.state!); // In-Sync is co-operative: no winner
+    if (setup.format === "insync") room.seen = [...room.seen, ...(room.state as IS.InSyncState).pairs.map((q) => q.id)].slice(-400);
     if (setup.format === "vote") room.seen = [...room.seen, ...(room.state as V.VoteState).cards.map((c) => c.id)].slice(-400);
     return;
   }
@@ -408,7 +413,7 @@ function autoplay(room: Room, name: string): Action | null {
     if (x.phase === "clue" && IM.turnPlayer(x) === name) return { type: "clue", by: name, text: "" };
     return null; // votes and guesses run out on their own clocks
   }
-  if (format === "vote") return null;
+  if (format === "vote" || format === "insync") return null; // every phase ends on its own clock
   if (format === "auction") {
     const a = s as A.AuctionState;
     if (a.nominate?.offer) return A.nominator(a) === name ? { type: "nominate", by: name, itemId: a.nominate.offer[0]! } : null;
@@ -479,6 +484,7 @@ function redact(room: Room, me: string | null): GameState | null {
   if (!s) return null;
   // Vote games go through their redaction even when done: with Show votes off the final screen must stay secret too.
   if (room.setup?.format === "vote") return V.redactFor(s as V.VoteState, me, room.status === "done");
+  if (room.setup?.format === "insync") return IS.redactFor(s as IS.InSyncState, me); // opens up by itself once the game is done
   if (room.status === "done" || !room.setup) return s;
   if (room.setup.format === "position") {
     const p = s as P.PositionState;
