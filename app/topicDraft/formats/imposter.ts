@@ -5,6 +5,7 @@
 import type { Item } from "../types";
 import { shuffle } from "../rng";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
+import { normalizeClue } from "../party/clueText";
 
 export type Ending = "guess" | "vote";
 export type ImposterPhase = "clue" | "vote" | "guess" | "done";
@@ -92,7 +93,7 @@ function finish(s: ImposterState, winner: "imposter" | "crew", now: number, extr
 /** One clue on your turn. Empty text passes (used when the clock runs out). */
 export function clue(s: ImposterState, by: string, text: string, now: number): ImposterState {
   if (s.phase !== "clue" || turnPlayer(s) !== by) return s;
-  const t = text.replace(/\s+/g, " ").trim().slice(0, 40);
+  const t = normalizeClue(text);
   if (t && by !== s.imposter && givesAway(t, s.secret)) return s;
   if (t && s.clues.some((c) => fold(c.text) === fold(t))) return s; // no copying someone else's clue word for word
   const clues = [...s.clues, { by, text: t || "(passed)" }];

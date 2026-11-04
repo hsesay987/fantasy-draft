@@ -1,0 +1,6 @@
+// The one definition of a player's clue text. The engines store exactly this, and the server moderates exactly this,
+// so nothing can reach other players' phones without being checked.
+export const CLUE_MAX = 40;
+
+/** Whitespace collapsed, ends trimmed, capped. Anything but a string counts as no clue. */
+export const normalizeClue = (text: unknown): string => (typeof text === "string" ? text.replace(/\s+/g, " ").trim().slice(0, CLUE_MAX) : "");

@@ -227,7 +227,7 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
     }
     case "imposter": {
       const x = s as IM.ImposterState;
-      if (a.type === "clue") return IM.clue(x, a.by, String(a.text ?? ""), now);
+      if (a.type === "clue") return IM.clue(x, a.by, a.text, now);
       if (a.type === "accuse") return IM.accuse(x, a.by, String(a.target ?? ""), now);
       if (a.type === "guess") return IM.guess(x, a.by, String(a.name ?? ""), now);
       if (a.type === "tick") return IM.tick(x, now);
@@ -243,7 +243,7 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
     }
     case "insync": {
       const x = s as IS.InSyncState;
-      if (a.type === "clue") return IS.clue(x, a.by, String(a.text ?? ""), now);
+      if (a.type === "clue") return IS.clue(x, a.by, a.text, now);
       if (a.type === "move") return IS.move(x, a.by, a.pos, now);
       if (a.type === "lock") return IS.lock(x, a.by, now);
       if (a.type === "next") return IS.next(x, now);

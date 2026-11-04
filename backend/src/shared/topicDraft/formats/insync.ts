@@ -5,13 +5,14 @@
 // The group scores 4 / 3 / 2 / 0 by how close the marker lands, and the whole table shares one score.
 import { next as rand, shuffle } from "../rng";
 import type { Pair } from "../party/insyncDecks";
+import { CLUE_MAX, normalizeClue } from "../party/clueText";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 
 export type { Pair };
 export const CLUE_MS = 45_000;
 export const TUNE_MS = 60_000;
 export const REVEAL_MS = 10_000;
-export const CLUE_MAX = 40;
+export { CLUE_MAX };
 
 export type InSyncHistory = { pair: Pair; clue: string; target: number; marker: number; points: number; giver: string; skipped?: boolean };
 
@@ -112,7 +113,7 @@ function skip(s: InSyncState, now: number): InSyncState {
 
 /** The giver names their spot. One clue, then the table tunes. */
 export function clue(s: InSyncState, by: string, text: string, now: number): InSyncState {
-  const t = String(text ?? "").replace(/\s+/g, " ").trim().slice(0, CLUE_MAX);
+  const t = normalizeClue(text);
   if (s.done || s.phase !== "clue" || by !== giver(s) || !t) return s;
   return { ...s, clue: t, phase: "tune", marker: 50, markerBy: null, locks: [], phaseAt: now };
 }
