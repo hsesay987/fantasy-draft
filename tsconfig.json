@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "backend"]
+  "exclude": ["node_modules", "backend", "scripts/buildCommonThread.ts", "scripts/commonThreadTopics.ts", "scripts/commonThreadWiki.ts", "scripts/commonThreadCountries.ts"]
 }
