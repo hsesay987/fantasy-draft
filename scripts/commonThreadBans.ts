@@ -82,6 +82,7 @@ export const NOT_HEROES: string[] = [
   "Geralt of Rivia", "Zuko", "The Mask", "The Umbrella Academy", "Justice Society of America", "Invaders", "Marvel Family", "All-Winners Squad", "Seven Soldiers of Victory", "Boy Commandos",
   "Liberty Legion", "Justice Guild of America", "Little Wise Guys", "Young Allies", "Beasts of Burden", "Haunted Tank", "Flaming Carrot Comics", "Spawn: Godslayer", "Kato", "Cat-Man and Kitten",
   "Thunder and Lightning", "Slam Bradley", "Kid Colt", "Two-Gun Kid", "Devil Dinosaur", "Prez", "King Faraday", "Happy Sam Sawyer", "Debrii", "Lieutenant Marvels", "Uncle Marvel", "Rocket", "Hornet", "Flame", "Avenger", "Venus", "Prophet", "Nemesis", "Solo", "Vigilante", "Phantom", "Madman", "Invincible",
+  "Ace the Bat-Hound", "Solovar", "Fandral", "Balder", "Bizarra", "Bozo the Iron Man",
 ];
 
 /** Single quirks: [topic, label, member name] removed from that category. */
@@ -96,6 +97,13 @@ export const BANNED_PAIRS: [string, string, string][] = [
   ["food", "Made with fish", "Biryani"],
   ["food", "Part of Korean cuisine", "Tonkatsu"],
   ["food", "Part of Italian cuisine", "Caesar salad"], ["food", "Part of French cuisine", "Pancake"], ["food", "Part of Polish cuisine", "Pancake"], ["food", "Part of Austrian cuisine", "Pancake"],
+  ["disney", "From the Cars series", "Buzz Lightyear"], ["disney", "From the Cars series", "James P. Sullivan"],
+  ["history", "Fought in World War I", "Nikita Khrushchev"],
+  ["villains", "First appeared in the 2000s", "King Tut"],
+  ["superheroes", "Appears in Arrow", "Geo-Force"],
+  ["flags", "Has French as an official language", "Mauritius"], ["geography", "Has French as an official language", "Mauritius"],
+  ["flags", "Has English as an official language", "Christmas Island"], ["geography", "Has English as an official language", "Christmas Island"],
+  ["music", "Signed to RCA Victor", "The Mamas & the Papas"],
 ];
 
 export const isBannedLabel = (topic: string, label: string) => BANNED_LABELS["*"]!.includes(label) || (BANNED_LABELS[topic] ?? []).includes(label) || BANNED_PATTERNS.some((r) => r.test(label));
@@ -103,8 +111,11 @@ const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 /** A skip pattern that matches every label except these exact ones. */
 export const onlyExact = (list: string[]) => new RegExp(`^(?!(?:${list.map(esc).join("|")})$)`);
 
-/** Named pairs that must never appear on the real data: [topic, label pattern ("." for any), name]. The data test pins them. */
-export const MUST_NOT: [string, RegExp, string][] = [
+/**
+ * Named pairs that must never appear on the real data: [topic, label pattern ("." for any), name]. The data test pins them.
+ * A fourth value "clue" is for a true fact that gives itself away: the name stays a member but may not be a clue.
+ */
+export const MUST_NOT: [string, RegExp, string, "clue"?][] = [
   ["movies", /extraterrestrial/i, "Han Solo"],
   ["movies", /extraterrestrial/i, "Princess Leia"],
   ["movies", /extraterrestrial/i, "Darth Vader"],
@@ -155,4 +166,15 @@ export const MUST_NOT: [string, RegExp, string][] = [
   ["superheroes", /./, "Lois Lane"], ["superheroes", /./, "Lucy Lane"], ["superheroes", /./, "Alfred Pennyworth"], ["superheroes", /./, "Thomas Wayne"],
   ["superheroes", /./, "John Jameson"], ["superheroes", /./, "Sasha Bordeaux"], ["superheroes", /./, "G. W. Bridge"], ["superheroes", /./, "Nick Fury"],
   ["superheroes", /./, "Metron"], ["superheroes", /./, "Ganthet"],
+  ["flags", /^In Micronesia$/, "Federated States of Micronesia", "clue"], ["geography", /^In Micronesia$/, "Federated States of Micronesia", "clue"],
+  ["geography", /^In China$/, "People's Republic of China", "clue"], ["geography", /^In New York$/, "New York City", "clue"], ["geography", /^In Ontario$/, "Lake Ontario", "clue"],
+  ["flags", /^In Middle Africa$/, "Central African Republic", "clue"], ["geography", /^In Middle Africa$/, "Central African Republic", "clue"],
+  ["superheroes", /./, "Ace the Bat-Hound"], ["superheroes", /./, "Solovar"], ["superheroes", /./, "Fandral"], ["superheroes", /./, "Balder"], ["superheroes", /./, "Bizarra"], ["superheroes", /./, "Bozo the Iron Man"],
+  ["disney", /Cars series/, "Buzz Lightyear"], ["disney", /Cars series/, "James P. Sullivan"],
+  ["history", /^Fought in World War I$/, "Nikita Khrushchev"],
+  ["villains", /^First appeared in the 2000s$/, "King Tut"],
+  ["superheroes", /^Appears in Arrow$/, "Geo-Force"],
+  ["flags", /French as an official language/, "Mauritius"], ["geography", /French as an official language/, "Mauritius"],
+  ["flags", /English as an official language/, "Christmas Island"], ["geography", /English as an official language/, "Christmas Island"],
+  ["music", /RCA Victor/, "The Mamas & the Papas"],
 ];

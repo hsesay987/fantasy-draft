@@ -127,6 +127,37 @@ describe("Common Thread rules", () => {
     expect(givesAway("Mali", "Has Malay as an official language", true)).toBe(false);
   });
 
+  it("catches a place name from an \"In <place>\" label inside a longer clue name", () => {
+    expect(givesAway("Federated States of Micronesia", "In Micronesia")).toBe(true);
+    expect(givesAway("People's Republic of China", "In China")).toBe(true);
+    expect(givesAway("New York City", "In New York")).toBe(true);
+    expect(givesAway("Lake Ontario", "In Ontario")).toBe(true);
+    expect(givesAway("South Africa", "In Africa")).toBe(true);
+    expect(givesAway("lake ontario", "IN ONTARIO")).toBe(true);
+    expect(givesAway("Mont Blanc", "In the Alps")).toBe(false);
+    // Whole words only, and stop words do not count.
+    expect(givesAway("Chinatown", "In China")).toBe(false);
+    expect(givesAway("New Orleans", "In New York")).toBe(false);
+    expect(givesAway("The Gambia", "In the Philippines")).toBe(false);
+    // A direction or a generic word of a place name names nothing by itself.
+    expect(givesAway("South Georgia", "In South America")).toBe(false);
+    expect(givesAway("United Arab Emirates", "In the United Kingdom")).toBe(false);
+    // Not a place label.
+    expect(givesAway("Lake Ontario", "Borders Ontario")).toBe(false);
+    expect(givesAway("Panama Canal Zone", "In the UTC−05:00 time zone")).toBe(false);
+  });
+
+  it("treats the named pair Central African Republic and In Middle Africa as a give-away", () => {
+    expect(givesAway("Central African Republic", "In Middle Africa", true)).toBe(true);
+    expect(givesAway("Chad", "In Middle Africa", true)).toBe(false);
+  });
+
+  it("never uses a clue that contains the place of an \"In <place>\" label", () => {
+    const c = cat("In Ontario", 12, "k", "x");
+    c.members.push({ name: "Lake Ontario", fame: 9999 });
+    expect(orderClues(c).map((x) => x.name)).not.toContain("Lake Ontario");
+  });
+
   it("never uses a country whose adjective is in the label as a clue", () => {
     const c = { ...cat("Uses the Australian dollar", 12), country: true };
     c.members.push({ name: "Australia", fame: 9999 });
@@ -290,12 +321,12 @@ describe("Common Thread data", () => {
       expect(c.label, c.label).not.toMatch(/\p{Extended_Pictographic}/u);
       for (const clue of c.clues) expect(clue.name, clue.name).not.toMatch(/\p{Extended_Pictographic}/u);
     }
-    for (const [topic, re, name] of MUST_NOT) {
+    for (const [topic, re, name, scope] of MUST_NOT) {
       if (topic !== pool) continue;
       for (const c of all) {
         if (!re.test(c.label)) continue;
         expect(c.clues.map((x) => x.name), `${c.label} / ${name}`).not.toContain(name);
-        expect(c.members, `${c.label} / ${name}`).not.toContain(name);
+        if (scope !== "clue") expect(c.members, `${c.label} / ${name}`).not.toContain(name);
       }
     }
   });

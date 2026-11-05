@@ -44,9 +44,27 @@ const DEMONYMS: Record<string, string[]> = {
   "new zealand": ["kiwi"], norway: ["norwegian"], germany: ["german"], israel: ["israeli"], iran: ["iranian", "persian"], iraq: ["iraqi"], mexico: ["mexican"],
 };
 
-/** The label names the clue: the whole name as words, a demonym, or a shared 5-letter stem ("Australia" in "Australian dollar"). */
+/** Words of an "In <place>" label that name nothing by themselves: stop words, directions and generic parts of a place name. */
+const PLACE_STOP = new Set([
+  "the", "and", "new", "north", "south", "east", "west", "northern", "southern", "eastern", "western", "southeast", "central", "middle",
+  "united", "states", "kingdom", "republic", "autonomous", "region",
+]);
+/** The significant place words of an "In <place>" label ("In New York" gives "York"). A time zone is not a place. */
+const placeWords = (label: string): string[] =>
+  !/^In\s/i.test(label) || /\btime zone$/i.test(label)
+    ? []
+    : label.slice(3).split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 3 && !PLACE_STOP.has(w.toLowerCase()));
+/** Give-aways no word match can see: [label, clue name]. The clue stays a member, so the label is never offered as a wrong option for it. */
+const NAMED_GIVEAWAYS: [string, string][] = [["In Middle Africa", "Central African Republic"]];
+
+/**
+ * The label names the clue: the whole name as words, a place word of an "In <place>" label inside the name ("In China" with
+ * "People's Republic of China"), a demonym, or a shared 5-letter stem ("Australia" in "Australian dollar").
+ */
 export function givesAway(name: string, label: string, country = false): boolean {
   if (nameInLabel(name, label)) return true;
+  if (placeWords(label).some((w) => nameInLabel(w, name))) return true;
+  if (NAMED_GIVEAWAYS.some(([l, n]) => l === label && n === name)) return true;
   // Demonyms and stems only matter where the clue is a country: elsewhere a shared 5-letter start is just a shared word.
   if (!country) return false;
   const n = name.toLowerCase().replace(/^the\s+/, "").trim();
