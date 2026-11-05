@@ -7,6 +7,7 @@ import { DECKS } from "../topicDraft/party/decks";
 import { INSYNC_DECKS } from "../topicDraft/party/insyncDecks";
 import { OPTION_COUNT } from "../topicDraft/formats/imposter";
 import { TEAM_MIN_PLAYERS } from "../topicDraft/formats/partytrivia";
+import { MIN_PLAYERS as MAFIA_MIN, NIGHT_MS, QUIET_FIRST_NIGHT_AT, TALK_MS, VOTE_MS, rolesFor } from "../topicDraft/formats/mafia";
 import { newSeed } from "../topicDraft/rng";
 import { hasTrivia } from "../topicDraft/trivia";
 import { formatMeta } from "./formats";
@@ -24,10 +25,11 @@ export const IMPOSTER_TOPICS = CATALOG_META.filter((m) => m.kind === "character"
 const TRIVIA_TOPICS = CATEGORIES.filter((c) => !c.hidden && hasTrivia(c.id));
 
 /** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
-export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia"; room: { code: string; token: string; pool?: string; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
+export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia"; room: { code: string; token: string; pool?: string; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
   const meta = formatMeta(format)!;
   const decks = format === "insync" ? INSYNC_DECKS : DECKS;
   const [pool, setPool] = useState(() => {
+    if (format === "mafia") return "mafia";
     if (format === "imposter") return IMPOSTER_TOPICS.some((t) => t.id === room.pool) ? room.pool! : "superheroes";
     if (format === "partytrivia") return TRIVIA_TOPICS.some((t) => t.id === room.pool) ? room.pool! : TRIVIA_TOPICS[0]!.id;
     const ids = decks.map((d) => d.id);
@@ -81,6 +83,8 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
             {TRIVIA_TOPICS.map((t) => <Chip key={t.id} selected={pool === t.id} onClick={() => setPool(t.id)}>{t.title}</Chip>)}
           </div>
         </Panel>
+      ) : format === "mafia" ? (
+        <MafiaTown seats={seats.length} />
       ) : (
         <Panel title="Deck">
           <div className="grid gap-2 sm:grid-cols-2">
@@ -94,7 +98,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </Panel>
       )}
 
-      {format === "insync" ? (
+      {format === "mafia" ? null : format === "insync" ? (
         <Panel title="Rounds">
           <p className="text-sm text-muted-foreground">One round per player, so everyone gets the mic. Never fewer than 4.</p>
         </Panel>
@@ -146,5 +150,25 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         <Button variant="ghost" onClick={room.onCancel}>Back</Button>
       </div>
     </PageShell>
+  );
+}
+
+const castLine = (n: number) => {
+  const c = rolesFor(n);
+  return `${c.mafia} mafia, a doctor${c.detective ? ", a detective" : ""}, and the rest villagers`;
+};
+
+/** What the host needs before starting Mafia: there's nothing to pick, so this says who's in the town and how long it runs. */
+function MafiaTown({ seats }: { seats: number }) {
+  return (
+    <Panel title="The town" hint={seats < MAFIA_MIN ? `Mafia needs at least ${MAFIA_MIN} players. ${seats} here so far, and friends can still join.` : `${seats} players: ${castLine(seats)}.`}>
+      <ul className="space-y-1 text-sm text-muted-foreground">
+        <li>5 to 6 players: {castLine(5)}.</li>
+        <li>7 to 8 players: {castLine(7)}.</li>
+        <li>9 to 12 players: {castLine(9)}.</li>
+        <li>With exactly {QUIET_FIRST_NIGHT_AT} players, nobody leaves on the first night.</li>
+        <li>Night {NIGHT_MS / 1000} seconds, talk {TALK_MS / 60000} minutes, vote {VOTE_MS / 1000} seconds. About 10 minutes at a small table, longer with more players.</li>
+      </ul>
+    </Panel>
   );
 }

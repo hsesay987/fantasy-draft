@@ -798,3 +798,109 @@
 @media (prefers-reduced-motion: reduce) {
   .tr-meter i.now, .tr-opt.held, .tr-opt.wrong, .tr-note.hold { animation: none; }
 }
+
+/* ---- Mafia: a rainy noir town. The whole page changes with the hour, and nothing on it changes with your role. ---- */
+.pixel[data-world="noir"] { --px-ink: #05070f; --px-fg: #f1eee2; --px-gold: #f2b544; --px-rose: #e0605c; --px-mint: #8ddcae; --px-sky: #8fbadb; --px-violet: #3a4468;
+  --noir-cream: #e9e2cc; --noir-paper-ink: #1b1d29; --noir-red: #8a2f35;
+  background: var(--px-bg) repeating-linear-gradient(105deg, #ffffff06 0 1px, #0000 1px 9px, #ffffff04 9px 10px, #0000 10px 23px); }
+.pixel[data-world="noir"].noir-night { --px-bg: #090d20; --px-bg2: #0d1228; --px-panel: #151b36; --px-panel2: #212a4c; --px-dim: #b4bdd6; --px-lav: #f2b544; }
+.pixel[data-world="noir"].noir-dusk { --px-bg: #17132b; --px-bg2: #1d1835; --px-panel: #272143; --px-panel2: #3a3159; --px-dim: #c7bdd6; --px-lav: #ffb56b; }
+.pixel[data-world="noir"].noir-dawn { --px-bg: #3f4855; --px-bg2: #454e5b; --px-panel: #262c37; --px-panel2: #38404d; --px-dim: #c5ccd4; --px-lav: #f0d48c; }
+.pixel[data-world="noir"].noir-day { --px-bg: #57616d; --px-bg2: #5d6773; --px-panel: #2a313b; --px-panel2: #3d4551; --px-dim: #cdd3d9; --px-lav: #f0d48c; }
+.noir-page { gap: 10px; }
+.noir-page .party-sign.noir-sign { position: relative; margin: 4px; background: var(--px-panel); box-shadow: 0 0 0 4px var(--px-ink), inset 0 3px 0 0 #ffffff14, inset 0 -3px 0 0 #0005; }
+.noir-sign .eyebrow { color: var(--px-lav); }
+.noir-sign h1 { font-size: 34px; }
+.noir-scene { margin: 4px; background: #05070f; box-shadow: 0 0 0 4px var(--px-ink); animation: noir-light .6s steps(5) both; }
+@keyframes noir-light { from { opacity: 0; } }
+.noir-line, .noir-wait { margin: 0 4px; padding: 8px 10px; background: var(--px-ink); color: var(--px-fg); font-size: 22px; line-height: 1.08; border-left: 6px solid var(--px-gold); text-wrap: pretty; overflow-wrap: anywhere; }
+.noir-wait { border-left-color: var(--px-panel2); color: var(--px-dim); font-size: 21px; }
+.noir-wide { display: block; width: calc(100% - 8px); }
+
+/* Your card: looks the same for everyone, shut or open. */
+.noir-card { display: flex; align-items: flex-start; gap: 12px; margin: 4px; padding: 10px; min-height: 76px; width: calc(100% - 8px); text-align: left; cursor: pointer; border: 0; color: var(--noir-paper-ink); background: var(--noir-cream);
+  box-shadow: 0 0 0 4px var(--px-ink), inset 0 -4px 0 0 #b9b198; }
+.noir-card .art { flex: none; line-height: 0; }
+.noir-card .txt { display: grid; gap: 4px; min-width: 0; }
+.noir-card b { font: 400 28px/1 var(--px-body); overflow-wrap: anywhere; }
+.noir-card .sub { font-size: 20px; line-height: 1.05; color: #3b3e4e; overflow-wrap: anywhere; }
+.noir-card .sub.note { color: var(--noir-red); }
+.noir-card:active { transform: translateY(2px); }
+
+/* Names. */
+.noir-board { display: grid; gap: 8px; margin: 4px; padding: 10px; background: var(--px-panel); box-shadow: 0 0 0 4px var(--px-ink); min-width: 0; }
+.noir-board .prompt { margin: 0; font-size: 22px; line-height: 1.05; color: var(--px-fg); }
+.noir-board .count { margin: 0; min-height: 22px; font-size: 20px; line-height: 1.05; color: var(--px-dim); }
+.noir-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; list-style: none; }
+.noir-tiles li { display: grid; }
+.noir-tile { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 50px; padding: 6px 8px; border: 0; cursor: pointer; text-align: left; color: var(--px-fg); background: var(--px-panel2); font: 400 21px/1 var(--px-body); box-shadow: inset 0 3px 0 0 #ffffff14, inset 0 -3px 0 0 #0006; }
+.noir-tile canvas { flex: none; }
+.noir-tile .name { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.noir-tile.me .name { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.noir-tile.on { color: var(--noir-paper-ink); background: var(--noir-cream); box-shadow: inset 0 0 0 3px var(--px-gold); }
+.noir-tile.dim { opacity: .55; }
+.noir-tile:disabled { cursor: default; }
+.noir-tile:active:not(:disabled) { transform: translateY(2px); }
+.noir-tile.skip { justify-content: center; text-align: center; background: var(--px-ink); box-shadow: inset 0 0 0 2px var(--px-panel2); }
+.noir-tile.skip.on { background: var(--noir-cream); box-shadow: inset 0 0 0 3px var(--px-gold); }
+.noir-tile.skip .name { flex: none; }
+
+/* The morning edition. */
+.noir-paper { margin: 4px; padding: 10px 12px; color: var(--noir-paper-ink); background: var(--noir-cream) repeating-linear-gradient(0deg, #0000 0 3px, #0000000a 3px 4px); box-shadow: 0 0 0 4px var(--px-ink), 6px 6px 0 0 #00000040; }
+.noir-paper .mast { margin: 0; font: 400 12px/1.3 var(--px-head); text-align: center; letter-spacing: .02em; }
+.noir-paper .dateline { display: flex; justify-content: space-between; gap: 8px; margin: 4px 0 8px; padding: 2px 0; border-block: 2px solid var(--noir-paper-ink); font-size: 18px; line-height: 1; }
+.party-page .noir-paper h2 { margin: 0 0 4px; font: 400 36px/.95 var(--px-body); text-transform: uppercase; overflow-wrap: anywhere; }
+.noir-paper .line { margin: 0; font-size: 21px; line-height: 1.05; }
+.noir-paper.small { padding: 6px 10px; }
+.party-page .noir-paper.small h2 { font-size: 26px; }
+.noir-paper.small .line { font-size: 20px; }
+
+/* A ballot slip from the last vote. */
+.noir-slip { margin: 4px; padding: 8px 10px; background: var(--px-panel); box-shadow: 0 0 0 4px var(--px-ink); min-width: 0; }
+.party-page .noir-slip h2 { margin: 0 0 2px; font: 400 10px/1.4 var(--px-head); color: var(--px-lav); text-transform: uppercase; }
+.noir-slip .line { margin: 0 0 6px; font-size: 22px; line-height: 1.05; overflow-wrap: anywhere; }
+.noir-slip.out .line { color: var(--px-gold); }
+.noir-slip .none { margin: 0; font-size: 19px; color: var(--px-dim); }
+.noir-slip ul { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.noir-slip li { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto; gap: 8px; align-items: baseline; padding: 2px 6px; background: var(--px-ink); font-size: 19px; line-height: 1.05; }
+.noir-slip li.hit { box-shadow: inset 3px 0 0 0 var(--px-gold); }
+.noir-slip .for { overflow-wrap: anywhere; }
+.noir-slip .who { color: var(--px-dim); overflow-wrap: anywhere; }
+.noir-slip b { font-weight: 400; color: var(--px-gold); }
+
+/* Rosters. */
+.noir-town, .noir-spectator { margin: 4px; padding: 8px 10px; background: var(--px-panel); box-shadow: 0 0 0 4px var(--px-ink); min-width: 0; }
+.party-page .noir-town h2, .party-page .noir-spectator h2 { margin: 0 0 6px; font: 400 10px/1.4 var(--px-head); color: var(--px-lav); text-transform: uppercase; }
+.noir-town ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 0; padding: 0; list-style: none; }
+.noir-town li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 4px 6px; background: var(--px-ink); font-size: 20px; line-height: 1; min-width: 0; }
+.noir-town li canvas { flex: none; }
+.noir-town .name { min-width: 0; flex: 1 1 0; overflow-wrap: anywhere; }
+.noir-town li.gone .name { color: var(--px-dim); text-decoration: line-through; text-decoration-thickness: 2px; }
+.noir-town .role { flex-basis: 100%; font-size: 17px; color: var(--px-lav); }
+.noir-spectator { display: grid; gap: 8px; }
+.noir-spectator .line { margin: 0; font-size: 21px; line-height: 1.05; color: var(--px-dim); }
+.noir-spectator ul { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
+.noir-spectator li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; background: var(--px-ink); font-size: 20px; line-height: 1.05; min-width: 0; }
+.noir-spectator li canvas { flex: none; }
+.noir-spectator .name, .noir-spectator .who { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.noir-spectator li.gone .name { color: var(--px-dim); text-decoration: line-through; text-decoration-thickness: 2px; }
+.noir-spectator .role { flex: none; color: var(--px-lav); }
+.noir-spectator .who { display: grid; gap: 1px; }
+.noir-spectator .fate { font-size: 17px; color: var(--px-dim); }
+.noir-spectator li.won { box-shadow: inset 3px 0 0 0 var(--px-gold); }
+
+/* Case closed. */
+.noir-end { position: relative; margin: 4px; padding: 12px; text-align: center; background: var(--px-panel); box-shadow: 0 0 0 4px var(--px-ink), inset 0 3px 0 0 #ffffff14; }
+.noir-end .eyebrow { margin: 0 0 4px; font: 400 9px/1.4 var(--px-head); color: var(--px-lav); }
+.party-page .noir-end h1 { margin: 0 0 6px; font: 700 34px/1 var(--px-title); color: var(--px-gold); text-shadow: 3px 3px 0 var(--px-ink); overflow-wrap: anywhere; }
+.noir-end .line { margin: 0; font-size: 22px; line-height: 1.05; }
+
+@media (max-width: 359px) {
+  .noir-sign h1 { font-size: 30px; }
+  .noir-tile { padding: 6px; gap: 6px; font-size: 20px; }
+  .noir-paper .mast { font-size: 10px; }
+  .party-page .noir-paper h2 { font-size: 30px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .noir-scene { animation: none; }
+}

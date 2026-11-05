@@ -18,6 +18,7 @@ import * as IM from "./formats/imposter";
 import * as V from "./formats/vote";
 import * as IS from "./formats/insync";
 import * as PT from "./formats/partytrivia";
+import * as MF from "./formats/mafia";
 import { deckOf } from "./party/decks";
 import { insyncDeckOf } from "./party/insyncDecks";
 import { bundledCategories, surveysFor } from "./trivia";
@@ -26,7 +27,7 @@ import type { Item, State } from "./types";
 import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
-export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState;
+export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState;
 
 /** Every action says who is acting; the server checks that against the seat's token. */
 export type Action =
@@ -53,7 +54,10 @@ export type Action =
   | { type: "vote"; by: string; side: string }
   | { type: "guessVote"; by: string; target: string; side: string }
   | { type: "move"; by: string; pos: number }
-  | { type: "next"; by: string };
+  | { type: "next"; by: string }
+  | { type: "nightAct"; by: string; target: string }
+  | { type: "dayVote"; by: string; target: string }
+  | { type: "skipTalk"; by: string };
 
 export type Extra = { kind: "order"; title: string; names: string[] } | null;
 
@@ -104,6 +108,8 @@ export function initGame(setup: GameSetup, now: number): GameState {
       return IS.init({ players: setup.players, deck: setup.pool, pairs: insyncDeckOf(setup.pool)?.pairs ?? [], rounds: Math.max(4, setup.players.length), avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "partytrivia":
       return PT.init({ players: setup.players, categories: setup.quiz?.categories?.length ? setup.quiz.categories : bundledCategories(setup.pool), count: o.teamSize, teams: o.teams, teamMap: o.teamMap, drinking: o.drinking, seed: setup.seed, now });
+    case "mafia":
+      return MF.init({ players: setup.players, drinking: o.drinking, seed: setup.seed, now });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }
@@ -258,6 +264,14 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       if (a.type === "tick") return PT.tick(x, now);
       return s;
     }
+    case "mafia": {
+      const x = s as MF.MafiaState;
+      if (a.type === "nightAct") return MF.nightAct(x, a.by, a.target, now);
+      if (a.type === "dayVote") return MF.dayVote(x, a.by, a.target, now);
+      if (a.type === "skipTalk") return MF.skipTalk(x, a.by, now);
+      if (a.type === "tick") return MF.tick(x, now);
+      return s;
+    }
   }
   return s;
 }
@@ -388,6 +402,7 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
     }
     case "imposter":
     case "partytrivia":
+    case "mafia":
     case "vote": {
       const pts = (s as { points: Record<string, number> }).points;
       return { extra: null, teams: setup.players.map((player) => ({ player, baseline: pts[player] ?? 0, items: [] })) };
