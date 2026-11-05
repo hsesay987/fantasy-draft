@@ -548,8 +548,7 @@ describe("party trivia room", () => {
     const q = room.state.questions[0];
     act(room, toks.Ann, { type: "answer", choice: q.options.find((o: string) => o !== q.answer) });
     act(room, toks.Bob, { type: "answer", choice: q.answer });
-    leaveRoom(room, toks.Cy);
-    tickRooms(room.state.phaseAt + 25_001);
+    leaveRoom(room, toks.Cy); // the others already answered, so the question closes now
     expect(room.state.phase).toBe("reveal");
     const calls = (t: string) => snapshot(room, t).state.drinks.calls.map((c: any) => c.to);
     expect(calls(toks.Ann)).toContain("Ann");
@@ -562,5 +561,46 @@ describe("party trivia room", () => {
     expect(needsQuiz(room)).toBe(false);
     startRoom(room, toks.Ann);
     expect(needsQuiz(room)).toBe(true);
+  });
+
+  it("closes a question as soon as every present seat has answered, whenever the leaver goes", () => {
+    const { room, toks } = seated(["Ann", "Bob", "Cy"]);
+    startRoom(room, toks.Ann);
+    // The leaver goes before the others answer.
+    leaveRoom(room, toks.Cy);
+    expect(room.state.phase).toBe("question");
+    act(room, toks.Ann, { type: "answer", choice: room.state.questions[0].options[0] });
+    expect(room.state.phase).toBe("question");
+    act(room, toks.Bob, { type: "answer", choice: room.state.questions[0].options[0] });
+    expect(room.state.phase).toBe("reveal");
+    tickRooms(room.state.phaseAt + 7_001);
+    // Next question: the others answer, then the last unanswered player leaves.
+    const { room: r2, toks: t2 } = seated(["Ann", "Bob", "Cy"]);
+    startRoom(r2, t2.Ann);
+    act(r2, t2.Ann, { type: "answer", choice: r2.state.questions[0].options[0] });
+    act(r2, t2.Bob, { type: "answer", choice: r2.state.questions[0].options[0] });
+    expect(r2.state.phase).toBe("question");
+    leaveRoom(r2, t2.Cy);
+    expect(r2.state.phase).toBe("reveal");
+  });
+
+  it("a player who left and comes back can answer again, and is waited for", () => {
+    const { room, toks } = seated(["Ann", "Bob", "Cy"]);
+    startRoom(room, toks.Ann);
+    leaveRoom(room, toks.Cy);
+    expect(act(room, toks.Cy, { type: "answer", choice: room.state.questions[0].options[0] }).ok).toBe(true);
+    expect(room.seats.find((s: any) => s.name === "Cy").left).toBe(false);
+    act(room, toks.Ann, { type: "answer", choice: room.state.questions[0].options[0] });
+    expect(room.state.phase).toBe("question"); // Bob is still to answer
+    act(room, toks.Bob, { type: "answer", choice: room.state.questions[0].options[0] });
+    expect(room.state.phase).toBe("reveal");
+  });
+
+  it("refuses to start with no questions rather than sticking in playing", () => {
+    const made = createRoom(trivia(), "Ann", { categories: [{ name: "Thin", clues: [] }] }) as any;
+    joinRoom(made.room.code, "Bob");
+    expect(startRoom(made.room, made.seat.token)).toEqual({ error: "No questions are available for this topic right now" });
+    expect(made.room.status).toBe("lobby");
+    expect(made.room.state).toBeNull();
   });
 });

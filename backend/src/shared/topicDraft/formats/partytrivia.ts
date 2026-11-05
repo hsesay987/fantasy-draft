@@ -92,7 +92,8 @@ function flatten(categories: TriviaCategory[], count: number, seed: number): PTQ
 export function init(o: { players: string[]; categories: TriviaCategory[]; count: number; teams: number; teamMap: Record<string, number>; drinking?: boolean; seed: number; now: number }): PTState {
   const questions = flatten(o.categories, o.count, o.seed);
   const built = o.teams >= 2 && o.players.length >= TEAM_MIN_PLAYERS ? buildTeams(o.players, o.teams, o.teamMap) : null;
-  const teams = built && built.filter((t) => t.length > 0).length >= 2 ? built : null;
+  const filled = built ? built.filter((t) => t.length > 0) : [];
+  const teams = filled.length >= 2 ? filled : null; // empty teams are dropped; one team left means solo scoring
   return {
     players: o.players, teams, questions, round: 0, phase: "question", answers: {},
     points: Object.fromEntries(o.players.map((p) => [p, 0])), teamPoints: teams ? teams.map(() => 0) : [],
@@ -103,9 +104,9 @@ export function init(o: { players: string[]; categories: TriviaCategory[]; count
 
 const bonus = (s: PTState, at: number) => Math.round(SPEED_MAX * Math.max(0, Math.min(1, 1 - (at - s.phaseAt) / QUESTION_MS)));
 
-/** A player locks in an option. One answer each, only options on screen, and the clock is the server's. */
+/** A player locks in an option. One answer each, only options on screen, and the clock is the server's. At exactly QUESTION_MS still counts; after it, the round is closed to answers. */
 export function answer(s: PTState, by: string, choice: string, now: number): PTState {
-  if (s.done || s.phase !== "question" || !s.players.includes(by) || by in s.answers) return s;
+  if (s.done || s.phase !== "question" || !s.players.includes(by) || by in s.answers || now - s.phaseAt > QUESTION_MS) return s;
   if (typeof choice !== "string" || !s.questions[s.round]!.options.includes(choice)) return s;
   const answers = { ...s.answers, [by]: { choice, at: now } };
   const filled = { ...s, answers };
@@ -154,6 +155,13 @@ function advance(s: PTState, now: number): PTState {
   return { ...s, round, phase: "question", answers: {}, phaseAt: now };
 }
 
+/** Closes the question early once every player still at the table (not in `gone`) has answered. */
+export function settle(s: PTState, gone: string[], now: number): PTState {
+  if (s.done || s.phase !== "question") return s;
+  const here = s.players.filter((p) => !gone.includes(p));
+  return here.length > 0 && here.every((p) => p in s.answers) ? reveal(s, now) : s;
+}
+
 /** Anyone can move on once the reveal has been read. */
 export function next(s: PTState, now: number): PTState {
   return s.done || s.phase !== "reveal" ? s : advance(s, now);
@@ -162,7 +170,7 @@ export function next(s: PTState, now: number): PTState {
 /** Clocks: an unfinished question closes when time is up, so a player who left never holds it; a reveal moves on. */
 export function tick(s: PTState, now: number): PTState {
   if (s.done) return s;
-  if (s.phase === "question" && now - s.phaseAt >= QUESTION_MS) return reveal(s, now);
+  if (s.phase === "question" && now - s.phaseAt > QUESTION_MS) return reveal(s, now);
   if (s.phase === "reveal" && now - s.phaseAt >= REVEAL_MS) return advance(s, now);
   return s;
 }

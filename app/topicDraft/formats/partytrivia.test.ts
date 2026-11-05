@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { answer, buildTeams, init, next, redactFor, teamChoice, tick, QUESTION_MS, REVEAL_MS, type PTState } from "./partytrivia";
+import { answer, settle, buildTeams, init, next, redactFor, teamChoice, tick, QUESTION_MS, REVEAL_MS, type PTState } from "./partytrivia";
 import type { TriviaCategory } from "../trivia/types";
 
 const cat = (name: string, n = 4): TriviaCategory => ({
@@ -153,5 +153,36 @@ describe("party trivia engine", () => {
     const calls = s.drinks!.calls;
     const sips = (n: string) => calls.filter((c) => c.to === n).reduce((a, c) => a + c.sips, 0);
     expect([sips("Ann"), sips("Bob"), sips("Cy")]).toEqual([0, 1, 1]); // Bob wrong, Cy slowest
+  });
+
+  it("rejects answers after the deadline, accepts exactly at it", () => {
+    const s = make();
+    expect(answer(s, "Ann", rightOf(s), T0 + QUESTION_MS + 1)).toBe(s);
+    expect(answer(s, "Ann", rightOf(s), T0 + QUESTION_MS).points.Ann).toBe(0); // recorded, not yet scored
+    expect(tick(s, T0 + QUESTION_MS)).toBe(s); // the deadline itself is still open
+    expect(tick(s, T0 + QUESTION_MS + 1).phase).toBe("reveal");
+  });
+
+  it("settle closes the question once everyone still present has answered", () => {
+    let s = make();
+    s = answer(s, "Ann", rightOf(s), T0 + 10);
+    expect(settle(s, [], T0 + 20)).toBe(s);
+    expect(settle(s, ["Cy"], T0 + 20)).toBe(s); // Bob is still here
+    s = answer(s, "Bob", rightOf(s), T0 + 15);
+    const r = settle(s, ["Cy"], T0 + 20);
+    expect(r.phase).toBe("reveal");
+    expect(r.history[0]!.answers).toEqual({ Ann: rightOf(s), Bob: rightOf(s) });
+    expect(settle(r, ["Cy"], T0 + 30)).toBe(r);
+    expect(settle(s, ["Ann", "Bob", "Cy"], T0 + 20)).toBe(s); // nobody left to wait for
+  });
+
+  it("drops empty teams, and one team left plays solo", () => {
+    const four = ["A", "B", "C", "D"];
+    const a = init({ players: four, categories: CATS, count: 10, teams: 3, teamMap: { A: 0, B: 0, C: 0, D: 1 }, seed: 1, now: T0 });
+    expect(a.teams).toEqual([["A", "B", "C"], ["D"]]);
+    expect(a.teamPoints).toEqual([0, 0]);
+    const b = init({ players: four, categories: CATS, count: 10, teams: 3, teamMap: { A: 0, B: 0, C: 0, D: 0 }, seed: 1, now: T0 });
+    expect(b.teams).toBeNull();
+    expect(b.teamPoints).toEqual([]);
   });
 });

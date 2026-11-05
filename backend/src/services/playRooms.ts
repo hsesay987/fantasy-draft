@@ -312,7 +312,9 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
   if (room.seats.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
   room.setup = { ...room.setup, players: room.seats.map((s) => s.name), seed: (Math.random() * 2 ** 31) | 0 };
   if (room.setup.format === "vote" || room.setup.format === "insync") room.setup.opts = { ...room.setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
-  room.state = initGame(room.setup, Date.now());
+  const state = initGame(room.setup, Date.now());
+  if (isDone(room.setup, state)) return { error: "No questions are available for this topic right now" }; // nothing to play
+  room.state = state;
   room.status = "playing";
   room.freshQuiz = false;
   trackServer("room_started", { format: room.setup.format, pool: room.setup.pool, seats: room.seats.length }, room.code);
@@ -323,11 +325,22 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
 }
 
 /** Leaving between games frees the seat (the next player in line becomes host); mid-game a bot takes over. */
+/** Party trivia closes a question once every seat still present has answered. */
+function settleTrivia(room: Room, s: GameState, now: number): GameState {
+  if (room.setup?.format !== "partytrivia") return s;
+  return PT.settle(s as PT.PTState, room.seats.filter((x) => x.left).map((x) => x.name), now);
+}
+
 export function leaveRoom(room: Room, token: unknown) {
   const seat = seatFor(room, token);
   if (!seat) return;
-  if (room.status === "playing") seat.left = true;
-  else {
+  if (room.status === "playing") {
+    seat.left = true;
+    if (room.setup?.format === "partytrivia" && room.state) {
+      const settled = settleTrivia(room, room.state, Date.now()); // the others may all have answered already
+      if (settled !== room.state && room.seats.some((s) => !s.left)) commit(room, settled);
+    }
+  } else {
     room.seats = room.seats.filter((s) => s !== seat);
     if (room.setup) room.setup.players = room.seats.map((s) => s.name);
   }
@@ -349,7 +362,9 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   // The seat decides who is acting; clients can't act for someone else, set the clock or pick RNG seeds.
   const { seed: _seed, at: _at, now: _now, ...rest } = raw;
   const action = { ...rest, by: seat.name } as Action;
-  const next = applyAction(room.setup, room.state, action, Date.now());
+  if (seat.left && room.setup.format === "partytrivia") seat.left = false; // acting again means they are back at the table
+  const applied = applyAction(room.setup, room.state, action, Date.now());
+  const next = applied === room.state ? applied : settleTrivia(room, applied, Date.now());
   if (next === room.state) return { ok: false, error: "Not allowed right now" };
   commit(room, next);
   return { ok: true };
@@ -453,6 +468,7 @@ export function tickRooms(now = Date.now()) {
     const setup = room.setup;
 
     s = applyAction(setup, s, { type: "tick" }, now);
+    s = settleTrivia(room, s, now);
 
     const timer = setup.opts.timerSeconds;
     const turnBased = setup.format === "snake" || setup.format === "spin" || setup.format === "loadout";
