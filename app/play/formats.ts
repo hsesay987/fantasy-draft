@@ -1,4 +1,4 @@
-import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, BarChart3, HelpCircle, VenetianMask, Vote, AudioWaveform } from "lucide-react";
+import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, BarChart3, HelpCircle, VenetianMask, Vote, AudioWaveform, Brain } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { FormatId } from "./types";
 
@@ -31,4 +31,12 @@ export const PARTY_GAMES: FormatMeta[] = [
   { id: "insync", title: "In-Sync", tagline: "One clue, one hidden spot on a line. Tune in together.", how: ["One player sees a spot between two opposites and gives a single clue.", "Everyone else drags a shared marker and talks it over, then locks.", "The closer the marker, the more the whole table scores."], icon: AudioWaveform, gradient: "from-indigo-600/50 to-primary/20", usesPool: false },
 ];
 
-export const formatMeta = (id: string) => FORMATS.find((f) => f.id === id) ?? PARTY_GAMES.find((f) => f.id === id);
+/**
+ * Party games whose engine is ready but whose screens are not. They are kept out of PARTY_GAMES (which feeds the game
+ * pickers) so nobody can start a game with no screen; Task 9 moves this entry into PARTY_GAMES.
+ */
+export const PENDING_PARTY_GAMES: FormatMeta[] = [
+  { id: "partytrivia", title: "Party Trivia", tagline: "Everyone answers at once. Faster right answers score more. Play solo or in teams.", how: ["Everyone sees the same question and four options.", "Answer fast: a quick right answer scores up to 150.", "With 4+ players, split into teams: the team's most-voted option is its answer."], icon: Brain, gradient: "from-violet-600/50 to-primary/20", usesPool: true },
+];
+
+export const formatMeta = (id: string) => FORMATS.find((f) => f.id === id) ?? PARTY_GAMES.find((f) => f.id === id) ?? PENDING_PARTY_GAMES.find((f) => f.id === id);

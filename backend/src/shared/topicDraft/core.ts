@@ -19,6 +19,7 @@ import * as J from "./formats/jeopardy";
 import * as IM from "./formats/imposter";
 import * as V from "./formats/vote";
 import * as IS from "./formats/insync";
+import * as PT from "./formats/partytrivia";
 import { deckOf } from "./party/decks";
 import { insyncDeckOf } from "./party/insyncDecks";
 import { bundledCategories, surveysFor } from "./trivia";
@@ -27,7 +28,7 @@ import type { Item, State } from "./types";
 import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
-export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState;
+export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState;
 
 /** Every action says who is acting; the server checks that against the seat's token. */
 export type Action =
@@ -103,6 +104,8 @@ export function initGame(setup: GameSetup, now: number): GameState {
       return V.init({ players: setup.players, deck: setup.pool, cards: deckOf(setup.pool)?.cards ?? [], rounds: o.teamSize, avoid: o.avoid, showVotes: o.showVotes, drinking: o.drinking, seed: setup.seed, now });
     case "insync":
       return IS.init({ players: setup.players, deck: setup.pool, pairs: insyncDeckOf(setup.pool)?.pairs ?? [], rounds: Math.max(4, setup.players.length), avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+    case "partytrivia":
+      return PT.init({ players: setup.players, categories: setup.quiz?.categories?.length ? setup.quiz.categories : bundledCategories(setup.pool), count: o.teamSize, teams: o.teams, teamMap: o.teamMap, drinking: o.drinking, seed: setup.seed, now });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }
@@ -250,6 +253,13 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       if (a.type === "tick") return IS.tick(x, now);
       return s;
     }
+    case "partytrivia": {
+      const x = s as PT.PTState;
+      if (a.type === "answer") return PT.answer(x, a.by, a.choice as string, now);
+      if (a.type === "next") return PT.next(x, now);
+      if (a.type === "tick") return PT.tick(x, now);
+      return s;
+    }
   }
   return s;
 }
@@ -379,6 +389,7 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
       };
     }
     case "imposter":
+    case "partytrivia":
     case "vote": {
       const pts = (s as { points: Record<string, number> }).points;
       return { extra: null, teams: setup.players.map((player) => ({ player, baseline: pts[player] ?? 0, items: [] })) };
