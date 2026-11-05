@@ -26,7 +26,7 @@ function pickFive(all: CostProductDto[]): CostProductDto[] {
 }
 
 async function build(game: DailyGame, day: string) {
-  if (game === "summit") { const pool = topicFor(game, day); return { pool, categories: await getJeopardy(pool, []) }; }
+  if (game === "summit" || game === "toprung") { const pool = topicFor(game, day); return { pool, categories: await getJeopardy(pool, []) }; }
   if (game === "hotair") { const pool = topicFor(game, day); return { pool, surveys: await getFeud(pool, 5, []) }; }
   return { products: pickFive(await pickProducts(prismaCostStore, { n: 120 })) };
 }

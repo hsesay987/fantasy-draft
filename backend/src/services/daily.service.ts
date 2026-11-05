@@ -1,7 +1,7 @@
-// Daily puzzles: one Summit board, one Hot Air game and one Costimation run per day, the same for everyone.
+// Daily puzzles: one Summit board, one Hot Air game, one Costimation run and one Top Rung climb per day, the same for everyone.
 // The puzzle is built from the stored banks the first time someone asks for it that day and then saved, so it
 // never changes mid-day. Results are anonymous; each player's first result counts and feeds the day's stats.
-export const DAILY_GAMES = ["summit", "hotair", "costimation"] as const;
+export const DAILY_GAMES = ["summit", "hotair", "costimation", "toprung"] as const;
 export type DailyGame = (typeof DAILY_GAMES)[number];
 export const isDailyGame = (g: unknown): g is DailyGame => typeof g === "string" && (DAILY_GAMES as readonly string[]).includes(g);
 
@@ -12,8 +12,9 @@ export const dayNumber = (day: string) => Math.floor((Date.parse(`${day}T00:00:0
 
 /** Topics the daily trivia rotates through, chosen from the pools with the deepest banks. */
 export const DAILY_TOPICS = ["films", "videogames", "football", "history", "shows", "anime", "pokemon", "fictional", "disney", "superheroes"];
-/** Summit and Hot Air use different topics on the same day. */
-export const topicFor = (game: DailyGame, day: string) => DAILY_TOPICS[(dayNumber(day) + (game === "hotair" ? 3 : 0)) % DAILY_TOPICS.length]!;
+/** Summit, Hot Air and Top Rung use different topics on the same day. */
+const TOPIC_OFFSET: Partial<Record<DailyGame, number>> = { hotair: 3, toprung: 6 };
+export const topicFor = (game: DailyGame, day: string) => DAILY_TOPICS[(dayNumber(day) + (TOPIC_OFFSET[game] ?? 0)) % DAILY_TOPICS.length]!;
 
 export type Stats = { players: number; average: number; percentile: number | null; buckets: number[]; best: number };
 

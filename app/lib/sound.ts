@@ -1,9 +1,60 @@
 // app/lib/sound.ts — synthesized SFX via Web Audio, no asset files.
-export type SfxName = "click" | "pick" | "steal" | "tick" | "reveal" | "win" | "error" | "wrong" | "lose" | "delete";
+export type SfxName = "click" | "pick" | "steal" | "tick" | "reveal" | "win" | "error" | "wrong" | "lose" | "delete" | "creak" | "rung" | "rungHigh" | "ledge" | "lamp" | "fall" | "lifeline" | "walkDown";
 
 export type Note = { freq: number; dur: number; at: number; type?: OscillatorType; gain?: number };
 
 export const SFX_DEFS: Record<SfxName, Note[]> = {
+  // Top Rung: iron and wind. A low rub as the ladder takes your weight, a boot on a rung, a ship's bell at a safe ledge.
+  creak: [
+    { freq: 98, dur: 0.16, at: 0, type: "sawtooth", gain: 0.16 },
+    { freq: 117, dur: 0.14, at: 0.16, type: "sawtooth", gain: 0.13 },
+    { freq: 104, dur: 0.22, at: 0.32, type: "sawtooth", gain: 0.1 },
+  ],
+  rung: [
+    { freq: 233, dur: 0.05, at: 0, type: "square", gain: 0.28 },
+    { freq: 466, dur: 0.16, at: 0.05, type: "triangle", gain: 0.42 },
+    { freq: 554, dur: 0.2, at: 0.13, type: "triangle", gain: 0.36 },
+  ],
+  rungHigh: [
+    { freq: 311, dur: 0.05, at: 0, type: "square", gain: 0.28 },
+    { freq: 622, dur: 0.16, at: 0.05, type: "triangle", gain: 0.42 },
+    { freq: 740, dur: 0.16, at: 0.13, type: "triangle", gain: 0.36 },
+    { freq: 932, dur: 0.24, at: 0.21, type: "sine", gain: 0.3 },
+  ],
+  ledge: [
+    { freq: 698, dur: 0.5, at: 0, type: "sine", gain: 0.45 },
+    { freq: 1397, dur: 0.3, at: 0, type: "sine", gain: 0.14 },
+    { freq: 698, dur: 0.7, at: 0.3, type: "sine", gain: 0.4 },
+    { freq: 1397, dur: 0.4, at: 0.3, type: "sine", gain: 0.12 },
+  ],
+  lamp: [
+    { freq: 294, dur: 0.16, at: 0, type: "triangle", gain: 0.4 },
+    { freq: 392, dur: 0.16, at: 0.13, type: "triangle", gain: 0.4 },
+    { freq: 494, dur: 0.16, at: 0.26, type: "triangle", gain: 0.4 },
+    { freq: 587, dur: 0.16, at: 0.39, type: "triangle", gain: 0.4 },
+    { freq: 784, dur: 0.9, at: 0.54, type: "triangle", gain: 0.4 },
+    { freq: 988, dur: 0.9, at: 0.54, type: "sine", gain: 0.26 },
+    { freq: 1175, dur: 1.1, at: 0.54, type: "sine", gain: 0.2 },
+  ],
+  fall: [
+    { freq: 622, dur: 0.1, at: 0, type: "square", gain: 0.2 },
+    { freq: 494, dur: 0.1, at: 0.08, type: "square", gain: 0.2 },
+    { freq: 370, dur: 0.1, at: 0.16, type: "square", gain: 0.2 },
+    { freq: 277, dur: 0.1, at: 0.24, type: "square", gain: 0.2 },
+    { freq: 196, dur: 0.12, at: 0.32, type: "square", gain: 0.2 },
+    { freq: 82, dur: 0.4, at: 0.44, type: "triangle", gain: 0.55 },
+  ],
+  lifeline: [
+    { freq: 880, dur: 0.07, at: 0, type: "sine", gain: 0.3 },
+    { freq: 659, dur: 0.07, at: 0.06, type: "sine", gain: 0.3 },
+    { freq: 1109, dur: 0.18, at: 0.12, type: "sine", gain: 0.3 },
+  ],
+  walkDown: [
+    { freq: 494, dur: 0.1, at: 0, type: "triangle", gain: 0.35 },
+    { freq: 415, dur: 0.1, at: 0.14, type: "triangle", gain: 0.35 },
+    { freq: 370, dur: 0.1, at: 0.28, type: "triangle", gain: 0.35 },
+    { freq: 330, dur: 0.3, at: 0.42, type: "triangle", gain: 0.35 },
+  ],
   click: [{ freq: 520, dur: 0.05, at: 0, type: "triangle", gain: 0.5 }],
   pick: [
     { freq: 392, dur: 0.09, at: 0, type: "square", gain: 0.35 },

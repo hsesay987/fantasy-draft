@@ -6,8 +6,12 @@ import { PixelBox, PixelButton, PixelShell } from "../components/pixel/PixelUI";
 import { WorldScene } from "../components/pixel/WorldScene";
 import { WORLDS } from "../components/pixel/worlds";
 import { DAILY_TITLES, DAILY_WORLD, myStats, shareText, untilNext, type DailyGame, type Played } from "../lib/daily";
+import { LADDER, LEDGES, RUNGS } from "../toprung/engine";
 
-const FREE_PLAY: Record<DailyGame, string> = { summit: "/play/jeopardy", hotair: "/play/feud", costimation: "/costimation" };
+const FREE_PLAY: Record<DailyGame, string> = { summit: "/play/jeopardy", hotair: "/play/feud", costimation: "/costimation", toprung: "/toprung" };
+
+/** Top Rung's low rungs sit at 1%, 2% and 3% of the score, so only its safe ledges and the lamp fit as labelled marks. */
+const LADDER_MARKS = [...LEDGES, RUNGS].map((r) => LADDER[r - 1]! / LADDER[RUNGS - 1]!);
 
 /** After a daily: your result in the world, how everyone else did, your streaks, and how your run unfolded. */
 export function DailyStats({ game, played }: { game: DailyGame; played: Played }) {
@@ -33,7 +37,7 @@ export function DailyStats({ game, played }: { game: DailyGame; played: Played }
           </p>
         </PixelBox>
 
-        <WorldScene world={world} caption="Your run against today's average" actors={[{ name: "YOU", value: played.score }, ...(st && st.players > 1 ? [{ name: "AVERAGE", value: st.average }] : [])]} />
+        <WorldScene world={world} caption="Your run against today's average" track={game !== "toprung"} actors={[{ name: "YOU", value: played.score }, ...(st && st.players > 1 ? [{ name: "AVERAGE", value: st.average }] : [])]} />
 
         <div className="grid gap-6 md:grid-cols-2">
           <PixelBox>
@@ -78,7 +82,7 @@ export function DailyStats({ game, played }: { game: DailyGame; played: Played }
 
 /** A stepped line of how far along you were after each question, with the world's checkpoints as gridlines. */
 function RunChart({ game, history }: { game: DailyGame; history: number[] }) {
-  const cps = WORLDS[DAILY_WORLD[game]].checkpoints;
+  const cps = WORLDS[DAILY_WORLD[game]].checkpoints.filter((c) => game !== "toprung" || LADDER_MARKS.includes(c.at));
   const pts = [0, ...history];
   const W = 300, H = 160, L = 8, R = 92, T = 6, B = 22;
   const x = (i: number) => L + (i / Math.max(1, pts.length - 1)) * (W - L - R);
