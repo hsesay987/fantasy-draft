@@ -9,6 +9,10 @@ import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/
 export const NIGHT_MS = 45_000, TALK_MS = 120_000, VOTE_MS = 45_000, MORNING_MS = 8_000;
 /** Nights and votes in a row that nobody touches (three full days) before a silent table is ended. */
 export const IDLE_LIMIT = 6;
+/** The smallest table the deal works for. */
+export const MIN_PLAYERS = 5;
+/** At this size nobody dies on the first night. Otherwise most games hang on one vote: see the Task 13 simulation. */
+export const QUIET_FIRST_NIGHT_AT = 5;
 /** What a villager taps at night. */
 export const NIGHT_OK = "ok";
 /** The vote for nobody. */
@@ -38,6 +42,8 @@ export type MafiaState = {
   /** Nights and votes closed in a row with nobody acting. */
   idle: number;
   phaseAt: number;
+  /** When this game began: public, and tells a rematch from the last game now the seed is gone. */
+  startedAt: number;
   done: boolean;
   drinks?: DrinkState;
 };
@@ -66,7 +72,7 @@ export function init(o: { players: string[]; drinking?: boolean; seed: number; n
     players: o.players,
     roles: Object.fromEntries(o.players.map((p) => [p, dealt.get(p)!])), // seat order, so the keys say nothing about the deal
     alive: o.players, phase: "night", night: 1, actions: NO_ACTIONS, lastSave: null, checks: {}, morning: null, votes: {}, eliminated: [], winner: null,
-    points: Object.fromEntries(o.players.map((p) => [p, 0])), idle: 0, phaseAt: o.now, done: false,
+    points: Object.fromEntries(o.players.map((p) => [p, 0])), idle: 0, phaseAt: o.now, startedAt: o.now, done: false,
     ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),
   };
 }
@@ -93,9 +99,13 @@ function end(s: MafiaState, winner: MafiaState["winner"], calls: DrinkCall[], no
   return { ...s, ...withDrinks(s, calls, true), winner, points, done: true, phaseAt: now };
 }
 
+/** Everyone still taps, so the night looks like any other, but no tap counts: not even the doctor's, which would rule that name out tomorrow. */
+export const quietNight = (s: Pick<MafiaState, "players" | "night">) => s.night === 1 && s.players.length === QUIET_FIRST_NIGHT_AT;
+
 function closeNight(s: MafiaState, now: number): MafiaState {
-  const { kill, save, done } = s.actions;
-  const died = kill && kill !== save ? kill : null;
+  const { kill, done } = s.actions;
+  const save = quietNight(s) ? null : s.actions.save;
+  const died = kill && !quietNight(s) && kill !== save ? kill : null;
   const alive = died ? s.alive.filter((p) => p !== died) : s.alive;
   const closed: MafiaState = {
     ...s, alive, phase: "morning", morning: { died }, actions: NO_ACTIONS, lastSave: save, phaseAt: now,
@@ -110,7 +120,7 @@ function closeNight(s: MafiaState, now: number): MafiaState {
 }
 
 /** Whoever has more than half of the votes cast (skips count as cast), or nobody. */
-function voted(votes: Record<string, string>): string | null {
+export function voted(votes: Record<string, string>): string | null {
   const cast = Object.values(votes);
   const tally = new Map<string, number>();
   for (const t of cast) tally.set(t, (tally.get(t) ?? 0) + 1);

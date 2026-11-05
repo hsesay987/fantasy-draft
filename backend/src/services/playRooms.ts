@@ -23,6 +23,7 @@ import * as MF from "../shared/topicDraft/formats/mafia";
 import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
 import { deckOf } from "../shared/topicDraft/party/decks";
 import { insyncDeckOf } from "../shared/topicDraft/party/insyncDecks";
+import { GROUP_CALL } from "../shared/topicDraft/party/drinks";
 import type { Item } from "../shared/topicDraft/types";
 
 export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia"];
@@ -30,7 +31,7 @@ export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "p
 const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
 /** Fewest players each game starts with; anything not listed needs 2. */
-export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, vote: 3, mafia: 5 };
+export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, vote: 3, mafia: MF.MIN_PLAYERS };
 /** An empty room (no game picked yet) takes the bigger party group; picking a draft caps it at six. */
 const seatCap = (format: FormatId | undefined) => (!format || PARTY_FORMATS.has(format) ? MAX_SEATS : DRAFT_SEATS);
 const MAX_ROOMS = 500;
@@ -318,6 +319,8 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
   if (here.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
   // A seat with this exact name couldn't be told apart from the vote for nobody, so could never be voted out.
   if (room.setup.format === "mafia" && here.includes(MF.SKIP_VOTE)) return { error: `Mafia can't have a player named "${MF.SKIP_VOTE}". Rejoin with another name.` };
+  // Same with sip cards on: a card to this seat would read as the call to the whole table.
+  if (room.setup.opts.drinking && PARTY_FORMATS.has(room.setup.format) && here.includes(GROUP_CALL)) return { error: `Drinking mode can't have a player named "${GROUP_CALL}". Rejoin with another name.` };
   const setup = { ...room.setup, players: here, seed: (Math.random() * 2 ** 31) | 0 };
   if (setup.format === "vote" || setup.format === "insync") setup.opts = { ...setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
   const state = initGame(setup, Date.now());
@@ -375,10 +378,11 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   // The seat decides who is acting; clients can't act for someone else, set the clock or pick RNG seeds.
   const { seed: _seed, at: _at, now: _now, ...rest } = raw;
   const action = { ...rest, by: seat.name } as Action;
-  if (seat.left && (room.setup.format === "partytrivia" || room.setup.format === "mafia")) seat.left = false; // acting again means they are back at the table
   const applied = applyAction(room.setup, room.state, action, Date.now());
-  const next = applied === room.state ? applied : settleParty(room, applied, Date.now());
-  if (next === room.state) return { ok: false, error: "Not allowed right now" };
+  if (applied === room.state) return { ok: false, error: "Not allowed right now" };
+  // Acting again means they are back at the table. Only an action that counted says so: this can change who hosts, and commit's bump tells the room.
+  if (seat.left && (room.setup.format === "partytrivia" || room.setup.format === "mafia")) seat.left = false;
+  const next = settleParty(room, applied, Date.now());
   commit(room, next);
   return { ok: true };
 }

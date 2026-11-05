@@ -3,7 +3,9 @@
 /** Drinking mode: pure bookkeeping for sip cards. Nobody is ever asked for more than the caps below. */
 export const ROUND_CAP = 3, GAME_CAP = 10;
 
-export type DrinkCall = { to: string | "all"; sips: number; reason: string; handsOut?: boolean; water?: boolean };
+/** A call's `to` for the whole table. A seat with exactly this name is refused while drinking is on (startRoom). */
+export const GROUP_CALL = "all";
+export type DrinkCall = { to: string | typeof GROUP_CALL; sips: number; reason: string; handsOut?: boolean; water?: boolean };
 export type DrinkState = { totals: Record<string, number>; calls: DrinkCall[]; seq: number; watered: string[] };
 
 export const initDrinks = (players: string[]): DrinkState => ({ totals: Object.fromEntries(players.map((p) => [p, 0])), calls: [], seq: 0, watered: [] });
@@ -40,7 +42,7 @@ export function addCalls(d: DrinkState, calls: DrinkCall[], players: string[]): 
     if (want <= 0) continue;
     if (c.handsOut) {
       if (players.includes(c.to)) out.push({ ...c, sips: want });
-    } else if (c.to === "all") {
+    } else if (c.to === GROUP_CALL) {
       let shown = 0;
       for (const p of players) shown = Math.max(shown, take(p, want));
       if (shown > 0) out.push({ ...c, sips: shown });

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { _rooms, act, backToLobby, createRoom, getRoom, joinRoom, leaveRoom, needsQuiz, sanitizeSetup, seatFor, setGame, setStatLink, snapshot, startRoom, tickRooms } from "./playRooms";
 import { DEFAULT_OPTS } from "../shared/play/types";
+import { DECKS } from "../shared/topicDraft/party/decks";
 import { LOADOUT_PRESETS } from "../shared/topicDraft/formats/loadout";
 import { currentTurn } from "../shared/topicDraft/core";
 import * as A from "../shared/topicDraft/formats/auction";
@@ -584,6 +585,14 @@ describe("party trivia room", () => {
     expect(r2.state.phase).toBe("reveal");
   });
 
+  it("a player who left stays gone after a refused answer", () => {
+    const { room, toks } = seated(["Ann", "Bob", "Cy"]);
+    startRoom(room, toks.Ann);
+    leaveRoom(room, toks.Cy);
+    expect(act(room, toks.Cy, { type: "answer", choice: "not one of the options" }).ok).toBe(false);
+    expect(room.seats.find((s: any) => s.name === "Cy").left).toBe(true);
+  });
+
   it("a player who left and comes back can answer again, and is waited for", () => {
     const { room, toks } = seated(["Ann", "Bob", "Cy"]);
     startRoom(room, toks.Ann);
@@ -848,6 +857,37 @@ describe("Mafia room", () => {
     expect(r.seats.find((s: any) => s.name === villager).left).toBe(false);
   });
 
+  it("a departed host's refused action changes nothing, so it can't make them host again", () => {
+    const { r, toks } = started();
+    leaveRoom(r, toks.Zelda);
+    const version = r.version;
+    expect(snapshot(r, toks.Xavier).seats.find((s: any) => s.host).name).toBe("Xavier");
+    expect(act(r, toks.Zelda, { type: "nightAct", target: "nobody-here" }).ok).toBe(false);
+    expect(r.seats[0].left).toBe(true);
+    expect(snapshot(r, toks.Xavier).seats.find((s: any) => s.host).name).toBe("Xavier");
+    expect(r.version).toBe(version);
+    // A real action still brings them back, and the room hears about it.
+    const target = r.state.roles.Zelda === "villager" ? "ok" : NAMES.find((p) => p !== "Zelda" && r.state.roles[p] !== "mafia");
+    expect(act(r, toks.Zelda, { type: "nightAct", target })).toEqual({ ok: true });
+    expect(r.seats[0].left).toBe(false);
+    expect(snapshot(r, toks.Xavier).seats.find((s: any) => s.host).name).toBe("Zelda");
+    expect(r.version).toBeGreaterThan(version);
+  });
+
+  it("with drinking on, refuses a player named exactly like the group call, who would drink for everyone", () => {
+    const names = ["Zelda", "Xavier", "Quincy", "Wilma", "all"];
+    const dry = seated(names);
+    expect(startRoom(dry.r, dry.toks.Zelda)).toEqual({ ok: true });
+    const wet = seated(names, { drinking: true });
+    expect(startRoom(wet.r, wet.toks.Zelda)).toEqual({ error: expect.stringContaining('"all"') });
+    const fine = seated(["Zelda", "Xavier", "Quincy", "Wilma", "All"], { drinking: true });
+    expect(startRoom(fine.r, fine.toks.Zelda)).toEqual({ ok: true });
+    // The group call is shared, so every party game with sip cards is covered.
+    const made = createRoom({ format: "vote", pool: DECKS[0]!.id, opts: { drinking: true } }, "Zelda") as any;
+    for (const n of ["Xavier", "all"]) joinRoom(made.room.code, n);
+    expect(startRoom(made.room, made.seat.token)).toEqual({ error: expect.stringContaining('"all"') });
+  });
+
   it("never stalls: with only the dead still here it ends with no winner, and they aren't asked to wait", () => {
     const { r, toks } = started();
     const dead = "Zelda";
@@ -889,10 +929,10 @@ describe("Mafia room", () => {
 
   it("drinking stays off by default, and a seat that left doesn't get its own card sent", () => {
     expect(sanitizeSetup({ format: "mafia", pool: "mafia" })!.opts.drinking).toBe(false);
-    const { r, toks } = started(NAMES.slice(0, 5), { drinking: true });
+    const { r, toks } = started(NAMES.slice(0, 6), { drinking: true });
     const s = r.state;
-    const mafia = NAMES.slice(0, 5).find((p) => s.roles[p] === "mafia")!;
-    const victim = NAMES.slice(0, 5).find((p) => s.roles[p] === "villager")!;
+    const mafia = NAMES.slice(0, 6).find((p) => s.roles[p] === "mafia")!;
+    const victim = NAMES.slice(0, 6).find((p) => s.roles[p] === "villager")!;
     for (const p of s.alive) act(r, toks[p]!, { type: "nightAct", target: p === mafia ? victim : s.roles[p] === "villager" ? "ok" : mafia });
     expect(r.state.morning).toEqual({ died: victim });
     leaveRoom(r, toks[victim]);

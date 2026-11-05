@@ -9,7 +9,7 @@ export type Actor = { name: string; value: number; color?: string };
 export type Checkpoint = { name: string; at: number };
 
 export type World = {
-  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio" | "board" | "arcade" | "ladder";
+  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio" | "board" | "arcade" | "ladder" | "noirNight" | "noirDawn" | "noirDay" | "noirDusk";
   /** Size of the whole map. */
   fullW: number;
   fullH: number;
@@ -1828,7 +1828,333 @@ const LADDER_WORLD: World = {
   camera: (p) => ({ x: 0, y: clamp(p.y - 92, 0, LAD_H - 150) }),
 };
 
-export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO, board: BOARD, arcade: ARCADE, ladder: LADDER_WORLD };
+// ======================= NOIR: a rainy town that shifts between night and day =======================
+// One street drawn at four times of day. Wet asphalt mirrors the buildings, so the town stands in its own reflection. At
+// night lit windows go dark one by one and the rain shows up in the lamp light; dawn is grey with the lamps out; day is
+// overcast and drizzling; at dusk the windows and neon come back. Who is looking changes nothing here: Mafia's night
+// screen has to look the same on every phone, so this draws from the time of day and the clock alone.
+const NOIR_W = 200, NOIR_H = 96, NOIR_WALK = 66, NOIR_ROAD = 71;
+type NoirTime = "night" | "dawn" | "day" | "dusk";
+type NoirLook = {
+  sky: [number, string][]; tint: string; amt: number; far: string; farLit: string; cloud: string; orb?: { x: number; y: number; r: number; c: string; rim: string };
+  side: string; sideHi: string; curb: string; road: [string, string]; mirror: number; line: string; glass: string; glassHi: string; ink: string; inkHi: string;
+  lamps: boolean; cone: string; neon: boolean; lit: string; litHi: string; litLo: string; rain: number; drop: string; dropLit: string; ripple: string; drift: string;
+};
+const NOIR: Record<NoirTime, NoirLook> = {
+  night: {
+    sky: [[0, "#050817"], [0.45, "#0b1230"], [0.8, "#18214a"], [1, "#2b335f"]], tint: "#0a0f2e", amt: 0.62, far: "#111a3d", farLit: "#3d4a78", cloud: "#1a2249",
+    orb: { x: 111, y: 14, r: 7, c: "#d7dceb", rim: "#8e98b8" }, side: "#1d2340", sideHi: "#2e3656", curb: "#3e4669", road: ["#0f1329", "#05070f"], mirror: 0.6, line: "#2e3556",
+    glass: "#0a0f25", glassHi: "#1c2545", ink: "#04050c", inkHi: "#2a3152", lamps: true, cone: "#ffdf9a", neon: true, lit: "#f2b544", litHi: "#ffe6a4", litLo: "#b0702c", rain: 80, drop: "#52658e", dropLit: "#fff0c8", ripple: "#7387b0", drift: "#131a3c",
+  },
+  dawn: {
+    sky: [[0, "#465164"], [0.55, "#737e8c"], [0.88, "#a6a9a6"], [1, "#d0c8b2"]], tint: "#68737f", amt: 0.48, far: "#7a8490", farLit: "#7a8490", cloud: "#8d96a1",
+    orb: { x: 122, y: 31, r: 9, c: "#ddd9c9", rim: "#b5b6ae" }, side: "#59626e", sideHi: "#727b86", curb: "#868e98", road: ["#434c58", "#2a313b"], mirror: 0.45, line: "#6e7783",
+    glass: "#384350", glassHi: "#6a7683", ink: "#1e242d", inkHi: "#4f5965", lamps: false, cone: "#ffe9b8", neon: false, lit: "#e6b765", litHi: "#ffe8ae", litLo: "#a8834c", rain: 34, drop: "#a4aeb9", dropLit: "#c8d0d8", ripple: "#919ca9", drift: "#67707d",
+  },
+  day: {
+    sky: [[0, "#858f98"], [0.6, "#a8b0b5"], [1, "#cbcecb"]], tint: "#98a1a7", amt: 0.26, far: "#a1aab0", farLit: "#a1aab0", cloud: "#bbc1c3",
+    side: "#7c8389", sideHi: "#969ca2", curb: "#a8aeb2", road: ["#5e6771", "#454d56"], mirror: 0.38, line: "#8d959c",
+    glass: "#4c5b68", glassHi: "#9aabb5", ink: "#2d333a", inkHi: "#626c75", lamps: false, cone: "#ffffff", neon: false, lit: "#d9c58a", litHi: "#f0e2b4", litLo: "#a6935e", rain: 24, drop: "#c6d0d7", dropLit: "#dfe6ea", ripple: "#aab4bc", drift: "#969ea4",
+  },
+  dusk: {
+    sky: [[0, "#1a1a3c"], [0.48, "#3d2e5d"], [0.8, "#8c4f60"], [1, "#de8f5f"]], tint: "#2a2247", amt: 0.52, far: "#30284e", farLit: "#6d5c86", cloud: "#54406e",
+    side: "#2e2b47", sideHi: "#45405f", curb: "#5c5676", road: ["#211d38", "#100e1f"], mirror: 0.55, line: "#45405e",
+    glass: "#191733", glassHi: "#3f3864", ink: "#0c0a19", inkHi: "#3c3656", lamps: true, cone: "#ffcf8a", neon: true, lit: "#f2a93f", litHi: "#ffdf92", litLo: "#ae5f2a", rain: 46, drop: "#7a7194", dropLit: "#ffe4b4", ripple: "#8f86aa", drift: "#2d2550",
+  },
+};
+const noirMix = (c: string, to: string, a: number) => { const x = hex(c), y = hex(to); return `rgb(${x.map((v, i) => Math.round(v + (y[i]! - v) * a)).join(",")})`; };
+
+type NoirBld = { x: number; w: number; top: number; c: string; hi: string; lo: string; cols: number; rows: number; winW: number; winH: number; winY: number; stepY: number };
+const NOIR_BLDS: NoirBld[] = [
+  { x: 0, w: 33, top: 13, c: "#8a4436", hi: "#ad6149", lo: "#5f2b22", cols: 3, rows: 3, winW: 6, winH: 7, winY: 19, stepY: 11 },
+  { x: 33, w: 27, top: 34, c: "#67755f", hi: "#84927a", lo: "#475243", cols: 2, rows: 1, winW: 5, winH: 5, winY: 39, stepY: 8 },
+  { x: 60, w: 38, top: 5, c: "#9c8866", hi: "#bda982", lo: "#6f5f46", cols: 4, rows: 5, winW: 5, winH: 6, winY: 11, stepY: 10 },
+  { x: 98, w: 19, top: 40, c: "#585272", hi: "#736d8f", lo: "#3d3950", cols: 2, rows: 1, winW: 4, winH: 5, winY: 45, stepY: 8 },
+  { x: 117, w: 35, top: 17, c: "#44596f", hi: "#5f7a95", lo: "#2e3e50", cols: 3, rows: 3, winW: 6, winH: 7, winY: 23, stepY: 11 },
+  { x: 152, w: 48, top: 27, c: "#78444f", hi: "#99606f", lo: "#522d36", cols: 4, rows: 1, winW: 6, winH: 8, winY: 32, stepY: 11 },
+];
+/** Every upstairs window with its own timing. The backdrop and the animation read the same list. */
+const NOIR_WINDOWS = NOIR_BLDS.flatMap((b, bi) => Array.from({ length: b.cols * b.rows }, (_, i) => {
+  const col = i % b.cols, row = Math.floor(i / b.cols);
+  const gap = (b.w - 6 - b.cols * b.winW) / Math.max(1, b.cols - 1);
+  return { x: Math.round(b.x + 3 + col * (b.winW + gap)), y: b.winY + row * b.stepY, w: b.winW, h: b.winH, a: noise1(bi * 31 + i, 5), b: noise1(bi * 17 + i, 9), c: noise1(bi * 7 + i, 13) };
+}));
+const NOIR_LAMPS = [46, 140];
+const NOIR_LAMP_Y = 33;
+/** Rough ground-floor shop windows: lit at night like the others, but dark by day. */
+const NOIR_SHOPS = [{ x: 36, y: 52, w: 21, h: 10 }, { x: 156, y: 52, w: 16, h: 10 }, { x: 186, y: 52, w: 11, h: 10 }, { x: 5, y: 54, w: 19, h: 9 }];
+const NOIR_LETTERS: Record<string, string[]> = {
+  H: ["X.X", "X.X", "XXX", "X.X", "X.X"], O: ["XXX", "X.X", "X.X", "X.X", "XXX"], T: ["XXX", ".X.", ".X.", ".X.", ".X."], E: ["XXX", "X..", "XX.", "X..", "XXX"], L: ["X..", "X..", "X..", "X..", "XXX"],
+  B: ["XX.", "X.X", "XX.", "X.X", "XX."], A: [".X.", "X.X", "XXX", "X.X", "X.X"], R: ["XX.", "X.X", "XX.", "X.X", "X.X"],
+};
+const noirLetter = (ctx: CanvasRenderingContext2D, ch: string, x: number, y: number, c: string) => NOIR_LETTERS[ch]!.forEach((r, ry) => [...r].forEach((v, rx) => { if (v === "X") px(ctx, x + rx, y + ry, c); }));
+const NOIR_CAR = [
+  "..........XXXXXXXXXX..........",
+  "........XXGGGXGGGGGGXX........",
+  ".......XGGGGGXGGGGGGGGX.......",
+  "...XXXXBBBBBBBBBBBBBBBBXXXXX..",
+  ".XXHHHHHHHHHHHHHHHHHHHHHHHHHX.",
+  "XBBBBBBBBBBBBBBBBBBBBBBBBBBBBX",
+  "fBBBBBBBBBBBBBBBBBBBBBBBBBBBBr",
+  "XBBBXXXXBBBBBBBBBBBBBBXXXXBBBX",
+  ".XXXKKKKXXXXXXXXXXXXXXKKKKXXX.",
+  "....KKKK..............KKKK....",
+];
+const NOIR_WALKER = ["....uuuuu....", "..uuuuuuuuu..", ".uuuuuuuuuuu.", "u..u..u..u..u", "......u......", "....hhhhu....", "...hhhhhhu...", "....sssu.....", "....CCCu.....", "...CCCCCC....", "...CCCCCC....", "...CcCCCC....", "...CcCCCC....", "...CcCCC.....", "....C.C......", "....p.p......"];
+const NOIR_CAT = ["k...k.", "kk.kk.", "kkkkk.", "kEkEk.", "kkkkk.", ".kkkk.", ".kkkkk", ".kkkkk"];
+
+function noirSprite(ctx: CanvasRenderingContext2D, rows: string[], pal: Record<string, string>, x: number, y: number) {
+  rows.forEach((row, ry) => [...row].forEach((ch, rx) => { const c = pal[ch]; if (c) px(ctx, x + rx, y + ry, c); }));
+}
+
+function noirBuilding(ctx: CanvasRenderingContext2D, b: NoirBld, L: NoirLook, seed: number) {
+  const tint = (c: string) => noirMix(c, L.tint, L.amt);
+  const c = tint(b.c), hi = tint(b.hi), lo = tint(b.lo), dark = noirMix(b.lo, L.tint, Math.min(1, L.amt + 0.2));
+  px(ctx, b.x, b.top, c, b.w, NOIR_WALK - b.top);
+  // Brick courses with offset joints and the odd worn brick. Darkens toward the wet street by dithering.
+  for (let y = b.top; y < NOIR_WALK; y++) for (let x = b.x; x < b.x + b.w; x++) {
+    const row = y - b.top, course = Math.floor(row / 3);
+    if (row % 3 === 2) { if ((x + course) % 2 === 0) px(ctx, x, y, lo); }
+    else if ((x + course * 4) % 8 === 0) px(ctx, x, y, lo);
+    else if (noise2(x / 3, y / 2, seed) > 0.68 && (x + y) % 2 === 0) px(ctx, x, y, hi);
+    if ((y - b.top) / (NOIR_WALK - b.top) * 16 > 9 + BAYER[y & 3]![x & 3]! * 0.9) px(ctx, x, y, lo);
+  }
+  // Corner light and shade, then the roofline.
+  px(ctx, b.x, b.top, hi, 1, NOIR_WALK - b.top);
+  px(ctx, b.x + b.w - 1, b.top, dark, 1, NOIR_WALK - b.top);
+  px(ctx, b.x - 1, b.top - 1, hi, b.w + 2, 1);
+  px(ctx, b.x - 1, b.top, lo, b.w + 2, 2);
+  px(ctx, b.x - 1, b.top + 2, dark, b.w + 2, 1);
+}
+
+function noirWindowFrames(ctx: CanvasRenderingContext2D, L: NoirLook) {
+  const sill = noirMix("#cfc4a8", L.tint, L.amt);
+  for (const w of NOIR_WINDOWS) {
+    px(ctx, w.x - 1, w.y - 1, L.ink, w.w + 2, w.h + 2);
+    px(ctx, w.x, w.y, L.glass, w.w, w.h);
+    px(ctx, w.x, w.y, L.glassHi, Math.max(2, w.w - 3), 1); // the sky in the pane
+    px(ctx, w.x, w.y + 1, L.glassHi, 1, Math.min(2, w.h - 2));
+    px(ctx, w.x + Math.floor(w.w / 2), w.y, L.ink, 1, w.h); // sash bar
+    px(ctx, w.x - 1, w.y + w.h + 1, sill, w.w + 2, 1);
+  }
+}
+
+function noirAwning(ctx: CanvasRenderingContext2D, x: number, w: number, y: number, a: string, b: string, L: NoirLook) {
+  for (let i = 0; i < w; i++) {
+    const c = noirMix(Math.floor(i / 3) % 2 ? a : b, L.tint, L.amt * 0.8);
+    px(ctx, x + i, y, c, 1, 4);
+    if (i % 3 !== 2) px(ctx, x + i, y + 4, c);
+  }
+  px(ctx, x, y + 5, L.ink, w, 1);
+}
+
+function noirBackdropOf(ctx: CanvasRenderingContext2D, time: NoirTime) {
+  const L = NOIR[time];
+  ctx.imageSmoothingEnabled = false;
+  ditherSky(ctx, 0, 0, NOIR_W, NOIR_WALK, L.sky);
+  // A heavy lid of cloud, dithered at the edges.
+  for (let y = 0; y < 36; y++) for (let x = 0; x < NOIR_W; x++) {
+    const n = noise2(x / 22, y / 6 + 3, 41) - y / 90;
+    if (n > 0.46 + BAYER[y & 3]![x & 3]! / 90) px(ctx, x, y, L.cloud);
+  }
+  if (L.orb) {
+    const o = L.orb;
+    disc(ctx, o.x, o.y, o.r, (dx, dy) => (dx * dx + dy * dy > (o.r - 1) * (o.r - 1) ? o.rim : (dx === 2 && dy === -2) || (dx === -2 && dy === 3) || (dx === 3 && dy === 2) ? o.rim : o.c));
+    // Cloud bars across its face.
+    px(ctx, o.x - 12, o.y + 2, L.cloud, 20, 1);
+    px(ctx, o.x - 4, o.y - 3, L.cloud, 15, 1);
+  }
+  // Far skyline, with a water tank on one roof.
+  let fx = 0, n = 0;
+  while (fx < NOIR_W) {
+    const w = 7 + Math.floor(noise1(n, 3) * 11), h = 22 + Math.floor(noise1(n, 4) * 24);
+    px(ctx, fx, NOIR_WALK - h, L.far, w, h);
+    for (let wy = NOIR_WALK - h + 2; wy < NOIR_WALK - 2; wy += 3) for (let wx = fx + 1; wx < fx + w - 1; wx += 2) if (noise1(wx * 3 + wy, 8) > 0.72) px(ctx, wx, wy, L.farLit);
+    fx += w; n++;
+  }
+  px(ctx, 103, 32, L.far, 11, 8); px(ctx, 102, 31, L.far, 13, 1); px(ctx, 104, 40, L.far, 1, 4); px(ctx, 112, 40, L.far, 1, 4);
+
+  NOIR_BLDS.forEach((b, i) => noirBuilding(ctx, b, L, 60 + i));
+  noirWindowFrames(ctx, L);
+
+  // Rooftop dressing.
+  px(ctx, 128, 7, L.ink, 11, 9); px(ctx, 128, 7, L.inkHi, 1, 9); px(ctx, 127, 6, L.ink, 13, 1); px(ctx, 130, 16, L.ink, 1, 1); px(ctx, 136, 16, L.ink, 1, 1);
+  px(ctx, 12, 8, L.ink, 1, 5); px(ctx, 9, 8, L.ink, 7, 1); px(ctx, 10, 6, L.ink, 5, 1); // an aerial
+  px(ctx, 170, 21, L.ink, 6, 6); px(ctx, 169, 20, L.inkHi, 8, 1); // a chimney
+
+  // Fire escape down the tall building: landings and ladders.
+  for (let y = 18; y < 58; y += 10) {
+    px(ctx, 78, y, L.ink, 15, 1);
+    for (let x = 78; x < 93; x += 2) px(ctx, x, y - 3, L.ink, 1, 3);
+    px(ctx, 78, y - 3, L.ink, 15, 1);
+    for (let k = 0; k < 8; k++) px(ctx, 80 + (y % 20 === 18 ? k : 8 - k), y + 1 + k, L.inkHi, 1, 1);
+  }
+
+  // Shop fronts: dark glass, awnings, doors.
+  for (const s of NOIR_SHOPS) {
+    px(ctx, s.x - 1, s.y - 1, L.ink, s.w + 2, s.h + 2);
+    px(ctx, s.x, s.y, L.glass, s.w, s.h);
+    for (let i = 0; i < 4; i++) px(ctx, s.x + 2 + i * 4, s.y + s.h - 1 - i, L.glassHi);
+  }
+  noirAwning(ctx, 34, 25, 46, "#b23a3a", "#e6dfc8", L);
+  noirAwning(ctx, 154, 20, 46, "#2f6b5f", "#e6dfc8", L);
+  px(ctx, 175, 50, L.ink, 9, 16); px(ctx, 176, 51, noirMix("#5a3a28", L.tint, L.amt), 7, 15); px(ctx, 177, 53, L.glass, 5, 5); px(ctx, 181, 60, L.inkHi); // bar door
+  px(ctx, 26, 56, L.ink, 6, 10); px(ctx, 27, 57, noirMix("#3e2c22", L.tint, L.amt), 4, 9); // hotel door
+  px(ctx, 104, 54, L.ink, 7, 12); px(ctx, 105, 55, L.glass, 5, 11);
+
+  // Signs, tubes dark for now. The frame lights them when the neon is on.
+  px(ctx, 33, 15, L.ink, 7, 31);
+  [..."HOTEL"].forEach((ch, i) => noirLetter(ctx, ch, 35, 17 + i * 6, noirMix("#7a2436", L.tint, L.amt * 0.6)));
+  px(ctx, 39, 22, L.ink, 1, 2);
+  px(ctx, 182, 39, L.ink, 15, 9);
+  [..."BAR"].forEach((ch, i) => noirLetter(ctx, ch, 184 + i * 4, 41, noirMix("#1f5b66", L.tint, L.amt * 0.6)));
+
+  // Pavement, kerb, road.
+  px(ctx, 0, NOIR_WALK, L.side, NOIR_W, NOIR_ROAD - NOIR_WALK);
+  px(ctx, 0, NOIR_WALK, L.ink, NOIR_W, 1);
+  for (let x = 6; x < NOIR_W; x += 13) px(ctx, x, NOIR_WALK + 1, L.sideHi, 1, 3);
+  px(ctx, 0, NOIR_WALK + 3, L.sideHi, NOIR_W, 1);
+  px(ctx, 0, NOIR_ROAD - 1, L.curb, NOIR_W, 1);
+  for (let y = NOIR_ROAD; y < NOIR_H; y++) px(ctx, 0, y, noirMix(L.road[0], L.road[1], Math.floor(((y - NOIR_ROAD) / (NOIR_H - NOIR_ROAD)) * 5) / 4), NOIR_W, 1);
+  // The town upside down in the wet road, broken into streaks by bands the rain leaves dry.
+  ctx.save();
+  ctx.globalAlpha = L.mirror;
+  for (let y = NOIR_ROAD; y < NOIR_H; y++) {
+    const d = y - NOIR_ROAD, from = NOIR_WALK - 1 - Math.floor(d * 1.9);
+    if (d % 4 === 3) continue;
+    const wob = Math.round(Math.sin(y * 1.7) * 1.4);
+    ctx.drawImage(ctx.canvas, 0, from, NOIR_W, 1, wob, y, NOIR_W, 1);
+  }
+  ctx.restore();
+  for (let x = 4; x < NOIR_W; x += 22) px(ctx, x, 84, L.line, 11, 1); // centre line
+
+  // Street lamps, with a dithered cone and a pool of light on the pavement and in the road.
+  for (const lx of NOIR_LAMPS) {
+    if (L.lamps) {
+      for (let y = NOIR_LAMP_Y + 4; y < NOIR_ROAD; y++) {
+        const half = Math.round((y - NOIR_LAMP_Y) * 0.42);
+        for (let x = -half; x <= half; x++) {
+          const edge = Math.abs(x) / Math.max(1, half), fall = (y - NOIR_LAMP_Y) / (NOIR_ROAD - NOIR_LAMP_Y);
+          if (BAYER[y & 3]![(lx + x) & 3]! / 16 > 0.3 + edge * 0.45 + fall * 0.15) { ctx.globalAlpha = 0.42 - fall * 0.14; px(ctx, lx + x, y, L.cone); }
+        }
+      }
+      ctx.globalAlpha = 1;
+      for (let y = NOIR_ROAD; y < NOIR_H - 1; y++) {
+        const half = Math.round(10 - (y - NOIR_ROAD) * 0.25);
+        for (let x = -half; x <= half; x++) if ((x + y) % 2 === 0 && (y - NOIR_ROAD) % 4 !== 3) { ctx.globalAlpha = 0.24 - (y - NOIR_ROAD) * 0.008; px(ctx, lx + x, y, L.cone); }
+      }
+      ctx.globalAlpha = 1;
+    }
+    px(ctx, lx, NOIR_LAMP_Y + 2, L.ink, 1, NOIR_WALK + 3 - NOIR_LAMP_Y);
+    px(ctx, lx + 1, NOIR_LAMP_Y + 2, L.inkHi, 1, NOIR_WALK + 3 - NOIR_LAMP_Y);
+    px(ctx, lx - 1, NOIR_WALK + 1, L.ink, 4, 3); px(ctx, lx - 2, NOIR_WALK + 3, L.ink, 6, 1);
+    px(ctx, lx - 3, NOIR_LAMP_Y - 1, L.ink, 8, 1); px(ctx, lx - 2, NOIR_LAMP_Y - 2, L.ink, 6, 1); px(ctx, lx, NOIR_LAMP_Y - 3, L.ink, 2, 1);
+    px(ctx, lx - 2, NOIR_LAMP_Y, L.lamps ? L.cone : L.glass, 6, 2);
+    px(ctx, lx - 2, NOIR_LAMP_Y, L.lamps ? L.litHi : L.glassHi, 2, 1);
+  }
+
+  // A parked car, its rain-slick roof catching the light, and its dark shape in the road beneath.
+  const carX = 74, carY = 69;
+  noirSprite(ctx, NOIR_CAR, { X: L.ink, G: L.glassHi, B: noirMix("#2d3a4f", L.tint, L.amt * 0.75), H: L.inkHi, K: L.ink, f: L.lamps ? L.litHi : L.inkHi, r: L.lamps ? "#ff4d4d" : noirMix("#a12d2d", L.tint, L.amt) }, carX, carY);
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  px(ctx, carX + 2, carY + NOIR_CAR.length, L.ink, 26, 2);
+  ctx.restore();
+
+  // A hydrant, a bin.
+  px(ctx, 122, NOIR_WALK + 1, noirMix("#b23a3a", L.tint, L.amt), 3, 4); px(ctx, 121, NOIR_WALK + 2, noirMix("#b23a3a", L.tint, L.amt), 5, 1); px(ctx, 122, NOIR_WALK, L.inkHi, 3, 1);
+  px(ctx, 62, NOIR_WALK - 5, L.ink, 7, 10); px(ctx, 63, NOIR_WALK - 4, L.inkHi, 1, 8); px(ctx, 61, NOIR_WALK - 6, L.inkHi, 9, 1);
+}
+
+function noirFrameOf(ctx: CanvasRenderingContext2D, t: number, time: NoirTime) {
+  const L = NOIR[time];
+  // Slow clouds over the sky, behind nothing but the gaps. Kept thin so the roofs stay readable.
+  for (let i = 0; i < 4; i++) {
+    const w = 26 + i * 9, x = ((i * 67 + t * (0.05 + i * 0.02)) % (NOIR_W + w)) - w, y = 2 + i * 2;
+    px(ctx, x, y, L.drift, w, 1); px(ctx, x + 5, y + 1, L.drift, w - 12, 1);
+  }
+
+  // Windows. Night: most start lit and go out over the 45 seconds, a few stay up. Dusk: the reverse. Dawn: stragglers.
+  const lit = (w: { a: number; b: number }) => {
+    if (time === "night") return w.a < 0.66 && (w.b > 0.86 || t < 30 + w.b * 660);
+    if (time === "dusk") return w.a < 0.3 || (w.a < 0.8 && t > 10 + w.b * 300);
+    if (time === "dawn") return w.a < 0.14 && t < 60 + w.b * 60;
+    return false;
+  };
+  for (const w of NOIR_WINDOWS) {
+    if (!lit(w)) continue;
+    px(ctx, w.x, w.y, L.lit, w.w, w.h);
+    px(ctx, w.x, w.y, L.litHi, w.w, 2);
+    for (let i = 0; i < w.w; i++) if (i % 2 === 0) px(ctx, w.x + i, w.y + w.h - 1, L.litLo);
+    px(ctx, w.x + Math.floor(w.w / 2), w.y, L.litLo, 1, w.h);
+    // Now and then, somebody behind the blind.
+    if (w.c > 0.62) { const sx = w.x + (w.c > 0.8 ? 0 : w.w - 2), sy = w.y + w.h - 4; px(ctx, sx, sy, L.litLo, 2, 4); px(ctx, sx, sy - 1, L.litLo, 2, 1); }
+    // And its glimmer in the wet road.
+    const ry = NOIR_ROAD + clamp(Math.floor((NOIR_WALK - w.y) / 2), 0, NOIR_H - NOIR_ROAD - 2);
+    if ((w.x + t >> 2) % 3 !== 0) px(ctx, w.x + Math.round(Math.sin(t / 5 + w.x) * 1), ry, L.litLo, Math.max(2, w.w - 2), 1);
+  }
+  for (const [i, s] of NOIR_SHOPS.entries()) {
+    if (!L.neon) continue;
+    px(ctx, s.x, s.y, L.litLo, s.w, s.h);
+    px(ctx, s.x, s.y, L.lit, s.w, Math.ceil(s.h / 2));
+    for (let x = 0; x < s.w; x += 2) px(ctx, s.x + x, s.y + Math.ceil(s.h / 2), L.lit);
+    px(ctx, s.x + 3 + i * 2, s.y + s.h - 4, L.ink, 2, 4);
+    if ((s.x + (t >> 3)) % 2 === 0) px(ctx, s.x, NOIR_ROAD + 1, L.litLo, s.w, 1);
+  }
+
+  // Neon: the hotel's T stutters, the bar buzzes.
+  if (L.neon) {
+    [..."HOTEL"].forEach((ch, i) => { if (i === 2 && t % 97 < 5 && t % 2) return; noirLetter(ctx, ch, 35, 17 + i * 6, "#ff5a7a"); });
+    const bar = t % 211 < 3 ? "#1f6b78" : "#58e0ea";
+    [..."BAR"].forEach((ch, i) => noirLetter(ctx, ch, 184 + i * 4, 41, bar));
+    if ((t >> 2) % 3) { px(ctx, 34, NOIR_ROAD + 4, "#a83a54", 5, 1); px(ctx, 35, NOIR_ROAD + 8, "#a83a54", 3, 1); }
+    if ((t >> 2) % 4) { px(ctx, 185, NOIR_ROAD + 6, "#2f8f9a", 10, 1); px(ctx, 187, NOIR_ROAD + 10, "#2f8f9a", 6, 1); }
+  }
+
+  // Someone waiting under the far lamp with an umbrella, shifting their weight. A cat on the bin, blinking.
+  const sway = t % 40 < 20 ? 0 : 1;
+  const coat = noirMix("#6e5b42", L.tint, L.amt * 0.7);
+  const fy = NOIR_WALK + 4 - NOIR_WALKER.length;
+  NOIR_WALKER.forEach((row, ry) => [...row].forEach((ch, rx) => {
+    const c = ({ u: L.ink, h: L.ink, s: noirMix("#d9a57c", L.tint, L.amt * 0.7), C: coat, c: L.inkHi, p: L.ink } as Record<string, string>)[ch];
+    if (c) px(ctx, 144 + rx + (ry < 14 ? sway : 0), fy + ry, c);
+  }));
+  if (t % 24 < 12) px(ctx, 144 + sway, fy + 4 + (t % 24) / 2, L.dropLit); // a drip off the umbrella
+  noirSprite(ctx, NOIR_CAT, { k: L.ink, E: t % 70 < 4 ? L.ink : L.lamps ? "#ffd23f" : L.inkHi }, 62, NOIR_WALK - 14);
+
+  // Rain, with a slight slant. It only really shows where the lamps catch it.
+  for (let i = 0; i < L.rain; i++) {
+    const speed = 2.4 + noise1(i, 31) * 2;
+    const y = ((noise1(i, 32) * NOIR_H * 3 + t * speed) % (NOIR_H + 6)) - 4;
+    const x = (((noise1(i, 33) * NOIR_W * 2 - y * 0.35 - t * 0.5) % NOIR_W) + NOIR_W) % NOIR_W;
+    const inCone = L.lamps && y > NOIR_LAMP_Y + 2 && y < NOIR_ROAD && NOIR_LAMPS.some((lx) => Math.abs(x - lx) < (y - NOIR_LAMP_Y) * 0.42);
+    const c = inCone ? L.dropLit : L.drop;
+    px(ctx, x, y, c, 1, 2); px(ctx, x - 1, y + 2, c, 1, inCone ? 2 : 1);
+  }
+  // Rain landing: rings opening on the road and the pavement.
+  for (let i = 0; i < Math.ceil(L.rain / 5); i++) {
+    const cycle = 10 + Math.floor(noise1(i, 34) * 6), at = (t + i * 7) % cycle;
+    const seed = Math.floor((t + i * 7) / cycle);
+    const x = noise1(i + seed * 13, 35) * NOIR_W, y = NOIR_ROAD + 1 + noise1(i + seed * 17, 36) * (NOIR_H - NOIR_ROAD - 2);
+    if (at === 0) px(ctx, x, y, L.ripple);
+    else if (at < 4) { px(ctx, x - at, y, L.ripple); px(ctx, x + at, y, L.ripple); }
+  }
+}
+
+const noirWorld = (id: World["id"], time: NoirTime): World => ({
+  id, fullW: NOIR_W, fullH: NOIR_H, viewW: NOIR_W, viewH: NOIR_H,
+  checkpoints: [{ name: "Town", at: 0 }],
+  backdrop: (ctx) => noirBackdropOf(ctx, time),
+  frame: (ctx, t) => noirFrameOf(ctx, t, time),
+  pos: () => ({ x: NOIR_W / 2, y: NOIR_H / 2 }),
+  camera: () => ({ x: 0, y: 0 }),
+});
+export const NOIR_NIGHT = noirWorld("noirNight", "night");
+export const NOIR_DAWN = noirWorld("noirDawn", "dawn");
+export const NOIR_DAY = noirWorld("noirDay", "day");
+export const NOIR_DUSK = noirWorld("noirDusk", "dusk");
+
+export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO, board: BOARD, arcade: ARCADE, ladder: LADDER_WORLD, noirNight: NOIR_NIGHT, noirDawn: NOIR_DAWN, noirDay: NOIR_DAY, noirDusk: NOIR_DUSK };
 
 /** The last checkpoint reached at a fraction of the journey. */
 export function checkpointAt(world: World, f: number): Checkpoint {

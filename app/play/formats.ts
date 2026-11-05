@@ -1,4 +1,4 @@
-import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, BarChart3, HelpCircle, VenetianMask, Vote, AudioWaveform, Brain } from "lucide-react";
+import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, BarChart3, HelpCircle, VenetianMask, Vote, AudioWaveform, Brain, CloudRain } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { FormatId } from "./types";
 
@@ -30,6 +30,7 @@ export const PARTY_GAMES: FormatMeta[] = [
   { id: "vote", title: "Vote Games", tagline: "Who's Wrong, Icks, Ultimatums, Did That Happen. Everyone votes at once.", how: ["A card shows a scenario with two sides.", "Everyone votes in secret, then guesses how the others voted.", "Score for every right guess, or when nobody reads you. Did That Happen also pays for the truth."], icon: Vote, gradient: "from-teal-600/50 to-primary/20", usesPool: false },
   { id: "insync", title: "In-Sync", tagline: "One clue, one hidden spot on a line. Tune in together.", how: ["One player sees a spot between two opposites and gives a single clue.", "Everyone else drags a shared marker and talks it over, then locks.", "The closer the marker, the more the whole table scores."], icon: AudioWaveform, gradient: "from-indigo-600/50 to-primary/20", usesPool: false },
   { id: "partytrivia", title: "Party Trivia", tagline: "Everyone answers at once. Faster right answers score more. Play solo or in teams.", how: ["Everyone sees the same question and four options.", "Answer fast: a quick right answer scores up to 150.", "With 4+ players, split into teams: the team's most-voted option is its answer."], icon: Brain, gradient: "from-violet-600/50 to-primary/20", usesPool: true },
+  { id: "mafia", title: "Mafia", tagline: "A rainy town, secret roles and no narrator needed. Find the mafia before they outnumber you.", how: ["Everyone gets a secret card. At night every phone taps a name, so nobody can tell who's up to what.", "Each morning the town hears who's gone. Talk it out, then vote someone onto the next bus.", "The village wins when the mafia are gone. The mafia win when they match everyone else."], icon: CloudRain, gradient: "from-slate-600/60 to-primary/20", usesPool: false },
 ];
 
 export const formatMeta = (id: string) => FORMATS.find((f) => f.id === id) ?? PARTY_GAMES.find((f) => f.id === id);

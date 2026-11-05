@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { IDLE_LIMIT, MORNING_MS, NIGHT_MS, TALK_MS, VOTE_MS, dayVote, init, nightAct, redactFor, rolesFor, settle, skipTalk, tick, type MafiaState, type Role } from "./mafia";
+import { IDLE_LIMIT, MORNING_MS, NIGHT_MS, SKIP_VOTE, TALK_MS, VOTE_MS, dayVote, init, nightAct, quietNight, redactFor, rolesFor, settle, skipTalk, tick, voted, type MafiaState, type Role } from "./mafia";
 
 const T0 = 1_000;
 // Distinctive names, so a leak check on the JSON can't pass or fail by accident.
@@ -12,7 +12,9 @@ function rig(players: string[], cast: { mafia: string[]; doctor?: string; detect
   const roles = Object.fromEntries(players.map((p): [string, Role] => [p, cast.mafia.includes(p) ? "mafia" : p === cast.doctor ? "doctor" : p === cast.detective ? "detective" : "villager"]));
   return { ...s, roles };
 }
-const five = (drinking = false) => rig(FIVE, { mafia: ["Zelda"], doctor: "Xavier" }, drinking); // Quincy, Wilma, Yolanda are villagers
+const firstNightOfFive = (drinking = false) => rig(FIVE, { mafia: ["Zelda"], doctor: "Xavier" }, drinking); // Quincy, Wilma, Yolanda are villagers
+/** Past the quiet first night a table of five gets, which has its own tests. */
+const five = (drinking = false): MafiaState => ({ ...firstNightOfFive(drinking), night: 2 });
 const nine = () => rig(NINE, { mafia: ["Zelda", "Xavier"], doctor: "Quincy", detective: "Wilma" });
 
 /** A whole night: villagers tap "ok", role holders use the given target, and it closes on the timer if anyone sat out. */
@@ -179,13 +181,13 @@ describe("night", () => {
       expect(s.phase).toBe(want);
     };
     step(NIGHT_MS + 1, "morning");
-    expect(s.night).toBe(1);
+    expect(s.night).toBe(2);
     step(MORNING_MS - 1, "morning");
     step(1, "talk");
     step(TALK_MS - 1, "talk");
     step(1, "vote");
     step(VOTE_MS + 1, "night");
-    expect(s.night).toBe(2);
+    expect(s.night).toBe(3);
     expect(s.morning).toBeNull();
     expect(s.actions).toEqual({ kill: null, save: null, check: null, done: [] });
   });
@@ -234,7 +236,7 @@ describe("day", () => {
     expect(dayVote(once, "Quincy", "Xavier", T0)).toBe(once); // repeat
     const all = vote(day, { Zelda: "skip", Xavier: "skip", Quincy: "skip", Yolanda: "skip" });
     expect(all.phase).toBe("night");
-    expect(all.night).toBe(2);
+    expect(all.night).toBe(3);
     expect(dayVote(all, "Xavier", "skip", T0)).toBe(all); // not the day
   });
 });
@@ -247,7 +249,7 @@ describe("winning", () => {
 
     let s = night(five(), { Zelda: "Wilma" }); // 4 alive
     s = closeVote(vote(toVote(s), { Zelda: "Quincy", Xavier: "Quincy", Yolanda: "Quincy" })); // 3 alive, not parity yet
-    expect(s).toMatchObject({ done: false, phase: "night", night: 2 });
+    expect(s).toMatchObject({ done: false, phase: "night", night: 3 });
     s = night(s, { Zelda: "Yolanda", Xavier: "Xavier" }); // 2 alive: 1 mafia, 1 other
     expect(s).toMatchObject({ done: true, winner: "mafia" });
     expect(s.morning).toEqual({ died: "Yolanda" });
@@ -267,13 +269,70 @@ describe("winning", () => {
     expect(v).toMatchObject({ done: true, winner: "village" });
   });
 
-  it("a 5-player game can't end before the second night", () => {
-    // 1 mafia: a kill on night 1 leaves 4 alive and a bad vote leaves 3, which is not parity.
-    let s = night(five(), { Zelda: "Wilma" });
-    expect(s).toMatchObject({ alive: FIVE.filter((p) => p !== "Wilma"), done: false, winner: null });
+  it("a 5-player game can't end before the second night's kill, or with the mafia ahead before the second vote", () => {
+    // 1 mafia: a quiet first night and a bad vote leave 4 alive, and the next kill leaves 3, which is not parity.
+    let s = night(firstNightOfFive(), { Zelda: "Wilma" });
+    expect(s).toMatchObject({ alive: FIVE, done: false, winner: null });
     s = closeVote(vote(toVote(s), { Zelda: "Xavier", Quincy: "Xavier", Yolanda: "Xavier" }));
     expect(s).toMatchObject({ phase: "night", night: 2, done: false, winner: null });
+    expect(s.alive).toHaveLength(4);
+    s = night(s, { Zelda: "Wilma" });
+    expect(s).toMatchObject({ phase: "morning", done: false, winner: null });
     expect(s.alive).toHaveLength(3);
+  });
+});
+
+describe("the quiet first night at a table of five", () => {
+  it("everyone still taps and it closes the same way, but nobody dies and no save is remembered", () => {
+    const s = night(firstNightOfFive(), { Zelda: "Wilma", Xavier: "Quincy" });
+    expect(s).toMatchObject({ phase: "morning", alive: FIVE, morning: { died: null }, lastSave: null, eliminated: [], done: false });
+    expect(s.actions).toEqual({ kill: null, save: null, check: null, done: [] });
+  });
+
+  it("gives no drink card, and the doctor may pick the same name on night 2", () => {
+    const s = night(firstNightOfFive(true), { Zelda: "Wilma", Xavier: "Quincy" });
+    expect(s.drinks!.calls).toEqual([]);
+    const day = vote(toVote(s), Object.fromEntries(FIVE.map((p) => [p, SKIP_VOTE])));
+    expect(day).toMatchObject({ phase: "night", night: 2 });
+    expect(nightAct(day, "Xavier", "Quincy", T0).actions.done).toEqual(["Xavier"]);
+  });
+
+  it("gives the village two votes before the mafia can win, and the second night counts", () => {
+    let s = night(firstNightOfFive(), { Zelda: "Wilma", Xavier: "Quincy" });
+    s = vote(toVote(s), { Zelda: "Yolanda", Xavier: "Yolanda", Quincy: "Yolanda", Wilma: "Yolanda", Yolanda: SKIP_VOTE });
+    expect(s).toMatchObject({ done: false, night: 2, alive: ["Zelda", "Xavier", "Quincy", "Wilma"] });
+    s = night(s, { Zelda: "Wilma", Xavier: "Quincy" });
+    expect(s).toMatchObject({ morning: { died: "Wilma" }, done: false, alive: ["Zelda", "Xavier", "Quincy"] });
+    expect(vote(toVote(s), { Zelda: "Quincy", Xavier: "Quincy", Quincy: SKIP_VOTE })).toMatchObject({ done: true, winner: "mafia" });
+  });
+
+  it("applies to five seats only: six and up can lose someone on the first night", () => {
+    expect(quietNight({ players: FIVE, night: 1 })).toBe(true);
+    expect(quietNight({ players: FIVE, night: 2 })).toBe(false);
+    expect(quietNight({ players: [...FIVE, "Barnaby"], night: 1 })).toBe(false);
+    const six = rig([...FIVE, "Barnaby"], { mafia: ["Zelda"], doctor: "Xavier" });
+    expect(night(six, { Zelda: "Wilma", Xavier: "Quincy" }).morning).toEqual({ died: "Wilma" });
+  });
+
+  it("a table that started with six and lost a seat is not a table of five", () => {
+    const six = rig([...FIVE, "Barnaby"], { mafia: ["Zelda"], doctor: "Xavier" });
+    const lostOne: MafiaState = { ...six, alive: FIVE };
+    expect(quietNight(lostOne)).toBe(false);
+  });
+});
+
+describe("the public record", () => {
+  it("names who the vote put out, or nobody, so a screen need not guess from the last elimination", () => {
+    expect(voted({ A: "B", B: "B", C: "B", D: SKIP_VOTE })).toBe("B");
+    expect(voted({ A: "B", B: "C" })).toBeNull();
+    expect(voted({ A: SKIP_VOTE, B: SKIP_VOTE })).toBeNull();
+    expect(voted({})).toBeNull();
+  });
+
+  it("keeps the game's start, which is public and stays put through every phase", () => {
+    const s = firstNightOfFive();
+    expect(s.startedAt).toBe(T0);
+    expect(redactFor(night(s, { Zelda: "Wilma", Xavier: "Quincy" }, T0 + 5), "Quincy").startedAt).toBe(T0);
   });
 });
 
