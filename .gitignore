@@ -51,3 +51,9 @@ backend/data/cartoons/
 # database dumps contain user data
 backups/
 .archify/
+
+# local tool config and macOS folder icon
+/.claude/
+/.impeccable/
+/AGENTS.md
+/Icon?
