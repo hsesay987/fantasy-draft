@@ -6,37 +6,55 @@ import { CATALOG_META, getCatalog } from "../topicDraft/catalogs";
 import { DECKS } from "../topicDraft/party/decks";
 import { INSYNC_DECKS } from "../topicDraft/party/insyncDecks";
 import { OPTION_COUNT } from "../topicDraft/formats/imposter";
+import { TEAM_MIN_PLAYERS } from "../topicDraft/formats/partytrivia";
+import { newSeed } from "../topicDraft/rng";
+import { hasTrivia } from "../topicDraft/trivia";
 import { formatMeta } from "./formats";
-import { category } from "./categories";
+import { CATEGORIES, category } from "./categories";
 import { setRoomGame } from "./onlineApi";
+import { TeamPicker } from "./TeamPicker";
+import { compactTeams, splitTeams, type TeamMap } from "./teamMoves";
 import { DEFAULT_OPTS, type GameSetup } from "./types";
 import { DrinkingToggle, ShowVotesToggle } from "./views/partyBits";
 
 /** Topics Imposter can use: any character pool big enough for a secret plus look-alikes to guess from. */
 export const IMPOSTER_TOPICS = CATALOG_META.filter((m) => m.kind === "character" && getCatalog(m.id).length >= OPTION_COUNT);
 
-/** The host's setup for a party game: a topic or deck, how long, and (Imposter) how it ends. Saves to the room. */
-export function PartySetup({ format, room }: { format: "imposter" | "vote" | "insync"; room: { code: string; token: string; pool?: string; onDone: () => void; onCancel: () => void } }) {
+/** Topics Party Trivia can use: anything with a trivia bank. */
+const TRIVIA_TOPICS = CATEGORIES.filter((c) => !c.hidden && hasTrivia(c.id));
+
+/** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
+export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia"; room: { code: string; token: string; pool?: string; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
   const meta = formatMeta(format)!;
   const decks = format === "insync" ? INSYNC_DECKS : DECKS;
   const [pool, setPool] = useState(() => {
     if (format === "imposter") return IMPOSTER_TOPICS.some((t) => t.id === room.pool) ? room.pool! : "superheroes";
+    if (format === "partytrivia") return TRIVIA_TOPICS.some((t) => t.id === room.pool) ? room.pool! : TRIVIA_TOPICS[0]!.id;
     const ids = decks.map((d) => d.id);
     return ids.includes(room.pool ?? "") ? room.pool! : format === "insync" ? "friends" : ids[0]!;
   });
-  const [length, setLength] = useState(format === "imposter" ? 2 : 8);
+  const [length, setLength] = useState(format === "imposter" ? 2 : format === "partytrivia" ? 10 : 8);
+  const [teams, setTeams] = useState(0);
+  const [teamMap, setTeamMap] = useState<TeamMap>({});
   const [ending, setEnding] = useState<"guess" | "vote">("guess");
   const [drinking, setDrinking] = useState(false);
   const [showVotes, setShowVotes] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const teamsOpen = format === "partytrivia" && seats.length >= TEAM_MIN_PLAYERS;
+  const pickTeams = (n: number) => {
+    setTeams(n);
+    setTeamMap(n ? splitTeams(seats, n, newSeed()) : {});
+  };
+
   const save = async () => {
     setBusy(true);
     setError(null);
+    const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking, showVotes }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking, showVotes, ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -57,6 +75,12 @@ export function PartySetup({ format, room }: { format: "imposter" | "vote" | "in
             {IMPOSTER_TOPICS.map((t) => <Chip key={t.id} selected={pool === t.id} onClick={() => setPool(t.id)}>{category(t.id)?.title ?? t.title}</Chip>)}
           </div>
         </Panel>
+      ) : format === "partytrivia" ? (
+        <Panel title="Topic" hint="Every question comes from this topic.">
+          <div className="flex flex-wrap gap-2">
+            {TRIVIA_TOPICS.map((t) => <Chip key={t.id} selected={pool === t.id} onClick={() => setPool(t.id)}>{t.title}</Chip>)}
+          </div>
+        </Panel>
       ) : (
         <Panel title="Deck">
           <div className="grid gap-2 sm:grid-cols-2">
@@ -75,9 +99,9 @@ export function PartySetup({ format, room }: { format: "imposter" | "vote" | "in
           <p className="text-sm text-muted-foreground">One round per player, so everyone gets the mic. Never fewer than 4.</p>
         </Panel>
       ) : (
-        <Panel title={format === "imposter" ? "Clue rounds" : "Cards"}>
+        <Panel title={format === "imposter" ? "Clue rounds" : format === "partytrivia" ? "Questions" : "Cards"}>
           <div className="flex flex-wrap gap-2">
-            {(format === "imposter" ? [1, 2, 3] : [5, 8, 12]).map((n) => <Chip key={n} selected={length === n} onClick={() => setLength(n)}>{n}</Chip>)}
+            {(format === "imposter" ? [1, 2, 3] : format === "partytrivia" ? [10, 15, 20] : [5, 8, 12]).map((n) => <Chip key={n} selected={length === n} onClick={() => setLength(n)}>{n}</Chip>)}
           </div>
         </Panel>
       )}
@@ -93,6 +117,17 @@ export function PartySetup({ format, room }: { format: "imposter" | "vote" | "in
             ))}
           </div>
         </Panel>
+      )}
+
+      {format === "partytrivia" && (
+        teamsOpen ? (
+          <Panel title="Teams" hint="Each member votes. The team's answer is its most-voted option.">
+            <div className="flex flex-wrap gap-2">
+              {[0, 2, 3, 4].map((n) => <Chip key={n} selected={teams === n} onClick={() => pickTeams(n)}>{n === 0 ? "No teams" : `${n} teams`}</Chip>)}
+            </div>
+            {teams > 0 && <TeamPicker players={seats} teams={teams} map={teamMap} onChange={setTeamMap} />}
+          </Panel>
+        ) : <p className="text-sm text-muted-foreground">Teams open up with {TEAM_MIN_PLAYERS} or more players.</p>
       )}
 
       {format === "vote" && (

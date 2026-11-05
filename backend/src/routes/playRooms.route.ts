@@ -17,13 +17,17 @@ const limited = (ip: string) => {
   return false;
 };
 
-/** Jeopardy and Feud rooms get their questions from the server's trivia bank so every seat sees the same board. */
-async function quizFor(setup: any, seen: string[] = []) {
+const partyQuestions = (setup: any) => [10, 15, 20].reduce((a, b) => (Math.abs(b - Number(setup?.opts?.teamSize)) < Math.abs(a - Number(setup?.opts?.teamSize)) ? b : a));
+
+/** Jeopardy, Feud and party trivia rooms get their questions from the server's trivia bank so every seat sees the same board. */
+export async function quizFor(setup: any, seen: string[] = []) {
   const fmt = setup?.format, pool = setup?.pool;
-  if ((fmt !== "jeopardy" && fmt !== "feud") || !isTriviaPool(pool)) return undefined;
+  if ((fmt !== "jeopardy" && fmt !== "feud" && fmt !== "partytrivia") || !isTriviaPool(pool)) return undefined;
   try {
     const mine = Array.isArray(setup?.opts?.avoid) ? setup.opts.avoid.filter((x: unknown) => typeof x === "string") : [];
     const avoid = [...seen, ...mine].slice(-400);
+    // Party trivia takes four questions per category, plus one spare category, for 10, 15 or 20 questions.
+    if (fmt === "partytrivia") return { categories: await getJeopardy(pool, avoid, undefined, undefined, undefined, Math.ceil(partyQuestions(setup) / 4) + 1) };
     return fmt === "jeopardy" ? { categories: await getJeopardy(pool, avoid) } : { surveys: await getFeud(pool, 5, avoid) };
   } catch {
     return undefined; // falls back to the bundled questions

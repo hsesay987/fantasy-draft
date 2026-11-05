@@ -456,3 +456,151 @@ describe("party rooms", () => {
     });
   });
 });
+
+describe("party trivia room", () => {
+  const cats = ["Aa", "Bb", "Cc", "Dd", "Ee", "Ff"].map((name) => ({
+    name,
+    clues: [0, 1, 2, 3].map((i) => ({ q: `${name} question number ${i}?`, right: `RIGHT-${name}-${i}`, wrong: [`no1-${name}-${i}`, `no2-${name}-${i}`, `no3-${name}-${i}`] })),
+  }));
+  const trivia = (extra: any = {}) => ({ format: "partytrivia", pool: "superheroes", opts: { teamSize: 10, ...extra } });
+  const seated = (names: string[], opts: any = {}) => {
+    const made = createRoom(trivia(opts), names[0]!, { categories: cats }) as any;
+    const toks: Record<string, string> = { [names[0]!]: made.seat.token };
+    for (const n of names.slice(1)) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+    return { room: made.room, toks };
+  };
+
+  it("accepts trivia topics only, snaps the question count, and starts with 2 players", () => {
+    expect(createRoom({ ...trivia(), pool: "nope" }, "Ann")).toEqual({ error: "Invalid game setup" });
+    expect(sanitizeSetup(trivia({ teamSize: 17 }))!.opts.teamSize).toBe(15);
+    expect(sanitizeSetup(trivia({ teamSize: 999 }))!.opts.teamSize).toBe(20);
+    expect(sanitizeSetup(trivia({ teamSize: "x" }))!.opts.teamSize).toBe(10);
+    const { room, toks } = seated(["Ann"]);
+    expect(startRoom(room, toks.Ann)).toEqual({ error: "Need at least 2 players" });
+    joinRoom(room.code, "Bob");
+    expect(startRoom(room, toks.Ann)).toEqual({ ok: true });
+    expect(room.state.questions).toHaveLength(10);
+  });
+
+  it("never sends the answer, later questions, the bank or the seed while it runs, but keeps the team map", () => {
+    const names = ["Ann", "Bob", "Cy", "Di"];
+    const { room, toks } = seated(names, { teams: 2, teamMap: { Ann: 0, Bob: 0, Cy: 1, Di: 1 } });
+    startRoom(room, toks.Ann);
+    expect(room.setup.quiz.categories).toHaveLength(6); // the room's own copy stays
+    expect(room.state.teams).toEqual([["Ann", "Bob"], ["Cy", "Di"]]);
+    const first = room.state.questions[0];
+    for (const n of names) {
+      const snap = snapshot(room, toks[n]);
+      const json = JSON.stringify(snap);
+      expect(snap.setup.quiz, n).toBeUndefined();
+      expect(snap.setup.seed).toBe(0);
+      expect(snap.setup.opts.teamMap).toEqual({ Ann: 0, Bob: 0, Cy: 1, Di: 1 });
+      expect(json.match(/RIGHT-/g)).toHaveLength(1); // only the option on screen; the bank and later answers are not sent
+      expect(json).not.toContain('"answer"');
+      for (const q of room.state.questions.slice(1)) expect(json).not.toContain(q.q);
+      expect(json).toContain(first.q);
+    }
+    expect(JSON.stringify(snapshot(room, "bad token")).match(/RIGHT-/g)).toHaveLength(1);
+    // Teammates see each other's pick, the other team does not.
+    expect(act(room, toks.Ann, { type: "answer", choice: first.options[1] }).ok).toBe(true);
+    expect(snapshot(room, toks.Bob).state.answers.Ann.choice).toBe(first.options[1]);
+    expect(snapshot(room, toks.Cy).state.answers.Ann.choice).toBe("");
+    // After the reveal the answer opens, and still no future question.
+    for (const n of ["Bob", "Cy", "Di"]) act(room, toks[n], { type: "answer", choice: first.options[0] });
+    const open = snapshot(room, toks.Cy);
+    expect(open.state.phase).toBe("reveal");
+    expect(open.state.questions[0].answer).toBe(first.answer);
+    expect(JSON.stringify(open)).not.toContain(room.state.questions[1].q);
+  });
+
+  it("opens everything once the game is done", () => {
+    const { room, toks } = seated(["Ann", "Bob"]);
+    startRoom(room, toks.Ann);
+    for (let i = 0; i < 10; i++) {
+      tickRooms(room.state.phaseAt + 25_001);
+      tickRooms(room.state.phaseAt + 7_001);
+    }
+    expect(room.status).toBe("done");
+    const snap = snapshot(room, toks.Ann);
+    expect(snap.state.questions).toHaveLength(10);
+    expect(snap.state.questions[9].answer).toBeDefined();
+    expect(room.played.at(-1)).toMatchObject({ format: "partytrivia", winner: null });
+    expect(room.seen).toContain("cat:Aa");
+  });
+
+  it("takes the clock from the server, only for the seat's own name, and refuses garbage", () => {
+    const { room, toks } = seated(["Ann", "Bob"]);
+    startRoom(room, toks.Ann);
+    const q = room.state.questions[0];
+    expect(act(room, toks.Ann, { type: "answer", choice: "nope" }).ok).toBe(false);
+    expect(act(room, toks.Ann, { type: "answer", choice: 5 }).ok).toBe(false);
+    expect(act(room, "bad", { type: "answer", choice: q.options[0] }).ok).toBe(false);
+    const before = Date.now();
+    expect(act(room, toks.Ann, { type: "answer", choice: q.answer, by: "Bob", at: 1, now: 1 } as any).ok).toBe(true);
+    expect(room.state.answers.Bob).toBeUndefined();
+    expect(room.state.answers.Ann.at).toBeGreaterThanOrEqual(before);
+    expect(act(room, toks.Ann, { type: "answer", choice: q.options[0] }).ok).toBe(false); // repeat
+  });
+
+  it("a player who left never holds up a question, and drinks stay off screen for them", () => {
+    const { room, toks } = seated(["Ann", "Bob", "Cy"], { drinking: true });
+    startRoom(room, toks.Ann);
+    const q = room.state.questions[0];
+    act(room, toks.Ann, { type: "answer", choice: q.options.find((o: string) => o !== q.answer) });
+    act(room, toks.Bob, { type: "answer", choice: q.answer });
+    leaveRoom(room, toks.Cy); // the others already answered, so the question closes now
+    expect(room.state.phase).toBe("reveal");
+    const calls = (t: string) => snapshot(room, t).state.drinks.calls.map((c: any) => c.to);
+    expect(calls(toks.Ann)).toContain("Ann");
+    expect(calls(toks.Ann)).not.toContain("Cy");
+    expect(room.state.drinks.calls.map((c: any) => c.to)).toContain("Cy");
+  });
+
+  it("a rematch asks for a new bank", () => {
+    const { room, toks } = seated(["Ann", "Bob"]);
+    expect(needsQuiz(room)).toBe(false);
+    startRoom(room, toks.Ann);
+    expect(needsQuiz(room)).toBe(true);
+  });
+
+  it("closes a question as soon as every present seat has answered, whenever the leaver goes", () => {
+    const { room, toks } = seated(["Ann", "Bob", "Cy"]);
+    startRoom(room, toks.Ann);
+    // The leaver goes before the others answer.
+    leaveRoom(room, toks.Cy);
+    expect(room.state.phase).toBe("question");
+    act(room, toks.Ann, { type: "answer", choice: room.state.questions[0].options[0] });
+    expect(room.state.phase).toBe("question");
+    act(room, toks.Bob, { type: "answer", choice: room.state.questions[0].options[0] });
+    expect(room.state.phase).toBe("reveal");
+    tickRooms(room.state.phaseAt + 7_001);
+    // Next question: the others answer, then the last unanswered player leaves.
+    const { room: r2, toks: t2 } = seated(["Ann", "Bob", "Cy"]);
+    startRoom(r2, t2.Ann);
+    act(r2, t2.Ann, { type: "answer", choice: r2.state.questions[0].options[0] });
+    act(r2, t2.Bob, { type: "answer", choice: r2.state.questions[0].options[0] });
+    expect(r2.state.phase).toBe("question");
+    leaveRoom(r2, t2.Cy);
+    expect(r2.state.phase).toBe("reveal");
+  });
+
+  it("a player who left and comes back can answer again, and is waited for", () => {
+    const { room, toks } = seated(["Ann", "Bob", "Cy"]);
+    startRoom(room, toks.Ann);
+    leaveRoom(room, toks.Cy);
+    expect(act(room, toks.Cy, { type: "answer", choice: room.state.questions[0].options[0] }).ok).toBe(true);
+    expect(room.seats.find((s: any) => s.name === "Cy").left).toBe(false);
+    act(room, toks.Ann, { type: "answer", choice: room.state.questions[0].options[0] });
+    expect(room.state.phase).toBe("question"); // Bob is still to answer
+    act(room, toks.Bob, { type: "answer", choice: room.state.questions[0].options[0] });
+    expect(room.state.phase).toBe("reveal");
+  });
+
+  it("refuses to start with no questions rather than sticking in playing", () => {
+    const made = createRoom(trivia(), "Ann", { categories: [{ name: "Thin", clues: [] }] }) as any;
+    joinRoom(made.room.code, "Bob");
+    expect(startRoom(made.room, made.seat.token)).toEqual({ error: "No questions are available for this topic right now" });
+    expect(made.room.status).toBe("lobby");
+    expect(made.room.state).toBeNull();
+  });
+});
