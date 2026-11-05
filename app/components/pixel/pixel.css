@@ -719,3 +719,82 @@
 .pixel[data-world="ladder"] { --px-bg: #15123f; --px-bg2: #1b1650; --px-panel: #2c2069; --px-panel2: #472a7c; --px-ink: #170f30; --px-fg: #fff3dc; --px-dim: #c9b4dc; --px-lav: #fbcfa0; --px-rose: #f4714f; --px-gold: #ffd27a; --px-mint: #7fe0a8; --px-sky: #8fc4ff; --px-violet: #54297f;
   background: #15123f repeating-linear-gradient(0deg, #1b1650 0 2px, #15123f 2px 8px); }
 .pixel[data-world="ladder"] .px-box::before { content: ""; position: absolute; left: 8px; right: 8px; top: 6px; height: 2px; pointer-events: none; background: repeating-linear-gradient(90deg, #ffd27a 0 10px, #b7803e 10px 12px, transparent 12px 24px); opacity: .7; }
+
+/* The climb: enamel signs with brass rivets on a violet dusk. No letters, no ovals, no point table up the side. */
+.tr-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; max-width: 40rem; margin-inline: auto; }
+.tr-back { justify-self: start; color: var(--px-lav); font-size: 19px; }
+.tr-back:hover { color: var(--px-gold); }
+.tr-sign { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px; padding: 10px 12px; min-width: 0; background: var(--px-panel2); box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 3px 0 0 #6d4598, inset 0 -3px 0 0 #2c1a55; }
+.tr-sign > div { min-width: 0; }
+.tr-sign .eyebrow { margin: 0 0 4px; font: 400 9px/1.4 var(--px-head); color: var(--px-lav); overflow-wrap: anywhere; }
+.pixel .tr-sign h1 { margin: 0; font: 400 15px/1.45 var(--px-head); text-shadow: none; }
+.tr-score { display: grid; justify-items: end; flex: none; line-height: 1; }
+.tr-score b { font: 400 32px/1 var(--px-body); color: var(--px-gold); }
+.tr-score span { font-size: 18px; color: var(--px-dim); }
+.tr-scene { scroll-margin-top: 72px; box-shadow: 0 0 0 4px var(--px-ink); margin: 4px; }
+
+/* Height gauge: one brass tab a rung, flags on the safe ledges. */
+.tr-meter { display: flex; gap: 3px; margin: 10px 4px 0; }
+.tr-meter i { position: relative; flex: 1; height: 10px; background: var(--px-ink); box-shadow: inset 0 -2px 0 0 #0006; }
+.tr-meter i.done { background: var(--px-gold); box-shadow: inset 0 -2px 0 0 #b7803e; }
+.tr-meter i.now { background: var(--px-rose); animation: tr-now 1s steps(2) infinite; }
+.tr-meter i.ledge::before { content: ""; position: absolute; left: 50%; bottom: 100%; width: 2px; height: 9px; background: var(--px-fg); }
+.tr-meter i.ledge::after { content: ""; position: absolute; left: calc(50% + 2px); bottom: calc(100% + 4px); width: 6px; height: 5px; background: var(--px-mint); }
+@keyframes tr-now { 50% { background: var(--px-gold); } }
+
+.tr-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 0 4px; }
+.tr-stats > div { display: grid; gap: 2px; padding: 5px 8px; background: var(--px-ink); min-width: 0; }
+.tr-stats dt { font-size: 17px; line-height: 1; color: var(--px-dim); }
+.tr-stats dd { margin: 0; font-size: 22px; line-height: 1; color: var(--px-fg); overflow-wrap: anywhere; }
+
+.tr-ask { display: grid; gap: 10px; margin: 4px; min-width: 0; }
+.pixel .tr-ask h2 { margin: 0; padding: 10px 12px; background: var(--px-panel); font: 400 26px/1.08 var(--px-body); color: var(--px-fg); overflow-wrap: anywhere; text-wrap: pretty; box-shadow: 0 0 0 4px var(--px-ink), inset 0 3px 0 0 #4b3a96; }
+.pixel .tr-ask h2:focus { outline: 0; }
+.tr-opts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 640px) { .tr-opts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tr-opts li { min-width: 0; }
+.tr-opt { position: relative; display: grid; gap: 4px; width: 100%; height: 100%; min-height: 52px; padding: 8px 18px; border: 0; align-content: center; text-align: left; cursor: pointer; color: #2a1a3e; font: 400 23px/1.05 var(--px-body);
+  background: linear-gradient(#b7803e 0 0) 5px 5px / 4px 4px no-repeat, linear-gradient(#b7803e 0 0) calc(100% - 5px) 5px / 4px 4px no-repeat, linear-gradient(#b7803e 0 0) 5px calc(100% - 5px) / 4px 4px no-repeat, linear-gradient(#b7803e 0 0) calc(100% - 5px) calc(100% - 5px) / 4px 4px no-repeat, #fff3dc;
+  box-shadow: 0 0 0 3px var(--px-ink), 0 5px 0 0 var(--px-ink), inset 0 -4px 0 0 #e2cfa8; }
+.tr-opt .tx { min-width: 0; overflow-wrap: anywhere; }
+.tr-opt:hover:not(:disabled) { background-color: #ffe0a3; }
+.tr-opt:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 3px var(--px-ink), 0 2px 0 0 var(--px-ink), inset 0 -4px 0 0 #e2cfa8; }
+.tr-opt:focus-visible { outline: 4px dashed var(--px-gold); outline-offset: 4px; }
+.tr-opt:disabled { cursor: default; }
+.tr-opt.gone { background: var(--px-panel); color: var(--px-dim); box-shadow: 0 0 0 3px var(--px-ink); text-decoration: line-through; text-decoration-thickness: 2px; }
+.tr-opt.held { background: var(--px-gold) !important; animation: tr-held .34s steps(2) infinite; }
+@keyframes tr-held { 50% { box-shadow: 0 0 0 3px var(--px-fg), 0 5px 0 0 var(--px-ink), inset 0 -4px 0 0 #b7803e; } }
+.tr-opt.right { background: var(--px-mint); color: #0d3b22; box-shadow: 0 0 0 3px #0d3b22, 0 5px 0 0 var(--px-ink); }
+.tr-opt.wrong { background: var(--px-rose); color: #2a0a05; box-shadow: 0 0 0 3px #2a0a05, 0 5px 0 0 var(--px-ink); animation: px-shake .3s steps(4); }
+.tr-opt.idle:not(.gone) { background: #cdbfd6; color: #2a1a3e; box-shadow: 0 0 0 3px var(--px-ink); }
+.tr-opt .tag { display: inline-flex; align-items: center; gap: 6px; font: 400 9px/1.3 var(--px-head); }
+.tr-bar { position: relative; display: block; height: 18px; background: #2a1a3e; }
+.tr-bar i { position: absolute; inset: 0 auto 0 0; background: var(--px-sky); }
+.tr-bar b { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font: 400 18px/1 var(--px-body); color: #fff; text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000; }
+
+.pixel .tr-note { margin: 0 4px; padding: 8px 10px; font-size: 21px; line-height: 1.05; background: var(--px-ink); border-left: 6px solid var(--px-gold); }
+.tr-note.hold { animation: tr-now-text 1s steps(2) infinite; }
+@keyframes tr-now-text { 50% { color: var(--px-gold); } }
+.tr-next { display: grid; gap: 8px; margin: 4px; padding: 10px 12px; background: var(--px-ink); border-left: 6px solid var(--px-mint); font-size: 21px; line-height: 1.05; overflow-wrap: anywhere; }
+
+.tr-lifes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px; padding: 0; list-style: none; }
+.tr-lifes li { min-width: 0; }
+.tr-life { display: grid; justify-items: center; align-content: center; gap: 4px; width: 100%; height: 100%; min-height: 72px; padding: 8px 4px; border: 0; cursor: pointer; color: var(--px-fg); font: 400 20px/1 var(--px-body); text-align: center; background: var(--px-panel2); box-shadow: 0 0 0 3px var(--px-ink), 0 4px 0 0 var(--px-ink), inset 0 -3px 0 0 #2c1a55; overflow-wrap: anywhere; }
+.tr-life:hover:not(:disabled) { background: #5c3893; }
+.tr-life:active:not(:disabled) { transform: translateY(2px); }
+.tr-life:disabled { cursor: not-allowed; background: var(--px-ink); color: var(--px-dim); box-shadow: 0 0 0 3px var(--px-ink); }
+.tr-life:disabled canvas { filter: grayscale(1); opacity: .45; }
+.tr-life em { font: normal 400 17px/1 var(--px-body); color: var(--px-lav); }
+.pixel .tr-walk-btn { justify-self: stretch; margin-inline: 4px; white-space: normal; line-height: 1.5; }
+.tr-walk { display: grid; gap: 8px; margin: 4px; padding: 10px 12px; background: var(--px-ink); border-left: 6px solid var(--px-gold); font-size: 21px; line-height: 1.05; }
+.tr-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.tr-actions .px-btn { display: inline-flex; align-items: center; justify-content: center; }
+
+.tr-end { display: grid; gap: 8px; margin: 4px; padding: 14px; font-size: 22px; line-height: 1.08; background: var(--px-panel); box-shadow: 0 0 0 4px var(--px-ink), inset 0 4px 0 0 var(--px-gold); overflow-wrap: anywhere; }
+.tr-end.won { background: #5a3a1c; box-shadow: 0 0 0 4px var(--px-ink), inset 0 4px 0 0 var(--px-mint); }
+.tr-end.cold { box-shadow: 0 0 0 4px var(--px-ink), inset 0 4px 0 0 var(--px-rose); }
+.tr-end-tag { font: 400 9px/1.4 var(--px-head); color: var(--px-lav); }
+.pixel .tr-end h1, .pixel .tr-end h2 { margin: 0; font: 700 28px/1.1 var(--px-title); color: var(--px-gold); }
+@media (prefers-reduced-motion: reduce) {
+  .tr-meter i.now, .tr-opt.held, .tr-opt.wrong, .tr-note.hold { animation: none; }
+}

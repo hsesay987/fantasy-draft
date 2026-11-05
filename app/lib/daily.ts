@@ -1,10 +1,10 @@
 import { API_URL } from "../play/onlineApi";
 import { voterId } from "./triviaRate";
 
-export type DailyGame = "summit" | "hotair" | "costimation";
-export const DAILY_GAMES: DailyGame[] = ["summit", "hotair", "costimation"];
-export const DAILY_TITLES: Record<DailyGame, string> = { summit: "Summit", hotair: "Hot Air", costimation: "Costimation" };
-export const DAILY_WORLD: Record<DailyGame, "summit" | "sky" | "launch"> = { summit: "summit", hotair: "sky", costimation: "launch" };
+export type DailyGame = "summit" | "hotair" | "costimation" | "toprung";
+export const DAILY_GAMES: DailyGame[] = ["summit", "hotair", "costimation", "toprung"];
+export const DAILY_TITLES: Record<DailyGame, string> = { summit: "Summit", hotair: "Hot Air", costimation: "Costimation", toprung: "Top Rung" };
+export const DAILY_WORLD: Record<DailyGame, "summit" | "sky" | "launch" | "ladder"> = { summit: "summit", hotair: "sky", costimation: "launch", toprung: "ladder" };
 export const isDailyGame = (g: string): g is DailyGame => (DAILY_GAMES as string[]).includes(g);
 
 /** Puzzle numbers count up from the first daily (31 October 2026, UTC). */

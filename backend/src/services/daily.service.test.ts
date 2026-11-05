@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { dayNumber, isDailyGame, puzzleFor, statsOf, submitResult, topicFor, type DailyStore } from "./daily.service";
+import { tierPools } from "../shared/topicDraft/trivia/tiers";
+import { DAILY_TOPICS, dayNumber, isDailyGame, puzzleFor, statsOf, submitResult, topicFor, type DailyStore } from "./daily.service";
+import { getJeopardy, memoryStore } from "./trivia.service";
 
 const memory = (): DailyStore & { builds: number } => {
   const puzzles = new Map<string, unknown>();
@@ -27,6 +29,26 @@ describe("daily puzzles", () => {
   it("knows its games", () => {
     expect(isDailyGame("summit")).toBe(true);
     expect(isDailyGame("jeopardy")).toBe(false);
+  });
+  it("gives Top Rung its own topic, different from Summit's and Hot Air's every day", () => {
+    expect(isDailyGame("toprung")).toBe(true);
+    for (let i = 0; i < 40; i++) {
+      const day = new Date(Date.UTC(2026, 10, 1 + i)).toISOString().slice(0, 10);
+      expect(topicFor("toprung", day)).not.toBe(topicFor("summit", day));
+      expect(topicFor("toprung", day)).not.toBe(topicFor("hotair", day));
+      expect(DAILY_TOPICS).toContain(topicFor("toprung", day));
+    }
+  });
+  it.each(DAILY_TOPICS)("%s can fill a whole Top Rung climb and its spares from the seeded bank", async (pool) => {
+    const categories = await getJeopardy(pool, [], memoryStore(), null);
+    const seen = new Set<string>();
+    // The same test the climb applies: four distinct options, and no question asked twice.
+    const usable = tierPools(categories, 1).map((tier) => tier.filter((q) => {
+      if (seen.has(q.q) || new Set(q.options).size !== 4) return false;
+      seen.add(q.q);
+      return true;
+    }));
+    for (const tier of usable) expect(tier.length).toBeGreaterThanOrEqual(4);
   });
   it("builds a day's puzzle once and serves the same one after", async () => {
     const s = memory();
