@@ -81,14 +81,17 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
   }, [tap, confirmed]);
   const mine = confirmed || (tap?.round === s.round ? tap.choice : "");
 
-  // The buttons go dark when the clock runs out, a moment before the server closes the round.
-  const [outOfTime, setOutOfTime] = useState(false);
+  // When the clock runs out the buttons close and say so, a moment before the server closes the round. Kept per question,
+  // and the timer is only set again for a new question, so a poll's new clock offset can't briefly reopen the buttons.
+  const offset = useRef(ctl.offset);
+  offset.current = ctl.offset;
+  const [expired, setExpired] = useState<number | null>(null);
   useEffect(() => {
-    setOutOfTime(false);
     if (!asking) return;
-    const id = setTimeout(() => setOutOfTime(true), Math.max(0, deadline - (Date.now() + ctl.offset)));
+    const id = setTimeout(() => setExpired(s.phaseAt), Math.max(0, deadline - (Date.now() + offset.current)));
     return () => clearTimeout(id);
-  }, [asking, deadline, ctl.offset]);
+  }, [asking, deadline, s.phaseAt]);
+  const outOfTime = asking && expired === s.phaseAt;
 
   // Scores wait with the answer, so the table doesn't give the result away first.
   const before = useRef({ points: s.points, teamPoints: s.teamPoints });
@@ -157,6 +160,7 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
           </div>
 
           <div className="arc-deck">
+            {outOfTime && <p className="arc-time" role="status">Time!</p>}
             <ul className={`arc-buttons ${asking ? "" : "reveal"}`} aria-label="Answers">
               {q.options.map((opt, i) => {
                 const lit = landed && !asking;
