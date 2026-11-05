@@ -34,7 +34,7 @@ export function PartyLaunch() {
       <div>
         <p className="text-xs font-semibold uppercase tracking-widest text-secondary">New · party games</p>
         <h2 className="text-2xl">Get the group on their phones</h2>
-        <p className="text-sm text-muted-foreground">Open a room, everyone joins with the code, up to 10 players.</p>
+        <p className="text-sm text-muted-foreground">Open a room, everyone joins with the code, up to 12 players.</p>
       </div>
       <ul className="grid gap-2 sm:grid-cols-2">
         {PARTY_GAMES.map((g) => (

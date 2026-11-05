@@ -222,9 +222,12 @@ export function createRoom(input: unknown, hostName: string, quiz?: QuizData): {
   return { room, seat };
 }
 
-const isHost = (room: Room, token: unknown) => {
+/** The host is the first seat still at the table: never stored, so it follows anyone who leaves or comes back. */
+const hostSeat = (room: Room) => room.seats.find((s) => !s.left);
+
+export const isHost = (room: Room, token: unknown) => {
   const seat = seatFor(room, token);
-  return !!seat && seat === room.seats[0];
+  return !!seat && seat === hostSeat(room);
 };
 
 /** Back to the lobby: forget the last game's board and drop anyone who left during it. */
@@ -302,18 +305,20 @@ export function joinRoom(c: string, name: string): { room: Room; seat: Seat } | 
 export const seatFor = (room: Room, token: unknown) => room.seats.find((s) => typeof token === "string" && s.token === token);
 
 export function startRoom(room: Room, token: unknown): { ok: true } | { error: string } {
-  const seat = seatFor(room, token);
-  if (!seat || seat !== room.seats[0]) return { error: "Only the host can start" };
+  if (!isHost(room, token)) return { error: "Only the host can start" };
   if (room.status === "playing") return { error: "Already started" };
   if (!room.setup) return { error: "Pick a game first" };
-  if (room.status === "done") resetToLobby(room);
+  // Every refusal comes before the room changes, so a refused Play again leaves the results on screen to show why.
+  const here = room.seats.filter((s) => !s.left).map((s) => s.name);
   const min = MIN_PLAYERS[room.setup.format] ?? 2;
-  if (room.seats.length < min) return { error: `Need at least ${min} players` };
-  if (room.seats.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
-  room.setup = { ...room.setup, players: room.seats.map((s) => s.name), seed: (Math.random() * 2 ** 31) | 0 };
-  if (room.setup.format === "vote" || room.setup.format === "insync") room.setup.opts = { ...room.setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
-  const state = initGame(room.setup, Date.now());
-  if (isDone(room.setup, state)) return { error: "No questions are available for this topic right now" }; // nothing to play
+  if (here.length < min) return { error: `Need at least ${min} players` };
+  if (here.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
+  const setup = { ...room.setup, players: here, seed: (Math.random() * 2 ** 31) | 0 };
+  if (setup.format === "vote" || setup.format === "insync") setup.opts = { ...setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
+  const state = initGame(setup, Date.now());
+  if (isDone(setup, state)) return { error: "No questions are available for this topic right now" }; // nothing to play
+  if (room.status === "done") resetToLobby(room);
+  room.setup = setup;
   room.state = state;
   room.status = "playing";
   room.freshQuiz = false;
@@ -545,7 +550,7 @@ export function snapshot(room: Room, token: unknown) {
     // The setup seed rebuilds every shuffle and hidden pick, so a running party game never sends it.
     // Party trivia also carries its question bank (with answers) in setup.quiz, which stays on the server until the game is done.
     setup: room.setup && PARTY_FORMATS.has(room.setup.format) && room.status !== "done" ? withoutQuiz({ ...room.setup, seed: 0 }) : room.setup,
-    seats: room.seats.map((s, i) => ({ name: s.name, host: i === 0, left: s.left })),
+    seats: room.seats.map((s) => ({ name: s.name, host: s === hostSeat(room), left: s.left })),
     me: seat?.name ?? null,
     state: withoutLeftDrinks(room, redact(room, seat?.name ?? null)),
     verdict: room.status === "done" ? room.verdict : null,

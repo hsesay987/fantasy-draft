@@ -610,6 +610,9 @@
 
 /* The deck: chunky lit buttons on a dithered steel plate. */
 .arc-deck { display: grid; gap: 10px; padding: 12px 8px; min-width: 0; background: #3b3556 conic-gradient(#46406a 25%, #0000 0 50%, #46406a 0 75%, #0000 0) 0 0 / 4px 4px; box-shadow: 0 0 0 4px var(--px-ink), inset 0 4px 0 0 #6f6894, inset 0 -4px 0 0 #1f1a38; }
+.arc-deck { position: relative; }
+.arc-time { position: absolute; z-index: 3; top: 50%; left: 50%; margin: 0; padding: 10px 16px 8px; transform: translate(-50%, -50%); font: 400 24px/1 var(--px-head); color: #fff; background: #d6273c; pointer-events: none; box-shadow: 0 0 0 4px var(--px-ink), 0 0 0 7px #fff, 0 0 0 11px var(--px-ink), inset 0 -4px 0 0 #8a1224; animation: arc-time .4s steps(2) infinite; }
+@keyframes arc-time { 50% { background: #ff5a6e; } }
 .arc-buttons { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 0; padding: 0; list-style: none; }
 @media (min-width: 560px) { .arc-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .arc-buttons li { display: grid; min-width: 0; }
@@ -709,5 +712,10 @@
 .arc-foot .slot i { width: 4px; height: 14px; background: #000; box-shadow: 0 0 0 1px #ff3f7f; }
 
 @media (prefers-reduced-motion: reduce) {
-  .arc-marquee .bulbs i, .arc-crt::after, .arc-btn.locked, .arc-btn.right { animation: none; }
+  .arc-marquee .bulbs i, .arc-crt::after, .arc-btn.locked, .arc-btn.right, .arc-time { animation: none; }
 }
+
+/* ---------- Top Rung: a lighthouse at dusk. Violet night above, brass and sunset on the trims, a rung along each panel. ---------- */
+.pixel[data-world="ladder"] { --px-bg: #15123f; --px-bg2: #1b1650; --px-panel: #2c2069; --px-panel2: #472a7c; --px-ink: #170f30; --px-fg: #fff3dc; --px-dim: #c9b4dc; --px-lav: #fbcfa0; --px-rose: #f4714f; --px-gold: #ffd27a; --px-mint: #7fe0a8; --px-sky: #8fc4ff; --px-violet: #54297f;
+  background: #15123f repeating-linear-gradient(0deg, #1b1650 0 2px, #15123f 2px 8px); }
+.pixel[data-world="ladder"] .px-box::before { content: ""; position: absolute; left: 8px; right: 8px; top: 6px; height: 2px; pointer-events: none; background: repeating-linear-gradient(90deg, #ffd27a 0 10px, #b7803e 10px 12px, transparent 12px 24px); opacity: .7; }

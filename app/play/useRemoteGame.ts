@@ -84,6 +84,6 @@ export function useRemoteCtl(snap: RoomSnapshot & { setup: NonNullable<RoomSnaps
     byId: (id) => map.get(id),
     controls: (p) => !!p && p === snap.me,
     isAi: () => false,
-    host: snap.seats.find((s) => !s.left)?.name ?? null,
+    host: snap.seats.find((s) => s.host)?.name ?? null,
   };
 }

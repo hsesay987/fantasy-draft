@@ -604,3 +604,106 @@ describe("party trivia room", () => {
     expect(made.room.state).toBeNull();
   });
 });
+
+describe("who hosts", () => {
+  const hostIn = (r: any, token: string) => snapshot(r, token).seats.filter((s: any) => s.host).map((s: any) => s.name);
+  const finishDraft = (r: any, tokens: Record<string, string>) => {
+    let guard = 0;
+    while (r.status === "playing" && guard++ < 200) {
+      tickRooms();
+      const who = currentTurn(r.setup!, r.state!);
+      if (who && r.status === "playing" && !r.seats.find((s: any) => s.name === who).left) act(r, tokens[who]!, { type: "auto" });
+    }
+    expect(r.status).toBe("done");
+  };
+
+  it("passes to the next seat when the host leaves mid-game, and that seat can restart", () => {
+    const { r, tokens } = room("snake", ["Ann", "Bob", "Cy"]);
+    startRoom(r, tokens.Ann);
+    leaveRoom(r, tokens.Ann);
+    expect(hostIn(r, tokens.Bob)).toEqual(["Bob"]);
+    finishDraft(r, tokens);
+    expect(hostIn(r, tokens.Bob)).toEqual(["Bob"]);
+    expect(startRoom(r, tokens.Cy)).toEqual({ error: "Only the host can start" });
+    expect(startRoom(r, tokens.Ann)).toEqual({ error: "Only the host can start" });
+    expect(startRoom(r, tokens.Bob)).toEqual({ ok: true });
+    expect(r.setup!.players).toEqual(["Bob", "Cy"]);
+  });
+
+  it("gives the next seat every host control after the game, and nobody else", () => {
+    const { r, tokens } = room("snake", ["Ann", "Bob", "Cy"]);
+    startRoom(r, tokens.Ann);
+    leaveRoom(r, tokens.Ann);
+    finishDraft(r, tokens);
+    const link = { code: "ABC123", league: "NBA" };
+    expect(setStatLink(r, tokens.Cy, link)).toEqual({ error: "Only the host can do that" });
+    expect(setStatLink(r, tokens.Ann, link)).toEqual({ error: "Only the host can do that" });
+    expect(setStatLink(r, tokens.Bob, link)).toEqual({ ok: true });
+    expect(setGame(r, tokens.Cy, base("snake"))).toEqual({ error: "Only the host can pick the game" });
+    expect(backToLobby(r, tokens.Cy)).toEqual({ error: "Only the host can do that" });
+    expect(backToLobby(r, tokens.Bob)).toEqual({ ok: true });
+    expect(hostIn(r, tokens.Bob)).toEqual(["Bob"]);
+    expect(setGame(r, tokens.Bob, base("snake"))).toEqual({ ok: true });
+  });
+
+  it("moves on down the line when the next seat leaves too", () => {
+    const { r, tokens } = room("snake", ["Ann", "Bob", "Cy"]);
+    startRoom(r, tokens.Ann);
+    leaveRoom(r, tokens.Ann);
+    leaveRoom(r, tokens.Bob);
+    expect(hostIn(r, tokens.Cy)).toEqual(["Cy"]);
+  });
+
+  describe("in party trivia", () => {
+    const cats = Array.from({ length: 4 }, (_, c) => ({ name: `Cat ${c}`, clues: Array.from({ length: 4 }, (_, i) => ({ q: `Q${c}-${i}`, right: `R${c}${i}`, wrong: [`W${c}${i}a`, `W${c}${i}b`, `W${c}${i}c`] })) }));
+    const seated = (names: string[]) => {
+      const made = createRoom({ format: "partytrivia", pool: "superheroes", opts: { teamSize: 10 } }, names[0]!, { categories: cats } as any) as any;
+      const toks: Record<string, string> = { [names[0]!]: made.seat.token };
+      for (const n of names.slice(1)) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+      return { r: made.room, toks };
+    };
+    const opt = (r: any) => r.state.questions[r.state.round].options[0];
+    const finish = (r: any, toks: Record<string, string>, who: string) => {
+      for (let guard = 0; r.status === "playing" && guard < 100; guard++) {
+        if (r.state.phase === "question") act(r, toks[who]!, { type: "answer", choice: opt(r) });
+        else act(r, toks[who]!, { type: "next" });
+      }
+      expect(r.status).toBe("done");
+    };
+
+    it("a host who comes back and acts again is host again, because host is only ever the first seat still here", () => {
+      const { r, toks } = seated(["Ann", "Bob", "Cy"]);
+      startRoom(r, toks.Ann);
+      leaveRoom(r, toks.Ann);
+      expect(hostIn(r, toks.Bob)).toEqual(["Bob"]);
+      act(r, toks.Ann, { type: "answer", choice: opt(r) });
+      expect(hostIn(r, toks.Bob)).toEqual(["Ann"]);
+    });
+
+    it("Play again with too few players left refuses and leaves the results where they are", () => {
+      const { r, toks } = seated(["Ann", "Bob"]);
+      startRoom(r, toks.Ann);
+      leaveRoom(r, toks.Bob);
+      finish(r, toks, "Ann");
+      const board = r.state;
+      expect(startRoom(r, toks.Ann)).toEqual({ error: "Need at least 2 players" });
+      expect(r.status).toBe("done");
+      expect(r.state).toBe(board);
+      expect(r.seats.map((s: any) => s.name)).toEqual(["Ann", "Bob"]);
+      expect(snapshot(r, toks.Ann).status).toBe("done");
+    });
+
+    it("Play again with no questions to ask refuses and leaves the results where they are", () => {
+      const { r, toks } = seated(["Ann", "Bob"]);
+      startRoom(r, toks.Ann);
+      leaveRoom(r, toks.Bob); // only so one seat can finish the game quickly
+      finish(r, toks, "Ann");
+      r.seats.find((s: any) => s.name === "Bob").left = false;
+      r.setup = { ...r.setup, pool: "nope", quiz: undefined };
+      const board = r.state;
+      expect(startRoom(r, toks.Ann)).toEqual({ error: "No questions are available for this topic right now" });
+      expect(r.status).toBe("done");
+      expect(r.state).toBe(board);
+    });
+  });
+});

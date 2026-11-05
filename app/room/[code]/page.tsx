@@ -74,7 +74,8 @@ export default function RoomPage() {
   }
 
   const token = loadToken(code)!;
-  const isHost = snap.seats[0]?.name === snap.me;
+  const host = hostName(snap);
+  const isHost = host === snap.me;
   const leave = async () => {
     await leaveRoom(code, token);
     clearToken(code);
@@ -84,11 +85,13 @@ export default function RoomPage() {
   if (snap.setup && snap.status !== "lobby") {
     const setup = snap.setup;
     const toLobby = async () => {
+      setError(null);
       const r = await roomToLobby(code, token);
       if (!r.ok) setError(r.data.error ?? "Couldn't go back to the lobby");
       else await refresh();
     };
     const rematch = async () => {
+      setError(null);
       const r = await startRoom(code, token);
       if (!r.ok) setError(r.data.error ?? "Couldn't start");
       else await refresh();
@@ -99,7 +102,7 @@ export default function RoomPage() {
           <div className="sticky top-0 z-30 border-b border-white/10 bg-background/90 backdrop-blur-xl">
             <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-3 px-4 py-3 text-sm">
               <span className="font-semibold">Room {code}</span>
-              <span className="text-muted-foreground">{isHost ? "Pick the next game when everyone is ready." : `Waiting for ${snap.seats[0]?.name} to pick the next game.`}</span>
+              <span className="text-muted-foreground">{isHost ? "Pick the next game when everyone is ready." : `Waiting for ${host} to pick the next game.`}</span>
               {error && <span role="alert" className="text-accent">{error}</span>}
               <span className="ml-auto flex gap-2">
                 {isHost && <Button variant="accent" onClick={toLobby}>Back to the room</Button>}
@@ -115,6 +118,9 @@ export default function RoomPage() {
 
   return <Lobby code={code} token={token} snap={snap} isHost={isHost} onLeave={leave} refresh={refresh} />;
 }
+
+/** The server decides who hosts: the first seat that hasn't left. */
+const hostName = (snap: RoomSnapshot) => snap.seats.find((s) => s.host)?.name ?? "the host";
 
 function PlayingRoom({ snap, offset, dispatch, onNew, onRematch }: { snap: RoomSnapshot & { setup: GameSetup }; offset: number; dispatch: ReturnType<typeof useRemoteRoom>["dispatchRemote"]; onNew: () => void; onRematch?: () => void }) {
   const ctl = useRemoteCtl(snap, offset, dispatch);
@@ -203,7 +209,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
 
       {snap.statLink && (
         <Card className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm"><b>{snap.seats[0]?.name}</b> opened a live {snap.statLink.league} stat draft room. It needs a login{snap.statLink.league === "NBA" ? "" : " and a premium plan"}.</p>
+          <p className="text-sm"><b>{hostName(snap)}</b> opened a live {snap.statLink.league} stat draft room. It needs a login{snap.statLink.league === "NBA" ? "" : " and a premium plan"}.</p>
           <Link href={statRoomHref(snap.statLink.code, snap.statLink.league)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 font-semibold"><ExternalLink className="h-4 w-4" aria-hidden /> Join the {snap.statLink.league} room</Link>
         </Card>
       )}
@@ -265,7 +271,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
             <Play className="h-5 w-5" aria-hidden /> {!setup ? "Pick a game first" : snap.seats.length < 2 ? "Waiting for players…" : "Start game"}
           </Button>
         ) : (
-          <p className="flex-1 self-center text-center text-muted-foreground">{setup ? `Waiting for ${snap.seats[0]?.name} to start…` : `Waiting for ${snap.seats[0]?.name} to pick a game…`}</p>
+          <p className="flex-1 self-center text-center text-muted-foreground">{setup ? `Waiting for ${hostName(snap)} to start…` : `Waiting for ${hostName(snap)} to pick a game…`}</p>
         )}
         <Button variant="ghost" onClick={onLeave}><LogOut className="h-4 w-4" aria-hidden /> Leave</Button>
       </div>

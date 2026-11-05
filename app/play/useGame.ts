@@ -22,7 +22,7 @@ export type GameCtl = {
   /** Can this device act for `player`? (online: only your seat; local: any human.) */
   controls: (player: string | null) => boolean;
   isAi: (player: string | null) => boolean;
-  /** Online rooms: the seat running the room, which is the first player still at the table. */
+  /** Online rooms: the seat running the room, as the server says: the first player still at the table. */
   host?: string | null;
 };
 

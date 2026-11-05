@@ -2,13 +2,14 @@
 // Each world is a big map (a tall mountain, a tall sky, a long trip through the solar system). A camera shows one
 // window of it and follows the leading player, so every step of progress is a visible climb or flight.
 // Named checkpoints mark the way; crossing one is a moment the game celebrates.
+import { LADDER, LEDGES, RUNGS } from "../../toprung/engine";
 
 /** `value` is the fraction of the journey: 0 at the start, 1 at the end, below 0 for worlds with an underground. */
 export type Actor = { name: string; value: number; color?: string };
 export type Checkpoint = { name: string; at: number };
 
 export type World = {
-  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio" | "board" | "arcade";
+  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio" | "board" | "arcade" | "ladder";
   /** Size of the whole map. */
   fullW: number;
   fullH: number;
@@ -1357,7 +1358,477 @@ export const ARCADE: World = {
   camera: () => ({ x: 0, y: 0 }),
 };
 
-export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO, board: BOARD, arcade: ARCADE };
+// ======================= LADDER: a ladder up a tall lighthouse at dusk =======================
+// The sun going down into the sea on the left, a keeper's cottage on the headland, and one long ladder bolted to the
+// tower. Twelve brass rungs, galleries at the two safe ledges, and a dark lamp at the top that only lights for a climber
+// who reaches it. The sky runs from sunset at the foot to stars and a moon by the lamp, so every rung feels higher.
+const LAD_W = 320, LAD_H = 610, LAD_X = 204, LAD_FOOT = 546, LAD_STEP = 40, LAD_SEA = 536;
+const LAD_SHORE = 150;
+const ladRungY = (k: number) => LAD_FOOT - k * LAD_STEP;
+const ladTop = ladRungY(RUNGS);
+/** The tower's half width at a height: it narrows all the way up. */
+const ladHalf = (y: number) => Math.round(17 + (clamp(y, ladTop, LAD_FOOT + 6) - ladTop) * 0.041);
+/** Where each rung sits on the journey: the climb is even on the map however uneven the points are. */
+const LAD_AT = [0, ...LADDER.map((p) => p / LADDER[RUNGS - 1]!)];
+const ladHeight = (f: number) => {
+  const v = clamp(f, 0, 1);
+  let k = 0;
+  while (k < RUNGS - 1 && v > LAD_AT[k + 1]!) k++;
+  return k + (v - LAD_AT[k]!) / (LAD_AT[k + 1]! - LAD_AT[k]!);
+};
+const LAD_FONT: Record<string, string[]> = {
+  "0": ["XXX", "X.X", "X.X", "X.X", "XXX"], "1": [".X.", "XX.", ".X.", ".X.", "XXX"], "2": ["XXX", "..X", "XXX", "X..", "XXX"], "3": ["XXX", "..X", ".XX", "..X", "XXX"],
+  "4": ["X.X", "X.X", "XXX", "..X", "..X"], "5": ["XXX", "X..", "XXX", "..X", "XXX"], "6": ["XXX", "X..", "XXX", "X.X", "XXX"], "7": ["XXX", "..X", ".X.", ".X.", ".X."],
+  "8": ["XXX", "X.X", "XXX", "X.X", "XXX"], "9": ["XXX", "X.X", "XXX", "..X", "XXX"], S: ["XXX", "X..", "XXX", "..X", "XXX"], A: ["XXX", "X.X", "XXX", "X.X", "X.X"], F: ["XXX", "X..", "XX.", "X..", "X.."], E: ["XXX", "X..", "XX.", "X..", "XXX"],
+};
+const ladText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, c: string) => {
+  [...text].forEach((ch, i) => LAD_FONT[ch]?.forEach((row, ry) => [...row].forEach((v, rx) => { if (v === "X") px(ctx, x + i * 4 + rx, y + ry, c); })));
+};
+/** Cream and red paint, lit from the sunset side round to the shadow side. */
+const LAD_CREAM = ["#ffe9c6", "#fbcfa0", "#e6a188", "#b0708a", "#6f4a80", "#43306a"];
+const LAD_RED = ["#f4714f", "#d8454a", "#a92e52", "#752357", "#4c1b52", "#301445"];
+const LAD_INK = "#170f30";
+
+/** A long flat cloud lit from below by the low sun. */
+function ladCloud(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, rim: string, mid: string, top: string, seed: number) {
+  for (let i = 0; i < w; i++) {
+    const edge = Math.min(1, Math.min(i, w - 1 - i) / (w * 0.22));
+    const tall = Math.round(h * edge * (0.45 + noise2((x + i) * 0.09, seed, seed) * 0.75));
+    const under = Math.round(noise2((x + i) * 0.14, seed + 9, seed) * 1.6);
+    for (let j = 0; j < tall; j++) {
+      const row = y - j + under;
+      const c = j < 2 ? rim : j < tall * 0.55 ? ((i + row) % 2 === 0 && j < 3 ? rim : mid) : ((i + row) % 2 === 0 && j < tall * 0.7 ? mid : top);
+      px(ctx, x + i, row, c);
+    }
+  }
+}
+
+/** The ground on the headland, sloping away into the sea on the left. */
+const ladLand = (x: number) => {
+  const swell = Math.sin(x * 0.05) * 1.5 + (noise2(x * 0.11, 3, 5) - 0.5) * 3;
+  return Math.round(548 + swell + Math.max(0, 138 - x) * 0.72);
+};
+
+function ladSky(ctx: CanvasRenderingContext2D) {
+  ditherSky(ctx, 0, 0, LAD_W, LAD_SEA, [[0, "#0c0b2e"], [0.14, "#15134a"], [0.32, "#2c2069"], [0.48, "#54297f"], [0.62, "#8f3983"], [0.74, "#c94f73"], [0.85, "#ee7d55"], [0.94, "#fbb25f"], [1, "#ffdc8c"]]);
+  // Stars thin out as the sky warms. The moon is a thin crescent, up where only the lamp keeps it company.
+  const r = rng(77);
+  for (let i = 0; i < 240; i++) {
+    const y = Math.pow(r(), 1.7) * 300, x = r() * LAD_W, big = r();
+    px(ctx, x, y, y > 200 ? "#8d6fb0" : big > 0.86 ? "#ffffff" : big > 0.4 ? "#c7c3f0" : "#7f7cc8");
+    if (big > 0.975 && y < 170) { px(ctx, x - 1, y, "#8d8ad8"); px(ctx, x + 1, y, "#8d8ad8"); px(ctx, x, y - 1, "#8d8ad8"); px(ctx, x, y + 1, "#8d8ad8"); }
+  }
+  for (let dy = -9; dy <= 9; dy++) for (let dx = -9; dx <= 9; dx++) {
+    if (dx * dx + dy * dy <= 81 && (dx - 4) * (dx - 4) + (dy + 2) * (dy + 2) > 62) px(ctx, 282 + dx, 46 + dy, dx < -5 ? "#fff6d6" : "#f3dfa8");
+  }
+  // Clouds in layers: cold wisps high up, a rose bank halfway, gold and coral near the sea.
+  const high: [number, number, number][] = [[6, 118, 62], [92, 150, 46], [252, 132, 68], [28, 186, 74], [262, 196, 58]];
+  high.forEach(([x, y, w], i) => ladCloud(ctx, x, y, w, 4, "#7a5aa8", "#463a8c", "#2f2a78", 20 + i));
+  const bank: [number, number, number, number][] = [[-20, 300, 130, 9], [96, 322, 84, 7], [226, 292, 120, 10], [10, 346, 104, 10], [250, 340, 90, 8], [128, 368, 60, 5]];
+  bank.forEach(([x, y, w, h], i) => ladCloud(ctx, x, y, w, h, "#f6a28c", "#b9587f", "#7b3a80", 40 + i));
+  const low: [number, number, number, number][] = [[-14, 430, 118, 8], [214, 412, 130, 10], [36, 470, 136, 9], [236, 462, 110, 8], [-30, 506, 92, 6], [150, 498, 70, 5], [254, 512, 80, 6]];
+  low.forEach(([x, y, w, h], i) => ladCloud(ctx, x, y, w, h, "#ffe2a0", "#f79a62", "#d8606e", 60 + i));
+  // The sun, half gone, in a dithered glow.
+  const SUN = { x: 74, y: LAD_SEA - 3, r: 19 };
+  for (let y = SUN.y - 64; y < LAD_SEA; y++) for (let x = SUN.x - 86; x < SUN.x + 86; x++) {
+    const d = Math.hypot(x - SUN.x, (y - SUN.y) * 1.2);
+    if (x < 0 || d <= SUN.r || d > 80) continue;
+    if ((1 - (d - SUN.r) / 61) * 15 > BAYER[y & 3]![x & 3]! + 3) px(ctx, x, y, d < 34 ? "#fff0b4" : "#ffcf80");
+  }
+  disc(ctx, SUN.x, SUN.y, SUN.r, (dx, dy) => (dy > 7 ? "#ff9d4f" : dy > 1 ? "#ffc463" : dx * dx + dy * dy < 170 ? "#fff6c9" : "#ffe28f"));
+  // A thin cloud across the sun's face.
+  px(ctx, 44, LAD_SEA - 12, "#e4685f", 58, 1); px(ctx, 52, LAD_SEA - 11, "#c9506c", 40, 1); px(ctx, 62, LAD_SEA - 19, "#f08a5c", 34, 1);
+  // Far capes on the horizon, the further the paler.
+  for (let x = 0; x < LAD_W; x++) {
+    const far = LAD_SEA - Math.max(0, Math.sin(x * 0.012 + 3.5) * 13 + Math.sin(x * 0.05) * 2.5 - 2);
+    for (let y = Math.round(far); y < LAD_SEA; y++) px(ctx, x, y, "#b4577c");
+    const near = LAD_SEA - Math.max(0, 11 - x * 0.2 + Math.sin(x * 0.09) * 1.5);
+    for (let y = Math.round(near); y < LAD_SEA; y++) px(ctx, x, y, "#6a3276");
+  }
+  // The town on the far cape, just starting to light up.
+  for (const x of [262, 268, 277, 283, 296, 304]) px(ctx, x, LAD_SEA - 3 - (x % 3), "#ffe08a");
+}
+
+function ladSeaAndLand(ctx: CanvasRenderingContext2D) {
+  ditherSky(ctx, 0, LAD_SEA, LAD_W, LAD_H - LAD_SEA, [[0, "#f5a160"], [0.1, "#d8606a"], [0.28, "#94397a"], [0.55, "#4d2776"], [1, "#1c1650"]]);
+  px(ctx, 0, LAD_SEA, "#ffd98f", LAD_W, 1);
+  for (let i = 0; i < 90; i++) {
+    const y = LAD_SEA + 3 + Math.floor(noise1(i, 31) * (LAD_H - LAD_SEA - 4)), near = (y - LAD_SEA) / (LAD_H - LAD_SEA);
+    px(ctx, noise1(i, 32) * LAD_W, y, near < 0.25 ? "#ffb678" : near < 0.5 ? "#c0527f" : "#6a3a92", 3 + Math.floor(near * 12), 1);
+  }
+  // A little fishing boat coming home, far out.
+  px(ctx, 138, LAD_SEA + 3, "#2a1540", 9, 1); px(ctx, 139, LAD_SEA + 4, "#2a1540", 7, 1); px(ctx, 142, LAD_SEA - 4, "#2a1540", 1, 7); px(ctx, 143, LAD_SEA - 3, "#3f2152", 3, 5);
+
+  // The headland: lit on its sunset face, purple in the cracks, with grass along the top.
+  for (let x = 0; x < LAD_W; x++) {
+    const top = ladLand(x);
+    for (let y = top; y < LAD_H; y++) {
+      const n = noise2(x * 0.07, y * 0.16, 11), crack = noise2(x * 0.3, y * 0.7, 12);
+      const lit = n + (top + 12 > y ? 0.1 : 0) - (x - 100) * 0.0012;
+      let c = lit > 0.62 ? "#a3546a" : lit > 0.46 ? "#6c3a68" : lit > 0.3 ? "#472a5c" : "#2f1e4a";
+      if (crack > 0.86) c = "#1e1438";
+      else if (((x + y) & 1) === 0 && Math.abs(lit - 0.46) < 0.03) c = "#472a5c";
+      px(ctx, x, y, c);
+    }
+    const grass = 3 + Math.round(noise1(x, 13) * 3);
+    for (let g = 0; g < grass; g++) px(ctx, x, top + g, g === 0 ? (x < LAD_X ? "#d8b35a" : "#7f9a4e") : g === 1 ? "#55784a" : (x + g) % 2 ? "#3a5a48" : "#2e4640");
+    if (noise1(x, 14) > 0.6) px(ctx, x, top - 1, x < LAD_X ? "#b99f4e" : "#55784a");
+    if (noise1(x, 15) > 0.93) { px(ctx, x, top - 2, "#55784a"); px(ctx, x, top - 3, x % 2 ? "#ffe9a6" : "#ff8fa8"); }
+  }
+}
+
+function ladCottage(ctx: CanvasRenderingContext2D) {
+  const x = 261, y = 523, w = 46, base = 548;
+  // Chimney, then a gabled roof with a sunset edge.
+  px(ctx, x + 33, 503, LAD_INK, 8, 12); px(ctx, x + 34, 504, "#7a4a5e", 6, 11); px(ctx, x + 34, 504, "#b0708a", 2, 11); px(ctx, x + 33, 502, "#3a2a4e", 8, 2);
+  for (let j = 0; j < 17; j++) {
+    const l = x + 16 - j, rw = Math.min(14 + j * 2, w + 8);
+    px(ctx, l - 1, 506 + j, LAD_INK, rw + 2, 1);
+    for (let i = 0; i < rw; i++) px(ctx, l + i, 506 + j, i < 3 ? "#f4714f" : (j % 3 === 2 ? "#4c1b52" : (i + (j >> 1) * 3) % 6 === 0 ? "#4c1b52" : i < rw * 0.55 ? "#a92e52" : "#752357"));
+  }
+  // Whitewashed walls, warm on the left, cool on the right.
+  px(ctx, x - 1, y, LAD_INK, w + 2, base - y);
+  for (let j = y; j < base; j++) for (let i = 0; i < w; i++) {
+    const s = i / w;
+    px(ctx, x + i, j, s < 0.3 ? "#f6cfa8" : s < 0.34 && (i + j) % 2 ? "#f6cfa8" : s < 0.7 ? "#c98f92" : s < 0.74 && (i + j) % 2 ? "#c98f92" : "#8a5f8c");
+  }
+  px(ctx, x, y, "#4c2f5c", w, 2);
+  // A lit window with its glow on the grass, and a door with a step.
+  px(ctx, x + 6, y + 5, LAD_INK, 13, 12); px(ctx, x + 7, y + 6, "#ffd36e", 11, 10); px(ctx, x + 7, y + 6, "#fff2b8", 5, 4); px(ctx, x + 12, y + 6, LAD_INK, 1, 10); px(ctx, x + 7, y + 10, LAD_INK, 11, 1); px(ctx, x + 5, y + 17, "#6f4a80", 15, 2);
+  px(ctx, x + 27, y + 7, LAD_INK, 11, base - y - 7); px(ctx, x + 28, y + 8, "#2f6f73", 9, base - y - 8); px(ctx, x + 28, y + 8, "#46918c", 2, base - y - 8); px(ctx, x + 35, y + 16, "#ffd27a"); px(ctx, x + 26, base - 1, "#6f4a80", 13, 2);
+  // A picket fence, a buoy and a coil of rope by the door.
+  for (let fx = 240; fx < 258; fx += 4) { const fy = ladLand(fx); px(ctx, fx, fy - 7, LAD_INK, 3, 7); px(ctx, fx + 1, fy - 7, "#e6a188", 1, 6); }
+  px(ctx, 240, ladLand(248) - 5, "#6f4a80", 19, 1);
+  px(ctx, 310, 541, LAD_INK, 8, 8); px(ctx, 311, 542, "#d8454a", 6, 6); px(ctx, 311, 544, "#ffe9c6", 6, 2);
+}
+
+/** A round walkway on the tower: planks, brackets, an iron rail. `gold` marks the safe ones. */
+function ladGallery(ctx: CanvasRenderingContext2D, y: number, reach: number, gold: boolean) {
+  const half = ladHalf(y), l = LAD_X - half - reach, w = (half + reach) * 2;
+  // Rail behind.
+  px(ctx, l + 2, y - 7, "#3a2a5c", w - 4, 1);
+  // Brackets under the planks.
+  for (let i = 0; i < reach + 2; i++) {
+    px(ctx, LAD_X - half - i, y + 3 + (reach + 2 - i), LAD_INK, 2, 1);
+    px(ctx, LAD_X + half + i - 1, y + 3 + (reach + 2 - i), LAD_INK, 2, 1);
+  }
+  // Planks.
+  px(ctx, l - 1, y, LAD_INK, w + 2, 5);
+  px(ctx, l, y, gold ? "#ffd27a" : "#e9b070", w, 1);
+  for (let i = 0; i < w; i++) {
+    const s = i / w;
+    px(ctx, l + i, y + 1, s < 0.42 ? "#c9834f" : s < 0.75 ? "#8c5450" : "#573554");
+    px(ctx, l + i, y + 2, i % 7 === 0 ? LAD_INK : s < 0.42 ? "#a86a4a" : s < 0.75 ? "#6f4250" : "#47294e");
+    px(ctx, l + i, y + 3, s < 0.42 ? "#6a3f4c" : "#3a2348");
+  }
+  // Front rail: posts, top bar, middle bar, with a shadow side.
+  for (let i = 0; i <= w; i += 6) { px(ctx, l + i, y - 9, LAD_INK, 2, 9); px(ctx, l + i, y - 9, i / w < 0.55 ? "#a07a8a" : "#5a4a78", 1, 9); }
+  px(ctx, l, y - 10, LAD_INK, w + 1, 2);
+  for (let i = 0; i <= w; i++) px(ctx, l + i, y - 10, i / w < 0.55 ? "#d0a88e" : "#6f5a8c");
+  px(ctx, l, y - 5, "#46356c", w, 1);
+}
+
+/** The whole lighthouse, foot to finial. */
+function ladTower(ctx: CanvasRenderingContext2D) {
+  for (let y = ladTop; y < LAD_FOOT + 4; y++) {
+    const half = ladHalf(y);
+    for (let x = LAD_X - half; x <= LAD_X + half; x++) {
+      const u = clamp((x - LAD_X) / (half + 0.5), -1, 1);
+      const bow = Math.sqrt(1 - u * u);
+      // Round form: light on the sunset side, falling off across the curve; a thin reflected light on the far edge.
+      let sh = clamp((u + 0.82) * 2.85, 0, 5) - (u > 0.86 ? 0.9 : 0);
+      // A painted stripe winding up the tower, and courses of block that bend with the curve.
+      const wind = y + Math.asin(u) * 20;
+      const pal = Math.floor((wind + 4000) / 58) % 2 === 0 ? LAD_RED : LAD_CREAM;
+      const row = Math.floor(y - (1 - bow) * 3);
+      if (row % 7 === 0) sh += 1;
+      else if ((Math.floor(Math.asin(u) * 15 + (Math.floor(row / 7) % 2 ? 1.5 : 0)) % 3) === 0 && noise1(row, x) > 0.97) sh += 1;
+      // Weather: rust streaks running down from the bolts, salt worn low on the tower.
+      if (noise2(x * 0.5, y * 0.03, 7) > 0.72 && noise1(x, 8) > 0.35) sh += 1;
+      if (y > 460 && noise2(x * 0.3, y * 0.14, 9) > 0.76) sh -= 0.8;
+      const base = Math.floor(sh), f = sh - base;
+      const i = clamp(f * 16 > BAYER[y & 3]![x & 3]! + 0.5 ? base + 1 : base, 0, 5);
+      px(ctx, x, y, pal[i]!);
+    }
+    px(ctx, LAD_X - half - 1, y, LAD_INK); px(ctx, LAD_X + half + 1, y, LAD_INK);
+  }
+  // A dark collar of stone every few rungs where the sections of the tower join.
+  for (const k of [2, 6, 10]) {
+    const y = ladRungY(k) + 9, half = ladHalf(y);
+    px(ctx, LAD_X - half - 2, y - 1, LAD_INK, half * 2 + 5, 5);
+    for (let x = -half - 1; x <= half + 1; x++) {
+      const s = (x + half) / (half * 2);
+      px(ctx, LAD_X + x, y, s < 0.3 ? "#d8b49a" : s < 0.65 ? "#8c6a86" : "#4a3a6c");
+      px(ctx, LAD_X + x, y + 1, s < 0.3 ? "#a07a7c" : s < 0.65 ? "#62486e" : "#352a58");
+      px(ctx, LAD_X + x, y + 2, s < 0.3 ? "#6c4a64" : "#2a2048");
+    }
+  }
+  // Windows up the tower, off to the sides of the ladder.
+  for (const [wx, wy] of ladWindows()) {
+    px(ctx, wx - 3, wy - 5, LAD_INK, 7, 11);
+    px(ctx, wx - 2, wy - 6, LAD_INK, 5, 1);
+    px(ctx, wx - 2, wy - 4, "#ffc863", 5, 9);
+    px(ctx, wx - 2, wy - 5, "#ffc863", 5, 1);
+    px(ctx, wx - 2, wy - 4, "#fff0b0", 2, 4);
+    px(ctx, wx, wy - 5, LAD_INK, 1, 10);
+    px(ctx, wx - 3, wy + 6, "#c98f92", 7, 1);
+  }
+  // The stone foot, wider than the tower, with a keeper's door round the side.
+  const foot = 520;
+  for (let y = foot; y < 552; y++) {
+    const half = ladHalf(LAD_FOOT) + 4 + Math.floor((y - foot) / 12) * 2;
+    for (let x = -half; x <= half; x++) {
+      const s = (x + half) / (half * 2);
+      const course = Math.floor((y - foot) / 5), brick = Math.floor((x + (course % 2 ? 4 : 0) + 100) / 8);
+      const joint = (y - foot) % 5 === 0 || (x + (course % 2 ? 4 : 0) + 100) % 8 === 0;
+      const tone = noise1(course * 37 + brick, 41);
+      const c = joint ? (s < 0.4 ? "#6a4560" : "#2a1f48") : s < 0.28 ? (tone > 0.5 ? "#e0b294" : "#c79884") : s < 0.6 ? (tone > 0.5 ? "#9a6f88" : "#865f80") : (tone > 0.5 ? "#55406f" : "#493763");
+      px(ctx, LAD_X + x, y, c);
+    }
+    px(ctx, LAD_X - half - 1, y, LAD_INK); px(ctx, LAD_X + half + 1, y, LAD_INK);
+  }
+  px(ctx, LAD_X - ladHalf(LAD_FOOT) - 5, foot - 1, LAD_INK, ladHalf(LAD_FOOT) * 2 + 11, 2);
+  px(ctx, LAD_X + 17, 530, LAD_INK, 13, 19); px(ctx, LAD_X + 18, 528, LAD_INK, 11, 2);
+  px(ctx, LAD_X + 18, 530, "#2f6f73", 11, 19); px(ctx, LAD_X + 19, 531, "#25585f", 9, 18); px(ctx, LAD_X + 23, 531, "#1b4048", 1, 18); px(ctx, LAD_X + 26, 540, "#ffd27a");
+
+  // Galleries: the two safe ledges in gold with their signs, and the walkway round the lamp.
+  for (const k of LEDGES) {
+    const y = ladRungY(k);
+    ladGallery(ctx, y, 11, true);
+    const half = ladHalf(y);
+    px(ctx, LAD_X + half - 9, y + 5, LAD_INK, 1, 2); px(ctx, LAD_X + half + 2, y + 5, LAD_INK, 1, 2);
+    px(ctx, LAD_X + half - 11, y + 7, LAD_INK, 19, 9); px(ctx, LAD_X + half - 10, y + 8, "#ffd27a", 17, 7);
+    ladText(ctx, "SAFE", LAD_X + half - 9, y + 9, "#4c1b52");
+  }
+  ladGallery(ctx, ladTop, 9, false);
+}
+
+const ladWindows = () => [[1, -1], [3, 1], [5, -1], [7, 1], [9, -1], [11, 1]].map(([k, side]) => {
+  const y = ladRungY(k!) + 18;
+  return [LAD_X + side! * Math.round(ladHalf(y) * 0.58), y] as [number, number];
+});
+
+function ladLadder(ctx: CanvasRenderingContext2D) {
+  const top = ladTop - 2, bottom = LAD_FOOT + 3;
+  // Its shadow falls to the right, away from the sun.
+  for (let y = top; y < bottom; y++) if ((y & 1) === 0 || y % 8 < 2) px(ctx, LAD_X + 8, y, "rgba(23,15,48,0.55)", 2, 1);
+  // Small rungs between the twelve.
+  for (let y = LAD_FOOT; y >= top + 2; y -= 8) {
+    px(ctx, LAD_X - 6, y + 1, "rgba(23,15,48,0.7)", 13, 1);
+    px(ctx, LAD_X - 5, y, "#c58f62", 11, 1);
+    px(ctx, LAD_X - 5, y, "#e6b781", 4, 1);
+  }
+  // Rails, with their bolts into the wall.
+  for (const rx of [LAD_X - 7, LAD_X + 6]) {
+    px(ctx, rx - 1, top, LAD_INK, 4, bottom - top);
+    px(ctx, rx, top, "#e0a873", 1, bottom - top);
+    px(ctx, rx + 1, top, "#8f5a48", 1, bottom - top);
+    for (let k = 0; k <= RUNGS; k++) { px(ctx, rx - 1, ladRungY(k) - 22, "#ffd27a"); px(ctx, rx + 2, ladRungY(k) - 22, LAD_INK); }
+  }
+  // The twelve big rungs in brass, each with its number plate.
+  for (let k = 1; k <= RUNGS; k++) {
+    const y = ladRungY(k), n = String(k), plate = n.length * 4 + 2;
+    px(ctx, LAD_X - 9, y - 1, LAD_INK, 19, 4);
+    px(ctx, LAD_X - 8, y, "#ffd27a", 17, 1);
+    px(ctx, LAD_X - 8, y, "#fff2b8", 6, 1);
+    px(ctx, LAD_X - 8, y + 1, "#b7803e", 17, 1);
+    if (k === RUNGS) continue;
+    const ox = LAD_X + 11, oy = y - (LEDGES.includes(k) ? 19 : 4);
+    px(ctx, ox - 1, oy - 1, LAD_INK, plate + 2, 9);
+    px(ctx, ox, oy, "#2a1c4c", plate, 7);
+    px(ctx, ox, oy, "#5a4a78", plate, 1);
+    ladText(ctx, n, ox + 1, oy + 1, "#ffd27a");
+  }
+}
+
+/** The lamp room and its roof: dark glass until a climber reaches it. */
+function ladLantern(ctx: CanvasRenderingContext2D) {
+  const y0 = ladTop - 10, glassTop = y0 - 26;
+  // Stone drum under the glass.
+  px(ctx, LAD_X - 15, y0 + 1, LAD_INK, 31, 9);
+  for (let x = -14; x <= 14; x++) { const s = (x + 14) / 28; px(ctx, LAD_X + x, y0 + 2, s < 0.35 ? "#e6c8a8" : s < 0.7 ? "#9a7a92" : "#54406f", 1, 7); if ((x + 14) % 7 === 0) px(ctx, LAD_X + x, y0 + 2, LAD_INK, 1, 7); }
+  px(ctx, LAD_X - 15, y0 + 2, "#fff2d6", 3, 1);
+  // Glass: dusk reflected in it, panes split by iron bars.
+  px(ctx, LAD_X - 14, glassTop, LAD_INK, 29, y0 - glassTop + 1);
+  for (let y = glassTop + 1; y < y0 + 1; y++) for (let x = -13; x <= 13; x++) {
+    const m = (y - glassTop) / (y0 - glassTop);
+    const c = m < 0.35 ? "#2a2a68" : m < 0.42 && (x + y) % 2 ? "#2a2a68" : m < 0.72 ? "#46347a" : m < 0.78 && (x + y) % 2 ? "#46347a" : "#7a3f7f";
+    px(ctx, LAD_X + x, y, c);
+  }
+  for (let d = 0; d < 13; d++) { px(ctx, LAD_X - 12 + d, glassTop + 16 - d, "#8d86d0"); px(ctx, LAD_X - 9 + d, glassTop + 21 - d, "#6c64b4"); }
+  for (let x = -14; x <= 14; x += 7) px(ctx, LAD_X + x, glassTop, LAD_INK, 2, y0 - glassTop + 1);
+  // The dome, its cap and the vane.
+  for (let j = 0; j < 15; j++) {
+    const half = Math.round(16 * Math.sqrt(1 - Math.pow(j / 15, 1.6)));
+    const y = glassTop - 1 - j;
+    px(ctx, LAD_X - half - 1, y, LAD_INK, half * 2 + 3, 1);
+    for (let x = -half; x <= half; x++) {
+      const s = (x + half) / (half * 2 + 0.01);
+      px(ctx, LAD_X + x, y, (x + 40) % 8 === 0 ? "#4c1b52" : s < 0.26 ? "#f4714f" : s < 0.34 && (x + y) % 2 ? "#f4714f" : s < 0.62 ? "#a92e52" : "#5c1f55");
+    }
+  }
+  const tip = glassTop - 16;
+  px(ctx, LAD_X - 16, glassTop - 1, "#f4dca8", 15, 1); px(ctx, LAD_X - 1, glassTop - 1, "#a07a7c", 18, 1);
+  disc(ctx, LAD_X, tip - 2, 3, (dx, dy) => (dx + dy < -1 ? "#fff2b8" : dx + dy < 2 ? "#ffd27a" : "#8f5a48"));
+  px(ctx, LAD_X, tip - 12, LAD_INK, 1, 8);
+  px(ctx, LAD_X - 6, tip - 10, LAD_INK, 13, 1); px(ctx, LAD_X + 5, tip - 11, LAD_INK, 2, 3); px(ctx, LAD_X - 7, tip - 11, LAD_INK, 1, 3);
+}
+
+const LAD_CLIMB = ["....ccc....", "...ccccc...", "...hhhhh...", "s...sss....", "dd.jjjjj...", ".ddjjjjjj.s", "...jjjjjddd", "...jjjjj...", "...ppppp...", "...pp.pp...", "...pp.pp...", "...bb.pp...", "......bb..."];
+const LAD_CHEER = ["....ccc....", "...ccccc...", "s..hhhhh..s", "d...sss...d", "dd.jjjjj.dd", ".ddjjjjjdd.", "...jjjjj...", "...jjjjj...", "...ppppp...", "...pp.pp...", "...pp.pp...", "...pp.pp...", "...bb.bb..."];
+const ladFlip = (rows: string[]) => rows.map((r) => [...r].reverse().join(""));
+const ladDarken = (c: string) => { const [r, g, b] = hex(c); return `rgb(${Math.round(r! * 0.62)},${Math.round(g! * 0.55)},${Math.round(b! * 0.72)})`; };
+
+function ladderFrame(ctx: CanvasRenderingContext2D, t: number, shown: number[], moving: boolean[], cam: { x: number; y: number }, colors: string[]) {
+  const seen = (y0: number, y1: number) => y1 >= cam.y && y0 <= cam.y + LADDER_WORLD.viewH;
+  // Stars twinkle up where it is dark enough for them.
+  if (seen(0, 300)) for (let i = 0; i < 26; i++) if ((t + i * 7) % 34 < 4) px(ctx, noise1(i, 51) * LAD_W, noise1(i, 52) * 240, "#ffffff");
+  // Thin wind streaks, more of them the higher you are.
+  for (let i = 0; i < 7; i++) {
+    const y = 20 + i * 34 + Math.sin(t / 19 + i) * 3;
+    if (!seen(y, y)) continue;
+    const x = ((t * (2.2 + (i % 3)) + i * 97) % (LAD_W + 60)) - 40;
+    const len = 10 + (i % 3) * 6, half = ladHalf(y) + 14;
+    if (x + len < LAD_X - half || x > LAD_X + half) px(ctx, x, y, y < 130 ? "#b9b4e8" : "#a483b8", len, 1);
+  }
+  // Thin clouds drift past behind the tower.
+  const drifts: [number, number, number, string, string][] = [[316, 40, 0.11, "#f6a28c", "#b9587f"], [356, 58, 0.07, "#f6a28c", "#9c4a80"], [206, 34, 0.09, "#7a5aa8", "#463a8c"], [146, 46, 0.05, "#7a5aa8", "#3a3280"], [468, 52, 0.08, "#ffe2a0", "#f08a62"]];
+  drifts.forEach(([y, w, speed, rim, mid], i) => {
+    if (!seen(y - 6, y + 2)) return;
+    const x = Math.round(((t * speed + i * 113) % (LAD_W + w * 2)) - w);
+    for (let c = 0; c < w; c++) {
+      const tall = Math.round(4 * Math.sin((c / w) * Math.PI) * (0.6 + noise1(c >> 1, 60 + i) * 0.6));
+      if (Math.abs(x + c - LAD_X) > ladHalf(y) + 1) for (let j = 0; j < tall; j++) if (j === 0 || (x + c + y - j) % 2 === 0) px(ctx, x + c, y - j, j === 0 ? rim : mid);
+    }
+  });
+  // Tower windows: somebody home, a flame that wavers.
+  ladWindows().forEach(([wx, wy], i) => { if (seen(wy - 6, wy + 6) && (t + i * 13) % 40 < 3) px(ctx, wx - 2, wy - 4, "#e89a4a", 5, 9); });
+  // Lamps on the safe ledges, with a soft ring of light and a pennant in the wind.
+  for (const k of LEDGES) {
+    const y = ladRungY(k);
+    if (!seen(y - 24, y + 16)) continue;
+    const half = ladHalf(y), lx = LAD_X - half - 11, on = Math.sin(t / 6 + k) > -0.6;
+    px(ctx, lx, y - 14, LAD_INK, 5, 5); px(ctx, lx + 1, y - 13, on ? "#fff0b0" : "#ffc863", 3, 3); px(ctx, lx + 2, y - 10, LAD_INK, 1, 1);
+    for (let a = 0; a < 16; a++) {
+      const ang = (a / 16) * Math.PI * 2, r = 6 + (on ? 1 : 0);
+      if ((a + (t >> 2)) % 2 === 0) px(ctx, lx + 2 + Math.cos(ang) * r, y - 12 + Math.sin(ang) * r, "#ffd27a");
+    }
+    const fx = LAD_X + half + 11;
+    px(ctx, fx, y - 22, LAD_INK, 1, 13);
+    for (let c = 0; c < 8; c++) {
+      const wave = Math.round(Math.sin(t / 3 + c * 0.8) * (c / 7) * 1.5);
+      for (let j = c >> 1; j < 5 - (c >> 1); j++) px(ctx, fx + 1 + c, y - 22 + j + wave, j === 2 ? "#fff0b0" : "#ffb347");
+    }
+  }
+  // The sea: gold under the sun, waves that catch the light, foam round the rocks.
+  if (seen(LAD_SEA, LAD_H)) {
+    for (let y = LAD_SEA + 2; y < LAD_H; y += 2) {
+      const near = (y - LAD_SEA) / (LAD_H - LAD_SEA), spread = 10 + near * 34;
+      for (let k = 0; k < 6; k++) {
+        const x = 74 + (noise1(k * 11 + y, 71) - 0.5) * 2 * spread + Math.sin(t / 5 + y + k) * 3;
+        if ((t + k * 3 + y) % 7 < 4 && x < ladBeach(y)) px(ctx, x, y, near < 0.35 ? "#fff0b4" : "#ffc773", 2 + Math.floor(near * 5), 1);
+      }
+      for (let x = ((y * 7) % 41) - 41 + Math.round(Math.sin(t / 7 + y) * 3); x < ladBeach(y); x += 41) if (x >= 0) px(ctx, x, y, near < 0.4 ? "#ec8a6c" : "#8a4a98", 7, 1);
+      const shore = ladBeach(y), wash = Math.round(Math.sin(t / 6 + y * 0.6) * 2);
+      if (shore < LAD_SHORE) { px(ctx, shore - 4 + wash, y, "#f7e6d8", 3 + wash, 1); if ((t + y) % 8 < 3) px(ctx, shore - 8 + wash, y, "#d9a8c0", 2, 1); }
+    }
+    // The boat rides the swell.
+    if (t % 18 < 9) px(ctx, 137, LAD_SEA + 5, "#ffc773", 11, 1);
+  }
+  // Gulls wheel round the lower tower, and one or two higher up.
+  for (let i = 0; i < 6; i++) {
+    const baseY = i < 4 ? 450 + i * 16 : 300 - (i - 4) * 90, r = 22 + i * 7;
+    const x = (i % 2 ? 56 : 300) + (i % 2 ? 1 : -1) * Math.sin(t / (24 + i * 3) + i) * r * 1.6, y = baseY + Math.cos(t / (24 + i * 3) + i) * 8;
+    if (!seen(y - 3, y + 3)) continue;
+    const up = (t + i * 3) % 8 < 4;
+    px(ctx, x, y, "#f4f0e8", 1, 1); px(ctx, x - 1, y + (up ? -1 : 1), "#f4f0e8"); px(ctx, x + 1, y + (up ? -1 : 1), "#f4f0e8"); px(ctx, x - 2, y + (up ? -2 : 1), "#c9b8d0"); px(ctx, x + 2, y + (up ? -2 : 1), "#c9b8d0");
+  }
+  // Smoke from the cottage, and its window's warm flicker.
+  if (seen(470, 540)) {
+    for (let i = 0; i < 11; i++) {
+      const age = (t * 0.4 + i * 4) % 44, sx = 298 + Math.sin(age / 7 + i) * 2 + age * 0.25, sy = 502 - age;
+      const c = age < 16 ? "#8a7298" : age < 30 ? "#7a5f90" : "#6a4f88";
+      px(ctx, sx, sy, c, age > 20 ? 3 : 2, age > 20 ? 2 : 2);
+    }
+    if (t % 31 < 3) px(ctx, 268, 529, "#f0b64e", 5, 4);
+    px(ctx, 268 + (t % 60 < 30 ? 0 : 6), 546, "#ffd36e", 1, 1);
+  }
+  // The lamp: a sleeping ember until someone reaches the top, and then the whole coast gets its light back.
+  const lit = shown.some((v) => v >= 0.999);
+  const lensY = ladTop - 23;
+  if (seen(0, lensY + 30)) {
+    if (lit) ladBeam(ctx, t, lensY);
+    const glow = t % 10 < 5;
+    for (let j = 0; j < 14; j++) {
+      const w = 5 - Math.abs(j - 7) * 0.55;
+      px(ctx, LAD_X - w, lensY - 7 + j, LAD_INK, w * 2 + 1, 1);
+      px(ctx, LAD_X - w + 1, lensY - 7 + j, lit ? (j % 3 === 0 ? "#fff" : "#fff2b8") : j % 3 === 0 ? (glow ? "#c9743c" : "#a55a38") : "#6e3a4c", Math.max(1, w * 2 - 1), 1);
+    }
+    px(ctx, LAD_X - 1, lensY - 2, lit ? "#ffffff" : glow ? "#ffb347" : "#e88a3c", 3, 4);
+    px(ctx, LAD_X - 7, lensY + 10, LAD_INK, 15, 4); px(ctx, LAD_X - 6, lensY + 11, "#7a5a70", 13, 2);
+  }
+  shown.forEach((v, i) => {
+    const p = LADDER_WORLD.pos(v, i, shown.length);
+    const top = v >= 0.999;
+    const stepping = moving[i] && !top && Math.floor(t / 3) % 2 === 1;
+    const rows = top ? (t % 12 < 6 ? LAD_CHEER : ladFlip(LAD_CHEER)) : stepping ? ladFlip(LAD_CLIMB) : LAD_CLIMB;
+    const c = colors[i]!;
+    const sx = Math.round(p.x) - 5, sy = Math.round(p.y) - 13;
+    const ink = Object.fromEntries("chsjdpb".split("").map((k) => [k, LAD_INK]));
+    for (const [ox, oy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) drawSprite(ctx, rows, ink, sx + ox!, sy + oy!);
+    drawSprite(ctx, rows, { c: ladDarken(c), h: "#3a2233", s: "#e7b08a", j: c, d: ladDarken(c), p: "#2c2a55", b: "#150f28" }, sx, sy);
+    // A scarf that streams off in the wind, longer the higher you are.
+    const len = 4 + Math.round(ladHeight(v) / 3);
+    for (let k = 0; k < len; k++) px(ctx, Math.round(p.x) + 3 + k, Math.round(p.y) - 10 + Math.round(Math.sin(t / 2.5 - k * 0.8) * (k / len) * 1.6), k % 2 ? "#ffe9c6" : "#fbcfa0");
+  });
+}
+
+/** Where the sea stops at a given height of the water: the rocks' edge, or for the far water, the tower behind it. */
+function ladBeach(y: number) {
+  let x = 0;
+  while (x < LAD_SHORE && ladLand(x) > y) x++;
+  return x;
+}
+
+function ladBeam(ctx: CanvasRenderingContext2D, t: number, y0: number) {
+  const turn = Math.cos((t / 44) * Math.PI * 2);
+  for (const side of [-1, 1]) {
+    const strength = 0.25 + Math.max(0, side * turn) * 0.75;
+    for (let d = 8; d < 230; d += 1) {
+      const half = Math.floor(2 + d * 0.13);
+      const x = LAD_X + side * d;
+      if (x < 0 || x >= LAD_W) continue;
+      for (let j = -half; j <= half; j++) {
+        const y = y0 + j;
+        const fade = strength * (1 - d / 230) * (1 - Math.abs(j) / (half + 1) * 0.6);
+        if (fade * 15 > BAYER[y & 3]![x & 3]! + 0.5) px(ctx, x, y, "#fff2b8");
+      }
+    }
+  }
+  // Sparks and rays round the lamp itself.
+  for (let a = 0; a < 16; a++) {
+    const ang = (a / 16) * Math.PI * 2 + t / 12, r = 18 + (a % 2) * 4 + Math.sin(t / 3) * 1.5;
+    px(ctx, LAD_X + Math.cos(ang) * r, y0 + Math.sin(ang) * r, a % 2 ? "#ffd23f" : "#ffffff");
+  }
+}
+
+const LADDER_WORLD: World = {
+  id: "ladder", fullW: LAD_W, fullH: LAD_H, viewW: 320, viewH: 150,
+  checkpoints: ["Sea Wall", "Salt Spray", "Gull Perch", "Low Gallery", "Rusty Bolts", "Cloud Line", "First Stars", "High Gallery", "Cold Wind", "Long Drop", "Last Rivets", "The Lamp"].map((name, i) => ({ name, at: LADDER[i]! / LADDER[RUNGS - 1]! })),
+  backdrop(ctx) {
+    ladSky(ctx);
+    ladSeaAndLand(ctx);
+    ladCottage(ctx);
+    ladTower(ctx);
+    ladLantern(ctx);
+    ladLadder(ctx);
+  },
+  frame: ladderFrame,
+  pos: (f, i, n) => ({ x: LAD_X + (n > 1 ? (i - (n - 1) / 2) * 6 : 0), y: LAD_FOOT - ladHeight(f) * LAD_STEP }),
+  camera: (p) => ({ x: 0, y: clamp(p.y - 92, 0, LAD_H - 150) }),
+};
+
+export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO, board: BOARD, arcade: ARCADE, ladder: LADDER_WORLD };
 
 /** The last checkpoint reached at a fraction of the journey. */
 export function checkpointAt(world: World, f: number): Checkpoint {

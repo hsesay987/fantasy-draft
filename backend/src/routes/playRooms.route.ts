@@ -2,7 +2,7 @@ import { getFeud, getJeopardy, isTriviaPool } from "../services/trivia.service";
 import { moderate, userText } from "../lib/moderation";
 import { Router } from "express";
 import { normalizeClue } from "../shared/topicDraft/party/clueText";
-import { act, backToLobby, createRoom, getRoom, giveQuiz, joinRoom, leaveRoom, needsQuiz, seatFor, seenIn, setGame, setStatLink, snapshot, startRoom } from "../services/playRooms";
+import { act, backToLobby, createRoom, getRoom, giveQuiz, isHost, joinRoom, leaveRoom, needsQuiz, seatFor, seenIn, setGame, setStatLink, snapshot, startRoom } from "../services/playRooms";
 
 const router = Router();
 
@@ -91,7 +91,7 @@ router.post("/:code/stat-link", (req, res) => {
 router.post("/:code/start", async (req, res) => {
   const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "Room not found" });
-  if (needsQuiz(room) && room.seats[0] === seatFor(room, req.body?.token)) {
+  if (needsQuiz(room) && isHost(room, req.body?.token)) {
     const quiz = await quizFor(room.setup, seenIn(room));
     if (quiz) giveQuiz(room, quiz);
   }
