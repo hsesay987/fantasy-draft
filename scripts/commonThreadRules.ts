@@ -9,7 +9,7 @@ export type RawMember = { name: string; q?: string; fame: number };
  * membership is incomplete, so a category of that kind is never offered as a wrong option for its own kind.
  * `answerOnly`: the kind is too patchy to ever be a wrong option (a dish's ingredients, a flag's symbols); it can only be an answer.
  */
-export type RawCategory = { label: string; kind: string; members: RawMember[]; exclusive?: boolean; answerOnly?: boolean };
+export type RawCategory = { label: string; kind: string; members: RawMember[]; exclusive?: boolean; answerOnly?: boolean; country?: boolean };
 
 export const MIN_MEMBERS = 6;
 /** A category may hold at most this share of the topic's pool, or it is a catch-all. */
@@ -35,6 +35,28 @@ export const nameInLabel = (name: string, label: string): boolean => {
   return new RegExp(`(?<!${edge})${escapeRe(n)}(?!${edge})`, "iu").test(label);
 };
 
+/** Adjectives for names whose stem differs from the demonym. */
+const DEMONYMS: Record<string, string[]> = {
+  france: ["french"], netherlands: ["dutch"], spain: ["spanish"], greece: ["greek"], denmark: ["danish"], sweden: ["swedish"], finland: ["finnish"],
+  poland: ["polish"], turkey: ["turkish"], switzerland: ["swiss"], china: ["chinese"], ireland: ["irish"], england: ["english"], philippines: ["filipino"],
+  thailand: ["thai"], iceland: ["icelandic"], "czech republic": ["czech"], wales: ["welsh"], scotland: ["scottish"], "united kingdom": ["british"],
+  "united states": ["american"], japan: ["japanese"], vietnam: ["vietnamese"], lebanon: ["lebanese"], nepal: ["nepali", "nepalese"], malta: ["maltese"],
+  "new zealand": ["kiwi"], norway: ["norwegian"], germany: ["german"], israel: ["israeli"], iran: ["iranian", "persian"], iraq: ["iraqi"], mexico: ["mexican"],
+};
+
+/** The label names the clue: the whole name as words, a demonym, or a shared 5-letter stem ("Australia" in "Australian dollar"). */
+export function givesAway(name: string, label: string, country = false): boolean {
+  if (nameInLabel(name, label)) return true;
+  // Demonyms and stems only matter where the clue is a country: elsewhere a shared 5-letter start is just a shared word.
+  if (!country) return false;
+  const n = name.toLowerCase().replace(/^the\s+/, "").trim();
+  for (const d of DEMONYMS[n] ?? []) if (nameInLabel(d, label)) return true;
+  const first = n.split(/[^\p{L}]+/u).find((w) => w.length > 0) ?? "";
+  if (first.length < 5) return false;
+  const stem = first.slice(0, 5);
+  return label.toLowerCase().split(/[^\p{L}]+/u).some((w) => w.startsWith(stem));
+}
+
 export function usable(c: RawCategory, poolSize: number): boolean {
   const n = new Set(c.members.map((m) => m.name)).size;
   if (n < MIN_MEMBERS || n > poolSize * MAX_SHARE) return false;
@@ -53,7 +75,7 @@ function sortedMembers(c: RawCategory): RawMember[] {
 
 /** Members that may be a clue: not named in the label, and not in `banned`. Least famous first. */
 function clueCandidates(c: RawCategory, banned: ReadonlySet<string> = new Set()): RawMember[] {
-  return sortedMembers(c).filter((m) => !banned.has(m.name) && !nameInLabel(m.name, c.label));
+  return sortedMembers(c).filter((m) => !banned.has(m.name) && !givesAway(m.name, c.label, c.country));
 }
 
 /**

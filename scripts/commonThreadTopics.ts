@@ -1,6 +1,7 @@
 // What each Common Thread topic pulls and which facts become categories. Only facts the sources hold are used.
 import type { Row } from "../backend/src/trivia/wikidata";
 import { addCategoryFacts } from "./commonThreadWiki";
+import { COUNTRY_EXCLUSIVE, addCountryFacts } from "./commonThreadCountries";
 import { FOOD_KINDS, KIND_ALLOW, NOT_HEROES, NOT_VILLAINS, NEITHER, ORG_ALLOW, TEAM_ALLOW, onlyExact } from "./commonThreadBans";
 
 export type Entity = { id: string; name: string; q?: string; fame: number; facts: Record<string, Set<string>> };
@@ -74,6 +75,7 @@ const d = (kind: string, path: string, label: (v: string) => string | null, as: 
 const fw = (kind: string, from: string, path: string, label: (v: string) => string | null, skip?: RegExp): FactSpec => ({ ...f(kind, path, label, skip), from });
 const dw = (kind: string, from: string, path: string, label: (v: string) => string | null): FactSpec => ({ ...d(kind, path, label), from });
 const IN_FILM = "?item wdt:P1441 ?w. ?w wdt:P31/wdt:P279* wd:Q11424.";
+const DISNEY_FILM = "?item wdt:P1441 ?w. ?w wdt:P31/wdt:P279* wd:Q202866; wdt:P272 ?studio. VALUES ?studio { wd:Q127552 wd:Q1047410 wd:Q191224 wd:Q7414 wd:Q1392453 }";
 const IN_GAME = "?item wdt:P1441 ?w. ?w wdt:P31/wdt:P279* wd:Q7889.";
 const NOT_WELL_KNOWN_ORG = onlyExact(ORG_ALLOW);
 /** Series values that are lists, topics or tags rather than a franchise. */
@@ -324,9 +326,9 @@ SPECS.food = {
   minSitelinks: 5,
   limit: 2500,
   facts: [
-    one("country", "wdt:P495", (v) => `From ${place(v)}`),
-    f("continent", "wdt:P495/wdt:P30", (v) => `From ${v}`),
-    patchy(f("ingredient", "(wdt:P527|wdt:P186)", (v) => `Made with ${v}`)),
+    // No "From <country>" family: Wikidata's origin of a dish is too often a different country's (Rogan josh, Simit, Waffle).
+    f("ingredient", "(wdt:P527|wdt:P186)", (v) => `Made with ${v}`),
+    f("cuisine", "wdt:P2012", (v) => `Part of ${v}`),
     f("is", "wdt:P31", (v) => A_OR_AN(v), onlyExact(FOOD_KINDS)),
     f("region", "wdt:P131", (v) => `From ${place(v)}`),
     d("created", "wdt:P571", decade("Created")),
@@ -347,11 +349,8 @@ SPECS.geography = {
   minSitelinks: 60,
   limit: 260,
   facts: [
-    f("country", "wdt:P17", (v) => `In ${place(v)}`),
-    one("continent", "wdt:P30", (v) => `In ${v}`),
-    f("language", "wdt:P37", (v) => `Has ${v} as an official language`),
-    { ...f("currency", "ps:P38", (v) => `Uses the ${v}`), from: "?item p:P38 ?w. FILTER NOT EXISTS { ?w pq:P582 ?ended }" },
-    patchy(f("member", "wdt:P463", (v) => `Member of ${v}`, NOT_WELL_KNOWN_ORG)),
+    // Only a place wholly in one country: a river or range that crosses borders has no single answer.
+    one("country", "wdt:P17", (v) => `In ${place(v)}`),
     patchy(f("timezone", "wdt:P421", (v) => `In the ${v} time zone`, UTC_ONLY)),
     f("region", "wdt:P131", (v) => `In ${place(v)}`),
     f("range", "wdt:P4552", (v) => `In the ${v}`),
@@ -366,10 +365,6 @@ SPECS.flags = {
   minSitelinks: 25,
   limit: 300,
   facts: [
-    one("continent", "wdt:P30", (v) => `In ${v}`),
-    f("language", "wdt:P37", (v) => `Has ${v} as an official language`),
-    { ...f("currency", "ps:P38", (v) => `Uses the ${v}`), from: "?item p:P38 ?w. FILTER NOT EXISTS { ?w pq:P582 ?ended }" },
-    patchy(f("member", "wdt:P463", (v) => `Member of ${v}`, NOT_WELL_KNOWN_ORG)),
     f("colour", "wdt:P163/wdt:P462", (v) => `Has ${v} on its flag`, /sky blue/i),
     patchy(f("symbol", "wdt:P163/wdt:P180", (v) => `Shows ${art(v)} on its flag`)),
     f("flagKind", "wdt:P163/wdt:P31", (v) => `Has ${AN(v) ? "an" : "a"} ${v} for a flag`, /flag/i),
@@ -385,7 +380,7 @@ SPECS.flags = {
 {
   const flagSpec = SPECS.flags as WdSpec;
   SPECS.flags = {
-    exclusive: flagSpec.facts.filter((x) => x.exclusive).map((x) => x.kind),
+    exclusive: [...flagSpec.facts.filter((x) => x.exclusive).map((x) => x.kind), ...COUNTRY_EXCLUSIVE],
     answerOnly: flagSpec.facts.filter((x) => x.answerOnly).map((x) => x.kind),
     async load(ctx) {
       const ents = await ctx.wikidataPool(flagSpec);
@@ -395,7 +390,28 @@ SPECS.flags = {
         const iso = new Map(rows.map((r) => [r.item, r.iso.toLowerCase()]));
         for (const e of part) if (iso.get(e.id)) e.q = iso.get(e.id);
       }
-      return ents.filter((e) => e.q);
+      const ok = ents.filter((e) => e.q);
+      await addCountryFacts(ok, (e) => e.q, ctx.fetchJson);
+      return ok;
+    },
+  };
+}
+
+// ---------------- geography: countries get the same dataset facts, found by ISO code ----------------
+{
+  const geoSpec = SPECS.geography as WdSpec;
+  SPECS.geography = {
+    exclusive: [...geoSpec.facts.filter((x) => x.exclusive).map((x) => x.kind), ...COUNTRY_EXCLUSIVE],
+    answerOnly: geoSpec.facts.filter((x) => x.answerOnly).map((x) => x.kind),
+    async load(ctx) {
+      const ents = await ctx.wikidataPool(geoSpec);
+      const iso = new Map<string, string>();
+      for (let i = 0; i < ents.length; i += 150) {
+        const rows = await ctx.ask(`SELECT ?item ?iso WHERE { VALUES ?item { ${ents.slice(i, i + 150).map((e) => "wd:" + e.id).join(" ")} } ?item wdt:P297 ?iso }`);
+        for (const r of rows) iso.set(r.item, r.iso);
+      }
+      await addCountryFacts(ents, (e) => iso.get(e.id), ctx.fetchJson);
+      return ents;
     },
   };
 }
@@ -431,7 +447,7 @@ type Hero = { name: string; appearance: Record<string, string>; biography: Recor
 const heroSide = (side: "good" | "bad", categories: string[], otherCategories: string[]): CustomSpec => ({
   exclusive: ["firstApp"],
   // Colours come only from the API and the rest from patchy category lists: answers, never wrong options.
-  answerOnly: ["eyes", "hair", "gender", "power", "role", "nature", "franchise", "member", "residence"],
+  answerOnly: ["eyes", "hair", "gender", "power", "member", "residence"],
   async load(ctx) {
     const all = (await ctx.fetchJson<Hero[]>("https://akabab.github.io/superhero-api/api/all.json")) as Hero[];
     const byName = new Map<string, Hero>();
@@ -455,7 +471,8 @@ const heroSide = (side: "good" | "bad", categories: string[], otherCategories: s
           await new Promise((r) => setTimeout(r, 1200));
         } while (more);
       }
-      const out = new Set<string>([...itemHero].filter(([, h]) => h.biography.alignment === alignment && (alignment === "bad" || COMICS_PUBLISHER.test(h.biography.publisher ?? ""))).map(([id]) => id));
+      // The Superhero API files supporting cast (Lois Lane, Alfred) as "good", so only villains take members from it; heroes come from Wikipedia's lists alone.
+      const out = new Set<string>(alignment === "bad" ? [...itemHero].filter(([, h]) => h.biography.alignment === "bad").map(([id]) => id) : []);
       const titleList = [...titles];
       for (let i = 0; i < titleList.length; i += 80) {
         const part = titleList.slice(i, i + 80).map((t) => `${JSON.stringify(t)}@en`);
@@ -482,7 +499,7 @@ const heroSide = (side: "good" | "bad", categories: string[], otherCategories: s
     };
     const keep = ids.filter((id) => !contradicts(id));
     const where = Array.from({ length: Math.ceil(keep.length / 100) }, (_, i) => `VALUES ?item { ${keep.slice(i * 100, i * 100 + 100).map((q) => "wd:" + q).join(" ")} }`);
-    const found = await ctx.wikidataPool({ where, minSitelinks: Number(process.env.HERO_MIN_SL ?? 4), limit: 1500, facts: HERO_FACTS });
+    const found = await ctx.wikidataPool({ where, minSitelinks: Number(process.env.HERO_MIN_SL ?? 3), limit: 1500, facts: HERO_FACTS });
     const checked = await addCategoryFacts(found, ctx.fetchJson);
     const hand = new Set([...NEITHER, ...(side === "bad" ? NOT_VILLAINS : NOT_HEROES)].map((n) => n.toLowerCase()));
     for (const e of checked) {
@@ -499,7 +516,7 @@ const heroSide = (side: "good" | "bad", categories: string[], otherCategories: s
     return checked.filter((e) => !hand.has(e.name.toLowerCase()));
   },
 });
-const HERO_CATEGORIES = ["Marvel_Comics_superheroes", "DC_Comics_superheroes"];
+const HERO_CATEGORIES = ["Marvel_Comics_superheroes", "DC_Comics_superheroes", "Golden_Age_superheroes", "Image_Comics_superheroes", "Dark_Horse_Comics_superheroes"];
 const VILLAIN_CATEGORIES = ["Marvel_Comics_supervillains", "DC_Comics_supervillains", "Film_supervillains", "Literary_villains", "Comics_supervillains", "Image_Comics_supervillains"];
 SPECS.superheroes = heroSide("good", HERO_CATEGORIES, VILLAIN_CATEGORIES);
 SPECS.villains = heroSide("bad", VILLAIN_CATEGORIES, HERO_CATEGORIES);
@@ -515,7 +532,8 @@ SPECS.disney = {
     ...CHARACTER_FACTS,
     { ...fw("studio", IN_FILM, "wdt:P272", (v) => `From ${art(v)} film`), extra: "VALUES ?v { wd:Q127552 wd:Q1047410 wd:Q191224 wd:Q7414 wd:Q1392453 }" },
     fw("director", IN_FILM, "wdt:P57", (v) => `From a film directed by ${v}`),
-    dw("film", IN_FILM, "wdt:P577", decade("From a film released")),
+    // The character's first Disney-family work only, so a 1920 Treasure Island film does not date Jim Hawkins.
+    dw("film", DISNEY_FILM, "wdt:P577", decade("From a Disney film released")),
     fw("series", IN_FILM, "wdt:P179", SERIES, SERIES_SKIP),
   ],
 };
@@ -528,7 +546,7 @@ SPECS.movies = {
     ...CHARACTER_FACTS,
     f("actor", "^pq:P453/ps:P161", (v) => `Played by ${v}`),
     fw("director", IN_FILM, "wdt:P57", (v) => `From a film directed by ${v}`),
-    dw("film", IN_FILM, "wdt:P577", decade("From a film released")),
+    // No film-decade family: a character appears in remakes, spin-offs and parodies, so the year of "a film" is the wrong film too often.
     fw("series", IN_FILM, "wdt:P179", SERIES, SERIES_SKIP),
   ],
 };
@@ -538,7 +556,8 @@ SPECS.videogames = {
   minSitelinks: 3,
   limit: 1500,
   facts: [
-    ...CHARACTER_FACTS,
+    // No "Created by": Wikidata gives a franchise creator for a character who was not his or her work (Helena Harper and Shinji Mikami).
+    ...CHARACTER_FACTS.filter((x) => x.kind !== "creator"),
     fw("series", IN_GAME, "wdt:P179", SERIES, SERIES_SKIP),
     fw("platform", IN_GAME, "wdt:P400", (v) => `Appears in a game for ${v}`),
     fw("genre", IN_GAME, "wdt:P136", (v) => { const g = v.replace(/\s+(video game|game)$/i, "").trim(); return g.length > 2 ? `From ${g.toLowerCase().replace(/\b(\d)d\b/g, "$1D")} games` : null; }, /lgbt|\bwith\b|character|^(film|television|fiction|nonfiction|literature|art|music|work|drama)$/i),

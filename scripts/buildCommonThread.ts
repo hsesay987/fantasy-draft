@@ -136,7 +136,7 @@ export function categorize(ents: Entity[], exclusive: ReadonlySet<string> = new 
         if (isBannedLabel(topic, label) || BANNED_PAIRS.some(([t, l, n]) => t === topic && l === label && n === e.name)) continue;
         const key = kind + "|" + label;
         let c = by.get(key);
-        if (!c) by.set(key, (c = { label, kind, members: [], ...(exclusive.has(kind) ? { exclusive: true } : {}), ...(answerOnly.has(kind) ? { answerOnly: true } : {}) }));
+        if (!c) by.set(key, (c = { label, kind, members: [], ...(exclusive.has(kind) ? { exclusive: true } : {}), ...(answerOnly.has(kind) ? { answerOnly: true } : {}), ...(topic === "flags" || topic === "geography" ? { country: true } : {}) }));
         c.members.push(m);
       }
     }

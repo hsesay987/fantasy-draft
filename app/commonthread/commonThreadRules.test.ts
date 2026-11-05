@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { assemble, nameInLabel, orderClues, pickWrong, usable, type RawCategory } from "../../scripts/commonThreadRules";
+import { assemble, givesAway, nameInLabel, orderClues, pickWrong, usable, type RawCategory } from "../../scripts/commonThreadRules";
 import { PINPOINT_TOPICS } from "../pinpoint/topics";
 import type { ThreadTopic } from "./types";
+import { MEMBERSHIPS } from "../../scripts/commonThreadMemberships";
 import { BANNED_LABELS, BANNED_PATTERNS, MUST_NOT, ORG_ALLOW, isBannedLabel } from "../../scripts/commonThreadBans";
 
 /** A category of `n` members named `${label}-m0..`, fame rising with the index. */
@@ -112,6 +113,24 @@ describe("Common Thread rules", () => {
     expect(nameInLabel("Man", "Directed by Batman")).toBe(false);
     expect(nameInLabel("Ali", "Played for Alicante")).toBe(false);
     expect(nameInLabel("Café", "Born in Café Society")).toBe(true);
+  });
+
+  it("catches adjectives and stems of a country name, not only the name", () => {
+    expect(givesAway("Australia", "Uses the Australian dollar", true)).toBe(true);
+    expect(givesAway("Russia", "Has Russian as an official language", true)).toBe(true);
+    expect(givesAway("France", "Has French as an official language", true)).toBe(true);
+    expect(givesAway("Netherlands", "Has Dutch as an official language", true)).toBe(true);
+    expect(givesAway("Germany", "Has German as an official language", true)).toBe(true);
+    expect(givesAway("United States", "Uses the United States dollar", true)).toBe(true);
+    expect(givesAway("Japan", "Directed by Someone", true)).toBe(false);
+    expect(givesAway("Canada", "Uses the Australian dollar", true)).toBe(false);
+    expect(givesAway("Mali", "Has Malay as an official language", true)).toBe(false);
+  });
+
+  it("never uses a country whose adjective is in the label as a clue", () => {
+    const c = { ...cat("Uses the Australian dollar", 12), country: true };
+    c.members.push({ name: "Australia", fame: 9999 });
+    expect(orderClues(c).map((x) => x.name)).not.toContain("Australia");
   });
 
   it("never uses a member whose name is in the label as a clue", () => {
@@ -243,7 +262,7 @@ describe("Common Thread data", () => {
     const lastUse = new Map<string, number>();
     for (const c of all) {
       lastUse.set(c.clues[5]!.name, (lastUse.get(c.clues[5]!.name) ?? 0) + 1);
-      for (const clue of c.clues) expect(nameInLabel(clue.name, c.label), `${c.label} / ${clue.name}`).toBe(false);
+      for (const clue of c.clues) expect(givesAway(clue.name, c.label, pool === "flags" || pool === "geography"), `${c.label} / ${clue.name}`).toBe(false);
       for (const text of [c.label, ...c.clues.map((x) => x.name)]) {
         expect(text, text).not.toMatch(/\s{2}|^\s|\s$/);
         expect(text, text).not.toMatch(/(?<!\d)\d{0,2}0s\b/);
@@ -281,11 +300,35 @@ describe("Common Thread data", () => {
     }
   });
 
-  it("flags and geography only name allowlisted organisations", () => {
+  it("flags and geography only name allowlisted organisations, and flag members match the hand lists exactly", () => {
+    expect([...ORG_ALLOW].sort()).toEqual(Object.keys(MEMBERSHIPS).sort());
     for (const pool of ["flags", "geography"]) {
       for (const c of [...load(pool).daily, ...load(pool).practice]) {
         if (c.label.startsWith("Member of ")) expect(ORG_ALLOW, c.label).toContain(c.label.slice("Member of ".length));
       }
+    }
+    for (const c of [...load("flags").daily, ...load("flags").practice]) {
+      if (!c.label.startsWith("Member of ")) continue;
+      const codes = MEMBERSHIPS[c.label.slice("Member of ".length)]!;
+      for (const clue of c.clues) expect(codes, `${c.label} / ${clue.name}`).toContain(clue.q!.toUpperCase());
+    }
+  });
+
+  it("hand-written memberships have the real sizes", () => {
+    const size = (o: string) => MEMBERSHIPS[o]!.length;
+    expect(size("European Union")).toBe(27);
+    expect(size("G7")).toBe(7);
+    expect(size("G20")).toBe(19);
+    expect(size("Arab League")).toBe(22);
+    expect(size("Caribbean Community")).toBe(15);
+    expect(size("Commonwealth of Nations")).toBe(56);
+    expect(size("Asia-Pacific Economic Cooperation")).toBe(21);
+    expect(size("ASEAN")).toBe(11);
+    expect(MEMBERSHIPS["ASEAN"]).not.toContain("AU");
+    expect(MEMBERSHIPS["European Union"]).not.toContain("GB");
+    for (const codes of Object.values(MEMBERSHIPS)) {
+      expect(new Set(codes).size).toBe(codes.length);
+      for (const c of codes) expect(c).toMatch(/^[A-Z]{2}$/);
     }
   });
 
