@@ -8,7 +8,7 @@ export type Actor = { name: string; value: number; color?: string };
 export type Checkpoint = { name: string; at: number };
 
 export type World = {
-  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio" | "board";
+  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio" | "board" | "arcade";
   /** Size of the whole map. */
   fullW: number;
   fullH: number;
@@ -1208,7 +1208,156 @@ export const BOARD: World = {
   camera: () => ({ x: 0, y: 0 }),
 };
 
-export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO, board: BOARD };
+// ---- Party trivia: an arcade at closing time. A row of cabinets, the big quiz machine in the middle. ----
+const ARC_W = 200, ARC_H = 92, ARC_FLOOR = 62;
+const ARC_FONT: Record<string, string[]> = {
+  Q: ["XXX", "X.X", "X.X", "XXX", "..X"], U: ["X.X", "X.X", "X.X", "X.X", "XXX"], I: ["XXX", ".X.", ".X.", ".X.", "XXX"], Z: ["XXX", "..X", ".X.", "X..", "XXX"],
+  P: ["XXX", "X.X", "XXX", "X..", "X.."], L: ["X..", "X..", "X..", "X..", "XXX"], A: ["XXX", "X.X", "XXX", "X.X", "X.X"], Y: ["X.X", "X.X", ".X.", ".X.", ".X."],
+  "?": ["XXX", "..X", ".XX", "...", ".X."], "1": ["XX.", ".X.", ".X.", ".X.", "XXX"], "2": ["XXX", "..X", "XXX", "X..", "XXX"],
+};
+const arcText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, c: string) => {
+  [...text].forEach((ch, i) => ARC_FONT[ch]?.forEach((row, ry) => [...row].forEach((v, rx) => { if (v === "X") px(ctx, x + i * 4 + rx, y + ry, c); })));
+};
+type ArcCab = { x: number; w: number; top: number; foot: number; body: string; hi: string; lo: string; sign: string; glow: string };
+const ARC_CABS: ArcCab[] = [
+  { x: 4, w: 28, top: 22, foot: 68, body: "#1c3f7a", hi: "#3a6cc0", lo: "#102347", sign: "#58d6ff", glow: "#58d6ff" },
+  { x: 37, w: 30, top: 18, foot: 72, body: "#6a1c63", hi: "#a83a9c", lo: "#3a0f38", sign: "#ff7fe0", glow: "#ff7fe0" },
+  { x: 80, w: 40, top: 6, foot: 82, body: "#3d1d86", hi: "#6d42d8", lo: "#201048", sign: "#ffd23f", glow: "#ffe27a" },
+  { x: 133, w: 30, top: 18, foot: 72, body: "#17614a", hi: "#2fa47e", lo: "#0b3628", sign: "#4dffa6", glow: "#4dffa6" },
+  { x: 168, w: 28, top: 22, foot: 68, body: "#7a3a14", hi: "#c8702c", lo: "#47200a", sign: "#ffb347", glow: "#ffb347" },
+];
+/** Where each cabinet's screen sits. */
+const arcScreen = (c: ArcCab) => ({ x: c.x + 4, y: c.top + 11, w: c.w - 8, h: Math.round((c.foot - c.top) * 0.36) });
+
+function arcadeBackdrop(ctx: CanvasRenderingContext2D) {
+  // Wall: deep violet, dithered lighter towards the floor, with a run of neon tube along the top.
+  ditherSky(ctx, 0, 0, ARC_W, ARC_FLOOR, [[0, "#0a0518"], [0.6, "#1a0c38"], [1, "#2c1458"]]);
+  px(ctx, 0, 3, "#7a1a4e", ARC_W, 3);
+  px(ctx, 0, 4, "#ff5aa8", ARC_W, 1);
+  for (let x = 0; x < ARC_W; x++) if ((x + 7) % 2 === 0) px(ctx, x, 7, "#4a1440");
+  // Wall tiles behind the machines, half lost in the dark.
+  for (let y = 12; y < ARC_FLOOR - 8; y += 8) for (let x = (y % 16 ? 4 : 0); x < ARC_W; x += 8) if (noise1(x + y * 7, 3) > 0.72) px(ctx, x, y, "#3a1f6e", 2, 2);
+  // Skirting.
+  px(ctx, 0, ARC_FLOOR - 3, "#120828", ARC_W, 3);
+  px(ctx, 0, ARC_FLOOR - 3, "#46277e", ARC_W, 1);
+
+  // Carpet: dark, with loud little shapes that get bigger towards the viewer.
+  ditherSky(ctx, 0, ARC_FLOOR, ARC_W, ARC_H - ARC_FLOOR, [[0, "#120a2c"], [1, "#1f1244"]]);
+  const pal = ["#ff3f7f", "#58d6ff", "#ffd23f", "#4dffa6"];
+  for (let i = 0; i < 95; i++) {
+    const y = ARC_FLOOR + 1 + Math.floor(noise1(i, 11) * (ARC_H - ARC_FLOOR - 2));
+    const x = Math.floor(noise1(i, 12) * ARC_W);
+    const c = pal[i % 4]!, big = y > ARC_FLOOR + 16;
+    if (i % 3 === 0 && big) { px(ctx, x, y, c, 3, 1); px(ctx, x + 1, y - 1, c, 1, 3); }
+    else if (i % 3 === 1) { px(ctx, x, y, c, big ? 2 : 1, 1); }
+    else { px(ctx, x, y, c); px(ctx, x + 1, y + 1, c); }
+  }
+
+  for (const c of ARC_CABS) {
+    const h = c.foot - c.top;
+    // Pool of screen light on the carpet, dithered.
+    for (let y = c.foot; y < Math.min(ARC_H, c.foot + 8); y++) for (let x = c.x - 2; x < c.x + c.w + 2; x++) {
+      if (((x + y) & 1) === 0 && noise1(x * 3 + y, 8) > 0.2 + (y - c.foot) * 0.09) px(ctx, x, y, c.glow === "#ffe27a" ? "#5a4a70" : "#332860");
+    }
+    // Shadow and body with a lit left edge and dark right side.
+    px(ctx, c.x + 1, c.foot, "#05030c", c.w, 2);
+    px(ctx, c.x, c.top, c.body, c.w, h);
+    px(ctx, c.x, c.top, c.hi, 2, h);
+    px(ctx, c.x + c.w - 3, c.top, c.lo, 3, h);
+    for (let y = c.top; y < c.foot; y++) if (y & 1) px(ctx, c.x + c.w - 4, y, c.lo);
+    // Outline.
+    px(ctx, c.x - 1, c.top, "#05030c", 1, h); px(ctx, c.x + c.w, c.top, "#05030c", 1, h); px(ctx, c.x, c.top - 1, "#05030c", c.w, 1);
+    // Marquee box.
+    px(ctx, c.x + 1, c.top + 1, "#05030c", c.w - 2, 9);
+    px(ctx, c.x + 2, c.top + 2, c.sign, c.w - 4, 7);
+    px(ctx, c.x + 2, c.top + 2, "#ffffff55", c.w - 4, 1);
+    // Bezel and glass.
+    const g = arcScreen(c);
+    px(ctx, g.x - 2, g.y - 1, "#05030c", g.w + 4, g.h + 3);
+    px(ctx, g.x - 1, g.y, "#201a3a", g.w + 2, g.h + 1);
+    px(ctx, g.x, g.y, "#04120e", g.w, g.h);
+    // Control shelf, sticking out towards the viewer.
+    const shelf = g.y + g.h + 3;
+    px(ctx, c.x - 1, shelf, "#05030c", c.w + 2, 7);
+    px(ctx, c.x, shelf, "#3f3a5e", c.w, 5);
+    px(ctx, c.x, shelf, "#716c98", c.w, 1);
+    // Coin door.
+    const door = shelf + 9;
+    if (door + 8 < c.foot) {
+      px(ctx, c.x + c.w / 2 - 6, door, "#05030c", 12, 9);
+      px(ctx, c.x + c.w / 2 - 5, door + 1, "#2b2545", 10, 7);
+      px(ctx, c.x + c.w / 2 - 3, door + 2, "#ff3f7f", 1, 3);
+      px(ctx, c.x + c.w / 2 + 2, door + 2, "#ff3f7f", 1, 3);
+    }
+  }
+  const mid = ARC_CABS[2]!;
+  arcText(ctx, "QUIZ", mid.x + 12, mid.top + 3, "#5a0830");
+  arcText(ctx, "PLAY", ARC_CABS[1]!.x + 7, ARC_CABS[1]!.top + 3, "#3a0f38");
+  // A stool waiting at the next machine along.
+  px(ctx, 145, 80, "#05030c", 12, 3); px(ctx, 146, 79, "#d6273c", 10, 2); px(ctx, 150, 83, "#716c98", 2, 6); px(ctx, 147, 88, "#46406a", 8, 1);
+}
+
+const ARC_PLAYER = ["..hhhh..", ".hhhhhh.", ".hhhhhh.", "..ssss..", ".bbbbbb.", "bbbbbbbb", "bbbbbbbb", "s.bbbb.s", "..bbbb..", "..p..p..", "..p..p..", "..p..p.."];
+
+function arcadeFrame(ctx: CanvasRenderingContext2D, t: number) {
+  // Ceiling tube's rare flicker.
+  if (t % 149 < 2) px(ctx, 0, 4, "#7a1a4e", ARC_W, 1);
+  ARC_CABS.forEach((c, n) => {
+    const g = arcScreen(c);
+    // Marquee bulbs run along the sign.
+    for (let i = 0; i < c.w - 4; i += 3) if ((i / 3 + Math.floor(t / 3)) % 3 === 0) px(ctx, c.x + 2 + i, c.top + 8, "#ffffff");
+    // Attract modes, each cabinet its own.
+    if (n === 0) { // falling blocks
+      const cols = ["#ff3f7f", "#58d6ff", "#ffd23f"];
+      for (let i = 0; i < 4; i++) { const cx = g.x + 2 + (i * 5) % (g.w - 4); const cy = g.y + ((t + i * 11) % (g.h + 8)) - 4; if (cy >= g.y && cy < g.y + g.h - 2) px(ctx, cx, cy, cols[i % 3]!, 3, 2); }
+      px(ctx, g.x, g.y + g.h - 2, "#2f6f73", g.w, 2);
+    } else if (n === 1) { // paddles and a ball
+      const bx = Math.abs(((t * 2) % ((g.w - 3) * 2)) - (g.w - 3)), by = Math.abs((t % ((g.h - 1) * 2)) - (g.h - 1));
+      px(ctx, g.x + bx, g.y + by, "#ffffff");
+      px(ctx, g.x + 1, g.y + clamp(by - 2, 0, g.h - 5), "#ff7fe0", 1, 5);
+      px(ctx, g.x + g.w - 2, g.y + clamp(by - 2, 0, g.h - 5), "#ff7fe0", 1, 5);
+    } else if (n === 2) { // the quiz machine: a ? and four answer lamps, one lit at a time
+      if (t % 20 < 14) arcText(ctx, "?", g.x + g.w / 2 - 1, g.y + 4, "#4dffa6");
+      const pick = Math.floor(t / 6) % 4;
+      ["#ff5a6e", "#5ab8ff", "#ffc933", "#3fdc8a"].forEach((col, i) => {
+        px(ctx, g.x + 3 + i * Math.floor((g.w - 6) / 4), g.y + g.h - 7, i === pick ? col : "#17324a", Math.floor((g.w - 6) / 4) - 1, 4);
+      });
+      px(ctx, g.x, g.y + (t % g.h), "#ffffff14", g.w, 1); // a slow roll bar
+      const shelf = g.y + g.h + 3;
+      ["#d6273c", "#1c68d4", "#ffc933", "#1fc46a"].forEach((col, i) => {
+        const bx = c.x + 7 + i * 7;
+        px(ctx, bx, shelf + 1, i === pick ? "#ffffff" : col, 4, 2);
+        px(ctx, bx, shelf + 3, "#05030c", 4, 1);
+      });
+    } else if (n === 3) { // a little ship over stars
+      for (let i = 0; i < 5; i++) px(ctx, g.x + (((noise1(i, 21) * g.w - t) % g.w) + g.w) % g.w, g.y + 1 + noise1(i, 22) * (g.h - 3), "#c8fff0");
+      const sy = g.y + Math.round(g.h / 2 + Math.sin(t / 7) * 3) - 1;
+      px(ctx, g.x + 3, sy, "#4dffa6", 4, 1); px(ctx, g.x + 4, sy - 1, "#4dffa6", 1, 3); if (t % 4 < 2) px(ctx, g.x + 2, sy, "#ffb347");
+    } else { // a high-score table scrolling by
+      for (let i = 0; i < 4; i++) { const ly = g.y + ((i * 5 - Math.floor(t / 2)) % (g.h + 2) + g.h + 2) % (g.h + 2); if (ly < g.y + g.h - 1) { px(ctx, g.x + 2, ly, "#ffb347", 6, 1); px(ctx, g.x + 11, ly, "#fff3b0", g.w - 14, 1); } }
+    }
+  });
+  // Someone at the big machine, shifting their weight and hammering a button.
+  const mid = ARC_CABS[2]!;
+  const bob = t % 16 < 8 ? 0 : 1;
+  const pal: Record<string, string> = { h: "#3a2233", s: "#e0a982", b: "#ff3f7f", p: "#1b2a56" };
+  ARC_PLAYER.forEach((row, ry) => [...row].forEach((ch, rx) => {
+    const down = ry < 9 ? bob : 0; // the feet stay planted
+    if (ch !== ".") px(ctx, mid.x + mid.w / 2 - 4 + rx, 76 + ry + down, pal[ch]!);
+  }));
+  if (t % 6 < 3) px(ctx, mid.x + mid.w / 2 + 4, 82 + bob, "#e0a982", 1, 1);
+}
+
+export const ARCADE: World = {
+  id: "arcade", fullW: ARC_W, fullH: ARC_H, viewW: ARC_W, viewH: ARC_H,
+  checkpoints: [{ name: "Arcade", at: 0 }],
+  backdrop: arcadeBackdrop,
+  frame: (ctx, t) => arcadeFrame(ctx, t),
+  pos: () => ({ x: ARC_W / 2, y: ARC_H / 2 }),
+  camera: () => ({ x: 0, y: 0 }),
+};
+
+export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO, board: BOARD, arcade: ARCADE };
 
 /** The last checkpoint reached at a fraction of the journey. */
 export function checkpointAt(world: World, f: number): Checkpoint {

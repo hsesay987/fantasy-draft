@@ -29,14 +29,7 @@ export const PARTY_GAMES: FormatMeta[] = [
   { id: "imposter", title: "Imposter", tagline: "Everyone knows the secret pick except one. Find the faker.", how: ["Everyone but the imposter sees a secret pick from the topic.", "Take turns giving one clue without giving it away.", "Vote out the imposter. The imposter wins by blending in or naming the secret."], icon: VenetianMask, gradient: "from-red-700/50 to-primary/20", usesPool: true },
   { id: "vote", title: "Vote Games", tagline: "Who's Wrong, Icks, Ultimatums, Did That Happen. Everyone votes at once.", how: ["A card shows a scenario with two sides.", "Everyone votes in secret, then guesses how the others voted.", "Score for every right guess, or when nobody reads you. Did That Happen also pays for the truth."], icon: Vote, gradient: "from-teal-600/50 to-primary/20", usesPool: false },
   { id: "insync", title: "In-Sync", tagline: "One clue, one hidden spot on a line. Tune in together.", how: ["One player sees a spot between two opposites and gives a single clue.", "Everyone else drags a shared marker and talks it over, then locks.", "The closer the marker, the more the whole table scores."], icon: AudioWaveform, gradient: "from-indigo-600/50 to-primary/20", usesPool: false },
-];
-
-/**
- * Party games whose engine is ready but whose screens are not. They are kept out of PARTY_GAMES (which feeds the game
- * pickers) so nobody can start a game with no screen; Task 9 moves this entry into PARTY_GAMES.
- */
-export const PENDING_PARTY_GAMES: FormatMeta[] = [
   { id: "partytrivia", title: "Party Trivia", tagline: "Everyone answers at once. Faster right answers score more. Play solo or in teams.", how: ["Everyone sees the same question and four options.", "Answer fast: a quick right answer scores up to 150.", "With 4+ players, split into teams: the team's most-voted option is its answer."], icon: Brain, gradient: "from-violet-600/50 to-primary/20", usesPool: true },
 ];
 
-export const formatMeta = (id: string) => FORMATS.find((f) => f.id === id) ?? PARTY_GAMES.find((f) => f.id === id) ?? PENDING_PARTY_GAMES.find((f) => f.id === id);
+export const formatMeta = (id: string) => FORMATS.find((f) => f.id === id) ?? PARTY_GAMES.find((f) => f.id === id);

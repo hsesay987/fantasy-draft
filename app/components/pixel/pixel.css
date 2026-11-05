@@ -575,3 +575,139 @@
   .pixel .ct-sign h1 { font-size: 13px; }
   .ct-file { grid-template-columns: minmax(0, 1fr); justify-items: start; gap: 4px; }
 }
+
+/* ---- Party trivia: a retro quiz cabinet. The page is the machine: marquee, bezel and CRT, then the lit button deck. ---- */
+.pixel[data-world="arcade"] { --px-bg: #0c0719; --px-bg2: #120a24; --px-panel: #231447; --px-panel2: #33206a; --px-ink: #05030c; --px-fg: #f7f3ff; --px-dim: #b6a9dc; --px-lav: #ff9ee8; --px-rose: #ff3f7f; --px-gold: #ffd23f; --px-mint: #4dffa6; --px-sky: #58d6ff; --px-violet: #5b2bc9;
+  background: #0c0719 conic-gradient(#160c2c 25%, #0000 0 50%, #160c2c 0 75%, #0000 0) 0 0 / 8px 8px; }
+.pixel[data-world="arcade"] .px-world { box-shadow: 0 0 0 4px var(--px-ink); margin: 4px; }
+.arc-cab { --cab: #2a1752; --cab-hi: #4a2b8a; --cab-lo: #170b33; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 4px; padding: 8px 8px 0; background: var(--cab);
+  box-shadow: 0 0 0 4px var(--px-ink), inset 4px 0 0 0 var(--cab-hi), inset -4px 0 0 0 var(--cab-lo), inset 12px 0 0 0 #ff3f7f33, inset -12px 0 0 0 #58d6ff26; }
+
+/* Marquee: backlit sign with chasing square bulbs. */
+.arc-marquee { position: relative; padding: 5px 6px; text-align: center; background: repeating-linear-gradient(90deg, #ff2d78 0 8px, #d81e66 8px 16px); box-shadow: 0 0 0 4px var(--px-ink), inset 0 4px 0 0 #ff8bb4, inset 0 -4px 0 0 #8e0f47; }
+.arc-marquee .sign { padding: 2px 0; }
+.arc-page .arc-marquee h1 { margin: 0; font: 700 32px/1 var(--px-title); color: var(--px-gold); text-shadow: 3px 3px 0 #5a0830, -1px -1px 0 #5a0830; letter-spacing: .03em; }
+.arc-marquee p { margin: 2px 0 0; font: 400 9px/1.4 var(--px-head); color: #fff; overflow-wrap: anywhere; text-shadow: 1px 1px 0 #5a0830; }
+.arc-marquee .bulbs { display: flex; justify-content: space-between; padding: 2px 0; }
+.arc-marquee .bulbs i { width: 6px; height: 6px; background: #fff3b0; box-shadow: 0 0 0 1px #5a0830; animation: arc-chase .8s steps(1) infinite; }
+.arc-marquee .bulbs i:nth-child(even) { animation-delay: -.4s; }
+@keyframes arc-chase { 0% { background: #fff3b0; } 50% { background: #a63a12; } }
+
+/* Bezel and tube. Scanlines sit over the glass, faint enough that the text stays sharp. */
+.arc-bezel { padding: 10px; background: #150c2b; box-shadow: 0 0 0 4px var(--px-ink), inset 0 4px 0 0 #3a2a63, inset 0 -4px 0 0 #070312, inset 4px 0 0 0 #2a1d4d, inset -4px 0 0 0 #0b0519; }
+.arc-crt { position: relative; display: grid; gap: 8px; padding: 10px; min-width: 0; overflow: hidden; background: #071018; box-shadow: 0 0 0 4px #000, inset 0 0 0 2px #0e2a2a; }
+.arc-crt::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2; background: repeating-linear-gradient(0deg, #0000 0 2px, #00000038 2px 3px); animation: arc-flicker 4s steps(1) infinite; }
+@keyframes arc-flicker { 0%, 96% { opacity: 1; } 97% { opacity: .7; } 98% { opacity: 1; } 99% { opacity: .8; } }
+.arc-hud { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; min-width: 0; }
+.arc-hud .stat { display: grid; gap: 4px; min-width: 0; }
+.arc-hud em { font: 400 8px/1.3 var(--px-head); font-style: normal; color: #ff7fb0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.arc-hud b { font: 400 14px/1 var(--px-head); color: #fff; } .arc-hud small { font-size: 9px; color: var(--px-dim); }
+.arc-crt .px-clock { box-shadow: 0 0 0 2px #2b3f3f; }
+.arc-page .arc-question { margin: 0; font: 400 27px/1.05 var(--px-body); color: #e6fff4; text-shadow: 0 0 6px #4dffa655; overflow-wrap: anywhere; text-wrap: pretty; }
+
+.arc-answer { margin: 0; font: 400 25px/1 var(--px-body); color: var(--px-mint); overflow-wrap: anywhere; }
+.arc-answer em { margin-right: 4px; font: 400 8px/1 var(--px-head); font-style: normal; color: #04170c; background: var(--px-mint); padding: 3px 5px 2px; vertical-align: 3px; }
+
+/* The deck: chunky lit buttons on a dithered steel plate. */
+.arc-deck { display: grid; gap: 10px; padding: 12px 8px; min-width: 0; background: #3b3556 conic-gradient(#46406a 25%, #0000 0 50%, #46406a 0 75%, #0000 0) 0 0 / 4px 4px; box-shadow: 0 0 0 4px var(--px-ink), inset 0 4px 0 0 #6f6894, inset 0 -4px 0 0 #1f1a38; }
+.arc-buttons { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 560px) { .arc-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.arc-buttons li { display: grid; min-width: 0; }
+.arc-btn { --c: #d6273c; --hi: #ff7d8a; --lo: #8a1224; --t: #fff; display: flex; align-items: stretch; gap: 0; width: 100%; min-height: 58px; padding: 0; border: 0; text-align: left; color: var(--t); background: var(--c); cursor: pointer; position: relative; top: 0;
+  box-shadow: 0 0 0 3px var(--px-ink), 0 6px 0 3px var(--px-ink), inset 0 3px 0 0 var(--hi), inset 0 -5px 0 0 var(--lo); }
+.arc-btn.c1 { --c: #1c68d4; --hi: #7cb6ff; --lo: #0d3a85; --t: #fff; }
+.arc-btn.c2 { --c: #ffc933; --hi: #fff1a6; --lo: #c08a10; --t: #1a1204; }
+.arc-btn.c3 { --c: #1fc46a; --hi: #93ffc4; --lo: #0c7a3e; --t: #04170c; }
+.arc-btn:not(:disabled):active { top: 4px; box-shadow: 0 0 0 3px var(--px-ink), 0 2px 0 3px var(--px-ink), inset 0 5px 0 0 var(--lo), inset 0 -3px 0 0 var(--lo); }
+.arc-btn:disabled { cursor: default; }
+.arc-btn .lamp { flex: none; display: grid; place-items: center; width: 42px; font: 400 15px/1 var(--px-head); color: var(--t); background: #0000002e; box-shadow: inset -3px 0 0 0 #00000040, inset 0 3px 0 0 var(--hi), inset 0 -5px 0 0 var(--lo); }
+.arc-btn .face { flex: 1; min-width: 0; display: grid; align-content: center; gap: 4px; padding: 8px 10px 11px; }
+.arc-btn .text { font: 400 25px/1 var(--px-body); overflow-wrap: anywhere; }
+.arc-btn .tags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.arc-btn .tag { padding: 3px 5px 2px; font: 400 8px/1.2 var(--px-head); color: #fff; background: #000a; }
+.arc-btn .tag.answer { color: #04170c; background: #fff; }
+.arc-btn .backers { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 1px 2px; background: #0007; }
+/* Dark: unlit, but the words stay easy to read. */
+.arc-btn.dark { --t: #cfc8e8; background: #231c3f; box-shadow: 0 0 0 3px var(--px-ink), 0 3px 0 3px var(--px-ink); top: 3px; }
+.arc-btn.dark .lamp { background: #15102b; color: #8d84b3; box-shadow: inset -3px 0 0 0 #00000040; }
+.arc-btn.locked { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--px-ink), 0 3px 0 6px var(--px-ink), inset 0 3px 0 0 var(--hi), inset 0 -5px 0 0 var(--lo); top: 3px; animation: arc-locked .6s steps(2) infinite; }
+@keyframes arc-locked { 50% { filter: brightness(1.18); } }
+.arc-btn.right { --c: #2ee07f; --hi: #c4ffdf; --lo: #0c7a3e; --t: #04170c; box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--px-ink), 0 6px 0 6px var(--px-ink), inset 0 3px 0 0 var(--hi), inset 0 -5px 0 0 var(--lo); animation: arc-right .5s steps(2) 4; }
+@keyframes arc-right { 50% { background: #fff; } }
+.arc-btn.wrong { --t: #ffd9de; background: #4a1020; box-shadow: 0 0 0 3px #ff5a6e, 0 0 0 6px var(--px-ink), inset 0 0 0 0 #000; top: 3px; }
+.arc-btn.wrong .lamp { background: #2a0810; color: #ff8a97; box-shadow: none; }
+/* On the reveal everything has to fit above the table, so the buttons get slimmer. */
+.arc-buttons.reveal .arc-btn { min-height: 42px; }
+.arc-buttons.reveal .arc-btn .face { padding: 5px 8px 7px; }
+.arc-buttons.reveal .arc-btn .text { font-size: 22px; }
+.arc-buttons.reveal { gap: 9px; }
+.arc-verdict { margin: 0; padding: 8px 10px 6px; text-align: center; font: 400 12px/1.4 var(--px-head); color: #fff; background: #000; overflow-wrap: anywhere; box-shadow: 0 0 0 3px var(--px-ink); }
+.arc-verdict.good { color: var(--px-mint); } .arc-verdict.bad { color: #ff8a97; }
+.pixel .arc-next { margin: 4px; width: calc(100% - 8px); }
+
+/* The high-score table: amber on black, in fixed columns. */
+.arc-board { padding: 10px 10px 8px; min-width: 0; background: #06040e; box-shadow: 0 0 0 4px var(--px-ink), inset 0 0 0 2px #2d2350; }
+.arc-page .arc-board h2 { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 0 8px; font: 400 10px/1.3 var(--px-head); color: var(--px-gold); text-transform: uppercase; }
+.arc-board ol, .arc-board ul { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; margin: 0; padding: 0; list-style: none; }
+.arc-board.two ol { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 10px; }
+.arc-board li { display: flex; align-items: center; gap: 6px; min-height: 26px; min-width: 0; color: #e8e2ff; }
+.arc-board li.mine { background: #33206a; box-shadow: 0 0 0 2px #33206a; color: #fff; }
+.arc-board li.top .name, .arc-board li.top .score { color: var(--px-gold); }
+.arc-board .rank { flex: none; width: 26px; font: 400 8px/1 var(--px-head); color: var(--px-sky); }
+.arc-board .swatch, .arc-board h3 .swatch { flex: none; display: inline-block; width: 12px; height: 12px; box-shadow: inset -2px -2px 0 0 #0005; }
+.arc-board .name { flex: 1; min-width: 0; font-size: 22px; line-height: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.arc-board .score { flex: none; font: 400 10px/1 var(--px-head); color: #ffb347; }
+.arc-board .gain { flex: none; font: 400 8px/1 var(--px-head); color: var(--px-mint); }
+.arc-board .lamps { flex: none; display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; max-width: 34px; }
+.arc-board .lamps i { width: 6px; height: 6px; background: #2d2350; }
+.arc-board .lamps i.on { background: var(--px-mint); box-shadow: 0 0 0 1px #0f5a36; }
+.arc-board .pick { flex: none; width: 16px; text-align: center; font: 400 9px/16px var(--px-head); color: #fff; background: #4a1020; }
+.arc-board .pick.ok { color: #04170c; background: var(--px-mint); }
+.arc-board.two .rank { width: 18px; font-size: 7px; }
+.arc-board.two .name { font-size: 20px; }
+.arc-board.two .score { font-size: 8px; }
+.arc-board.two li > canvas { display: none; }
+@media (min-width: 400px) { .arc-board.two li > canvas { display: block; } }
+.arc-page .arc-board h3 { display: flex; align-items: center; gap: 6px; margin: 8px 0 4px; font: 400 9px/1.3 var(--px-head); color: #fff; }
+.arc-board .statlist li { min-height: 24px; }
+.arc-board .carried { flex: none; padding: 3px 5px 2px; font: 400 8px/1.2 var(--px-head); color: #1a1204; background: var(--px-gold); }
+.arc-board .count { flex: none; font: 400 10px/1 var(--px-head); color: var(--px-sky); }
+.arc-winner { justify-items: center; text-align: center; padding: 16px 10px; }
+.arc-page .arc-winner h2 { margin: 0; font: 700 32px/1.05 var(--px-title); color: var(--px-gold); text-shadow: 3px 3px 0 #5a0830; overflow-wrap: anywhere; }
+.arc-winner p { margin: 0; font: 400 24px/1 var(--px-body); color: #e6fff4; overflow-wrap: anywhere; }
+.arc-actions { padding: 2px 0; }
+
+/* Narrow two-column table: names matter more than ranks, and the order already shows the rank. */
+@media (max-width: 399px) { .arc-board.two .rank { display: none; } }
+/* Short phones: the sign shrinks so all four buttons fit on screen while the clock runs. */
+@media (max-height: 700px) {
+  .arc-cab { gap: 6px; padding-top: 6px; }
+  .arc-marquee { padding: 3px 6px; }
+  .arc-marquee .bulbs, .arc-marquee p { display: none; }
+  .arc-page .arc-marquee h1 { font-size: 20px; text-shadow: 2px 2px 0 #5a0830; }
+  .arc-bezel { padding: 5px; }
+  .arc-crt { padding: 6px 8px; gap: 4px; }
+  .arc-hud .stat { grid-auto-flow: column; align-items: center; justify-content: start; gap: 5px; }
+  .arc-hud em { display: none; }
+  .arc-hud b { font-size: 11px; }
+  .arc-crt .px-clock { padding: 3px 5px; gap: 2px; }
+  .arc-crt .px-clock b { font-size: 12px; }
+  .arc-page .arc-question { font-size: 23px; line-height: 1; }
+  .arc-answer { font-size: 22px; }
+  .arc-deck { padding: 8px 6px; gap: 8px; }
+  .arc-buttons { gap: 9px; }
+  .arc-btn { min-height: 44px; }
+  .arc-btn .lamp { width: 32px; font-size: 12px; }
+  .arc-btn .face { padding: 4px 8px 8px; }
+  .arc-btn .text { font-size: 22px; }
+}
+
+/* Coin door and speaker grilles at the foot of the cabinet. */
+.arc-foot { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 6px 4px 10px; }
+.arc-foot .grille { flex: 1; height: 16px; background: repeating-linear-gradient(0deg, #05030c 0 2px, #0000 2px 4px); }
+.arc-foot .slot { display: inline-flex; align-items: center; gap: 6px; padding: 5px 7px; background: #15102b; box-shadow: 0 0 0 2px var(--px-ink), inset 0 2px 0 0 #3a2a63; }
+.arc-foot .slot i { width: 4px; height: 14px; background: #000; box-shadow: 0 0 0 1px #ff3f7f; }
+
+@media (prefers-reduced-motion: reduce) {
+  .arc-marquee .bulbs i, .arc-crt::after, .arc-btn.locked, .arc-btn.right { animation: none; }
+}
