@@ -17,6 +17,10 @@ export type FactSpec = {
   single?: boolean;
   /** Extra SPARQL pattern about ?v, for example to keep only NBA teams. */
   extra?: string;
+  /** A pattern binding ?w from ?item (a typed work); `path` then starts at ?w. */
+  from?: string;
+  /** The values of this kind rule each other out (decade, continent, nation), so siblings make tempting wrong options. */
+  exclusive?: boolean;
 };
 export type WdSpec = {
   /** SPARQL pattern binding ?item. A list runs one query per entry. */
@@ -32,7 +36,7 @@ export type Ctx = {
   fetchJson: <T = any>(url: string, init?: RequestInit) => Promise<T>;
   wikidataPool: (spec: WdSpec) => Promise<Entity[]>;
 };
-export type CustomSpec = { load: (ctx: Ctx) => Promise<Entity[]> };
+export type CustomSpec = { load: (ctx: Ctx) => Promise<Entity[]>; /** Kinds whose values rule each other out. */ exclusive?: string[] };
 export type Spec = WdSpec | CustomSpec;
 
 // ---------------- wording helpers ----------------
@@ -56,9 +60,17 @@ const century = (verb: string) => (v: string) => {
 };
 const f = (kind: string, path: string, label: (v: string) => string | null, skip?: RegExp, single = false): FactSpec => ({ kind, path, as: "item", label, skip, single });
 const x = (kind: string, path: string, extra: string, label: (v: string) => string | null): FactSpec => ({ kind, path, as: "item", label, extra });
-const one = (kind: string, path: string, label: (v: string) => string | null): FactSpec => f(kind, path, label, undefined, true);
+const one = (kind: string, path: string, label: (v: string) => string | null): FactSpec => ({ ...f(kind, path, label, undefined, true), exclusive: true });
 const series = (v: string) => `Part of the ${v.replace(/^the\s+/i, "").replace(/\s+(film |movie |book |novel )?series$/i, "")} series`;
-const d = (kind: string, path: string, label: (v: string) => string | null, as: "decade" | "century" = "decade"): FactSpec => ({ kind, path, as, label });
+const d = (kind: string, path: string, label: (v: string) => string | null, as: "decade" | "century" = "decade"): FactSpec => ({ kind, path, as, label, exclusive: true });
+/** A fact read from a work of one type the item appears in (a film, a video game), so a release year or director is never another kind of work's. */
+const fw = (kind: string, from: string, path: string, label: (v: string) => string | null, skip?: RegExp): FactSpec => ({ ...f(kind, path, label, skip), from });
+const dw = (kind: string, from: string, path: string, label: (v: string) => string | null): FactSpec => ({ ...d(kind, path, label), from });
+const IN_FILM = "?item wdt:P1441 ?w. ?w wdt:P31/wdt:P279* wd:Q11424.";
+const IN_GAME = "?item wdt:P1441 ?w. ?w wdt:P31/wdt:P279* wd:Q7889.";
+const ORGS = /^(United Nations|North Atlantic Treaty|NATO|European Union|African Union|Commonwealth of Nations|G20|G7|Group of (Seven|Twenty)|Organisation for Economic|OECD|OPEC|Organization of the Petroleum|Association of Southeast Asian|ASEAN|Arab League|BRICS|Organization of American States|World Trade Organization|Council of Europe|Organisation of Islamic Cooperation|Mercosur|Pacific Islands Forum|Caribbean Community|Non-Aligned Movement|Commonwealth of Independent States|Gulf Cooperation Council|Shanghai Cooperation|Asia-Pacific Economic|Union of South American|Southern African Development|Economic Community of West African|Organisation internationale de la Francophonie|International Monetary Fund|World Bank|UNESCO|World Health Organization|Schengen)/i;
+const NOT_WELL_KNOWN_ORG = new RegExp(`^(?!${ORGS.source.slice(1)})`, "i");
+const UTC_ONLY = /^(?!UTC)/;
 
 const BOOK_JUNK = /various|statelessness|anonymous|unknown|British English|American English|Biblical Hebrew|United Kingdom of Great Britain and Ireland/i;
 const NOT_GENRE = /^(film|television|fiction|nonfiction|literature|art|music|work|drama)$/i;
@@ -124,9 +136,10 @@ export const SPECS: Record<string, Spec> = {
   },
   music: {
     where: [
-      "VALUES ?o { wd:Q177220 } ?item wdt:P106 ?o; wdt:P136 ?genre.",
-      "VALUES ?o { wd:Q639669 wd:Q488205 wd:Q2252262 } ?item wdt:P106 ?o; wdt:P136 ?genre.",
-      "?item wdt:P31 wd:Q215380; wdt:P136 ?genre.",
+      // Singers and instrumentalists only (the bare "musician" label also covers actors), with a real music genre.
+      "VALUES ?o { wd:Q177220 } ?item wdt:P106 ?o; wdt:P136 ?genre. ?genre wdt:P31/wdt:P279* wd:Q188451.",
+      "VALUES ?o { wd:Q488205 wd:Q2252262 wd:Q855091 wd:Q486748 wd:Q386854 wd:Q130857 } ?item wdt:P106 ?o; wdt:P136 ?genre. ?genre wdt:P31/wdt:P279* wd:Q188451.",
+      "?item wdt:P31 wd:Q215380; wdt:P136 ?genre. ?genre wdt:P31/wdt:P279* wd:Q188451.",
     ],
     minSitelinks: 45,
     limit: 700,
@@ -137,7 +150,7 @@ export const SPECS: Record<string, Spec> = {
       d("born", "wdt:P569", decade("Born")),
       d("formed", "wdt:P571", decade("Formed")),
       f("formedIn", "wdt:P740", (v) => `Formed in ${place(v)}`),
-      f("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
+      one("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
       f("instrument", "wdt:P1303", (v) => `Plays the ${v.replace(/\s+instrument$/i, "")}`),
       f("award", "wdt:P166", (v) => `Won the ${v}`),
     ],
@@ -149,7 +162,11 @@ const pokeName = (s: string) => cap(s.replace(/-/g, " "));
 const POKE = "https://pokeapi.co/api/v2";
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
 
+const EGG_GROUPS: Record<string, string> = { water1: "Water 1", water2: "Water 2", water3: "Water 3", humanshape: "Human-Like", ground: "Field", monster: "Monster", bug: "Bug", flying: "Flying", field: "Field", fairy: "Fairy", plant: "Plant", dragon: "Dragon", mineral: "Mineral", indeterminate: "Amorphous", ditto: "Ditto" };
+const HABITATS: Record<string, string> = { cave: "Found in caves", forest: "Found in forests", grassland: "Found in grasslands", mountain: "Found in the mountains", "rough-terrain": "Found on rough terrain", sea: "Found in the sea", urban: "Found in cities", "waters-edge": "Found at the water's edge" };
+
 SPECS.pokemon = {
+  exclusive: ["generation", "colour", "habitat"],
   async load({ ask, fetchJson }) {
     // Every species with its English name, Pokédex number and the sitelink count that stands for fame.
     const rows = await ask(
@@ -159,7 +176,7 @@ SPECS.pokemon = {
     for (const r of rows) {
       const n = Number(r.n);
       const prev = byDex.get(n);
-      if (n >= 1 && n <= 1025 && (!prev || prev.fame < Number(r.sl))) byDex.set(n, { id: r.n, name: r.l, fame: Number(r.sl), facts: {} });
+      if (n >= 1 && n <= 1025 && (!prev || prev.fame < Number(r.sl))) byDex.set(n, { id: r.n, name: r.l.replace(/\s+/g, " ").trim(), fame: Number(r.sl), facts: {} });
     }
     const add = (dex: number, kind: string, label: string) => { const e = byDex.get(dex); if (e) (e.facts[kind] ??= new Set()).add(label); };
     const idOf = (url: string) => Number(url.replace(/\/$/, "").split("/").pop());
@@ -175,10 +192,9 @@ SPECS.pokemon = {
     const forms = (x: any) => (x.pokemon as any[]).map((p) => p.pokemon as { url: string }).filter((p) => idOf(p.url) <= 1025);
     await group("type", "type", (n) => (["unknown", "shadow", "stellar"].includes(n) ? null : `${cap(n)}-type Pokémon`), forms);
     await group("generation", "generation", (n) => `Introduced in Generation ${ROMAN.indexOf(n.split("-")[1]!.toUpperCase())}`, species);
-    await group("egg-group", "eggGroup", (n) => (n === "no-eggs" ? null : `${pokeName(n)} egg group`), species);
+    await group("egg-group", "eggGroup", (n) => (EGG_GROUPS[n] ? `${EGG_GROUPS[n]} egg group` : null), species);
     await group("pokemon-color", "colour", (n) => `${cap(n)} Pokémon`, species);
-    await group("pokemon-habitat", "habitat", (n) => `Found in the ${pokeName(n)}`, species);
-    await group("pokemon-shape", "shape", (n) => `${pokeName(n)} body shape`, species);
+    await group("pokemon-habitat", "habitat", (n) => HABITATS[n] ?? null, species);
     await group("ability", "ability", (n, data) => (data.is_main_series ? `Can have the ability ${pokeName(n)}` : null), forms);
     // Legendary, mythical and baby flags come from the species record.
     for (const dex of byDex.keys()) {
@@ -195,6 +211,7 @@ SPECS.pokemon = {
 
 // ---------------- Anime characters: AniList ----------------
 SPECS.anime = {
+  exclusive: ["decade"],
   async load({ fetchJson }) {
     const query = `query($p:Int){Page(page:$p,perPage:50){characters(sort:FAVOURITES_DESC){name{full} favourites bloodType dateOfBirth{month}
       media(type:ANIME,sort:POPULARITY_DESC,perPage:1){edges{node{title{english romaji} startDate{year} format genres studios(isMain:true){nodes{name}}} voiceActors(language:JAPANESE){name{full}}}}}}}`;
@@ -203,7 +220,7 @@ SPECS.anime = {
     for (let p = 1; p <= 60; p++) {
       const d = await fetchJson<any>("https://graphql.anilist.co", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query, variables: { p } }) });
       for (const c of d.data.Page.characters) {
-        const name: string = c.name?.full;
+        const name: string = c.name?.full?.replace(/\s+/g, " ").trim();
         if (!name || out.has(name)) continue;
         const edge = c.media?.edges?.[0];
         const m = edge?.node;
@@ -212,9 +229,10 @@ SPECS.anime = {
         const put = (k: string, v?: string | null) => { if (v) (e.facts[k] ??= new Set()).add(v); };
         const title = m.title?.english ?? m.title?.romaji;
         put("series", title && `From ${title}`);
-        put("studio", m.studios?.nodes?.[0]?.name && `From a ${m.studios.nodes[0].name} anime`);
+        const studio: string | undefined = m.studios?.nodes?.[0]?.name?.replace(/\s+/g, " ").trim();
+        put("studio", studio && `From ${AN(studio) ? "an" : "a"} ${studio} anime`);
         if (m.startDate?.year) put("decade", `From an anime that began in the ${Math.floor(m.startDate.year / 10) * 10}s`);
-        for (const g of m.genres ?? []) put("genre", `From a ${String(g).toLowerCase()} anime`);
+        for (const g of m.genres ?? []) put("genre", `From ${AN(String(g)) ? "an" : "a"} ${String(g).toLowerCase()} anime`);
         put("voice", edge.voiceActors?.[0]?.name?.full && `Voiced in Japanese by ${edge.voiceActors[0].name.full}`);
         put("blood", c.bloodType && `Blood type ${c.bloodType}`);
         put("birthday", c.dateOfBirth?.month && `Birthday in ${MONTHS[c.dateOfBirth.month - 1]}`);
@@ -225,7 +243,9 @@ SPECS.anime = {
   },
 };
 
-const AN = (v: string) => /^([aeio]|u(?!ni|se|ro|ra|ta|ke))/i.test(v);
+const AN = (v: string) => (/^[A-Z]{2,}\b/.test(v) ? /^[AEFHILMNORSX]/.test(v) : /^([aeio]|u(?!ni|se|ro|ra|ta|ke))/i.test(v));
+/** "a rhino", "an owl", "an OLM". */
+const art = (v: string) => `${AN(v) ? "an" : "a"} ${v}`;
 const A_OR_AN = (v: string) => `${AN(v) ? "An" : "A"} ${v}`;
 const HUMAN_CLS = (qs: string) => `VALUES ?o { ${qs} } ?item wdt:P106 ?o. ?item wdt:P569 ?born. FILTER(YEAR(?born) < 1960)`;
 
@@ -236,13 +256,13 @@ SPECS.history = {
   minSitelinks: 70,
   limit: 140,
   facts: [
-    f("occupation", "wdt:P106", (v) => `Worked as a ${v}`),
+    f("occupation", "wdt:P106", (v) => `Worked as ${art(v)}`),
     f("country", "wdt:P27", (v) => `Citizen of ${place(v)}`),
     d("bornCentury", "wdt:P569", century("Born"), "century"),
     d("bornDecade", "wdt:P569", decade("Born")),
     d("diedDecade", "wdt:P570", decade("Died")),
-    f("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
-    f("deathplace", "wdt:P20", (v) => `Died in ${place(v)}`),
+    one("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
+    one("deathplace", "wdt:P20", (v) => `Died in ${place(v)}`),
     f("religion", "wdt:P140", (v) => `Followed ${v}`),
     f("school", "wdt:P69", (v) => `Studied at ${v}`),
     f("office", "wdt:P39", (v) => `Held the office of ${v}`),
@@ -261,11 +281,11 @@ SPECS.football = {
   limit: 1500,
   facts: [
     f("club", "wdt:P54", (v) => `Played for ${v}`, /under-\d+|\bU\d\d\b|olympic|\bB\b|reserves|youth/i),
-    f("position", "wdt:P413", (v) => `Plays as a ${v.replace(/\s*\(association football\)/, "")}`),
-    f("country", "wdt:P27", (v) => `From ${place(v)}`),
+    f("position", "wdt:P413", (v) => `Plays as ${art(v.replace(/\s*\(association football\)/, ""))}`),
+    one("nation", "wdt:P1532", (v) => `Represented ${place(v)}`),
     d("born", "wdt:P569", decade("Born")),
     f("award", "wdt:P166", (v) => `Awarded the ${v}`),
-    f("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
+    one("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
     f("tournament", "wdt:P1344", (v) => `Played at the ${v}`),
     f("coached", "wdt:P6087", (v) => `Coached ${v}`),
   ],
@@ -279,12 +299,12 @@ SPECS.nba = {
     x("team", "wdt:P54", "?v wdt:P118 wd:Q155223.", (v) => `Played for the ${v}`),
     x("drafted", "wdt:P647", "?v wdt:P118 wd:Q155223.", (v) => `Drafted by the ${v}`),
     f("college", "wdt:P69", (v) => `Studied at ${v}`),
-    f("position", "wdt:P413", (v) => `Plays as a ${v}`),
+    f("position", "wdt:P413", (v) => `Plays as ${art(v)}`),
     d("born", "wdt:P569", decade("Born")),
-    f("country", "wdt:P27", (v) => `From ${place(v)}`),
+    one("nation", "wdt:P1532", (v) => `Represented ${place(v)}`),
     f("award", "wdt:P166", (v) => `Won the ${v}`),
     f("event", "wdt:P1344", (v) => `Took part in the ${v}`),
-    f("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
+    one("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
   ],
 };
 
@@ -319,18 +339,16 @@ SPECS.geography = {
   limit: 260,
   facts: [
     f("country", "wdt:P17", (v) => `In ${place(v)}`),
-    f("continent", "wdt:P30", (v) => `In ${v}`),
+    one("continent", "wdt:P30", (v) => `In ${v}`),
     f("language", "wdt:P37", (v) => `Has ${v} as an official language`),
     f("currency", "wdt:P38", (v) => `Uses the ${v}`),
-    f("member", "wdt:P463", (v) => `Member of ${v}`),
-    f("timezone", "wdt:P421", (v) => `In the ${v.replace(/\s+time zone$/i, "")} time zone`),
+    f("member", "wdt:P463", (v) => `Member of ${v}`, NOT_WELL_KNOWN_ORG),
+    f("timezone", "wdt:P421", (v) => `In the ${v} time zone`, UTC_ONLY),
     f("region", "wdt:P131", (v) => `In ${place(v)}`),
     f("range", "wdt:P4552", (v) => `In the ${v}`),
     f("mouth", "wdt:P403", (v) => `Flows into the ${v}`),
-    f("feature", "wdt:P706", (v) => `In or on ${v}`),
     f("is", "wdt:P31", (v) => A_OR_AN(v)),
     f("drives", "wdt:P1622", (v) => `Drives on the ${v}`),
-    f("government", "wdt:P122", (v) => A_OR_AN(v)),
     d("founded", "wdt:P571", decade("Founded")),
   ],
 };
@@ -340,17 +358,16 @@ SPECS.flags = {
   minSitelinks: 25,
   limit: 300,
   facts: [
-    f("continent", "wdt:P30", (v) => `In ${v}`),
+    one("continent", "wdt:P30", (v) => `In ${v}`),
     f("language", "wdt:P37", (v) => `Has ${v} as an official language`),
     f("currency", "wdt:P38", (v) => `Uses the ${v}`),
-    f("member", "wdt:P463", (v) => `Member of ${v}`),
-    f("colour", "wdt:P163/wdt:P462", (v) => `Has ${v} on its flag`),
-    f("symbol", "wdt:P163/wdt:P180", (v) => `Shows a ${v} on its flag`),
+    f("member", "wdt:P463", (v) => `Member of ${v}`, NOT_WELL_KNOWN_ORG),
+    f("colour", "wdt:P163/wdt:P462", (v) => `Has ${v} on its flag`, /sky blue/i),
+    f("symbol", "wdt:P163/wdt:P180", (v) => `Shows ${art(v)} on its flag`),
     f("flagKind", "wdt:P163/wdt:P31", (v) => `Has ${AN(v) ? "an" : "a"} ${v} for a flag`, /flag/i),
     f("drives", "wdt:P1622", (v) => `Drives on the ${v}`),
     f("is", "wdt:P31", (v) => A_OR_AN(v)),
-    f("government", "wdt:P122", (v) => A_OR_AN(v)),
-    f("timezone", "wdt:P421", (v) => `In the ${v.replace(/\s+time zone$/i, "")} time zone`),
+    f("timezone", "wdt:P421", (v) => `In the ${v} time zone`, UTC_ONLY),
     f("sovereign", "wdt:P1366", (v) => `Once part of ${place(v)}`),
   ],
 };
@@ -379,69 +396,93 @@ const CHARACTER_FACTS: FactSpec[] = [
   f("voice", "wdt:P725", (v) => `Voiced by ${v}`),
   f("member", "wdt:P463", (v) => `Member of ${v}`),
   f("appears", "wdt:P1441", (v) => `Appears in ${v}`),
-  f("occupation", "wdt:P106", (v) => `Works as a ${v}`),
-  f("is", "wdt:P31", (v) => A_OR_AN(v), /^(fictional character|character|human|fictional human|fictional entity|comics character|film character|video game character)$/i),
+];
+const CHARACTER_KINDS: FactSpec[] = [
+  f("occupation", "wdt:P106", (v) => `Works as ${art(v)}`, /^(fictional|character)/i),
+  f("is", "wdt:P31", (v) => A_OR_AN(v), /^(fictional character|character|human|fictional human|fictional entity|comics character|film character|video game character)$|anime|manga|cartoon/i),
+];
+// Heroes and villains: Wikidata-backed facts only (publisher and comic come from Wikidata too).
+const HERO_FACTS: FactSpec[] = [
+  ...CHARACTER_FACTS,
   d("debut", "(wdt:P571|wdt:P1191)", decade("Debuted")),
+  f("publisher", "(wdt:P123|wdt:P1441/wdt:P123)", (v) => `Published by ${v}`),
 ];
 const FICTIONAL_CLASSES = "VALUES ?cls { wd:Q1114461 wd:Q95074 wd:Q15632617 wd:Q15773347 wd:Q1569167 wd:Q188784 } ?item wdt:P31 ?cls.";
 
 const chunkLabels = (a: string[]) => Array.from({ length: Math.ceil(a.length / 100) }, (_, i) => a.slice(i * 100, i * 100 + 100));
 type Hero = { name: string; appearance: Record<string, string>; biography: Record<string, string>; work: Record<string, string>; connections: Record<string, string> };
-const heroSide = (side: "good" | "bad"): CustomSpec => ({
+/**
+ * Heroes and villains. Members are the Superhero API's characters of that alignment plus the members of the given
+ * Wikipedia categories (Wikipedia's own "supervillains" and "superheroes" lists), each tied to Wikidata for fame and facts.
+ */
+const heroSide = (side: "good" | "bad", categories: string[]): CustomSpec => ({
+  exclusive: ["first", "debut"],
   async load(ctx) {
     const all = (await ctx.fetchJson<Hero[]>("https://akabab.github.io/superhero-api/api/all.json")) as Hero[];
     const byName = new Map<string, Hero>();
     for (const h of all) if (h.name && !byName.has(h.name.toLowerCase())) byName.set(h.name.toLowerCase(), h);
-    // Look each hero up by its English label or alias, so a lesser-known villain is not lost to a fame cut-off.
+    // Each Superhero API character, matched by its exact English label.
     const itemHero = new Map<string, Hero>();
     const labels = [...byName.values()].map((h) => `${JSON.stringify(h.name)}@en`);
     for (const part of chunkLabels(labels)) {
-      const rows = await ctx.ask(`SELECT DISTINCT ?item ?l WHERE { VALUES ?l { ${part.join(" ")} } ?item (rdfs:label|skos:altLabel) ?l. ${FICTIONAL_CLASSES} }`);
+      const rows = await ctx.ask(`SELECT DISTINCT ?item ?l WHERE { VALUES ?l { ${part.join(" ")} } ?item rdfs:label ?l. ${FICTIONAL_CLASSES} }`);
       for (const r of rows) itemHero.set(r.item, byName.get(r.l.toLowerCase())!);
     }
-    const ids = [...itemHero.keys()].filter((i) => /^Q\d+$/.test(i));
-    const where = Array.from({ length: Math.ceil(ids.length / 100) }, (_, i) => `VALUES ?item { ${ids.slice(i * 100, i * 100 + 100).map((q) => "wd:" + q).join(" ")} }`);
-    const found = await ctx.wikidataPool({ where, minSitelinks: 1, limit: 1500, facts: CHARACTER_FACTS });
-    // One entity per hero: the most famous match, named as the entity is on Wikidata.
-    const best = new Map<Hero, Entity>();
-    for (const e of found) { const h = itemHero.get(e.id); if (h && (!best.get(h) || best.get(h)!.fame < e.fame)) best.set(h, e); }
-    const ents = [...best.values()];
-    const out: Entity[] = [];
-    for (const e of ents) {
+    // The Wikipedia category members, tied to Wikidata through their English article titles.
+    const titles = new Set<string>();
+    for (const cat of categories) {
+      let more = "";
+      do {
+        const d = await ctx.fetchJson<any>(`https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:${cat}&cmlimit=500&cmtype=page&format=json${more}`);
+        for (const m of d.query?.categorymembers ?? []) titles.add(m.title as string);
+        more = d.continue?.cmcontinue ? `&cmcontinue=${encodeURIComponent(d.continue.cmcontinue)}` : "";
+        await new Promise((r) => setTimeout(r, 1200));
+      } while (more);
+    }
+    const members = new Set<string>([...itemHero].filter(([, h]) => h.biography.alignment === side).map(([id]) => id));
+    const titleList = [...titles];
+    for (let i = 0; i < titleList.length; i += 80) {
+      const part = titleList.slice(i, i + 80).map((t) => `${JSON.stringify(t)}@en`);
+      const rows = await ctx.ask(`SELECT DISTINCT ?item WHERE { VALUES ?t { ${part.join(" ")} } ?a schema:about ?item; schema:isPartOf <https://en.wikipedia.org/>; schema:name ?t }`);
+      for (const r of rows) members.add(r.item);
+    }
+    // Cross-check with Wikidata's own classes and the Superhero API's alignment.
+    const ids = [...members].filter((i) => /^Q\d+$/.test(i)).sort();
+    const flagged = new Map<string, Set<string>>();
+    for (let i = 0; i < ids.length; i += 150) {
+      const rows = await ctx.ask(`SELECT ?item ?c WHERE { VALUES ?item { ${ids.slice(i, i + 150).map((q) => "wd:" + q).join(" ")} } VALUES ?c { wd:Q188784 wd:Q6498903 wd:Q290691 } ?item wdt:P31 ?c }`);
+      for (const r of rows) (flagged.get(r.item) ?? flagged.set(r.item, new Set()).get(r.item)!).add(r.c);
+    }
+    const contradicts = (id: string) => {
+      const opposite = itemHero.get(id)?.biography.alignment === (side === "good" ? "bad" : "good");
+      const f = flagged.get(id);
+      return opposite || (side === "bad" ? f?.has("Q188784") : f?.has("Q6498903") || f?.has("Q290691"));
+    };
+    const keep = ids.filter((id) => !contradicts(id));
+    const where = Array.from({ length: Math.ceil(keep.length / 100) }, (_, i) => `VALUES ?item { ${keep.slice(i * 100, i * 100 + 100).map((q) => "wd:" + q).join(" ")} }`);
+    const found = await ctx.wikidataPool({ where, minSitelinks: 3, limit: 1500, facts: HERO_FACTS });
+    for (const e of found) {
       const h = itemHero.get(e.id);
       if (!h || h.biography.alignment !== side) continue;
       const put = (k: string, v?: string | null) => { if (v) (e.facts[k] ??= new Set()).add(v); };
       const ok = (v?: string) => (v && v !== "-" && v !== "null" && v.toLowerCase() !== "no hair" ? v : undefined);
-      const pub = ok(h.biography.publisher);
-      put("publisher", pub && `Published by ${pub}`);
-      const race = ok(h.appearance.race);
-      put("race", race && `Is ${/^[aeiou]/i.test(race) ? "an" : "a"} ${race.split(" / ")[0]!.toLowerCase()}`);
       const eye = ok(h.appearance.eyeColor);
       put("eyes", eye && `Has ${eye.toLowerCase()} eyes`);
       const hair = ok(h.appearance.hairColor);
       put("hair", hair && `Has ${hair.toLowerCase()} hair`);
       const year = h.biography.firstAppearance?.match(/\b(19\d\d|20[0-2]\d)\b/)?.[1];
       put("first", year && `First appeared in the ${Math.floor(Number(year) / 10) * 10}s`);
-      for (const g of (ok(h.connections.groupAffiliation) ?? "").split(/[,;]|\bformerly\b|\bformer\b/i)) {
-        const name = g.replace(/\(.*?\)/g, "").replace(/^(the|a|an)\s+/i, "").trim();
-        if (name.length > 2 && name.length < 40 && !/^(none|unknown|other)/i.test(name)) put("group", `Linked with ${name}`);
-      }
       if (h.appearance.gender === "Female") put("gender", "Female characters");
-      for (const o of (ok(h.work.occupation) ?? "").split(/[;,]/)) {
-        const t = o.replace(/\(.*?\)/g, "").replace(/^(former|ex-|formerly|current)\s+/i, "").trim().toLowerCase();
-        if (t.length > 3 && t.length < 30 && !/^(none|unknown|other|-)/.test(t)) put("job", `Works as a ${t}`);
-      }
-      const born = ok(h.biography.placeOfBirth)?.split(/[;,]/)[0]?.trim();
-      put("birth", born && born.length > 2 && born.length < 30 ? `Born in ${born}` : undefined);
-      const base = ok(h.work.base)?.split(/[;,]/)[0]?.trim();
-      put("base", base && base.length > 2 && base.length < 30 ? `Based in ${base}` : undefined);
-      out.push(e);
     }
-    return out;
+    return found;
   },
 });
-SPECS.superheroes = heroSide("good");
-SPECS.villains = heroSide("bad");
+SPECS.superheroes = heroSide("good", ["Marvel_Comics_superheroes", "DC_Comics_superheroes"]);
+SPECS.villains = heroSide("bad", ["Marvel_Comics_supervillains", "DC_Comics_supervillains", "Film_supervillains", "Literary_villains", "Comics_supervillains", "Image_Comics_supervillains"]);
+
+const SERIES = (v: string) => `From the ${v.replace(/^the\s+/i, "").replace(/\s+(film |movie |video game |game )?series$/i, "")} series`;
+const FILM_GENRE_SKIP = /^(film|television|fiction|nonfiction|literature|art|music|work|drama)$|game|television/i;
+const filmGenre = (v: string) => { const g = genreOf("films", FILM_SUFFIX)(v); return g && `From ${g.charAt(0) + g.slice(1).toLowerCase()}`; };
 
 SPECS.disney = {
   where: "VALUES ?s { wd:Q127552 wd:Q1047410 wd:Q191224 wd:Q7414 wd:Q1392453 } ?w wdt:P31/wdt:P279* wd:Q11424; wdt:P272 ?s. ?item wdt:P1441 ?w; wdt:P31/wdt:P279* wd:Q95074.",
@@ -449,10 +490,11 @@ SPECS.disney = {
   limit: 1200,
   facts: [
     ...CHARACTER_FACTS,
-    f("studio", "wdt:P1441/wdt:P272", (v) => `From a ${v} film`),
-    f("director", "wdt:P1441/wdt:P57", (v) => `From a film directed by ${v}`),
-    d("film", "wdt:P1441/wdt:P577", decade("From a film released")),
-    f("series", "wdt:P1441/wdt:P179", (v) => `From the ${v.replace(/^the\s+/i, "").replace(/\s+(film |movie |video game |game )?series$/i, "")} series`),
+    ...CHARACTER_KINDS,
+    fw("studio", IN_FILM, "wdt:P272", (v) => `From ${art(v)} film`),
+    fw("director", IN_FILM, "wdt:P57", (v) => `From a film directed by ${v}`),
+    dw("film", IN_FILM, "wdt:P577", decade("From a film released")),
+    fw("series", IN_FILM, "wdt:P179", SERIES),
   ],
 };
 
@@ -462,11 +504,12 @@ SPECS.movies = {
   limit: 1200,
   facts: [
     ...CHARACTER_FACTS,
+    ...CHARACTER_KINDS,
     f("actor", "^pq:P453/ps:P161", (v) => `Played by ${v}`),
-    f("director", "wdt:P1441/wdt:P57", (v) => `From a film directed by ${v}`),
-    d("film", "wdt:P1441/wdt:P577", decade("From a film released")),
-    f("genre", "wdt:P1441/wdt:P136", (v) => { const g = genreOf("films", FILM_SUFFIX)(v); return g && `From ${g.toLowerCase().replace(/^./, (c) => c.toUpperCase())}`; }, /^(film|television|fiction|nonfiction|literature|art|music|work|drama)$|game|television/i),
-    f("series", "wdt:P1441/wdt:P179", (v) => `From the ${v.replace(/^the\s+/i, "").replace(/\s+(film |movie |video game |game )?series$/i, "")} series`),
+    fw("director", IN_FILM, "wdt:P57", (v) => `From a film directed by ${v}`),
+    dw("film", IN_FILM, "wdt:P577", decade("From a film released")),
+    fw("genre", IN_FILM, "wdt:P136", filmGenre, FILM_GENRE_SKIP),
+    fw("series", IN_FILM, "wdt:P179", SERIES),
   ],
 };
 
@@ -476,10 +519,11 @@ SPECS.videogames = {
   limit: 1500,
   facts: [
     ...CHARACTER_FACTS,
-    f("developer", "wdt:P1441/wdt:P178", (v) => `Appears in games by ${v}`),
-    f("series", "wdt:P1441/wdt:P179", (v) => `From the ${v.replace(/^the\s+/i, "").replace(/\s+(film |movie |video game |game )?series$/i, "")} series`),
-    f("platform", "wdt:P1441/wdt:P400", (v) => `Appears in a game for ${v}`),
-    f("genre", "wdt:P1441/wdt:P136", (v) => { const g = v.replace(/\s+(video game|game)$/i, "").trim(); return g.length > 2 ? `From ${g.toLowerCase()} games` : null; }, NOT_GENRE),
-    d("game", "wdt:P1441/wdt:P577", decade("Appears in a game released")),
+    CHARACTER_KINDS[0]!,
+    fw("developer", IN_GAME, "wdt:P178", (v) => `Appears in games by ${v}`),
+    fw("series", IN_GAME, "wdt:P179", SERIES),
+    fw("platform", IN_GAME, "wdt:P400", (v) => `Appears in a game for ${v}`),
+    fw("genre", IN_GAME, "wdt:P136", (v) => { const g = v.replace(/\s+(video game|game)$/i, "").trim(); return g.length > 2 ? `From ${g.toLowerCase()} games` : null; }, NOT_GENRE),
+    dw("game", IN_GAME, "wdt:P577", decade("Appears in a game released")),
   ],
 };

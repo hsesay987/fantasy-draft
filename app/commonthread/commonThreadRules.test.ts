@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { assemble, orderClues, pickWrong, usable, type RawCategory } from "../../scripts/commonThreadRules";
+import { assemble, nameInLabel, orderClues, pickWrong, usable, type RawCategory } from "../../scripts/commonThreadRules";
 import { PINPOINT_TOPICS } from "../pinpoint/topics";
 import type { ThreadTopic } from "./types";
 
@@ -104,6 +104,90 @@ describe("Common Thread rules", () => {
     expect([...t.daily, ...t.practice]).toHaveLength(0);
   });
 
+  it("finds a clue name inside a label by whole words, ignoring case", () => {
+    expect(nameInLabel("Italy", "Born in Italy")).toBe(true);
+    expect(nameInLabel("italy", "In ITALY")).toBe(true);
+    expect(nameInLabel("Batman", "Appears in Batman: Hush")).toBe(true);
+    expect(nameInLabel("Man", "Directed by Batman")).toBe(false);
+    expect(nameInLabel("Ali", "Played for Alicante")).toBe(false);
+    expect(nameInLabel("Café", "Born in Café Society")).toBe(true);
+  });
+
+  it("never uses a member whose name is in the label as a clue", () => {
+    const c = cat("Appears in Zed", 12);
+    c.members.push({ name: "Zed", fame: 9999 });
+    const clues = orderClues(c);
+    expect(clues.map((x) => x.name)).not.toContain("Zed");
+    expect(clues[5]!.name).toBe("Appears in Zed-m11");
+  });
+
+  it("is unusable when too few members are left once give-aways are removed", () => {
+    const c = cat("Numbers", 8);
+    c.members = c.members.slice(0, 6).map((m, i) => ({ ...m, name: i < 2 ? "Numbers" : m.name }));
+    expect(usable(c, 200)).toBe(false);
+  });
+
+  it("skips banned names, keeping least-to-most-famous order", () => {
+    const c = cat("x", 20);
+    const clues = orderClues(c, new Set(["x-m19", "x-m18"]));
+    expect(clues[5]!.name).toBe("x-m17");
+    const fame = (n: string) => c.members.find((m) => m.name === n)!.fame;
+    const f = clues.map((q) => fame(q.name));
+    expect(f).toEqual([...f].sort((a, b) => a - b));
+  });
+
+  it("does not offer the same overlapping kind as a wrong option", () => {
+    const target = cat("target", 12, "cast");
+    const others = [...Array.from({ length: 10 }, (_, i) => cat(`cast${i}`, 8, "cast")), ...Array.from({ length: 10 }, (_, i) => cat(`dec${i}`, 8, "decade")), ...Array.from({ length: 10 }, (_, i) => cat(`cty${i}`, 8, "country"))];
+    const wrong = pickWrong(target, others, 3);
+    expect(wrong).toHaveLength(7);
+    expect(wrong.some((w) => w.startsWith("cast"))).toBe(false);
+  });
+
+  it("takes about three wrong options from an exclusive kind, and still mixes kinds", () => {
+    const target = { ...cat("target", 12, "decade"), exclusive: true };
+    const others = [...Array.from({ length: 10 }, (_, i) => ({ ...cat(`dec${i}`, 8, "decade"), exclusive: true })), ...Array.from({ length: 10 }, (_, i) => cat(`cty${i}`, 8, "country")), ...Array.from({ length: 10 }, (_, i) => cat(`gen${i}`, 8, "genre"))];
+    const wrong = pickWrong(target, others, 5);
+    expect(wrong).toHaveLength(7);
+    expect(wrong.filter((w) => w.startsWith("dec"))).toHaveLength(3);
+    expect(new Set(wrong.map((w) => w.slice(0, 3))).size).toBeGreaterThan(1);
+  });
+
+  it("rejects a category that shares 4 or more clues with one already kept", () => {
+    const shared = Array.from({ length: 6 }, (_, i) => ({ name: `s${i}`, fame: 100 + i }));
+    const a: RawCategory = { label: "Alpha", kind: "k1", members: shared };
+    // sixteen members with the shared ones at the spots the clue spread picks, so Jaccard is low but all 6 clues match
+    const bMembers = Array.from({ length: 16 }, (_, pos) => ({ name: pos % 3 === 0 ? `s${pos / 3}` : `e${pos}`, fame: pos * 10 }));
+    const b: RawCategory = { label: "Beta", kind: "k2", members: bMembers };
+    const filler: RawCategory[] = [];
+    for (let i = 0; i < 40; i++) filler.push(cat(`Filler ${i}`, 8, `kind${i % 5}`, `f${i}`));
+    const t = assemble("films", [a, b, ...filler], 1);
+    const labels = [...t.daily, ...t.practice].map((c) => c.label);
+    expect(labels.filter((l) => l === "Alpha" || l === "Beta")).toHaveLength(1);
+  });
+
+  it("rejects a category whose members overlap a kept one at Jaccard 0.6 or more", () => {
+    const base = Array.from({ length: 10 }, (_, i) => ({ name: `m${i}`, fame: 10 * (i + 1) }));
+    const a: RawCategory = { label: "Alpha", kind: "k1", members: base };
+    // 9 of 10 shared (Jaccard 9/11), but clues differ because of different fame order
+    const b: RawCategory = { label: "Beta", kind: "k2", members: base.slice(0, 9).map((m, i) => ({ ...m, fame: 1000 - i })) };
+    const filler: RawCategory[] = [];
+    for (let i = 0; i < 40; i++) filler.push(cat(`Filler ${i}`, 8, `kind${i % 5}`, `f${i}`));
+    const t = assemble("films", [a, b, ...filler], 2);
+    const labels = [...t.daily, ...t.practice].map((c) => c.label);
+    expect(labels.filter((l) => l === "Alpha" || l === "Beta").length).toBeLessThanOrEqual(1);
+  });
+
+  it("caps how often one name closes a category", () => {
+    const star = { name: "Star", fame: 100000 };
+    const cats: RawCategory[] = [];
+    for (let i = 0; i < 60; i++) cats.push({ label: `Cat ${i}`, kind: `kind${i % 6}`, members: [star, ...cat(`c${i}`, 9, "k", `c${i}`).members] });
+    const t = assemble("films", cats, 4);
+    const all = [...t.daily, ...t.practice];
+    expect(all.filter((c) => c.clues[5]!.name === "Star").length).toBeLessThanOrEqual(6);
+    for (const c of all) expect(c.clues).toHaveLength(6);
+  });
+
   it("is deterministic for a seed", () => {
     const cats: RawCategory[] = [];
     for (let i = 0; i < 100; i++) cats.push(cat(`Cat ${i}`, 8, `kind${i % 5}`, `c${i}`));
@@ -124,6 +208,7 @@ describe("Common Thread data", () => {
     expect(new Set(all.map((c) => c.label)).size).toBe(all.length);
     expect(new Set(all.map((c) => c.id)).size).toBe(all.length);
     for (const c of all) {
+      expect(c.label, c.label).not.toMatch(/\b(\w+) \1\b/i);
       expect(c.clues).toHaveLength(6);
       expect(new Set(c.clues.map((x) => x.name)).size).toBe(6);
       for (const clue of c.clues) expect(c.members).toContain(clue.name);
@@ -134,6 +219,24 @@ describe("Common Thread data", () => {
         const other = all.find((x) => x.label === w)!;
         expect(other).toBeTruthy();
         for (const clue of c.clues) expect(other.members).not.toContain(clue.name);
+      }
+    }
+    // quality guards
+    const lastUse = new Map<string, number>();
+    for (const c of all) {
+      lastUse.set(c.clues[5]!.name, (lastUse.get(c.clues[5]!.name) ?? 0) + 1);
+      for (const clue of c.clues) expect(nameInLabel(clue.name, c.label), `${c.label} / ${clue.name}`).toBe(false);
+      for (const text of [c.label, ...c.clues.map((x) => x.name)]) {
+        expect(text, text).not.toMatch(/\s{2}|^\s|\s$/);
+        expect(text, text).not.toMatch(/(?<!\d)\d{0,2}0s\b/);
+        expect(text, text).not.toMatch(/\b[Aa] (?!uni|use|eu|one|ur|us)[aeiou]\w/);
+      }
+    }
+    for (const [name, n] of lastUse) expect(n, name).toBeLessThanOrEqual(6);
+    for (let i = 0; i < all.length; i++) {
+      for (let j = i + 1; j < all.length; j++) {
+        const shared = all[i]!.clues.filter((x) => all[j]!.clues.some((y) => y.name === x.name)).length;
+        expect(shared, `${all[i]!.label} / ${all[j]!.label}`).toBeLessThan(4);
       }
     }
     const dl = new Set(t.daily.map((c) => c.label));

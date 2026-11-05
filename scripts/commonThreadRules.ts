@@ -4,19 +4,40 @@ import { shuffle } from "../app/topicDraft/rng";
 import type { ThreadCategory, ThreadClue, ThreadTopic } from "../app/commonthread/types";
 
 export type RawMember = { name: string; q?: string; fame: number };
-export type RawCategory = { label: string; kind: string; members: RawMember[] };
+/**
+ * `exclusive`: the kind's values rule each other out (a decade, a continent). Other kinds overlap, and Wikidata's
+ * membership is incomplete, so a category of that kind is never offered as a wrong option for its own kind.
+ */
+export type RawCategory = { label: string; kind: string; members: RawMember[]; exclusive?: boolean };
 
 export const MIN_MEMBERS = 6;
 /** A category may hold at most this share of the topic's pool, or it is a catch-all. */
 export const MAX_SHARE = 0.25;
 export const CLUES = 6;
 export const WRONG = 7;
+/** Wrong options taken from the answer's own kind when that kind is mutually exclusive. */
+export const SAME_KIND = 3;
+/** A name may close at most this many categories of one topic. */
+export const MAX_LAST_USES = 6;
+/** Two kept categories may share at most this many clues minus one, and less than this member overlap. */
+export const TWIN_CLUES = 4;
+export const TWIN_JACCARD = 0.6;
 export const DAILY_TARGET = 60;
 export const PRACTICE_TARGET = 20;
 
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+/** True when the whole name appears in the label as separate words, so the label gives the clue away. */
+export const nameInLabel = (name: string, label: string): boolean => {
+  const n = name.trim();
+  if (!n) return false;
+  const edge = "[\\p{L}\\p{N}]";
+  return new RegExp(`(?<!${edge})${escapeRe(n)}(?!${edge})`, "iu").test(label);
+};
+
 export function usable(c: RawCategory, poolSize: number): boolean {
   const n = new Set(c.members.map((m) => m.name)).size;
-  return n >= MIN_MEMBERS && n <= poolSize * MAX_SHARE;
+  if (n < MIN_MEMBERS || n > poolSize * MAX_SHARE) return false;
+  return clueCandidates(c).length >= CLUES;
 }
 
 /** Members by name (the most famous entry wins a duplicate), least famous first. */
@@ -29,10 +50,18 @@ function sortedMembers(c: RawCategory): RawMember[] {
   return [...best.values()].sort((a, b) => a.fame - b.fame || (a.name < b.name ? -1 : 1));
 }
 
-/** Six clues spread across the category from least to most famous. The last is the most famous member. */
-export function orderClues(c: RawCategory): ThreadClue[] {
-  const m = sortedMembers(c);
-  if (m.length < CLUES) throw new Error(`category "${c.label}" has fewer than ${CLUES} members`);
+/** Members that may be a clue: not named in the label, and not in `banned`. Least famous first. */
+function clueCandidates(c: RawCategory, banned: ReadonlySet<string> = new Set()): RawMember[] {
+  return sortedMembers(c).filter((m) => !banned.has(m.name) && !nameInLabel(m.name, c.label));
+}
+
+/**
+ * Six clues spread across the category from least to most famous. The last is the most famous eligible member.
+ * Names in `banned` (a name already used as a last clue too often) and names that appear in the label are skipped.
+ */
+export function orderClues(c: RawCategory, banned: ReadonlySet<string> = new Set()): ThreadClue[] {
+  const m = clueCandidates(c, banned);
+  if (m.length < CLUES) throw new Error(`category "${c.label}" has fewer than ${CLUES} usable clue members`);
   const out: ThreadClue[] = [];
   for (let i = 0; i < CLUES; i++) {
     const x = m[Math.round((i * (m.length - 1)) / (CLUES - 1))]!;
@@ -45,23 +74,30 @@ export function orderClues(c: RawCategory): ThreadClue[] {
  * Up to seven labels of other categories that none of this category's clues belong to, mixing fact kinds so the
  * options do not reveal the answer's type. Fewer than seven come back when the topic cannot supply them.
  */
-export function pickWrong(c: RawCategory, others: RawCategory[], seed: number): string[] {
-  const clueNames = new Set(orderClues(c).map((x) => x.name));
+export function pickWrong(c: RawCategory, others: RawCategory[], seed: number, clues: ThreadClue[] = orderClues(c)): string[] {
+  const clueNames = new Set(clues.map((x) => x.name));
   const seen = new Set<string>([c.label]);
   const eligible: RawCategory[] = [];
   for (const o of others) {
     if (seen.has(o.label) || o.members.some((m) => clueNames.has(m.name))) continue;
+    // Overlapping kinds are incomplete on Wikidata, so a sibling might secretly be true of a clue.
+    if (o.kind === c.kind && !c.exclusive) continue;
     seen.add(o.label);
     eligible.push(o);
   }
   const [mixed] = shuffle(eligible, seed);
-  const byKind = new Map<string, string[]>();
-  for (const o of mixed) byKind.set(o.kind, [...(byKind.get(o.kind) ?? []), o.label]);
-  const queues = [...byKind.values()];
   const out: string[] = [];
+  // A mutually exclusive kind tempts best with siblings: about three of the seven.
+  if (c.exclusive) for (const o of mixed) if (o.kind === c.kind && out.length < SAME_KIND) out.push(o.label);
+  const rest = mixed.filter((o) => !out.includes(o.label) && !(c.exclusive && o.kind === c.kind));
+  const byKind = new Map<string, string[]>();
+  for (const o of rest) byKind.set(o.kind, [...(byKind.get(o.kind) ?? []), o.label]);
+  const queues = [...byKind.values()];
   for (let round = 0; out.length < WRONG && queues.some((q) => q.length > round); round++) {
     for (const q of queues) if (out.length < WRONG && q[round] !== undefined) out.push(q[round]!);
   }
+  // Too few other kinds: fill from the answer's own exclusive kind.
+  if (c.exclusive) for (const o of mixed) if (out.length < WRONG && !out.includes(o.label)) out.push(o.label);
   return out;
 }
 
@@ -90,22 +126,44 @@ export function assemble(pool: string, cats: RawCategory[], seed: number): Threa
   }
   good.sort((a, b) => score(b) - score(a) || (a.label < b.label ? -1 : 1));
 
-  // Pass one deals kind by kind with a cap per kind; pass two tops up from what is left.
+  // Pass one deals kind by kind with a cap per kind; pass two tops up from what is left. A category is kept only if
+  // it has six clues that do not repeat a closing clue too often and it is not a twin of one already kept.
   const target = DAILY_TARGET + PRACTICE_TARGET;
   const cap = Math.ceil(target * 0.3);
   const byKind = new Map<string, RawCategory[]>();
   for (const c of good) byKind.set(c.kind, [...(byKind.get(c.kind) ?? []), c]);
-  const picked = new Set<RawCategory>();
+  const kept = new Map<RawCategory, ThreadClue[]>();
+  const keptNames = new Map<RawCategory, Set<string>>();
+  const lastUses = new Map<string, number>();
+  const tried = new Set<RawCategory>();
+  const tryAdd = (c: RawCategory) => {
+    if (kept.size >= target || tried.has(c)) return;
+    tried.add(c);
+    const banned = new Set([...lastUses].filter(([, n]) => n >= MAX_LAST_USES).map(([name]) => name));
+    if (clueCandidates(c, banned).length < CLUES) return;
+    const clues = orderClues(c, banned);
+    const names = new Set(c.members.map((m) => m.name));
+    for (const [k, kc] of kept) {
+      const shared = clues.filter((x) => kc.some((y) => y.name === x.name)).length;
+      if (shared >= TWIN_CLUES) return;
+      const other = keptNames.get(k)!;
+      let inter = 0;
+      for (const n of names) if (other.has(n)) inter++;
+      if (inter / (names.size + other.size - inter) >= TWIN_JACCARD) return;
+    }
+    kept.set(c, clues);
+    keptNames.set(c, names);
+    const last = clues[CLUES - 1]!.name;
+    lastUses.set(last, (lastUses.get(last) ?? 0) + 1);
+  };
   const queues = [...byKind.values()];
-  for (let round = 0; round < cap && picked.size < target; round++) {
-    for (const q of queues) if (picked.size < target && q[round]) picked.add(q[round]!);
-  }
-  for (const c of good) if (picked.size < target) picked.add(c);
+  for (let round = 0; round < cap && kept.size < target; round++) for (const q of queues) if (q[round]) tryAdd(q[round]!);
+  for (const c of good) tryAdd(c);
 
   // Drop any category without enough wrong options, then re-check, since each drop removes options for the rest.
-  let chosen = [...picked];
+  let chosen = [...kept.keys()];
   for (;;) {
-    const keep = chosen.filter((c, i) => pickWrong(c, chosen, seed + i * 7919).length === WRONG);
+    const keep = chosen.filter((c, i) => pickWrong(c, chosen, seed + i * 7919, kept.get(c)).length === WRONG);
     if (keep.length === chosen.length) break;
     chosen = keep;
   }
@@ -113,9 +171,9 @@ export function assemble(pool: string, cats: RawCategory[], seed: number): Threa
   const [order] = shuffle(chosen, seed);
   const nPractice = Math.round(order.length * (PRACTICE_TARGET / target));
   const toCat = (c: RawCategory): ThreadCategory => {
-    const clues = orderClues(c);
+    const clues = kept.get(c)!;
     const i = chosen.indexOf(c);
-    return { id: slug(c.label), label: c.label, clues, wrong: pickWrong(c, chosen, seed + i * 7919), members: sortedMembers(c).map((m) => m.name) };
+    return { id: slug(c.label), label: c.label, clues, wrong: pickWrong(c, chosen, seed + i * 7919, clues), members: sortedMembers(c).map((m) => m.name) };
   };
   const all = order.map(toCat);
   return { pool, practice: all.slice(0, nPractice), daily: all.slice(nPractice) };
