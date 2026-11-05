@@ -1,5 +1,7 @@
 // What each Common Thread topic pulls and which facts become categories. Only facts the sources hold are used.
 import type { Row } from "../backend/src/trivia/wikidata";
+import { addCategoryFacts } from "./commonThreadWiki";
+import { FOOD_KINDS, KIND_ALLOW, NOT_HEROES, NOT_VILLAINS, NEITHER, ORG_ALLOW, TEAM_ALLOW, onlyExact } from "./commonThreadBans";
 
 export type Entity = { id: string; name: string; q?: string; fame: number; facts: Record<string, Set<string>> };
 export type FactSpec = {
@@ -21,6 +23,8 @@ export type FactSpec = {
   from?: string;
   /** The values of this kind rule each other out (decade, continent, nation), so siblings make tempting wrong options. */
   exclusive?: boolean;
+  /** Too patchy to ever be a wrong option (a dish's ingredients, a flag's symbols). */
+  answerOnly?: boolean;
 };
 export type WdSpec = {
   /** SPARQL pattern binding ?item. A list runs one query per entry. */
@@ -30,13 +34,15 @@ export type WdSpec = {
   facts: FactSpec[];
   /** Drop entities whose English name fails this before any facts are fetched (keeps big fact queries small). */
   keep?: (name: string) => boolean;
+  /** Drop entities with one of these occupations (Wikidata ids) unless `strong` (a SPARQL path) has at least `minStrong` distinct values. */
+  vet?: { bad: string[]; strong: string; minStrong: number };
 };
 export type Ctx = {
   ask: (q: string) => Promise<Row[]>;
   fetchJson: <T = any>(url: string, init?: RequestInit) => Promise<T>;
   wikidataPool: (spec: WdSpec) => Promise<Entity[]>;
 };
-export type CustomSpec = { load: (ctx: Ctx) => Promise<Entity[]>; /** Kinds whose values rule each other out. */ exclusive?: string[] };
+export type CustomSpec = { load: (ctx: Ctx) => Promise<Entity[]>; /** Kinds whose values rule each other out. */ exclusive?: string[]; answerOnly?: string[] };
 export type Spec = WdSpec | CustomSpec;
 
 // ---------------- wording helpers ----------------
@@ -59,6 +65,7 @@ const century = (verb: string) => (v: string) => {
   return `${verb} in the ${n}${sfx} century`;
 };
 const f = (kind: string, path: string, label: (v: string) => string | null, skip?: RegExp, single = false): FactSpec => ({ kind, path, as: "item", label, skip, single });
+const patchy = (x: FactSpec): FactSpec => ({ ...x, answerOnly: true });
 const x = (kind: string, path: string, extra: string, label: (v: string) => string | null): FactSpec => ({ kind, path, as: "item", label, extra });
 const one = (kind: string, path: string, label: (v: string) => string | null): FactSpec => ({ ...f(kind, path, label, undefined, true), exclusive: true });
 const series = (v: string) => `Part of the ${v.replace(/^the\s+/i, "").replace(/\s+(film |movie |book |novel )?series$/i, "")} series`;
@@ -68,8 +75,10 @@ const fw = (kind: string, from: string, path: string, label: (v: string) => stri
 const dw = (kind: string, from: string, path: string, label: (v: string) => string | null): FactSpec => ({ ...d(kind, path, label), from });
 const IN_FILM = "?item wdt:P1441 ?w. ?w wdt:P31/wdt:P279* wd:Q11424.";
 const IN_GAME = "?item wdt:P1441 ?w. ?w wdt:P31/wdt:P279* wd:Q7889.";
-const ORGS = /^(United Nations|North Atlantic Treaty|NATO|European Union|African Union|Commonwealth of Nations|G20|G7|Group of (Seven|Twenty)|Organisation for Economic|OECD|OPEC|Organization of the Petroleum|Association of Southeast Asian|ASEAN|Arab League|BRICS|Organization of American States|World Trade Organization|Council of Europe|Organisation of Islamic Cooperation|Mercosur|Pacific Islands Forum|Caribbean Community|Non-Aligned Movement|Commonwealth of Independent States|Gulf Cooperation Council|Shanghai Cooperation|Asia-Pacific Economic|Union of South American|Southern African Development|Economic Community of West African|Organisation internationale de la Francophonie|International Monetary Fund|World Bank|UNESCO|World Health Organization|Schengen)/i;
-const NOT_WELL_KNOWN_ORG = new RegExp(`^(?!${ORGS.source.slice(1)})`, "i");
+const NOT_WELL_KNOWN_ORG = onlyExact(ORG_ALLOW);
+/** Series values that are lists, topics or tags rather than a franchise. */
+const SERIES_SKIP = /^list of|\bin (film|video games?|popular culture|other media|comics)\b|\bwith\b|lgbt|characters?$/i;
+const SERIES = (v: string) => `From the ${v.replace(/^the\s+/i, "").replace(/\s+(film |movie |video game |game )?series$/i, "")} series`;
 const UTC_ONLY = /^(?!UTC)/;
 
 const BOOK_JUNK = /various|statelessness|anonymous|unknown|British English|American English|Biblical Hebrew|United Kingdom of Great Britain and Ireland/i;
@@ -92,7 +101,7 @@ export const SPECS: Record<string, Spec> = {
       f("studio", "wdt:P272", (v) => `Produced by ${v}`),
       one("language", "wdt:P364", (v) => `${v}-language films`),
       f("setting", "wdt:P840", (v) => `Set in ${place(v)}`),
-      f("series", "wdt:P179", series),
+      f("series", "wdt:P179", series, SERIES_SKIP),
       f("award", "wdt:P166", (v) => `Won the ${v}`),
     ],
   },
@@ -130,7 +139,7 @@ export const SPECS: Record<string, Spec> = {
       f("publisher", "wdt:P123", (v) => `Published by ${v}`),
       f("setting", "wdt:P840", (v) => `Set in ${place(v)}`),
       f("character", "wdt:P674", (v) => `Features ${v}`),
-      f("series", "wdt:P179", series),
+      f("series", "wdt:P179", series, SERIES_SKIP),
       f("award", "wdt:P166", (v) => `Won the ${v}`),
     ],
   },
@@ -141,6 +150,7 @@ export const SPECS: Record<string, Spec> = {
       "VALUES ?o { wd:Q488205 wd:Q2252262 wd:Q855091 wd:Q486748 wd:Q386854 wd:Q130857 } ?item wdt:P106 ?o; wdt:P136 ?genre. ?genre wdt:P31/wdt:P279* wd:Q188451.",
       "?item wdt:P31 wd:Q215380; wdt:P136 ?genre. ?genre wdt:P31/wdt:P279* wd:Q188451.",
     ],
+    vet: { bad: ["Q33999", "Q10800557", "Q10798782", "Q2405480", "Q4610556", "Q488111", "Q36180", "Q82955", "Q2066131"], strong: "wdt:P264", minStrong: 2 },
     minSitelinks: 45,
     limit: 700,
     facts: [
@@ -158,7 +168,7 @@ export const SPECS: Record<string, Spec> = {
 };
 
 // ---------------- Pokémon: PokéAPI facts, Wikidata fame ----------------
-const pokeName = (s: string) => cap(s.replace(/-/g, " "));
+const pokeName = (s: string) => s.split("-").map(cap).join(" ");
 const POKE = "https://pokeapi.co/api/v2";
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
 
@@ -243,7 +253,7 @@ SPECS.anime = {
   },
 };
 
-const AN = (v: string) => (/^[A-Z]{2,}\b/.test(v) ? /^[AEFHILMNORSX]/.test(v) : /^([aeio]|u(?!ni|se|ro|ra|ta|ke))/i.test(v));
+const AN = (v: string) => (/^[A-Z]{2,3}\b/.test(v) ? /^[AEFHILMNORSX]/.test(v) : /^([aeio]|u(?!ni|se|ro|ra|ta|ke|fo))/i.test(v));
 /** "a rhino", "an owl", "an OLM". */
 const art = (v: string) => `${AN(v) ? "an" : "a"} ${v}`;
 const A_OR_AN = (v: string) => `${AN(v) ? "An" : "A"} ${v}`;
@@ -277,6 +287,7 @@ SPECS.history = {
 
 SPECS.football = {
   where: "?item wdt:P106 wd:Q937857.",
+  vet: { bad: ["Q33999", "Q10800557", "Q10798782", "Q36180", "Q82955", "Q6625963", "Q28389", "Q2405480", "Q4610556", "Q488111"], strong: "wdt:P54", minStrong: 3 },
   minSitelinks: 45,
   limit: 1500,
   facts: [
@@ -310,15 +321,13 @@ SPECS.nba = {
 
 SPECS.food = {
   where: "VALUES ?cls { wd:Q746549 wd:Q2095 wd:Q1778821 wd:Q22811629 } ?item wdt:P31 ?cls.",
-  minSitelinks: 12,
-  limit: 1500,
+  minSitelinks: 5,
+  limit: 2500,
   facts: [
     one("country", "wdt:P495", (v) => `From ${place(v)}`),
     f("continent", "wdt:P495/wdt:P30", (v) => `From ${v}`),
-    f("kind", "wdt:P279", (v) => `A kind of ${v}`),
-    f("is", "wdt:P31", (v) => A_OR_AN(v), /food|dish|cuisine|^human|meal|recipe/i),
-    f("ingredient", "(wdt:P527|wdt:P186)", (v) => `Made with ${v}`),
-    f("cuisine", "(wdt:P361|wdt:P2012)", (v) => `Part of ${v}`),
+    patchy(f("ingredient", "(wdt:P527|wdt:P186)", (v) => `Made with ${v}`)),
+    f("is", "wdt:P31", (v) => A_OR_AN(v), onlyExact(FOOD_KINDS)),
     f("region", "wdt:P131", (v) => `From ${place(v)}`),
     d("created", "wdt:P571", decade("Created")),
   ],
@@ -341,15 +350,14 @@ SPECS.geography = {
     f("country", "wdt:P17", (v) => `In ${place(v)}`),
     one("continent", "wdt:P30", (v) => `In ${v}`),
     f("language", "wdt:P37", (v) => `Has ${v} as an official language`),
-    f("currency", "wdt:P38", (v) => `Uses the ${v}`),
-    f("member", "wdt:P463", (v) => `Member of ${v}`, NOT_WELL_KNOWN_ORG),
-    f("timezone", "wdt:P421", (v) => `In the ${v} time zone`, UTC_ONLY),
+    { ...f("currency", "ps:P38", (v) => `Uses the ${v}`), from: "?item p:P38 ?w. FILTER NOT EXISTS { ?w pq:P582 ?ended }" },
+    patchy(f("member", "wdt:P463", (v) => `Member of ${v}`, NOT_WELL_KNOWN_ORG)),
+    patchy(f("timezone", "wdt:P421", (v) => `In the ${v} time zone`, UTC_ONLY)),
     f("region", "wdt:P131", (v) => `In ${place(v)}`),
     f("range", "wdt:P4552", (v) => `In the ${v}`),
     f("mouth", "wdt:P403", (v) => `Flows into the ${v}`),
-    f("is", "wdt:P31", (v) => A_OR_AN(v)),
+    f("is", "wdt:P31", (v) => A_OR_AN(v), onlyExact(KIND_ALLOW)),
     f("drives", "wdt:P1622", (v) => `Drives on the ${v}`),
-    d("founded", "wdt:P571", decade("Founded")),
   ],
 };
 
@@ -360,15 +368,16 @@ SPECS.flags = {
   facts: [
     one("continent", "wdt:P30", (v) => `In ${v}`),
     f("language", "wdt:P37", (v) => `Has ${v} as an official language`),
-    f("currency", "wdt:P38", (v) => `Uses the ${v}`),
-    f("member", "wdt:P463", (v) => `Member of ${v}`, NOT_WELL_KNOWN_ORG),
+    { ...f("currency", "ps:P38", (v) => `Uses the ${v}`), from: "?item p:P38 ?w. FILTER NOT EXISTS { ?w pq:P582 ?ended }" },
+    patchy(f("member", "wdt:P463", (v) => `Member of ${v}`, NOT_WELL_KNOWN_ORG)),
     f("colour", "wdt:P163/wdt:P462", (v) => `Has ${v} on its flag`, /sky blue/i),
-    f("symbol", "wdt:P163/wdt:P180", (v) => `Shows ${art(v)} on its flag`),
+    patchy(f("symbol", "wdt:P163/wdt:P180", (v) => `Shows ${art(v)} on its flag`)),
     f("flagKind", "wdt:P163/wdt:P31", (v) => `Has ${AN(v) ? "an" : "a"} ${v} for a flag`, /flag/i),
     f("drives", "wdt:P1622", (v) => `Drives on the ${v}`),
-    f("is", "wdt:P31", (v) => A_OR_AN(v)),
-    f("timezone", "wdt:P421", (v) => `In the ${v} time zone`, UTC_ONLY),
-    f("sovereign", "wdt:P1366", (v) => `Once part of ${place(v)}`),
+    f("is", "wdt:P31", (v) => A_OR_AN(v), onlyExact(KIND_ALLOW)),
+    patchy(f("timezone", "wdt:P421", (v) => `In the ${v} time zone`, UTC_ONLY)),
+    { ...one("territory", "wdt:P17", (v) => `Belongs to ${place(v)}`), extra: "FILTER(?v != ?item)" },
+    d("flagAdopted", "wdt:P163/wdt:P571", decade("Flag adopted")),
   ],
 };
 
@@ -376,6 +385,8 @@ SPECS.flags = {
 {
   const flagSpec = SPECS.flags as WdSpec;
   SPECS.flags = {
+    exclusive: flagSpec.facts.filter((x) => x.exclusive).map((x) => x.kind),
+    answerOnly: flagSpec.facts.filter((x) => x.answerOnly).map((x) => x.kind),
     async load(ctx) {
       const ents = await ctx.wikidataPool(flagSpec);
       for (let i = 0; i < ents.length; i += 150) {
@@ -392,31 +403,35 @@ SPECS.flags = {
 // ---------------- characters ----------------
 const CHARACTER_FACTS: FactSpec[] = [
   f("universe", "wdt:P1080", (v) => `From the ${v.replace(/^the\s+/i, "").replace(/\s+universe$/i, "")} universe`),
-  f("creator", "wdt:P170", (v) => `Created by ${v}`),
+  f("creator", "wdt:P170", (v) => `Created by ${v.replace(/\s*\([^)]*\)$/, "")}`),
   f("voice", "wdt:P725", (v) => `Voiced by ${v}`),
   f("member", "wdt:P463", (v) => `Member of ${v}`),
   f("appears", "wdt:P1441", (v) => `Appears in ${v}`),
 ];
-const CHARACTER_KINDS: FactSpec[] = [
-  f("occupation", "wdt:P106", (v) => `Works as ${art(v)}`, /^(fictional|character)/i),
-  f("is", "wdt:P31", (v) => A_OR_AN(v), /^(fictional character|character|human|fictional human|fictional entity|comics character|film character|video game character)$|anime|manga|cartoon/i),
-];
 // Heroes and villains: Wikidata-backed facts only (publisher and comic come from Wikidata too).
 const HERO_FACTS: FactSpec[] = [
-  ...CHARACTER_FACTS,
-  d("debut", "(wdt:P571|wdt:P1191)", decade("Debuted")),
+  ...CHARACTER_FACTS.filter((x) => x.kind !== "member"),
+  f("member", "wdt:P463", (v) => `Member of ${v}`, onlyExact(TEAM_ALLOW)),
   f("publisher", "(wdt:P123|wdt:P1441/wdt:P123)", (v) => `Published by ${v}`),
+  f("residence", "wdt:P551", (v) => `Lives in ${place(v)}`),
+  one("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
+  f("series", "wdt:P1441/wdt:P179", SERIES, SERIES_SKIP),
+  f("employer", "wdt:P108", (v) => `Works for ${v}`),
 ];
 const FICTIONAL_CLASSES = "VALUES ?cls { wd:Q1114461 wd:Q95074 wd:Q15632617 wd:Q15773347 wd:Q1569167 wd:Q188784 } ?item wdt:P31 ?cls.";
 
 const chunkLabels = (a: string[]) => Array.from({ length: Math.ceil(a.length / 100) }, (_, i) => a.slice(i * 100, i * 100 + 100));
+/** Superheroes means comic-book heroes: the Superhero API also files Star Wars, Star Trek and film heroes as good. */
+const COMICS_PUBLISHER = /marvel|dc comics|dark horse|image comics|wildstorm|vertigo|icon|boom|top cow|valiant|dynamite/i;
 type Hero = { name: string; appearance: Record<string, string>; biography: Record<string, string>; work: Record<string, string>; connections: Record<string, string> };
 /**
  * Heroes and villains. Members are the Superhero API's characters of that alignment plus the members of the given
  * Wikipedia categories (Wikipedia's own "supervillains" and "superheroes" lists), each tied to Wikidata for fame and facts.
  */
-const heroSide = (side: "good" | "bad", categories: string[]): CustomSpec => ({
-  exclusive: ["first", "debut"],
+const heroSide = (side: "good" | "bad", categories: string[], otherCategories: string[]): CustomSpec => ({
+  exclusive: ["firstApp"],
+  // Colours come only from the API and the rest from patchy category lists: answers, never wrong options.
+  answerOnly: ["eyes", "hair", "gender", "power", "role", "nature", "franchise", "member", "residence"],
   async load(ctx) {
     const all = (await ctx.fetchJson<Hero[]>("https://akabab.github.io/superhero-api/api/all.json")) as Hero[];
     const byName = new Map<string, Hero>();
@@ -429,23 +444,30 @@ const heroSide = (side: "good" | "bad", categories: string[]): CustomSpec => ({
       for (const r of rows) itemHero.set(r.item, byName.get(r.l.toLowerCase())!);
     }
     // The Wikipedia category members, tied to Wikidata through their English article titles.
-    const titles = new Set<string>();
-    for (const cat of categories) {
-      let more = "";
-      do {
-        const d = await ctx.fetchJson<any>(`https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:${cat}&cmlimit=500&cmtype=page&format=json${more}`);
-        for (const m of d.query?.categorymembers ?? []) titles.add(m.title as string);
-        more = d.continue?.cmcontinue ? `&cmcontinue=${encodeURIComponent(d.continue.cmcontinue)}` : "";
-        await new Promise((r) => setTimeout(r, 1200));
-      } while (more);
-    }
-    const members = new Set<string>([...itemHero].filter(([, h]) => h.biography.alignment === side).map(([id]) => id));
-    const titleList = [...titles];
-    for (let i = 0; i < titleList.length; i += 80) {
-      const part = titleList.slice(i, i + 80).map((t) => `${JSON.stringify(t)}@en`);
-      const rows = await ctx.ask(`SELECT DISTINCT ?item WHERE { VALUES ?t { ${part.join(" ")} } ?a schema:about ?item; schema:isPartOf <https://en.wikipedia.org/>; schema:name ?t }`);
-      for (const r of rows) members.add(r.item);
-    }
+    const gather = async (cats: string[], alignment: "good" | "bad") => {
+      const titles = new Set<string>();
+      for (const cat of cats) {
+        let more = "";
+        do {
+          const d = await ctx.fetchJson<any>(`https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:${cat}&cmlimit=500&cmtype=page&format=json${more}`);
+          for (const m of d.query?.categorymembers ?? []) titles.add(m.title as string);
+          more = d.continue?.cmcontinue ? `&cmcontinue=${encodeURIComponent(d.continue.cmcontinue)}` : "";
+          await new Promise((r) => setTimeout(r, 1200));
+        } while (more);
+      }
+      const out = new Set<string>([...itemHero].filter(([, h]) => h.biography.alignment === alignment && (alignment === "bad" || COMICS_PUBLISHER.test(h.biography.publisher ?? ""))).map(([id]) => id));
+      const titleList = [...titles];
+      for (let i = 0; i < titleList.length; i += 80) {
+        const part = titleList.slice(i, i + 80).map((t) => `${JSON.stringify(t)}@en`);
+        const rows = await ctx.ask(`SELECT DISTINCT ?item WHERE { VALUES ?t { ${part.join(" ")} } ?a schema:about ?item; schema:isPartOf <https://en.wikipedia.org/>; schema:name ?t }`);
+        for (const r of rows) out.add(r.item);
+      }
+      return out;
+    };
+    const own = await gather(categories, side);
+    const other = await gather(otherCategories, side === "good" ? "bad" : "good");
+    // A character both lists claim has no clear side: out of both.
+    const members = new Set([...own].filter((id) => !other.has(id)));
     // Cross-check with Wikidata's own classes and the Superhero API's alignment.
     const ids = [...members].filter((i) => /^Q\d+$/.test(i)).sort();
     const flagged = new Map<string, Set<string>>();
@@ -460,8 +482,10 @@ const heroSide = (side: "good" | "bad", categories: string[]): CustomSpec => ({
     };
     const keep = ids.filter((id) => !contradicts(id));
     const where = Array.from({ length: Math.ceil(keep.length / 100) }, (_, i) => `VALUES ?item { ${keep.slice(i * 100, i * 100 + 100).map((q) => "wd:" + q).join(" ")} }`);
-    const found = await ctx.wikidataPool({ where, minSitelinks: 3, limit: 1500, facts: HERO_FACTS });
-    for (const e of found) {
+    const found = await ctx.wikidataPool({ where, minSitelinks: Number(process.env.HERO_MIN_SL ?? 4), limit: 1500, facts: HERO_FACTS });
+    const checked = await addCategoryFacts(found, ctx.fetchJson);
+    const hand = new Set([...NEITHER, ...(side === "bad" ? NOT_VILLAINS : NOT_HEROES)].map((n) => n.toLowerCase()));
+    for (const e of checked) {
       const h = itemHero.get(e.id);
       if (!h || h.biography.alignment !== side) continue;
       const put = (k: string, v?: string | null) => { if (v) (e.facts[k] ??= new Set()).add(v); };
@@ -470,31 +494,29 @@ const heroSide = (side: "good" | "bad", categories: string[]): CustomSpec => ({
       put("eyes", eye && `Has ${eye.toLowerCase()} eyes`);
       const hair = ok(h.appearance.hairColor);
       put("hair", hair && `Has ${hair.toLowerCase()} hair`);
-      const year = h.biography.firstAppearance?.match(/\b(19\d\d|20[0-2]\d)\b/)?.[1];
-      put("first", year && `First appeared in the ${Math.floor(Number(year) / 10) * 10}s`);
       if (h.appearance.gender === "Female") put("gender", "Female characters");
     }
-    return found;
+    return checked.filter((e) => !hand.has(e.name.toLowerCase()));
   },
 });
-SPECS.superheroes = heroSide("good", ["Marvel_Comics_superheroes", "DC_Comics_superheroes"]);
-SPECS.villains = heroSide("bad", ["Marvel_Comics_supervillains", "DC_Comics_supervillains", "Film_supervillains", "Literary_villains", "Comics_supervillains", "Image_Comics_supervillains"]);
+const HERO_CATEGORIES = ["Marvel_Comics_superheroes", "DC_Comics_superheroes"];
+const VILLAIN_CATEGORIES = ["Marvel_Comics_supervillains", "DC_Comics_supervillains", "Film_supervillains", "Literary_villains", "Comics_supervillains", "Image_Comics_supervillains"];
+SPECS.superheroes = heroSide("good", HERO_CATEGORIES, VILLAIN_CATEGORIES);
+SPECS.villains = heroSide("bad", VILLAIN_CATEGORIES, HERO_CATEGORIES);
 
-const SERIES = (v: string) => `From the ${v.replace(/^the\s+/i, "").replace(/\s+(film |movie |video game |game )?series$/i, "")} series`;
-const FILM_GENRE_SKIP = /^(film|television|fiction|nonfiction|literature|art|music|work|drama)$|game|television/i;
+const FILM_GENRE_SKIP = /lgbt|\bwith\b|^(film|television|fiction|nonfiction|literature|art|music|work|drama)$|game|television/i;
 const filmGenre = (v: string) => { const g = genreOf("films", FILM_SUFFIX)(v); return g && `From ${g.charAt(0) + g.slice(1).toLowerCase()}`; };
 
 SPECS.disney = {
-  where: "VALUES ?s { wd:Q127552 wd:Q1047410 wd:Q191224 wd:Q7414 wd:Q1392453 } ?w wdt:P31/wdt:P279* wd:Q11424; wdt:P272 ?s. ?item wdt:P1441 ?w; wdt:P31/wdt:P279* wd:Q95074.",
+  where: "VALUES ?s { wd:Q127552 wd:Q1047410 wd:Q191224 wd:Q7414 wd:Q1392453 } ?w wdt:P31/wdt:P279* wd:Q202866; wdt:P272 ?s. ?item wdt:P1441 ?w; wdt:P31/wdt:P279* wd:Q95074.",
   minSitelinks: 1,
   limit: 1200,
   facts: [
     ...CHARACTER_FACTS,
-    ...CHARACTER_KINDS,
-    fw("studio", IN_FILM, "wdt:P272", (v) => `From ${art(v)} film`),
+    { ...fw("studio", IN_FILM, "wdt:P272", (v) => `From ${art(v)} film`), extra: "VALUES ?v { wd:Q127552 wd:Q1047410 wd:Q191224 wd:Q7414 wd:Q1392453 }" },
     fw("director", IN_FILM, "wdt:P57", (v) => `From a film directed by ${v}`),
     dw("film", IN_FILM, "wdt:P577", decade("From a film released")),
-    fw("series", IN_FILM, "wdt:P179", SERIES),
+    fw("series", IN_FILM, "wdt:P179", SERIES, SERIES_SKIP),
   ],
 };
 
@@ -504,12 +526,10 @@ SPECS.movies = {
   limit: 1200,
   facts: [
     ...CHARACTER_FACTS,
-    ...CHARACTER_KINDS,
     f("actor", "^pq:P453/ps:P161", (v) => `Played by ${v}`),
     fw("director", IN_FILM, "wdt:P57", (v) => `From a film directed by ${v}`),
     dw("film", IN_FILM, "wdt:P577", decade("From a film released")),
-    fw("genre", IN_FILM, "wdt:P136", filmGenre, FILM_GENRE_SKIP),
-    fw("series", IN_FILM, "wdt:P179", SERIES),
+    fw("series", IN_FILM, "wdt:P179", SERIES, SERIES_SKIP),
   ],
 };
 
@@ -519,11 +539,9 @@ SPECS.videogames = {
   limit: 1500,
   facts: [
     ...CHARACTER_FACTS,
-    CHARACTER_KINDS[0]!,
-    fw("developer", IN_GAME, "wdt:P178", (v) => `Appears in games by ${v}`),
-    fw("series", IN_GAME, "wdt:P179", SERIES),
+    fw("series", IN_GAME, "wdt:P179", SERIES, SERIES_SKIP),
     fw("platform", IN_GAME, "wdt:P400", (v) => `Appears in a game for ${v}`),
-    fw("genre", IN_GAME, "wdt:P136", (v) => { const g = v.replace(/\s+(video game|game)$/i, "").trim(); return g.length > 2 ? `From ${g.toLowerCase()} games` : null; }, NOT_GENRE),
+    fw("genre", IN_GAME, "wdt:P136", (v) => { const g = v.replace(/\s+(video game|game)$/i, "").trim(); return g.length > 2 ? `From ${g.toLowerCase().replace(/\b(\d)d\b/g, "$1D")} games` : null; }, /lgbt|\bwith\b|character|^(film|television|fiction|nonfiction|literature|art|music|work|drama)$/i),
     dw("game", IN_GAME, "wdt:P577", decade("Appears in a game released")),
   ],
 };

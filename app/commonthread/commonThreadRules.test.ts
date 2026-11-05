@@ -4,6 +4,7 @@ import path from "node:path";
 import { assemble, nameInLabel, orderClues, pickWrong, usable, type RawCategory } from "../../scripts/commonThreadRules";
 import { PINPOINT_TOPICS } from "../pinpoint/topics";
 import type { ThreadTopic } from "./types";
+import { BANNED_LABELS, BANNED_PATTERNS, MUST_NOT, ORG_ALLOW, isBannedLabel } from "../../scripts/commonThreadBans";
 
 /** A category of `n` members named `${label}-m0..`, fame rising with the index. */
 const cat = (label: string, n: number, kind = "k", prefix = label): RawCategory => ({
@@ -144,6 +145,14 @@ describe("Common Thread rules", () => {
     expect(wrong.some((w) => w.startsWith("cast"))).toBe(false);
   });
 
+  it("never offers an answer-only kind as a wrong option", () => {
+    const target = cat("target", 12, "cast");
+    const others = [...Array.from({ length: 10 }, (_, i) => ({ ...cat(`ing${i}`, 8, "ingredient"), answerOnly: true })), ...Array.from({ length: 10 }, (_, i) => cat(`dec${i}`, 8, "decade")), ...Array.from({ length: 10 }, (_, i) => cat(`cty${i}`, 8, "country"))];
+    const wrong = pickWrong(target, others, 3);
+    expect(wrong).toHaveLength(7);
+    expect(wrong.some((w) => w.startsWith("ing"))).toBe(false);
+  });
+
   it("takes about three wrong options from an exclusive kind, and still mixes kinds", () => {
     const target = { ...cat("target", 12, "decade"), exclusive: true };
     const others = [...Array.from({ length: 10 }, (_, i) => ({ ...cat(`dec${i}`, 8, "decade"), exclusive: true })), ...Array.from({ length: 10 }, (_, i) => cat(`cty${i}`, 8, "country")), ...Array.from({ length: 10 }, (_, i) => cat(`gen${i}`, 8, "genre"))];
@@ -188,6 +197,15 @@ describe("Common Thread rules", () => {
     for (const c of all) expect(c.clues).toHaveLength(6);
   });
 
+  it("keeps 50 dailies and 15 practice when 65 categories exist", () => {
+    const cats: RawCategory[] = [];
+    for (let i = 0; i < 66; i++) cats.push(cat(`Cat ${i}`, 8, `kind${i % 6}`, `c${i}`));
+    const t = assemble("films", cats, 5);
+    expect(t.daily.length + t.practice.length).toBe(66);
+    expect(t.daily.length).toBeGreaterThanOrEqual(50);
+    expect(t.practice.length).toBeGreaterThanOrEqual(15);
+  });
+
   it("is deterministic for a seed", () => {
     const cats: RawCategory[] = [];
     for (let i = 0; i < 100; i++) cats.push(cat(`Cat ${i}`, 8, `kind${i % 5}`, `c${i}`));
@@ -229,7 +247,7 @@ describe("Common Thread data", () => {
       for (const text of [c.label, ...c.clues.map((x) => x.name)]) {
         expect(text, text).not.toMatch(/\s{2}|^\s|\s$/);
         expect(text, text).not.toMatch(/(?<!\d)\d{0,2}0s\b/);
-        expect(text, text).not.toMatch(/\b[Aa] (?!uni|use|eu|one|ur|us)[aeiou]\w/);
+        expect(text, text).not.toMatch(/\b[Aa] (?!uni|use|eu|one|ur|us|ufo)[aeiou]\w/);
       }
     }
     for (const [name, n] of lastUse) expect(n, name).toBeLessThanOrEqual(6);
@@ -241,6 +259,57 @@ describe("Common Thread data", () => {
     }
     const dl = new Set(t.daily.map((c) => c.label));
     for (const c of t.practice) expect(dl.has(c.label)).toBe(false);
+  });
+
+  it.each(PINPOINT_TOPICS.map((t) => t.id))("%s keeps out hand-banned labels and named false facts", (pool) => {
+    const t = load(pool);
+    const all = [...t.daily, ...t.practice];
+    for (const c of all) {
+      expect(isBannedLabel(pool, c.label), c.label).toBe(false);
+      for (const p of BANNED_PATTERNS) expect(c.label).not.toMatch(p);
+      expect(BANNED_LABELS["*"]).not.toContain(c.label);
+      expect(c.label, c.label).not.toMatch(/\p{Extended_Pictographic}/u);
+      for (const clue of c.clues) expect(clue.name, clue.name).not.toMatch(/\p{Extended_Pictographic}/u);
+    }
+    for (const [topic, re, name] of MUST_NOT) {
+      if (topic !== pool) continue;
+      for (const c of all) {
+        if (!re.test(c.label)) continue;
+        expect(c.clues.map((x) => x.name), `${c.label} / ${name}`).not.toContain(name);
+        expect(c.members, `${c.label} / ${name}`).not.toContain(name);
+      }
+    }
+  });
+
+  it("flags and geography only name allowlisted organisations", () => {
+    for (const pool of ["flags", "geography"]) {
+      for (const c of [...load(pool).daily, ...load(pool).practice]) {
+        if (c.label.startsWith("Member of ")) expect(ORG_ALLOW, c.label).toContain(c.label.slice("Member of ".length));
+      }
+    }
+  });
+
+  it("puts no character in both the superheroes and the villains file", () => {
+    const names = (pool: string) => new Set([...load(pool).daily, ...load(pool).practice].flatMap((c) => [...c.clues.map((x) => x.name), ...c.members]));
+    const heroes = names("superheroes");
+    const both = [...names("villains")].filter((n) => heroes.has(n));
+    expect(both).toEqual([]);
+  });
+
+  it("takes about three wrong options from the same kind on date categories", () => {
+    const DATE = /^(.*) in the (\d{3,4}0s|\d+(?:st|nd|rd|th) century)$/;
+    const key = (label: string) => { const m = label.match(DATE); return m ? `${m[1]}|${m[2]!.includes("century") ? "c" : "d"}` : null; };
+    for (const pool of PINPOINT_TOPICS.map((t) => t.id)) {
+      const t = load(pool);
+      const all = [...t.daily, ...t.practice];
+      for (const c of all) {
+        const k = key(c.label);
+        if (!k) continue;
+        const usable = all.filter((o) => o.label !== c.label && key(o.label) === k && !c.clues.some((x) => o.members.includes(x.name)));
+        const same = c.wrong.filter((w) => key(w) === k).length;
+        expect(same, `${pool}: ${c.label}`).toBe(Math.min(3, usable.length));
+      }
+    }
   });
 
   it("has a file for every topic and nothing extra", () => {

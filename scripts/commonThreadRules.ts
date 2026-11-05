@@ -7,8 +7,9 @@ export type RawMember = { name: string; q?: string; fame: number };
 /**
  * `exclusive`: the kind's values rule each other out (a decade, a continent). Other kinds overlap, and Wikidata's
  * membership is incomplete, so a category of that kind is never offered as a wrong option for its own kind.
+ * `answerOnly`: the kind is too patchy to ever be a wrong option (a dish's ingredients, a flag's symbols); it can only be an answer.
  */
-export type RawCategory = { label: string; kind: string; members: RawMember[]; exclusive?: boolean };
+export type RawCategory = { label: string; kind: string; members: RawMember[]; exclusive?: boolean; answerOnly?: boolean };
 
 export const MIN_MEMBERS = 6;
 /** A category may hold at most this share of the topic's pool, or it is a catch-all. */
@@ -79,7 +80,7 @@ export function pickWrong(c: RawCategory, others: RawCategory[], seed: number, c
   const seen = new Set<string>([c.label]);
   const eligible: RawCategory[] = [];
   for (const o of others) {
-    if (seen.has(o.label) || o.members.some((m) => clueNames.has(m.name))) continue;
+    if (o.answerOnly || seen.has(o.label) || o.members.some((m) => clueNames.has(m.name))) continue;
     // Overlapping kinds are incomplete on Wikidata, so a sibling might secretly be true of a clue.
     if (o.kind === c.kind && !c.exclusive) continue;
     seen.add(o.label);
@@ -169,7 +170,8 @@ export function assemble(pool: string, cats: RawCategory[], seed: number): Threa
   }
 
   const [order] = shuffle(chosen, seed);
-  const nPractice = Math.round(order.length * (PRACTICE_TARGET / target));
+  // About a quarter practice, but never at the cost of the daily floor of 50 when there are enough categories for both floors.
+  const nPractice = Math.max(Math.min(15, order.length), Math.min(Math.round(order.length * (PRACTICE_TARGET / target)), order.length - 50));
   const toCat = (c: RawCategory): ThreadCategory => {
     const clues = kept.get(c)!;
     const i = chosen.indexOf(c);

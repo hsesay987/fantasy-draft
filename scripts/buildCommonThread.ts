@@ -8,6 +8,7 @@ import crypto from "node:crypto";
 import { sparql, hasName } from "../backend/src/trivia/wikidata";
 import { getJson } from "../backend/src/trivia/http";
 import { PINPOINT_TOPICS } from "../app/pinpoint/topics";
+import { BANNED_PAIRS, EXCLUDE_ENTITIES, isBannedLabel } from "./commonThreadBans";
 import { assemble, type RawCategory, type RawMember } from "./commonThreadRules";
 import type { ThreadTopic } from "../app/commonthread/types";
 import { SPECS, type CustomSpec, type Entity, type WdSpec } from "./commonThreadTopics";
@@ -39,8 +40,9 @@ export const fetchJson = <T = any>(url: string, init: RequestInit = {}) =>
   cached<T>("json:" + url + JSON.stringify(init.body ?? ""), async () => { await sleep(150); return getJson<T>(url, init); });
 
 /** Capitalised, single-spaced, without catalogue suffixes such as the Italian food register's " PAT". */
-export const tidyName = (n: string) => n.replace(/\s+/g, " ").trim().replace(/\s+PAT$/, "").replace(/^./, (c) => c.toUpperCase());
-export const tidyLabel = (l: string) => l.replace(/\s+/g, " ").trim();
+const EMOJI = /[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\u200d\ufe0f]/gu;
+export const tidyName = (n: string) => n.replace(EMOJI, "").replace(/\s+/g, " ").trim().replace(/\s+PAT$/, "").replace(/^./, (c) => c.toUpperCase());
+export const tidyLabel = (l: string) => l.replace(EMOJI, "").replace(/\s+/g, " ").trim();
 
 // ---------------- the generic Wikidata pool ----------------
 /** The entities the `where` patterns match, most famous first. A list runs one query per entry (keeps big classes under the time limit). */
@@ -67,7 +69,21 @@ async function wikidataPool(spec: WdSpec): Promise<Entity[]> {
       if (!prev || prev.fame < e.fame) byName.set(e.name, e);
     }
   }
-  const ents = [...byName.values()].filter((e) => !spec.keep || spec.keep(e.name)).sort((a, b) => b.fame - a.fame);
+  let ents = [...byName.values()].filter((e) => !spec.keep || spec.keep(e.name)).sort((a, b) => b.fame - a.fame);
+  if (spec.vet) {
+    // Drop people whose other occupations suggest they are in the wrong pool (an actor who once played a match) unless
+    // the topic's own career fact is strong (several clubs, several labels).
+    const bad = new Set<string>();
+    const strong = new Map<string, number>();
+    for (const part of chunk(ents.map((e) => e.id), 150)) {
+      const vals = part.map((i) => "wd:" + i).join(" ");
+      for (const r of await ask(`SELECT DISTINCT ?item WHERE { VALUES ?item { ${vals} } VALUES ?o { ${spec.vet.bad.map((q) => "wd:" + q).join(" ")} } ?item wdt:P106 ?o }`)) bad.add(r.item);
+      for (const r of await ask(`SELECT ?item (COUNT(DISTINCT ?x) AS ?n) WHERE { VALUES ?item { ${vals} } ?item ${spec.vet.strong} ?x } GROUP BY ?item`)) strong.set(r.item, Number(r.n));
+    }
+    const before = ents.length;
+    ents = ents.filter((e) => !bad.has(e.id) || (strong.get(e.id) ?? 0) >= spec.vet!.minStrong);
+    console.log(`  vetted pool: ${before} -> ${ents.length}`);
+  }
   const byId = new Map(ents.map((e) => [e.id, e]));
   for (const f of spec.facts) {
     const batches = chunk([...byId.keys()], 120);
@@ -111,15 +127,16 @@ async function wikidataPool(spec: WdSpec): Promise<Entity[]> {
 }
 
 /** Turns entities and their facts into raw categories, one per fact value shared by enough of them. */
-export function categorize(ents: Entity[], exclusive: ReadonlySet<string> = new Set()): RawCategory[] {
+export function categorize(ents: Entity[], exclusive: ReadonlySet<string> = new Set(), topic = "", answerOnly: ReadonlySet<string> = new Set()): RawCategory[] {
   const by = new Map<string, RawCategory>();
   for (const e of ents) {
     const m: RawMember = { name: e.name, fame: e.fame, ...(e.q ? { q: e.q } : {}) };
     for (const [kind, vals] of Object.entries(e.facts)) {
       for (const label of vals) {
+        if (isBannedLabel(topic, label) || BANNED_PAIRS.some(([t, l, n]) => t === topic && l === label && n === e.name)) continue;
         const key = kind + "|" + label;
         let c = by.get(key);
-        if (!c) by.set(key, (c = { label, kind, members: [], ...(exclusive.has(kind) ? { exclusive: true } : {}) }));
+        if (!c) by.set(key, (c = { label, kind, members: [], ...(exclusive.has(kind) ? { exclusive: true } : {}), ...(answerOnly.has(kind) ? { answerOnly: true } : {}) }));
         c.members.push(m);
       }
     }
@@ -134,13 +151,17 @@ async function buildTopic(pool: string): Promise<{ topic: ThreadTopic; stats: st
   const spec = SPECS[pool];
   if (!spec) throw new Error(`no spec for ${pool}`);
   console.log(`\n== ${pool}`);
-  const ents = "load" in spec ? await spec.load({ ask, fetchJson, wikidataPool }) : await wikidataPool(spec);
+  let ents = "load" in spec ? await spec.load({ ask, fetchJson, wikidataPool }) : await wikidataPool(spec);
   console.log(`  pool: ${ents.length} entities`);
+  if (process.env.DUMP_DIR) fs.writeFileSync(path.join(process.env.DUMP_DIR, `${pool}.pool.txt`), ents.map((e) => e.name).join("; "));
+  ents = ents.filter((e) => !(EXCLUDE_ENTITIES[pool] ?? []).includes(e.name));
   if (ents.length < 100) throw new Error(`pool for ${pool} is only ${ents.length} entities`);
   // Facts that would make two kinds of the same label (for example a "Debuted in the 1980s" and a "Released in the 1980s") stay apart by kind.
+  const answerOnly = new Set("facts" in spec ? spec.facts.filter((f) => f.answerOnly).map((f) => f.kind) : (spec as CustomSpec).answerOnly ?? []);
   const exclusive = new Set("facts" in spec ? spec.facts.filter((f) => f.exclusive).map((f) => f.kind) : (spec as CustomSpec).exclusive ?? []);
-  const raw = categorize(ents, exclusive).filter((c) => c.members.length <= MAX_MEMBERS);
+  const raw = categorize(ents, exclusive, pool, answerOnly).filter((c) => c.members.length <= MAX_MEMBERS);
   console.log(`  candidate categories: ${raw.length} (${[...new Set(raw.map((c) => c.kind))].map((k) => `${k} ${raw.filter((c) => c.kind === k).length}`).join(", ")})`);
+  if (process.env.DUMP_DIR) fs.writeFileSync(path.join(process.env.DUMP_DIR, `${pool}.cands.txt`), raw.map((c) => `${c.members.length} ${c.kind} ${c.label}`).sort().join("\n"));
   const topic = assemble(pool, raw, 20261105);
   // The file only needs member names that show up as a clue somewhere in the topic: that is all the "no clue fits a wrong option" check reads.
   const clueNames = new Set([...topic.daily, ...topic.practice].flatMap((c) => c.clues.map((x) => x.name)));
