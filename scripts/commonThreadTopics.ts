@@ -26,6 +26,8 @@ export type FactSpec = {
   exclusive?: boolean;
   /** Too patchy to ever be a wrong option (a dish's ingredients, a flag's symbols). */
   answerOnly?: boolean;
+  /** With `from`: count a value only when the item reaches it through at least this many different works, so one cameo makes no fact. */
+  minWorks?: number;
 };
 export type WdSpec = {
   /** SPARQL pattern binding ?item. A list runs one query per entry. */
@@ -74,6 +76,8 @@ const d = (kind: string, path: string, label: (v: string) => string | null, as: 
 /** A fact read from a work of one type the item appears in (a film, a video game), so a release year or director is never another kind of work's. */
 const fw = (kind: string, from: string, path: string, label: (v: string) => string | null, skip?: RegExp): FactSpec => ({ ...f(kind, path, label, skip), from });
 const dw = (kind: string, from: string, path: string, label: (v: string) => string | null): FactSpec => ({ ...d(kind, path, label), from });
+/** A franchise fact: true of a character listed in two works of the series, not of a cameo in one. */
+const seriesVia = (from: string): FactSpec => ({ ...fw("series", from, "wdt:P179", SERIES, SERIES_SKIP), minWorks: 2 });
 const IN_FILM = "?item wdt:P1441 ?w. ?w wdt:P31/wdt:P279* wd:Q11424.";
 const DISNEY_FILM = "?item wdt:P1441 ?w. ?w wdt:P31/wdt:P279* wd:Q202866; wdt:P272 ?studio. VALUES ?studio { wd:Q127552 wd:Q1047410 wd:Q191224 wd:Q7414 wd:Q1392453 }";
 const IN_GAME = "?item wdt:P1441 ?w. ?w wdt:P31/wdt:P279* wd:Q7889.";
@@ -431,7 +435,7 @@ const HERO_FACTS: FactSpec[] = [
   f("publisher", "(wdt:P123|wdt:P1441/wdt:P123)", (v) => `Published by ${v}`),
   f("residence", "wdt:P551", (v) => `Lives in ${place(v)}`),
   one("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
-  f("series", "wdt:P1441/wdt:P179", SERIES, SERIES_SKIP),
+  seriesVia("?item wdt:P1441 ?w."),
   f("employer", "wdt:P108", (v) => `Works for ${v}`),
 ];
 const FICTIONAL_CLASSES = "VALUES ?cls { wd:Q1114461 wd:Q95074 wd:Q15632617 wd:Q15773347 wd:Q1569167 wd:Q188784 } ?item wdt:P31 ?cls.";
@@ -531,10 +535,11 @@ SPECS.disney = {
   facts: [
     ...CHARACTER_FACTS,
     { ...fw("studio", IN_FILM, "wdt:P272", (v) => `From ${art(v)} film`), extra: "VALUES ?v { wd:Q127552 wd:Q1047410 wd:Q191224 wd:Q7414 wd:Q1392453 }" },
+    // Not minWorks: most Disney characters are in one film, and requiring two leaves 33 daily and 15 practice. A cameo can still reach this fact.
     fw("director", IN_FILM, "wdt:P57", (v) => `From a film directed by ${v}`),
     // The character's first Disney-family work only, so a 1920 Treasure Island film does not date Jim Hawkins.
     dw("film", DISNEY_FILM, "wdt:P577", decade("From a Disney film released")),
-    fw("series", IN_FILM, "wdt:P179", SERIES, SERIES_SKIP),
+    seriesVia(IN_FILM),
   ],
 };
 
@@ -545,9 +550,9 @@ SPECS.movies = {
   facts: [
     ...CHARACTER_FACTS,
     f("actor", "^pq:P453/ps:P161", (v) => `Played by ${v}`),
-    fw("director", IN_FILM, "wdt:P57", (v) => `From a film directed by ${v}`),
+    { ...fw("director", IN_FILM, "wdt:P57", (v) => `From a film directed by ${v}`), minWorks: 2 },
     // No film-decade family: a character appears in remakes, spin-offs and parodies, so the year of "a film" is the wrong film too often.
-    fw("series", IN_FILM, "wdt:P179", SERIES, SERIES_SKIP),
+    seriesVia(IN_FILM),
   ],
 };
 
@@ -558,9 +563,9 @@ SPECS.videogames = {
   facts: [
     // No "Created by": Wikidata gives a franchise creator for a character who was not his or her work (Helena Harper and Shinji Mikami).
     ...CHARACTER_FACTS.filter((x) => x.kind !== "creator"),
-    fw("series", IN_GAME, "wdt:P179", SERIES, SERIES_SKIP),
+    seriesVia(IN_GAME),
     fw("platform", IN_GAME, "wdt:P400", (v) => `Appears in a game for ${v}`),
-    fw("genre", IN_GAME, "wdt:P136", (v) => { const g = v.replace(/\s+(video game|game)$/i, "").trim(); return g.length > 2 ? `From ${g.toLowerCase().replace(/\b(\d)d\b/g, "$1D")} games` : null; }, /lgbt|\bwith\b|character|^(film|television|fiction|nonfiction|literature|art|music|work|drama)$/i),
+    { ...fw("genre", IN_GAME, "wdt:P136", (v) => { const g = v.replace(/\s+(video game|game)$/i, "").trim(); return g.length > 2 ? `From ${g.toLowerCase().replace(/\b(\d)d\b/g, "$1D")} games` : null; }, /lgbt|\bwith\b|character|^(film|television|fiction|nonfiction|literature|art|music|work|drama)$/i), minWorks: 2 },
     dw("game", IN_GAME, "wdt:P577", decade("Appears in a game released")),
   ],
 };

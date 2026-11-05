@@ -54,8 +54,12 @@ const placeWords = (label: string): string[] =>
   !/^In\s/i.test(label) || /\btime zone$/i.test(label)
     ? []
     : label.slice(3).split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 3 && !PLACE_STOP.has(w.toLowerCase()));
-/** Give-aways no word match can see: [label, clue name]. The clue stays a member, so the label is never offered as a wrong option for it. */
-const NAMED_GIVEAWAYS: [string, string][] = [["In Middle Africa", "Central African Republic"]];
+/** Pairs kept from the clues by name: [label, clue name]. The name stays a member, so the label is never offered as a wrong option for it. */
+const NO_CLUE_PAIRS: [string, string][] = [
+  ["In Middle Africa", "Central African Republic"],
+  // Official only de facto: not a clean clue, but not false enough to offer as a wrong option either.
+  ["Has English as an official language", "Mauritius"],
+];
 
 /**
  * The label names the clue: the whole name as words, a place word of an "In <place>" label inside the name ("In China" with
@@ -64,7 +68,7 @@ const NAMED_GIVEAWAYS: [string, string][] = [["In Middle Africa", "Central Afric
 export function givesAway(name: string, label: string, country = false): boolean {
   if (nameInLabel(name, label)) return true;
   if (placeWords(label).some((w) => nameInLabel(w, name))) return true;
-  if (NAMED_GIVEAWAYS.some(([l, n]) => l === label && n === name)) return true;
+  if (NO_CLUE_PAIRS.some(([l, n]) => l === label && n === name)) return true;
   // Demonyms and stems only matter where the clue is a country: elsewhere a shared 5-letter start is just a shared word.
   if (!country) return false;
   const n = name.toLowerCase().replace(/^the\s+/, "").trim();
@@ -73,6 +77,14 @@ export function givesAway(name: string, label: string, country = false): boolean
   if (first.length < 5) return false;
   const stem = first.slice(0, 5);
   return label.toLowerCase().split(/[^\p{L}]+/u).some((w) => w.startsWith(stem));
+}
+
+/** Keeps the rows whose item reaches the value `v` through at least `min` different works `w`. One listing can be a cameo. */
+export function repeatedAcrossWorks<R extends Record<string, string | undefined>>(rows: R[], min: number): R[] {
+  const works = new Map<string, Set<string>>();
+  const key = (r: R) => `${r["item"]}|${r["v"]}`;
+  for (const r of rows) if (r["w"] !== undefined) (works.get(key(r)) ?? works.set(key(r), new Set()).get(key(r))!).add(r["w"]!);
+  return rows.filter((r) => (works.get(key(r))?.size ?? 0) >= min);
 }
 
 export function usable(c: RawCategory, poolSize: number): boolean {

@@ -104,6 +104,8 @@ export const BANNED_PAIRS: [string, string, string][] = [
   ["flags", "Has French as an official language", "Mauritius"], ["geography", "Has French as an official language", "Mauritius"],
   ["flags", "Has English as an official language", "Christmas Island"], ["geography", "Has English as an official language", "Christmas Island"],
   ["music", "Signed to RCA Victor", "The Mamas & the Papas"],
+  // Listed in both Wreck-It Ralph films, so the two-work rule cannot see this cameo.
+  ["disney", "From the Wreck-It Ralph series", "Sonic the Hedgehog"], ["movies", "From the Wreck-It Ralph series", "Sonic the Hedgehog"],
 ];
 
 export const isBannedLabel = (topic: string, label: string) => BANNED_LABELS["*"]!.includes(label) || (BANNED_LABELS[topic] ?? []).includes(label) || BANNED_PATTERNS.some((r) => r.test(label));
@@ -177,4 +179,9 @@ export const MUST_NOT: [string, RegExp, string, "clue"?][] = [
   ["flags", /French as an official language/, "Mauritius"], ["geography", /French as an official language/, "Mauritius"],
   ["flags", /English as an official language/, "Christmas Island"], ["geography", /English as an official language/, "Christmas Island"],
   ["music", /RCA Victor/, "The Mamas & the Papas"],
+  ["disney", /Wreck-It Ralph series/, "Merida"], ["disney", /Wreck-It Ralph series/, "Rapunzel"], ["disney", /Wreck-It Ralph series/, "Elsa"], ["disney", /Wreck-It Ralph series/, "Sonic the Hedgehog"],
+  ["disney", /Cars series/, "Woody"],
+  ["movies", /Wreck-It Ralph series/, "Merida"], ["movies", /Wreck-It Ralph series/, "Rapunzel"], ["movies", /Wreck-It Ralph series/, "Elsa"], ["movies", /Wreck-It Ralph series/, "Sonic the Hedgehog"],
+  ["movies", /Cars series/, "Buzz Lightyear"], ["movies", /Cars series/, "James P. Sullivan"], ["movies", /Cars series/, "Woody"],
+  ["geography", /English as an official language/, "Mauritius", "clue"], ["flags", /English as an official language/, "Mauritius", "clue"],
 ];

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { assemble, givesAway, nameInLabel, orderClues, pickWrong, usable, type RawCategory } from "../../scripts/commonThreadRules";
+import { assemble, givesAway, nameInLabel, orderClues, pickWrong, repeatedAcrossWorks, usable, type RawCategory } from "../../scripts/commonThreadRules";
 import { PINPOINT_TOPICS } from "../pinpoint/topics";
 import type { ThreadTopic } from "./types";
 import { MEMBERSHIPS } from "../../scripts/commonThreadMemberships";
@@ -150,6 +150,19 @@ describe("Common Thread rules", () => {
   it("treats the named pair Central African Republic and In Middle Africa as a give-away", () => {
     expect(givesAway("Central African Republic", "In Middle Africa", true)).toBe(true);
     expect(givesAway("Chad", "In Middle Africa", true)).toBe(false);
+    expect(givesAway("Mauritius", "Has English as an official language", true)).toBe(true);
+    expect(givesAway("Jamaica", "Has English as an official language", true)).toBe(false);
+  });
+
+  it("counts a series fact only for an item listed in two works of that series", () => {
+    const rows = [
+      { item: "McQueen", v: "Cars", w: "Cars 1" }, { item: "McQueen", v: "Cars", w: "Cars 2" },
+      { item: "Buzz", v: "Cars", w: "Cars 1" }, { item: "Buzz", v: "Cars", w: "Cars 1" },
+      { item: "Buzz", v: "Toy Story", w: "Toy Story 1" }, { item: "Buzz", v: "Toy Story", w: "Toy Story 2" },
+    ];
+    const kept = repeatedAcrossWorks(rows, 2).map((r) => `${r.item}/${r.v}`);
+    expect(new Set(kept)).toEqual(new Set(["McQueen/Cars", "Buzz/Toy Story"]));
+    expect(repeatedAcrossWorks(rows, 3)).toEqual([]);
   });
 
   it("never uses a clue that contains the place of an \"In <place>\" label", () => {

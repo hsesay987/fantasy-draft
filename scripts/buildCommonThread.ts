@@ -9,7 +9,7 @@ import { sparql, hasName } from "../backend/src/trivia/wikidata";
 import { getJson } from "../backend/src/trivia/http";
 import { PINPOINT_TOPICS } from "../app/pinpoint/topics";
 import { BANNED_PAIRS, EXCLUDE_ENTITIES, isBannedLabel } from "./commonThreadBans";
-import { assemble, type RawCategory, type RawMember } from "./commonThreadRules";
+import { assemble, repeatedAcrossWorks, type RawCategory, type RawMember } from "./commonThreadRules";
 import type { ThreadTopic } from "../app/commonthread/types";
 import { SPECS, type CustomSpec, type Entity, type WdSpec } from "./commonThreadTopics";
 
@@ -89,14 +89,15 @@ async function wikidataPool(spec: WdSpec): Promise<Entity[]> {
     const batches = chunk([...byId.keys()], 120);
     const results = await inParallel(batches, 4, (part) =>
       ask(
-        `SELECT ?item ?v ?vl WHERE { VALUES ?item { ${part.map((i) => "wd:" + i).join(" ")} } ` +
+        `SELECT ?item ?v ?vl${f.minWorks ? " ?w" : ""} WHERE { VALUES ?item { ${part.map((i) => "wd:" + i).join(" ")} } ` +
           (f.from ? `${f.from} ?w ${f.path} ?v. ` : `?item ${f.path} ?v. `) + `${f.extra ?? ""} ` +
           (f.as === "item" ? `OPTIONAL { ?v rdfs:label ?vl FILTER(lang(?vl) = "en") } ` : "") + `}`
       )
     );
     const idsFor = new Map<string, Set<string>>();
     const years = new Map<string, number>();
-    for (const r of results.flat()) {
+    const rows = f.minWorks ? repeatedAcrossWorks(results.flat(), f.minWorks) : results.flat();
+    for (const r of rows) {
       const e = byId.get(r.item);
       if (!e) continue;
       if (f.as === "item") {
