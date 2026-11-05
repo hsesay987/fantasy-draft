@@ -19,17 +19,18 @@ import * as IM from "../shared/topicDraft/formats/imposter";
 import * as V from "../shared/topicDraft/formats/vote";
 import * as IS from "../shared/topicDraft/formats/insync";
 import * as PT from "../shared/topicDraft/formats/partytrivia";
+import * as MF from "../shared/topicDraft/formats/mafia";
 import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
 import { deckOf } from "../shared/topicDraft/party/decks";
 import { insyncDeckOf } from "../shared/topicDraft/party/insyncDecks";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia"];
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia"];
 /** Party games take a bigger group; drafts and trivia stay at six. */
 const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
 /** Fewest players each game starts with; anything not listed needs 2. */
-export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, vote: 3 };
+export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, vote: 3, mafia: 5 };
 /** An empty room (no game picked yet) takes the bigger party group; picking a draft caps it at six. */
 const seatCap = (format: FormatId | undefined) => (!format || PARTY_FORMATS.has(format) ? MAX_SEATS : DRAFT_SEATS);
 const MAX_ROOMS = 500;
@@ -144,7 +145,7 @@ export function sanitizeSetup(input: any): GameSetup | null {
   return { id: "", format, pool, players: [], aiPlayers: [], mission, mystery: !!input.mystery, loadout, roles: format === "position" ? roles : [], opts, seed: 0 };
 }
 
-/** Party games: Imposter needs a character topic, vote games need a card deck, In-Sync a pair deck. */
+/** Party games: Imposter needs a character topic, vote games need a card deck, In-Sync a pair deck. Mafia has one fixed pool. */
 function sanitizeParty(format: FormatId, input: any): GameSetup | null {
   const pool = clean(input.pool, 30);
   const o = input.opts ?? {};
@@ -155,6 +156,8 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     if (!insyncDeckOf(pool)) return null;
   } else if (format === "partytrivia") {
     if (!TRIVIA_POOLS.includes(pool)) return null;
+  } else if (format === "mafia") {
+    if (pool !== "mafia") return null;
   } else if (!deckOf(pool)) return null;
   const teams = num(o.teams, 0, 4, 0);
   const teamMap: Record<string, number> = {};
@@ -164,7 +167,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
       if (name && Number.isInteger(t) && t >= 0 && t < teams) teamMap[name] = t;
     }
   }
-  const title = format === "imposter" ? `Imposter: ${CATALOG_META.find((m) => m.id === pool)!.title}` : format === "insync" ? `In-Sync: ${insyncDeckOf(pool)!.title}` : format === "partytrivia" ? `Party Trivia: ${CATALOG_META.find((m) => m.id === pool)?.title ?? pool}` : deckOf(pool)!.title;
+  const title = format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${CATALOG_META.find((m) => m.id === pool)!.title}` : format === "insync" ? `In-Sync: ${insyncDeckOf(pool)!.title}` : format === "partytrivia" ? `Party Trivia: ${CATALOG_META.find((m) => m.id === pool)?.title ?? pool}` : deckOf(pool)!.title;
   const opts = {
     ...DEFAULT_OPTS,
     timerSeconds: null,
@@ -313,6 +316,8 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
   const min = MIN_PLAYERS[room.setup.format] ?? 2;
   if (here.length < min) return { error: `Need at least ${min} players` };
   if (here.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
+  // A seat with this exact name couldn't be told apart from the vote for nobody, so could never be voted out.
+  if (room.setup.format === "mafia" && here.includes(MF.SKIP_VOTE)) return { error: `Mafia can't have a player named "${MF.SKIP_VOTE}". Rejoin with another name.` };
   const setup = { ...room.setup, players: here, seed: (Math.random() * 2 ** 31) | 0 };
   if (setup.format === "vote" || setup.format === "insync") setup.opts = { ...setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
   const state = initGame(setup, Date.now());
@@ -330,10 +335,12 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
 }
 
 /** Leaving between games frees the seat (the next player in line becomes host); mid-game a bot takes over. */
-/** Party trivia closes a question once every seat still present has answered. */
-function settleTrivia(room: Room, s: GameState, now: number): GameState {
-  if (room.setup?.format !== "partytrivia") return s;
-  return PT.settle(s as PT.PTState, room.seats.filter((x) => x.left).map((x) => x.name), now);
+/** Party trivia and Mafia close a phase once every seat still present has acted. */
+function settleParty(room: Room, s: GameState, now: number): GameState {
+  const gone = room.seats.filter((x) => x.left).map((x) => x.name);
+  if (room.setup?.format === "partytrivia") return PT.settle(s as PT.PTState, gone, now);
+  if (room.setup?.format === "mafia") return MF.settle(s as MF.MafiaState, gone, now);
+  return s;
 }
 
 export function leaveRoom(room: Room, token: unknown) {
@@ -341,8 +348,8 @@ export function leaveRoom(room: Room, token: unknown) {
   if (!seat) return;
   if (room.status === "playing") {
     seat.left = true;
-    if (room.setup?.format === "partytrivia" && room.state) {
-      const settled = settleTrivia(room, room.state, Date.now()); // the others may all have answered already
+    if ((room.setup?.format === "partytrivia" || room.setup?.format === "mafia") && room.state) {
+      const settled = settleParty(room, room.state, Date.now()); // the others may all have answered already
       if (settled !== room.state && room.seats.some((s) => !s.left)) commit(room, settled);
     }
   } else {
@@ -357,19 +364,20 @@ export function leaveRoom(room: Room, token: unknown) {
   bump(room);
 }
 
-const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next"]);
+const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next", "nightAct", "dayVote", "skipTalk"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
   const seat = seatFor(room, token);
   if (!seat) return { ok: false, error: "Not in this room" };
   if (room.status !== "playing" || !room.state || !room.setup) return { ok: false, error: "Game is not running" };
   if (!raw || !ACTION_TYPES.has(raw.type)) return { ok: false, error: "Unknown action" };
+  if (raw.type === "skipTalk" && !isHost(room, token)) return { ok: false, error: "Only the host can skip the talk" };
   // The seat decides who is acting; clients can't act for someone else, set the clock or pick RNG seeds.
   const { seed: _seed, at: _at, now: _now, ...rest } = raw;
   const action = { ...rest, by: seat.name } as Action;
-  if (seat.left && room.setup.format === "partytrivia") seat.left = false; // acting again means they are back at the table
+  if (seat.left && (room.setup.format === "partytrivia" || room.setup.format === "mafia")) seat.left = false; // acting again means they are back at the table
   const applied = applyAction(room.setup, room.state, action, Date.now());
-  const next = applied === room.state ? applied : settleTrivia(room, applied, Date.now());
+  const next = applied === room.state ? applied : settleParty(room, applied, Date.now());
   if (next === room.state) return { ok: false, error: "Not allowed right now" };
   commit(room, next);
   return { ok: true };
@@ -404,6 +412,10 @@ function finish(room: Room) {
   if (PARTY_FORMATS.has(setup.format)) {
     const teamed = setup.format === "partytrivia" && !!(room.state as PT.PTState).teams; // a team game has no single winner
     record.winner = setup.format === "insync" || teamed ? null : triviaWinner(room.state!); // In-Sync is co-operative: no winner
+    if (setup.format === "mafia") {
+      const side = (room.state as MF.MafiaState).winner; // a side wins, not a player; a game everyone walked out of has no winner
+      record.winner = side === "village" ? "Village" : side === "mafia" ? "Mafia" : null;
+    }
     if (setup.format === "partytrivia") room.seen = [...room.seen, ...(setup.quiz?.categories ?? []).map((c) => `cat:${c.name}`)].slice(-400);
     if (setup.format === "insync") room.seen = [...room.seen, ...(room.state as IS.InSyncState).pairs.map((q) => q.id)].slice(-400);
     if (setup.format === "vote") room.seen = [...room.seen, ...(room.state as V.VoteState).cards.map((c) => c.id)].slice(-400);
@@ -439,7 +451,7 @@ function autoplay(room: Room, name: string): Action | null {
     if (x.phase === "clue" && IM.turnPlayer(x) === name) return { type: "clue", by: name, text: "" };
     return null; // votes and guesses run out on their own clocks
   }
-  if (format === "vote" || format === "insync" || format === "partytrivia") return null; // every phase ends on its own clock
+  if (format === "vote" || format === "insync" || format === "partytrivia" || format === "mafia") return null; // every phase ends on its own clock
   if (format === "auction") {
     const a = s as A.AuctionState;
     if (a.nominate?.offer) return A.nominator(a) === name ? { type: "nominate", by: name, itemId: a.nominate.offer[0]! } : null;
@@ -473,7 +485,7 @@ export function tickRooms(now = Date.now()) {
     const setup = room.setup;
 
     s = applyAction(setup, s, { type: "tick" }, now);
-    s = settleTrivia(room, s, now);
+    s = settleParty(room, s, now);
 
     const timer = setup.opts.timerSeconds;
     const turnBased = setup.format === "snake" || setup.format === "spin" || setup.format === "loadout";
@@ -513,6 +525,7 @@ function redact(room: Room, me: string | null): GameState | null {
   if (room.setup?.format === "vote") return V.redactFor(s as V.VoteState, me, room.status === "done");
   if (room.setup?.format === "insync") return IS.redactFor(s as IS.InSyncState, me); // opens up by itself once the game is done
   if (room.setup?.format === "partytrivia") return PT.redactFor(s as PT.PTState, me) as unknown as GameState; // opens up by itself once the game is done
+  if (room.setup?.format === "mafia") return MF.redactFor(s as MF.MafiaState, me) as unknown as GameState; // same
   if (room.status === "done" || !room.setup) return s;
   if (room.setup.format === "position") {
     const p = s as P.PositionState;

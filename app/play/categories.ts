@@ -184,6 +184,7 @@ export const FORMAT_WHY: Record<FormatId, string> = {
   vote: "Vote together, read the room",
   insync: "Give one clue, tune in together",
   partytrivia: "Answer fast, alone or in teams",
+  mafia: "Find the mafia before they outnumber you",
 };
 
 /** Formats that make sense for a category (Loadout needs hero-ish items). */

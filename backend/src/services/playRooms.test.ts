@@ -707,3 +707,197 @@ describe("who hosts", () => {
     });
   });
 });
+
+describe("Mafia room", () => {
+  const NAMES = ["Zelda", "Xavier", "Quincy", "Wilma", "Yolanda", "Barnaby", "Cordelia"];
+  const seated = (names: string[], opts: any = {}) => {
+    const made = createRoom({ format: "mafia", pool: "mafia", opts }, names[0]!) as any;
+    const toks: Record<string, string> = { [names[0]!]: made.seat.token };
+    for (const n of names.slice(1)) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+    return { r: made.room, toks };
+  };
+  const started = (names = NAMES, opts: any = {}) => {
+    const x = seated(names, opts);
+    expect(startRoom(x.r, x.toks[names[0]!])).toEqual({ ok: true });
+    return x;
+  };
+  /** Night, with every living player acting sensibly: mafia kill `kill` if given (or the first non-mafia), others tap. */
+  const playNight = (r: any, toks: Record<string, string>, kill?: string) => {
+    const s = r.state;
+    const target = kill ?? s.alive.find((p: string) => s.roles[p] !== "mafia");
+    const other = s.alive.find((p: string) => p !== target && s.roles[p] !== "mafia");
+    for (const p of s.alive) {
+      const role = s.roles[p];
+      act(r, toks[p]!, { type: "nightAct", target: role === "mafia" ? target : role === "villager" ? "ok" : role === "doctor" ? other : s.alive.find((q: string) => q !== p) });
+    }
+  };
+
+  it("takes a fixed pool only, needs no quiz, and starts from 5 players", () => {
+    expect(sanitizeSetup({ format: "mafia", pool: "mafia" })).toMatchObject({ format: "mafia", pool: "mafia", mission: { title: "Mafia" } });
+    expect(sanitizeSetup({ format: "mafia", pool: "superheroes" })).toBeNull();
+    const { r, toks } = seated(NAMES.slice(0, 4));
+    expect(needsQuiz(r)).toBe(false);
+    expect(startRoom(r, toks.Zelda)).toEqual({ error: "Need at least 5 players" });
+    joinRoom(r.code, "Yolanda");
+    expect(startRoom(r, toks.Zelda)).toEqual({ ok: true });
+    expect(r.state.phase).toBe("night");
+  });
+
+  it("refuses a player named exactly like the skip vote, who could otherwise never be voted out", () => {
+    const { r, toks } = seated(["Zelda", "Xavier", "Quincy", "Wilma", "skip"]);
+    expect(startRoom(r, toks.Zelda)).toEqual({ error: expect.stringContaining("skip") });
+    expect(r.status).toBe("lobby");
+  });
+
+  it("skipTalk from a non-host returns an error, and the host's works", () => {
+    const { r, toks } = started();
+    playNight(r, toks);
+    tickRooms(Date.now() + 8_001);
+    expect(r.state.phase).toBe("talk");
+    expect(act(r, toks.Xavier, { type: "skipTalk" })).toEqual({ ok: false, error: expect.any(String) });
+    expect(r.state.phase).toBe("talk");
+    expect(act(r, toks.Zelda, { type: "skipTalk" })).toEqual({ ok: true });
+    expect(r.state.phase).toBe("vote");
+  });
+
+  it("a departed host doesn't strand the talk phase: the next seat can skip it, and the old host can't", () => {
+    const { r, toks } = started();
+    playNight(r, toks);
+    tickRooms(Date.now() + 8_001);
+    leaveRoom(r, toks.Zelda);
+    expect(act(r, toks.Zelda, { type: "skipTalk" }).ok).toBe(false);
+    expect(r.seats[0].left).toBe(true);
+    expect(act(r, toks.Xavier, { type: "skipTalk" })).toEqual({ ok: true });
+  });
+
+  it("the seat decides who acts: a client can't act for someone else or set the clock", () => {
+    const { r, toks } = started();
+    const villager = r.state.alive.find((p: string) => r.state.roles[p] === "villager");
+    expect(act(r, toks[villager]!, { type: "nightAct", target: "ok", by: "Someone", now: 0, at: 0 })).toEqual({ ok: true });
+    expect(r.state.actions.done).toEqual([villager]);
+    expect(r.state.phaseAt).toBeGreaterThan(0);
+    expect(act(r, toks[villager]!, { type: "nightAct", target: "ok" }).ok).toBe(false);
+    expect(act(r, "bad-token", { type: "nightAct", target: "ok" }).ok).toBe(false);
+  });
+
+  it("the dead can't act through the room", () => {
+    const { r, toks } = started();
+    playNight(r, toks);
+    const dead = r.state.morning.died;
+    expect(dead).toBeTruthy();
+    tickRooms(Date.now() + 8_001);
+    act(r, toks[r.seats.find((s: any) => !s.left).name]!, { type: "skipTalk" });
+    expect(act(r, toks[dead]!, { type: "dayVote", target: "skip" }).ok).toBe(false);
+    expect(r.state.votes).toEqual({});
+  });
+
+  it("snapshots carry no seed and no hidden choice, for every seat in every phase", () => {
+    const { r, toks } = started();
+    const raw = r.state;
+    const mafia = NAMES.find((p) => raw.roles[p] === "mafia")!;
+    const doctor = NAMES.find((p) => raw.roles[p] === "doctor")!;
+    const detective = NAMES.find((p) => raw.roles[p] === "detective")!;
+    const villagers = NAMES.filter((p) => raw.roles[p] === "villager");
+    const [victim, saved, checked] = villagers as [string, string, string];
+    act(r, toks[mafia]!, { type: "nightAct", target: victim });
+    act(r, toks[doctor]!, { type: "nightAct", target: saved });
+    act(r, toks[detective]!, { type: "nightAct", target: checked });
+
+    for (const name of NAMES) {
+      const snap: any = snapshot(r, toks[name]);
+      expect(snap.setup.seed).toBe(0);
+      const json = JSON.stringify(snap.state);
+      expect(json).not.toMatch(/seed/);
+      expect(Object.keys(snap.state.roles).filter((k) => k !== name)).toEqual([]);
+      expect(snap.state.actedCount).toBe(3);
+      expect(snap.state.actions.done).toEqual(name === mafia || name === doctor || name === detective ? [name] : []);
+      expect(snap.state.actions.kill).toBe(name === mafia ? victim : null);
+      expect(snap.state.actions.save).toBe(name === doctor ? saved : null);
+      expect(snap.state.actions.check).toBe(name === detective ? checked : null);
+      expect(Object.keys(snap.state.checks)).toEqual(name === detective ? [detective] : []);
+      if (name !== mafia && name !== detective) expect(json).not.toContain('"mafia"'); // a detective's check has a mafia flag
+    }
+    const outsider: any = snapshot(r, "not-a-token");
+    expect(outsider.state.roles).toEqual({});
+    expect(outsider.state.actions).toEqual({ kill: null, save: null, check: null, done: [] });
+  });
+
+  it("closes the night as soon as everyone left at the table has acted", () => {
+    const { r, toks } = started();
+    const mafia = NAMES.find((p) => r.state.roles[p] === "mafia")!;
+    const doctor = NAMES.find((p) => r.state.roles[p] === "doctor")!;
+    const detective = NAMES.find((p) => r.state.roles[p] === "detective")!;
+    const villagers = NAMES.filter((p) => r.state.roles[p] === "villager");
+    for (const v of villagers) act(r, toks[v]!, { type: "nightAct", target: "ok" });
+    act(r, toks[doctor]!, { type: "nightAct", target: villagers[0] });
+    act(r, toks[detective]!, { type: "nightAct", target: villagers[0] });
+    expect(r.state.phase).toBe("night");
+    leaveRoom(r, toks[mafia]);
+    expect(r.state.phase).toBe("morning");
+    expect(r.state.morning).toEqual({ died: null });
+    expect(r.state.alive).toContain(mafia); // they still count until voted out
+    expect(r.status).toBe("playing");
+  });
+
+  it("a departed player acting again is back at the table, unless it's a refused skip", () => {
+    const { r, toks } = started();
+    const villager = NAMES.find((p) => r.state.roles[p] === "villager")!;
+    leaveRoom(r, toks[villager]);
+    expect(r.seats.find((s: any) => s.name === villager).left).toBe(true);
+    expect(act(r, toks[villager]!, { type: "nightAct", target: "ok" })).toEqual({ ok: true });
+    expect(r.seats.find((s: any) => s.name === villager).left).toBe(false);
+  });
+
+  it("never stalls: with only the dead still here it ends with no winner, and they aren't asked to wait", () => {
+    const { r, toks } = started();
+    const dead = "Zelda";
+    r.state = { ...r.state, alive: r.state.alive.filter((p: string) => p !== dead) };
+    for (const name of NAMES.filter((p) => p !== dead)) leaveRoom(r, toks[name]);
+    expect(r.status).toBe("done");
+    expect(r.state).toMatchObject({ done: true, winner: null });
+    expect(r.played.at(-1)).toMatchObject({ format: "mafia", winner: null });
+  });
+
+  it("the clock alone carries a silent table through to a clean finish", () => {
+    const { r } = started();
+    let now = Date.now();
+    for (let guard = 0; guard < 200 && r.status === "playing"; guard++) {
+      now += 121_000;
+      tickRooms(now);
+    }
+    expect(r.status).toBe("done");
+    expect(r.state.winner).toBeNull();
+  });
+
+  it("finishing records the winning side, and opens every secret", () => {
+    const { r, toks } = started(NAMES.slice(0, 5));
+    const mafia = NAMES.slice(0, 5).find((p) => r.state.roles[p] === "mafia")!;
+    const others = NAMES.slice(0, 5).filter((p) => p !== mafia);
+    tickRooms(Date.now() + 45_001);
+    tickRooms(Date.now() + 45_001 + 8_000);
+    expect(r.state.phase).toBe("talk");
+    act(r, toks[r.seats[0].name]!, { type: "skipTalk" });
+    for (const p of others) act(r, toks[p]!, { type: "dayVote", target: mafia });
+    act(r, toks[mafia]!, { type: "dayVote", target: "skip" });
+    expect(r.status).toBe("done");
+    expect(r.played.at(-1)).toEqual({ format: "mafia", pool: "mafia", winner: "Village" });
+    const snap: any = snapshot(r, toks[others[0]!]);
+    expect(snap.state.roles[mafia]).toBe("mafia");
+    expect(snap.state.points[mafia]).toBe(0);
+    expect(snap.state.points[others[0]!]).toBe(1);
+  });
+
+  it("drinking stays off by default, and a seat that left doesn't get its own card sent", () => {
+    expect(sanitizeSetup({ format: "mafia", pool: "mafia" })!.opts.drinking).toBe(false);
+    const { r, toks } = started(NAMES.slice(0, 5), { drinking: true });
+    const s = r.state;
+    const mafia = NAMES.slice(0, 5).find((p) => s.roles[p] === "mafia")!;
+    const victim = NAMES.slice(0, 5).find((p) => s.roles[p] === "villager")!;
+    for (const p of s.alive) act(r, toks[p]!, { type: "nightAct", target: p === mafia ? victim : s.roles[p] === "villager" ? "ok" : mafia });
+    expect(r.state.morning).toEqual({ died: victim });
+    leaveRoom(r, toks[victim]);
+    const snap: any = snapshot(r, toks[mafia]);
+    expect(snap.state.drinks.calls).toEqual([]);
+    expect(r.state.drinks.calls.map((c: any) => c.to)).toEqual([victim]);
+  });
+});

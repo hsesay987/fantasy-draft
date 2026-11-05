@@ -5,10 +5,10 @@ import type { LoadoutMission } from "../topicDraft/formats/loadout";
 import type { Role } from "../topicDraft/formats/position";
 import type { QuizData } from "../topicDraft/trivia/types";
 
-export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote" | "insync" | "partytrivia";
+export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote" | "insync" | "partytrivia" | "mafia";
 
 /** Party games: online only, played on phones in one room. `pool` is a topic (Imposter) or a card deck (vote games). */
-export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote", "insync", "partytrivia"]);
+export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote", "insync", "partytrivia", "mafia"]);
 
 export type Opts = {
   teamSize: number;
