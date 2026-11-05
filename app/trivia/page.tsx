@@ -67,9 +67,18 @@ export default function TriviaHub() {
           <div className="max-w-2xl">
             <p className="px-eyebrow">NEW · DAILY</p>
             <h2 className="mt-2">Pinpoint</h2>
-            <p className="px-note mt-2">Guess today&apos;s hidden pick in any topic. Every guess shows how close you are: same group, same type, and higher or lower on every stat.</p>
+            <p className="px-note mt-2">Guess today&apos;s hidden pick in any topic. Every guess is checked against real facts about the pick and shows how close you are.</p>
           </div>
           <Link href="/pinpoint" className="px-btn gold no-underline">PLAY PINPOINT</Link>
+        </PixelBox>
+
+        <PixelBox className="flex flex-wrap items-center justify-between gap-4">
+          <div className="max-w-2xl">
+            <p className="px-eyebrow">NEW · DAILY</p>
+            <h2 className="mt-2">Common Thread</h2>
+            <p className="px-note mt-2">Six clues share one hidden fact, from obscure to obvious. Work out what links them in any topic: the fewer clues you need, the more you score.</p>
+          </div>
+          <Link href="/commonthread" className="px-btn gold no-underline">PLAY COMMON THREAD</Link>
         </PixelBox>
       </div>
     </PixelShell>

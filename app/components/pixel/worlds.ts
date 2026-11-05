@@ -8,7 +8,7 @@ export type Actor = { name: string; value: number; color?: string };
 export type Checkpoint = { name: string; at: number };
 
 export type World = {
-  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio";
+  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio" | "board";
   /** Size of the whole map. */
   fullW: number;
   fullH: number;
@@ -985,7 +985,230 @@ export const STUDIO: World = {
   camera: () => ({ x: 0, y: 0 }),
 };
 
-export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO };
+// ======================= BOARD: a detective's office, the case on the corkboard =======================
+// One in the morning: rain behind half-shut blinds with a red sign flickering beyond, stripes of light across the wall,
+// a corkboard of photos and notes joined by red string, and a detective in a trench coat working out the link.
+const BRD_W = 180, BRD_H = 76, BRD_DESK = 56;
+const BRD_WIN = { x: 6, y: 8, w: 34, h: 34 };
+const BRD_CORK = { x: 54, y: 5, w: 92, h: 43 };
+const BRD_PINS: [number, number][] = [[62, 10], [79, 25], [97, 9], [122, 23], [139, 10], [134, 34]];
+const BRD_COAT = [
+  "..CCCCCCCCCC..",
+  ".CCCCCCCCCCCC.",
+  ".CCcCCCCCCcCC.",
+  "CCCcCCCCCCcCC.",
+  "CCCcCCCCCCcCC.",
+  "CCCcCCccCCcCC.",
+  "CCCcCCccCCcCC.",
+  "CCCcBBBBBBcCC.",
+  "dCCcCCccCCcCC.",
+  "ss.cCCccCCc...",
+  "...cCCccCCc...",
+  "...cCCccCCc...",
+  "...cCC..CCc...",
+  "...cCC..CCc...",
+];
+const BRD_HEAD = [
+  "....FFFFFF....",
+  "...FFFFFFFF...",
+  "...FbbbbbbF...",
+  ".FFFFFFFFFFFF.",
+  "....hhhhhh....",
+  "....hhhhhh....",
+  ".....ssss.....",
+];
+const BRD_PAL = { C: "#a98a5a", c: "#7c6240", d: "#6a5335", B: "#54402a", F: "#3a2c24", b: "#1a1210", h: "#2b1c16", s: "#d9a57c" };
+const BRD_CAT = ["..k...k.....", "..kk.kk.....", "..kkkkkkkkk.", ".kgkkgkkkkkk", ".kkkkkkkkkkk", "..kkkkkkkkk."];
+const BRD_CAT_PAL = { k: "#26201f", g: "#e8c14a" };
+
+function boardBackdrop(ctx: CanvasRenderingContext2D) {
+  // Plaster, darkest at the ceiling, warming toward the lamp.
+  ditherSky(ctx, 0, 0, BRD_W, BRD_DESK, [[0, "#15100f"], [0.5, "#241814"], [1, "#35231a"]]);
+  px(ctx, 0, 0, "#0b0807", BRD_W, 3);
+  px(ctx, 0, 3, "#3d2a1e", BRD_W, 1);
+  // Light through the blinds falls across the wall in slanted bars.
+  for (let bar = 0; bar < 7; bar++) for (let y = 6; y < BRD_DESK; y++) {
+    if (y % 8 < 3) continue;
+    const from = 44 + y * 0.42 + bar * 2 - 6;
+    for (let k = 0; k < 14 - bar * 2; k++) if (from + k < BRD_CORK.x - 2 && (Math.floor(from + k) + y) % 2 === 0) px(ctx, from + k, y, "#4a2e22");
+  }
+
+  // Window frame and the wet night beyond.
+  const { x: wx, y: wy, w: ww, h: wh } = BRD_WIN;
+  px(ctx, wx - 3, wy - 3, "#0b0807", ww + 6, wh + 7);
+  px(ctx, wx - 2, wy - 2, "#5c4230", ww + 4, wh + 4);
+  px(ctx, wx - 2, wy - 2, "#7d5d44", ww + 4, 1);
+  px(ctx, wx - 1, wy - 1, "#0b0807", ww + 2, wh + 2);
+  ditherSky(ctx, wx, wy, ww, wh, [[0, "#070b1c"], [0.6, "#131a35"], [1, "#2c2240"]]);
+  for (let x = 0; x < ww; x++) { const h = 7 + Math.round(noise1(x >> 2, 11) * 10); px(ctx, wx + x, wy + wh - h, "#0a0c1e", 1, h); }
+  const lit = rng(83);
+  for (let i = 0; i < 12; i++) px(ctx, wx + lit() * ww, wy + wh - 2 - lit() * 12, lit() > 0.5 ? "#c9a24e" : "#6d5a34");
+  px(ctx, wx - 4, wy + wh + 2, "#6a4c36", ww + 8, 2);
+  px(ctx, wx - 4, wy + wh + 2, "#8a684c", ww + 8, 1);
+
+  // The cork, in a wooden frame.
+  const { x: bx, y: by, w: bw, h: bh } = BRD_CORK;
+  px(ctx, bx - 3, by - 3, "#0b0807", bw + 6, bh + 6);
+  px(ctx, bx - 2, by - 2, "#7a4f2c", bw + 4, bh + 4);
+  px(ctx, bx - 2, by - 2, "#a06d3f", bw + 4, 1);
+  px(ctx, bx - 2, by - 2, "#a06d3f", 1, bh + 4);
+  px(ctx, bx - 1, by - 1, "#3b2412", bw + 2, bh + 2);
+  for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) {
+    const n = noise2(x * 0.35, y * 0.35, 5) * 0.45 + noise1(x * 7 + y * 13, 6) * 0.55;
+    px(ctx, bx + x, by + y, n > 0.74 ? "#d3a56e" : n > 0.46 ? "#b98a55" : n > 0.28 ? "#a67845" : "#8c6236");
+  }
+  // Pinned evidence: small photos with something to look at, typed notes, a torn map.
+  const photo = (x: number, y: number, sky: string, shape: string, tall: number) => {
+    px(ctx, x + 1, y + 1, "#00000055", 11, 13);
+    px(ctx, x, y, "#efe6cd", 11, 13);
+    px(ctx, x + 1, y + 1, sky, 9, 9);
+    px(ctx, x + 4, y + 10 - tall, shape, 3, tall);
+    px(ctx, x + 3, y + 8 - tall, shape, 5, 2);
+    px(ctx, x + 2, y + 11, "#a89a7c", 7, 1);
+  };
+  BRD_PINS.forEach(([x, y], i) => photo(x - 5, y, ["#5e7f8c", "#8c5e6a", "#6a7d55", "#7d6a9a", "#a07a48", "#4f6f8f"][i]!, "#1d1412", 3 + (i % 3)));
+  const note = (x: number, y: number, w: number, h: number, c: string) => {
+    px(ctx, x + 1, y + 1, "#00000055", w, h);
+    px(ctx, x, y, c, w, h);
+    for (let l = 2; l < h - 1; l += 2) px(ctx, x + 1, y + l, "#7a6f58", w - 2 - (l % 3), 1);
+  };
+  note(70, 9, 13, 10, "#f2dc7c");
+  note(106, 7, 11, 13, "#efe6cd");
+  note(58, 30, 15, 13, "#efe6cd");
+  note(107, 33, 15, 11, "#f2b0a0");
+  // A torn street map with a ringed spot.
+  px(ctx, 84, 28, "#9fb48e", 17, 15);
+  for (let k = 0; k < 15; k++) { px(ctx, 84 + k, 33 + (k >> 2), "#efe6cd"); px(ctx, 92, 28 + k, "#efe6cd"); }
+  for (const [mx, my] of [[97, 35], [99, 37], [97, 39], [95, 37]] as const) px(ctx, mx, my, "#c8232c");
+
+  // Filing cabinet, olive steel, three drawers with card labels.
+  px(ctx, 153, 16, "#0b0807", 23, 40);
+  px(ctx, 154, 17, "#4d5240", 21, 39);
+  px(ctx, 154, 17, "#6c7258", 21, 1);
+  for (let d = 0; d < 3; d++) {
+    const y = 19 + d * 12;
+    px(ctx, 156, y, "#3a3e30", 17, 10);
+    px(ctx, 156, y, "#5e644d", 17, 1);
+    px(ctx, 161, y + 2, "#efe6cd", 7, 3);
+    px(ctx, 162, y + 3, "#7a6f58", 5, 1);
+    px(ctx, 162, y + 7, "#b9b39a", 5, 1);
+  }
+
+  // The desk: scarred walnut top, drawers below.
+  px(ctx, 0, BRD_DESK, "#0b0807", BRD_W, 1);
+  ditherSky(ctx, 0, BRD_DESK + 1, BRD_W, 5, [[0, "#8a5a33"], [1, "#6a4224"]]);
+  ditherSky(ctx, 0, BRD_DESK + 6, BRD_W, BRD_H - BRD_DESK - 6, [[0, "#3c2414"], [1, "#22130a"]]);
+  px(ctx, 0, BRD_DESK + 6, "#0b0807", BRD_W, 1);
+  for (let d = 0; d < 4; d++) {
+    const x = 8 + d * 43;
+    px(ctx, x, BRD_DESK + 9, "#1a0e07", 36, 9);
+    px(ctx, x + 1, BRD_DESK + 10, "#52321c", 34, 7);
+    px(ctx, x + 1, BRD_DESK + 10, "#6a4426", 34, 1);
+    px(ctx, x + 15, BRD_DESK + 13, "#d0a860", 6, 1);
+  }
+
+  // Typewriter with a page in it.
+  px(ctx, 53, 47, "#efe6cd", 15, 6);
+  for (let l = 48; l < 53; l += 2) px(ctx, 55, l, "#7a6f58", 11, 1);
+  px(ctx, 50, 52, "#14161a", 21, 5);
+  px(ctx, 50, 52, "#3a3e46", 21, 1);
+  for (let k = 0; k < 9; k++) px(ctx, 52 + k * 2, 54 + (k % 2), "#c9ccd6");
+
+  // A stack of case files, and the magnifying glass on top of the blotter.
+  for (let f = 0; f < 5; f++) px(ctx, 130 + (f % 2), 55 - f * 2, f % 2 ? "#c9a76a" : "#b18f55", 20, 2);
+  px(ctx, 142, 47, "#efe6cd", 5, 1);
+  for (let k = 0; k < 5; k++) px(ctx, 113 + k, 58 - k * 0.2, "#5b3a20", 2, 1);
+  disc(ctx, 108, 58, 3, (dx, dy) => (dx * dx + dy * dy >= 7 ? "#d9b05c" : dx + dy < 0 ? "#cfe7ee" : "#7ea3b0"));
+
+  // Coffee in a chipped mug.
+  px(ctx, 83, 50, "#0b0807", 8, 7);
+  px(ctx, 84, 51, "#d8d0bd", 6, 5);
+  px(ctx, 84, 51, "#3b2412", 6, 1);
+  px(ctx, 90, 52, "#d8d0bd", 2, 1); px(ctx, 91, 53, "#d8d0bd", 1, 2); px(ctx, 90, 54, "#d8d0bd", 2, 1);
+
+  // Banker's lamp: brass stem, base, and a green shade.
+  px(ctx, 25, 54, "#8a6a2c", 12, 2);
+  px(ctx, 25, 54, "#e0bb62", 12, 1);
+  px(ctx, 30, 45, "#b9933f", 2, 9);
+  px(ctx, 21, 40, "#0b0807", 20, 6);
+  px(ctx, 22, 41, "#1f6b4a", 18, 4);
+  px(ctx, 22, 41, "#3fa877", 18, 1);
+  px(ctx, 22, 44, "#134530", 18, 1);
+  px(ctx, 36, 46, "#b9933f", 1, 3);
+  // The lamp's pool of light on the wood.
+  for (let i = 0; i < 80; i++) { const x = 10 + noise1(i, 21) * 44, y = BRD_DESK + 1 + noise1(i, 22) * 4; if ((Math.round(x) + Math.round(y)) % 2 === 0) px(ctx, x, y, "#c9925a"); }
+}
+
+export const BOARD: World = {
+  id: "board", fullW: BRD_W, fullH: BRD_H, viewW: BRD_W, viewH: BRD_H,
+  checkpoints: [{ name: "The case room", at: 0 }],
+  backdrop: boardBackdrop,
+  frame: (ctx, t) => {
+    const { x: wx, y: wy, w: ww, h: wh } = BRD_WIN;
+    // The red sign across the street stutters.
+    const sign = !(t % 97 < 3 || (t % 97 > 6 && t % 97 < 8));
+    px(ctx, wx + 7, wy + 9, sign ? "#ff3a4a" : "#4a1820", 16, 5);
+    if (sign) { px(ctx, wx + 8, wy + 10, "#ffc0b0", 14, 1); for (let k = 0; k < 18; k++) px(ctx, wx + 4 + noise1(k, 31) * 24, wy + 6 + noise1(k, 32) * 12, "rgba(255,60,70,.25)"); }
+    // Rain falls behind the glass, then the blinds cut across it all.
+    for (let i = 0; i < 22; i++) {
+      const rx = wx + noise1(i, 33) * (ww - 1), ry = (noise1(i, 34) * wh + t * (1.6 + noise1(i, 35))) % wh;
+      px(ctx, rx, wy + ry, "#7f97c4");
+      if (ry < wh - 1) px(ctx, rx, wy + ry + 1, "#465a88");
+    }
+    for (let y = 0; y < wh; y += 5) { px(ctx, wx, wy + y, "#c6b48c", ww, 1); px(ctx, wx, wy + y + 1, "#6d5f47", ww, 1); }
+    px(ctx, wx + 5, wy, "#3a3226", 1, wh);
+    px(ctx, wx + ww - 6, wy, "#3a3226", 1, wh);
+
+    // Red string from pin to pin, with a slight slack that breathes and a glint running along it now and then.
+    const glint = t % 90;
+    BRD_PINS.slice(1).forEach(([bx, by], i) => {
+      const [ax, ay] = BRD_PINS[i]!;
+      const sag = 2 + Math.round(Math.sin(t / 22 + i));
+      const steps = Math.ceil(Math.hypot(bx - ax, by - ay) * 1.2);
+      for (let k = 0; k <= steps; k++) {
+        const u = k / steps, x = ax + (bx - ax) * u, y = ay + (by - ay) * u + sag * 4 * u * (1 - u);
+        px(ctx, x, y + 1, "rgba(0,0,0,.28)");
+        const lit = glint < 40 && Math.abs(glint - (i * 8 + u * 8)) < 1.4;
+        px(ctx, x, y, lit ? "#ffd0c0" : k % 5 === 0 ? "#ff5a4f" : "#d3202c");
+      }
+    });
+    for (const [x, y] of BRD_PINS) { px(ctx, x - 1, y - 1, "#7a1018", 3, 3); px(ctx, x - 1, y - 1, "#ff5a4f", 2, 2); px(ctx, x - 1, y - 1, "#ffd0c0"); }
+
+    // The detective: weight shifts, the head tilts, and now and then a hand goes up to a pin.
+    const dx = 88, dy = 34, step = Math.floor(t / 26) % 3 === 2 ? 1 : 0;
+    const tilt = t % 170 > 110 && t % 170 < 150 ? 2 : Math.floor(t / 40) % 4 === 1 ? -1 : 0;
+    drawSprite(ctx, BRD_COAT, BRD_PAL, dx + step, dy + 7);
+    drawSprite(ctx, BRD_HEAD, BRD_PAL, dx + step + tilt, dy);
+    const reach = t % 170 > 110 && t % 170 < 150;
+    if (reach) { for (let k = 0; k < 9; k++) px(ctx, dx + step + 13 + k * 0.7, dy + 9 - k, "#a98a5a", 2, 1); px(ctx, dx + step + 19, dy - 1, "#d9a57c", 2, 2); }
+    else { px(ctx, dx + step + 13, dy + 9, "#a98a5a", 1, 7); px(ctx, dx + step + 13, dy + 16, "#d9a57c", 1, 2); }
+    // The desk hides the detective's legs.
+    ditherSky(ctx, 80, BRD_DESK + 1, 28, 5, [[0, "#8a5a33"], [1, "#6a4224"]]);
+    px(ctx, 80, BRD_DESK, "#0b0807", 28, 1);
+    px(ctx, 83, 50, "#0b0807", 8, 7);
+    px(ctx, 84, 51, "#d8d0bd", 6, 5);
+    px(ctx, 84, 51, "#3b2412", 6, 1);
+    px(ctx, 90, 52, "#d8d0bd", 2, 1); px(ctx, 91, 53, "#d8d0bd", 1, 2); px(ctx, 90, 54, "#d8d0bd", 2, 1);
+    disc(ctx, 108, 58, 3, (x, y) => (x * x + y * y >= 7 ? "#d9b05c" : x + y < 0 ? "#cfe7ee" : "#7ea3b0"));
+
+    // Steam off the coffee.
+    for (let k = 0; k < 4; k++) { const age = (t * 0.5 + k * 5) % 16; if (age < 12) px(ctx, 87 + Math.sin(age * 0.5 + k) * 1.5, 49 - age, age < 6 ? "#b9aca0" : "#6a5a50"); }
+    // The lamp's bulb under the shade, with the rare dip.
+    const dip = t % 151 < 2;
+    px(ctx, 25, 46, dip ? "#a8905a" : "#fff0b8", 12, 1);
+    if (!dip) for (let i = 0; i < 26; i++) { const x = 14 + noise1(i, 41) * 34, y = 47 + noise1(i, 42) * 8; if ((Math.round(x) + Math.round(y)) % 2 === 0) px(ctx, x, y, "rgba(255,226,150,.2)"); }
+    // The office cat sleeps on the files, tail twitching, one eye opening.
+    const awake = t % 140 < 24;
+    drawSprite(ctx, BRD_CAT, { ...BRD_CAT_PAL, g: awake ? "#e8c14a" : "#26201f" }, 133, 40);
+    const flick = Math.floor(t / 9) % 5 === 0 ? -1 : 0;
+    px(ctx, 145, 44 + flick, "#26201f", 2, 1);
+    px(ctx, 147, 43 + flick, "#26201f", 1, 1);
+  },
+  pos: () => ({ x: 90, y: 34 }),
+  camera: () => ({ x: 0, y: 0 }),
+};
+
+export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO, board: BOARD };
 
 /** The last checkpoint reached at a fraction of the journey. */
 export function checkpointAt(world: World, f: number): Checkpoint {

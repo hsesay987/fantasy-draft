@@ -40,3 +40,9 @@ export const productIcon = (kind: string, a = "#ffffff", b = "#7c3aed"): Sprite 
   const blank = ".".repeat(w);
   return { rows: [...Array(Math.max(0, top)).fill(blank), ...rows, ...Array(Math.max(0, w - rows.length - top)).fill(blank)], pal: { X: "#070419", A: a, B: b } };
 };
+
+/** A detective's magnifying glass. */
+export const magnifier = (): Sprite => ({
+  rows: ["..0000....", ".0GGGG0...", "0GgGGGG0..", "0GggGGG0..", "0GgGGGG0..", "0GGGGGG0..", ".0GGGG0...", "..0000B...", "......BB..", ".......BB.", "........BB"],
+  pal: { 0: "#d9b05c", G: "#7ea3b0", g: "#cfe7ee", B: "#7a4f2c" },
+});
