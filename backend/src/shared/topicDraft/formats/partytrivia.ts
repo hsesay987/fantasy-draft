@@ -4,15 +4,14 @@
 // answer scores more the faster it lands. From 4 players the table can split into teams: each member votes, and the
 // team's answer is its most-voted option. Questions come from the trivia bank and get harder as the game goes on.
 import type { TriviaCategory } from "../trivia/types";
-import { shuffle } from "../rng";
+import { TIERS, tierPools, type TierQuestion } from "../trivia/tiers";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 
 export const QUESTION_MS = 25_000, REVEAL_MS = 7_000, BASE = 100, SPEED_MAX = 50;
 /** Fewest players for teams. */
 export const TEAM_MIN_PLAYERS = 4;
-const TIERS = 4;
 
-export type PTQuestion = { q: string; options: string[]; answer: string };
+export type PTQuestion = TierQuestion;
 export type PTState = {
   players: string[];
   teams: string[][] | null;
@@ -65,21 +64,7 @@ export function teamChoice(votes: { choice: string; at: number }[]): string | nu
 
 /** Every category contributes its clues by tier (easy first). Picks `count` spread across the tiers, in tier order. */
 function flatten(categories: TriviaCategory[], count: number, seed: number): PTQuestion[] {
-  let s = seed;
-  const tiers: PTQuestion[][] = [];
-  for (let t = 0; t < TIERS; t++) {
-    const pool: PTQuestion[] = [];
-    for (const c of categories) {
-      const clue = c.clues[t];
-      if (!clue || c.clues.length < TIERS) continue;
-      const [options, ns] = shuffle([clue.right, ...clue.wrong], s);
-      s = ns;
-      pool.push({ q: clue.q, options, answer: clue.right });
-    }
-    const [mixed, ns] = shuffle(pool, s);
-    s = ns;
-    tiers.push(mixed);
-  }
+  const tiers = tierPools(categories, seed);
   const want = Math.min(count, tiers.reduce((n, t) => n + t.length, 0));
   const take = tiers.map(() => 0);
   for (let i = 0, left = want; left > 0; i++) {

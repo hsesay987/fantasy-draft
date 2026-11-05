@@ -714,3 +714,8 @@
 @media (prefers-reduced-motion: reduce) {
   .arc-marquee .bulbs i, .arc-crt::after, .arc-btn.locked, .arc-btn.right, .arc-time { animation: none; }
 }
+
+/* ---------- Top Rung: a lighthouse at dusk. Violet night above, brass and sunset on the trims, a rung along each panel. ---------- */
+.pixel[data-world="ladder"] { --px-bg: #15123f; --px-bg2: #1b1650; --px-panel: #2c2069; --px-panel2: #472a7c; --px-ink: #170f30; --px-fg: #fff3dc; --px-dim: #c9b4dc; --px-lav: #fbcfa0; --px-rose: #f4714f; --px-gold: #ffd27a; --px-mint: #7fe0a8; --px-sky: #8fc4ff; --px-violet: #54297f;
+  background: #15123f repeating-linear-gradient(0deg, #1b1650 0 2px, #15123f 2px 8px); }
+.pixel[data-world="ladder"] .px-box::before { content: ""; position: absolute; left: 8px; right: 8px; top: 6px; height: 2px; pointer-events: none; background: repeating-linear-gradient(90deg, #ffd27a 0 10px, #b7803e 10px 12px, transparent 12px 24px); opacity: .7; }
