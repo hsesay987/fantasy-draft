@@ -1317,7 +1317,8 @@ describe("Vowel Play rooms", () => {
     });
     it("has no host next for these formats", () => {
       const { r, toks } = running(vp("vowelparty"), ["Ann", "Bob"]);
-      expect(act(r, toks.Bob!, { type: "next" })).toMatchObject({ ok: false });
+      expect(isHost(r, toks.Ann!)).toBe(true);
+      expect(act(r, toks.Ann!, { type: "next" })).toEqual({ ok: false, error: "Not allowed right now" });
     });
   });
 
@@ -1360,6 +1361,14 @@ describe("Vowel Play rooms", () => {
       expect(JSON.stringify(snapshot(r, undefined).setup)).not.toContain(cur(r).name);
       expect((snapshot(r, undefined).state as any).seed).toBe(0);
     });
+    it("never sends the setup seed, to any seat, while playing or after", () => {
+      const { r, toks } = running(vp("vowelplay", { vowelAnswer: "voice" }), names);
+      expect(r.setup.seed).not.toBe(0);
+      act(r, toks.Bob!, { type: "buzz" });
+      for (const tok of [undefined, toks.Ann, toks.Bob, toks.Cy]) expect(snapshot(r, tok).setup!.seed).toBe(0);
+      const p = running(vp("vowelparty"), names);
+      for (const tok of [undefined, p.toks.Ann, p.toks.Bob]) expect(snapshot(p.r, tok).setup!.seed).toBe(0);
+    });
     it("sends only the words played once a head to head ends early", () => {
       vi.useFakeTimers({ toFake: ["Date"] });
       try {
@@ -1371,7 +1380,9 @@ describe("Vowel Play rooms", () => {
           tickRooms();
         }
         expect(r.status).toBe("done");
+        expect(r.setup.seed).not.toBe(0);
         for (const tok of [undefined, toks.Ann, toks.Bob]) {
+          expect(snapshot(r, tok).setup!.seed).toBe(0);
           const s = snapshot(r, tok).state as VPState;
           expect(s.words.map((w) => w.name)).toEqual(all.slice(0, DUEL_LEAD));
           const json = JSON.stringify(s);
