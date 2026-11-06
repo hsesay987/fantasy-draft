@@ -143,8 +143,10 @@ export function settle(s: InSyncState, gone: string[], now: number): InSyncState
   while (!x.done && x.phase === "clue" && gone.includes(giver(x))) x = skip(x, now);
   if (x.done || x.phase !== "tune") return x;
   const here = guessers(x).filter((p) => !gone.includes(p));
-  const locked = x.locks.filter((p) => here.includes(p)).length;
-  return here.length === 0 || locked * 2 > here.length ? reveal(x, now) : x;
+  // A lock leaves with its guesser, so it can't help a later lock reach the majority.
+  const locks = x.locks.filter((p) => here.includes(p));
+  const y = locks.length === x.locks.length ? x : { ...x, locks };
+  return here.length === 0 || locks.length * 2 > here.length ? reveal(y, now) : y;
 }
 
 /** Ends a reveal early. In a room only the host can (the server checks). */

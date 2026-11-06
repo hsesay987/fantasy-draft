@@ -439,6 +439,13 @@ describe("players named after built-in object properties", () => {
   const cards = Array.from({ length: 3 }, (_, i) => ({ id: `c${i}`, prompt: `P${i}`, a: "yes", b: "no" }));
   const voteGame = () => V.init({ players: odd, deck: "x", cards, rounds: 3, seed: 3, now: 0 });
 
+  it("catches an imposter named __proto__ like anyone else", () => {
+    const s = IM.init({ players: odd, pool: getCatalog("superheroes"), topic: "Superheroes", rounds: 1, ending: "vote", seed: 7, now: 0 });
+    const votes = { constructor: "__proto__", toString: "__proto__", valueOf: "__proto__" };
+    const done = IM.tally({ ...s, imposter: "__proto__", votes } as IM.ImposterState, 1);
+    expect(done.caught).toBe(true);
+  });
+
   it("can vote and guess in vote games, and are scored like anyone else", () => {
     let s = voteGame();
     for (const p of odd) {

@@ -113,7 +113,7 @@ export function accuse(s: ImposterState, by: string, target: string, now: number
 
 /** Count the votes. A clear top pick that is the imposter catches them; a tie or a wrong pick lets them escape. */
 export function tally(s: ImposterState, now: number): ImposterState {
-  const count: Record<string, number> = {};
+  const count: Record<string, number> = Object.create(null); // no prototype, so any player name is a plain key
   for (const t of Object.values(s.votes)) count[t] = (own(count, t) ?? 0) + 1;
   const ranked = Object.entries(count).sort((a, b) => b[1] - a[1]);
   const caught = !!ranked[0] && ranked[0][1] !== ranked[1]?.[1] && ranked[0][0] === s.imposter;

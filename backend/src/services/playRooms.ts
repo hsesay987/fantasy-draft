@@ -39,6 +39,8 @@ const ROOM_TTL_MS = 6 * 60 * 60 * 1000;
 const AFK_TURN_MS = 120_000;
 /** A seat not heard from for this long doesn't hold the crown. Every phone polls every 2 seconds. */
 const HOST_AWAY_MS = 45_000;
+/** Longer in the lobby: a host who leaves the browser to text the code around must still have the room when they get back. */
+const HOST_AWAY_LOBBY_MS = 5 * 60_000;
 
 /** `lastSeen` stays on the server: nothing in a snapshot changes because a phone polled. */
 type Seat = { name: string; token: string; left: boolean; lastSeen: number };
@@ -233,7 +235,10 @@ export function createRoom(input: unknown, hostName: string, quiz?: QuizData): {
  * The host is the first seat still at the table whose phone we have heard from lately, or failing that the first seat
  * still at the table. Never stored, so it follows anyone who leaves or goes quiet, and returns when they are back.
  */
-const hostSeat = (room: Room, now = Date.now()) => room.seats.find((s) => !s.left && now - s.lastSeen <= HOST_AWAY_MS) ?? room.seats.find((s) => !s.left);
+const hostSeat = (room: Room, now = Date.now()) => {
+  const away = room.status === "lobby" ? HOST_AWAY_LOBBY_MS : HOST_AWAY_MS;
+  return room.seats.find((s) => !s.left && now - s.lastSeen <= away) ?? room.seats.find((s) => !s.left);
+};
 
 /** A phone with this token is awake. Changes nothing a client watches: no new version, and `touchedAt` is for real changes. */
 export function seenSeat(room: Room, token: unknown, now = Date.now()) {

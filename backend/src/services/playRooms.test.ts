@@ -943,7 +943,7 @@ describe("Mafia room", () => {
 });
 
 describe("party rooms with people coming and going", () => {
-  const STALE = 46_000;
+  const STALE = 5 * 60_000 + 1_000; // past the lobby's window, and so past a running game's too
   const party = (format: string, pool: string, opts: any = {}) => ({ format, pool, opts: { teamSize: 3, ...opts } });
   const cats = Array.from({ length: 4 }, (_, c) => ({ name: `Cat ${c}`, clues: Array.from({ length: 4 }, (_, i) => ({ q: `Q${c}-${i}`, right: `R${c}${i}`, wrong: [`W${c}${i}a`, `W${c}${i}b`, `W${c}${i}c`] })) }));
   const seat = (setup: any, names: string[], quiz?: any) => {
@@ -972,10 +972,21 @@ describe("party rooms with people coming and going", () => {
       expect(hostOf(r)).toBe("Ann");
     });
 
-    it("keeps the crown up to 45 seconds", () => {
-      const { r } = seat(party("vote", "icks"), ["Ann", "Bob"]);
+    it("keeps the crown up to 45 seconds in a running game", () => {
+      const { r } = running(party("vote", "icks"), ["Ann", "Bob", "Cy"]);
       r.seats[0].lastSeen = Date.now() - 44_000;
       expect(hostOf(r)).toBe("Ann");
+      r.seats[0].lastSeen = Date.now() - 46_000;
+      expect(hostOf(r)).toBe("Bob");
+    });
+
+    it("keeps the crown for 5 minutes in the lobby, so a host can text the code around", () => {
+      const { r, toks } = seat(party("vote", "icks"), ["Ann", "Bob"]);
+      r.seats[0].lastSeen = Date.now() - 4 * 60_000;
+      expect(hostOf(r)).toBe("Ann");
+      expect(startRoom(r, toks.Bob)).toEqual({ error: "Only the host can start" });
+      r.seats[0].lastSeen = Date.now() - 6 * 60_000;
+      expect(hostOf(r)).toBe("Bob");
     });
 
     it("falls back to the first seat that hasn't left when nobody has been seen", () => {

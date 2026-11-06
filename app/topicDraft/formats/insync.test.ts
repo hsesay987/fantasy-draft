@@ -283,7 +283,9 @@ describe("in-sync when someone leaves", () => {
     const one = lock(tuning(), "B", 2);
     expect(settle(one, ["D", "E"], 3)).toBe(one); // 1 of 2
     const gone = lock(lock(tuning(), "B", 2), "C", 2);
-    expect(settle(gone, ["B", "C"], 3)).toBe(gone); // the two locks left with them; D and E haven't locked
+    const left = settle(gone, ["B", "C"], 3); // the two locks left with them; D and E haven't locked
+    expect(left.phase).toBe("tune");
+    expect(left.locks).toEqual([]);
   });
 
   it("reveals where the marker is when no guesser is left", () => {
