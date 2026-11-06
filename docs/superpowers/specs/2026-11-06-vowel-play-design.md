@@ -1,6 +1,6 @@
 # Vowel Play: design
 
-Status: draft for owner approval. Nothing is built yet.
+Status: approved by the owner on 2026-11-06.
 
 ## Intent
 
