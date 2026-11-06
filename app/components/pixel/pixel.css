@@ -895,6 +895,30 @@
 .party-page .noir-end h1 { margin: 0 0 6px; font: 700 34px/1 var(--px-title); color: var(--px-gold); text-shadow: 3px 3px 0 var(--px-ink); overflow-wrap: anywhere; }
 .noir-end .line { margin: 0; font-size: 22px; line-height: 1.05; }
 
+/* Night, with the clock running: everything above the names tightens so they sit above the bottom nav. */
+.noir-compact { gap: 4px; }
+.noir-compact .party-sign.noir-sign { padding: 4px 10px; }
+.noir-compact .noir-sign .eyebrow { margin: 0 0 1px; }
+.party-page.noir-compact .noir-sign h1 { font-size: 22px; line-height: 1; }
+.noir-compact .noir-scene { aspect-ratio: 200 / 80; overflow: hidden; }
+.noir-compact .noir-scene canvas { margin-top: -3%; }
+.noir-compact.many .noir-scene { aspect-ratio: 200 / 62; }
+.noir-compact.many .noir-scene canvas { margin-top: -7%; }
+.noir-compact .noir-line { padding: 3px 8px; font-size: 19px; line-height: 1; }
+.noir-compact .noir-slip { padding: 4px 8px; }
+.noir-compact .noir-slip .line { margin: 0; font-size: 19px; line-height: 1; }
+.party-page.noir-compact .noir-slip h2 { margin: 0; font-size: 9px; }
+.noir-compact .noir-card { align-items: center; gap: 10px; min-height: 0; padding: 4px 10px; }
+.noir-compact .noir-card .txt { gap: 1px; }
+.noir-compact .noir-card b { font-size: 22px; }
+.noir-compact .noir-card .sub { font-size: 17px; line-height: 1; }
+.noir-compact .noir-board { gap: 4px; padding: 6px; }
+.noir-compact .noir-board .prompt { font-size: 18px; line-height: 1; }
+.noir-compact .noir-board .count { min-height: 18px; font-size: 18px; line-height: 1; }
+.noir-compact .noir-tiles { gap: 4px; }
+.noir-compact .noir-tile { min-height: 44px; padding: 2px 6px; gap: 6px; font-size: 20px; line-height: .95; }
+.noir-compact .noir-tile canvas { width: 16px !important; height: 20px !important; }
+
 @media (max-width: 359px) {
   .noir-sign h1 { font-size: 30px; }
   .noir-tile { padding: 6px; gap: 6px; font-size: 20px; }

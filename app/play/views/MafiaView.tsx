@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as MF from "../../topicDraft/formats/mafia";
-import { NIGHT_PROMPT, ROLE_HOW, ROLE_LABEL } from "../../topicDraft/formats/mafiaCopy";
+import { NIGHT_PROMPT, QUIET_NIGHT_NOTE, ROLE_HOW, ROLE_LABEL } from "../../topicDraft/formats/mafiaCopy";
 import { PixelButton, PixelShell } from "../../components/pixel/PixelUI";
 import { Sprite } from "../../components/pixel/Sprite";
 import { WorldScene } from "../../components/pixel/WorldScene";
 import type { Sprite as SpriteData } from "../../components/pixel/sprites";
 import { useSound } from "../../components/SoundProvider";
 import { DrinkCard, PartyClock, playerSprite, WaterLine } from "./partyBits";
-import { SCENE_OF, WORLD_OF, endLine, endedBy, fateOf, lookOf, morningLine, nightLine, nightPick, openVoteLine, partnersOf, roleOf, spectatorLine, talkLine, tallyOf, voteLine, voteOf, voteResult, type Look } from "./mafiaBoard";
+import { SCENE_OF, WORLD_OF, endLine, endedBy, fateOf, lookOf, morningLine, nightLine, nightPick, nightStatus, openVoteLine, partnersOf, publicRole, roleOf, spectatorLine, talkLine, tallyOf, voteLine, voteOf, voteResult, type Look } from "./mafiaBoard";
 import type { GameCtl } from "../useGame";
 
 /** If the server hasn't confirmed a tap by now it was lost, so the names come back. */
@@ -51,7 +51,7 @@ function Scene({ look }: { look: Look }) {
  * the page until it is opened, and it's where everything private lives (partner, last night's pick, what a check found),
  * so that nothing on the rest of the screen can differ by role.
  */
-function RoleCard({ s, me, resetKey }: { s: MF.MafiaView; me: string; resetKey: string }) {
+function RoleCard({ s, me, resetKey, compact }: { s: MF.MafiaView; me: string; resetKey: string; compact: boolean }) {
   const [open, setOpen] = useState<string | null>(null);
   const peek = open === resetKey;
   const role = roleOf(s, me);
@@ -60,12 +60,13 @@ function RoleCard({ s, me, resetKey }: { s: MF.MafiaView; me: string; resetKey: 
   const checks = Object.keys(s.checks).includes(me) ? s.checks[me]! : [];
   return (
     <button type="button" onClick={() => setOpen(peek ? null : resetKey)} aria-pressed={peek} className="noir-card">
-      <span className="art"><Sprite sprite={peek ? ROLE_ART[role] : FOLDER} size={56} /></span>
+      <span className="art"><Sprite sprite={peek ? ROLE_ART[role] : FOLDER} size={compact ? 36 : 56} /></span>
       {peek ? (
         <span className="txt">
           <b>{ROLE_LABEL[role]}</b>
           <span className="sub">{ROLE_HOW[role]}</span>
           {role === "mafia" && partners.length > 0 && <span className="sub note">With you: {partners.join(", ")}</span>}
+          {role === "mafia" && s.phase === "night" && MF.quietNight(s) && <span className="sub note">{QUIET_NIGHT_NOTE}</span>}
           {role === "mafia" && s.phase === "night" && s.actions.kill && <span className="sub note">Tonight&apos;s target: {s.actions.kill}</span>}
           {role === "doctor" && s.lastSave && <span className="sub note">Last night: {s.lastSave}. Not them again tonight.</span>}
           {role === "doctor" && s.phase === "night" && s.actions.save && <span className="sub note">Tonight: {s.actions.save}</span>}
@@ -129,7 +130,7 @@ function VoteTally({ s }: { s: MF.MafiaView }) {
   );
 }
 
-/** The town roster. `all` lists everyone; otherwise only who has gone, as the tiles already show the rest. Roles shown are public ones. */
+/** The town roster. `all` lists everyone; otherwise only who has gone, as the tiles already show the rest. Public roles only, whoever is looking: a dead viewer's night roles stay in Spectator, behind its tap. */
 function Town({ s, all }: { s: MF.MafiaView; all: boolean }) {
   const rows = all ? s.players : s.players.filter((p) => !s.alive.includes(p));
   if (!rows.length) return null;
@@ -143,7 +144,7 @@ function Town({ s, all }: { s: MF.MafiaView; all: boolean }) {
             <li key={p} className={gone ? "gone" : ""}>
               {gone ? <Sprite sprite={TICKET} size={24} /> : <Sprite sprite={playerSprite(seatOf(s, p))} size={20} />}
               <span className="name">{p}</span>
-              {gone && <span className="role">{gone.role ? ROLE_LABEL[gone.role] : "Unknown"}</span>}
+              {gone && <span className="role">{(() => { const r = publicRole(gone); return r ? ROLE_LABEL[r] : "Unknown"; })()}</span>}
             </li>
           );
         })}
@@ -210,7 +211,6 @@ export function MafiaView({ ctl }: { ctl: GameCtl }) {
   // Tapped but not yet confirmed: shown straight away, because party moves wait for the server. Only this phone knows
   // which name it tapped, for every role alike, so a reload looks the same whoever reloads.
   const [tap, setTap] = useState<{ key: string; name: string } | null>(null);
-  const [refused, setRefused] = useState<string | null>(null);
   const confirmed = s.phase === "night" ? s.actions.done.includes(me) : s.phase === "vote" ? voteOf(s, me) !== undefined : false;
   useEffect(() => {
     if (!tap || confirmed || tap.key !== phaseKey) return;
@@ -240,13 +240,12 @@ export function MafiaView({ ctl }: { ctl: GameCtl }) {
     if (s.phase === "vote") play("pick");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.phase]);
-  useEffect(() => { window.scrollTo(0, 0); setRefused(null); }, [phaseKey]);
+  useEffect(() => { window.scrollTo(0, 0); }, [phaseKey]);
 
   const tapNight = (name: string) => {
     if (locked || outOfTime) return;
     const target = nightPick(s, me, name);
-    if (target === null) return setRefused(`Not ${name}, not tonight. Pick another name.`);
-    setRefused(null);
+    if (target === null) return; // silent: the card says which names can't be picked, and the screen must not
     setTap({ key: phaseKey, name });
     ctl.dispatch({ type: "nightAct", by: me, target });
   };
@@ -256,11 +255,13 @@ export function MafiaView({ ctl }: { ctl: GameCtl }) {
     setTap({ key: phaseKey, name: target });
     ctl.dispatch({ type: "dayVote", by: me, target });
   };
+  // Names first at night, with 45 seconds running: everything above them tightens up. Same on every living phone, as it reads only public facts.
+  const compact = s.phase === "night" && alive;
   const hostCanSkip = s.phase === "talk" && !!me && ctl.host === me;
 
   return (
     <PixelShell world="noir" className={`noir-${look}`}>
-      <div className="party-page noir-page">
+      <div className={`party-page noir-page ${compact ? "noir-compact" : ""} ${compact && s.alive.length > 8 ? "many" : ""}`}>
         <header className="party-sign noir-sign">
           <div>
             <p className="eyebrow">Mafia · {s.phase === "night" ? `Night ${s.night}` : `Day ${s.night}`}</p>
@@ -277,14 +278,14 @@ export function MafiaView({ ctl }: { ctl: GameCtl }) {
         {s.phase === "talk" && <><Paper s={s} big={false} /><p className="noir-line">{talkLine(s)}</p></>}
         {s.phase === "vote" && <p className="noir-line" aria-live="polite">{openVoteLine(s)}</p>}
 
-        {alive && <RoleCard s={s} me={me} resetKey={phaseKey} />}
+        {alive && <RoleCard s={s} me={me} resetKey={phaseKey} compact={compact} />}
         {out && <Spectator s={s} />}
 
         {s.phase === "night" && alive && (
           <section className="noir-board" aria-label="Tonight">
             <p className="prompt">{NIGHT_PROMPT}</p>
             <Tiles s={s} names={s.alive} me={me} chosen={chosen} locked={locked || outOfTime} onPick={tapNight} label="Names" />
-            <p className="count" role="status">{refused ?? (locked ? "Locked in. " : outOfTime ? "Time! " : "")}{refused ? "" : `${s.actedCount} of ${s.alive.length} tapped`}</p>
+            <p className="count" role="status">{nightStatus({ locked, outOfTime, acted: s.actedCount, alive: s.alive.length })}</p>
           </section>
         )}
         {s.phase === "night" && !alive && <p className="noir-wait">The town is tapping: {s.actedCount} of {s.alive.length}.</p>}

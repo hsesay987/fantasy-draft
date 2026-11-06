@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NIGHT_OK, SKIP_VOTE, init, redactFor, type MafiaState, type MafiaView, type Role } from "../../topicDraft/formats/mafia";
-import { endLine, endedBy, fateOf, lookOf, morningLine, nightLine, nightPick, partnersOf, roleOf, tallyOf, voteLine, voteOf, voteResult } from "./mafiaBoard";
+import { endLine, endedBy, fateOf, nightStatus, publicRole, lookOf, morningLine, nightLine, nightPick, partnersOf, roleOf, tallyOf, voteLine, voteOf, voteResult } from "./mafiaBoard";
 
 const SIX = ["Ann", "Bob", "Cy", "Di", "Ed", "constructor"];
 const rig = (over: Partial<MafiaState> = {}): MafiaState => {
@@ -43,6 +43,35 @@ describe("the night board", () => {
     expect(nightPick(seen("Stranger"), "Stranger", "Ann")).toBeNull();
     expect(roleOf(seen("Ann"), "constructor")).toBeUndefined();
     expect(voteOf({ votes: {} }, "constructor")).toBeUndefined();
+  });
+});
+
+describe("a tap that can't count", () => {
+  const invalid: [string, MafiaView, string][] = [
+    ["mafia on a partner", seen("Ann"), "Bob"],
+    ["mafia on themselves", seen("Ann"), "Ann"],
+    ["doctor repeating a save", seen("Cy", { lastSave: "Ed" }), "Ed"],
+    ["detective on themselves", seen("Di"), "Di"],
+  ];
+  const me = { "mafia on a partner": "Ann", "mafia on themselves": "Ann", "doctor repeating a save": "Cy", "detective on themselves": "Di" } as Record<string, string>;
+
+  it("gives back a bare null, the same for every role: no words the screen could show", () => {
+    for (const [why, view, name] of invalid) expect(nightPick(view, me[why]!, name), why).toBeNull();
+  });
+
+  it("leaves the status line as every role sees it: the line reads the count and the clock, never a role or a name", () => {
+    expect(nightStatus({ locked: false, outOfTime: false, acted: 2, alive: 6 })).toBe("2 of 6 tapped");
+    expect(nightStatus({ locked: true, outOfTime: false, acted: 3, alive: 6 })).toBe("Locked in. 3 of 6 tapped");
+    expect(nightStatus({ locked: false, outOfTime: true, acted: 3, alive: 6 })).toBe("Time! 3 of 6 tapped");
+    expect(nightStatus.length, "takes one object of public facts").toBe(1);
+  });
+});
+
+describe("roles in the town list", () => {
+  it("shows a vote-out's role, and never a night's, even to a dead viewer who was sent it", () => {
+    expect(publicRole({ role: "doctor", by: "vote" })).toBe("doctor");
+    expect(publicRole({ role: "doctor", by: "night" })).toBeNull();
+    expect(publicRole({ role: null, by: "night" })).toBeNull();
   });
 });
 

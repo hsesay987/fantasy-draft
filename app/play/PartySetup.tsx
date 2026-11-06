@@ -167,7 +167,7 @@ function MafiaTown({ seats }: { seats: number }) {
         <li>7 to 8 players: {castLine(7)}.</li>
         <li>9 to 12 players: {castLine(9)}.</li>
         <li>With exactly {QUIET_FIRST_NIGHT_AT} players, nobody leaves on the first night.</li>
-        <li>Night {NIGHT_MS / 1000} seconds, talk {TALK_MS / 60000} minutes, vote {VOTE_MS / 1000} seconds. About 10 minutes at a small table, longer with more players.</li>
+        <li>Night {NIGHT_MS / 1000} seconds, talk {TALK_MS / 60000} minutes, vote {VOTE_MS / 1000} seconds. About 10 minutes at 5 players, up to about 18 at 12.</li>
       </ul>
     </Panel>
   );

@@ -10,11 +10,14 @@ export const ROLE_IN_LINE: Record<Role, string> = { mafia: "Mafia", doctor: "the
 
 /** What each card says when opened. It's the only place that says what a night tap does for you. */
 export const ROLE_HOW: Record<Role, string> = {
-  mafia: "The name you tap at night is your target. If you and a partner differ, the later tap wins.",
+  mafia: "The name you tap at night is your target: not yourself or a partner. If you and a partner differ, the later tap wins.",
   doctor: "The name you tap at night is safe until morning. It can be you, but not the same name two nights running.",
-  detective: "Tap a name at night and this card tells you if they are Mafia.",
+  detective: "Tap anyone but yourself at night and this card tells you if they are Mafia.",
   villager: "Your tap at night does nothing, but tap anyway so nobody can tell. By day, find the mafia.",
 };
+
+/** On the mafia card on the first night at a table of five. */
+export const QUIET_NIGHT_NOTE = "First night at a table of five: nobody leaves tonight, whoever you tap.";
 
 /** Shown on every living phone every night. Word for word the same whatever the card says. */
 export const NIGHT_PROMPT = "Everyone taps one name. Your card says what it does.";
