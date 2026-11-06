@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { TriviaCategory } from "../topicDraft/trivia/types";
-import { climbDetail, climbGrid, climbHistory, dailySaveKey, daySeed, endOf, freeSaveKey, lifelineState, pollShare, safePoints, startClimb } from "./climb";
+import { climbDetail, climbGrid, climbHistory, dailySaveKey, daySeed, endOf, freeClimbBank, freeSaveKey, lifelineState, loadSeenCats, pollShare, safePoints, startClimb } from "./climb";
 import { answer, crowdPoll, cutTwo, init, loadClimb, saveClimb, swap, walk, type RungState } from "./engine";
 
 const cats = (n: number): TriviaCategory[] =>
@@ -154,5 +154,46 @@ describe("the daily result", () => {
     const d = climbDetail(s);
     expect(d).toEqual({ status: "fell", points: 0, rung: 4, used: ["cut"] });
     expect(JSON.stringify(d)).not.toContain("right");
+  });
+});
+
+describe("free climb questions", () => {
+  const key = freeSaveKey("films");
+  const bundled = () => cats(1);
+
+  it("comes from the server, avoiding what this topic has seen, and remembers what it got", async () => {
+    stubStorage();
+    const first = cats(4);
+    const ask = vi.fn(async () => first);
+    expect(await freeClimbBank("films", key, ask, bundled)).toBe(first);
+    expect(ask).toHaveBeenLastCalledWith([]);
+    await freeClimbBank("films", key, ask, bundled);
+    expect(ask).toHaveBeenLastCalledWith(first.map((c) => `cat:${c.name}`));
+    expect(loadSeenCats("anime")).toEqual([]);
+  });
+
+  it("falls back to the bundled bank when the server has nothing or too little", async () => {
+    stubStorage();
+    const local = cats(4);
+    expect(await freeClimbBank("films", key, async () => null, () => local)).toBe(local);
+    expect(await freeClimbBank("films", key, async () => cats(1), () => local)).toBe(local);
+    expect(loadSeenCats("films")).toEqual([]);
+  });
+
+  it("doesn't ask at all when a climb is saved, so a refresh stays on it", async () => {
+    stubStorage();
+    saveClimb(key, fresh());
+    const ask = vi.fn(async () => cats(4));
+    const local = cats(1);
+    expect(await freeClimbBank("films", key, ask, () => local)).toBe(local);
+    expect(ask).not.toHaveBeenCalled();
+    expect(startClimb(local, key, 1).questions).toEqual(fresh().questions);
+  });
+
+  it("survives corrupt or missing storage", async () => {
+    stubStorage({ [`toppic:toprung:v1:seen:films`]: "{nope" });
+    expect(loadSeenCats("films")).toEqual([]);
+    vi.unstubAllGlobals();
+    expect(loadSeenCats("films")).toEqual([]);
   });
 });
