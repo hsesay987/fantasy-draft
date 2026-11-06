@@ -9,20 +9,19 @@ const MIN_NAMES = 40;
 const OUT = path.resolve(__dirname, "../app/topicDraft/party/vowelWords.json");
 
 /** Names left out after reading every list as a player would: obscure, a generic word that isn't really the name,
- * a form nobody says, or too ambiguous to answer fairly. Keyed by the topic where each was found; because some topics
- * are unions of others (fictional, heroes-villains), every listed name is left out of every topic. */
+ * a form nobody says, or too ambiguous to answer fairly. A key is a topic id and removes those names from that topic
+ * only. The "*" key removes names from every topic; use it for names that are unfair wherever they appear, which
+ * includes the unions (fictional, heroes-villains) built from other topics. */
 const EXCLUDE: Record<string, string[]> = {
-  superheroes: ["Atom Eve", "A-Train", "Billy Butcher", "Starlight", "Deathlok", "Booster Gold", "Captain Atom", "Savage Dragon", "Plastic Man", "Mothra", "Beast", "Static", "Doctor Fate", "Huntress"],
-  villains: ["Cell", "Terminator T-800", "Handsome Jack", "Captain Cold", "Cheetah"],
-  fictional: ["Geralt's Ciri", "Nemo's Dory", "Jaws Shark", "Steve", "Donkey", "Dante", "L Lawliet", "Isaac Clarke"],
+  "*": ["Atom Eve", "A-Train", "Billy Butcher", "Starlight", "Deathlok", "Booster Gold", "Captain Atom", "Savage Dragon", "Plastic Man", "Mothra", "Beast", "Static", "Doctor Fate", "Huntress", "Cell", "Terminator T-800", "Handsome Jack", "Captain Cold", "Cheetah", "Geralt's Ciri", "Nemo's Dory", "Jaws Shark", "Steve", "Donkey", "Dante", "L Lawliet", "Isaac Clarke", "Giyu Tomioka", "Trafalgar Law", "Dio Brando", "Madara Uchiha", "Zenitsu", "Hisoka", "Lelouch", "Genos", "Sukuna", "Rukia Kuchiki", "Reinhardt", "Joel Miller", "Tails", "Tracer", "Mercy", "Ratchet", "Spyro", "Knuckles", "Maximus", "Remy", "Raven", "Falcon", "Wasp", "Vision", "Invincible"],
+  superheroes: ["Harley Quinn", "Black Adam", "Venom", "Catwoman", "Hercules", "Constantine"],
   football: ["Ronaldo Nazário"],
   films: ["Se7en", "Léon: The Professional", "Dune: Part Two"],
   shows: ["Dark", "Lost", "Star Trek: The Next Generation"],
-  nba: ["Dolph Schayes", "Bob Pettit", "Artis Gilmore", "Dan Issel", "Hal Greer", "Paul Arizin", "Bill Sharman", "Chet Walker", "Jerry Lucas", "Neil Johnston", "Bailey Howell", "Ed Macauley", "Sam Jones", "Vern Mikkelsen", "Walt Bellamy", "Zelmo Beaty", "Cliff Hagan", "Detlef Schrempf", "Richie Guerin", "Harry Gallatin", "Lou Hudson", "Jack Twyman", "Gail Goodrich", "Spencer Haywood", "Tom Heinsohn", "Walter Davis", "Slater Martin", "Bob Dandridge", "Larry Foust", "Otis Thorpe", "Louie Dampier", "Tom Chambers", "Terry Cummings", "Sam Perkins", "Marques Johnson", "Larry Costello", "George Yardley", "Clyde Lovellette", "Connie Hawkins", "Calvin Murphy", "Bobby Jones", "Terry Porter", "Dave Bing", "George McGinnis", "Mark Price", "Jack Sikma", "Adrian Dantley", "Bernard King", "Buck Williams", "Billy Cunningham", "Dennis Johnson", "Paul Westphal", "Bob McAdoo", "Glen Rice", "Jeff Hornacek", "Bob Lanier", "Alex English", "Sidney Moncrief", "Nate Thurmond", "Lenny Wilkens", "Eddie Jones", "Tiny Archibald", "A.C. Green", "Kevin Johnson", "Maurice Cheeks"],
+  nba: ["Dolph Schayes", "Bob Pettit", "Artis Gilmore", "Dan Issel", "Hal Greer", "Paul Arizin", "Bill Sharman", "Chet Walker", "Jerry Lucas", "Neil Johnston", "Bailey Howell", "Ed Macauley", "Sam Jones", "Vern Mikkelsen", "Walt Bellamy", "Zelmo Beaty", "Cliff Hagan", "Detlef Schrempf", "Richie Guerin", "Harry Gallatin", "Lou Hudson", "Jack Twyman", "Gail Goodrich", "Spencer Haywood", "Tom Heinsohn", "Walter Davis", "Slater Martin", "Bob Dandridge", "Larry Foust", "Otis Thorpe", "Louie Dampier", "Tom Chambers", "Terry Cummings", "Sam Perkins", "Marques Johnson", "Larry Costello", "George Yardley", "Clyde Lovellette", "Connie Hawkins", "Calvin Murphy", "Bobby Jones", "Terry Porter", "Dave Bing", "George McGinnis", "Mark Price", "Jack Sikma", "Adrian Dantley", "Bernard King", "Buck Williams", "Billy Cunningham", "Dennis Johnson", "Paul Westphal", "Bob McAdoo", "Glen Rice", "Jeff Hornacek", "Bob Lanier", "Alex English", "Sidney Moncrief", "Nate Thurmond", "Lenny Wilkens", "Eddie Jones", "Tiny Archibald", "A.C. Green", "Kevin Johnson", "Maurice Cheeks", "Mark Price", "Anthony Mason", "Jason Terry", "Joe Johnson", "Rashard Lewis", "Paul Millsap", "Larry Nance", "Jermaine O'Neal", "Mike Conley", "Horace Grant", "Mitch Richmond", "Joe Dumars", "Bill Laimbeer", "Marc Gasol", "Bob Cousy", "Elgin Baylor", "Rick Barry", "Robert Parish", "Elvin Hayes", "John Havlicek", "Walt Frazier", "Wes Unseld", "Dave Cowens", "George Mikan", "Willis Reed", "Earl Monroe", "Dave DeBusschere", "Rudy Tomjanovich", "Chris Mullin", "Tim Hardaway", "Shawn Marion", "Ben Wallace", "Rasheed Wallace", "Tyson Chandler", "DeAndre Jordan", "Elton Brand", "Vlade Divac", "James Worthy", "Chauncey Billups", "LaMarcus Aldridge"],
   food: ["Kimchi Jjigae", "Doro Wat", "Bunny Chow", "Xiaolongbao"],
   books: ["Nineteen Eighty-Four", "Foundation", "Beloved"],
 };
-const SKIP = new Set(Object.values(EXCLUDE).flat().map((n) => n.toLowerCase()));
 
 /** Names whose catalog form is not what people say (applied before the fairness check). */
 const RENAME: Record<string, string> = {
@@ -36,6 +35,7 @@ const words: Record<string, string[]> = {};
 const dropped: Record<string, number> = {};
 
 for (const meta of CATALOG_META) {
+  const skip = new Set([...(EXCLUDE["*"] ?? []), ...(Object.hasOwn(EXCLUDE, meta.id) ? EXCLUDE[meta.id]! : [])].map((n) => n.toLowerCase()));
   const seen = new Set<string>();
   const list: string[] = [];
   let excluded = 0;
@@ -45,7 +45,7 @@ for (const meta of CATALOG_META) {
     const key = name.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
-    if (SKIP.has(key)) { excluded++; continue; }
+    if (skip.has(key)) { excluded++; continue; }
     list.push(name);
   }
   dropped[meta.id] = excluded;
