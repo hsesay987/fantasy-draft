@@ -22,7 +22,7 @@ const own = <T,>(m: Record<string, T>, k: string): T | undefined => (Object.keys
 export const roleOf = (s: Pick<MafiaView, "roles">, p: string): Role | undefined => own(s.roles, p);
 export const voteOf = (s: Pick<MafiaView, "votes">, p: string): string | undefined => own(s.votes, p);
 
-/** What tapping this name sends tonight for this seat, or null if the name can't be picked. Every tile looks the same either way. */
+/** What tapping this name sends tonight for this seat, or null if the name can't be picked. Every tile looks the same either way, and a null does nothing at all: any reaction would show a neighbour this seat isn't a villager. */
 export function nightPick(s: Pick<MafiaView, "roles" | "alive" | "lastSave">, me: string, name: string): string | null {
   const role = roleOf(s, me);
   if (!role || !s.alive.includes(me) || !s.alive.includes(name)) return null;
@@ -31,6 +31,13 @@ export function nightPick(s: Pick<MafiaView, "roles" | "alive" | "lastSave">, me
   if (role === "doctor") return name === s.lastSave ? null : name;
   return name === me ? null : name;
 }
+
+/** The line under the names. It reads only public facts, so it can't differ by role, and a tap that can't count leaves it as it was. */
+export const nightStatus = ({ locked, outOfTime, acted, alive }: { locked: boolean; outOfTime: boolean; acted: number; alive: number }) =>
+  `${locked ? "Locked in. " : outOfTime ? "Time! " : ""}${acted} of ${alive} tapped`;
+
+/** A role anyone at the table may see: a vote-out's. A dead viewer is sent night roles too, but those stay behind their tap. */
+export const publicRole = (e: { role: Role | null; by: "night" | "vote" }): Role | null => (e.by === "vote" ? e.role : null);
 
 export const partnersOf = (s: Pick<MafiaView, "roles">, me: string) => Object.keys(s.roles).filter((p) => p !== me && s.roles[p] === "mafia");
 

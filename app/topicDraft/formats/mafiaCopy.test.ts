@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LINES, NIGHT_PROMPT, ROLE_HOW, ROLE_IN_LINE, ROLE_LABEL, lineFor, type LineKey } from "./mafiaCopy";
+import { LINES, NIGHT_PROMPT, QUIET_NIGHT_NOTE, ROLE_HOW, ROLE_IN_LINE, ROLE_LABEL, lineFor, type LineKey } from "./mafiaCopy";
 
 const KEYS = Object.keys(LINES) as LineKey[];
 
@@ -39,6 +39,13 @@ describe("Mafia narrator", () => {
     expect(new Set([0, 1, 2].map((t) => lineFor("talk", t))).size).toBe(3);
     expect(lineFor("talk", -1)).toBe(LINES.talk[2]);
     expect(lineFor("morningGone", 1, { name: "$& {role}" })).toContain("$& {role}"); // a name is only ever a name
+  });
+
+  it("each card explains the names it can't pick, as a wrong tap says nothing on screen", () => {
+    expect(ROLE_HOW.mafia).toMatch(/not yourself or a partner/i);
+    expect(ROLE_HOW.doctor).toMatch(/not the same name two nights running/i);
+    expect(ROLE_HOW.detective).toMatch(/anyone but yourself/i);
+    expect(QUIET_NIGHT_NOTE).toMatch(/nobody leaves tonight/i);
   });
 
   it("has a label, a phrase and a how-to for every role", () => {
