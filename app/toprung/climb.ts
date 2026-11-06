@@ -11,6 +11,40 @@ export function forgetClimb(key: string) {
   try { localStorage.removeItem(key); } catch { /* storage unavailable */ }
 }
 
+const SEEN_MAX = 100;
+const seenKey = (pool: string) => `toppic:toprung:v1:seen:${pool}`;
+
+/** Categories this device has already climbed on a topic, in the form the server's trivia bank avoids. */
+export function loadSeenCats(pool: string): string[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(seenKey(pool)) ?? "[]");
+    return Array.isArray(raw) ? raw.filter((x) => typeof x === "string").slice(-SEEN_MAX) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSeenCats(pool: string, names: string[]) {
+  try {
+    const cats = names.map((n) => `cat:${n}`);
+    localStorage.setItem(seenKey(pool), JSON.stringify([...loadSeenCats(pool).filter((c) => !cats.includes(c)), ...cats].slice(-SEEN_MAX)));
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+/**
+ * The questions for a free climb: the server's bank, avoiding what this device has climbed, or the bundled ones if the
+ * server is unreachable or can't fill the ladder. A climb in progress already holds its questions, so it asks nobody.
+ */
+export async function freeClimbBank(pool: string, saveKey: string, fromServer: (avoid: string[]) => Promise<TriviaCategory[] | null | undefined>, bundled: () => TriviaCategory[]): Promise<TriviaCategory[]> {
+  if (loadClimb(saveKey)?.questions.length) return bundled();
+  const categories = await fromServer(loadSeenCats(pool));
+  if (!categories || init(categories, 0).questions.length < RUNGS) return bundled();
+  saveSeenCats(pool, categories.map((c) => c.name));
+  return categories;
+}
+
 /** The same climb for everyone playing on a given day. */
 export const daySeed = (day: string) => {
   let h = 2166136261;

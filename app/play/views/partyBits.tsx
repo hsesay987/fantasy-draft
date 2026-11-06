@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Sprite } from "../../components/pixel/Sprite";
 import { hero, type Sprite as SpriteData } from "../../components/pixel/sprites";
-import type { DrinkCall } from "../../topicDraft/party/drinks";
+import { PixelButton } from "../../components/pixel/PixelUI";
+import { DRINK_CARD_MS, type DrinkCall } from "../../topicDraft/party/drinks";
+import { has } from "../../topicDraft/party/own";
+import type { GameCtl } from "../useGame";
 
 /** The pixel character for the player in seat `i`. The one place to swap in player-chosen characters later. */
 export const playerSprite = (i: number): SpriteData => hero(i);
@@ -79,8 +82,6 @@ export function ShowVotesToggle({ value, onChange }: { value: boolean; onChange:
   );
 }
 
-const DRINK_MS = 4000;
-
 /** Remembers for this tab which sip cards have been shown, per room and game, so a refresh or a later screen does not call them again. */
 const drinkSeenKey = (game: number, seq: number) => `toppic:drink-seen:${window.location.pathname}:${game}:${seq}`;
 const drinkSeen = (game: number, seq: number) => {
@@ -100,25 +101,30 @@ const markDrinkSeen = (game: number, seq: number) => {
 
 /**
  * Sip cards for this round, as a tavern slate. Shows for 4 seconds, tap to dismiss, and shows once per `seq`: a card
- * this tab already showed stays closed. `game` is the game's seed. `names` maps a card's player to a seat so the sprite
- * matches the rest of the game.
+ * this tab showed to the end stays closed, and one the game cut short gets its turn on the next screen. `game` is a
+ * public key for this game. `names` maps a card's player to a seat so the sprite matches the rest of the game.
  */
 export function DrinkCard({ calls, seq, game, names = [] }: { calls: DrinkCall[]; seq: number; game: number; names?: string[] }) {
   const [shown, setShown] = useState(() => (drinkSeen(game, seq) ? -1 : seq));
-  const claimed = useRef<number | null>(null); // this mount's card, so React's dev re-run of the effect does not hide it
   const hasCalls = calls.length > 0;
   useEffect(() => {
     if (!hasCalls) return;
-    if (claimed.current !== seq && drinkSeen(game, seq)) return setShown(-1);
-    claimed.current = seq;
-    markDrinkSeen(game, seq);
+    if (drinkSeen(game, seq)) return setShown(-1);
     setShown(seq);
-    const id = setTimeout(() => setShown(-1), DRINK_MS);
+    const id = setTimeout(() => {
+      markDrinkSeen(game, seq);
+      setShown(-1);
+    }, DRINK_CARD_MS);
     return () => clearTimeout(id);
   }, [seq, game, hasCalls]);
   if (shown !== seq || !hasCalls) return null;
+  const close = (e: MouseEvent) => {
+    e.stopPropagation();
+    markDrinkSeen(game, seq);
+    setShown(-1);
+  };
   return (
-    <div className="tavern-card" onClick={() => setShown(-1)}>
+    <div className="tavern-card" onClick={close}>
       <div className="said" role="status" aria-live="polite">
         <ul>
           {calls.map((c, i) => (
@@ -131,7 +137,7 @@ export function DrinkCard({ calls, seq, game, names = [] }: { calls: DrinkCall[]
         </ul>
         <WaterLine />
       </div>
-      <button type="button" className="hint" onClick={() => setShown(-1)}>Close</button>
+      <button type="button" className="hint" onClick={close}>Close</button>
     </div>
   );
 }
@@ -159,14 +165,16 @@ export function PartyClock({ deadline, offset, total }: { deadline: number; offs
  * A row of pixel voting booths. Every player is a little pixel person waiting outside; once they vote they walk
  * into a booth and its curtain closes. On the reveal the curtains open and each person holds up their side.
  */
-export function VoteBooths({ players, voted, reveal, labels }: { players: string[]; voted: Set<string>; reveal?: Record<string, "a" | "b">; labels?: { a: string; b: string } }) {
+export function VoteBooths({ players, voted, reveal, labels, gone = [] }: { players: string[]; voted: Set<string>; reveal?: Record<string, "a" | "b">; labels?: { a: string; b: string }; gone?: string[] }) {
+  const here = players.filter((p) => !gone.includes(p));
   return (
-    <ul className="party-booths" aria-label={reveal ? "How everyone voted" : `${voted.size} of ${players.length} voted`}>
+    <ul className="party-booths" aria-label={reveal ? "How everyone voted" : `${here.filter((p) => voted.has(p)).length} of ${here.length} voted`}>
       {players.map((p, i) => {
         const inside = voted.has(p) || !!reveal;
-        const side = reveal?.[p];
+        const side = reveal && has(reveal, p) ? reveal[p] : undefined;
+        const left = gone.includes(p);
         return (
-          <li key={p} className={`booth ${inside ? "in" : ""} ${reveal ? "open" : ""}`}>
+          <li key={p} className={`booth ${inside ? "in" : ""} ${reveal ? "open" : ""} ${left ? "is-gone" : ""}`}>
             <span className="cabin" aria-hidden>
               <span className="roof" />
               <span className="walker"><Sprite sprite={playerSprite(i)} size={24} /></span>
@@ -174,10 +182,32 @@ export function VoteBooths({ players, voted, reveal, labels }: { players: string
               {side && <span className={`sign ${side}`}>{side === "a" ? "A" : "B"}</span>}
             </span>
             <span className="name">{p}</span>
-            <span className="sr-only">{side && labels ? labels[side] : inside ? "voted" : "thinking"}</span>
+            <span className="sr-only">{side && labels ? labels[side] : inside ? "voted" : left ? "left" : "thinking"}</span>
           </li>
         );
       })}
     </ul>
+  );
+}
+
+/** Only the host ends a reveal early (the server checks it too). A game on one device has no host to wait for. */
+export const canMoveOn = (ctl: GameCtl) => !ctl.online || (!!ctl.me && ctl.host === ctl.me);
+
+/** Instead of the Next button, for everyone but the host. */
+export const WaitingForHost = ({ ctl }: { ctl: GameCtl }) => <p className="party-status">{ctl.host ?? "The host"} moves on when ready.</p>;
+
+/** Walking out of a running game takes two taps, and the first one's spot becomes Stay, so a double tap keeps you in. */
+export function LeaveGame({ onLeave }: { onLeave: () => void }) {
+  const [asking, setAsking] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  if (!asking) return <div className="party-leave"><button type="button" className="ask" onClick={() => setAsking(true)}>Leave game</button></div>;
+  return (
+    <div className="party-leave" role="group" aria-label="Leave game">
+      <p>Leave this game? It carries on without you.</p>
+      <div className="party-actions">
+        <PixelButton variant="alt" onClick={() => setAsking(false)}>Stay</PixelButton>
+        <PixelButton disabled={leaving} onClick={() => { setLeaving(true); onLeave(); }}>Leave</PixelButton>
+      </div>
+    </div>
   );
 }

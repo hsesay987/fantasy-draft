@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CLUE_MS, REVEAL_MS, TUNE_MS, bandPoints, clue, giver, init, lock, move, next, rankFor, redactFor, tick, type InSyncState } from "./insync";
+import { CLUE_MS, REVEAL_MS, TUNE_MS, bandPoints, clue, giver, init, lock, move, next, rankFor, redactFor, settle, tick, type InSyncState } from "./insync";
 import { INSYNC_DECKS, insyncDeckOf } from "../party/insyncDecks";
 
 const pairs = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `p${i}`, left: `L${i}`, right: `R${i}` }));
@@ -264,5 +264,58 @@ describe("in-sync drinking", () => {
     s = tick(next(s, 1), 1 + CLUE_MS + 100);
     expect(s.history.at(-1)?.skipped).toBe(true);
     expect(s.drinks!.calls).toEqual([]);
+  });
+});
+
+describe("in-sync when someone leaves", () => {
+  const five = ["A", "B", "C", "D", "E"];
+  const tuning = () => clue(start(five), "A", "a clue", 1); // A gives the clue
+
+  it("bases the majority on the guessers still here", () => {
+    let s = tuning();
+    s = lock(lock(s, "B", 2), "C", 2);
+    expect(s.phase).toBe("tune"); // 2 of 4 is not more than half
+    expect(settle(s, [], 3)).toBe(s);
+    expect(settle(s, ["D", "E"], 3).phase).toBe("reveal");
+  });
+
+  it("needs a real majority of those here, and a departed guesser's lock doesn't count", () => {
+    const one = lock(tuning(), "B", 2);
+    expect(settle(one, ["D", "E"], 3)).toBe(one); // 1 of 2
+    const gone = lock(lock(tuning(), "B", 2), "C", 2);
+    const left = settle(gone, ["B", "C"], 3); // the two locks left with them; D and E haven't locked
+    expect(left.phase).toBe("tune");
+    expect(left.locks).toEqual([]);
+  });
+
+  it("reveals where the marker is when no guesser is left", () => {
+    expect(settle(tuning(), ["B", "C", "D", "E"], 3).phase).toBe("reveal");
+  });
+
+  it("skips a departed giver at once, scoring nothing", () => {
+    const s = start(five);
+    expect(settle(s, ["C"], 1)).toBe(s);
+    const moved = settle(s, ["A"], 1);
+    expect(giver(moved)).toBe("B");
+    expect(moved.round).toBe(1);
+    expect(moved.phase).toBe("clue");
+    expect(moved.history).toHaveLength(1);
+    expect(moved.history[0]).toMatchObject({ giver: "A", skipped: true, points: 0 });
+    expect(moved.maxScore).toBe(0);
+  });
+
+  it("skips several departed givers in one go, and can finish the game", () => {
+    const moved = settle(start(five), ["A", "B", "C"], 1);
+    expect(giver(moved)).toBe("D");
+    expect(moved.round).toBe(3);
+    const over = settle(start(["A", "B", "C", "D"]), ["A", "B", "C", "D"], 1);
+    expect(over.done).toBe(true);
+  });
+
+  it("a giver who left after giving the clue doesn't stop the tuning", () => {
+    const s = lock(lock(lock(tuning(), "B", 2), "C", 2), "D", 2);
+    expect(s.phase).toBe("reveal");
+    const t = tuning();
+    expect(settle(t, ["A"], 3)).toBe(t);
   });
 });

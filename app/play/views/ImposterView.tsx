@@ -8,7 +8,8 @@ import { Sprite } from "../../components/pixel/Sprite";
 import { WorldScene } from "../../components/pixel/WorldScene";
 import type { Sprite as SpriteData } from "../../components/pixel/sprites";
 import { useSound } from "../../components/SoundProvider";
-import { DrinkCard, PartyClock, playerSprite, WaterLine } from "./partyBits";
+import { DrinkCard, LeaveGame, PartyClock, playerSprite, WaterLine } from "./partyBits";
+import { has, own } from "../../topicDraft/party/own";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
@@ -56,6 +57,9 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const myTurn = turn === me;
   const secretItem = ctl.pool.find((i) => i.id === s.secretId);
   const seat = (p: string) => Math.max(0, s.players.indexOf(p));
+  const gone = ctl.gone ?? [];
+  const here = s.players.filter((p) => !gone.includes(p));
+  const myVote = own(s.votes, me);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const clueCount = useRef(s.clues.length);
@@ -135,9 +139,10 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         <div className="ball-floor">
           <ul aria-label="Turn order">
             {s.order.map((p) => (
-              <li key={p} className={p === turn ? "turn" : ""} aria-current={p === turn ? "true" : undefined}>
+              <li key={p} className={`${p === turn ? "turn" : ""} ${gone.includes(p) ? "is-gone" : ""}`} aria-current={p === turn ? "true" : undefined}>
                 <MaskedPlayer seat={seat(p)} />
                 <span className="name">{p}</span>
+                {gone.includes(p) && <span className="sr-only">left</span>}
               </li>
             ))}
           </ul>
@@ -163,14 +168,15 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         {s.phase === "vote" && (
           <PixelBox as="section" pad={false} className="ball-panel">
             <div className="top">
-              <h2>{s.votes[me] ? "Vote locked in" : "Vote for the imposter"}</h2>
-              <p className="hint">{Object.keys(s.votes).length} of {s.players.length} voted</p>
+              <h2>{myVote ? "Vote locked in" : "Vote for the imposter"}</h2>
+              <p className="hint">{here.filter((p) => has(s.votes, p)).length} of {here.length} voted</p>
             </div>
             <div className="ball-grid">
               {s.players.filter((p) => p !== me).map((p) => (
-                <button key={p} type="button" disabled={!!s.votes[me]} aria-pressed={s.votes[me] === p} onClick={() => ctl.dispatch({ type: "accuse", by: me, target: p })} className={`ball-opt ${s.votes[me] === p ? "on" : ""}`}>
+                <button key={p} type="button" disabled={!!myVote} aria-pressed={myVote === p} onClick={() => ctl.dispatch({ type: "accuse", by: me, target: p })} className={`ball-opt ${myVote === p ? "on" : ""} ${gone.includes(p) ? "is-gone" : ""}`}>
                   <MaskedPlayer seat={seat(p)} />
                   <span className="name">{p}</span>
+                  {gone.includes(p) && <span className="sr-only">left</span>}
                 </button>
               ))}
             </div>
@@ -201,7 +207,8 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         )}
 
         {s.drinks && <WaterLine />}
-        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.seed} names={s.players} />}
+        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
+        {ctl.leave && <LeaveGame onLeave={ctl.leave} />}
       </div>
     </PixelShell>
   );
@@ -254,12 +261,14 @@ export function ImposterResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onA
             {!Object.keys(s.votes).length && <li><span className="name" style={{ gridColumn: "1 / -1", maxWidth: "none" }}>It ended before the vote.</span></li>}
           </ul>
         </PixelBox>
-        <div className="party-actions">
-          {onRematch && <PixelButton variant="gold" onClick={onRematch}>Play again</PixelButton>}
-          <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
-        </div>
+        {onRematch && (
+          <div className="party-actions">
+            <PixelButton variant="gold" onClick={onRematch}>Play again</PixelButton>
+            <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
+          </div>
+        )}
         {s.drinks && <WaterLine />}
-        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.seed} names={s.players} />}
+        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
       </div>
     </PixelShell>
   );

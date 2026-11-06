@@ -44,7 +44,8 @@ type Beat = { was: RungState; choice: string; open: boolean };
  * climb being resumed had already ended (`restored`), so a page closed at the wrong moment still gets its result.
  */
 export function TopRungGame({ categories, saveKey, onDone, seed, eyebrow = "Free climb", backHref = "/toprung", backLabel = "All topics", onAgain, onContinue, continueLabel }: {
-  categories: TriviaCategory[];
+  /** Null while the questions are still on their way. */
+  categories: TriviaCategory[] | null;
   saveKey: string;
   onDone?: (state: RungState, info: { restored: boolean }) => void;
   /** The same seed gives the same climb. Left out, each new climb is drawn at random. */
@@ -74,12 +75,13 @@ export function TopRungGame({ categories, saveKey, onDone, seed, eyebrow = "Free
 
   // Storage and any random seed are only touched here, so the server and the first client render agree.
   useEffect(() => {
+    if (!categories) return;
     const first = startClimb(categories, saveKey, seed ?? Math.floor(Math.random() * 2 ** 31));
     restored.current = first.status !== "climbing";
     if (first.questions.length) saveClimb(saveKey, first);
     setS(first);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [saveKey]);
+  }, [saveKey, !categories]);
 
   const end = s ? endOf(s) : null;
   const holding = !!beat && !beat.open;

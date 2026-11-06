@@ -2,7 +2,7 @@ import { getFeud, getJeopardy, isTriviaPool } from "../services/trivia.service";
 import { moderate, userText } from "../lib/moderation";
 import { Router } from "express";
 import { normalizeClue } from "../shared/topicDraft/party/clueText";
-import { act, backToLobby, createRoom, getRoom, giveQuiz, isHost, joinRoom, leaveRoom, needsQuiz, seatFor, seenIn, setGame, setStatLink, snapshot, startRoom } from "../services/playRooms";
+import { act, backToLobby, createRoom, getRoom, isHost, joinRoom, leaveRoom, needsQuiz, seatFor, seenIn, seenSeat, setGame, setStatLink, snapshot, startRoom } from "../services/playRooms";
 
 const router = Router();
 
@@ -54,6 +54,7 @@ router.post("/:code/join", (req, res) => {
 router.get("/:code", (req, res) => {
   const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "Room not found" });
+  seenSeat(room, req.query.token);
   res.json(snapshot(room, req.query.token));
 });
 
@@ -91,11 +92,8 @@ router.post("/:code/stat-link", (req, res) => {
 router.post("/:code/start", async (req, res) => {
   const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "Room not found" });
-  if (needsQuiz(room) && isHost(room, req.body?.token)) {
-    const quiz = await quizFor(room.setup, seenIn(room));
-    if (quiz) giveQuiz(room, quiz);
-  }
-  const r = startRoom(room, req.body?.token);
+  const quiz = needsQuiz(room) && isHost(room, req.body?.token) ? await quizFor(room.setup, seenIn(room)) : undefined;
+  const r = startRoom(room, req.body?.token, quiz);
   if ("error" in r) return res.status(400).json({ error: r.error });
   res.json(snapshot(room, req.body?.token));
 });

@@ -186,3 +186,35 @@ describe("party trivia engine", () => {
     expect(b.teamPoints).toEqual([]);
   });
 });
+
+describe("players named after built-in object properties", () => {
+  const odd = ["constructor", "toString", "valueOf"];
+  it("can answer, aren't counted as having answered before they do, and score", () => {
+    let s = make({ players: odd });
+    s = answer(s, "constructor", rightOf(s), T0);
+    expect(s.phase).toBe("question");
+    expect(settle(s, ["valueOf"], T0)).toBe(s); // toString hasn't answered
+    s = answer(s, "toString", rightOf(s), T0);
+    expect(s.phase).toBe("question");
+    s = answer(s, "valueOf", wrongOf(s), T0);
+    expect(s.phase).toBe("reveal");
+    expect(s.points).toEqual({ constructor: 150, toString: 150, valueOf: 0 });
+    expect(s.history[0]!.answers).toEqual({ constructor: expect.any(String), toString: expect.any(String), valueOf: expect.any(String) });
+  });
+  it("one who never answered scores nothing and doesn't break the round", () => {
+    let s = make({ players: odd, teams: 0 });
+    s = answer(s, "valueOf", rightOf(s), T0);
+    s = tick(s, T0 + QUESTION_MS + 1);
+    expect(s.phase).toBe("reveal");
+    expect(s.points).toEqual({ constructor: 0, toString: 0, valueOf: 150 });
+  });
+});
+
+describe("sip card key", () => {
+  it("is public and differs between two games on the same questions", () => {
+    const a = make({ now: T0 }), b = make({ now: T0 + 60_000 });
+    expect(a.questions[0]).toEqual(b.questions[0]);
+    expect(redactFor(a, "Ann").startedAt).toBe(T0);
+    expect(redactFor(b, null).startedAt).toBe(T0 + 60_000);
+  });
+});

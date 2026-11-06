@@ -8,7 +8,7 @@ import { Sprite } from "../../components/pixel/Sprite";
 import { WorldScene } from "../../components/pixel/WorldScene";
 import type { Sprite as SpriteData } from "../../components/pixel/sprites";
 import { useSound } from "../../components/SoundProvider";
-import { DrinkCard, PartyClock, playerSprite, WaterLine } from "./partyBits";
+import { DrinkCard, LeaveGame, PartyClock, playerSprite, WaterLine } from "./partyBits";
 import { SCENE_OF, WORLD_OF, endLine, endedBy, fateOf, lookOf, morningLine, nightLine, nightPick, nightStatus, openVoteLine, partnersOf, publicRole, roleOf, spectatorLine, talkLine, tallyOf, voteLine, voteOf, voteResult, type Look } from "./mafiaBoard";
 import type { GameCtl } from "../useGame";
 
@@ -315,6 +315,7 @@ export function MafiaView({ ctl }: { ctl: GameCtl }) {
 
         {s.drinks && <WaterLine />}
         {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
+        {ctl.leave && <LeaveGame onLeave={ctl.leave} />}
       </div>
     </PixelShell>
   );

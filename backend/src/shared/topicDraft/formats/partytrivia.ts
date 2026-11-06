@@ -6,6 +6,7 @@
 import type { TriviaCategory } from "../trivia/types";
 import { TIERS, tierPools, type TierQuestion } from "../trivia/tiers";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
+import { has, own } from "../party/own";
 
 export const QUESTION_MS = 25_000, REVEAL_MS = 7_000, BASE = 100, SPEED_MAX = 50;
 /** Fewest players for teams. */
@@ -25,6 +26,8 @@ export type PTState = {
   correct: Record<string, number>;
   history: { answers: Record<string, string>; teamChoice: (string | null)[] }[];
   phaseAt: number;
+  /** Public and stable for one game: what a sip card is keyed on. */
+  startedAt: number;
   done: boolean;
   drinks?: DrinkState;
 };
@@ -82,7 +85,7 @@ export function init(o: { players: string[]; categories: TriviaCategory[]; count
   return {
     players: o.players, teams, questions, round: 0, phase: "question", answers: {},
     points: Object.fromEntries(o.players.map((p) => [p, 0])), teamPoints: teams ? teams.map(() => 0) : [],
-    correct: Object.fromEntries(o.players.map((p) => [p, 0])), history: [], phaseAt: o.now, done: questions.length === 0,
+    correct: Object.fromEntries(o.players.map((p) => [p, 0])), history: [], phaseAt: o.now, startedAt: o.now, done: questions.length === 0,
     ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),
   };
 }
@@ -91,11 +94,11 @@ const bonus = (s: PTState, at: number) => Math.round(SPEED_MAX * Math.max(0, Mat
 
 /** A player locks in an option. One answer each, only options on screen, and the clock is the server's. At exactly QUESTION_MS still counts; after it, the round is closed to answers. */
 export function answer(s: PTState, by: string, choice: string, now: number): PTState {
-  if (s.done || s.phase !== "question" || !s.players.includes(by) || by in s.answers || now - s.phaseAt > QUESTION_MS) return s;
+  if (s.done || s.phase !== "question" || !s.players.includes(by) || has(s.answers, by) || now - s.phaseAt > QUESTION_MS) return s;
   if (typeof choice !== "string" || !s.questions[s.round]!.options.includes(choice)) return s;
   const answers = { ...s.answers, [by]: { choice, at: now } };
   const filled = { ...s, answers };
-  return s.players.every((p) => p in answers) ? reveal(filled, now) : filled;
+  return s.players.every((p) => has(answers, p)) ? reveal(filled, now) : filled;
 }
 
 function drinkCalls(s: PTState, entities: { members: string[]; right: boolean; last: number | null }[]): DrinkCall[] {
@@ -112,11 +115,11 @@ function drinkCalls(s: PTState, entities: { members: string[]; right: boolean; l
 
 function reveal(s: PTState, now: number): PTState {
   const right = s.questions[s.round]!.answer;
-  const votes = (m: string[]) => m.flatMap((p) => (s.answers[p] ? [s.answers[p]!] : []));
+  const votes = (m: string[]) => m.flatMap((p) => own(s.answers, p) ?? []);
   const points = { ...s.points }, correct = { ...s.correct };
   for (const p of s.players) {
-    const a = s.answers[p];
-    if (a && a.choice === right) { points[p] = (points[p] ?? 0) + BASE + bonus(s, a.at); correct[p] = (correct[p] ?? 0) + 1; }
+    const a = own(s.answers, p);
+    if (a && a.choice === right) { points[p] = (own(points, p) ?? 0) + BASE + bonus(s, a.at); correct[p] = (own(correct, p) ?? 0) + 1; }
   }
   const groups = s.teams ?? s.players.map((p) => [p]);
   const choices = groups.map((m) => teamChoice(votes(m)));
@@ -127,7 +130,7 @@ function reveal(s: PTState, now: number): PTState {
         return t + BASE + bonus(s, first);
       })
     : s.teamPoints;
-  const h = { answers: Object.fromEntries(s.players.flatMap((p) => (s.answers[p] ? [[p, s.answers[p]!.choice]] : []))), teamChoice: choices };
+  const h = { answers: Object.fromEntries(s.players.flatMap((p) => (has(s.answers, p) ? [[p, s.answers[p]!.choice]] : []))), teamChoice: choices };
   const drinks = s.drinks
     ? addCalls(s.drinks, drinkCalls(s, groups.map((m, i) => ({ members: m, right: choices[i] === right, last: votes(m).length ? Math.max(...votes(m).map((v) => v.at)) : null }))), s.players)
     : undefined;
@@ -144,10 +147,10 @@ function advance(s: PTState, now: number): PTState {
 export function settle(s: PTState, gone: string[], now: number): PTState {
   if (s.done || s.phase !== "question") return s;
   const here = s.players.filter((p) => !gone.includes(p));
-  return here.length > 0 && here.every((p) => p in s.answers) ? reveal(s, now) : s;
+  return here.length > 0 && here.every((p) => has(s.answers, p)) ? reveal(s, now) : s;
 }
 
-/** Anyone can move on once the reveal has been read. */
+/** Ends a reveal early. In a room only the host can (the server checks). */
 export function next(s: PTState, now: number): PTState {
   return s.done || s.phase !== "reveal" ? s : advance(s, now);
 }
