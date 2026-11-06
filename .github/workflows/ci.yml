@@ -26,7 +26,11 @@ jobs:
       - name: Backend typecheck
         run: npx tsc -p tsconfig.json --noEmit
         working-directory: backend
-      - name: Web typecheck and build
-        run: npm run build
+      # Vercel's upload leaves out backend/ (.vercelignore), so build the way it does: without it.
+      # Keep this the last step; nothing after it may need backend/.
+      - name: Web typecheck and build (without backend/)
+        run: |
+          rm -rf backend
+          npm run build
         env:
           NEXT_PUBLIC_API_URL: https://api.example.com

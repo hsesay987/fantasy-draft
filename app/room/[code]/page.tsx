@@ -22,6 +22,9 @@ import { openStatRoom, STAT_LEAGUES, statRoomHref, type League } from "../../lib
 import { track } from "../../lib/analytics";
 import { PARTY_FORMATS, type FormatId, type GameSetup } from "../../play/types";
 
+/** Fewest seats each game starts with (the server enforces the same numbers). */
+const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" || format === "vote" ? 3 : 2);
+
 /**
  * One room for a whole evening: friends join once, the host picks a game, everyone plays, and when it ends the
  * room goes back to the lobby so the host can pick the next game. Nobody has to rejoin between games.
@@ -141,7 +144,9 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   const cat = setup ? category(setup.pool) : null;
   const party = !!setup && PARTY_FORMATS.has(setup.format);
   const cap = !setup || party ? 12 : 6; // an empty room takes a party-sized group; drafts cap it at six
+  const need = setup ? seatsNeeded(setup.format) : 2;
   const shortForMafia = setup?.format === "mafia" && snap.seats.length < MAFIA_MIN;
+  const shortForGame = !!setup && snap.seats.length >= 2 && snap.seats.length < need && !shortForMafia;
   const poolTitle = setup ? (setup.format === "vote" ? deckOf(setup.pool)?.title : setup.format === "insync" ? insyncDeckOf(setup.pool)?.title : cat?.title) : null;
 
   // Picking a game: the full setup screen for that format, saving to the room.
@@ -179,7 +184,9 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
     window.location.assign(statRoomHref(r.code, league));
   };
   const surprise = () => {
-    const f = FORMATS.filter((x) => x.id !== "loadout");
+    // Only games this table can actually start: party games by their seat minimum, drafts and trivia up to six seats.
+    const n = snap.seats.length;
+    const f = [...PARTY_GAMES.filter((x) => n >= seatsNeeded(x.id)), ...(n <= 6 ? FORMATS.filter((x) => x.id !== "loadout") : [])];
     setPicking(f[Math.floor(Math.random() * f.length)]!.id as FormatId);
   };
 
@@ -269,11 +276,11 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
       {error && <p role="alert" className="text-sm text-accent">{error}</p>}
       <div className="flex gap-3">
         {isHost ? (
-          <Button variant="accent" className="flex-1 text-lg" disabled={!setup || snap.seats.length < 2 || shortForMafia || picking === "menu"} onClick={start}>
-            <Play className="h-5 w-5" aria-hidden /> {!setup ? "Pick a game first" : shortForMafia ? `Need ${MAFIA_MIN} players` : snap.seats.length < 2 ? "Waiting for players…" : "Start game"}
+          <Button variant="accent" className="flex-1 text-lg" disabled={!setup || snap.seats.length < 2 || shortForMafia || shortForGame || picking === "menu"} onClick={start}>
+            <Play className="h-5 w-5" aria-hidden /> {!setup ? "Pick a game first" : shortForMafia ? `Need ${MAFIA_MIN} players` : shortForGame ? `Need ${need} players` : snap.seats.length < 2 ? "Waiting for players…" : "Start game"}
           </Button>
         ) : (
-          <p className="flex-1 self-center text-center text-muted-foreground">{shortForMafia ? `Mafia needs ${MAFIA_MIN} players. ${snap.seats.length} here so far.` : setup ? `Waiting for ${hostName(snap)} to start…` : `Waiting for ${hostName(snap)} to pick a game…`}</p>
+          <p className="flex-1 self-center text-center text-muted-foreground">{shortForMafia ? `Mafia needs ${MAFIA_MIN} players. ${snap.seats.length} here so far.` : shortForGame ? `${meta?.title} needs ${need} players. ${snap.seats.length} here so far.` : setup ? `Waiting for ${hostName(snap)} to start…` : `Waiting for ${hostName(snap)} to pick a game…`}</p>
         )}
         <Button variant="ghost" onClick={onLeave}><LogOut className="h-4 w-4" aria-hidden /> Leave</Button>
       </div>
