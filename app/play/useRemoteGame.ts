@@ -70,7 +70,7 @@ export function useRemoteRoom(code: string) {
   return { snap, missing, offset, refresh, dispatchRemote, setToken: (t: string) => (token.current = t) };
 }
 
-export function useRemoteCtl(snap: RoomSnapshot & { setup: NonNullable<RoomSnapshot["setup"]> }, offset: number, dispatch: (a: Action) => void): GameCtl {
+export function useRemoteCtl(snap: RoomSnapshot & { setup: NonNullable<RoomSnapshot["setup"]> }, offset: number, dispatch: (a: Action) => void, leave?: () => void): GameCtl {
   const pool = useMemo(() => poolFor(snap.setup), [snap.setup]);
   const map = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
   return {
@@ -85,5 +85,7 @@ export function useRemoteCtl(snap: RoomSnapshot & { setup: NonNullable<RoomSnaps
     controls: (p) => !!p && p === snap.me,
     isAi: () => false,
     host: snap.seats.find((s) => s.host)?.name ?? null,
+    gone: snap.seats.filter((s) => s.left).map((s) => s.name),
+    leave,
   };
 }

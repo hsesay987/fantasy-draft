@@ -7,7 +7,7 @@ import { PixelBox, PixelButton, PixelShell } from "../../components/pixel/PixelU
 import { Sprite } from "../../components/pixel/Sprite";
 import { WorldScene } from "../../components/pixel/WorldScene";
 import { useSound } from "../../components/SoundProvider";
-import { DrinkCard, PartyClock, playerSprite, WaterLine } from "./partyBits";
+import { canMoveOn, DrinkCard, LeaveGame, PartyClock, playerSprite, WaitingForHost, WaterLine } from "./partyBits";
 import { SignalCanvas } from "./SignalCanvas";
 import { createThrottle, locksNeeded, MARKER_HOLD_MS, REVEAL_OUTCOME_MS, shownMarker, syncGameKey, verdictFor, type LocalMarker, type Points } from "./signal";
 import type { GameCtl } from "../useGame";
@@ -86,8 +86,11 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
     if (had > 0) setCleared(true);
   }, [s.locks.length, s.phase]);
 
-  const guessers = s.players.filter((p) => p !== host);
+  // Only the guessers still here count, the same as the server's majority.
+  const gone = ctl.gone ?? [];
+  const guessers = s.players.filter((p) => p !== host && !gone.includes(p));
   const need = locksNeeded(guessers.length);
+  const have = s.locks.filter((p) => guessers.includes(p)).length;
   const lockedByMe = s.locks.includes(me);
   const phaseMs = s.phase === "reveal" ? IS.REVEAL_MS : s.phase === "tune" ? IS.TUNE_MS : IS.CLUE_MS;
   const deck = insyncDeckOf(s.deck);
@@ -137,13 +140,13 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <div className="sync-lock">
             <p className="sync-hint">{cleared ? "The signal moved, so the locks went out. Lock again." : "Drag the signal. Talk it over. Anyone can move it."}</p>
             <PixelButton variant="gold" className="sync-lock-btn" disabled={lockedByMe} aria-pressed={lockedByMe} onClick={lock}>{lockedByMe ? "Locked" : "Lock it in"}</PixelButton>
-            <LockLamps have={s.locks.length} need={need} />
+            <LockLamps have={have} need={need} />
           </div>
         )}
         {isHost && s.phase === "tune" && (
           <div className="sync-lock">
             <p className="sync-hint">No more clues. Watch them tune to your green flag.</p>
-            <LockLamps have={s.locks.length} need={need} />
+            <LockLamps have={have} need={need} />
           </div>
         )}
 
@@ -151,15 +154,18 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <PixelBox as="section" pad={false} className="sync-log">
             <h2 role="status" className={last.points === 0 ? "miss" : ""}>{resultLine(last.points as Points)}</h2>
             <p className="line">Signal at <b>{last.marker}</b>. Target at <b>{last.target}</b>.</p>
-            <PixelButton variant="gold" className="w-[calc(100%-8px)]" onClick={() => ctl.dispatch({ type: "next", by: me })}>{s.round + 1 >= s.pairs.length ? "Final score >" : "Next round >"}</PixelButton>
+            {canMoveOn(ctl)
+              ? <PixelButton variant="gold" className="w-[calc(100%-8px)]" onClick={() => ctl.dispatch({ type: "next", by: me })}>{s.round + 1 >= s.pairs.length ? "Final score >" : "Next round >"}</PixelButton>
+              : <WaitingForHost ctl={ctl} />}
           </PixelBox>
         )}
 
-        <Crew players={s.players} host={host} locks={s.locks} me={me} />
+        <Crew players={s.players} host={host} locks={s.locks} me={me} gone={gone} />
         <p className="sync-total">Group score <b>{shownScore}</b>{shownMax > 0 && <> of {shownMax}</>}</p>
 
         {s.drinks && <WaterLine />}
         {s.drinks && landed && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={syncGameKey(s.pairs)} names={s.players} />}
+        {ctl.leave && <LeaveGame onLeave={ctl.leave} />}
       </div>
     </PixelShell>
   );
@@ -196,14 +202,14 @@ function LockLamps({ have, need }: { have: number; need: number }) {
   );
 }
 
-function Crew({ players, host, locks, me }: { players: string[]; host: string; locks: string[]; me: string }) {
+function Crew({ players, host, locks, me, gone }: { players: string[]; host: string; locks: string[]; me: string; gone: string[] }) {
   return (
     <ul className="sync-crew" aria-label="Players">
       {players.map((p, i) => (
-        <li key={p} className={`${p === host ? "host" : ""} ${locks.includes(p) ? "locked" : ""} ${p === me ? "me" : ""}`}>
+        <li key={p} className={`${p === host ? "host" : ""} ${locks.includes(p) && !gone.includes(p) ? "locked" : ""} ${p === me ? "me" : ""} ${gone.includes(p) ? "is-gone" : ""}`}>
           <Sprite sprite={playerSprite(i)} size={24} />
           <span className="name">{p}</span>
-          {p === host ? <span className="tag">On air</span> : locks.includes(p) ? <span className="tag lock">Locked</span> : null}
+          {gone.includes(p) ? <span className="tag">Left</span> : p === host ? <span className="tag">On air</span> : locks.includes(p) ? <span className="tag lock">Locked</span> : null}
         </li>
       ))}
     </ul>
@@ -246,10 +252,12 @@ export function InSyncResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAga
             ))}
           </ol>
         </PixelBox>
-        <div className="party-actions">
-          {onRematch && <PixelButton variant="gold" onClick={onRematch}>New pairs</PixelButton>}
-          <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
-        </div>
+        {onRematch && (
+          <div className="party-actions">
+            <PixelButton variant="gold" onClick={onRematch}>New pairs</PixelButton>
+            <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
+          </div>
+        )}
         {s.drinks && <WaterLine />}
         {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={syncGameKey(s.pairs)} names={s.players} />}
       </div>
