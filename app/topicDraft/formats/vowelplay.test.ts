@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DUEL_WORDS, GUESS_MS, REVEAL_ALL_MS, REVEAL_MS, giveUp, guess, init, redactFor, speedPoints, tick, winners, type VPState, type VPMode } from "./vowelplay";
+import { DUEL_WORDS, GUESS_MS, REVEAL_ALL_MS, REVEAL_MS, DUEL_LEAD, JUDGE_MS, SPEAK_MS, buzz, giveUp, guess, init, mark, redactFor, settle, speedPoints, spoke, tick, winners, type VPState, type VPMode } from "./vowelplay";
 import { VOWEL_TOPICS, wordsFor } from "../party/vowelWords";
 import { toPuzzle } from "../party/vowelText";
 
@@ -164,5 +164,196 @@ describe("redactFor", () => {
     s = tick(s, s.phaseAt + REVEAL_MS);
     expect(s.done).toBe(true);
     expect(redactFor(s, null).words).toEqual(s.words);
+  });
+});
+
+const mkV = (mode: VPMode = "first", players = ["Ann", "Bo", "Cy"], count = 3): VPState =>
+  init({ players, topic, mode, answer: "voice", count, seed: 7, now: T0 });
+const at = (s: VPState, ms: number) => s.phaseAt + ms;
+
+describe("late guess agrees with tick", () => {
+  it("guess at exactly GUESS_MS is refused, as tick ends the word there", () => {
+    const s = mk();
+    expect(guess(s, "Ann", cur(s).name, T0 + GUESS_MS - 1)).not.toBe(s);
+    expect(guess(s, "Ann", cur(s).name, T0 + GUESS_MS)).toBe(s);
+    expect(tick(s, T0 + GUESS_MS).phase).toBe("reveal");
+  });
+});
+
+describe("voice", () => {
+  it("refuses typed guesses; buzz goes to speak; second buzz refused", () => {
+    const s = mkV();
+    expect(guess(s, "Ann", cur(s).name, T0 + 5)).toBe(s);
+    const b = buzz(s, "Bo", T0 + 100);
+    expect(b.phase).toBe("speak");
+    expect(b.buzzer).toBe("Bo");
+    expect(buzz(b, "Cy", T0 + 200)).toBe(b);
+    expect(buzz(mk(), "Ann", T0 + 1)).toEqual(mk());
+  });
+  it("only the buzzer can spoke; tick after SPEAK_MS also moves to judge", () => {
+    const b = buzz(mkV(), "Bo", T0 + 100);
+    expect(spoke(b, "Ann", T0 + 200)).toBe(b);
+    expect(spoke(b, "Bo", T0 + 200).phase).toBe("judge");
+    expect(tick(b, at(b, SPEAK_MS - 1))).toBe(b);
+    expect(tick(b, at(b, SPEAK_MS)).phase).toBe("judge");
+  });
+  const judging = (mode: VPMode = "first", players = ["Ann", "Bo", "Cy"]) => spoke(buzz(mkV(mode, players), "Bo", T0 + 100), "Bo", T0 + 200);
+  it("buzzer can't mark; one mark each; all marked resolves", () => {
+    const j = judging();
+    expect(mark(j, "Bo", "right", T0 + 300)).toBe(j);
+    const a = mark(j, "Ann", "wrong", T0 + 300);
+    expect(a.phase).toBe("judge");
+    expect(mark(a, "Ann", "right", T0 + 301)).toBe(a);
+    const c = mark(a, "Cy", "right", T0 + 302);
+    expect(c.phase).toBe("reveal");
+  });
+  it("more wrong than right is wrong; a tie or no marks is right", () => {
+    const j = judging("first", ["Ann", "Bo", "Cy", "Di"]);
+    const w = mark(mark(mark(j, "Ann", "wrong", T0 + 1), "Cy", "wrong", T0 + 2), "Di", "right", T0 + 3);
+    expect(w.history[0]!.wrongBuzz).toBe("Bo");
+    expect(w.points.Bo).toBe(0);
+    const tie = mark(mark(mark(j, "Ann", "wrong", T0 + 1), "Cy", "right", T0 + 2), "Di", "right", T0 + 3);
+    expect(tie.points.Bo).toBe(1);
+    const none = tick(j, at(j, JUDGE_MS));
+    expect(none.phase).toBe("reveal");
+    expect(none.points.Bo).toBe(1);
+    expect(tick(j, at(j, JUDGE_MS - 1))).toBe(j);
+    const twoTie = mark(mark(judging("first", ["Ann", "Bo", "Cy"]), "Ann", "wrong", T0 + 1), "Cy", "right", T0 + 2);
+    expect(twoTie.points.Bo).toBe(1);
+  });
+  it("wrong in first takes a point, never below 0, and ends the word", () => {
+    const j = { ...judging(), points: { Ann: 0, Bo: 2, Cy: 0 } };
+    const w = mark(mark(j, "Ann", "wrong", T0 + 1), "Cy", "wrong", T0 + 2);
+    expect(w.points.Bo).toBe(1);
+    expect(w.phase).toBe("reveal");
+    expect(w.history[0]!.winner).toBeNull();
+    const z = mark(mark(judging(), "Ann", "wrong", T0 + 1), "Cy", "wrong", T0 + 2);
+    expect(z.points.Bo).toBe(0);
+  });
+  it("right gives 1 and records the winner", () => {
+    const r = mark(mark(judging(), "Ann", "right", T0 + 1), "Cy", "right", T0 + 2);
+    expect(r.points.Bo).toBe(1);
+    expect(r.history[0]!.winner).toBe("Bo");
+  });
+  it("no buzz in GUESS_MS reveals with no winner", () => {
+    const s = tick(mkV(), T0 + GUESS_MS);
+    expect(s.phase).toBe("reveal");
+    expect(s.history[0]!.winner).toBeNull();
+    expect(buzz(mkV(), "Ann", T0 + GUESS_MS)).toEqual(mkV());
+  });
+  it("redactFor hides the name in speak for everyone, shows it in judge", () => {
+    const sp = buzz(mkV(), "Bo", T0 + 1);
+    for (const me of ["Bo", "Ann", null]) expect(JSON.stringify(redactFor(sp, me))).not.toContain(cur(sp).name);
+    const j = spoke(sp, "Bo", T0 + 2);
+    for (const me of ["Bo", "Ann", null]) expect(redactFor(j, me).words[0]!.name).toBe(cur(sp).name);
+  });
+});
+
+describe("duel", () => {
+  const duel = (answer: "voice" | "type" = "voice") => init({ players: ["Ann", "Bo"], topic, mode: "duel", answer, count: 10, seed: 7, now: T0 });
+  const rightBuzz = (s: VPState, by: string, now: number) => {
+    const opp = by === "Ann" ? "Bo" : "Ann";
+    return mark(spoke(buzz(s, by, now), by, now + 1), opp, "right", now + 2);
+  };
+  it("a win moves the rope towards the winner; wrong buzz towards the opponent", () => {
+    const a = rightBuzz(duel(), "Ann", T0 + 10);
+    expect(a.rope).toBe(1);
+    const j = spoke(buzz(duel(), "Ann", T0 + 10), "Ann", T0 + 11);
+    expect(mark(j, "Ann", "right", T0 + 12)).toBe(j);
+    const w = mark(j, "Bo", "wrong", T0 + 12);
+    expect(w.rope).toBe(-1);
+    const bw = mark(spoke(buzz(duel(), "Bo", T0 + 10), "Bo", T0 + 11), "Ann", "wrong", T0 + 12);
+    expect(bw.rope).toBe(1);
+    expect(bw.points).toEqual(duel().points);
+  });
+  it("a wrong buzz can end the game at the lead", () => {
+    const s = { ...duel(), rope: DUEL_LEAD - 1 };
+    const j = spoke(buzz(s, "Bo", T0 + 10), "Bo", T0 + 11);
+    const r = mark(j, "Ann", "wrong", T0 + 12);
+    expect(r.rope).toBe(DUEL_LEAD);
+    expect(r.done).toBe(true);
+    expect(winners(r)).toEqual(["Ann"]);
+    const lose = mark(spoke(buzz({ ...duel(), rope: -(DUEL_LEAD - 1) }, "Ann", T0 + 10), "Ann", T0 + 11), "Bo", "wrong", T0 + 12);
+    expect(lose.done).toBe(true);
+    expect(winners(lose)).toEqual(["Bo"]);
+  });
+  it("a win at the lead ends it; 30 words end it; winners by rope or both if level", () => {
+    const r = rightBuzz({ ...duel(), rope: -(DUEL_LEAD - 1) }, "Bo", T0 + 10);
+    expect(r.done).toBe(true);
+    expect(winners(r)).toEqual(["Bo"]);
+    let s = duel();
+    expect(s.total).toBe(DUEL_WORDS);
+    s = { ...s, round: s.total - 1 };
+    s = tick(tick(s, T0 + GUESS_MS), T0 + GUESS_MS + REVEAL_MS);
+    expect(s.done).toBe(true);
+    expect(winners(s)).toEqual(["Ann", "Bo"]);
+    expect(winners({ ...s, rope: 2 })).toEqual(["Ann"]);
+  });
+  it("typed: the first right guess moves the rope, the second does not", () => {
+    const s = duel("type");
+    const r = guess(s, "Bo", cur(s).name, T0 + 10);
+    expect(r.rope).toBe(-1);
+    expect(r.phase).toBe("reveal");
+    expect(guess(r, "Ann", cur(s).name, T0 + 11)).toBe(r);
+    expect(guess(s, "Ann", "zzzzqx", T0 + 10)).toBe(s);
+  });
+  it("two right guesses in a row credit only the first in first mode too", () => {
+    const s = mk();
+    const r = guess(s, "Ann", cur(s).name, T0 + 5);
+    expect(guess(r, "Bo", cur(s).name, T0 + 5)).toBe(r);
+    expect(r.points).toEqual({ Ann: 1, Bo: 0, Cy: 0 });
+  });
+});
+
+describe("settle", () => {
+  const speaking = () => buzz(mkV(), "Bo", T0 + 10);
+  const judging = () => spoke(speaking(), "Bo", T0 + 11);
+  it("returns the same object when nothing changes", () => {
+    const s = mk();
+    expect(settle(s, [], T0 + 1)).toBe(s);
+    expect(settle(s, ["Ann"], T0 + 1)).toBe(s);
+    expect(settle(speaking(), ["Ann"], T0 + 1)).toEqual(speaking());
+    const sp = speaking();
+    expect(settle(sp, ["Ann"], T0 + 1)).toBe(sp);
+    const j = judging();
+    expect(settle(j, ["Zed"], T0 + 1)).toBe(j);
+  });
+  it("a departed buzzer ends the word at once with no point", () => {
+    for (const s of [speaking(), judging()]) {
+      const r = settle(s, ["Bo"], T0 + 50);
+      expect(r.phase).toBe("reveal");
+      expect(r.points).toEqual(s.points);
+      expect(r.history[0]!.winner).toBeNull();
+      expect(r.history[0]!.wrongBuzz).toBeUndefined();
+    }
+  });
+  it("departed judges don't count: the rest marking resolves; none left resolves to the speaker", () => {
+    const j = mark(judging(), "Ann", "right", T0 + 20);
+    const r = settle(j, ["Cy"], T0 + 21);
+    expect(r.phase).toBe("reveal");
+    expect(r.points.Bo).toBe(1);
+    const w = settle(mark(judging(), "Ann", "wrong", T0 + 20), ["Cy"], T0 + 21);
+    expect(w.points.Bo).toBe(0);
+    const all = settle(judging(), ["Ann", "Cy"], T0 + 21);
+    expect(all.phase).toBe("reveal");
+    expect(all.points.Bo).toBe(1);
+    const waiting = judging();
+    expect(settle(waiting, ["Cy"], T0 + 21)).toBe(waiting);
+  });
+  it("everyone-competes: departed players don't hold up the word", () => {
+    let s = mk("all");
+    s = guess(s, "Ann", cur(s).name, T0 + 100);
+    s = giveUp(s, "Bo", T0 + 200);
+    const r = settle(s, ["Cy"], T0 + 300);
+    expect(r.phase).toBe("reveal");
+    expect(r.drinks!.calls.map((c) => c.to)).toEqual(["Bo"]);
+  });
+  it("duel with one player left is done with forfeit and the other wins", () => {
+    const s = init({ players: ["Ann", "Bo"], topic, mode: "duel", answer: "voice", count: 10, seed: 7, now: T0 });
+    const r = settle(s, ["Ann"], T0 + 5);
+    expect(r.done).toBe(true);
+    expect(r.forfeit).toBe("Ann");
+    expect(winners(r)).toEqual(["Bo"]);
+    expect(settle(r, ["Ann"], T0 + 6)).toBe(r);
   });
 });

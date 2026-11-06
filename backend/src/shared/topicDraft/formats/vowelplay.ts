@@ -74,24 +74,24 @@ export function init(o: { players: string[]; topic: string; mode: VPMode; answer
 
 const revealMs = (s: VPState) => (s.mode === "all" && s.players.length > 1 ? REVEAL_ALL_MS : REVEAL_MS);
 
-function drinkCalls(s: VPState): DrinkCall[] {
+function drinkCalls(s: VPState, gone: string[]): DrinkCall[] {
   const calls: DrinkCall[] = [];
   const got = Object.entries(s.gotMs);
   if (got.length >= 2) {
     const slowest = got.reduce((a, b) => (b[1] > a[1] ? b : a));
     calls.push({ to: slowest[0], sips: 1, reason: "Slowest to crack it" });
   }
-  for (const p of s.players) if (!has(s.gotMs, p)) calls.push({ to: p, sips: 1, reason: "Missed the word" });
+  for (const p of s.players) if (!has(s.gotMs, p) && !gone.includes(p)) calls.push({ to: p, sips: 1, reason: "Missed the word" });
   return calls;
 }
 
 /** Closes the word: records it, hands out drinks (everyone-competes only) and starts the reveal. */
-function finish(s: VPState, now: number): VPState {
+function finish(s: VPState, now: number, o: { wrongBuzz?: string; gone?: string[] } = {}): VPState {
   const w = s.words[s.round]!;
   const got = Object.entries(s.gotMs);
   const winner = got.length ? got.reduce((a, b) => (b[1] < a[1] ? b : a))[0] : null;
-  const h: VPHistory = { name: w.name, puzzle: w.puzzle, winner, gotMs: s.gotMs };
-  const drinks = s.drinks && s.mode === "all" ? addCalls(s.drinks, drinkCalls(s), s.players) : s.drinks;
+  const h: VPHistory = { name: w.name, puzzle: w.puzzle, winner, ...(o.wrongBuzz ? { wrongBuzz: o.wrongBuzz } : {}), gotMs: s.gotMs };
+  const drinks = s.drinks && s.mode === "all" ? addCalls(s.drinks, drinkCalls(s, o.gone ?? []), s.players) : s.drinks;
   return { ...s, phase: "reveal", history: [...s.history, h], ...(drinks ? { drinks } : {}), phaseAt: now };
 }
 
@@ -101,17 +101,30 @@ function advance(s: VPState, now: number): VPState {
   return { ...s, round, phase: "guess", buzzer: null, marks: {}, gotMs: {}, gaveUp: [], phaseAt: now };
 }
 
-const allIn = (s: VPState) => s.players.every((p) => has(s.gotMs, p) || s.gaveUp.includes(p));
+const allIn = (s: VPState, gone: string[] = []) => s.players.every((p) => gone.includes(p) || has(s.gotMs, p) || s.gaveUp.includes(p));
+
+/** Head to head: moves the rope one step towards `to` and ends the game at a lead of DUEL_LEAD. */
+function pull(s: VPState, to: string): VPState {
+  const rope = s.rope + (to === s.players[0] ? 1 : -1);
+  return { ...s, rope, done: s.done || Math.abs(rope) >= DUEL_LEAD };
+}
+
+/** The word was named by `by`: 1 point (first), or a step of the rope (head to head). */
+function won(s: VPState, by: string, ms: number, now: number): VPState {
+  const gotMs = { ...s.gotMs, [by]: ms };
+  if (s.mode === "duel") return finish(pull({ ...s, gotMs }, by), now);
+  return finish({ ...s, gotMs, points: { ...s.points, [by]: (s.points[by] ?? 0) + 1 } }, now);
+}
 
 /** A typed guess. A wrong one returns the same object so a room sends nothing. */
 export function guess(s: VPState, by: string, text: string, now: number): VPState {
-  if (s.done || s.phase !== "guess" || s.mode === "duel" || !s.players.includes(by) || has(s.gotMs, by) || s.gaveUp.includes(by)) return s;
+  if (s.done || s.phase !== "guess" || s.answer !== "type" || !s.players.includes(by) || has(s.gotMs, by) || s.gaveUp.includes(by)) return s;
   const ms = Math.max(0, now - s.phaseAt);
-  if (ms > GUESS_MS) return s;
+  if (ms >= GUESS_MS) return s;
   const w = s.words[s.round]!;
   if (typeof text !== "string" || ![w.name, ...w.also].some((n) => matches(text, n))) return s;
+  if (s.mode !== "all") return won(s, by, ms, now);
   const gotMs = { ...s.gotMs, [by]: ms };
-  if (s.mode === "first") return finish({ ...s, gotMs, points: { ...s.points, [by]: (s.points[by] ?? 0) + 1 } }, now);
   const next = { ...s, gotMs, points: { ...s.points, [by]: (s.points[by] ?? 0) + speedPoints(ms) } };
   return allIn(next) ? finish(next, now) : next;
 }
@@ -123,24 +136,83 @@ export function giveUp(s: VPState, by: string, now: number): VPState {
   return allIn(next) ? finish(next, now) : next;
 }
 
-/** Clocks: a word runs out, a reveal moves on. */
+/** Voice: the first to buzz gets to speak. */
+export function buzz(s: VPState, by: string, now: number): VPState {
+  if (s.done || s.phase !== "guess" || s.answer !== "voice" || s.mode === "all" || s.buzzer !== null || !s.players.includes(by) || now - s.phaseAt >= GUESS_MS) return s;
+  return { ...s, phase: "speak", buzzer: by, phaseAt: now };
+}
+
+/** Voice: the buzzer has said it, so the name goes to the judges. */
+export function spoke(s: VPState, by: string, now: number): VPState {
+  if (s.done || s.phase !== "speak" || by !== s.buzzer) return s;
+  return { ...s, phase: "judge", marks: {}, phaseAt: now };
+}
+
+const judges = (s: VPState, gone: string[] = []) => s.players.filter((p) => p !== s.buzzer && !gone.includes(p));
+
+/** Settles the speaker's word from the marks of `from`: more wrong than right is wrong; a tie or none is right. */
+function resolve(s: VPState, from: string[], now: number, gone: string[] = []): VPState {
+  const by = s.buzzer!;
+  const votes = from.filter((p) => has(s.marks, p)).map((p) => s.marks[p]);
+  const wrong = votes.filter((v) => v === "wrong").length;
+  if (wrong > votes.length - wrong) {
+    if (s.mode === "duel") return finish(pull(s, s.players.find((p) => p !== by)!), now, { wrongBuzz: by, gone });
+    return finish({ ...s, points: { ...s.points, [by]: Math.max(0, (s.points[by] ?? 0) - 1) } }, now, { wrongBuzz: by, gone });
+  }
+  return won(s, by, 0, now);
+}
+
+/** Voice: a judge's verdict. The speaker can't judge. In head to head the opponent's one mark decides. */
+export function mark(s: VPState, by: string, verdict: "right" | "wrong", now: number): VPState {
+  if (s.done || s.phase !== "judge" || by === s.buzzer || !s.players.includes(by) || has(s.marks, by) || (verdict !== "right" && verdict !== "wrong")) return s;
+  const next = { ...s, marks: { ...s.marks, [by]: verdict } };
+  return judges(next).every((p) => has(next.marks, p)) ? resolve(next, judges(next), now) : next;
+}
+
+/**
+ * Closes what is waiting on people who left (`gone`): a departed buzzer's word ends with no point, departed judges are not
+ * waited for (none left resolves to the speaker), and everyone-competes doesn't wait for them. Head to head with one player
+ * left is over and the one left wins.
+ */
+export function settle(s: VPState, gone: string[], now: number): VPState {
+  if (s.done) return s;
+  const left = s.players.filter((p) => !gone.includes(p));
+  if (s.mode === "duel" && left.length < 2) {
+    return { ...s, done: true, forfeit: s.players.find((p) => gone.includes(p)) ?? null };
+  }
+  if ((s.phase === "speak" || s.phase === "judge") && s.buzzer !== null) {
+    if (gone.includes(s.buzzer)) return finish(s, now, { gone });
+    if (s.phase === "judge") {
+      const here = judges(s, gone);
+      return here.every((p) => has(s.marks, p)) ? resolve(s, here, now, gone) : s;
+    }
+  }
+  if (s.phase === "guess" && s.mode === "all" && allIn(s, gone)) return finish(s, now, { gone });
+  return s;
+}
+
+/** Clocks: a word runs out, a speaker's time ends, judging ends, a reveal moves on. */
 export function tick(s: VPState, now: number): VPState {
   if (s.done) return s;
   if (s.phase === "guess" && now - s.phaseAt >= GUESS_MS) return finish(s, now);
+  if (s.phase === "speak" && now - s.phaseAt >= SPEAK_MS) return spoke(s, s.buzzer!, now);
+  if (s.phase === "judge" && now - s.phaseAt >= JUDGE_MS) return resolve(s, judges(s), now);
   if (s.phase === "reveal" && now - s.phaseAt >= revealMs(s)) return advance(s, now);
   return s;
 }
 
-/** Most points; ties share. */
+/** Most points; ties share. Head to head: whoever the rope is towards, both if level; a forfeit loses. */
 export function winners(s: VPState): string[] {
+  if (s.forfeit !== null) return s.players.filter((p) => p !== s.forfeit);
+  if (s.mode === "duel") return s.rope > 0 ? [s.players[0]!] : s.rope < 0 ? [s.players[1]!] : [...s.players];
   const score = (p: string) => (has(s.points, p) ? s.points[p]! : 0);
   const top = Math.max(0, ...s.players.map(score));
   return s.players.filter((p) => score(p) === top);
 }
 
-/** What any seat may see. The current name stays secret until it is finished; later words never leave the server. */
+/** What any seat may see. The current name stays secret until it is finished, except that the judges see it; later words never leave the server. */
 export function redactFor(s: VPState, _me: string | null): VPState {
   if (s.done) return { ...s, seed: 0 };
-  const words = s.words.slice(0, s.round + 1).map((w, i) => (i === s.round && s.phase !== "reveal" ? { ...w, name: "", also: [] } : w));
+  const words = s.words.slice(0, s.round + 1).map((w, i) => (i === s.round && s.phase !== "reveal" && s.phase !== "judge" ? { ...w, name: "", also: [] } : w));
   return { ...s, words, seed: 0 };
 }
