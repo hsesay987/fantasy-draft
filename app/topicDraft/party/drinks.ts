@@ -1,5 +1,7 @@
 /** Drinking mode: pure bookkeeping for sip cards. Nobody is ever asked for more than the caps below. */
 export const ROUND_CAP = 3, GAME_CAP = 10;
+/** How long a sip card stays up unless tapped away. */
+export const DRINK_CARD_MS = 4000;
 
 /** A call's `to` for the whole table. A seat with exactly this name is refused while drinking is on (startRoom). */
 export const GROUP_CALL = "all";
@@ -18,7 +20,7 @@ const sipsOf = (n: number) => (Number.isFinite(n) ? Math.max(0, Math.min(ROUND_C
 export function addCalls(d: DrinkState, calls: DrinkCall[], players: string[]): DrinkState {
   const totals = { ...d.totals };
   const watered = [...d.watered];
-  const round: Record<string, number> = {};
+  const round: Record<string, number> = Object.create(null); // keyed by player names, which can be "constructor"
   const out: DrinkCall[] = [];
   const water: DrinkCall[] = [];
 

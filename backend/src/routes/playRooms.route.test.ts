@@ -6,6 +6,7 @@ import type { AddressInfo } from "node:net";
 vi.mock("../services/trivia.service", () => ({ getFeud: vi.fn(), getJeopardy: vi.fn(), isTriviaPool: () => false }));
 
 import router from "./playRooms.route";
+import { getRoom } from "../services/playRooms";
 
 const BLOCKED = "retard"; // on the local blocklist, so these tests need no moderation service
 let server: Server;
@@ -84,5 +85,25 @@ describe.each(GAMES)("clue moderation: $label", ({ setup, stored }) => {
     const r = await clue("  a   quiet\nclue  ");
     expect(r.status).toBe(200);
     expect(stored(r.data.snapshot.state)).toBe("a quiet clue");
+  });
+});
+
+describe("polling a room", () => {
+  const get = (code: string, token?: string) => fetch(`${base}/${code}${token ? `?token=${token}` : ""}`).then((x) => x.json() as Promise<any>);
+
+  it("wakes a sleeping host's crown on a poll with their token, in that very response, without a new version", async () => {
+    const made = await post("", { name: "Ann" });
+    const code = made.data.code as string;
+    const bob = (await post(`/${code}/join`, { name: "Bob" })).data.token as string;
+    const room = getRoom(code)!;
+    room.seats[0]!.lastSeen = Date.now() - 46_000;
+    const asleep = await get(code, bob);
+    expect(asleep.seats.find((s: any) => s.host).name).toBe("Bob");
+    const noToken = await get(code);
+    expect(noToken.seats.find((s: any) => s.host).name).toBe("Bob");
+    const back = await get(code, made.data.token);
+    expect(back.seats.find((s: any) => s.host).name).toBe("Ann");
+    expect(back.version).toBe(asleep.version);
+    expect(JSON.stringify(back)).not.toContain("lastSeen");
   });
 });

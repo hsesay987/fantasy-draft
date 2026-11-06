@@ -37,8 +37,11 @@ const seatCap = (format: FormatId | undefined) => (!format || PARTY_FORMATS.has(
 const MAX_ROOMS = 500;
 const ROOM_TTL_MS = 6 * 60 * 60 * 1000;
 const AFK_TURN_MS = 120_000;
+/** A seat not heard from for this long doesn't hold the crown. Every phone polls every 2 seconds. */
+const HOST_AWAY_MS = 45_000;
 
-type Seat = { name: string; token: string; left: boolean };
+/** `lastSeen` stays on the server: nothing in a snapshot changes because a phone polled. */
+type Seat = { name: string; token: string; left: boolean; lastSeen: number };
 /** An NBA, NFL or Cartoon stat draft room the host opened for this group (those rooms need accounts). */
 type StatLink = { code: string; league: "NBA" | "NFL" | "CARTOON" };
 type Room = {
@@ -216,7 +219,7 @@ export function createRoom(input: unknown, hostName: string, quiz?: QuizData): {
   const name = clean(hostName, 20);
   if (!name) return { error: "Enter a name" };
   if (rooms.size >= MAX_ROOMS) return { error: "Server is busy, try again soon" };
-  const seat: Seat = { name, token: crypto.randomBytes(16).toString("hex"), left: false };
+  const seat: Seat = { name, token: crypto.randomBytes(16).toString("hex"), left: false, lastSeen: Date.now() };
   const room: Room = {
     code: code(), setup: setup && { ...setup, id: `room-${Date.now()}`, players: [name], ...(quiz ? { quiz } : {}) }, seats: [seat], status: "lobby", state: null,
     turnMarker: "", turnStartedAt: 0, verdict: null, version: 1, createdAt: Date.now(), touchedAt: Date.now(), played: [], seen: [], freshQuiz: !!quiz, statLink: null,
@@ -226,8 +229,17 @@ export function createRoom(input: unknown, hostName: string, quiz?: QuizData): {
   return { room, seat };
 }
 
-/** The host is the first seat still at the table: never stored, so it follows anyone who leaves or comes back. */
-const hostSeat = (room: Room) => room.seats.find((s) => !s.left);
+/**
+ * The host is the first seat still at the table whose phone we have heard from lately, or failing that the first seat
+ * still at the table. Never stored, so it follows anyone who leaves or goes quiet, and returns when they are back.
+ */
+const hostSeat = (room: Room, now = Date.now()) => room.seats.find((s) => !s.left && now - s.lastSeen <= HOST_AWAY_MS) ?? room.seats.find((s) => !s.left);
+
+/** A phone with this token is awake. Changes nothing a client watches: no new version, and `touchedAt` is for real changes. */
+export function seenSeat(room: Room, token: unknown, now = Date.now()) {
+  const seat = seatFor(room, token);
+  if (seat) seat.lastSeen = now;
+}
 
 export const isHost = (room: Room, token: unknown) => {
   const seat = seatFor(room, token);
@@ -282,11 +294,6 @@ export function setStatLink(room: Room, token: unknown, link: unknown): { ok: tr
 
 /** A trivia game whose board was already played needs new questions before it starts again. */
 export const needsQuiz = (room: Room) => !!room.setup && (room.setup.format === "jeopardy" || room.setup.format === "feud" || room.setup.format === "partytrivia") && !room.freshQuiz;
-export function giveQuiz(room: Room, quiz: QuizData) {
-  if (!room.setup) return;
-  room.setup = { ...room.setup, quiz };
-  room.freshQuiz = true;
-}
 /** Trivia already asked in this room (to avoid repeats on the next board). */
 export const seenIn = (room: Room) => room.seen;
 
@@ -296,9 +303,11 @@ export function joinRoom(c: string, name: string): { room: Room; seat: Seat } | 
   if (room.status === "playing") return { error: "A game is running. You can join when it ends." };
   const n = clean(name, 20);
   if (!n) return { error: "Enter a name" };
-  if (room.seats.length >= seatCap(room.setup?.format)) return { error: `Room is full (${seatCap(room.setup?.format)} players for this game)` };
-  if (room.seats.some((s) => s.name.toLowerCase() === n.toLowerCase())) return { error: "That name is taken" };
-  const seat: Seat = { name: n, token: crypto.randomBytes(16).toString("hex"), left: false };
+  // Seats that walked out of the last game go when this join sends the room back to the lobby: their places and names are free.
+  const seated = room.seats.filter((s) => !s.left);
+  if (seated.length >= seatCap(room.setup?.format)) return { error: `Room is full (${seatCap(room.setup?.format)} players for this game)` };
+  if (seated.some((s) => s.name.toLowerCase() === n.toLowerCase())) return { error: "That name is taken" };
+  const seat: Seat = { name: n, token: crypto.randomBytes(16).toString("hex"), left: false, lastSeen: Date.now() };
   room.seats.push(seat);
   if (room.status === "done") resetToLobby(room); // a newcomer after a game: everyone heads back to the lobby
   if (room.setup) room.setup.players = room.seats.map((s) => s.name);
@@ -308,7 +317,8 @@ export function joinRoom(c: string, name: string): { room: Room; seat: Seat } | 
 
 export const seatFor = (room: Room, token: unknown) => room.seats.find((s) => typeof token === "string" && s.token === token);
 
-export function startRoom(room: Room, token: unknown): { ok: true } | { error: string } {
+/** `quiz` is a new bank for this game. It joins the room only if the game really starts, so a refusal can't send it out with the results. */
+export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: true } | { error: string } {
   if (!isHost(room, token)) return { error: "Only the host can start" };
   if (room.status === "playing") return { error: "Already started" };
   if (!room.setup) return { error: "Pick a game first" };
@@ -321,7 +331,7 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
   if (room.setup.format === "mafia" && here.includes(MF.SKIP_VOTE)) return { error: `Mafia can't have a player named "${MF.SKIP_VOTE}". Rejoin with another name.` };
   // Same with sip cards on: a card to this seat would read as the call to the whole table.
   if (room.setup.opts.drinking && PARTY_FORMATS.has(room.setup.format) && here.includes(GROUP_CALL)) return { error: `Drinking mode can't have a player named "${GROUP_CALL}". Rejoin with another name.` };
-  const setup = { ...room.setup, players: here, seed: (Math.random() * 2 ** 31) | 0 };
+  const setup = { ...room.setup, ...(quiz ? { quiz } : {}), players: here, seed: (Math.random() * 2 ** 31) | 0 };
   if (setup.format === "vote" || setup.format === "insync") setup.opts = { ...setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
   const state = initGame(setup, Date.now());
   if (isDone(setup, state)) return { error: "No questions are available for this topic right now" }; // nothing to play
@@ -338,12 +348,17 @@ export function startRoom(room: Room, token: unknown): { ok: true } | { error: s
 }
 
 /** Leaving between games frees the seat (the next player in line becomes host); mid-game a bot takes over. */
-/** Party trivia and Mafia close a phase once every seat still present has acted. */
+/** Party games close a phase once every seat still present has acted. Only a real leave counts: a locked phone keeps its turn. */
 function settleParty(room: Room, s: GameState, now: number): GameState {
   const gone = room.seats.filter((x) => x.left).map((x) => x.name);
-  if (room.setup?.format === "partytrivia") return PT.settle(s as PT.PTState, gone, now);
-  if (room.setup?.format === "mafia") return MF.settle(s as MF.MafiaState, gone, now);
-  return s;
+  switch (room.setup?.format) {
+    case "partytrivia": return PT.settle(s as PT.PTState, gone, now);
+    case "mafia": return MF.settle(s as MF.MafiaState, gone, now);
+    case "vote": return V.settle(s as V.VoteState, gone, now);
+    case "insync": return IS.settle(s as IS.InSyncState, gone, now);
+    case "imposter": return IM.settle(s as IM.ImposterState, gone, now);
+    default: return s;
+  }
 }
 
 export function leaveRoom(room: Room, token: unknown) {
@@ -351,7 +366,7 @@ export function leaveRoom(room: Room, token: unknown) {
   if (!seat) return;
   if (room.status === "playing") {
     seat.left = true;
-    if ((room.setup?.format === "partytrivia" || room.setup?.format === "mafia") && room.state) {
+    if (room.setup && PARTY_FORMATS.has(room.setup.format) && room.state) {
       const settled = settleParty(room, room.state, Date.now()); // the others may all have answered already
       if (settled !== room.state && room.seats.some((s) => !s.left)) commit(room, settled);
     }
@@ -367,21 +382,25 @@ export function leaveRoom(room: Room, token: unknown) {
   bump(room);
 }
 
+/** A reveal is the point of these games, so one eager tap can't clear it for the whole table. */
+const HOST_MOVES_ON = new Set<FormatId>(["vote", "insync", "partytrivia"]);
 const ACTION_TYPES = new Set(["pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next", "nightAct", "dayVote", "skipTalk"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
   const seat = seatFor(room, token);
   if (!seat) return { ok: false, error: "Not in this room" };
+  seat.lastSeen = Date.now();
   if (room.status !== "playing" || !room.state || !room.setup) return { ok: false, error: "Game is not running" };
   if (!raw || !ACTION_TYPES.has(raw.type)) return { ok: false, error: "Unknown action" };
   if (raw.type === "skipTalk" && !isHost(room, token)) return { ok: false, error: "Only the host can skip the talk" };
+  if (raw.type === "next" && HOST_MOVES_ON.has(room.setup.format) && !isHost(room, token)) return { ok: false, error: "Only the host can move on" };
   // The seat decides who is acting; clients can't act for someone else, set the clock or pick RNG seeds.
   const { seed: _seed, at: _at, now: _now, ...rest } = raw;
   const action = { ...rest, by: seat.name } as Action;
   const applied = applyAction(room.setup, room.state, action, Date.now());
   if (applied === room.state) return { ok: false, error: "Not allowed right now" };
   // Acting again means they are back at the table. Only an action that counted says so: this can change who hosts, and commit's bump tells the room.
-  if (seat.left && (room.setup.format === "partytrivia" || room.setup.format === "mafia")) seat.left = false;
+  if (seat.left && PARTY_FORMATS.has(room.setup.format)) seat.left = false;
   const next = settleParty(room, applied, Date.now());
   commit(room, next);
   return { ok: true };
@@ -559,6 +578,7 @@ function withoutQuiz(setup: GameSetup): GameSetup {
 
 export function snapshot(room: Room, token: unknown) {
   const seat = seatFor(room, token);
+  const host = hostSeat(room);
   return {
     code: room.code,
     status: room.status,
@@ -567,7 +587,7 @@ export function snapshot(room: Room, token: unknown) {
     // The setup seed rebuilds every shuffle and hidden pick, so a running party game never sends it.
     // Party trivia also carries its question bank (with answers) in setup.quiz, which stays on the server until the game is done.
     setup: room.setup && PARTY_FORMATS.has(room.setup.format) && room.status !== "done" ? withoutQuiz({ ...room.setup, seed: 0 }) : room.setup,
-    seats: room.seats.map((s) => ({ name: s.name, host: s === hostSeat(room), left: s.left })),
+    seats: room.seats.map((s) => ({ name: s.name, host: s === host, left: s.left })),
     me: seat?.name ?? null,
     state: withoutLeftDrinks(room, redact(room, seat?.name ?? null)),
     verdict: room.status === "done" ? room.verdict : null,

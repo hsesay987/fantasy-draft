@@ -9,6 +9,7 @@ import { GameBody } from "../../play/GameScreen";
 import SetupScreen from "../../play/SetupScreen";
 import { FORMATS, PARTY_GAMES, formatMeta } from "../../play/formats";
 import { PartySetup } from "../../play/PartySetup";
+import { WaterLine } from "../../play/views/partyBits";
 import { deckOf } from "../../topicDraft/party/decks";
 import { insyncDeckOf } from "../../topicDraft/party/insyncDecks";
 import { TEAM_MIN_PLAYERS } from "../../topicDraft/formats/partytrivia";
@@ -115,7 +116,7 @@ export default function RoomPage() {
             </div>
           </div>
         )}
-        <PlayingRoom snap={{ ...snap, setup }} offset={offset} dispatch={dispatchRemote} onNew={isHost ? toLobby : () => setError(null)} onRematch={isHost ? rematch : undefined} />
+        <PlayingRoom snap={{ ...snap, setup }} offset={offset} dispatch={dispatchRemote} onNew={isHost ? toLobby : () => setError(null)} onRematch={isHost ? rematch : undefined} onLeave={leave} />
       </>
     );
   }
@@ -123,11 +124,11 @@ export default function RoomPage() {
   return <Lobby code={code} token={token} snap={snap} isHost={isHost} onLeave={leave} refresh={refresh} />;
 }
 
-/** The server decides who hosts: the first seat that hasn't left. */
+/** The server decides who hosts: the first seat that hasn't left and whose phone is awake. */
 const hostName = (snap: RoomSnapshot) => snap.seats.find((s) => s.host)?.name ?? "the host";
 
-function PlayingRoom({ snap, offset, dispatch, onNew, onRematch }: { snap: RoomSnapshot & { setup: GameSetup }; offset: number; dispatch: ReturnType<typeof useRemoteRoom>["dispatchRemote"]; onNew: () => void; onRematch?: () => void }) {
-  const ctl = useRemoteCtl(snap, offset, dispatch);
+function PlayingRoom({ snap, offset, dispatch, onNew, onRematch, onLeave }: { snap: RoomSnapshot & { setup: GameSetup }; offset: number; dispatch: ReturnType<typeof useRemoteRoom>["dispatchRemote"]; onNew: () => void; onRematch?: () => void; onLeave: () => void }) {
+  const ctl = useRemoteCtl(snap, offset, dispatch, onLeave);
   return <GameBody setup={snap.setup} ctl={ctl} serverVerdict={snap.verdict} onNew={onNew} onRematch={onRematch} />;
 }
 
@@ -229,7 +230,8 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
             <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${meta.gradient}`}><meta.icon className="h-7 w-7 text-white" aria-hidden /></span>
             <div className="min-w-0 flex-1">
               <div className="text-lg font-semibold">{meta.title}{poolTitle ? ` · ${poolTitle}` : ""}</div>
-              <div className="text-sm text-muted-foreground">{party ? (setup.format === "mafia" ? `Secret roles · ${MAFIA_MIN}+ players` : setup.format === "partytrivia" ? `${setup.opts.teamSize} questions · ${setup.opts.teams >= 2 ? (snap.seats.length >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"} · 2+ players` : setup.format === "insync" ? `${Math.max(4, snap.seats.length)} rounds · one group score · 2+ players` : setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}</div>
+              <div className="text-sm text-muted-foreground">{party ? (setup.format === "mafia" ? `Secret roles · ${MAFIA_MIN}+ players` : setup.format === "partytrivia" ? `up to ${setup.opts.teamSize} questions · ${setup.opts.teams >= 2 ? (snap.seats.length >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"} · 2+ players` : setup.format === "insync" ? `${Math.max(4, snap.seats.length)} rounds · one group score · 2+ players` : setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}{party && setup.opts.drinking ? " · drinking mode" : ""}</div>
+              {party && setup.opts.drinking && <WaterLine />}
             </div>
             {isHost && <Button variant="ghost" onClick={() => setPicking("menu")}><RefreshCw className="h-4 w-4" aria-hidden /> Change game</Button>}
           </div>

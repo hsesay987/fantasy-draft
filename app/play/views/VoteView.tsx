@@ -3,11 +3,12 @@
 import { useEffect, useRef } from "react";
 import * as V from "../../topicDraft/formats/vote";
 import { deckOf, type VoteCard } from "../../topicDraft/party/decks";
+import { has, own } from "../../topicDraft/party/own";
 import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
 import { Sprite } from "../../components/pixel/Sprite";
 import { WorldScene } from "../../components/pixel/WorldScene";
 import { useSound } from "../../components/SoundProvider";
-import { DrinkCard, PartyClock, playerSprite, VoteBooths, WaterLine } from "./partyBits";
+import { canMoveOn, DrinkCard, LeaveGame, PartyClock, playerSprite, VoteBooths, WaitingForHost, WaterLine } from "./partyBits";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
@@ -20,10 +21,11 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const deck = deckOf(s.deck);
   const card = s.cards[s.round]!;
   const me = ctl.me ?? "";
-  const mine = s.votes[me];
+  const mine = own(s.votes, me);
+  const gone = ctl.gone ?? [];
   const reveal = s.phase === "reveal" ? s.history[s.history.length - 1]! : null;
   const voted = new Set(Object.keys(s.votes));
-  const gain = reveal?.gained[me] ?? 0;
+  const gain = (reveal && own(reveal.gained, me)) ?? 0;
 
   useEffect(() => { window.scrollTo(0, 0); }, [s.round]); // each new card starts at the top of the screen
   const phaseRef = useRef(s.phase);
@@ -33,12 +35,13 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.phase]);
 
-  const phaseMs = s.phase === "reveal" ? V.REVEAL_MS : s.phase === "guess" ? V.GUESS_MS : V.VOTE_MS;
+  const phaseMs = s.phase === "reveal" ? V.revealMs(s) : s.phase === "guess" ? V.GUESS_MS : V.VOTE_MS;
   const open = reveal && s.showVotes ? reveal.votes : undefined;
   const count = (side: V.Side) => (open ? Object.values(open).filter((v) => v === side).length : 0);
   const total = open ? Math.max(1, Object.keys(open).length) : 1;
   const sides: { id: V.Side; label: string }[] = [{ id: "a", label: card.a }, { id: "b", label: card.b }];
-  const status = s.phase !== "vote" ? null : mine ? `Locked in. Waiting for ${s.players.length - voted.size} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
+  const waiting = s.players.filter((p) => !gone.includes(p) && !has(s.votes, p)).length;
+  const status = s.phase !== "vote" ? null : mine ? `Locked in. Waiting for ${waiting} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
 
   return (
     <PixelShell world="hall">
@@ -46,7 +49,7 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         <header className="party-sign hall-sign">
           <div>
             <p className="eyebrow">{deck?.title}</p>
-            <h1>Card {s.round + 1} of {s.cards.length}</h1>
+            <h1>Card {s.round + 1} of {s.total}</h1>
           </div>
           <PartyClock deadline={s.phaseAt + phaseMs} offset={ctl.offset} total={phaseMs} />
         </header>
@@ -80,7 +83,7 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
         <div className="hall-floor">
           {/* With Show votes off the booths stay shut for everyone: nobody can tell who did or did not vote. */}
-          <VoteBooths players={s.players} voted={reveal && !s.showVotes ? new Set(s.players) : voted} reveal={open && Object.keys(open).length ? open : undefined} labels={{ a: card.a, b: card.b }} />
+          <VoteBooths players={s.players} voted={reveal && !s.showVotes ? new Set(s.players) : voted} reveal={open && Object.keys(open).length ? open : undefined} labels={{ a: card.a, b: card.b }} gone={gone} />
         </div>
 
         {reveal && (
@@ -89,13 +92,16 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
             {card.note && <p className="px-note">{card.note}</p>}
             <p className="gain">{gain > 0 ? `+${gain} for you.` : "No point this time."}{reveal.nobodyGot.includes(me) ? " Nobody read you." : ""}</p>
             {s.showVotes ? <Reads players={s.players} reveal={reveal} /> : <p className="px-note">The booths stay shut. Only you can see your score.</p>}
-            <PixelButton variant="gold" className="w-[calc(100%-8px)]" onClick={() => ctl.dispatch({ type: "next", by: me })}>Next card &gt;</PixelButton>
+            {canMoveOn(ctl)
+              ? <PixelButton variant="gold" className="w-[calc(100%-8px)]" onClick={() => ctl.dispatch({ type: "next", by: me })}>Next card &gt;</PixelButton>
+              : <WaitingForHost ctl={ctl} />}
           </PixelBox>
         )}
 
         {s.showVotes && <div className="hall-score"><Scores points={s.points} me={me} /></div>}
         {s.drinks && <WaterLine />}
-        {s.drinks && s.phase === "reveal" && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.seed} names={s.players} />}
+        {s.drinks && s.phase === "reveal" && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
+        {ctl.leave && <LeaveGame onLeave={ctl.leave} />}
       </div>
     </PixelShell>
   );
@@ -103,9 +109,9 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
 /** One row per person this player has to read, with A and B stamps. A guess cannot be changed. */
 function GuessSheet({ s, me, card, onGuess }: { s: V.VoteState; me: string; card: VoteCard; onGuess: (target: string, side: V.Side) => void }) {
-  const targets = s.targets[me] ?? [];
-  const mine = s.guesses[me] ?? {};
-  const made = targets.filter((t) => mine[t]).length;
+  const targets = own(s.targets, me) ?? [];
+  const mine = own(s.guesses, me) ?? {};
+  const made = targets.filter((t) => has(mine, t)).length;
   return (
     <section className="hall-sheet" aria-label="Guess how they voted">
       <div className="top">
@@ -125,8 +131,8 @@ function GuessSheet({ s, me, card, onGuess }: { s: V.VoteState; me: string; card
                 <span className="name">{t}</span>
                 <span className="pick">
                   {(["a", "b"] as const).map((side) => (
-                    <button key={side} type="button" disabled={!!mine[t]} aria-pressed={mine[t] === side} aria-label={`${t} voted ${side === "a" ? card.a : card.b}`} onClick={() => onGuess(t, side)}
-                      className={`stamp ${mine[t] === side ? "on" : ""}`}>{side.toUpperCase()}</button>
+                    <button key={side} type="button" disabled={has(mine, t)} aria-pressed={own(mine, t) === side} aria-label={`${t} voted ${side === "a" ? card.a : card.b}`} onClick={() => onGuess(t, side)}
+                      className={`stamp ${own(mine, t) === side ? "on" : ""}`}>{side.toUpperCase()}</button>
                   ))}
                 </span>
               </li>
@@ -143,18 +149,20 @@ function GuessSheet({ s, me, card, onGuess }: { s: V.VoteState; me: string; card
 function Reads({ players, reveal }: { players: string[]; reveal: V.VoteHistory }) {
   return (
     <ul className="hall-reads" aria-label="Who guessed whom">
-      {players.filter((p) => reveal.votes[p]).map((p) => {
-        const reads = Object.entries(reveal.guesses).filter(([, g]) => g[p]);
+      {players.filter((p) => has(reveal.votes, p)).map((p) => {
+        const reads = Object.entries(reveal.guesses).filter(([, g]) => has(g, p));
+        const side = own(reveal.votes, p)!;
+        const gained = own(reveal.gained, p) ?? 0;
         return (
           <li key={p}>
             <Sprite sprite={playerSprite(players.indexOf(p))} size={24} />
             <span className="name">{p}</span>
             <span className="gave">
-              {(reveal.gained[p] ?? 0) > 0 && `+${reveal.gained[p]}`}
-              <span className={`tag ${reveal.votes[p]}`}>{reveal.votes[p]!.toUpperCase()}</span>
+              {gained > 0 && `+${gained}`}
+              <span className={`tag ${side}`}>{side.toUpperCase()}</span>
             </span>
             <div className="by">
-              {reads.map(([by, g]) => <span key={by} className={g[p] === reveal.votes[p] ? "hit" : "miss"}>{by}<span className="sr-only">{g[p] === reveal.votes[p] ? " read them" : " missed"}</span></span>)}
+              {reads.map(([by, g]) => <span key={by} className={own(g, p) === side ? "hit" : "miss"}>{by}<span className="sr-only">{own(g, p) === side ? " read them" : " missed"}</span></span>)}
               {reveal.nobodyGot.includes(p) && <span className="none">Nobody read {p}</span>}
               {reads.length === 0 && <span className="none">No guesses</span>}
             </div>
@@ -213,12 +221,14 @@ export function VoteResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain
         ) : (
           <p className="party-status">The booths stayed shut. Only the totals go on the record.</p>
         )}
-        <div className="party-actions">
-          {onRematch && <PixelButton variant="gold" onClick={onRematch}>New cards</PixelButton>}
-          <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
-        </div>
+        {onRematch && (
+          <div className="party-actions">
+            <PixelButton variant="gold" onClick={onRematch}>New cards</PixelButton>
+            <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
+          </div>
+        )}
         {s.drinks && <WaterLine />}
-        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.seed} names={s.players} />}
+        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
       </div>
     </PixelShell>
   );

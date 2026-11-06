@@ -200,6 +200,12 @@
 @keyframes px-clock-low { 50% { transform: translateY(-2px); } }
 .party-status { margin: 0; padding: 6px 10px; text-align: center; color: var(--px-fg); background: var(--px-ink); font-size: 20px; }
 .party-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+/* A player who has left this game: still on the list, plainly not playing. */
+.is-gone { opacity: .55; }
+.is-gone .name { text-decoration: line-through; }
+.party-leave { margin: 24px 4px 0; text-align: center; color: var(--px-dim); font-size: 19px; }
+.party-leave p { margin: 0 0 8px; color: var(--px-fg); }
+.party-leave .ask { min-height: 44px; padding: 0 12px; border: 0; background: none; color: var(--px-dim); font: inherit; text-decoration: underline; cursor: pointer; }
 .pixel .tavern-card .who { font-size: 20px; line-height: 1; }
 .pixel .tavern-card .who span { font-size: 18px; line-height: 1; }
 .pixel .tavern-card .sips { font-size: 18px; line-height: 1.1; }

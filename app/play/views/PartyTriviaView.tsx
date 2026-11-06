@@ -9,9 +9,9 @@ import { WorldScene } from "../../components/pixel/WorldScene";
 import { useSound } from "../../components/SoundProvider";
 import { category } from "../categories";
 import { TEAM_COLORS, teamName } from "../teamMoves";
-import { DrinkCard, PartyClock, playerSprite, WaterLine } from "./partyBits";
+import { has, own } from "../../topicDraft/party/own";
+import { canMoveOn, DrinkCard, LeaveGame, PartyClock, playerSprite, WaitingForHost, WaterLine } from "./partyBits";
 import { playerStats, rankLabel, scoreDigits, standings, teamIndexOf, votesFor, winnerOf, type Standing } from "./quizBoard";
-import { syncGameKey } from "./signal";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
@@ -30,9 +30,6 @@ const COIN: SpriteData = {
   rows: ["..XXXX..", ".XGGGGX.", "XGWGGDGX", "XGWGGDGX", "XGWGGDGX", "XGWGGDGX", ".XGGGGX.", "..XXXX.."],
   pal: { X: "#8a5a12", G: "#ffd23f", W: "#fff6c2", D: "#d0902a" },
 };
-
-/** Keys sip cards to this game. The seed is hidden during play, so it hashes the first question, which every seat has. */
-const gameKey = (s: { questions: { q: string }[] }) => syncGameKey([{ id: s.questions[0]?.q ?? "" }]);
 
 /** The lit sign on top of the cabinet. */
 function Marquee({ topic, children }: { topic?: string; children: React.ReactNode }) {
@@ -73,7 +70,7 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
 
   // Tapped but not yet confirmed: shown straight away, because party moves wait for the server.
   const [tap, setTap] = useState<{ round: number; choice: string } | null>(null);
-  const confirmed = s.answers[me]?.choice;
+  const confirmed = own(s.answers, me)?.choice;
   useEffect(() => {
     if (!tap || confirmed) return;
     const id = setTimeout(() => setTap(null), TAP_RETRY_MS);
@@ -100,7 +97,7 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
   const phaseRef = useRef(s.phase);
   const right = !asking ? q.answer : undefined;
   const last = !asking ? s.history[s.history.length - 1] : undefined;
-  const scored = last ? (myTeam >= 0 ? last.teamChoice[myTeam] === right : last.answers[me] === right) : false;
+  const scored = last ? (myTeam >= 0 ? last.teamChoice[myTeam] === right : own(last.answers, me) === right) : false;
   useEffect(() => {
     const was = phaseRef.current;
     phaseRef.current = s.phase;
@@ -129,7 +126,7 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
   };
 
   const votes = votesFor(s.answers);
-  const teamPick = asking && myTeam >= 0 ? PT.teamChoice(s.teams![myTeam]!.flatMap((p) => (s.answers[p]?.choice ? [s.answers[p]!] : []))) : null;
+  const teamPick = asking && myTeam >= 0 ? PT.teamChoice(s.teams![myTeam]!.flatMap((p) => { const a = own(s.answers, p); return a?.choice ? [a] : []; })) : null;
   const canAnswer = asking && seated && !mine && !outOfTime;
   const myRow = rows.find((r) => r.mine);
 
@@ -191,9 +188,9 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
               })}
             </ul>
             {!asking && landed && <Verdict s={s} me={me} right={right!} scored={scored} />}
-            {!asking && landed && ctl.host === me && (
-              <PixelButton variant="gold" className="arc-next" onClick={() => ctl.dispatch({ type: "next", by: me })}>{s.round + 1 >= s.total ? "Final scores >" : "Next question >"}</PixelButton>
-            )}
+            {!asking && landed && (canMoveOn(ctl)
+              ? <PixelButton variant="gold" className="arc-next" onClick={() => ctl.dispatch({ type: "next", by: me })}>{s.round + 1 >= s.total ? "Final scores >" : "Next question >"}</PixelButton>
+              : <WaitingForHost ctl={ctl} />)}
           </div>
 
           <Board rows={rows} s={s} asking={asking} landed={landed} gained={gained} right={right} q={q} />
@@ -201,8 +198,9 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
         </div>
 
         {s.drinks && <WaterLine />}
-        {s.drinks && !asking && landed && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={gameKey(s)} names={s.players} />}
+        {s.drinks && !asking && landed && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
         <WorldScene world="arcade" actors={[]} labels={false} track={false} caption={SCENE} />
+        {ctl.leave && <LeaveGame onLeave={ctl.leave} />}
       </div>
     </PixelShell>
   );
@@ -220,7 +218,8 @@ function Backers({ names, players }: { names: string[]; players: string[] }) {
 function Verdict({ s, me, right, scored }: { s: PT.PTView; me: string; right: string; scored: boolean }) {
   const seated = s.players.includes(me);
   const team = s.teams?.find((t) => t.includes(me));
-  const answered = !!s.history[s.history.length - 1]?.answers[me];
+  const lastRound = s.history[s.history.length - 1];
+  const answered = !!lastRound && has(lastRound.answers, me);
   const line = !seated ? `The answer: ${right}` : team
     ? scored ? "Your team got it!" : "Your team missed that one."
     : scored ? "Correct!" : answered ? "Not this time." : "Too slow!";
@@ -237,8 +236,8 @@ function Board({ rows, s, asking, landed, gained, right, q }: { rows: Standing[]
       <ol>
         {rows.map((r) => {
           const teamRow = !!s.teams;
-          const locked = r.members.filter((p) => p in s.answers).length;
-          const choice = last ? (teamRow ? last.teamChoice[r.id] : last.answers[r.label]) : null;
+          const locked = r.members.filter((p) => has(s.answers, p)).length;
+          const choice = last ? (teamRow ? last.teamChoice[r.id] : own(last.answers, r.label)) : null;
           const gain = gained(r);
           return (
             <li key={r.id} className={r.mine ? "mine" : ""}>
@@ -247,7 +246,7 @@ function Board({ rows, s, asking, landed, gained, right, q }: { rows: Standing[]
               <span className="name">{r.label}</span>
               {asking && (
                 <span className="lamps" role="img" aria-label={teamRow ? `${locked} of ${r.members.length} locked in` : locked ? "Locked in" : "Thinking"}>
-                  {r.members.map((m) => <i key={m} className={m in s.answers ? "on" : ""} />)}
+                  {r.members.map((m) => <i key={m} className={has(s.answers, m) ? "on" : ""} />)}
                 </span>
               )}
               {!asking && landed && <span className={`pick ${choice === right ? "ok" : "no"}`} aria-label={choice ? `Picked ${letter(choice)}` : "No answer"}>{letter(choice)}</span>}
@@ -308,7 +307,7 @@ export function PartyTriviaResults({ setup, ctl, onAgain, onRematch }: { setup: 
           <CabinetFoot />
         </div>
         {s.drinks && <WaterLine />}
-        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={gameKey(s)} names={s.players} />}
+        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
         <WorldScene world="arcade" actors={[]} labels={false} track={false} caption={SCENE} />
       </div>
     </PixelShell>

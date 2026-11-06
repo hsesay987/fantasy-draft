@@ -8,6 +8,7 @@ import type { Item } from "../types";
 import { shuffle } from "../rng";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { normalizeClue } from "../party/clueText";
+import { has, own } from "../party/own";
 
 export type Ending = "guess" | "vote";
 export type ImposterPhase = "clue" | "vote" | "guess" | "done";
@@ -40,7 +41,10 @@ export type ImposterState = {
   drinks?: DrinkState;
   phaseAt: number;
   done: boolean;
+  /** Walks back to the deal, so seats get 0 until the game is done. */
   seed: number;
+  /** Public and stable for one game: what a sip card is keyed on. */
+  startedAt: number;
 };
 
 const fold = (t: string) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
@@ -69,7 +73,7 @@ export function init(o: { players: string[]; pool: Item[]; topic: string; rounds
   return {
     players: o.players, secret: secret.name, secretId: secret.id, topic: o.topic, options: opts.map((i) => i.name), imposter: who[0]!,
     order, rounds: Math.max(1, Math.min(3, o.rounds)), clues: [], phase: "clue", ending: o.ending, votes: {}, caught: null, guess: null, winner: null,
-    points: Object.fromEntries(o.players.map((p) => [p, 0])), ...(o.drinking ? { drinks: initDrinks(o.players) } : {}), phaseAt: o.now, done: false, seed,
+    points: Object.fromEntries(o.players.map((p) => [p, 0])), ...(o.drinking ? { drinks: initDrinks(o.players) } : {}), phaseAt: o.now, done: false, seed, startedAt: o.now,
   };
 }
 
@@ -104,7 +108,7 @@ export function clue(s: ImposterState, by: string, text: string, now: number): I
 
 /** Everyone votes for who they think the imposter is (not themselves). The last vote settles it. */
 export function accuse(s: ImposterState, by: string, target: string, now: number): ImposterState {
-  if (s.phase !== "vote" || by === target || !s.players.includes(target) || s.votes[by]) return s;
+  if (s.phase !== "vote" || by === target || !s.players.includes(target) || has(s.votes, by)) return s;
   const next = { ...s, votes: { ...s.votes, [by]: target } };
   return Object.keys(next.votes).length >= s.players.length ? tally(next, now) : next;
 }
@@ -112,7 +116,7 @@ export function accuse(s: ImposterState, by: string, target: string, now: number
 /** Count the votes. A clear top pick that is the imposter catches them; a tie or a wrong pick lets them escape. */
 export function tally(s: ImposterState, now: number): ImposterState {
   const count: Record<string, number> = {};
-  for (const t of Object.values(s.votes)) count[t] = (count[t] ?? 0) + 1;
+  for (const t of Object.values(s.votes)) count[t] = (own(count, t) ?? 0) + 1;
   const ranked = Object.entries(count).sort((a, b) => b[1] - a[1]);
   const caught = !!ranked[0] && ranked[0][1] !== ranked[1]?.[1] && ranked[0][0] === s.imposter;
   if (!caught) return finish(s, "imposter", now, { caught: false });
@@ -124,6 +128,19 @@ export function guess(s: ImposterState, by: string, name: string, now: number): 
   if (by !== s.imposter || s.done || !s.options.includes(name)) return s;
   if (!(s.phase === "guess" || (s.phase === "clue" && s.ending === "guess"))) return s;
   return finish(s, name === s.secret ? "imposter" : "crew", now, { guess: name });
+}
+
+/**
+ * Closes what is waiting on people who left (`gone`): their clues pass at once, the vote counts when everyone here has
+ * voted, and a caught imposter who has gone has no last guess to wait for.
+ */
+export function settle(s: ImposterState, gone: string[], now: number): ImposterState {
+  if (s.done || !s.players.some((p) => !gone.includes(p))) return s;
+  let x = s;
+  while (x.phase === "clue" && gone.includes(turnPlayer(x)!)) x = clue(x, turnPlayer(x)!, "", now);
+  if (x.phase === "vote" && x.players.every((p) => gone.includes(p) || has(x.votes, p))) return tally(x, now);
+  if (x.phase === "guess" && gone.includes(x.imposter)) return finish(x, "crew", now, { guess: null });
+  return x;
 }
 
 /** Clocks: a slow clue passes, a slow vote is counted as it stands, a slow last guess loses. */
@@ -139,5 +156,7 @@ export function tick(s: ImposterState, now: number): ImposterState {
 export function redactFor(s: ImposterState, me: string | null): ImposterState {
   if (s.done) return s;
   const votes = s.phase === "vote" ? Object.fromEntries(Object.keys(s.votes).map((k) => [k, k === me ? s.votes[k]! : "?"])) : s.votes;
-  return me === s.imposter ? { ...s, secret: "", secretId: "", votes } : { ...s, imposter: "", votes };
+  // Only a seated crew member may know the secret, and only the imposter's own seat may know the imposter.
+  const secret = me != null && me !== s.imposter ? { secret: s.secret, secretId: s.secretId } : { secret: "", secretId: "" };
+  return { ...s, ...secret, imposter: me === s.imposter ? s.imposter : "", votes, seed: 0 };
 }

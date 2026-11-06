@@ -134,7 +134,20 @@ export function lock(s: InSyncState, by: string, now: number): InSyncState {
   return locks.length * 2 > guessers(s).length ? reveal(locked, now) : locked;
 }
 
-/** Anyone can move on once the reveal has been read. */
+/**
+ * Closes what is waiting on people who left (`gone`): a departed giver's rounds are skipped at once, and the majority
+ * counts only the guessers still here, as does the lock count.
+ */
+export function settle(s: InSyncState, gone: string[], now: number): InSyncState {
+  let x = s;
+  while (!x.done && x.phase === "clue" && gone.includes(giver(x))) x = skip(x, now);
+  if (x.done || x.phase !== "tune") return x;
+  const here = guessers(x).filter((p) => !gone.includes(p));
+  const locked = x.locks.filter((p) => here.includes(p)).length;
+  return here.length === 0 || locked * 2 > here.length ? reveal(x, now) : x;
+}
+
+/** Ends a reveal early. In a room only the host can (the server checks). */
 export function next(s: InSyncState, now: number): InSyncState {
   return s.done || s.phase !== "reveal" ? s : advance(s, now);
 }

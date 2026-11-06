@@ -3,6 +3,7 @@ import * as IM from "./imposter";
 import * as V from "./vote";
 import { DECKS } from "../party/decks";
 import { getCatalog } from "../catalogs";
+import { addCalls, DRINK_CARD_MS, initDrinks } from "../party/drinks";
 
 const players = ["Ana", "Ben", "Cy", "Di"];
 const start = (ending: IM.Ending = "guess") => IM.init({ players, pool: getCatalog("superheroes"), topic: "Superheroes", rounds: 1, ending, seed: 7, now: 0 });
@@ -313,5 +314,241 @@ describe("vote games", () => {
     expect(s.phase).toBe("reveal"); // nobody voted
     s = V.tick(s, V.VOTE_MS + V.REVEAL_MS + 2);
     expect(s.round).toBe(1);
+  });
+});
+
+describe("vote games when someone leaves", () => {
+  const P4 = ["A", "B", "C", "D"];
+  const cards = Array.from({ length: 4 }, (_, i) => ({ id: `c${i}`, prompt: `P${i}`, a: "yes", b: "no" }));
+  const make = (players = P4, extra: Partial<Parameters<typeof V.init>[0]> = {}) => V.init({ players, deck: "x", cards, rounds: 4, seed: 3, now: 0, ...extra });
+  const voteAll = (s: V.VoteState, who: string[]) => who.reduce((x, p) => V.vote(x, p, "a", 1), s);
+
+  it("closes the vote once everyone still here has voted, and not before", () => {
+    const three = voteAll(make(), ["A", "B", "C"]);
+    expect(three.phase).toBe("vote");
+    expect(V.settle(three, [], 2)).toBe(three);
+    const moved = V.settle(three, ["D"], 2);
+    expect(moved.phase).toBe("guess");
+    expect(Object.keys(moved.targets).sort()).toEqual(["A", "B", "C"]);
+    const two = voteAll(make(), ["A", "B"]);
+    expect(V.settle(two, ["D"], 2)).toBe(two);
+  });
+
+  it("doesn't wait for the guesses of a voter who then left", () => {
+    let s = voteAll(make(), P4);
+    expect(s.phase).toBe("guess");
+    for (const by of ["A", "B", "C"]) for (const t of P4.filter((x) => x !== by)) s = V.guessVote(s, by, t, "a", 2);
+    expect(s.phase).toBe("guess");
+    const done = V.settle(s, ["D"], 3);
+    expect(done.phase).toBe("reveal");
+    expect(done.history).toHaveLength(1);
+  });
+
+  it("waits for a guesser who is still here", () => {
+    const s = voteAll(make(), P4);
+    expect(V.settle(s, ["D"], 3)).toBe(s);
+  });
+
+  it("does nothing in a reveal or a finished game, or with nobody left", () => {
+    const s = voteAll(make(), P4);
+    expect(V.settle(s, P4, 3)).toBe(s);
+    const rev = V.tick(s, V.GUESS_MS + 10);
+    expect(V.settle(rev, ["D"], V.GUESS_MS + 11)).toBe(rev);
+  });
+});
+
+describe("vote reveal time", () => {
+  const cards = Array.from({ length: 4 }, (_, i) => ({ id: `c${i}`, prompt: `P${i}`, a: "yes", b: "no" }));
+  const names = (n: number) => Array.from({ length: n }, (_, i) => `P${i}`);
+  const inReveal = (n: number, drinking = false) => {
+    const s = V.init({ players: names(n), deck: "x", cards, rounds: 4, drinking, seed: 3, now: 0 });
+    return { ...s, phase: "reveal" as const, phaseAt: 0 };
+  };
+
+  it("is 9 seconds up to 6 players, then 1 more per player", () => {
+    expect(V.revealMs(inReveal(3))).toBe(9_000);
+    expect(V.revealMs(inReveal(6))).toBe(9_000);
+    expect(V.revealMs(inReveal(7))).toBe(10_000);
+    expect(V.revealMs(inReveal(12))).toBe(15_000);
+  });
+
+  it("adds the sip card's time when drinking is on, so the card doesn't eat the reading time", () => {
+    expect(V.revealMs(inReveal(6, true))).toBe(9_000 + DRINK_CARD_MS);
+  });
+
+  it("the clock follows it", () => {
+    const s = inReveal(12);
+    expect(V.tick(s, 14_000).phase).toBe("reveal");
+    expect(V.tick(s, 15_001).round).toBe(1);
+  });
+});
+
+describe("what a vote seat is sent", () => {
+  const cards = Array.from({ length: 4 }, (_, i) => ({ id: `c${i}`, prompt: `P${i}`, a: "It happened", b: "Made up", answer: "a" as const, note: `N${i}` }));
+  const make = (showVotes = true) => V.init({ players: ["A", "B", "C"], deck: "x", cards, rounds: 4, showVotes, seed: 3, now: 0 });
+  const toReveal = (s: V.VoteState) => {
+    for (const p of s.players) s = V.vote(s, p, "b", 1);
+    return V.tick(s, s.phaseAt + V.GUESS_MS + 1);
+  };
+
+  it.each([[true], [false]])("withholds this card's answer and every later card until the reveal (show votes %s)", (show) => {
+    const s = make(show);
+    for (const me of ["A", null]) {
+      const v = V.redactFor(s, me);
+      expect(v.cards).toHaveLength(1);
+      expect(v.cards[0]).toEqual({ id: s.cards[0]!.id, prompt: s.cards[0]!.prompt, a: "It happened", b: "Made up" });
+      expect(v.total).toBe(4);
+      expect(v.seed).toBe(0);
+    }
+  });
+
+  it.each([[true], [false]])("opens the answer at the reveal, and keeps it for later cards (show votes %s)", (show) => {
+    const rev = toReveal(make(show));
+    expect(rev.phase).toBe("reveal");
+    const open = V.redactFor(rev, "A");
+    expect(open.cards).toHaveLength(1);
+    expect(open.cards[0]).toMatchObject({ answer: "a", note: rev.cards[0]!.note });
+    const next = V.redactFor(V.nextCard(rev, 100), "A");
+    expect(next.cards).toHaveLength(2);
+    expect(next.cards[0]).toMatchObject({ answer: "a" });
+    expect(next.cards[1]!.answer).toBeUndefined();
+    expect(next.cards[1]!.note).toBeUndefined();
+    expect(next.total).toBe(4);
+  });
+
+  it("sends the whole game once it is over, with history and points intact", () => {
+    let s = make();
+    for (let i = 0; i < 4; i++) s = V.nextCard(toReveal(s), 100);
+    expect(s.done).toBe(true);
+    const v = V.redactFor(s, "A", true);
+    expect(v.cards).toHaveLength(4);
+    expect(v.cards[3]).toMatchObject({ answer: "a" });
+    expect(v.history).toHaveLength(4);
+    expect(v.points).toEqual(s.points);
+    expect(v.seed).toBe(s.seed);
+  });
+
+  it("has a public per-game key, since the seed is hidden", () => {
+    expect(make().startedAt).toBe(0);
+    expect(V.redactFor(V.init({ players: ["A", "B", "C"], deck: "x", cards, rounds: 4, seed: 3, now: 55 }), "A").startedAt).toBe(55);
+  });
+});
+
+describe("players named after built-in object properties", () => {
+  const odd = ["constructor", "toString", "__proto__", "valueOf"];
+  const cards = Array.from({ length: 3 }, (_, i) => ({ id: `c${i}`, prompt: `P${i}`, a: "yes", b: "no" }));
+  const voteGame = () => V.init({ players: odd, deck: "x", cards, rounds: 3, seed: 3, now: 0 });
+
+  it("can vote and guess in vote games, and are scored like anyone else", () => {
+    let s = voteGame();
+    for (const p of odd) {
+      const after = V.vote(s, p, "a", 1);
+      expect(after).not.toBe(s);
+      s = after;
+    }
+    expect(s.phase).toBe("guess");
+    for (const by of odd) for (const t of odd.filter((x) => x !== by)) {
+      const after = V.guessVote(s, by, t, "a", 2);
+      expect(after).not.toBe(s);
+      s = after;
+    }
+    expect(s.phase).toBe("reveal");
+    for (const p of odd) expect(s.points[p]).toBe(3);
+  });
+
+  it("isn't taken for a guesser or a voter when they aren't one", () => {
+    let s = voteGame();
+    s = V.vote(s, "toString", "a", 1);
+    s = V.vote(s, "valueOf", "a", 1);
+    s = V.tick(s, V.VOTE_MS + 2); // constructor and __proto__ never voted, so they have no targets
+    expect(s.phase).toBe("guess");
+    expect(V.guessVote(s, "constructor", "toString", "a", 2)).toBe(s);
+    expect(V.redactFor(s, "constructor").guesses).toEqual({});
+    const rev = V.guessVote(V.guessVote(s, "toString", "valueOf", "b", 3), "valueOf", "toString", "b", 3);
+    expect(rev.history[0]!.nobodyGot.sort()).toEqual(["toString", "valueOf"]);
+  });
+
+  it("can accuse in Imposter, and be counted", () => {
+    let s = IM.init({ players: odd, pool: getCatalog("superheroes"), topic: "Superheroes", rounds: 1, ending: "vote", seed: 7, now: 0 });
+    s = giveClues(s);
+    expect(s.phase).toBe("vote");
+    const target = odd.find((p) => p !== s.imposter)!;
+    for (const by of odd) {
+      const after = IM.accuse(s, by, by === s.imposter ? target : s.imposter, 2);
+      expect(after).not.toBe(s);
+      s = after;
+    }
+    expect(s.caught).toBe(true);
+    expect(s.winner).toBe("crew");
+  });
+
+  it("drinks get real numbers, whatever the name", () => {
+    const d = addCalls(initDrinks(odd), odd.map((p) => ({ to: p, sips: 2, reason: "x" })), odd);
+    expect(d.calls.map((c) => c.sips)).toEqual([2, 2, 2, 2]);
+    expect(Object.values(d.totals)).toEqual([2, 2, 2, 2]);
+  });
+});
+
+describe("imposter when someone leaves", () => {
+  const voting = () => giveClues(start());
+
+  it("counts the votes once everyone still here has voted", () => {
+    let s = voting();
+    const [a, b, c, d] = players as [string, string, string, string];
+    s = IM.accuse(IM.accuse(IM.accuse(s, a, b, 2), b, a, 2), c, a, 2);
+    expect(s.phase).toBe("vote");
+    expect(IM.settle(s, [], 3)).toBe(s);
+    expect(IM.settle(s, [d], 3).phase).not.toBe("vote");
+    const two = IM.accuse(IM.accuse(voting(), a, b, 2), b, a, 2);
+    expect(IM.settle(two, [d], 3)).toBe(two);
+  });
+
+  it("passes a departed player's clue at once, however many are gone", () => {
+    const s = start();
+    const [first, second] = s.order as [string, string];
+    const moved = IM.settle(s, [first, second], 1);
+    expect(moved.clues.map((c) => c.text)).toEqual(["(passed)", "(passed)"]);
+    expect(IM.turnPlayer(moved)).toBe(s.order[2]);
+    expect(IM.settle(s, [s.order[2]!], 1)).toBe(s);
+  });
+
+  it("ends the last guess when the caught imposter has gone", () => {
+    let s = voting();
+    for (const p of crew(s)) s = IM.accuse(s, p, s.imposter, 2);
+    s = IM.accuse(s, s.imposter, crew(s)[0]!, 2);
+    expect(s.phase).toBe("guess");
+    expect(IM.settle(s, [crew(s)[0]!], 3)).toBe(s);
+    const over = IM.settle(s, [s.imposter], 3);
+    expect(over.done).toBe(true);
+    expect(over.winner).toBe("crew");
+  });
+});
+
+describe("what an imposter seat is sent", () => {
+  it("a viewer with no seat gets neither the secret nor the imposter", () => {
+    const v = IM.redactFor(start(), null);
+    expect(v.secret).toBe("");
+    expect(v.secretId).toBe("");
+    expect(v.imposter).toBe("");
+  });
+
+  it("the seed is 0 for everyone until the game is done, and then opens", () => {
+    let s = start();
+    expect(s.seed).not.toBe(0);
+    for (const me of [...players, null]) expect(IM.redactFor(s, me).seed).toBe(0);
+    s = giveClues(s);
+    for (const me of [...players, null]) expect(IM.redactFor(s, me).seed).toBe(0);
+    for (const p of players) s = IM.accuse(s, p, players.find((x) => x !== p)!, 2);
+    s = s.done ? s : IM.tick(s, s.phaseAt + IM.GUESS_MS + 1);
+    expect(s.done).toBe(true);
+    expect(IM.redactFor(s, null).seed).toBe(s.seed);
+    expect(IM.redactFor(s, null).secret).toBe(s.secret);
+    expect(IM.redactFor(s, null).imposter).toBe(s.imposter);
+  });
+
+  it("has a public per-game key instead, the same for every seat", () => {
+    const s = IM.init({ players, pool: getCatalog("superheroes"), topic: "Superheroes", rounds: 1, ending: "guess", seed: 7, now: 77 });
+    expect(s.startedAt).toBe(77);
+    for (const me of [...players, null]) expect(IM.redactFor(s, me).startedAt).toBe(77);
   });
 });
