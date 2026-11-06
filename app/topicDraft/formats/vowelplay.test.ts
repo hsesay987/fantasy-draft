@@ -165,6 +165,27 @@ describe("redactFor", () => {
     expect(s.done).toBe(true);
     expect(redactFor(s, null).words).toEqual(s.words);
   });
+  it("shows only the words played once a head to head ends early, so unplayed names never go out", () => {
+    let s = mk("duel", ["Ann", "Bo"], 3);
+    for (let i = 0; i < DUEL_LEAD; i++) {
+      s = guess(s, "Ann", cur(s).name, s.phaseAt + 1);
+      if (i < DUEL_LEAD - 1) s = tick(s, s.phaseAt + REVEAL_MS);
+    }
+    expect(s.done).toBe(true);
+    expect(s.history).toHaveLength(DUEL_LEAD);
+    const r = redactFor(s, null);
+    expect(r.words).toEqual(s.words.slice(0, DUEL_LEAD));
+    const out = JSON.stringify(r);
+    for (const w of s.words.slice(DUEL_LEAD)) expect(r.words.map((x) => x.name)).not.toContain(w.name);
+    expect(out).not.toContain(`"name":"${s.words[DUEL_LEAD]!.name}"`);
+  });
+  it("hides the word in play when a forfeit ends the game", () => {
+    let s = mk("duel", ["Ann", "Bo"], 3);
+    s = settle(s, ["Bo"], s.phaseAt + 5);
+    expect(s.done).toBe(true);
+    expect(s.history).toHaveLength(0);
+    expect(redactFor(s, null).words).toEqual([]);
+  });
 });
 
 const mkV = (mode: VPMode = "first", players = ["Ann", "Bo", "Cy"], count = 3): VPState =>

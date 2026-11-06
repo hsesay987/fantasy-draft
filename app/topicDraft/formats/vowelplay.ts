@@ -208,9 +208,10 @@ export function winners(s: VPState): string[] {
   return s.players.filter((p) => score(p) === top);
 }
 
-/** What any seat may see. The current name stays secret until it is finished, except that the judges see it; later words never leave the server. */
+/** What any seat may see. The current name stays secret until it is finished, except that the judges see it; later words never leave the server. Once done, only the words played go out. */
 export function redactFor(s: VPState, _me: string | null): VPState {
-  if (s.done) return { ...s, seed: 0 };
+  // A head to head can end early (a lead, a forfeit): only the words that were finished go out, never the ones still to come or in play.
+  if (s.done) return { ...s, words: s.words.slice(0, s.history.length), seed: 0 };
   const words = s.words.slice(0, s.round + 1).map((w, i) => (i === s.round && s.phase !== "reveal" && s.phase !== "judge" ? { ...w, name: "", also: [] } : w));
   return { ...s, words, seed: 0 };
 }

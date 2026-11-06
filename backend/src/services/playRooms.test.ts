@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { _rooms, act, backToLobby, createRoom, getRoom, isHost, joinRoom, leaveRoom, needsQuiz, sanitizeSetup, seatFor, seenSeat, setGame, setStatLink, snapshot, startRoom, tickRooms } from "./playRooms";
 import { DEFAULT_OPTS } from "../shared/play/types";
 import { DECKS } from "../shared/topicDraft/party/decks";
@@ -6,6 +6,8 @@ import { LOADOUT_PRESETS } from "../shared/topicDraft/formats/loadout";
 import { currentTurn } from "../shared/topicDraft/core";
 import * as A from "../shared/topicDraft/formats/auction";
 import * as P from "../shared/topicDraft/formats/position";
+import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelWords";
+import { DUEL_LEAD, GUESS_MS, REVEAL_MS, type VPState } from "../shared/topicDraft/formats/vowelplay";
 
 const base = (format: string, extra: any = {}) => ({
   format, pool: "superheroes",
@@ -1246,6 +1248,250 @@ describe("party rooms with people coming and going", () => {
       expect(r.state.questions.every((q: any) => second.categories.some((c) => c.clues.some((x) => x.q === q.q)))).toBe(true);
       expect((snapshot(r, toks.Ann).setup as any).quiz).toBeUndefined();
       expect(needsQuiz(r)).toBe(true);
+    });
+  });
+});
+
+describe("Vowel Play rooms", () => {
+  const topic = VOWEL_TOPICS[0]!.id;
+  const vp = (format = "vowelplay", opts: any = {}) => ({ format, pool: topic, opts: { ...opts } });
+  const seat = (setup: any, names: string[]) => {
+    const made = createRoom(setup, names[0]!) as any;
+    const toks: Record<string, string> = { [names[0]!]: made.seat.token };
+    for (const n of names.slice(1)) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+    return { r: made.room, toks };
+  };
+  const running = (setup: any, names: string[]) => {
+    const made = seat(setup, names);
+    expect(startRoom(made.r, made.toks[names[0]!]!)).toEqual({ ok: true });
+    return made;
+  };
+  const st = (r: any) => r.state as VPState;
+  const cur = (r: any) => st(r).words[st(r).round]!;
+
+  describe("setup", () => {
+    it("accepts both formats only for a topic with word lists", () => {
+      for (const format of ["vowelplay", "vowelparty"]) {
+        expect(sanitizeSetup(vp(format))).not.toBeNull();
+                expect(sanitizeSetup({ ...vp(format), pool: "weapons" })).toBeNull();
+      }
+    });
+    it("snaps Vowel Play to 10, 15 or 20 words, defaults to 15 and forces drinking off", () => {
+      const n = (v: unknown) => sanitizeSetup(vp("vowelplay", { teamSize: v, drinking: true }))!.opts;
+      expect(n(11).teamSize).toBe(10);
+      expect(n(18).teamSize).toBe(20);
+      expect(n(16).teamSize).toBe(15);
+      expect(n(999).teamSize).toBe(20);
+      expect(n(undefined).teamSize).toBe(15);
+      expect(n("junk").teamSize).toBe(15);
+      expect(n(15).drinking).toBe(false);
+      expect(sanitizeSetup(vp())!.opts).toMatchObject({ vowelMode: "first", vowelAnswer: "voice" });
+      expect(sanitizeSetup(vp("vowelplay", { vowelMode: "duel", vowelAnswer: "type" }))!.opts).toMatchObject({ vowelMode: "duel", vowelAnswer: "type" });
+      expect(sanitizeSetup(vp("vowelplay", { vowelMode: "x", vowelAnswer: "y" }))!.opts).toMatchObject({ vowelMode: "first", vowelAnswer: "voice" });
+    });
+    it("makes Vowel Party 10 typed words and keeps drinking", () => {
+      const o = sanitizeSetup(vp("vowelparty", { teamSize: 20, vowelAnswer: "voice", vowelMode: "duel", drinking: true }))!.opts;
+      expect(o).toMatchObject({ teamSize: 10, vowelAnswer: "type", vowelMode: "first", drinking: true });
+      expect(sanitizeSetup(vp("vowelparty"))!.opts.drinking).toBe(false);
+    });
+    it("gives both a 12 seat room", () => {
+      const names = Array.from({ length: 12 }, (_, i) => `P${i}`);
+      const { r, toks } = seat(vp("vowelparty"), names);
+      expect(startRoom(r, toks.P0!)).toEqual({ ok: true });
+      expect(joinRoom(r.code, "late")).toHaveProperty("error");
+    });
+  });
+
+  describe("starting", () => {
+    it("Head to head takes exactly 2 players", () => {
+      const { r, toks } = seat(vp("vowelplay", { vowelMode: "duel" }), ["Ann", "Bob", "Cy"]);
+      expect(startRoom(r, toks.Ann!)).toEqual({ error: "Head to head takes exactly 2 players" });
+      expect(r.status).toBe("lobby");
+      leaveRoom(r, toks.Cy!);
+      expect(startRoom(r, toks.Ann!)).toEqual({ ok: true });
+      expect(st(r).mode).toBe("duel");
+    });
+    it("runs Vowel Party as everyone-competes typed play", () => {
+      const { r } = running(vp("vowelparty"), ["Ann", "Bob"]);
+      expect(st(r)).toMatchObject({ mode: "all", answer: "type", total: 10 });
+    });
+    it("has no host next for these formats", () => {
+      const { r, toks } = running(vp("vowelparty"), ["Ann", "Bob"]);
+      expect(act(r, toks.Bob!, { type: "next" })).toMatchObject({ ok: false });
+    });
+  });
+
+  describe("hidden answers", () => {
+    const names = ["Ann", "Bob", "Cy"];
+    const watch = (r: any, toks: Record<string, string>, buzzer: string | null) => {
+      const s = st(r);
+      const hidden = s.words.slice(s.round).map((w) => w.name).concat(s.words.slice(s.round).flatMap((w) => w.also));
+      for (const tok of [undefined, toks.Ann, toks.Bob, toks.Cy, ...(buzzer ? [toks[buzzer]] : [])]) {
+        const json = JSON.stringify(snapshot(r, tok).state);
+        for (const n of hidden) expect(json, `${n} for ${tok}`).not.toContain(n);
+      }
+    };
+    it("never sends the current or a later name while guessing or speaking", () => {
+      const { r, toks } = running(vp("vowelplay", { vowelAnswer: "voice" }), names);
+      expect(st(r).phase).toBe("guess");
+      const first = cur(r).name;
+      watch(r, toks, null);
+      expect(act(r, toks.Bob!, { type: "buzz" })).toEqual({ ok: true });
+      expect(st(r).phase).toBe("speak");
+      watch(r, toks, "Bob");
+      // the full state does hold the name
+      expect(JSON.stringify(r.state)).toContain(first);
+    });
+    it("lets the judges see the word being judged, but nothing after it", () => {
+      const { r, toks } = running(vp("vowelplay", { vowelAnswer: "voice" }), names);
+      act(r, toks.Bob!, { type: "buzz" });
+      act(r, toks.Bob!, { type: "spoke" });
+      expect(st(r).phase).toBe("judge");
+      const s = st(r);
+      const later = s.words.slice(s.round + 1).flatMap((w) => [w.name, ...w.also]);
+      for (const tok of [undefined, toks.Ann, toks.Bob]) {
+        const json = JSON.stringify(snapshot(r, tok).state);
+        for (const n of later) expect(json).not.toContain(n);
+      }
+    });
+    it("typed play hides them too, and the client cannot set the clock or the seed", () => {
+      const { r, toks } = running(vp("vowelparty"), names);
+      watch(r, toks, null);
+      expect(JSON.stringify(snapshot(r, undefined).setup)).not.toContain(cur(r).name);
+      expect((snapshot(r, undefined).state as any).seed).toBe(0);
+    });
+    it("sends only the words played once a head to head ends early", () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      try {
+        const { r, toks } = running(vp("vowelplay", { vowelMode: "duel", vowelAnswer: "type" }), ["Ann", "Bob"]);
+        const all = st(r).words.map((w) => w.name);
+        for (let i = 0; i < DUEL_LEAD; i++) {
+          expect(act(r, toks.Ann!, { type: "guess", text: cur(r).name })).toEqual({ ok: true });
+          vi.advanceTimersByTime(REVEAL_MS + 10);
+          tickRooms();
+        }
+        expect(r.status).toBe("done");
+        for (const tok of [undefined, toks.Ann, toks.Bob]) {
+          const s = snapshot(r, tok).state as VPState;
+          expect(s.words.map((w) => w.name)).toEqual(all.slice(0, DUEL_LEAD));
+          const json = JSON.stringify(s);
+          for (const n of all.slice(DUEL_LEAD)) expect(json).not.toContain(`"${n}"`);
+        }
+      } finally { vi.useRealTimers(); }
+    });
+  });
+
+  describe("guessing", () => {
+    afterEach(() => vi.useRealTimers());
+    it("takes a right typed guess from the seat, whatever `by` says", () => {
+      const { r, toks } = running(vp("vowelplay", { vowelAnswer: "type" }), ["Ann", "Bob"]);
+      const name = cur(r).name;
+      expect(act(r, toks.Bob!, { type: "guess", by: "Ann", text: name })).toEqual({ ok: true });
+      expect(st(r).points).toMatchObject({ Bob: 1, Ann: 0 });
+    });
+    it("refuses a guess over 60 characters, right at the start of it or not", () => {
+      const { r, toks } = running(vp("vowelplay", { vowelAnswer: "type" }), ["Ann", "Bob"]);
+      const res = act(r, toks.Ann!, { type: "guess", text: cur(r).name + " ".repeat(61) });
+      expect(res.ok).toBe(false);
+      expect(st(r).points.Ann).toBe(0);
+      expect(act(r, toks.Ann!, { type: "guess", text: 42 }).ok).toBe(false);
+      expect(act(r, toks.Ann!, { type: "guess", text: "a".repeat(60) }).ok).toBe(false); // wrong, but not for length
+    });
+    it("refuses more than 3 guesses in a second per seat, until the second passes", () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      const { r, toks } = running(vp("vowelplay", { vowelAnswer: "type" }), ["Ann", "Bob"]);
+      const msgs = [1, 2, 3].map(() => act(r, toks.Ann!, { type: "guess", text: "zzzz" })); // refused as wrong, but counted
+      for (const m of msgs) expect(m.error).toBe("Not allowed right now");
+      const fourth = act(r, toks.Ann!, { type: "guess", text: cur(r).name });
+      expect(fourth).toMatchObject({ ok: false, error: "Slow down" });
+      expect(st(r).points.Ann).toBe(0);
+      // another seat is unaffected
+      expect(act(r, toks.Bob!, { type: "guess", text: "zzzz" }).error).toBe("Not allowed right now");
+      vi.advanceTimersByTime(1000);
+      expect(act(r, toks.Ann!, { type: "guess", text: cur(r).name })).toEqual({ ok: true });
+    });
+    it("does not rate limit other actions, and keeps nothing once the room is gone", () => {
+      const { r, toks } = running(vp("vowelparty"), ["Ann", "Bob"]);
+      for (let i = 0; i < 6; i++) expect(act(r, toks.Ann!, { type: "giveUp" }).error).not.toBe("Slow down");
+      for (let i = 0; i < 10; i++) act(r, toks.Ann!, { type: "guess", text: "x" });
+      expect(Object.keys(r)).toContain("guessAt");
+      expect(r.guessAt.get("Ann").length).toBeLessThanOrEqual(3);
+    });
+  });
+
+  describe("people leaving", () => {
+    it("ends the word at once when the buzzer leaves", () => {
+      const { r, toks } = running(vp("vowelplay", { vowelAnswer: "voice" }), ["Ann", "Bob", "Cy"]);
+      act(r, toks.Bob!, { type: "buzz" });
+      expect(st(r).phase).toBe("speak");
+      leaveRoom(r, toks.Bob!);
+      expect(st(r).phase).toBe("reveal");
+      expect(st(r).history[0]).toMatchObject({ winner: null });
+      expect(st(r).points).toMatchObject({ Ann: 0, Cy: 0 });
+    });
+    it("settles on the server clock too", () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      try {
+        const { r, toks } = running(vp("vowelparty"), ["Ann", "Bob"]);
+        act(r, toks.Ann!, { type: "giveUp" });
+        r.seats.find((s: any) => s.name === "Bob").left = true; // quiet leave without a settle
+        tickRooms();
+        expect(st(r).phase).toBe("reveal");
+        expect(st(r).history[0]!.winner).toBeNull();
+      } finally { vi.useRealTimers(); }
+    });
+    it("ends a head to head when one leaves, and the other wins", () => {
+      const { r, toks } = running(vp("vowelplay", { vowelMode: "duel" }), ["Ann", "Bob"]);
+      leaveRoom(r, toks.Bob!);
+      expect(r.status).toBe("done");
+      expect(r.played.at(-1)).toMatchObject({ format: "vowelplay", winner: "Ann" });
+      const s = snapshot(r, toks.Ann).state as VPState;
+      expect(s.words).toEqual([]);
+    });
+  });
+
+  describe("finishing", () => {
+    afterEach(() => vi.useRealTimers());
+    /** Runs a typed game to its end on a fake clock; `solve` says which words (0-based) Ann names. */
+    const play = (r: any, toks: Record<string, string>, solve: (i: number) => boolean) => {
+      for (let i = 0; r.status === "playing" && i < 100; i++) {
+        if (solve(st(r).round) && st(r).phase === "guess") act(r, toks.Ann!, { type: "guess", text: cur(r).name });
+        vi.advanceTimersByTime(GUESS_MS + REVEAL_MS + 10);
+        tickRooms();
+        if (st(r).phase === "guess" && st(r).round === i && !st(r).done) tickRooms(Date.now() + GUESS_MS);
+      }
+    };
+    it("records one winner, or null on a tie", () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      const a = running(vp("vowelplay", { vowelAnswer: "type", teamSize: 10 }), ["Ann", "Bob"]);
+      play(a.r, a.toks, (i) => i === 0);
+      expect(a.r.status).toBe("done");
+      expect(a.r.played.at(-1)).toMatchObject({ format: "vowelplay", winner: "Ann" });
+      const b = running(vp("vowelparty"), ["Ann", "Bob"]);
+      play(b.r, b.toks, () => false);
+      expect(b.r.status).toBe("done");
+      expect(b.r.played.at(-1)).toMatchObject({ format: "vowelparty", winner: null });
+    });
+    it("prefers names not yet seen on a rematch, and records only the words played", () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      const { r, toks } = running(vp("vowelplay", { vowelMode: "duel", vowelAnswer: "type" }), ["Ann", "Bob"]);
+      const dealt = st(r).words.map((w) => w.name);
+      expect(dealt.length).toBeGreaterThan(DUEL_LEAD);
+      play(r, toks, () => true);
+      expect(r.status).toBe("done");
+      expect(r.played.at(-1)).toMatchObject({ winner: "Ann" });
+      // Five were played; the other dealt names stay unseen.
+      expect(r.seen).toEqual(dealt.slice(0, DUEL_LEAD).map((n) => `vp:${n}`));
+      expect(startRoom(r, toks.Ann!)).toEqual({ ok: true });
+      const second = st(r).words.map((w) => w.name);
+      for (const n of dealt.slice(0, DUEL_LEAD)) expect(second).not.toContain(n);
+      expect(second.slice(0, 5)).toEqual(expect.not.arrayContaining(dealt.slice(0, DUEL_LEAD)));
+    });
+    it("records a forfeit's winner and keeps the unplayed names unseen", () => {
+      const { r, toks } = running(vp("vowelplay", { vowelMode: "duel" }), ["Ann", "Bob"]);
+      leaveRoom(r, toks.Bob!);
+      expect(r.played.at(-1)).toMatchObject({ winner: "Ann" });
+      expect(r.seen).toEqual([]);
     });
   });
 });

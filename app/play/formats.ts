@@ -1,4 +1,4 @@
-import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, BarChart3, HelpCircle, VenetianMask, Vote, AudioWaveform, Brain, CloudRain } from "lucide-react";
+import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, BarChart3, HelpCircle, VenetianMask, Vote, AudioWaveform, Brain, CloudRain, Keyboard } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { FormatId } from "./types";
 
@@ -31,6 +31,12 @@ export const PARTY_GAMES: FormatMeta[] = [
   { id: "insync", title: "In-Sync", tagline: "One clue, one hidden spot on a line. Tune in together.", how: ["One player sees a spot between two opposites and gives a single clue.", "Everyone else drags a shared marker and talks it over, then locks.", "The closer the marker, the more the whole table scores."], icon: AudioWaveform, gradient: "from-indigo-600/50 to-primary/20", usesPool: false },
   { id: "partytrivia", title: "Party Trivia", tagline: "Everyone answers at once. Faster right answers score more. Play solo or in teams.", how: ["Everyone sees the same question and four options.", "Answer fast: a quick right answer scores up to 150.", "With 4+ players, split into teams: the team's most-voted option is its answer."], icon: Brain, gradient: "from-violet-600/50 to-primary/20", usesPool: true },
   { id: "mafia", title: "Mafia", tagline: "A rainy town, secret roles and no narrator needed. Find the mafia before they outnumber you.", how: ["Everyone gets a secret card. At night every phone taps a name, so nobody can tell who's up to what.", "Each morning the town hears who's gone. Talk it out, then vote someone onto the next bus.", "The village wins when the mafia are gone. The mafia win when they match everyone else."], icon: CloudRain, gradient: "from-slate-600/60 to-primary/20", usesPool: false },
+  { id: "vowelparty", title: "Vowel Party", tagline: "Everyone races the same missing-vowel name. Faster scores more.", how: ["Everyone sees the same name with its vowels removed.", "Type it fast: a quick right answer scores up to 100.", "Give up on a word to move on without waiting."], icon: Keyboard, gradient: "from-amber-500/50 to-primary/20", usesPool: true },
 ];
 
-export const formatMeta = (id: string) => FORMATS.find((f) => f.id === id) ?? PARTY_GAMES.find((f) => f.id === id);
+/** Room-only games that are not parties: kept out of FORMATS so they never show as a solo draft. */
+export const ROOM_GAMES: FormatMeta[] = [
+  { id: "vowelplay", title: "Vowel Play", tagline: "The vowels are gone. Name it from what is left.", how: ["A name from the topic shows with every vowel removed.", "Name it first to take the word, or play Head to head against one rival.", "Say it aloud and the others judge, or type it."], icon: Keyboard, gradient: "from-amber-600/50 to-primary/20", usesPool: true },
+];
+
+export const formatMeta = (id: string) => FORMATS.find((f) => f.id === id) ?? ROOM_GAMES.find((f) => f.id === id) ?? PARTY_GAMES.find((f) => f.id === id);
