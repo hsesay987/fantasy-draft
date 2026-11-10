@@ -3,13 +3,14 @@
 // window of it and follows the leading player, so every step of progress is a visible climb or flight.
 // Named checkpoints mark the way; crossing one is a moment the game celebrates.
 import { LADDER, LEDGES, RUNGS } from "../../toprung/engine";
+import { LOOSE_KEY_PAL, LOOSE_KEY_ROWS, legendGlyph, typeGlyph } from "./sprites";
 
 /** `value` is the fraction of the journey: 0 at the start, 1 at the end, below 0 for worlds with an underground. */
 export type Actor = { name: string; value: number; color?: string };
 export type Checkpoint = { name: string; at: number };
 
 export type World = {
-  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio" | "board" | "arcade" | "ladder" | "noirNight" | "noirDawn" | "noirDay" | "noirDusk";
+  id: "summit" | "sky" | "launch" | "hall" | "ball" | "studio" | "board" | "arcade" | "ladder" | "typewriter" | "noirNight" | "noirDawn" | "noirDay" | "noirDusk";
   /** Size of the whole map. */
   fullW: number;
   fullH: number;
@@ -2154,7 +2155,307 @@ export const NOIR_DAWN = noirWorld("noirDawn", "dawn");
 export const NOIR_DAY = noirWorld("noirDay", "day");
 export const NOIR_DUSK = noirWorld("noirDusk", "dusk");
 
-export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO, board: BOARD, arcade: ARCADE, ladder: LADDER_WORLD, noirNight: NOIR_NIGHT, noirDawn: NOIR_DAWN, noirDay: NOIR_DAY, noirDusk: NOIR_DUSK };
+// ======================= TYPEWRITER: a repair shop, and one battered machine on the bench =======================
+// All in scene pixels, measured from the machine's centre `cx`, so the same drawing serves the shop on the hub and the
+// live machine in Vowel Play. Whatever the width, the sheet, the platen and the keys stay put, and a wider scene just
+// shows more of the shop.
+export const TW_H = 113, TW_MIN_W = 144, TW_BENCH = 83;
+/** Top of the sheet, the writing area on it, the line being typed, and the platen. */
+export const TW_PAPER = { top: 1, half: 67, textTop: 3, typedY: 26, bottom: 36 };
+const TWC = {
+  wall: "#2a1c1e", wall2: "#35242a", wall3: "#463033", wall4: "#5e4239", peg: "#1c1214",
+  en0: "#23403c", en1: "#3a6a62", en2: "#5a9688", en3: "#83bfad", en4: "#b5dfcf",
+  steel0: "#2c3236", steel1: "#596267", steel2: "#98a2a6", steel3: "#d7dedd", steel4: "#ffffff",
+  rub0: "#0e0b0d", rub1: "#221c21", rub2: "#3b3238", rust0: "#5a2d1a", rust1: "#93502a", rust2: "#c97f3f",
+  wood0: "#3d2213", wood1: "#5c351c", wood2: "#7c4c28", wood3: "#a06a39", wood4: "#c48e52",
+  brass0: "#7a5520", brass1: "#b98a33", brass2: "#e3b04b", brass3: "#ffe08a",
+  paper0: "#c9b98f", paper1: "#e7d9b4", paper2: "#f6ecd2", paper3: "#fff9e8", ink: "#1b1720", red: "#c8341f", redDk: "#7f1d13", tape: "#d9c98f", tape2: "#b7a56f",
+};
+export const TW_COLORS = TWC;
+const twDither = (x: number, y: number, f: number) => f * 16 > BAYER[y & 3]![x & 3]! + 0.5;
+const glyphAt = (ctx: CanvasRenderingContext2D, rows: string[], x: number, y: number, c: string) => rows.forEach((r, ry) => [...r].forEach((p, rx) => { if (p === "#") px(ctx, x + rx, y + ry, c); }));
+const twLabel = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, c: string) => [...text].forEach((ch, i) => glyphAt(ctx, legendGlyph(ch), x + i * 4, y, c));
+
+function twWall(ctx: CanvasRenderingContext2D, w: number, cx: number) {
+  const lampX = cx + 88, lampY = 22;
+  for (let y = 0; y < TW_BENCH; y++) for (let x = 0; x < w; x++) {
+    const d = Math.hypot((x - lampX) / 1.3, y - lampY) / 110;
+    const f = clamp(1 - d, 0, 1) * 3;
+    const band = Math.floor(f), frac = f - band;
+    const ramp = [TWC.wall, TWC.wall2, TWC.wall3, TWC.wall4];
+    px(ctx, x, y, ramp[Math.min(3, band + (twDither(x, y, frac) ? 1 : 0))]!);
+    if (x % 6 === 2 && y % 6 === 2) px(ctx, x, y, TWC.peg);
+  }
+  for (let y = TW_BENCH - 3; y < TW_BENCH; y++) px(ctx, 0, y, y === TW_BENCH - 1 ? TWC.peg : TWC.wall, w, 1);
+}
+
+/** What hangs on the wall. Only a scene wider than the machine shows any of it. */
+function twShopWall(ctx: CanvasRenderingContext2D, cx: number) {
+  // Shelf of spare parts, on the left.
+  const sx = cx - 108, sy = 34;
+  px(ctx, sx, sy, TWC.wood3, 44, 1); px(ctx, sx, sy + 1, TWC.wood1, 44, 2); px(ctx, sx, sy + 3, TWC.peg, 44, 1);
+  px(ctx, sx + 4, sy + 3, TWC.steel1, 1, 4); px(ctx, sx + 39, sy + 3, TWC.steel1, 1, 4);
+  [[sx + 3, TWC.en2], [sx + 14, TWC.red], [sx + 25, TWC.brass2]].forEach(([jx, c], j) => {
+    const x = jx as number;
+    px(ctx, x + 1, sy - 11, TWC.steel2, 7, 2);
+    px(ctx, x, sy - 9, TWC.steel0, 9, 9); px(ctx, x + 1, sy - 8, "#54606a", 7, 7);
+    px(ctx, x + 1, sy - 8, "#7d8c94", 1, 6);
+    for (let k = 0; k < 6; k++) px(ctx, x + 2 + (k * 3 + j) % 5, sy - 2 - (k % 3) * 2, k % 2 ? c as string : TWC.paper2, 2, 2);
+  });
+  // A little broken portable up on the shelf, waiting its turn, with a ticket on it.
+  const bx = sx + 2, by = 62;
+  px(ctx, bx - 2, by, TWC.wood3, 44, 1); px(ctx, bx - 2, by + 1, TWC.wood1, 44, 2); px(ctx, bx - 2, by + 3, TWC.peg, 44, 1);
+  px(ctx, bx + 4, by - 15, TWC.rub1, 24, 3); px(ctx, bx + 2, by - 15, TWC.steel2, 2, 3); px(ctx, bx + 28, by - 15, TWC.steel2, 2, 3);
+  px(ctx, bx + 6, by - 12, "#6f5a48", 20, 12); px(ctx, bx + 6, by - 12, "#92785f", 20, 1); px(ctx, bx + 6, by - 1, "#463628", 20, 1);
+  for (let k = 0; k < 5; k++) { px(ctx, bx + 8 + k * 3, by - 8, TWC.rub0, 2, 2); px(ctx, bx + 9 + k * 3, by - 5, TWC.rub0, 2, 2); }
+  px(ctx, bx + 26, by - 9, TWC.paper2, 7, 5); px(ctx, bx + 28, by - 7, TWC.red, 3, 1);
+  // Hand-lettered sign, hung only where the whole of it shows.
+  if (sx + 4 >= 0) { px(ctx, sx + 4, 3, TWC.ink, 34, 12); px(ctx, sx + 5, 4, TWC.paper1, 32, 10); px(ctx, sx + 5, 13, TWC.paper0, 32, 1); twLabel(ctx, "REPAIRS", sx + 7, 6, TWC.redDk); px(ctx, sx + 20, 2, TWC.brass2, 2, 1); }
+  // Tools on the pegboard, on the right.
+  const tx = cx + 74;
+  px(ctx, tx + 34, 8, TWC.steel2, 2, 14); px(ctx, tx + 33, 7, TWC.steel3, 4, 3); px(ctx, tx + 33, 22, TWC.rub1, 4, 9); px(ctx, tx + 33, 22, TWC.red, 1, 9); // screwdriver
+  px(ctx, tx + 42, 8, TWC.steel2, 3, 22); px(ctx, tx + 41, 6, TWC.steel2, 5, 3); px(ctx, tx + 42, 6, TWC.wall, 3, 2); px(ctx, tx + 42, 8, TWC.steel3, 1, 22); // spanner
+  for (let k = 0; k < 8; k++) px(ctx, tx + 52 + (k % 2), 8 + k * 2, TWC.steel2, 3, 1); // spring
+}
+
+/** The bench: scarred planks, oil and old rings. */
+function twBenchTop(ctx: CanvasRenderingContext2D, w: number, cx: number) {
+  for (let y = TW_BENCH; y < TW_H; y++) for (let x = 0; x < w; x++) {
+    const plank = y < 93 ? 0 : y < 103 ? 1 : 2;
+    const g = noise2(x * 0.09 + plank * 7, y * 0.9 + plank * 3, 41);
+    let c = g > 0.72 ? TWC.wood3 : g < 0.28 ? TWC.wood1 : TWC.wood2;
+    const near = 1 - (y - TW_BENCH) / 30;
+    if (twDither(x, y, 0.22 * (1 - near))) c = TWC.wood1;
+    px(ctx, x, y, c);
+  }
+  px(ctx, 0, TW_BENCH, TWC.wood4, w, 1);
+  [93, 103].forEach((y) => { px(ctx, 0, y, TWC.wood0, w, 1); px(ctx, 0, y + 1, TWC.wood3, w, 1); });
+  px(ctx, 0, TW_H - 3, TWC.wood3, w, 1); px(ctx, 0, TW_H - 2, TWC.wood0, w, 2);
+  // Nail heads where the planks meet.
+  for (let x = (cx - 69 + 400) % 46; x < w; x += 46) { px(ctx, x, 98, TWC.wood0, 2, 1); px(ctx, x + 11, 108, TWC.wood0, 2, 1); }
+  // An oil stain and the ring from a mug.
+  const stain = (ox: number, oy: number, rx: number, ry: number) => { for (let y = -ry; y <= ry; y++) for (let x = -rx; x <= rx; x++) if ((x * x) / (rx * rx) + (y * y) / (ry * ry) < 1 && twDither(ox + x, oy + y, 0.55)) px(ctx, ox + x, oy + y, TWC.wood0); };
+  stain(cx + 34, 106, 12, 3); stain(cx - 22, 107, 6, 2);
+}
+
+/** The shadow the machine throws, then the things lying about that are not keys. */
+function twClutter(ctx: CanvasRenderingContext2D, w: number, cx: number) {
+  for (let y = 88; y < 93; y++) for (let x = cx - 66; x < cx + 66; x++) if (twDither(x, y, 0.95 - (y - 88) * 0.2)) px(ctx, x, y, TWC.wood0);
+  // Screwdriver, lying along the front of the bench.
+  const dy = 107, dx = cx - 68;
+  px(ctx, dx + 1, dy + 3, TWC.wood0, 28, 1);
+  px(ctx, dx, dy, TWC.steel2, 16, 2); px(ctx, dx, dy, TWC.steel3, 16, 1); px(ctx, dx - 1, dy, TWC.steel1, 1, 2);
+  px(ctx, dx + 16, dy - 1, TWC.redDk, 12, 4); px(ctx, dx + 16, dy - 1, TWC.red, 12, 2); px(ctx, dx + 18, dy - 1, "#ee6a4c", 8, 1); px(ctx, dx + 19, dy + 1, TWC.redDk, 1, 2); px(ctx, dx + 23, dy + 1, TWC.redDk, 1, 2);
+  // A sprung coil.
+  const sx = cx + 46, sy = 107;
+  for (let k = 0; k < 9; k++) { px(ctx, sx + k * 2, sy + (k % 2 ? 0 : 1), TWC.steel3, 1, 2); px(ctx, sx + k * 2 + 1, sy + (k % 2 ? 2 : 0), TWC.steel1, 1, 1); }
+  px(ctx, sx, sy + 3, TWC.wood0, 19, 1);
+  // Loose screws.
+  ([[cx - 34, 109], [cx - 28, 106], [cx + 10, 109], [cx + 29, 105], [cx + 2, 106]] as const).forEach(([x, y], i) => {
+    px(ctx, x, y, TWC.steel3, 3, 1); px(ctx, x, y + 1, i % 2 ? TWC.brass1 : TWC.steel1, 3, 1); px(ctx, x + 1, y + 1, TWC.steel0, 1, 1); px(ctx, x + 3, y + 1, i % 2 ? TWC.brass0 : TWC.steel0, 2, 1); px(ctx, x, y + 2, TWC.wood0, 5, 1);
+  });
+  if (w < 200) return;
+  // Oil can, on wider benches.
+  const ox = cx + 76, oy = 99;
+  px(ctx, ox + 3, oy + 8, TWC.wood0, 15, 2);
+  px(ctx, ox + 2, oy, TWC.rust0, 13, 8); px(ctx, ox + 3, oy, TWC.brass1, 11, 8); px(ctx, ox + 3, oy, TWC.brass3, 2, 7); px(ctx, ox + 12, oy, TWC.brass0, 2, 8);
+  px(ctx, ox + 5, oy - 3, TWC.brass1, 7, 3); px(ctx, ox + 7, oy - 5, TWC.steel2, 3, 2);
+  for (let k = 0; k < 10; k++) px(ctx, ox + 11 - k, oy - 4 - k, TWC.steel2, 2, 1);
+  px(ctx, ox + 5, oy + 3, TWC.red, 7, 3);
+  // Gooseneck lamp.
+  const lx = cx + 100;
+  px(ctx, lx - 6, 97, TWC.en0, 14, 3); px(ctx, lx - 6, 97, TWC.en2, 14, 1); px(ctx, lx, 40, TWC.steel1, 2, 57); px(ctx, lx, 40, TWC.steel3, 1, 57);
+  for (let y = 40; y < 97; y += 2) px(ctx, lx, y, TWC.steel0, 2, 1);
+  for (let k = 0; k < 16; k++) px(ctx, lx - Math.round(k * 0.8), 40 - k, TWC.steel2, 2, 1);
+}
+
+/** The machine's body, from the carriage rail to its rubber feet. */
+function twBody(ctx: CanvasRenderingContext2D, cx: number) {
+  const half = (y: number) => 53 + Math.round(((y - 46) * 8) / 41);
+  for (let y = 46; y < 88; y++) {
+    const h = half(y) - (y === 46 ? 2 : y === 47 ? 1 : 0);
+    for (let x = cx - h; x < cx + h; x++) {
+      const e = Math.min(x - (cx - h), cx + h - 1 - x);
+      let c = TWC.en2;
+      if (twDither(x, y, clamp((y - 62) / 27, 0, 1) * 0.8)) c = TWC.en1;
+      if (y < 50 && twDither(x, y, 1 - (y - 46) / 4)) c = TWC.en3;
+      if (e === 0) c = TWC.en0; else if (e === 1) c = x < cx ? TWC.en3 : TWC.en1;
+      if (y === 87) c = TWC.en0; else if (y === 86) c = TWC.en1;
+      px(ctx, x, y, c);
+    }
+    px(ctx, cx - h - 1, y, TWC.ink); px(ctx, cx + h, y, TWC.ink);
+  }
+  // Rubber feet.
+  [cx - 56, cx + 46].forEach((x) => { px(ctx, x, 88, TWC.rub0, 10, 2); px(ctx, x + 1, 88, TWC.rub2, 8, 1); });
+  // Type basket: a dark mouth, the fan of type bars, the ribbon spools on either side.
+  for (let y = 48; y < 57; y++) { const h = 28 + Math.round((y - 48) * 0.7); px(ctx, cx - h, y, TWC.rub0, h * 2, 1); }
+  px(ctx, cx - 29, 47, TWC.en0, 58, 1); px(ctx, cx - 34, 57, TWC.en3, 68, 1);
+  for (let i = -7; i <= 7; i++) {
+    const bx = cx + i * 4, tx = cx + i * 0.5;
+    for (let k = 0; k <= 6; k++) px(ctx, bx + (tx - bx) * (k / 6), 56 - k, k === 0 ? TWC.steel3 : k > 4 ? TWC.steel1 : TWC.steel2);
+  }
+  px(ctx, cx - 3, 49, TWC.steel3, 7, 1); px(ctx, cx - 1, 48, TWC.brass2, 3, 2); // the guide the slugs strike through
+  [cx - 44, cx + 44].forEach((sx, side) => {
+    disc(ctx, sx, 52, 5, (dx, dy) => { const r = Math.hypot(dx, dy); return r > 4.3 ? TWC.en0 : r > 3.2 ? (dx + dy < 0 ? TWC.steel2 : TWC.steel1) : r > 1.6 ? TWC.rub1 : TWC.steel3; });
+    px(ctx, sx - 1, 49, side ? TWC.redDk : TWC.rub2, 2, 1);
+  });
+  // The ribbon runs across, half black, half red.
+  px(ctx, cx - 40, 47, TWC.rub2, 40, 1); px(ctx, cx, 47, TWC.red, 40, 1);
+  // Keyboard well.
+  px(ctx, cx - 47, 58, TWC.rub0, 94, 25); px(ctx, cx - 47, 58, TWC.en0, 94, 1); px(ctx, cx - 47, 83, TWC.en3, 94, 1); px(ctx, cx - 48, 58, TWC.en0, 1, 26); px(ctx, cx + 47, 58, TWC.en3, 1, 26);
+  for (const row of TW_ROWS) for (const ch of row.keys) twKey(ctx, ch, cx, 0);
+  // Space bar, and the arms that hold it.
+  px(ctx, cx - 24, 81, TWC.steel0, 48, 2); px(ctx, cx - 24, 81, TWC.steel3, 48, 1); px(ctx, cx - 25, 81, TWC.steel1, 1, 2); px(ctx, cx + 24, 81, TWC.steel0, 1, 2);
+  // Maker's plate, with the corner sprung.
+  px(ctx, cx - 11, 84, TWC.brass0, 22, 3); px(ctx, cx - 10, 84, TWC.brass2, 20, 2); px(ctx, cx - 10, 84, TWC.brass3, 20, 1); px(ctx, cx + 8, 85, TWC.brass0, 3, 1);
+  [2, 4, 7, 9, 11, 14, 16].forEach((k) => px(ctx, cx - 9 + k, 85, TWC.brass0, 1, 1));
+  // Battle damage: bare metal where the enamel chipped, rust at the edges of it.
+  const chip = (x: number, y: number, rows: string[]) => rows.forEach((r, ry) => [...r].forEach((p, rx) => { const c = { m: TWC.steel2, h: TWC.steel3, r: TWC.rust1, d: TWC.rust0, R: TWC.rust2 }[p]; if (c) px(ctx, x + rx, y + ry, c); }));
+  chip(cx - 58, 74, ["..rr..", ".rmhr.", "rmmmdr", ".rmmr.", "..dd.."]);
+  chip(cx + 49, 60, [".rr.", "rmhr", "rmmd", ".dd."]);
+  chip(cx + 39, 84, ["r.rRr.r", "dRrRdrd"]);
+  chip(cx - 53, 49, ["rh", "dr"]);
+  chip(cx + 54, 82, ["Rr", "rd", "Rd"]);
+  // A long scratch, a dent, and a crack someone taped over.
+  for (let k = 0; k < 15; k++) if (k % 4 !== 3) px(ctx, cx - 56 + k * 0.6, 60 + k, TWC.en4);
+  disc(ctx, cx + 52, 71, 3, (dx, dy) => (dx + dy < -1 ? TWC.en0 : dx + dy > 1 ? TWC.en4 : TWC.en1));
+  for (let k = 0; k < 8; k++) px(ctx, cx - 58 + k, 54 + (k % 3 === 0 ? 1 : 0) + k * 0.2, TWC.en0);
+  px(ctx, cx - 57, 53, TWC.tape, 9, 3); px(ctx, cx - 57, 55, TWC.tape2, 9, 1); px(ctx, cx - 55, 53, TWC.tape2, 1, 2);
+  // Screws: three that match and one somebody found in a drawer.
+  ([[cx - 50, 48, TWC.steel2], [cx + 50, 48, TWC.steel2], [cx - 54, 85, TWC.steel2], [cx + 55, 85, TWC.brass2]] as const).forEach(([x, y, c]) => { px(ctx, x, y, c, 2, 2); px(ctx, x, y, TWC.steel0); });
+}
+
+const TW_ROWS = [{ keys: "QWERTYUIOP", x: -40, y: 59 }, { keys: "ASDFGHJKL", x: -37, y: 66 }, { keys: "ZXCVBNM", x: -31, y: 73 }];
+const twKeyAt = (ch: string): { x: number; y: number } | null => {
+  for (const r of TW_ROWS) { const i = r.keys.indexOf(ch); if (i >= 0) return { x: r.x + i * 8, y: r.y }; }
+  return null;
+};
+
+/** One key on the board. A vowel's key is gone: just the bare stem in an empty socket. `dip` is how far it is pressed. */
+export function twKey(ctx: CanvasRenderingContext2D, ch: string, cx: number, dip: number) {
+  const at = twKeyAt(ch);
+  if (!at) return;
+  const x = cx + at.x, y = at.y + dip;
+  if (dip) px(ctx, x, at.y, TWC.rub0, 7, 7);
+  if ("AEIOU".includes(ch)) {
+    px(ctx, x + 1, at.y + 1, TWC.rub2, 5, 5); px(ctx, x + 2, at.y + 2, TWC.rub0, 3, 3);
+    px(ctx, x + 3, y + 2, TWC.steel3, 1, 2); px(ctx, x + 3, y + 4, TWC.steel1, 1, 1);
+    return;
+  }
+  px(ctx, x + 1, y, TWC.steel3, 5, 1); px(ctx, x, y + 1, TWC.steel2, 1, 5); px(ctx, x + 6, y + 1, TWC.steel1, 1, 5); px(ctx, x + 1, y + 6, TWC.steel1, 5, 1);
+  px(ctx, x + 1, y + 1, TWC.rub1, 5, 5);
+  // A couple of legends have worn down.
+  glyphAt(ctx, legendGlyph(ch), x + 2, y + 1, ch === "T" || ch === "N" ? TWC.steel1 : TWC.paper3);
+}
+
+/** The roller, its knobs, the return lever and the repair tag. */
+export function twCarriage(ctx: CanvasRenderingContext2D, cx: number, nudge = 0) {
+  const x0 = cx - 69 + nudge, w = 138;
+  px(ctx, x0, 36, TWC.rub2, w, 1); px(ctx, x0, 37, TWC.rub1, w, 2); px(ctx, x0, 39, TWC.rub2, w, 1); px(ctx, x0, 40, TWC.rub1, w, 2); px(ctx, x0, 42, TWC.rub0, w, 2);
+  for (let k = 3; k < w - 2; k += 9) px(ctx, x0 + k, 37, TWC.rub2, 3, 1);
+  // The chrome paper bail, with its two little rollers.
+  px(ctx, cx - 64 + nudge, 35, TWC.steel3, 128, 1); px(ctx, cx - 64 + nudge, 36, TWC.steel1, 128, 1);
+  [cx - 34, cx + 28].forEach((x) => { px(ctx, x + nudge, 34, TWC.rub1, 6, 3); px(ctx, x + nudge, 34, TWC.rub2, 6, 1); });
+  // Rail.
+  px(ctx, cx - 66 + nudge, 44, TWC.en0, 132, 2); px(ctx, cx - 66 + nudge, 44, TWC.en3, 132, 1);
+  // Knobs.
+  [cx - 72 + nudge, cx + 69 + nudge].forEach((x) => {
+    px(ctx, x, 35, TWC.rub0, 3, 10); px(ctx, x, 36, TWC.rub2, 3, 1);
+    for (let y = 36; y < 44; y += 2) px(ctx, x, y, TWC.rub2, 3, 1);
+  });
+  px(ctx, cx - 69 + nudge, 36, TWC.steel2, 1, 8); px(ctx, cx + 68 + nudge, 36, TWC.steel1, 1, 8);
+  // Return lever, bent, on the left.
+  const lx = cx - 71 + nudge;
+  px(ctx, lx, 25, TWC.steel2, 2, 10); px(ctx, lx, 25, TWC.steel3, 1, 10); px(ctx, lx - 0, 22, TWC.rub1, 3, 3); px(ctx, lx, 22, TWC.rub2, 2, 1);
+}
+
+/** A blank sheet, curled at the top, with a coffee ring and a fold in it. */
+export function twPaper(ctx: CanvasRenderingContext2D, cx: number, nudge = 0) {
+  const { top, half, bottom } = TW_PAPER;
+  const x0 = cx - half + nudge, w = half * 2;
+  px(ctx, x0, top, TWC.paper2, w, bottom - top);
+  px(ctx, x0, top, TWC.paper3, w, 1);
+  px(ctx, x0, top + 1, TWC.paper1, w, 1);
+  px(ctx, x0, top + 2, TWC.paper3, w, 1);
+  for (let y = top + 3; y < bottom; y++) for (let x = x0; x < x0 + w; x++) {
+    if (twDither(x - nudge, y, clamp((y - 24) / 12, 0, 1) * 0.42)) px(ctx, x, y, TWC.paper1);
+  }
+  px(ctx, x0 - 1, top, TWC.ink, 1, bottom - top); px(ctx, x0 + w, top, TWC.ink, 1, bottom - top);
+  px(ctx, x0, top + 3, TWC.paper1, 1, bottom - top - 3); px(ctx, x0 + w - 1, top + 3, TWC.paper0, 1, bottom - top - 3);
+  // Coffee ring, very faint, low on the right where no letter sits.
+  for (let a = 0; a < 44; a++) {
+    if (a % 7 > 4) continue;
+    const r = 7;
+    px(ctx, cx + 56 + nudge + Math.cos((a / 44) * Math.PI * 2) * r, 29 + Math.sin((a / 44) * Math.PI * 2) * r * 0.75, TWC.paper0);
+  }
+}
+
+/** Where the loose keys lie. The same ones every word: what is on the bench must never hint at the word. */
+export const TW_LOOSE: { ch: string; x: number; y: number; lean: number }[] = [
+  { ch: "A", x: -66, y: 93, lean: 0 }, { ch: "E", x: -53, y: 95, lean: 1 }, { ch: "O", x: -40, y: 92, lean: -1 }, { ch: "I", x: -27, y: 95, lean: 0 }, { ch: "E", x: -14, y: 93, lean: -1 },
+  { ch: "U", x: -1, y: 95, lean: 1 }, { ch: "A", x: 12, y: 92, lean: 0 }, { ch: "I", x: 25, y: 95, lean: -1 }, { ch: "O", x: 38, y: 93, lean: 1 }, { ch: "E", x: 53, y: 94, lean: 0 },
+];
+
+/** A loose vowel key. `lean` slants it where it fell; `shadow` is off while it is in the air. */
+export function twLooseKey(ctx: CanvasRenderingContext2D, ch: string, x: number, y: number, lean = 0, shadow = true) {
+  const off = (ry: number) => (lean && ry < 4 ? lean : 0);
+  if (shadow) { px(ctx, x + 2, y + 9, TWC.wood0, 8, 1); px(ctx, x + 4, y + 11, TWC.wood0, 4, 1); }
+  LOOSE_KEY_ROWS.forEach((r, ry) => [...r].forEach((p, rx) => { const c = LOOSE_KEY_PAL[p]; if (c) px(ctx, x + rx + off(ry), y + ry, c); }));
+  legendGlyph(ch).forEach((r, ry) => [...r].forEach((p, rx) => { if (p === "#") px(ctx, x + 3 + rx + off(ry + 2), y + 2 + ry, TWC.ink); }));
+}
+
+/** Everything that doesn't move, in a scene `w` wide. */
+export function twStatic(ctx: CanvasRenderingContext2D, w: number) {
+  const cx = Math.floor(w / 2);
+  twWall(ctx, w, cx);
+  twShopWall(ctx, cx);
+  twBenchTop(ctx, w, cx);
+  twClutter(ctx, w, cx);
+  twBody(ctx, cx);
+}
+
+/** A slug of type on the sheet, a touch uneven in the way an old machine is. */
+export function twType(ctx: CanvasRenderingContext2D, ch: string, size: "big" | "mid" | "small", x: number, y: number, color: string) {
+  glyphAt(ctx, typeGlyph(ch, size), x, y, color);
+}
+
+const TW_W = 220;
+const twMotes = (ctx: CanvasRenderingContext2D, t: number, w: number) => {
+  for (let i = 0; i < 12; i++) {
+    const x = (noise1(i, 51) * w + Math.sin(t / 26 + i) * 5 + t * 0.06 * (i % 3 + 1)) % w;
+    const y = 8 + ((noise1(i, 52) * 66 + t * (0.04 + (i % 4) * 0.015)) % 66);
+    if ((t + i * 9) % 44 < 30) px(ctx, x, y, "#d8bb86");
+  }
+};
+const TW_DEMO = "VWLPLY";
+export const TYPEWRITER: World = {
+  id: "typewriter", fullW: TW_W, fullH: TW_H, viewW: TW_W, viewH: TW_H,
+  checkpoints: [{ name: "Shop", at: 0 }],
+  backdrop: (ctx) => {
+    twStatic(ctx, TW_W);
+    const cx = TW_W / 2;
+    TW_LOOSE.forEach((k) => twLooseKey(ctx, k.ch, cx + k.x, k.y, k.lean));
+    twPaper(ctx, cx);
+    [...TW_DEMO].forEach((ch, i) => twType(ctx, ch, "big", cx - 47 + i * 16, 7, TWC.ink));
+    twCarriage(ctx, cx);
+  },
+  frame: (ctx, t) => {
+    twMotes(ctx, t, TW_W);
+    // The lamp's bulb flickers now and then.
+    const lit = t % 97 > 2 && t % 131 > 1;
+    const lx = TW_W / 2 + 84, ly = 22;
+    px(ctx, lx - 7, ly - 3, TWC.en0, 14, 3); px(ctx, lx - 6, ly - 4, TWC.en2, 12, 2); px(ctx, lx - 3, ly - 6, TWC.en1, 6, 2);
+    px(ctx, lx - 5, ly, lit ? TWC.brass3 : TWC.brass1, 10, 2);
+    if (lit) for (let y = 2; y < 18; y++) for (let x = -5 - y; x < 5 + y; x++) if ((x * 3 + y * 5) % 16 === 0 && y % 3 === 0) px(ctx, lx + x, ly + y, "#7a5a3c");
+    // One loose key rocks where it landed.
+    const k = TW_LOOSE[6]!, rock = t % 80 < 8 ? (t % 4 < 2 ? 1 : -1) : 0;
+    if (rock) { px(ctx, TW_W / 2 + k.x - 1, k.y - 1, TWC.wood2, 12, 13); twLooseKey(ctx, k.ch, TW_W / 2 + k.x, k.y - 1, rock); }
+  },
+  pos: () => ({ x: TW_W / 2, y: TW_H / 2 }),
+  camera: () => ({ x: 0, y: 0 }),
+};
+
+export const WORLDS = { summit: SUMMIT, sky: SKY, launch: LAUNCH, hall: HALL, ball: BALL, studio: STUDIO, board: BOARD, arcade: ARCADE, ladder: LADDER_WORLD, typewriter: TYPEWRITER, noirNight: NOIR_NIGHT, noirDawn: NOIR_DAWN, noirDay: NOIR_DAY, noirDusk: NOIR_DUSK };
 
 /** The last checkpoint reached at a fraction of the journey. */
 export function checkpointAt(world: World, f: number): Checkpoint {
