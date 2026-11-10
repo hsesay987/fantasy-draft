@@ -40,6 +40,7 @@ describe("best scores", () => {
   });
 
   it("survives storage being missing", () => {
+    vi.stubGlobal("localStorage", undefined);
     expect(bestFor("films")).toBe(0);
     expect(() => saveBest("films", 10)).not.toThrow();
   });

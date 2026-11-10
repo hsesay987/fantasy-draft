@@ -40,6 +40,8 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
   const input = useRef<HTMLInputElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const played = useRef<string[]>([]);
+  /** A short screen with the input focused, which on a phone means its keyboard is up: the scene shrinks to the sheet. */
+  const [compact, setCompact] = useState(false);
   const finished = useRef(false);
 
   useEffect(() => setBest(bestFor(topic)), [topic]);
@@ -112,6 +114,36 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
     track("vowelplay_finished", { pool: topic, score, got: s.history.filter(gotIt).length, total: s.total });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done]);
+
+  // While the player types, the site's bottom bar steps aside, and on a short screen the scene is cut down to the sheet so the
+  // letters and the input fit together above the keyboard. iOS doesn't shrink the page for its keyboard, so the visual viewport decides.
+  useEffect(() => {
+    const el = input.current;
+    if (!el || s?.done) return;
+    const vv = window.visualViewport;
+    let compactNow = false;
+    const update = () => {
+      const typingNow = document.activeElement === el;
+      document.documentElement.toggleAttribute("data-vp-typing", typingNow);
+      const short = Math.min(window.innerHeight, vv?.height ?? Infinity) < 520;
+      const next = typingNow && short;
+      if (next && !compactNow) requestAnimationFrame(() => stage.current?.scrollIntoView({ block: "start" }));
+      compactNow = next;
+      setCompact(next);
+    };
+    update();
+    el.addEventListener("focus", update);
+    el.addEventListener("blur", update);
+    vv?.addEventListener("resize", update);
+    window.addEventListener("resize", update);
+    return () => {
+      el.removeEventListener("focus", update);
+      el.removeEventListener("blur", update);
+      vv?.removeEventListener("resize", update);
+      window.removeEventListener("resize", update);
+      document.documentElement.removeAttribute("data-vp-typing");
+    };
+  }, [s?.done]);
 
   const start = () => {
     const t = Date.now();
@@ -217,7 +249,7 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
     <>
       {back}
       {sign}
-      <div ref={stage} className="vp-stage">
+      <div ref={stage} className={`vp-stage ${compact ? "compact" : ""}`}>
         <Typewriter puzzle={word?.puzzle ?? toPuzzle(INTRO_NAME)} name={shownName} solved={solved} typed={inGuess ? text : ""} miss={miss} onClack={() => play("click")} />
         {solved && <p key={s!.round} className="vp-pop" aria-hidden>+{gained}</p>}
       </div>

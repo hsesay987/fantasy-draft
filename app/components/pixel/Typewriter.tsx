@@ -234,7 +234,7 @@ export function Typewriter({ puzzle, name, solved, typed = "", miss = 0, onClack
 
   const letters = [...puzzle].join(" ");
   return (
-    <div ref={box} className="vp-machine">
+    <div ref={box} className="vp-machine" style={{ ["--tw-scale" as string]: size.scale }}>
       <canvas ref={canvas} width={size.w} height={TW_H}
         style={size.fluid ? { width: "100%", height: "auto" } : { width: size.w * size.scale, height: TW_H * size.scale }}
         role="img" aria-label={name ? `On the sheet: ${name}` : `On the sheet, the letters ${letters}`} />

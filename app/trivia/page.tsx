@@ -34,7 +34,7 @@ export default function TriviaHub() {
       <div className="space-y-8">
         <header className="max-w-2xl space-y-3">
           <p className="px-eyebrow">TRIVIA</p>
-          <h1>Five worlds. New puzzles every day.</h1>
+          <h1>Five worlds. Most have a new puzzle every day.</h1>
           <p className="px-note">Play a daily to compare with everyone else, or free play any topic, solo, against the AI or with friends. Every question is made of real facts, and you can rate any one you play.</p>
         </header>
 

@@ -950,6 +950,11 @@
 .vp-score span { font-size: 18px; color: var(--px-dim); }
 .vp-stage { position: relative; margin: 4px; box-shadow: 0 0 0 4px var(--px-ink); scroll-margin-top: 72px; }
 .vp-machine { width: 100%; overflow: hidden; line-height: 0; background: #1c1214; }
+/* Keyboard up on a short screen: show only the sheet and the platen (the top 46 scene pixels), with the score along its foot. */
+.vp-stage.compact .vp-machine { max-height: calc(46px * var(--tw-scale, 2)); }
+.vp-stage.compact .vp-pop { top: auto; bottom: 2px; font-size: 14px; padding: 4px 8px 3px; }
+/* The site's bottom bar would sit over the input above a phone's keyboard, so it steps aside while the player types. */
+html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
 .pixel .vp-machine canvas { margin-inline: auto; image-rendering: pixelated; }
 /* The score sits over the carriage and the type basket, under the sheet, so it never covers the name. */
 .vp-pop { position: absolute; left: 50%; top: 35%; margin: 0; padding: 6px 10px 5px; pointer-events: none; transform: translateX(-50%); white-space: nowrap; font: 400 20px/1 var(--px-head); color: var(--px-ink); background: var(--px-gold); box-shadow: 0 -3px 0 0 var(--px-ink), 0 3px 0 0 var(--px-ink), -3px 0 0 0 var(--px-ink), 3px 0 0 0 var(--px-ink), inset 0 2px 0 0 #ffe08a, inset 0 -2px 0 0 #b98a33; animation: vp-pop .46s steps(7) .32s both; }
@@ -968,6 +973,7 @@
 .vp-term .in:focus-within { box-shadow: 0 0 0 4px var(--px-gold); }
 .vp-term .px-btn { flex: none; padding-inline: 12px; }
 .vp-term.miss .in { box-shadow: 0 0 0 4px var(--px-rose); }
+/* vp-shake-a and vp-shake-b are identical on purpose: swapping the class name restarts the shake on every wrong guess. */
 .vp-term.m0 { animation: vp-shake-a .3s steps(6); } .vp-term.m1 { animation: vp-shake-b .3s steps(6); }
 @keyframes vp-shake-a { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
 @keyframes vp-shake-b { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
