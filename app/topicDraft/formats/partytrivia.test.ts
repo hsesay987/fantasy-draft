@@ -10,6 +10,7 @@ const CATS = [cat("Alpha"), cat("Beta"), cat("Gamma"), cat("Delta"), cat("Eps"),
 const T0 = 1_000_000;
 const make = (o: Partial<Parameters<typeof init>[0]> = {}) =>
   init({ players: ["Ann", "Bob", "Cy"], categories: CATS, count: 10, teams: 0, teamMap: {}, seed: 7, now: T0, ...o });
+const sips = (s: PTState) => Object.fromEntries(Object.entries(s.drinks!.totals).filter(([, v]) => v > 0));
 const rightOf = (s: PTState) => s.questions[s.round]!.answer;
 const wrongOf = (s: PTState) => s.questions[s.round]!.options.find((o) => o !== rightOf(s))!;
 
@@ -222,6 +223,35 @@ describe("sip card key", () => {
 describe("party trivia, buzz mode", () => {
   const mk = (o: Partial<Parameters<typeof init>[0]> = {}) => make({ answer: "buzz", ...o });
   const team4 = () => mk({ players: ["A", "B", "C", "D"], teams: 2, teamMap: { A: 0, B: 0, C: 1, D: 1 } });
+
+  it("init without answer has no buzz keys at all", () => {
+    const s = make();
+    for (const k of ["answerMode", "buzzer", "buzzAt", "buzzMs", "locked", "missed"]) expect(s).not.toHaveProperty(k);
+  });
+
+  it("drinks: only wrong buzzers sip (1 each); nobody sips if nobody got it right; no slowest sip", () => {
+    let s = mk({ drinking: true });
+    s = buzz(s, "Ann", T0); s = answer(s, "Ann", wrongOf(s), T0 + 5);
+    s = buzz(s, "Bob", T0 + 10); s = answer(s, "Bob", rightOf(s), T0 + 20);
+    expect(s.phase).toBe("reveal");
+    expect(sips(s)).toEqual({ Ann: 1 });
+    expect(s.missed).toEqual(["Ann"]);
+    let n = mk({ drinking: true });
+    n = tick(n, T0 + QUESTION_MS + 1);
+    expect(sips(n)).toEqual({});
+    n = mk({ drinking: true });
+    for (const [i, p] of ["Ann", "Bob", "Cy"].entries()) { n = buzz(n, p, T0 + 10 * (i + 1)); n = answer(n, p, wrongOf(n), T0 + 10 * (i + 1) + 5); }
+    expect(sips(n)).toEqual({ Ann: 1, Bob: 1, Cy: 1 });
+    n = next(n, T0 + 99);
+    expect(n.missed).toEqual([]);
+  });
+
+  it("drinks with teams: the whole team that buzzed wrong sips", () => {
+    let s = mk({ players: ["A", "B", "C", "D"], teams: 2, teamMap: { A: 0, B: 0, C: 1, D: 1 }, drinking: true });
+    s = buzz(s, "A", T0); s = answer(s, "A", wrongOf(s), T0 + 5);
+    s = tick(s, T0 + QUESTION_MS + 1);
+    expect(sips(s)).toEqual({ A: 1, B: 1 });
+  });
 
   it("starts with nobody buzzed; phones mode is unchanged", () => {
     const s = mk();

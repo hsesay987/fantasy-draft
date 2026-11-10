@@ -559,11 +559,16 @@ describe("party trivia room", () => {
       expect(snap.setup.seed).toBe(0);
       expect(snap.setup.opts.teamMap).toEqual({ Ann: 0, Bob: 0, Cy: 1, Di: 1 });
       expect(json.match(/RIGHT-/g)).toHaveLength(1); // only the option on screen; the bank and later answers are not sent
-      expect(json).not.toMatch(/"answer":"RIGHT/); // a question's answer key; setup.opts.answer ("phones"|"buzz") is public
+      // setup.opts.answer ("phones"|"buzz") is public, so guard per question instead of by substring.
+      for (const q of snap.state.questions) expect(q, n).not.toHaveProperty("answer");
+      expect(json.split(first.answer)).toHaveLength(2); // the correct text appears once, as its option
       for (const q of room.state.questions.slice(1)) expect(json).not.toContain(q.q);
       expect(json).toContain(first.q);
     }
     expect(JSON.stringify(snapshot(room, "bad token")).match(/RIGHT-/g)).toHaveLength(1);
+    const anon = snapshot(room, "bad token");
+    for (const q of anon.state.questions) expect(q).not.toHaveProperty("answer");
+    expect(JSON.stringify(anon).split(first.answer)).toHaveLength(2);
     // Teammates see each other's pick, the other team does not.
     expect(act(room, toks.Ann, { type: "answer", choice: first.options[1] }).ok).toBe(true);
     expect(snapshot(room, toks.Bob).state.answers.Ann.choice).toBe(first.options[1]);

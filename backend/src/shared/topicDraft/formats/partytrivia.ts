@@ -41,6 +41,8 @@ export type PTState = {
   buzzMs?: number | null;
   /** Buzz mode: players locked out of this question by a wrong or missing answer (a whole team at once with teams). */
   locked?: string[];
+  /** Buzz mode: who buzzed wrong on this question (sips go to them and their team only). */
+  missed?: string[];
 };
 
 /** What a seat is sent: the question being asked has no `answer` until the reveal, and later questions are not sent. */
@@ -80,7 +82,7 @@ export function init(o: { players: string[]; categories: TriviaCategory[]; count
     points: Object.fromEntries(o.players.map((p) => [p, 0])), teamPoints: teams ? teams.map(() => 0) : [],
     correct: Object.fromEntries(o.players.map((p) => [p, 0])), history: [], phaseAt: o.now, startedAt: o.now, done: questions.length === 0,
     ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),
-    ...(o.answer === "buzz" ? { answerMode: "buzz" as const, buzzer: null, buzzAt: null, buzzMs: null, locked: [] } : {}),
+    ...(o.answer === "buzz" ? { answerMode: "buzz" as const, buzzer: null, buzzAt: null, buzzMs: null, locked: [], missed: [] } : {}),
   };
 }
 
@@ -112,7 +114,7 @@ function wrongBuzz(s: PTState, now: number, gone: string[] = []): PTState {
   const ti = mateIdx(s, by);
   const teamPoints = s.teams && ti >= 0 ? s.teamPoints.map((t, i) => (i === ti ? Math.max(0, t - WRONG_BUZZ) : t)) : s.teamPoints;
   const locked = [...new Set([...(s.locked ?? []), ...mates(s, by)])];
-  return reopen({ ...s, points, teamPoints, locked }, now, gone);
+  return reopen({ ...s, points, teamPoints, locked, missed: [...(s.missed ?? []), by] }, now, gone);
 }
 
 /** Frees the buzz; if nobody left at the table can buzz, the question is over. */
@@ -158,7 +160,10 @@ function reveal(s: PTState, now: number): PTState {
       })
     : s.teamPoints;
   const h = { answers: Object.fromEntries(s.players.flatMap((p) => (has(s.answers, p) ? [[p, s.answers[p]!.choice]] : []))), teamChoice: choices };
-  const drinks = s.drinks
+  const buzzCalls: DrinkCall[] = (s.missed ?? []).flatMap((by) => mates(s, by).map((to) => ({ to, sips: 1, reason: "Wrong answer" })));
+  const drinks = s.drinks && s.answerMode === "buzz"
+    ? addCalls(s.drinks, [...new Map(buzzCalls.map((c) => [c.to, c])).values()], s.players)
+    : s.drinks
     ? addCalls(s.drinks, drinkCalls(s, groups.map((m, i) => ({ members: m, right: choices[i] === right, last: votes(m).length ? Math.max(...votes(m).map((v) => v.at)) : null }))), s.players)
     : undefined;
   return { ...s, phase: "reveal", points, correct, teamPoints, history: [...s.history, h], ...(drinks ? { drinks } : {}), phaseAt: now };
@@ -167,7 +172,7 @@ function reveal(s: PTState, now: number): PTState {
 function advance(s: PTState, now: number): PTState {
   const round = s.round + 1;
   if (round >= s.questions.length) return { ...s, done: true, phaseAt: now };
-  return { ...s, round, phase: "question", answers: {}, phaseAt: now, ...(s.answerMode === "buzz" ? { buzzer: null, buzzAt: null, buzzMs: null, locked: [] } : {}) };
+  return { ...s, round, phase: "question", answers: {}, phaseAt: now, ...(s.answerMode === "buzz" ? { buzzer: null, buzzAt: null, buzzMs: null, locked: [], missed: [] } : {}) };
 }
 
 /** Closes the question early once every player still at the table (not in `gone`) has answered. */
