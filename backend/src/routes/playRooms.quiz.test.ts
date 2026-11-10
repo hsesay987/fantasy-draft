@@ -40,6 +40,35 @@ describe("quizFor mixed topics", () => {
     expect(names).toHaveLength(5);
     expect(new Set(names).size).toBe(5);
   });
+  it("shuffles by the given seed: a permutation, and other seeds can order it differently", async () => {
+    const orders = new Set<string>();
+    for (const seed of [1, 2, 3, 4, 5, 6]) {
+      getJeopardy.mockClear();
+      getJeopardy.mockImplementationOnce(async () => forPool("S", 3)).mockImplementationOnce(async () => forPool("V", 2));
+      const quiz = await quizFor({ format: "partytrivia", pool: "superheroes", pools: ["superheroes", "villains"], opts: { teamSize: 15 } }, [], seed);
+      const names = quiz!.categories!.map((c) => c.name);
+      expect([...names].sort()).toEqual(["S 0", "S 1", "S 2", "V 0", "V 1"]);
+      orders.add(names.join());
+    }
+    expect(orders.size).toBeGreaterThan(1);
+  });
+  it.each([
+    ["pools only", { pools: ["superheroes", "villains"] }],
+    ["pool that differs from pools[0]", { pool: "villains", pools: ["superheroes", "villains"] }],
+  ])("a room created with %s gets a mixed server quiz", async (_n, pick) => {
+    const app = express();
+    app.use(express.json());
+    app.use("/play-rooms", router);
+    const server = await new Promise<Server>((res) => { const s = app.listen(0, () => res(s)); });
+    try {
+      getJeopardy.mockClear();
+      const res = await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}/play-rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: "Ann", setup: { format: "partytrivia", opts: { teamSize: 15 }, ...pick } }) });
+      expect(res.status).toBe(200);
+      expect(getJeopardy.mock.calls.map((c) => c[0]).slice(0, 2).sort()).toEqual(["superheroes", "villains"]);
+    } finally {
+      server.close();
+    }
+  });
   it("fills from the other topic when one fails", async () => {
     getJeopardy.mockClear();
     getJeopardy.mockImplementationOnce(async (_p: string, _a: string[], _s?: unknown, _g?: unknown, _r?: unknown, count = 4) => forPool("S", count)).mockImplementationOnce(async () => { throw new Error("down"); });

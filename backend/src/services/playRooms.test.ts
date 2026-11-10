@@ -749,7 +749,7 @@ describe("who hosts", () => {
       leaveRoom(r, toks.Bob); // only so one seat can finish the game quickly
       finish(r, toks, "Ann");
       r.seats.find((s: any) => s.name === "Bob").left = false;
-      r.setup = { ...r.setup, pool: "nope", quiz: undefined };
+      r.setup = { ...r.setup, pool: "nope", pools: ["nope"], quiz: undefined };
       const board = r.state;
       expect(startRoom(r, toks.Ann)).toEqual({ error: "No questions are available for this topic right now" });
       expect(r.status).toBe("done");

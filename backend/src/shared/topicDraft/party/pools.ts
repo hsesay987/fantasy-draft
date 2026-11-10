@@ -7,6 +7,7 @@ import { OPTION_COUNT } from "../formats/imposter";
 import { TRIVIA_POOLS } from "../trivia";
 import { DECKS, deckOf } from "./decks";
 import { INSYNC_DECKS, insyncDeckOf } from "./insyncDecks";
+import { mixTitle } from "./mixTitle";
 import { VOWEL_TOPICS, vowelTopicTitle } from "./vowelTopics";
 
 /** Character catalogs big enough for Imposter: a secret plus look-alikes to guess from. */
@@ -36,10 +37,4 @@ export function poolTitleFor(format: FormatId, id: string): string {
   }
 }
 
-/** "A", "A and B", "A, B and C", then "Mixed: A, B +N more". */
-export function mixTitle(titles: string[]): string {
-  if (titles.length <= 1) return titles[0] ?? "";
-  if (titles.length === 2) return `${titles[0]} and ${titles[1]}`;
-  if (titles.length === 3) return `${titles[0]}, ${titles[1]} and ${titles[2]}`;
-  return `Mixed: ${titles[0]}, ${titles[1]} +${titles.length - 2} more`;
-}
+export { mixTitle };

@@ -9,7 +9,7 @@ import { wordPip } from "../../components/pixel/sprites";
 import { useSound } from "../../components/SoundProvider";
 import { DUEL_LEAD, GUESS_MS, JUDGE_MS, SPEAK_MS, speedPoints, winners, type VPHistory, type VPState } from "../../topicDraft/formats/vowelplay";
 import { has } from "../../topicDraft/party/own";
-import { mixTitle } from "../../topicDraft/party/pools";
+import { mixTitle } from "../../topicDraft/party/mixTitle";
 import { poolsOf } from "../../play/types";
 import { vowelTopicTitle } from "../../topicDraft/party/vowelTopics";
 import { useTypingStage } from "../../vowelplay/useTypingStage";

@@ -72,8 +72,8 @@ export type GameSetup = {
   seed: number;
 };
 
-/** The pool ids a setup draws from: its `pools`, or just `pool` for one-topic setups (and when `pool` was changed after, so it no longer leads `pools`). */
-export const poolsOf = (setup: Pick<GameSetup, "pool" | "pools">): string[] => (setup.pools?.length && setup.pools[0] === setup.pool ? setup.pools : [setup.pool]);
+/** The pool ids a setup draws from: its `pools`, or just `pool` for one-topic setups. */
+export const poolsOf = (setup: Pick<GameSetup, "pool" | "pools">): string[] => (setup.pools?.length ? setup.pools : [setup.pool]);
 
 export const DEFAULT_OPTS: Opts = {
   teamSize: 5,

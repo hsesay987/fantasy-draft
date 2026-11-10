@@ -45,7 +45,7 @@ describe("vote and in-sync mix decks", () => {
     expect(s.pairs.length).toBeGreaterThan(0);
     expect(s.pairs.every((p) => all.has(p.id) && !seen.includes(p.id))).toBe(true);
     const got = new Set<number>();
-    for (let seed = 1; seed < 30; seed++) for (const p of (initGame(setup("insync", [a.id, b.id]), 0) as InSyncState).pairs) got.add(a.pairs.some((x) => x.id === p.id) ? 0 : 1);
+    for (let seed = 1; seed < 30; seed++) for (const p of (initGame(setup("insync", [a.id, b.id], {}, seed), 0) as InSyncState).pairs) got.add(a.pairs.some((x) => x.id === p.id) ? 0 : 1);
     expect(got.size).toBe(2);
   });
 });
