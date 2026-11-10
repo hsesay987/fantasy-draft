@@ -211,6 +211,20 @@ describe("voice", () => {
     expect(buzz(b, "Cy", T0 + 200)).toBe(b);
     expect(buzz(mk(), "Ann", T0 + 1)).toEqual(mk());
   });
+  it("records how fast the buzz came, from the word's start, and keeps it until the next word", () => {
+    const s = mkV();
+    expect(s.buzzMs).toBeNull();
+    const b = buzz(s, "Bo", T0 + 2347);
+    expect(b.buzzMs).toBe(2347);
+    const j = spoke(b, "Bo", T0 + 3000);
+    expect(j.buzzMs).toBe(2347);
+    const r = mark(mark(j, "Ann", "right", T0 + 3100), "Cy", "right", T0 + 3200);
+    expect(r.phase).toBe("reveal");
+    expect(r.buzzMs).toBe(2347);
+    const next = tick(r, at(r, REVEAL_MS));
+    expect(next.round).toBe(1);
+    expect(next.buzzMs).toBeNull();
+  });
   it("only the buzzer can spoke; tick after SPEAK_MS also moves to judge", () => {
     const b = buzz(mkV(), "Bo", T0 + 100);
     expect(spoke(b, "Ann", T0 + 200)).toBe(b);

@@ -29,6 +29,8 @@ export type VPState = {
   /** Head to head: positive is towards players[0]. */
   rope: number;
   buzzer: string | null;
+  /** Voice: how long after the word appeared the buzz reached the server, in ms. Kept until the next word. */
+  buzzMs: number | null;
   marks: Record<string, "right" | "wrong">;
   /** Milliseconds from the start of this word to each player's right answer. */
   gotMs: Record<string, number>;
@@ -66,7 +68,7 @@ export function init(o: { players: string[]; topic: string; mode: VPMode; answer
   });
   return {
     players: o.players, topic: o.topic, mode: o.mode, answer: o.answer, words, total: words.length, round: 0, phase: "guess",
-    points: Object.fromEntries(o.players.map((p) => [p, 0])), rope: 0, buzzer: null, marks: {}, gotMs: {}, gaveUp: [],
+    points: Object.fromEntries(o.players.map((p) => [p, 0])), rope: 0, buzzer: null, buzzMs: null, marks: {}, gotMs: {}, gaveUp: [],
     history: [], phaseAt: o.now, startedAt: o.now, done: words.length === 0, forfeit: null, seed,
     ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),
   };
@@ -98,7 +100,7 @@ function finish(s: VPState, now: number, o: { wrongBuzz?: string; gone?: string[
 function advance(s: VPState, now: number): VPState {
   const round = s.round + 1;
   if (round >= s.total) return { ...s, done: true, phaseAt: now };
-  return { ...s, round, phase: "guess", buzzer: null, marks: {}, gotMs: {}, gaveUp: [], phaseAt: now };
+  return { ...s, round, phase: "guess", buzzer: null, buzzMs: null, marks: {}, gotMs: {}, gaveUp: [], phaseAt: now };
 }
 
 const allIn = (s: VPState, gone: string[] = []) => s.players.every((p) => gone.includes(p) || has(s.gotMs, p) || s.gaveUp.includes(p));
@@ -139,7 +141,7 @@ export function giveUp(s: VPState, by: string, now: number): VPState {
 /** Voice: the first to buzz gets to speak. */
 export function buzz(s: VPState, by: string, now: number): VPState {
   if (s.done || s.phase !== "guess" || s.answer !== "voice" || s.mode === "all" || s.buzzer !== null || !s.players.includes(by) || now - s.phaseAt >= GUESS_MS) return s;
-  return { ...s, phase: "speak", buzzer: by, phaseAt: now };
+  return { ...s, phase: "speak", buzzer: by, buzzMs: Math.max(0, now - s.phaseAt), phaseAt: now };
 }
 
 /** Voice: the buzzer has said it, so the name goes to the judges. */
