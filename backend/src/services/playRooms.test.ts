@@ -27,6 +27,32 @@ function room(format = "snake", names = ["Ann", "Bob"], extra: any = {}) {
 
 beforeEach(() => _rooms.clear());
 
+describe("sanitizeSetup party pools", () => {
+  const party = (format: string, extra: any) => sanitizeSetup({ ...base(format), ...extra });
+  it("fills pools from pool alone", () => {
+    expect(party("vote", { pool: "icks" })!.pools).toEqual(["icks"]);
+  });
+  it("keeps several, drops duplicates, and pool follows the first", () => {
+    const s = party("vote", { pool: "x", pools: ["wrong", "wrong", "icks"] })!;
+    expect(s.pools).toEqual(["wrong", "icks"]);
+    expect(s.pool).toBe("wrong");
+    expect(s.mission.title).toBe(`${DECKS.find((d) => d.id === "wrong")!.title} and ${DECKS.find((d) => d.id === "icks")!.title}`);
+  });
+  it("refuses an unknown id and too long a list", () => {
+    expect(party("vote", { pools: ["wrong", "nope"] })).toBeNull();
+    expect(party("vote", { pools: Array(DECKS.length + 1).fill("wrong") })).toBeNull();
+  });
+  it("falls back to pool for an empty list, and mafia ignores pools", () => {
+    expect(party("vote", { pool: "icks", pools: [] })!.pools).toEqual(["icks"]);
+    const m = party("mafia", { pool: "mafia", pools: ["x", "y"] })!;
+    expect(m.pools).toEqual(["mafia"]);
+  });
+  it("keeps Vowel Party and Imposter titles", () => {
+    expect(party("vowelparty", { pools: ["food", "films"] })!.mission.title).toBe("Vowel Party: Food and Films");
+    expect(party("imposter", { pool: "superheroes" })!.mission.title).toMatch(/^Imposter: /);
+  });
+});
+
 describe("sanitizeSetup", () => {
   it("accepts a normal setup and clamps wild numbers", () => {
     const s = sanitizeSetup(base("auction", { opts: { teamSize: 999, budget: -5, lotSeconds: 1e9 } }))!;

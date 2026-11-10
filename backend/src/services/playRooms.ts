@@ -26,6 +26,7 @@ import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelTopics";
 import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
 import { deckOf } from "../shared/topicDraft/party/decks";
 import { insyncDeckOf } from "../shared/topicDraft/party/insyncDecks";
+import { mixTitle, poolIdsFor, poolTitleFor } from "../shared/topicDraft/party/pools";
 import { GROUP_CALL } from "../shared/topicDraft/party/drinks";
 import type { Item } from "../shared/topicDraft/types";
 
@@ -158,20 +159,17 @@ export function sanitizeSetup(input: any): GameSetup | null {
 
 /** Party games: Imposter needs a character topic, vote games need a card deck, In-Sync a pair deck. Mafia has one fixed pool. */
 function sanitizeParty(format: FormatId, input: any): GameSetup | null {
-  const pool = clean(input.pool, 30);
   const o = input.opts ?? {};
-  if (format === "imposter") {
-    const meta = CATALOG_META.find((m) => m.id === pool);
-    if (!meta || meta.kind !== "character" || getCatalog(pool).length < IM.OPTION_COUNT) return null;
-  } else if (format === "insync") {
-    if (!insyncDeckOf(pool)) return null;
-  } else if (format === "partytrivia") {
-    if (!TRIVIA_POOLS.includes(pool)) return null;
-  } else if (format === "mafia") {
-    if (pool !== "mafia") return null;
-  } else if (format === "vowelplay" || format === "vowelparty") {
-    if (!VOWEL_TOPICS.some((t) => t.id === pool)) return null;
-  } else if (!deckOf(pool)) return null;
+  const valid = poolIdsFor(format);
+  // One id is checked the way it always was; several are each checked that way, de-duplicated, and capped by what the format has.
+  const asked: unknown[] = format !== "mafia" && Array.isArray(input.pools) && input.pools.length ? input.pools : [input.pool];
+  if (asked.length > Math.max(1, valid.length)) return null;
+  const pools = [...new Set(asked.map((p) => clean(p, 30)))];
+  if (format === "mafia") {
+    if (clean(input.pool, 30) !== "mafia") return null;
+    pools.splice(0, pools.length, "mafia");
+  } else if (pools.some((p) => !valid.includes(p))) return null;
+  const pool = pools[0]!;
   const teams = num(o.teams, 0, 4, 0);
   const teamMap: Record<string, number> = {};
   if (teams > 0 && o.teamMap && typeof o.teamMap === "object") {
@@ -180,8 +178,8 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
       if (name && Number.isInteger(t) && t >= 0 && t < teams) teamMap[name] = t;
     }
   }
-  const vowelTitle = VOWEL_TOPICS.find((t) => t.id === pool)?.title ?? pool;
-  const title = format === "vowelplay" ? `Vowel Play: ${vowelTitle}` : format === "vowelparty" ? `Vowel Party: ${vowelTitle}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${CATALOG_META.find((m) => m.id === pool)!.title}` : format === "insync" ? `In-Sync: ${insyncDeckOf(pool)!.title}` : format === "partytrivia" ? `Party Trivia: ${CATALOG_META.find((m) => m.id === pool)?.title ?? pool}` : deckOf(pool)!.title;
+  const mixed = mixTitle(pools.map((p) => poolTitleFor(format, p)));
+  const title = format === "vowelplay" ? `Vowel Play: ${mixed}` : format === "vowelparty" ? `Vowel Party: ${mixed}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${mixed}` : format === "insync" ? `In-Sync: ${mixed}` : format === "partytrivia" ? `Party Trivia: ${mixed}` : mixed;
   const vowel = format === "vowelplay" || format === "vowelparty";
   const wanted = o.teamSize == null || o.teamSize === "" ? 15 : Number(o.teamSize);
   const opts = {
@@ -197,7 +195,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     vowelMode: (format === "vowelplay" && o.vowelMode === "duel" ? "duel" : "first") as "first" | "duel",
     vowelAnswer: (format === "vowelparty" || o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
-  return { id: "", format, pool, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
+  return { id: "", format, pool, pools, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
 }
 
 const code = () => {
