@@ -146,17 +146,49 @@ describe("draft verdicts", () => {
     resolvers[0]!(null);
     await new Promise((x) => setTimeout(x, 0));
     expect(r.tournament.totals).toEqual({ Ann: 1, Bob: 1 });
-    const second = draft2(r, tokens);
-    endTournament(r, tokens.Ann!);
+    setGame(r, tokens.Ann!, base("snake"));
+    startRoom(r, tokens.Ann!);
+    expect(endTournament(r, tokens.Ann!)).toEqual({ ok: true }); // ended mid-game
+    for (let g = 0; r.status === "playing" && g++ < 60; ) act(r, tokens[currentTurn(r.setup, r.state!)!]!, { type: "auto" });
+    const second = resolvers.length - 1;
     resolvers[second]!(verdict);
     await new Promise((x) => setTimeout(x, 0));
     expect(r.tournament.totals).toEqual({ Ann: 1, Bob: 1 });
   });
 
-  function draft2(r: any, tokens: Record<string, string>) {
-    setGame(r, tokens.Ann!, base("snake"));
-    startRoom(r, tokens.Ann!);
-    for (let g = 0; r.status === "playing" && g++ < 60; ) act(r, tokens[currentTurn(r.setup, r.state!)!]!, { type: "auto" });
-    return resolvers.length - 1;
-  }
+
+  it("a draft as the last game: done while pending, credited later, and ending again keeps it pending", async () => {
+    const { r, tokens } = lobby("snake", ["Ann", "Bob"]);
+    startTournament(r, tokens.Ann!, ["snake", "snake"]);
+    for (let n = 0; n < 2; n++) {
+      if (n) setGame(r, tokens.Ann!, base("snake"));
+      startRoom(r, tokens.Ann!);
+      for (let g = 0; r.status === "playing" && g++ < 60; ) act(r, tokens[currentTurn(r.setup, r.state!)!]!, { type: "auto" });
+    }
+    expect(r.tournament.done).toBe(true);
+    expect(endTournament(r, tokens.Ann!)).toEqual({ ok: true });
+    expect(r.tournamentEnded).toBeFalsy();
+    resolvers[1]!(verdict);
+    await new Promise((x) => setTimeout(x, 0));
+    expect(r.tournament.games[1].awards).toEqual({ Bob: 5, Ann: 3 });
+    expect(r.tournament.totals).toEqual({ Bob: 5, Ann: 3 });
+  });
+
+  it("a late verdict after the tournament was replaced is ignored", async () => {
+    const { r, tokens } = draft();
+    setGame(r, tokens.Ann!, base("insync"));
+    r.status = "lobby";
+    expect(startTournament(r, tokens.Ann!, ["vote", "insync"])).toEqual({ ok: true });
+    resolvers[0]!(verdict);
+    await new Promise((x) => setTimeout(x, 0));
+    expect(r.tournament).toMatchObject({ plan: ["vote", "insync"], games: [], totals: {} });
+  });
+
+  it("standings leave out the screen seat even if it had points", () => {
+    const { r, tokens } = lobby("insync", ["Ann", "Bob", "Cy"]);
+    startTournament(r, tokens.Ann!, ["insync", "insync"]);
+    r.tournament.totals = { Ann: 2, Bob: 2, Cy: 2 };
+    setScreen(r, tokens.Ann!, true);
+    expect(snapshot(r, null).tournament!.standings.map((s) => s.name).sort()).toEqual(["Bob", "Cy"]);
+  });
 });

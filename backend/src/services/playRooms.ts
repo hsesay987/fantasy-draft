@@ -342,8 +342,10 @@ export function startTournament(room: Room, token: unknown, plan: unknown): { ok
 
 /** The host ends the tournament early: the leaderboard so far is final. */
 export function endTournament(room: Room, token: unknown): { ok: true } | { error: string } {
+  refreshScreen(room);
   if (!isHost(room, token)) return { error: "Only the host can do that" };
   if (!room.tournament) return { error: "No tournament running" };
+  if (room.tournament.done) return { ok: true }; // already over: a draft verdict still pending must still count
   room.tournament = { ...room.tournament, done: true };
   room.tournamentEnded = true;
   bump(room);
@@ -744,7 +746,7 @@ export function snapshot(room: Room, token: unknown) {
     verdict: room.status === "done" ? room.verdict : null,
     played: room.played,
     statLink: room.statLink,
-    tournament: room.tournament && { ...room.tournament, standings: standings(room.tournament, playerNames(room, false)) },
+    tournament: room.tournament && { ...room.tournament, standings: standings(room.tournament, playerNames(room, false)).filter((r) => !room.seats.some((x) => x.screen && x.name === r.name)) },
   };
 }
 
