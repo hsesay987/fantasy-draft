@@ -151,3 +151,21 @@ describe("typed Vowel Play guesses over HTTP", () => {
     expect(right.data.ok).toBe(true);
   });
 });
+
+describe("POST /:code/screen", () => {
+  it("lets the host switch it on in the lobby, refuses others and bad bodies", async () => {
+    const made = await post("", { setup: { format: "vote", pool: "icks", opts: {} }, name: "Ann" });
+    const code = made.data.code as string;
+    const ann = made.data.token as string;
+    const bob = (await post(`/${code}/join`, { name: "Bob" })).data.token as string;
+    expect((await post(`/${code}/screen`, { token: bob, on: true })).status).toBe(400);
+    expect((await post(`/${code}/screen`, { token: ann, on: "yes" })).status).toBe(400);
+    const on = await post(`/${code}/screen`, { token: ann, on: true });
+    expect(on.status).toBe(200);
+    expect(on.data.screen).toBe(true);
+    expect(on.data.seats.map((s: any) => s.screen)).toEqual([true, false]);
+    expect(on.data.setup.players).toEqual(["Bob"]);
+    expect((await post(`/${code}/screen`, { token: ann, on: false })).data.screen).toBe(false);
+    expect((await post(`/NOPE/screen`, { token: ann, on: true })).status).toBe(404);
+  });
+});

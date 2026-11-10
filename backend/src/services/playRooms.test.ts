@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { _rooms, act, backToLobby, createRoom, getRoom, isHost, joinRoom, leaveRoom, needsQuiz, sanitizeSetup, seatFor, seenSeat, setGame, setStatLink, snapshot, startRoom, tickRooms } from "./playRooms";
+import { HOST_ACTIONS, _rooms, act, backToLobby, createRoom, getRoom, isHost, joinRoom, leaveRoom, needsQuiz, sanitizeSetup, seatFor, seenSeat, setGame, setScreen, setStatLink, snapshot, startRoom, tickRooms } from "./playRooms";
 import { DEFAULT_OPTS } from "../shared/play/types";
 import { DECKS } from "../shared/topicDraft/party/decks";
 import { LOADOUT_PRESETS } from "../shared/topicDraft/formats/loadout";
@@ -1088,7 +1088,7 @@ describe("party rooms with people coming and going", () => {
       expect(r.version).toBe(version);
       expect(r.touchedAt).toBe(touchedAt);
       expect(snapshot(r, toks.Ann).version).toBe(version);
-      for (const s of snapshot(r, toks.Ann).seats) expect(Object.keys(s).sort()).toEqual(["host", "left", "name"]);
+      for (const s of snapshot(r, toks.Ann).seats) expect(Object.keys(s).sort()).toEqual(["host", "left", "name", "screen"]);
     });
 
     it("a sleeping phone isn't treated as departed: it keeps its place in the game", () => {
@@ -1579,6 +1579,179 @@ describe("Vowel Play rooms", () => {
       leaveRoom(r, toks.Bob!);
       expect(r.played.at(-1)).toMatchObject({ winner: "Ann" });
       expect(r.seen).toEqual([]);
+    });
+  });
+});
+
+describe("screen host", () => {
+  const party = (format: string, pool: string, opts: any = {}) => ({ format, pool, opts: { teamSize: 3, ...opts } });
+  const withScreen = (setup: any, players: string[], host = "TV") => {
+    const made = createRoom(setup, host) as any;
+    const toks: Record<string, string> = { [host]: made.seat.token };
+    expect(setScreen(made.room, toks[host], true)).toEqual({ ok: true });
+    for (const n of players) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+    return { r: made.room, toks };
+  };
+  const names = (n: number) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
+
+  describe("the switch", () => {
+    it("only the host turns it on, and only in the lobby", () => {
+      const { r, toks } = withScreen(party("imposter", "superheroes"), ["Ann", "Bob", "Cy"]);
+      expect(setScreen(r, toks.Ann, false)).toEqual({ error: "Only the host can do that" });
+      expect(snapshot(r, toks.TV).screen).toBe(true);
+      expect(snapshot(r, toks.Ann).screen).toBe(false);
+      expect(snapshot(r, toks.TV).seats.map((s) => s.screen)).toEqual([true, false, false, false]);
+      expect(startRoom(r, toks.TV)).toEqual({ ok: true });
+      expect(setScreen(r, toks.TV, false)).toEqual({ error: "Switch this in the lobby" });
+    });
+    it("rejects a non-boolean and turns off again", () => {
+      const { r, toks } = withScreen(party("imposter", "superheroes"), ["Ann"]);
+      expect(setScreen(r, toks.TV, "yes")).toEqual({ error: "Invalid choice" });
+      expect(setScreen(r, toks.TV, false)).toEqual({ ok: true });
+      expect(r.setup.players).toEqual(["TV", "Ann"]);
+    });
+    it("moves the flag off any other seat", () => {
+      const { r, toks } = withScreen(party("imposter", "superheroes"), ["Ann", "Bob"]);
+      r.seats[1].screen = true; // as if another seat held it
+      expect(setScreen(r, toks.TV, true)).toEqual({ ok: true });
+      expect(r.seats.map((s: any) => !!s.screen)).toEqual([true, false, false]);
+    });
+    it("a host hand-over clears it, and that seat plays from the next game", () => {
+      const { r, toks } = withScreen(party("imposter", "superheroes"), ["Ann", "Bob", "Cy"]);
+      r.seats.find((s: any) => s.name === "TV").lastSeen = Date.now() - 6 * 60_000;
+      expect(isHost(r, toks.Ann)).toBe(true);
+      tickRooms();
+      expect(snapshot(r, toks.Ann).seats.some((s) => s.screen)).toBe(false);
+      expect(r.setup.players).toEqual(["TV", "Ann", "Bob", "Cy"]);
+    });
+  });
+
+  describe("never a player", () => {
+    it("stays out of setup.players at every write", () => {
+      const { r, toks } = withScreen(party("imposter", "superheroes"), ["Ann", "Bob"]);
+      expect(r.setup.players).toEqual(["Ann", "Bob"]);
+      joinRoom(r.code, "Cy");
+      expect(r.setup.players).toEqual(["Ann", "Bob", "Cy"]);
+      leaveRoom(r, (r.seats.find((s: any) => s.name === "Cy")).token);
+      expect(r.setup.players).toEqual(["Ann", "Bob"]);
+      expect(setGame(r, toks.TV, party("vote", "icks"))).toEqual({ ok: true });
+      expect(r.setup.players).toEqual(["Ann", "Bob"]);
+      expect(startRoom(r, toks.TV)).toEqual({ error: "Need at least 3 players" });
+      joinRoom(r.code, "Cy");
+      expect(startRoom(r, toks.TV)).toEqual({ ok: true });
+      expect(r.setup.players).toEqual(["Ann", "Bob", "Cy"]);
+      expect(r.state.players).toEqual(["Ann", "Bob", "Cy"]);
+    });
+    it("is not counted for the minimum or the seat cap: a screen and 12 players can start", () => {
+      const { r, toks } = withScreen(party("vote", "icks"), names(12));
+      expect(r.seats).toHaveLength(13);
+      expect(joinRoom(r.code, "Late")).toEqual({ error: "Room is full (12 players for this game)" });
+      expect(startRoom(r, toks.TV)).toEqual({ ok: true });
+      expect(r.state.players).toHaveLength(12);
+    });
+    it("a screen host and one player is too few", () => {
+      const { r, toks } = withScreen(party("partytrivia", "superheroes"), ["Ann"]);
+      expect(startRoom(r, toks.TV)).toEqual({ error: "Need at least 2 players" });
+    });
+    it("drops it from a team map", () => {
+      const { r, toks } = withScreen(party("vote", "icks", { teams: 2, teamMap: { TV: 0, Ann: 0, Bob: 1, Cy: 1 } }), ["Ann", "Bob", "Cy"]);
+      expect(startRoom(r, toks.TV)).toEqual({ ok: true });
+      expect(r.setup.opts.teamMap).toEqual({ Ann: 0, Bob: 1, Cy: 1 });
+    });
+    it("leaving a running game does not settle anything for it", () => {
+      const { r, toks } = withScreen(party("vote", "icks"), ["Ann", "Bob", "Cy"]);
+      startRoom(r, toks.TV);
+      const before = r.state;
+      leaveRoom(r, toks.TV);
+      expect(r.state).toBe(before);
+      tickRooms();
+      expect(r.state.players).not.toContain("TV");
+    });
+    it("never wins", () => {
+      const { r, toks } = withScreen(party("partytrivia", "superheroes"), ["Ann", "Bob"]);
+      startRoom(r, toks.TV);
+      expect(Object.keys(r.state.points)).not.toContain("TV");
+    });
+  });
+
+  describe("sees what a viewer with no seat sees", () => {
+    const cases: [string, string, string[], any?][] = [
+      ["imposter", "superheroes", names(4)],
+      ["vote", "icks", names(4)],
+      ["insync", "friends", names(3)],
+      ["partytrivia", "superheroes", names(3)],
+      ["mafia", "mafia", names(5)],
+      ["vowelplay", "food", names(3)],
+      ["vowelparty", "food", names(3)],
+    ];
+    it.each(cases)("%s", (format, pool, players) => {
+      const { r, toks } = withScreen(party(format, pool), players);
+      expect(startRoom(r, toks.TV)).toEqual({ ok: true });
+      const open = JSON.stringify(snapshot(r, undefined).state);
+      expect(JSON.stringify(snapshot(r, toks.TV).state)).toBe(open);
+      // and the players still see their own part, so the redaction is not just always off
+      if (format === "imposter") {
+        const s = r.state;
+        expect((snapshot(r, toks.TV).state as any).secret).toBe("");
+        expect((snapshot(r, toks.TV).state as any).imposter).toBe("");
+        const crew = players.find((p) => p !== s.imposter)!;
+        expect((snapshot(r, toks[crew]).state as any).secret).toBe(s.secret);
+      }
+    });
+    it("a seat that stopped hosting a screen mid-game is still redacted as a viewer", () => {
+      const { r, toks } = withScreen(party("imposter", "superheroes"), names(4));
+      startRoom(r, toks.TV);
+      r.seats.find((s: any) => s.name === "TV").lastSeen = Date.now() - 6 * 60_000;
+      tickRooms();
+      expect((snapshot(r, toks.TV).state as any).secret).toBe("");
+    });
+  });
+
+  describe("actions", () => {
+    it.each([
+      ["vote", { type: "vote", side: "a" }],
+      ["partytrivia", { type: "answer", choice: "x" }],
+      ["vowelplay", { type: "guess", text: "x" }],
+      ["vowelplay", { type: "buzz" }],
+      ["vowelplay", { type: "mark", verdict: "right" }],
+      ["imposter", { type: "accuse", target: "P1" }],
+      ["imposter", { type: "guess", name: "x" }],
+      ["imposter", { type: "clue", text: "hello" }],
+      ["insync", { type: "clue", text: "hello" }],
+      ["mafia", { type: "dayVote", target: "P1" }],
+    ])("refuses %s %j", (format, action) => {
+      const { r, toks } = withScreen(party(format, format === "vote" ? "icks" : format === "mafia" ? "mafia" : format.startsWith("vowel") ? "food" : format === "insync" ? "friends" : "superheroes"), names(5));
+      startRoom(r, toks.TV);
+      const before = r.state;
+      expect(act(r, toks.TV, action)).toEqual({ ok: false, error: "Not allowed right now" });
+      expect(r.state).toBe(before);
+    });
+    it("accepts next on a reveal", () => {
+      const { r, toks } = withScreen(party("vote", "icks"), names(3));
+      startRoom(r, toks.TV);
+      for (const p of names(3)) act(r, toks[p], { type: "vote", side: "a" });
+      expect(HOST_ACTIONS).toContain("next");
+      expect(r.state.phase).not.toBe("vote");
+      for (let i = 0; i < 20 && r.state.phase !== "vote" && !r.state.done; i++) {
+        const phase = r.state.phase;
+        const res = act(r, toks.TV, { type: "next" });
+        if (!res.ok) break;
+        expect(r.state.phase === phase && !r.state.done).toBe(false);
+        break;
+      }
+    });
+    it("lets it skip Mafia's talk", () => {
+      const { r, toks } = withScreen(party("mafia", "mafia"), names(5));
+      startRoom(r, toks.TV);
+      r.state = { ...r.state, phase: "talk" };
+      expect(act(r, toks.TV, { type: "skipTalk" })).toEqual({ ok: true });
+      expect(r.state.phase).toBe("vote");
+    });
+    it("refuses a player's skipTalk and a player action sent as someone else", () => {
+      const { r, toks } = withScreen(party("mafia", "mafia"), names(5));
+      startRoom(r, toks.TV);
+      r.state = { ...r.state, phase: "talk" };
+      expect(act(r, toks.P2, { type: "skipTalk" })).toEqual({ ok: false, error: "Only the host can skip the talk" });
     });
   });
 });

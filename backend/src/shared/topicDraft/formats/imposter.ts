@@ -121,7 +121,7 @@ export function clue(s: ImposterState, by: string, text: string, now: number): I
 
 /** Everyone votes for who they think the imposter is (not themselves). The last vote settles it. */
 export function accuse(s: ImposterState, by: string, target: string, now: number): ImposterState {
-  if (s.phase !== "vote" || by === target || !s.players.includes(target) || has(s.votes, by)) return s;
+  if (s.phase !== "vote" || !s.players.includes(by) || by === target || !s.players.includes(target) || has(s.votes, by)) return s;
   const next = { ...s, votes: { ...s.votes, [by]: target } };
   return Object.keys(next.votes).length >= s.players.length ? tally(next, now) : next;
 }

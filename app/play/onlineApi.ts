@@ -13,7 +13,9 @@ export type RoomSnapshot = {
   serverNow: number;
   /** Null until the host picks a game. */
   setup: GameSetup | null;
-  seats: { name: string; host: boolean; left: boolean }[];
+  seats: { name: string; host: boolean; left: boolean; screen: boolean }[];
+  /** True when this seat is the screen host: it never plays and sees the public view. */
+  screen: boolean;
   me: string | null;
   state: GameState | null;
   verdict: Verdict | null;
@@ -64,6 +66,7 @@ export const sendAction = (code: string, token: string, action: Omit<Action, "by
 export const setRoomGame = (code: string, token: string, setup: GameSetup) => call<RoomSnapshot>(`/${code.toUpperCase()}/game`, { method: "POST", body: JSON.stringify({ token, setup }) });
 export const roomToLobby = (code: string, token: string) => call<RoomSnapshot>(`/${code.toUpperCase()}/lobby`, { method: "POST", body: JSON.stringify({ token }) });
 export const setStatLink = (code: string, token: string, link: RoomSnapshot["statLink"]) => call<RoomSnapshot>(`/${code.toUpperCase()}/stat-link`, { method: "POST", body: JSON.stringify({ token, link }) });
+export const setScreen = (code: string, token: string, on: boolean) => call<RoomSnapshot>(`/${code.toUpperCase()}/screen`, { method: "POST", body: JSON.stringify({ token, on }) });
 export const leaveRoom = (code: string, token: string) => call<{ ok: boolean }>(`/${code.toUpperCase()}/leave`, { method: "POST", body: JSON.stringify({ token }) });
 
 /** Jeopardy and Feud questions come from the server's trivia bank (AI-written, checked, rotated). Null = use the bundled set. */

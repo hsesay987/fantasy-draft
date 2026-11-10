@@ -47,7 +47,7 @@ const HOST_AWAY_MS = 45_000;
 const HOST_AWAY_LOBBY_MS = 5 * 60_000;
 
 /** `lastSeen` stays on the server: nothing in a snapshot changes because a phone polled. */
-type Seat = { name: string; token: string; left: boolean; lastSeen: number };
+type Seat = { name: string; token: string; left: boolean; lastSeen: number; /** The host's seat when it runs the night from a screen: keeps host controls, never plays. */ screen?: boolean };
 /** An NBA, NFL or Cartoon stat draft room the host opened for this group (those rooms need accounts). */
 type StatLink = { code: string; league: "NBA" | "NFL" | "CARTOON" };
 type Room = {
@@ -246,6 +246,12 @@ export function createRoom(input: unknown, hostName: string, quiz?: QuizData): {
  * The host is the first seat still at the table whose phone we have heard from lately, or failing that the first seat
  * still at the table. Never stored, so it follows anyone who leaves or goes quiet, and returns when they are back.
  */
+/** Names of the seats that play: everyone but the screen host. */
+const playerNames = (room: Room, includeLeft = true) => room.seats.filter((s) => !s.screen && (includeLeft || !s.left)).map((s) => s.name);
+
+/** The only actions a screen seat may send: the host controls. */
+export const HOST_ACTIONS = ["next", "skipTalk"];
+
 const hostSeat = (room: Room, now = Date.now()) => {
   const away = room.status === "lobby" ? HOST_AWAY_LOBBY_MS : HOST_AWAY_MS;
   return room.seats.find((s) => !s.left && now - s.lastSeen <= away) ?? room.seats.find((s) => !s.left);
@@ -262,23 +268,47 @@ export const isHost = (room: Room, token: unknown) => {
   return !!seat && seat === hostSeat(room);
 };
 
+/** A screen flag only lives on the seat that hosts: when the crown moves to someone else, the flag goes and that seat plays from the next game. */
+function refreshScreen(room: Room) {
+  const host = hostSeat(room);
+  let changed = false;
+  for (const s of room.seats) if (s.screen && s !== host) { s.screen = false; changed = true; }
+  if (changed && room.status !== "playing" && room.setup) room.setup = { ...room.setup, players: playerNames(room) };
+  if (changed) bump(room);
+}
+
+/** The host switches between playing and running the night from a screen. Lobby only; the flag lives on one seat. */
+export function setScreen(room: Room, token: unknown, on: unknown): { ok: true } | { error: string } {
+  refreshScreen(room);
+  if (!isHost(room, token)) return { error: "Only the host can do that" };
+  if (room.status !== "lobby") return { error: "Switch this in the lobby" };
+  if (typeof on !== "boolean") return { error: "Invalid choice" };
+  const seat = seatFor(room, token)!;
+  for (const s of room.seats) s.screen = false;
+  if (on) seat.screen = true;
+  if (room.setup) room.setup = { ...room.setup, players: playerNames(room) };
+  bump(room);
+  return { ok: true };
+}
+
 /** Back to the lobby: forget the last game's board and drop anyone who left during it. */
 function resetToLobby(room: Room) {
   room.status = "lobby";
   room.state = null;
   room.verdict = null;
   room.seats = room.seats.filter((s) => !s.left);
-  if (room.setup) room.setup = { ...room.setup, players: room.seats.map((s) => s.name) };
+  if (room.setup) room.setup = { ...room.setup, players: playerNames(room) };
 }
 
 /** The host picks the next game (any time except mid-game). Trivia boards come in as `quiz`. */
 export function setGame(room: Room, token: unknown, input: unknown, quiz?: QuizData): { ok: true } | { error: string } {
+  refreshScreen(room);
   if (!isHost(room, token)) return { error: "Only the host can pick the game" };
   if (room.status === "playing") return { error: "Finish this game first" };
   const setup = sanitizeSetup(input);
   if (!setup) return { error: "Invalid game setup" };
   resetToLobby(room);
-  room.setup = { ...setup, id: `room-${Date.now()}`, players: room.seats.map((s) => s.name), ...(quiz ? { quiz } : {}) };
+  room.setup = { ...setup, id: `room-${Date.now()}`, players: playerNames(room), ...(quiz ? { quiz } : {}) };
   room.freshQuiz = !!quiz;
   room.statLink = null;
   bump(room);
@@ -316,17 +346,18 @@ export const seenIn = (room: Room) => room.seen;
 export function joinRoom(c: string, name: string): { room: Room; seat: Seat } | { error: string } {
   const room = getRoom(c);
   if (!room) return { error: "Room not found" };
+  refreshScreen(room);
   if (room.status === "playing") return { error: "A game is running. You can join when it ends." };
   const n = clean(name, 20);
   if (!n) return { error: "Enter a name" };
   // Seats that walked out of the last game go when this join sends the room back to the lobby: their places and names are free.
   const seated = room.seats.filter((s) => !s.left);
-  if (seated.length >= seatCap(room.setup?.format)) return { error: `Room is full (${seatCap(room.setup?.format)} players for this game)` };
+  if (seated.filter((s) => !s.screen).length >= seatCap(room.setup?.format)) return { error: `Room is full (${seatCap(room.setup?.format)} players for this game)` };
   if (seated.some((s) => s.name.toLowerCase() === n.toLowerCase())) return { error: "That name is taken" };
   const seat: Seat = { name: n, token: crypto.randomBytes(16).toString("hex"), left: false, lastSeen: Date.now() };
   room.seats.push(seat);
   if (room.status === "done") resetToLobby(room); // a newcomer after a game: everyone heads back to the lobby
-  if (room.setup) room.setup.players = room.seats.map((s) => s.name);
+  if (room.setup) room.setup.players = playerNames(room);
   bump(room);
   return { room, seat };
 }
@@ -335,11 +366,12 @@ export const seatFor = (room: Room, token: unknown) => room.seats.find((s) => ty
 
 /** `quiz` is a new bank for this game. It joins the room only if the game really starts, so a refusal can't send it out with the results. */
 export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: true } | { error: string } {
+  refreshScreen(room);
   if (!isHost(room, token)) return { error: "Only the host can start" };
   if (room.status === "playing") return { error: "Already started" };
   if (!room.setup) return { error: "Pick a game first" };
   // Every refusal comes before the room changes, so a refused Play again leaves the results on screen to show why.
-  const here = room.seats.filter((s) => !s.left).map((s) => s.name);
+  const here = playerNames(room, false);
   const min = MIN_PLAYERS[room.setup.format] ?? 2;
   if (here.length < min) return { error: `Need at least ${min} players` };
   if (here.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
@@ -349,6 +381,8 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   if (room.setup.opts.drinking && PARTY_FORMATS.has(room.setup.format) && here.includes(GROUP_CALL)) return { error: `Drinking mode can't have a player named "${GROUP_CALL}". Rejoin with another name.` };
   if (room.setup.format === "vowelplay" && room.setup.opts.vowelMode === "duel" && here.length !== 2) return { error: "Head to head takes exactly 2 players" };
   const setup = { ...room.setup, ...(quiz ? { quiz } : {}), players: here, seed: (Math.random() * 2 ** 31) | 0 };
+  // The screen host is no player: it can't sit in a team map, so a stale entry for its name goes.
+  if (setup.opts.teamMap) setup.opts = { ...setup.opts, teamMap: Object.fromEntries(Object.entries(setup.opts.teamMap).filter(([n]) => here.includes(n))) };
   if (setup.format === "vote" || setup.format === "insync") setup.opts = { ...setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
   // A rematch prefers names this room has not played yet.
   if (setup.format === "vowelplay" || setup.format === "vowelparty") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("vp:")).map((x) => x.slice(3)) };
@@ -370,7 +404,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
 /** Leaving between games frees the seat (the next player in line becomes host); mid-game a bot takes over. */
 /** Party games close a phase once every seat still present has acted. Only a real leave counts: a locked phone keeps its turn. */
 function settleParty(room: Room, s: GameState, now: number): GameState {
-  const gone = room.seats.filter((x) => x.left).map((x) => x.name);
+  const gone = room.seats.filter((x) => x.left && !x.screen).map((x) => x.name);
   switch (room.setup?.format) {
     case "partytrivia": return PT.settle(s as PT.PTState, gone, now);
     case "mafia": return MF.settle(s as MF.MafiaState, gone, now);
@@ -386,6 +420,7 @@ function settleParty(room: Room, s: GameState, now: number): GameState {
 export function leaveRoom(room: Room, token: unknown) {
   const seat = seatFor(room, token);
   if (!seat) return;
+  refreshScreen(room);
   if (room.status === "playing") {
     seat.left = true;
     if (room.setup && PARTY_FORMATS.has(room.setup.format) && room.state) {
@@ -394,7 +429,7 @@ export function leaveRoom(room: Room, token: unknown) {
     }
   } else {
     room.seats = room.seats.filter((s) => s !== seat);
-    if (room.setup) room.setup.players = room.seats.map((s) => s.name);
+    if (room.setup) room.setup.players = playerNames(room);
   }
   if (room.seats.every((s) => s.left)) {
     rooms.delete(room.code);
@@ -416,6 +451,8 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   seat.lastSeen = Date.now();
   if (room.status !== "playing" || !room.state || !room.setup) return { ok: false, error: "Game is not running" };
   if (!raw || !ACTION_TYPES.has(raw.type)) return { ok: false, error: "Unknown action" };
+  // Not in the game (the screen host, or a seat that stopped hosting a screen mid-game) means host controls only.
+  if (!room.setup.players.includes(seat.name) && !HOST_ACTIONS.includes(raw.type)) return { ok: false, error: "Not allowed right now" };
   if (raw.type === "skipTalk" && !isHost(room, token)) return { ok: false, error: "Only the host can skip the talk" };
   if (raw.type === "next" && HOST_MOVES_ON.has(room.setup.format) && !isHost(room, token)) return { ok: false, error: "Only the host can move on" };
   // Typed guesses are cheap to flood: about 3 a second per seat, counted whether or not they are right.
@@ -432,7 +469,9 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   }
   // The seat decides who is acting; clients can't act for someone else, set the clock or pick RNG seeds.
   const { seed: _seed, at: _at, now: _now, ...rest } = raw;
-  const action = { ...rest, by: seat.name } as Action;
+  // The engine only lets players skip Mafia's talk; the screen host is no player, so its skip goes in under the first player's name.
+  const by = raw.type === "skipTalk" && !room.setup.players.includes(seat.name) ? room.setup.players[0] ?? seat.name : seat.name;
+  const action = { ...rest, by } as Action;
   const applied = applyAction(room.setup, room.state, action, Date.now());
   if (applied === room.state) return { ok: false, error: "Not allowed right now" };
   // Acting again means they are back at the table. Only an action that counted says so: this can change who hosts, and commit's bump tells the room.
@@ -546,6 +585,7 @@ export function tickRooms(now = Date.now()) {
       rooms.delete(c);
       continue;
     }
+    refreshScreen(room);
     if (room.status !== "playing" || !room.state || !room.setup) continue;
     let s = room.state;
     const setup = room.setup;
@@ -567,7 +607,7 @@ export function tickRooms(now = Date.now()) {
         }
       }
     }
-    for (const seat of room.seats.filter((x) => x.left)) {
+    for (const seat of room.seats.filter((x) => x.left && !x.screen)) {
       const a = autoplay(room, seat.name);
       if (a) {
         s = applyAction(setup, s, a, now);
@@ -623,6 +663,8 @@ function withoutQuiz(setup: GameSetup): GameSetup {
 export function snapshot(room: Room, token: unknown) {
   const seat = seatFor(room, token);
   const host = hostSeat(room);
+  // Anyone who isn't playing (the screen host) sees what a viewer with no seat sees, so no secret reaches them.
+  const playing = !!seat && !seat.screen && (room.status === "lobby" || !!room.setup?.players.includes(seat.name));
   return {
     code: room.code,
     status: room.status,
@@ -632,9 +674,10 @@ export function snapshot(room: Room, token: unknown) {
     // Party trivia also carries its question bank (with answers) in setup.quiz, which stays on the server until the game is done.
     // Vowel Play never sends the seed, even when done: with the bundled word lists it rebuilds the names a game ended before playing.
     setup: room.setup && PARTY_FORMATS.has(room.setup.format) && (room.status !== "done" || room.setup.format === "vowelplay" || room.setup.format === "vowelparty") ? withoutQuiz({ ...room.setup, seed: 0 }) : room.setup,
-    seats: room.seats.map((s) => ({ name: s.name, host: s === host, left: s.left })),
+    seats: room.seats.map((s) => ({ name: s.name, host: s === host, left: s.left, screen: !!s.screen })),
+    screen: !!seat?.screen,
     me: seat?.name ?? null,
-    state: withoutLeftDrinks(room, redact(room, seat?.name ?? null)),
+    state: withoutLeftDrinks(room, redact(room, playing ? seat!.name : null)),
     verdict: room.status === "done" ? room.verdict : null,
     played: room.played,
     statLink: room.statLink,

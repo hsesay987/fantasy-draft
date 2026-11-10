@@ -4,7 +4,7 @@ import { Router } from "express";
 import { newSeed, shuffle } from "../shared/topicDraft/rng";
 import { poolsOf } from "../shared/play/types";
 import { normalizeClue } from "../shared/topicDraft/party/clueText";
-import { sanitizeSetup, act, backToLobby, createRoom, getRoom, isHost, joinRoom, leaveRoom, needsQuiz, seatFor, seenIn, seenSeat, setGame, setStatLink, snapshot, startRoom } from "../services/playRooms";
+import { sanitizeSetup, act, backToLobby, createRoom, getRoom, isHost, joinRoom, leaveRoom, needsQuiz, seatFor, seenIn, seenSeat, setGame, setScreen, setStatLink, snapshot, startRoom } from "../services/playRooms";
 
 const router = Router();
 
@@ -114,6 +114,15 @@ router.post("/:code/stat-link", (req, res) => {
   const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "Room not found" });
   const r = setStatLink(room, req.body?.token, req.body?.link ?? null);
+  if ("error" in r) return res.status(400).json({ error: r.error });
+  res.json(snapshot(room, req.body?.token));
+});
+
+// The host switches between playing and running the night from a screen.
+router.post("/:code/screen", (req, res) => {
+  const room = getRoom(req.params.code);
+  if (!room) return res.status(404).json({ error: "Room not found" });
+  const r = setScreen(room, req.body?.token, req.body?.on);
   if ("error" in r) return res.status(400).json({ error: r.error });
   res.json(snapshot(room, req.body?.token));
 });
