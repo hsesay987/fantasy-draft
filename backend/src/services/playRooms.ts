@@ -268,11 +268,16 @@ export const isHost = (room: Room, token: unknown) => {
   return !!seat && seat === hostSeat(room);
 };
 
-/** A screen flag only lives on the seat that hosts: when the crown moves to someone else, the flag goes and that seat plays from the next game. */
-function refreshScreen(room: Room) {
-  const host = hostSeat(room);
+/**
+ * A screen flag only lives on the seat that hosts: when the crown moves to someone else who is awake while the screen is
+ * too, the flag goes and that seat plays from the next game. A screen that went quiet (a TV asleep) keeps its flag, so
+ * it wakes as the screen again rather than as a player.
+ */
+function refreshScreen(room: Room, now = Date.now()) {
+  const host = hostSeat(room, now);
+  const away = room.status === "lobby" ? HOST_AWAY_LOBBY_MS : HOST_AWAY_MS;
   let changed = false;
-  for (const s of room.seats) if (s.screen && s !== host) { s.screen = false; changed = true; }
+  for (const s of room.seats) if (s.screen && s !== host && (s.left || now - s.lastSeen <= away)) { s.screen = false; changed = true; }
   if (changed && room.status !== "playing" && room.setup) room.setup = { ...room.setup, players: playerNames(room) };
   if (changed) bump(room);
 }
@@ -431,7 +436,8 @@ export function leaveRoom(room: Room, token: unknown) {
     room.seats = room.seats.filter((s) => s !== seat);
     if (room.setup) room.setup.players = playerNames(room);
   }
-  if (room.seats.every((s) => s.left)) {
+  // A screen left alone with a running game has nobody to show it to: close the room as if it were empty.
+  if (room.seats.every((s) => s.left || (room.status === "playing" && s.screen))) {
     rooms.delete(room.code);
     getIo()?.to(`playroom:${room.code}`).emit("playroom:update", { version: -1 });
     return;
@@ -454,7 +460,7 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   // Not in the game (the screen host, or a seat that stopped hosting a screen mid-game) means host controls only.
   if (!room.setup.players.includes(seat.name) && !HOST_ACTIONS.includes(raw.type)) return { ok: false, error: "Not allowed right now" };
   if (raw.type === "skipTalk" && !isHost(room, token)) return { ok: false, error: "Only the host can skip the talk" };
-  if (raw.type === "next" && HOST_MOVES_ON.has(room.setup.format) && !isHost(room, token)) return { ok: false, error: "Only the host can move on" };
+  if (raw.type === "next" && (HOST_MOVES_ON.has(room.setup.format) || !room.setup.players.includes(seat.name)) && !isHost(room, token)) return { ok: false, error: "Only the host can move on" };
   // Typed guesses are cheap to flood: about 3 a second per seat, counted whether or not they are right.
   if (raw.type === "guess" && (room.setup.format === "vowelplay" || room.setup.format === "vowelparty")) {
     if (typeof raw.text !== "string" || raw.text.length > VOWEL_GUESS_MAX) return { ok: false, error: "That guess is too long" };
@@ -585,7 +591,7 @@ export function tickRooms(now = Date.now()) {
       rooms.delete(c);
       continue;
     }
-    refreshScreen(room);
+    refreshScreen(room, now);
     if (room.status !== "playing" || !room.state || !room.setup) continue;
     let s = room.state;
     const setup = room.setup;

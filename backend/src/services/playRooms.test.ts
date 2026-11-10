@@ -1593,6 +1593,19 @@ describe("screen host", () => {
     return { r: made.room, toks };
   };
   const names = (n: number) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
+  /** Ann dozes, TV takes the crown and hosts on a screen, the game starts, then Ann wakes and is host again: TV is a plain seat outside the game. */
+  const exScreen = (setup: any) => {
+    const made = createRoom(setup, "Ann") as any;
+    const r = made.room;
+    const toks: Record<string, string> = { Ann: made.seat.token };
+    for (const n of ["TV", ...names(4)]) toks[n] = (joinRoom(r.code, n) as any).seat.token;
+    r.seats[0].lastSeen = Date.now() - 6 * 60_000;
+    expect(setScreen(r, toks.TV, true)).toEqual({ ok: true });
+    expect(startRoom(r, toks.TV)).toEqual({ ok: true });
+    seenSeat(r, toks.Ann);
+    tickRooms();
+    return { r, toks };
+  };
 
   describe("the switch", () => {
     it("only the host turns it on, and only in the lobby", () => {
@@ -1617,12 +1630,31 @@ describe("screen host", () => {
       expect(r.seats.map((s: any) => !!s.screen)).toEqual([true, false, false]);
     });
     it("a host hand-over clears it, and that seat plays from the next game", () => {
-      const { r, toks } = withScreen(party("imposter", "superheroes"), ["Ann", "Bob", "Cy"]);
-      r.seats.find((s: any) => s.name === "TV").lastSeen = Date.now() - 6 * 60_000;
+      // Ann made the room and dozed off, so TV took the crown and became the screen. Ann waking takes it back.
+      const made = createRoom(party("imposter", "superheroes"), "Ann") as any;
+      const r = made.room;
+      const toks: Record<string, string> = { Ann: made.seat.token };
+      for (const n of ["TV", "Bob", "Cy"]) toks[n] = (joinRoom(r.code, n) as any).seat.token;
+      r.seats[0].lastSeen = Date.now() - 6 * 60_000;
+      expect(setScreen(r, toks.TV, true)).toEqual({ ok: true });
+      seenSeat(r, toks.Ann);
       expect(isHost(r, toks.Ann)).toBe(true);
       tickRooms();
       expect(snapshot(r, toks.Ann).seats.some((s) => s.screen)).toBe(false);
-      expect(r.setup.players).toEqual(["TV", "Ann", "Bob", "Cy"]);
+      expect(r.setup.players).toEqual(["Ann", "TV", "Bob", "Cy"]);
+    });
+    it.each([["lobby", 6 * 60_000], ["a game", 60_000]])("a screen that goes quiet in %s wakes up still the screen", (where, quiet) => {
+      const { r, toks } = withScreen(party("imposter", "superheroes"), ["Ann", "Bob", "Cy"]);
+      if (where === "a game") expect(startRoom(r, toks.TV)).toEqual({ ok: true });
+      r.seats[0].lastSeen = Date.now() - quiet;
+      expect(isHost(r, toks.Ann)).toBe(true);
+      tickRooms();
+      expect(r.seats[0].screen).toBe(true);
+      seenSeat(r, toks.TV);
+      tickRooms();
+      expect(isHost(r, toks.TV)).toBe(true);
+      expect(snapshot(r, toks.TV).screen).toBe(true);
+      expect(r.setup.players).toEqual(["Ann", "Bob", "Cy"]);
     });
   });
 
@@ -1699,10 +1731,8 @@ describe("screen host", () => {
       }
     });
     it("a seat that stopped hosting a screen mid-game is still redacted as a viewer", () => {
-      const { r, toks } = withScreen(party("imposter", "superheroes"), names(4));
-      startRoom(r, toks.TV);
-      r.seats.find((s: any) => s.name === "TV").lastSeen = Date.now() - 6 * 60_000;
-      tickRooms();
+      const { r, toks } = exScreen(party("imposter", "superheroes"));
+      expect(r.seats.find((s: any) => s.name === "TV").screen).toBe(false);
       expect((snapshot(r, toks.TV).state as any).secret).toBe("");
     });
   });
@@ -1739,6 +1769,27 @@ describe("screen host", () => {
         expect(r.state.phase === phase && !r.state.done).toBe(false);
         break;
       }
+    });
+    it.each([["imposter", "superheroes"], ["vowelplay", "food"], ["vote", "icks"]])("refuses next in %s from an ex-screen seat that no longer hosts", (format, pool) => {
+      const { r, toks } = exScreen(party(format, pool));
+      expect(isHost(r, toks.TV)).toBe(false);
+      const before = r.state;
+      expect(act(r, toks.TV, { type: "next" })).toEqual({ ok: false, error: "Only the host can move on" });
+      expect(r.state).toBe(before);
+    });
+    it("closes the room when every player leaves a running game and only the screen is left", () => {
+      const { r, toks } = withScreen(party("vote", "icks"), ["Ann", "Bob", "Cy"]);
+      startRoom(r, toks.TV);
+      leaveRoom(r, toks.Ann);
+      leaveRoom(r, toks.Bob);
+      expect(getRoom(r.code)).toBeTruthy();
+      leaveRoom(r, toks.Cy);
+      expect(getRoom(r.code)).toBeFalsy();
+    });
+    it("keeps a lobby with only the screen in it, waiting for players", () => {
+      const { r, toks } = withScreen(party("vote", "icks"), ["Ann"]);
+      leaveRoom(r, toks.Ann);
+      expect(getRoom(r.code)).toBeTruthy();
     });
     it("lets it skip Mafia's talk", () => {
       const { r, toks } = withScreen(party("mafia", "mafia"), names(5));
