@@ -9,6 +9,8 @@ import { wordPip } from "../../components/pixel/sprites";
 import { useSound } from "../../components/SoundProvider";
 import { DUEL_LEAD, GUESS_MS, JUDGE_MS, SPEAK_MS, speedPoints, winners, type VPHistory, type VPState } from "../../topicDraft/formats/vowelplay";
 import { has } from "../../topicDraft/party/own";
+import { mixTitle } from "../../topicDraft/party/pools";
+import { poolsOf } from "../../play/types";
 import { vowelTopicTitle } from "../../topicDraft/party/vowelTopics";
 import { useTypingStage } from "../../vowelplay/useTypingStage";
 import type { GameCtl } from "../useGame";
@@ -180,7 +182,7 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
       <div className="vp-page">
         <header className="vp-sign">
           <div>
-            <p className="eyebrow">{topicTitle(setup.pool)}</p>
+            <p className="eyebrow">{poolsOf(setup).length > 1 && word.topic ? topicTitle(word.topic) : topicTitle(setup.pool)}</p>
             <h1>{gameTitle(setup)}</h1>
           </div>
           {seated && <p className="vp-score"><b>{fmt(myScore)}</b><span>{duel ? (myScore === 1 ? "word" : "words") : myScore === 1 ? "point" : "points"}</span></p>}
@@ -433,7 +435,7 @@ export function VowelPlayResults({ setup, ctl, onAgain, onRematch }: { setup: Ga
       <div className="vp-page">
         <header className="vp-sign">
           <div>
-            <p className="eyebrow">{topicTitle(setup.pool)}</p>
+            <p className="eyebrow">{mixTitle(poolsOf(setup).map(topicTitle))}</p>
             <h1>{gameTitle(setup)}</h1>
           </div>
         </header>

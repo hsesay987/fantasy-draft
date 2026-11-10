@@ -11,7 +11,7 @@ export const GUESS_MS = 20_000, SPEAK_MS = 5_000, JUDGE_MS = 6_000, REVEAL_MS = 
 export type VPMode = "first" | "duel" | "all";
 export type VPAnswer = "voice" | "type";
 /** `also` holds the other names in the topic with the same puzzle. */
-export type VPWord = { name: string; puzzle: string; also: string[] };
+export type VPWord = { name: string; puzzle: string; also: string[]; /** The vowel topic this name came from: the only hint players get, so it may show before the reveal. */ topic?: string };
 /** `lost`: First correct only, the point a wrong buzz actually cost (0 when the buzzer had none). */
 export type VPHistory = { name: string; puzzle: string; winner: string | null; wrongBuzz?: string; lost?: number; gotMs: Record<string, number> };
 /** A judge's verdict. "voted" only appears in what a seat is sent: another judge's mark, hidden until the reveal. */
@@ -54,8 +54,11 @@ export function speedPoints(ms: number): number {
   return Math.round(100 - (90 * (ms - 2000)) / (GUESS_MS - 2000));
 }
 
-export function init(o: { players: string[]; topic: string; mode: VPMode; answer: VPAnswer; count: number; avoid?: string[]; drinking?: boolean; seed: number; now: number }): VPState {
-  const names = [...new Set(namesFor(o.topic))];
+export function init(o: { players: string[]; topic: string; mode: VPMode; answer: VPAnswer; count: number; avoid?: string[]; drinking?: boolean; seed: number; now: number; topics?: string[] }): VPState {
+  // Several topics pool their names; a name in more than one belongs to the first.
+  const owner = new Map<string, string>();
+  for (const t of o.topics?.length ? o.topics : [o.topic]) for (const n of namesFor(t)) if (!owner.has(n)) owner.set(n, t);
+  const names = [...owner.keys()];
   const avoid = new Set(o.avoid ?? []);
   // Unseen names first; if there are too few, seen ones fill the rest.
   const [fresh, s1] = shuffle(names.filter((n) => !avoid.has(n)), o.seed);
@@ -65,7 +68,7 @@ export function init(o: { players: string[]; topic: string; mode: VPMode; answer
   for (const n of names) byPuzzle.set(toPuzzle(n), [...(byPuzzle.get(toPuzzle(n)) ?? []), n]);
   const words: VPWord[] = [...fresh, ...seen].slice(0, Math.max(0, want)).map((name) => {
     const puzzle = toPuzzle(name);
-    return { name, puzzle, also: byPuzzle.get(puzzle)!.filter((n) => n !== name) };
+    return { name, puzzle, also: byPuzzle.get(puzzle)!.filter((n) => n !== name), topic: owner.get(name)! };
   });
   return {
     players: o.players, topic: o.topic, mode: o.mode, answer: o.answer, words, total: words.length, round: 0, phase: "guess",

@@ -23,6 +23,8 @@ export type ImposterState = {
   secret: string;
   secretId: string;
   topic: string;
+  /** Set when several topics were picked: the one this round drew from (`topic` is its title). */
+  topicId?: string;
   /** Names the imposter picks a guess from: the secret plus look-alikes from the same topic. */
   options: string[];
   /** Hidden from everyone else until the end (the server blanks it). */
@@ -56,9 +58,20 @@ export function givesAway(clue: string, secret: string): boolean {
   return c.includes(` ${fold(secret)} `) || words.some((w) => c.includes(w));
 }
 
-export function init(o: { players: string[]; pool: Item[]; topic: string; rounds: number; ending: Ending; drinking?: boolean; seed: number; now: number }): ImposterState {
+export type ImposterTopic = { id: string; title: string; pool: Item[] };
+
+/** With `topics` (two or more) the game draws one of them at random, and the secret and its look-alikes all come from it. */
+export function init(o: { players: string[]; pool: Item[]; topic: string; topics?: ImposterTopic[]; rounds: number; ending: Ending; drinking?: boolean; seed: number; now: number }): ImposterState {
   let seed = o.seed;
-  const [deck, s1] = shuffle(o.pool, seed);
+  let pool = o.pool, topic = o.topic, topicId: string | undefined;
+  if (o.topics && o.topics.length > 1) {
+    const [picked, sp] = shuffle(o.topics, seed);
+    seed = sp;
+    pool = picked[0]!.pool;
+    topic = picked[0]!.title;
+    topicId = picked[0]!.id;
+  }
+  const [deck, s1] = shuffle(pool, seed);
   seed = s1;
   const secret = deck[0]!;
   // Look-alikes first (same universe or archetype), so the guess is not a giveaway.
@@ -71,7 +84,7 @@ export function init(o: { players: string[]; pool: Item[]; topic: string; rounds
   const [who, s4] = shuffle(o.players, seed);
   seed = s4;
   return {
-    players: o.players, secret: secret.name, secretId: secret.id, topic: o.topic, options: opts.map((i) => i.name), imposter: who[0]!,
+    players: o.players, secret: secret.name, secretId: secret.id, topic, ...(topicId ? { topicId } : {}), options: opts.map((i) => i.name), imposter: who[0]!,
     order, rounds: Math.max(1, Math.min(3, o.rounds)), clues: [], phase: "clue", ending: o.ending, votes: {}, caught: null, guess: null, winner: null,
     points: Object.fromEntries(o.players.map((p) => [p, 0])), ...(o.drinking ? { drinks: initDrinks(o.players) } : {}), phaseAt: o.now, done: false, seed, startedAt: o.now,
   };

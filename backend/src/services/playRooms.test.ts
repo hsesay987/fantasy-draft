@@ -53,6 +53,19 @@ describe("sanitizeSetup party pools", () => {
   });
 });
 
+describe("mixed vowel topics in a room", () => {
+  it("shows the topic but hides the name to every seat, including no token", () => {
+    const { r, tokens } = room("vowelplay", ["Ann", "Bob"], { top: { pool: "food", pools: ["food", "films"] } });
+    expect(r.setup!.pools).toEqual(["food", "films"]);
+    expect(startRoom(r, tokens.Ann!)).toEqual({ ok: true });
+    for (const t of [tokens.Ann!, tokens.Bob!, undefined, "nope"]) {
+      const w = (snapshot(r, t).state as unknown as VPState).words[0]!;
+      expect(w.name).toBe("");
+      expect(["food", "films"]).toContain(w.topic);
+    }
+  });
+});
+
 describe("sanitizeSetup", () => {
   it("accepts a normal setup and clamps wild numbers", () => {
     const s = sanitizeSetup(base("auction", { opts: { teamSize: 999, budget: -5, lotSeconds: 1e9 } }))!;

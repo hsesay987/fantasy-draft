@@ -1,6 +1,8 @@
 import { getFeud, getJeopardy, isTriviaPool } from "../services/trivia.service";
 import { moderate, userText } from "../lib/moderation";
 import { Router } from "express";
+import { shuffle } from "../shared/topicDraft/rng";
+import { poolsOf } from "../shared/play/types";
 import { normalizeClue } from "../shared/topicDraft/party/clueText";
 import { act, backToLobby, createRoom, getRoom, isHost, joinRoom, leaveRoom, needsQuiz, seatFor, seenIn, seenSeat, setGame, setStatLink, snapshot, startRoom } from "../services/playRooms";
 
@@ -19,6 +21,9 @@ const limited = (ip: string) => {
 
 const partyQuestions = (setup: any) => [10, 15, 20].reduce((a, b) => (Math.abs(b - Number(setup?.opts?.teamSize)) < Math.abs(a - Number(setup?.opts?.teamSize)) ? b : a));
 
+/** Splits `total` as evenly as it can over `n` pools, the first ones getting the extra: 5 over 2 is 3 and 2. */
+const split = (total: number, n: number) => Array.from({ length: n }, (_, i) => Math.floor(total / n) + (i < total % n ? 1 : 0));
+
 /** Jeopardy, Feud and party trivia rooms get their questions from the server's trivia bank so every seat sees the same board. */
 export async function quizFor(setup: any, seen: string[] = []) {
   const fmt = setup?.format, pool = setup?.pool;
@@ -27,7 +32,22 @@ export async function quizFor(setup: any, seen: string[] = []) {
     const mine = Array.isArray(setup?.opts?.avoid) ? setup.opts.avoid.filter((x: unknown) => typeof x === "string") : [];
     const avoid = [...seen, ...mine].slice(-400);
     // Party trivia takes four questions per category, plus one spare category, for 10, 15 or 20 questions.
-    if (fmt === "partytrivia") return { categories: await getJeopardy(pool, avoid, undefined, undefined, undefined, Math.ceil(partyQuestions(setup) / 4) + 1) };
+    if (fmt === "partytrivia") {
+      const want = Math.ceil(partyQuestions(setup) / 4) + 1;
+      const pools = poolsOf(setup).filter((p) => isTriviaPool(p));
+      if (pools.length <= 1) return { categories: await getJeopardy(pool, avoid, undefined, undefined, undefined, want) };
+      // Several topics: each gives its share, then a topic that failed is made up from the ones that did not.
+      const shares = split(want, pools.length);
+      const got = await Promise.allSettled(pools.map((p, i) => getJeopardy(p, avoid, undefined, undefined, undefined, shares[i]!)));
+      const cats = got.flatMap((g) => (g.status === "fulfilled" ? g.value : [])).filter((c, i, all) => all.findIndex((x) => x.name === c.name) === i);
+      const alive = pools.filter((_, i) => got[i]!.status === "fulfilled");
+      if (!alive.length) return undefined;
+      for (let i = 0; cats.length < want && i < alive.length * 2; i++) {
+        const more = await getJeopardy(alive[i % alive.length]!, [...avoid, ...cats.map((c) => `cat:${c.name}`)], undefined, undefined, undefined, want - cats.length).catch(() => []);
+        cats.push(...more.filter((c) => !cats.some((x) => x.name === c.name)));
+      }
+      return { categories: shuffle(cats.slice(0, want), Number(setup?.seed) || 0)[0] };
+    }
     return fmt === "jeopardy" ? { categories: await getJeopardy(pool, avoid) } : { surveys: await getFeud(pool, 5, avoid) };
   } catch {
     return undefined; // falls back to the bundled questions

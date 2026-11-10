@@ -24,6 +24,7 @@ describe("poolsOf", () => {
   it("falls back to pool", () => {
     expect(poolsOf({ pool: "a" })).toEqual(["a"]);
     expect(poolsOf({ pool: "a", pools: [] })).toEqual(["a"]);
-    expect(poolsOf({ pool: "a", pools: ["b", "c"] })).toEqual(["b", "c"]);
+    expect(poolsOf({ pool: "b", pools: ["b", "c"] })).toEqual(["b", "c"]);
+    expect(poolsOf({ pool: "z", pools: ["b", "c"] })).toEqual(["z"]);
   });
 });

@@ -5,7 +5,7 @@ const { getJeopardy } = vi.hoisted(() => ({
     Array.from({ length: count }, (_, i) => ({ name: `Cat ${i}`, clues: [1, 2, 3, 4].map((n) => ({ q: `q${i}${n}`, right: "r", wrong: ["a", "b", "c"] })) })),
   ),
 }));
-vi.mock("../services/trivia.service", () => ({ getFeud: vi.fn(), getJeopardy, isTriviaPool: (p: unknown) => p === "superheroes" }));
+vi.mock("../services/trivia.service", () => ({ getFeud: vi.fn(), getJeopardy, isTriviaPool: (p: unknown) => p === "superheroes" || p === "villains" }));
 
 import express from "express";
 import type { Server } from "node:http";
@@ -24,6 +24,33 @@ describe("quizFor party trivia", () => {
     await quizFor({ format: "partytrivia", pool: "superheroes", opts: { teamSize: 10, avoid: ["cat:X"] } }, ["cat:Y"]);
     expect(getJeopardy.mock.lastCall![1]).toEqual(["cat:Y", "cat:X"]);
     expect(await quizFor({ format: "partytrivia", pool: "nope", opts: { teamSize: 10 } })).toBeUndefined();
+  });
+});
+
+describe("quizFor mixed topics", () => {
+  const ask = (pools: string[]) => quizFor({ format: "partytrivia", pool: pools[0], pools, seed: 5, opts: { teamSize: 15 } });
+  const forPool = (p: string, n: number) => Array.from({ length: n }, (_, i) => ({ name: `${p} ${i}`, clues: [1, 2, 3, 4].map((k) => ({ q: `${p}${i}${k}`, right: "r", wrong: ["a", "b", "c"] })) }));
+  it("splits the categories evenly (5 gives 3 and 2) and shuffles them", async () => {
+    getJeopardy.mockClear();
+    const per = (_p: string, _a: string[], _s?: unknown, _g?: unknown, _r?: unknown, count = 4) => forPool(_p, count);
+    getJeopardy.mockImplementationOnce(async (...a: [string, string[]]) => per(...a, undefined, undefined, undefined, 3)).mockImplementationOnce(async (...a: [string, string[]]) => per(...a, undefined, undefined, undefined, 2));
+    const quiz = await ask(["superheroes", "villains"]);
+    expect(getJeopardy.mock.calls.map((c) => [c[0], c[5]])).toEqual([["superheroes", 3], ["villains", 2]]);
+    const names = quiz!.categories!.map((c) => c.name);
+    expect(names).toHaveLength(5);
+    expect(new Set(names).size).toBe(5);
+  });
+  it("fills from the other topic when one fails", async () => {
+    getJeopardy.mockClear();
+    getJeopardy.mockImplementationOnce(async (_p: string, _a: string[], _s?: unknown, _g?: unknown, _r?: unknown, count = 4) => forPool("S", count)).mockImplementationOnce(async () => { throw new Error("down"); });
+    getJeopardy.mockImplementationOnce(async (_p: string, _a: string[], _s?: unknown, _g?: unknown, _r?: unknown, count = 4) => forPool("S2", count));
+    const quiz = await ask(["superheroes", "villains"]);
+    expect(quiz!.categories).toHaveLength(5);
+    expect(getJeopardy.mock.calls[2]![0]).toBe("superheroes");
+  });
+  it("returns undefined when every topic fails", async () => {
+    getJeopardy.mockImplementationOnce(async () => { throw new Error("down"); }).mockImplementationOnce(async () => { throw new Error("down"); });
+    expect(await ask(["superheroes", "villains"])).toBeUndefined();
   });
 });
 
