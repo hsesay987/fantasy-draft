@@ -27,6 +27,7 @@ import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
 import { deckOf } from "../shared/topicDraft/party/decks";
 import { insyncDeckOf } from "../shared/topicDraft/party/insyncDecks";
 import { mixTitle, poolIdsFor, poolTitleFor } from "../shared/topicDraft/party/pools";
+import { addGame, awardsFor, standings, type Awards, type Tournament } from "../shared/topicDraft/party/tournament";
 import { GROUP_CALL } from "../shared/topicDraft/party/drinks";
 import type { Item } from "../shared/topicDraft/types";
 
@@ -72,6 +73,12 @@ type Room = {
   statLink: StatLink | null;
   /** Vowel Play: recent guess times per seat name, for the rate limit. Lives and dies with the room. */
   guessAt?: Map<string, number[]>;
+  /** A tournament across games in this room. Stays visible once done, until a new one starts or the room closes. */
+  tournament?: Tournament;
+  /** Which tournament this is, so a late judge verdict never lands in a later one. */
+  tournamentSeq?: number;
+  /** Set when the host ends it early: nothing finishing later changes the totals. */
+  tournamentEnded?: boolean;
 };
 
 const rooms = new Map<string, Room>();
@@ -320,6 +327,49 @@ export function setGame(room: Room, token: unknown, input: unknown, quiz?: QuizD
   return { ok: true };
 }
 
+/** The host starts a tournament: 2 to 8 games, lobby only. Replaces a finished or earlier one. */
+export function startTournament(room: Room, token: unknown, plan: unknown): { ok: true } | { error: string } {
+  refreshScreen(room);
+  if (!isHost(room, token)) return { error: "Only the host can do that" };
+  if (room.status !== "lobby") return { error: "Start a tournament from the lobby" };
+  if (!Array.isArray(plan) || plan.length < 2 || plan.length > 8 || !plan.every((f) => typeof f === "string" && FORMAT_IDS.includes(f as FormatId))) return { error: "Pick 2 to 8 games" };
+  room.tournament = { plan: plan as FormatId[], index: 0, games: [], totals: {}, done: false };
+  room.tournamentSeq = (room.tournamentSeq ?? 0) + 1;
+  room.tournamentEnded = false;
+  bump(room);
+  return { ok: true };
+}
+
+/** The host ends the tournament early: the leaderboard so far is final. */
+export function endTournament(room: Room, token: unknown): { ok: true } | { error: string } {
+  if (!isHost(room, token)) return { error: "Only the host can do that" };
+  if (!room.tournament) return { error: "No tournament running" };
+  room.tournament = { ...room.tournament, done: true };
+  room.tournamentEnded = true;
+  bump(room);
+  return { ok: true };
+}
+
+/** Records a finished game in the tournament and returns a way to credit its draft verdict later. */
+function recordTournamentGame(room: Room, awards: Awards | null): number | null {
+  const t = room.tournament;
+  const setup = room.setup!;
+  if (!t || t.done) return null;
+  room.tournament = addGame(t, setup.format, setup.mission.title, awards);
+  return room.tournament.games.length - 1;
+}
+
+/** A draft's verdict arrived: credit it to the game that produced it, unless that tournament was replaced or ended early. */
+function creditTournamentGame(room: Room, seq: number | undefined, idx: number, awards: Awards | null) {
+  const t = room.tournament;
+  if (!t || room.tournamentSeq !== seq || room.tournamentEnded || !t.games[idx] || t.games[idx]!.awards) return;
+  const totals = { ...t.totals };
+  for (const [p, n] of Object.entries(awards ?? {})) totals[p] = (totals[p] ?? 0) + n;
+  const games = t.games.map((g, i) => (i === idx ? { ...g, awards } : g));
+  room.tournament = { ...t, games, totals };
+  bump(room);
+}
+
 /** After a game: everyone returns to the lobby, keeping the room, the seats and the last game picked. */
 export function backToLobby(room: Room, token: unknown): { ok: true } | { error: string } {
   if (!isHost(room, token)) return { error: "Only the host can do that" };
@@ -510,6 +560,7 @@ function finish(room: Room) {
   room.status = "done";
   trackServer("room_finished", { format: setup.format, pool: setup.pool, seats: room.seats.length, duration_s: Math.round((Date.now() - room.createdAt) / 1000), left: room.seats.filter((s) => s.left).length }, room.code);
   const { teams } = buildTeams(setup, room.state!);
+  const seated = setup.players.filter((n) => room.seats.some((x) => x.name === n && !x.left && !x.screen));
   const record = { format: setup.format, pool: setup.pool, ...((setup.pools?.length ?? 1) > 1 ? { title: setup.mission.title } : {}), winner: null as string | null }; // a mixed game is named by all its topics
   room.played = [...room.played, record].slice(-30);
   // Party games are scored by their own rules; no AI report.
@@ -527,6 +578,7 @@ function finish(room: Room) {
       // Only names that were played: a game that ended early leaves the rest to deal next time.
       room.seen = [...room.seen, ...vs.history.map((h) => `vp:${h.name}`)].slice(-400);
     }
+    recordTournamentGame(room, awardsFor(setup, room.state!, seated));
     if (setup.format === "partytrivia") room.seen = [...room.seen, ...(setup.quiz?.categories ?? []).map((c) => `cat:${c.name}`)].slice(-400);
     if (setup.format === "insync") room.seen = [...room.seen, ...(room.state as IS.InSyncState).pairs.map((q) => q.id)].slice(-400);
     if (setup.format === "vote") room.seen = [...room.seen, ...(room.state as V.VoteState).cards.map((c) => c.id)].slice(-400);
@@ -535,20 +587,25 @@ function finish(room: Room) {
   // Trivia games show the right answers instead of an AI report.
   if (setup.format === "jeopardy" || setup.format === "feud") {
     record.winner = triviaWinner(room.state!);
+    recordTournamentGame(room, awardsFor(setup, room.state!, seated));
     const s = room.state as { cats?: string[]; rounds?: { q: string }[] };
     room.seen = [...room.seen, ...(s.cats ?? []).map((c) => `cat:${c}`), ...(s.rounds ?? []).map((r) => r.q)].slice(-400);
     return;
   }
   const m = setup.mission;
   const state = room.state;
+  const seq = room.tournamentSeq;
+  const slot = recordTournamentGame(room, null); // credited when the verdict arrives
   judge({ game: setup.format, scenario: { title: m.title, blurb: m.blurb, weights: m.weights }, teams: teams as any })
     .then((v) => {
       record.winner = v?.winner ?? null;
+      if (slot !== null) creditTournamentGame(room, seq, slot, awardsFor(setup, state, seated, v));
       if (room.state !== state) return; // the room already moved on to another game
       room.verdict = v;
       bump(room);
     })
     .catch(() => {
+      if (slot !== null) creditTournamentGame(room, seq, slot, awardsFor(setup, state, seated));
       room.verdict = null;
     });
 }
@@ -687,6 +744,7 @@ export function snapshot(room: Room, token: unknown) {
     verdict: room.status === "done" ? room.verdict : null,
     played: room.played,
     statLink: room.statLink,
+    tournament: room.tournament && { ...room.tournament, standings: standings(room.tournament, playerNames(room, false)) },
   };
 }
 

@@ -4,7 +4,7 @@ import { Router } from "express";
 import { newSeed, shuffle } from "../shared/topicDraft/rng";
 import { poolsOf } from "../shared/play/types";
 import { normalizeClue } from "../shared/topicDraft/party/clueText";
-import { sanitizeSetup, act, backToLobby, createRoom, getRoom, isHost, joinRoom, leaveRoom, needsQuiz, seatFor, seenIn, seenSeat, setGame, setScreen, setStatLink, snapshot, startRoom } from "../services/playRooms";
+import { sanitizeSetup, act, backToLobby, createRoom, getRoom, isHost, joinRoom, leaveRoom, needsQuiz, seatFor, seenIn, seenSeat, setGame, setScreen, setStatLink, snapshot, startRoom, startTournament, endTournament } from "../services/playRooms";
 
 const router = Router();
 
@@ -123,6 +123,22 @@ router.post("/:code/screen", (req, res) => {
   const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "Room not found" });
   const r = setScreen(room, req.body?.token, req.body?.on);
+  if ("error" in r) return res.status(400).json({ error: r.error });
+  res.json(snapshot(room, req.body?.token));
+});
+
+router.post("/:code/tournament", (req, res) => {
+  const room = getRoom(req.params.code);
+  if (!room) return res.status(404).json({ error: "Room not found" });
+  const r = startTournament(room, req.body?.token, req.body?.plan);
+  if ("error" in r) return res.status(400).json({ error: r.error });
+  res.json(snapshot(room, req.body?.token));
+});
+
+router.post("/:code/tournament/end", (req, res) => {
+  const room = getRoom(req.params.code);
+  if (!room) return res.status(404).json({ error: "Room not found" });
+  const r = endTournament(room, req.body?.token);
   if ("error" in r) return res.status(400).json({ error: r.error });
   res.json(snapshot(room, req.body?.token));
 });

@@ -169,3 +169,20 @@ describe("POST /:code/screen", () => {
     expect((await post(`/NOPE/screen`, { token: ann, on: true })).status).toBe(404);
   });
 });
+
+describe("tournament routes", () => {
+  it("starts and ends a tournament, host only", async () => {
+    const made = await post("", { setup: null, name: "Ann" });
+    const code = made.data.code as string;
+    const bob = (await post(`/${code}/join`, { name: "Bob" })).data.token;
+    expect((await post(`/${code}/tournament`, { token: bob, plan: ["insync", "vote"] })).status).toBe(400);
+    expect((await post(`/${code}/tournament`, { token: made.data.token, plan: ["insync"] })).status).toBe(400);
+    const ok = await post(`/${code}/tournament`, { token: made.data.token, plan: ["insync", "vote"] });
+    expect(ok.status).toBe(200);
+    expect(ok.data.tournament).toMatchObject({ index: 0, done: false, standings: [{ name: "Ann" }, { name: "Bob" }] });
+    expect((await post(`/${code}/tournament/end`, { token: bob })).status).toBe(400);
+    const end = await post(`/${code}/tournament/end`, { token: made.data.token });
+    expect(end.data.tournament.done).toBe(true);
+    expect((await post(`/nope/tournament/end`, { token: "x" })).status).toBe(404);
+  });
+});
