@@ -14,6 +14,7 @@ import { hasTrivia } from "../topicDraft/trivia";
 import { formatMeta } from "./formats";
 import { CATEGORIES, category } from "./categories";
 import { setRoomGame } from "./onlineApi";
+import { PoolPicker } from "./PoolPicker";
 import { TeamPicker } from "./TeamPicker";
 import { compactTeams, splitTeams, type TeamMap } from "./teamMoves";
 import { DEFAULT_OPTS, type GameSetup } from "./types";
@@ -26,16 +27,22 @@ export const IMPOSTER_TOPICS = CATALOG_META.filter((m) => m.kind === "character"
 const TRIVIA_TOPICS = CATEGORIES.filter((c) => !c.hidden && hasTrivia(c.id));
 
 /** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
-export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty"; room: { code: string; token: string; pool?: string; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
+export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty"; room: { code: string; token: string; pool?: string; pools?: string[]; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
   const meta = formatMeta(format)!;
   const decks = format === "insync" ? INSYNC_DECKS : DECKS;
-  const [pool, setPool] = useState(() => {
-    if (format === "mafia") return "mafia";
-    if (format === "vowelplay" || format === "vowelparty") return VOWEL_TOPICS.some((t) => t.id === room.pool) ? room.pool! : VOWEL_TOPICS[0]!.id;
-    if (format === "imposter") return IMPOSTER_TOPICS.some((t) => t.id === room.pool) ? room.pool! : "superheroes";
-    if (format === "partytrivia") return TRIVIA_TOPICS.some((t) => t.id === room.pool) ? room.pool! : TRIVIA_TOPICS[0]!.id;
-    const ids = decks.map((d) => d.id);
-    return ids.includes(room.pool ?? "") ? room.pool! : format === "insync" ? "friends" : ids[0]!;
+  const options: { id: string; title: string; blurb?: string }[] =
+    format === "imposter" ? IMPOSTER_TOPICS.map((t) => ({ id: t.id, title: category(t.id)?.title ?? t.title }))
+    : format === "partytrivia" ? TRIVIA_TOPICS.map((t) => ({ id: t.id, title: t.title }))
+    : format === "vowelplay" || format === "vowelparty" ? VOWEL_TOPICS.map((t) => ({ id: t.id, title: t.title }))
+    : format === "mafia" ? []
+    : decks.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
+  // Start from the room's last mix when it still fits this format, otherwise one default topic.
+  const [pools, setPools] = useState<string[]>(() => {
+    if (format === "mafia") return ["mafia"];
+    const ids = options.map((o) => o.id);
+    const last = [...new Set(room.pools?.length ? room.pools : room.pool ? [room.pool] : [])].filter((p) => ids.includes(p));
+    if (last.length) return last;
+    return [format === "imposter" && ids.includes("superheroes") ? "superheroes" : format === "insync" && ids.includes("friends") ? "friends" : ids[0]!];
   });
   const [length, setLength] = useState(format === "imposter" ? 2 : format === "partytrivia" ? 10 : format === "vowelplay" ? 15 : format === "vowelparty" ? 10 : 8);
   const [vowelMode, setVowelMode] = useState<"first" | "duel">("first");
@@ -49,7 +56,8 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const teamsOpen = format === "partytrivia" && seats.length >= TEAM_MIN_PLAYERS;
+  const teamFormat = format === "partytrivia" || format === "vote" || format === "imposter" || format === "vowelparty";
+  const teamsOpen = teamFormat && seats.length >= TEAM_MIN_PLAYERS;
   const pickTeams = (n: number) => {
     setTeams(n);
     setTeamMap(n ? splitTeams(seats, n, newSeed()) : {});
@@ -60,7 +68,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     setError(null);
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
-      id: "", format, pool, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
+      id: "", format, pool: pools[0]!, pools, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
       mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking, showVotes, vowelMode, vowelAnswer, ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
@@ -77,35 +85,22 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
       </Panel>
 
       {format === "imposter" ? (
-        <Panel title="Topic" hint="The secret is picked from this topic.">
-          <div className="flex flex-wrap gap-2">
-            {IMPOSTER_TOPICS.map((t) => <Chip key={t.id} selected={pool === t.id} onClick={() => setPool(t.id)}>{category(t.id)?.title ?? t.title}</Chip>)}
-          </div>
+        <Panel title="Topic" hint="The secret is picked from the topics you select. Pick several to mix them.">
+          <PoolPicker options={options} value={pools} onChange={setPools} />
         </Panel>
       ) : format === "partytrivia" ? (
-        <Panel title="Topic" hint="Every question comes from this topic.">
-          <div className="flex flex-wrap gap-2">
-            {TRIVIA_TOPICS.map((t) => <Chip key={t.id} selected={pool === t.id} onClick={() => setPool(t.id)}>{t.title}</Chip>)}
-          </div>
+        <Panel title="Topic" hint="Questions come from the topics you select. Pick several to mix them.">
+          <PoolPicker options={options} value={pools} onChange={setPools} />
         </Panel>
       ) : vowel ? (
-        <Panel title="Topic" hint="Every name comes from this topic. The topic is the only hint.">
-          <div className="flex flex-wrap gap-2">
-            {VOWEL_TOPICS.map((t) => <Chip key={t.id} selected={pool === t.id} onClick={() => setPool(t.id)}>{t.title}</Chip>)}
-          </div>
+        <Panel title="Topic" hint="Names come from the topics you select. Each word shows its own topic as the only hint.">
+          <PoolPicker options={options} value={pools} onChange={setPools} />
         </Panel>
       ) : format === "mafia" ? (
         <MafiaTown seats={seats.length} />
       ) : (
-        <Panel title="Deck">
-          <div className="grid gap-2 sm:grid-cols-2">
-            {decks.map((d) => (
-              <button key={d.id} type="button" onClick={() => setPool(d.id)} aria-pressed={pool === d.id}
-                className={`rounded-xl border p-3 text-left ${pool === d.id ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
-                <b className="block">{d.title}</b><span className="text-sm text-muted-foreground">{d.blurb}</span>
-              </button>
-            ))}
-          </div>
+        <Panel title={decks.length > 1 ? "Decks" : "Deck"} hint="Pick one deck, or several to mix them.">
+          <PoolPicker options={options} value={pools} onChange={setPools} />
         </Panel>
       )}
 
@@ -162,9 +157,9 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </Panel>
       )}
 
-      {format === "partytrivia" && (
+      {teamFormat && (
         teamsOpen ? (
-          <Panel title="Teams" hint="Each member votes. The team's answer is its most-voted option.">
+          <Panel title="Teams" hint={format === "partytrivia" ? "Each member votes. The team's answer is its most-voted option." : "Everyone still plays for themselves. A team's score is its players' points added up."}>
             <div className="flex flex-wrap gap-2">
               {[0, 2, 3, 4].map((n) => <Chip key={n} selected={teams === n} onClick={() => pickTeams(n)}>{n === 0 ? "No teams" : `${n} teams`}</Chip>)}
             </div>

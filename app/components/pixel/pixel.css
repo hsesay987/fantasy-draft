@@ -1072,3 +1072,61 @@ html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .pixel .vp-buzz:not(:disabled) { animation: none; }
 }
+
+/* Screen host: the TV view. The game's own board sits in a frame with a big title, whose turn, the phase clock and the leaderboard. */
+/* It takes the whole window under the site bar, so the page's side columns don't squeeze the TV. */
+.screen-frame { position: fixed; inset: 4rem 0 0; z-index: 35; overflow-y: auto; display: grid; align-content: start; gap: 14px; padding: 16px clamp(12px, 2vw, 32px) 32px; }
+.screen-top { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px 24px; padding: 14px 18px; background: var(--px-panel); box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 -4px 0 0 #0005; margin: 4px; }
+.screen-title { min-width: 0; }
+.screen-title .eyebrow { margin: 0 0 6px; font: 400 clamp(10px, .9vw, 14px)/1.4 var(--px-head); color: var(--px-lav); letter-spacing: .06em; overflow-wrap: anywhere; }
+.screen-title h1 { margin: 0; font-size: clamp(32px, 4vw, 72px); line-height: 1; color: var(--px-gold); overflow-wrap: anywhere; }
+.screen-phase { display: flex; align-items: center; gap: 16px; }
+.screen-phase .phase { margin: 0; font: 400 clamp(22px, 2vw, 36px)/1 var(--px-body); text-align: right; }
+.screen-phase .px-clock { padding: 10px 14px; gap: 6px; }
+.screen-phase .px-clock b { font-size: clamp(22px, 2vw, 34px); }
+.screen-phase .px-clock .ticks { grid-template-columns: repeat(10, clamp(6px, .6vw, 10px)); gap: 2px; }
+.screen-phase .px-clock .ticks i { height: clamp(8px, .8vw, 12px); }
+.screen-code { margin: 0; display: grid; justify-items: center; gap: 4px; padding: 8px 12px; background: var(--px-ink); }
+.screen-code span { font: 400 9px/1 var(--px-head); color: var(--px-dim); text-transform: uppercase; }
+.screen-code b { font: 400 clamp(20px, 1.8vw, 30px)/1 var(--px-head); color: var(--px-fg); letter-spacing: .12em; }
+.screen-turn { justify-self: center; margin: 0; display: flex; align-items: center; gap: 14px; padding: 10px 22px; background: var(--px-gold); color: var(--px-ink); font: 400 clamp(26px, 2.6vw, 46px)/1 var(--px-body); box-shadow: 0 0 0 4px var(--px-ink), 6px 6px 0 4px #0008; animation: screen-turn .35s steps(4); }
+.screen-turn b { font-weight: 400; }
+@keyframes screen-turn { from { transform: scale(.6); opacity: 0; } }
+.screen-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 26rem); gap: 20px; align-items: start; }
+.screen-frame.solo .screen-main { grid-template-columns: minmax(0, 1fr); }
+.screen-side { position: sticky; top: 16px; }
+.screen-board { min-width: 0; }
+/* The board is a phone layout: drop the page padding, and zoom it up to fill a TV. */
+.screen-board > .pixel { min-height: 0; box-shadow: 0 0 0 4px var(--px-ink); margin: 4px; }
+.screen-board > .pixel > div { padding: 16px 12px 24px; }
+.screen-board header.party-sign, .screen-board .party-leave { display: none; }
+/* The scene is a band across the top of the board, so the prompt and clues sit above the fold on a 720p TV. */
+.screen-board .px-world canvas { height: clamp(110px, 18vh, 240px); object-fit: cover; }
+@media (min-width: 1200px) { .screen-board .party-page, .screen-board .vp-page { zoom: 1.2; } .screen-side .lb { zoom: 1.1; } }
+@media (min-width: 1800px) { .screen-board .party-page, .screen-board .vp-page { zoom: 1.55; } .screen-side .lb { zoom: 1.4; } }
+@media (max-width: 899px) {
+  .screen-main { grid-template-columns: minmax(0, 1fr); }
+  .screen-side { position: static; }
+  .screen-top { grid-template-columns: minmax(0, 1fr) auto; }
+  .screen-code { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .screen-turn, .lb-rows .last { animation: none; } }
+
+/* Leaderboard: teams, then players best first. Shared by the screen and the tournament screens. */
+.lb { padding: 14px 12px 12px; display: grid; gap: 12px; }
+.lb-title { margin: 0; font: 400 11px/1.4 var(--px-head) !important; color: var(--px-lav); text-transform: uppercase; letter-spacing: .08em; }
+.lb ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.lb-teams li { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 12px; background: var(--px-ink); font-size: 26px; }
+.lb-teams li:not(:has(.swatch)) { grid-template-columns: minmax(0, 1fr) auto; }
+.lb-teams li.top { box-shadow: inset 0 0 0 3px var(--px-gold); }
+.lb-teams b, .lb-rows b { font: 400 16px/1 var(--px-head); color: var(--px-gold); }
+.lb .swatch { width: 12px; height: 12px; display: inline-block; flex: none; box-shadow: 0 0 0 2px #000; }
+.lb-rows li { display: grid; grid-template-columns: 2em 24px minmax(0, 1fr) auto auto; align-items: center; gap: 10px; padding: 6px 10px; background: var(--px-ink); font-size: 23px; }
+.lb-rows li.top { background: var(--px-violet); }
+.lb-rows li.is-gone { opacity: .45; }
+.lb-rows .pos { font: 400 11px/1 var(--px-head); color: var(--px-dim); text-align: right; }
+.lb-rows li.top .pos { color: var(--px-gold); }
+.lb-rows .name { min-width: 0; display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-rows .tag { font: 400 8px/1 var(--px-head); color: var(--px-dim); text-transform: uppercase; }
+.lb-rows .last { font: 400 11px/1 var(--px-head); color: var(--px-mint); animation: lb-pop .5s steps(3); }
+@keyframes lb-pop { from { transform: translateY(8px); opacity: 0; } }

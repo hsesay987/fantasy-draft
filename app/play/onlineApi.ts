@@ -1,7 +1,8 @@
 import type { GameState } from "../topicDraft/core";
 import type { Action } from "../topicDraft/core";
 import type { Verdict } from "./judging";
-import type { GameSetup } from "./types";
+import type { FormatId, GameSetup } from "./types";
+import type { Tournament, standings } from "../topicDraft/party/tournament";
 import type { QuizData } from "../topicDraft/trivia/types";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -13,11 +14,15 @@ export type RoomSnapshot = {
   serverNow: number;
   /** Null until the host picks a game. */
   setup: GameSetup | null;
-  seats: { name: string; host: boolean; left: boolean }[];
+  seats: { name: string; host: boolean; left: boolean; screen: boolean }[];
+  /** True when this seat is the screen host: it never plays and sees the public view. */
+  screen: boolean;
+  /** The night's tournament, if one was started; stays after it is done. */
+  tournament?: Tournament & { standings: ReturnType<typeof standings> };
   me: string | null;
   state: GameState | null;
   verdict: Verdict | null;
-  played: { format: string; pool: string; winner: string | null }[];
+  played: { format: string; pool: string; title?: string; winner: string | null }[];
   /** An NBA, NFL or Cartoon stat draft room the host opened for the group. */
   statLink: { code: string; league: "NBA" | "NFL" | "CARTOON" } | null;
 };
@@ -64,6 +69,9 @@ export const sendAction = (code: string, token: string, action: Omit<Action, "by
 export const setRoomGame = (code: string, token: string, setup: GameSetup) => call<RoomSnapshot>(`/${code.toUpperCase()}/game`, { method: "POST", body: JSON.stringify({ token, setup }) });
 export const roomToLobby = (code: string, token: string) => call<RoomSnapshot>(`/${code.toUpperCase()}/lobby`, { method: "POST", body: JSON.stringify({ token }) });
 export const setStatLink = (code: string, token: string, link: RoomSnapshot["statLink"]) => call<RoomSnapshot>(`/${code.toUpperCase()}/stat-link`, { method: "POST", body: JSON.stringify({ token, link }) });
+export const setScreen = (code: string, token: string, on: boolean) => call<RoomSnapshot>(`/${code.toUpperCase()}/screen`, { method: "POST", body: JSON.stringify({ token, on }) });
+export const startTournament = (code: string, token: string, plan: FormatId[]) => call<RoomSnapshot>(`/${code.toUpperCase()}/tournament`, { method: "POST", body: JSON.stringify({ token, plan }) });
+export const endTournament = (code: string, token: string) => call<RoomSnapshot>(`/${code.toUpperCase()}/tournament/end`, { method: "POST", body: JSON.stringify({ token }) });
 export const leaveRoom = (code: string, token: string) => call<{ ok: boolean }>(`/${code.toUpperCase()}/leave`, { method: "POST", body: JSON.stringify({ token }) });
 
 /** Jeopardy and Feud questions come from the server's trivia bank (AI-written, checked, rotated). Null = use the bundled set. */

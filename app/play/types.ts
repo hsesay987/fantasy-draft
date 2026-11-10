@@ -50,12 +50,16 @@ export type Opts = {
   vowelMode: "first" | "duel";
   /** Vowel Play: say it aloud and let the others judge, or type it. */
   vowelAnswer: "voice" | "type";
+  /** Party games with one right answer: everyone answers on their phone, or buzz in at the table. */
+  answer: "phones" | "buzz";
 };
 
 export type GameSetup = {
   id: string;
   format: FormatId;
   pool: string;
+  /** Party games: every topic or deck picked, in order. `pool` is `pools[0]`. Absent on older setups, which means `[pool]`. */
+  pools?: string[];
   players: string[];
   aiPlayers: string[];
   mission: Scenario;
@@ -67,6 +71,9 @@ export type GameSetup = {
   quiz?: QuizData;
   seed: number;
 };
+
+/** The pool ids a setup draws from: its `pools`, or just `pool` for one-topic setups. */
+export const poolsOf = (setup: Pick<GameSetup, "pool" | "pools">): string[] => (setup.pools?.length ? setup.pools : [setup.pool]);
 
 export const DEFAULT_OPTS: Opts = {
   teamSize: 5,
@@ -96,6 +103,7 @@ export const DEFAULT_OPTS: Opts = {
   teamMap: {},
   vowelMode: "first",
   vowelAnswer: "voice",
+  answer: "phones",
 };
 
 export function snakeConfig(setup: GameSetup): Config {

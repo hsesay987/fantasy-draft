@@ -11,16 +11,21 @@ import { useSound } from "../../components/SoundProvider";
 import { canMoveOn, DrinkCard, LeaveGame, PartyClock, playerSprite, VoteBooths, WaitingForHost, WaterLine } from "./partyBits";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
+import { teamsFor } from "../teamStandings";
+import { TeamBoard } from "./TeamBoard";
 
 const SCENE = "A small-town polling hall with a clerk, a ballot box and voting booths";
 
 /** Vote games on a phone, in a small-town polling hall: vote on a ballot, guess how the others voted, then the booths open. */
-export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
+export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as V.VoteState;
   const deck = deckOf(s.deck);
   const card = s.cards[s.round]!;
   const me = ctl.me ?? "";
+  // Watching (the screen host): the ballots show but can't be marked, and there is no guess sheet or personal score.
+  const seated = s.players.includes(me);
+  const teams = teamsFor(setup, (ctl.state as V.VoteState).players);
   const mine = own(s.votes, me);
   const gone = ctl.gone ?? [];
   const reveal = s.phase === "reveal" ? s.history[s.history.length - 1]! : null;
@@ -41,7 +46,8 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const total = open ? Math.max(1, Object.keys(open).length) : 1;
   const sides: { id: V.Side; label: string }[] = [{ id: "a", label: card.a }, { id: "b", label: card.b }];
   const waiting = s.players.filter((p) => !gone.includes(p) && !has(s.votes, p)).length;
-  const status = s.phase !== "vote" ? null : mine ? `Locked in. Waiting for ${waiting} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
+  const status = !seated ? (s.phase === "vote" ? `Voting on the phones. ${waiting} still to vote.` : s.phase === "guess" ? "Everyone is reading the room on their phones…" : null)
+    : s.phase !== "vote" ? null : mine ? `Locked in. Waiting for ${waiting} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
 
   return (
     <PixelShell world="hall">
@@ -66,7 +72,7 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
             const n = count(id);
             const truth = !!reveal && card.answer === id;
             return (
-              <button key={id} type="button" disabled={!!mine || s.phase !== "vote"} aria-pressed={mine === id} onClick={() => ctl.dispatch({ type: "vote", by: me, side: id })}
+              <button key={id} type="button" disabled={!seated || !!mine || s.phase !== "vote"} aria-pressed={mine === id} onClick={() => ctl.dispatch({ type: "vote", by: me, side: id })}
                 className={`ballot ${mine === id ? "marked" : ""} ${mine && mine !== id && !reveal ? "faded" : ""} ${truth ? "true" : ""}`}>
                 <span className="box" aria-hidden>{mine === id && <span>X</span>}</span>
                 <span><span className="side">{id.toUpperCase()}</span>{label}{truth && <span className="truth">TRUE</span>}</span>
@@ -77,7 +83,7 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
           })}
         </div>
 
-        {s.phase === "guess" && <GuessSheet s={s} me={me} card={card} onGuess={(target, side) => ctl.dispatch({ type: "guessVote", by: me, target, side })} />}
+        {s.phase === "guess" && seated && <GuessSheet s={s} me={me} card={card} onGuess={(target, side) => ctl.dispatch({ type: "guessVote", by: me, target, side })} />}
 
         {status && <p className="party-status">{status}</p>}
 
@@ -90,15 +96,15 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <PixelBox as="section" pad={false} className="hall-board">
             <h2>{card.answer ? (card.answer === "a" ? "It really happened." : "Made up!") : "Votes are in."}</h2>
             {card.note && <p className="px-note">{card.note}</p>}
-            <p className="gain">{gain > 0 ? `+${gain} for you.` : "No point this time."}{reveal.nobodyGot.includes(me) ? " Nobody read you." : ""}</p>
-            {s.showVotes ? <Reads players={s.players} reveal={reveal} /> : <p className="px-note">The booths stay shut. Only you can see your score.</p>}
+            {seated && <p className="gain">{gain > 0 ? `+${gain} for you.` : "No point this time."}{reveal.nobodyGot.includes(me) ? " Nobody read you." : ""}</p>}
+            {s.showVotes ? <Reads players={s.players} reveal={reveal} /> : <p className="px-note">{seated ? "The booths stay shut. Only you can see your score." : "The booths stay shut. Scores stay secret until the end."}</p>}
             {canMoveOn(ctl)
               ? <PixelButton variant="gold" className="w-[calc(100%-8px)]" onClick={() => ctl.dispatch({ type: "next", by: me })}>Next card &gt;</PixelButton>
               : <WaitingForHost ctl={ctl} />}
           </PixelBox>
         )}
 
-        {s.showVotes && <div className="hall-score"><Scores points={s.points} me={me} /></div>}
+        {s.showVotes && <div className="hall-score">{teams ? <TeamBoard points={s.points} teams={teams} me={me} /> : <Scores points={s.points} me={me} />}</div>}
         {s.drinks && <WaterLine />}
         {s.drinks && s.phase === "reveal" && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
         {ctl.leave && <LeaveGame onLeave={ctl.leave} />}
@@ -179,8 +185,9 @@ function Scores({ points, me }: { points: Record<string, number>; me: string }) 
 }
 
 /** End of a vote game: the official count, and (Show votes on) every card with how the room split. */
-export function VoteResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function VoteResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
   const s = ctl.state as V.VoteState;
+  const teams = teamsFor(setup, s.players);
   const ranked = Object.entries(s.points).sort((a, b) => b[1] - a[1]);
   const tied = ranked.length > 1 && ranked[0]![1] === ranked[1]![1];
   return (
@@ -188,7 +195,7 @@ export function VoteResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain
       <div className="party-page">
         <WorldScene world="hall" actors={[]} labels={false} track={false} caption={SCENE} />
         <div className="hall-sign hall-banner px-confetti">
-          <p className="eyebrow">{deckOf(s.deck)?.title} · final scores</p>
+          <p className="eyebrow">{setup.mission.title || deckOf(s.deck)?.title} · final scores</p>
           <h1>{tied ? "It's a tie!" : `${ranked[0]![0]} wins`}</h1>
         </div>
         <ol className="hall-ranks" aria-label="Final scores">
@@ -201,6 +208,7 @@ export function VoteResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain
             </li>
           ))}
         </ol>
+        {teams && <div className="hall-score"><TeamBoard points={s.points} teams={teams} me={ctl.me} /></div>}
         {s.showVotes ? (
           <PixelBox as="section" pad={false} className="hall-board">
             <h2>How the room voted</h2>

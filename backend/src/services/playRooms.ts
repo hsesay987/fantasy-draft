@@ -26,6 +26,8 @@ import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelTopics";
 import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
 import { deckOf } from "../shared/topicDraft/party/decks";
 import { insyncDeckOf } from "../shared/topicDraft/party/insyncDecks";
+import { mixTitle, poolIdsFor, poolTitleFor } from "../shared/topicDraft/party/pools";
+import { addGame, awardsFor, standings, type Awards, type Tournament } from "../shared/topicDraft/party/tournament";
 import { GROUP_CALL } from "../shared/topicDraft/party/drinks";
 import type { Item } from "../shared/topicDraft/types";
 
@@ -46,7 +48,7 @@ const HOST_AWAY_MS = 45_000;
 const HOST_AWAY_LOBBY_MS = 5 * 60_000;
 
 /** `lastSeen` stays on the server: nothing in a snapshot changes because a phone polled. */
-type Seat = { name: string; token: string; left: boolean; lastSeen: number };
+type Seat = { name: string; token: string; left: boolean; lastSeen: number; /** The host's seat when it runs the night from a screen: keeps host controls, never plays. */ screen?: boolean };
 /** An NBA, NFL or Cartoon stat draft room the host opened for this group (those rooms need accounts). */
 type StatLink = { code: string; league: "NBA" | "NFL" | "CARTOON" };
 type Room = {
@@ -63,7 +65,7 @@ type Room = {
   createdAt: number;
   touchedAt: number;
   /** Games finished in this room, newest last. */
-  played: { format: FormatId; pool: string; winner: string | null }[];
+  played: { format: FormatId; pool: string; title?: string; winner: string | null }[];
   /** Trivia already asked in this room, so the next board is different. */
   seen: string[];
   /** False once the current trivia board has been played, so a rematch gets new questions. */
@@ -71,6 +73,12 @@ type Room = {
   statLink: StatLink | null;
   /** Vowel Play: recent guess times per seat name, for the rate limit. Lives and dies with the room. */
   guessAt?: Map<string, number[]>;
+  /** A tournament across games in this room. Stays visible once done, until a new one starts or the room closes. */
+  tournament?: Tournament;
+  /** Which tournament this is, so a late judge verdict never lands in a later one. */
+  tournamentSeq?: number;
+  /** Set when the host ends it early: nothing finishing later changes the totals. */
+  tournamentEnded?: boolean;
 };
 
 const rooms = new Map<string, Room>();
@@ -158,21 +166,19 @@ export function sanitizeSetup(input: any): GameSetup | null {
 
 /** Party games: Imposter needs a character topic, vote games need a card deck, In-Sync a pair deck. Mafia has one fixed pool. */
 function sanitizeParty(format: FormatId, input: any): GameSetup | null {
-  const pool = clean(input.pool, 30);
   const o = input.opts ?? {};
-  if (format === "imposter") {
-    const meta = CATALOG_META.find((m) => m.id === pool);
-    if (!meta || meta.kind !== "character" || getCatalog(pool).length < IM.OPTION_COUNT) return null;
-  } else if (format === "insync") {
-    if (!insyncDeckOf(pool)) return null;
-  } else if (format === "partytrivia") {
-    if (!TRIVIA_POOLS.includes(pool)) return null;
-  } else if (format === "mafia") {
-    if (pool !== "mafia") return null;
-  } else if (format === "vowelplay" || format === "vowelparty") {
-    if (!VOWEL_TOPICS.some((t) => t.id === pool)) return null;
-  } else if (!deckOf(pool)) return null;
-  const teams = num(o.teams, 0, 4, 0);
+  const valid = poolIdsFor(format);
+  // One id is checked the way it always was; several are each checked that way, de-duplicated, and capped by what the format has.
+  const asked: unknown[] = format !== "mafia" && Array.isArray(input.pools) && input.pools.length ? input.pools : [input.pool];
+  if (asked.length > Math.max(1, valid.length)) return null;
+  const pools = [...new Set(asked.map((p) => clean(p, 30)))];
+  if (format === "mafia") {
+    if (clean(input.pool, 30) !== "mafia") return null;
+    pools.splice(0, pools.length, "mafia");
+  } else if (pools.some((p) => !valid.includes(p))) return null;
+  const pool = pools[0]!;
+  const teamed = format === "partytrivia" || format === "vowelparty" || format === "vote" || format === "imposter"; // the others have no teams
+  const teams = teamed ? num(o.teams, 0, 4, 0) : 0;
   const teamMap: Record<string, number> = {};
   if (teams > 0 && o.teamMap && typeof o.teamMap === "object") {
     for (const [k, v] of Object.entries(o.teamMap).slice(0, MAX_SEATS)) {
@@ -180,8 +186,8 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
       if (name && Number.isInteger(t) && t >= 0 && t < teams) teamMap[name] = t;
     }
   }
-  const vowelTitle = VOWEL_TOPICS.find((t) => t.id === pool)?.title ?? pool;
-  const title = format === "vowelplay" ? `Vowel Play: ${vowelTitle}` : format === "vowelparty" ? `Vowel Party: ${vowelTitle}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${CATALOG_META.find((m) => m.id === pool)!.title}` : format === "insync" ? `In-Sync: ${insyncDeckOf(pool)!.title}` : format === "partytrivia" ? `Party Trivia: ${CATALOG_META.find((m) => m.id === pool)?.title ?? pool}` : deckOf(pool)!.title;
+  const mixed = mixTitle(pools.map((p) => poolTitleFor(format, p)));
+  const title = format === "vowelplay" ? `Vowel Play: ${mixed}` : format === "vowelparty" ? `Vowel Party: ${mixed}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${mixed}` : format === "insync" ? `In-Sync: ${mixed}` : format === "partytrivia" ? `Party Trivia: ${mixed}` : mixed;
   const vowel = format === "vowelplay" || format === "vowelparty";
   const wanted = o.teamSize == null || o.teamSize === "" ? 15 : Number(o.teamSize);
   const opts = {
@@ -192,12 +198,14 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     avoid: (Array.isArray(o.avoid) ? o.avoid : []).slice(0, 200).map((x: any) => clean(x, 40)),
     drinking: format === "vowelplay" ? false : o.drinking === true,
     showVotes: o.showVotes !== false,
-    teams: vowel ? 0 : teams,
-    teamMap: vowel ? {} : teamMap,
+    teams,
+    teamMap,
     vowelMode: (format === "vowelplay" && o.vowelMode === "duel" ? "duel" : "first") as "first" | "duel",
-    vowelAnswer: (format === "vowelparty" || o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
+    // Buzz mode is in-person: only Party Trivia and Vowel Party have it, every other format plays on phones.
+    answer: ((format === "partytrivia" || format === "vowelparty") && o.answer === "buzz" ? "buzz" : "phones") as "phones" | "buzz",
+    vowelAnswer: (format === "vowelparty" ? (o.answer === "buzz" ? "voice" : "type") : o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
-  return { id: "", format, pool, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
+  return { id: "", format, pool, pools, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
 }
 
 const code = () => {
@@ -247,6 +255,12 @@ export function createRoom(input: unknown, hostName: string, quiz?: QuizData): {
  * The host is the first seat still at the table whose phone we have heard from lately, or failing that the first seat
  * still at the table. Never stored, so it follows anyone who leaves or goes quiet, and returns when they are back.
  */
+/** Names of the seats that play: everyone but the screen host. */
+const playerNames = (room: Room, includeLeft = true) => room.seats.filter((s) => !s.screen && (includeLeft || !s.left)).map((s) => s.name);
+
+/** The only actions a screen seat may send: the host controls. */
+export const HOST_ACTIONS = ["next", "skipTalk"];
+
 const hostSeat = (room: Room, now = Date.now()) => {
   const away = room.status === "lobby" ? HOST_AWAY_LOBBY_MS : HOST_AWAY_MS;
   return room.seats.find((s) => !s.left && now - s.lastSeen <= away) ?? room.seats.find((s) => !s.left);
@@ -263,27 +277,101 @@ export const isHost = (room: Room, token: unknown) => {
   return !!seat && seat === hostSeat(room);
 };
 
+/**
+ * A screen flag only lives on the seat that hosts: when the crown moves to someone else who is awake while the screen is
+ * too, the flag goes and that seat plays from the next game. A screen that went quiet (a TV asleep) keeps its flag, so
+ * it wakes as the screen again rather than as a player.
+ */
+function refreshScreen(room: Room, now = Date.now()) {
+  const host = hostSeat(room, now);
+  const away = room.status === "lobby" ? HOST_AWAY_LOBBY_MS : HOST_AWAY_MS;
+  let changed = false;
+  for (const s of room.seats) if (s.screen && s !== host && (s.left || now - s.lastSeen <= away)) { s.screen = false; changed = true; }
+  if (changed && room.status !== "playing" && room.setup) room.setup = { ...room.setup, players: playerNames(room) };
+  if (changed) bump(room);
+}
+
+/** The host switches between playing and running the night from a screen. Lobby only; the flag lives on one seat. */
+export function setScreen(room: Room, token: unknown, on: unknown): { ok: true } | { error: string } {
+  refreshScreen(room);
+  if (!isHost(room, token)) return { error: "Only the host can do that" };
+  if (room.status !== "lobby") return { error: "Switch this in the lobby" };
+  if (typeof on !== "boolean") return { error: "Invalid choice" };
+  const seat = seatFor(room, token)!;
+  for (const s of room.seats) s.screen = false;
+  if (on) seat.screen = true;
+  if (room.setup) room.setup = { ...room.setup, players: playerNames(room) };
+  bump(room);
+  return { ok: true };
+}
+
 /** Back to the lobby: forget the last game's board and drop anyone who left during it. */
 function resetToLobby(room: Room) {
   room.status = "lobby";
   room.state = null;
   room.verdict = null;
   room.seats = room.seats.filter((s) => !s.left);
-  if (room.setup) room.setup = { ...room.setup, players: room.seats.map((s) => s.name) };
+  if (room.setup) room.setup = { ...room.setup, players: playerNames(room) };
 }
 
 /** The host picks the next game (any time except mid-game). Trivia boards come in as `quiz`. */
 export function setGame(room: Room, token: unknown, input: unknown, quiz?: QuizData): { ok: true } | { error: string } {
+  refreshScreen(room);
   if (!isHost(room, token)) return { error: "Only the host can pick the game" };
   if (room.status === "playing") return { error: "Finish this game first" };
   const setup = sanitizeSetup(input);
   if (!setup) return { error: "Invalid game setup" };
   resetToLobby(room);
-  room.setup = { ...setup, id: `room-${Date.now()}`, players: room.seats.map((s) => s.name), ...(quiz ? { quiz } : {}) };
+  room.setup = { ...setup, id: `room-${Date.now()}`, players: playerNames(room), ...(quiz ? { quiz } : {}) };
   room.freshQuiz = !!quiz;
   room.statLink = null;
   bump(room);
   return { ok: true };
+}
+
+/** The host starts a tournament: 2 to 8 games, lobby only. Replaces a finished or earlier one. */
+export function startTournament(room: Room, token: unknown, plan: unknown): { ok: true } | { error: string } {
+  refreshScreen(room);
+  if (!isHost(room, token)) return { error: "Only the host can do that" };
+  if (room.status !== "lobby") return { error: "Start a tournament from the lobby" };
+  if (!Array.isArray(plan) || plan.length < 2 || plan.length > 8 || !plan.every((f) => typeof f === "string" && FORMAT_IDS.includes(f as FormatId))) return { error: "Pick 2 to 8 games" };
+  room.tournament = { plan: plan as FormatId[], index: 0, games: [], totals: {}, done: false };
+  room.tournamentSeq = (room.tournamentSeq ?? 0) + 1;
+  room.tournamentEnded = false;
+  bump(room);
+  return { ok: true };
+}
+
+/** The host ends the tournament early: the leaderboard so far is final. */
+export function endTournament(room: Room, token: unknown): { ok: true } | { error: string } {
+  refreshScreen(room);
+  if (!isHost(room, token)) return { error: "Only the host can do that" };
+  if (!room.tournament) return { error: "No tournament running" };
+  if (room.tournament.done) return { ok: true }; // already over: a draft verdict still pending must still count
+  room.tournament = { ...room.tournament, done: true };
+  room.tournamentEnded = true;
+  bump(room);
+  return { ok: true };
+}
+
+/** Records a finished game in the tournament and returns a way to credit its draft verdict later. */
+function recordTournamentGame(room: Room, awards: Awards | null): number | null {
+  const t = room.tournament;
+  const setup = room.setup!;
+  if (!t || t.done) return null;
+  room.tournament = addGame(t, setup.format, setup.mission.title, awards);
+  return room.tournament.games.length - 1;
+}
+
+/** A draft's verdict arrived: credit it to the game that produced it, unless that tournament was replaced or ended early. */
+function creditTournamentGame(room: Room, seq: number | undefined, idx: number, awards: Awards | null) {
+  const t = room.tournament;
+  if (!t || room.tournamentSeq !== seq || room.tournamentEnded || !t.games[idx] || t.games[idx]!.awards) return;
+  const totals = { ...t.totals };
+  for (const [p, n] of Object.entries(awards ?? {})) totals[p] = (totals[p] ?? 0) + n;
+  const games = t.games.map((g, i) => (i === idx ? { ...g, awards } : g));
+  room.tournament = { ...t, games, totals };
+  bump(room);
 }
 
 /** After a game: everyone returns to the lobby, keeping the room, the seats and the last game picked. */
@@ -317,17 +405,18 @@ export const seenIn = (room: Room) => room.seen;
 export function joinRoom(c: string, name: string): { room: Room; seat: Seat } | { error: string } {
   const room = getRoom(c);
   if (!room) return { error: "Room not found" };
+  refreshScreen(room);
   if (room.status === "playing") return { error: "A game is running. You can join when it ends." };
   const n = clean(name, 20);
   if (!n) return { error: "Enter a name" };
   // Seats that walked out of the last game go when this join sends the room back to the lobby: their places and names are free.
   const seated = room.seats.filter((s) => !s.left);
-  if (seated.length >= seatCap(room.setup?.format)) return { error: `Room is full (${seatCap(room.setup?.format)} players for this game)` };
+  if (seated.filter((s) => !s.screen).length >= seatCap(room.setup?.format)) return { error: `Room is full (${seatCap(room.setup?.format)} players for this game)` };
   if (seated.some((s) => s.name.toLowerCase() === n.toLowerCase())) return { error: "That name is taken" };
   const seat: Seat = { name: n, token: crypto.randomBytes(16).toString("hex"), left: false, lastSeen: Date.now() };
   room.seats.push(seat);
   if (room.status === "done") resetToLobby(room); // a newcomer after a game: everyone heads back to the lobby
-  if (room.setup) room.setup.players = room.seats.map((s) => s.name);
+  if (room.setup) room.setup.players = playerNames(room);
   bump(room);
   return { room, seat };
 }
@@ -336,11 +425,12 @@ export const seatFor = (room: Room, token: unknown) => room.seats.find((s) => ty
 
 /** `quiz` is a new bank for this game. It joins the room only if the game really starts, so a refusal can't send it out with the results. */
 export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: true } | { error: string } {
+  refreshScreen(room);
   if (!isHost(room, token)) return { error: "Only the host can start" };
   if (room.status === "playing") return { error: "Already started" };
   if (!room.setup) return { error: "Pick a game first" };
   // Every refusal comes before the room changes, so a refused Play again leaves the results on screen to show why.
-  const here = room.seats.filter((s) => !s.left).map((s) => s.name);
+  const here = playerNames(room, false);
   const min = MIN_PLAYERS[room.setup.format] ?? 2;
   if (here.length < min) return { error: `Need at least ${min} players` };
   if (here.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
@@ -350,6 +440,8 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   if (room.setup.opts.drinking && PARTY_FORMATS.has(room.setup.format) && here.includes(GROUP_CALL)) return { error: `Drinking mode can't have a player named "${GROUP_CALL}". Rejoin with another name.` };
   if (room.setup.format === "vowelplay" && room.setup.opts.vowelMode === "duel" && here.length !== 2) return { error: "Head to head takes exactly 2 players" };
   const setup = { ...room.setup, ...(quiz ? { quiz } : {}), players: here, seed: (Math.random() * 2 ** 31) | 0 };
+  // The screen host is no player: it can't sit in a team map, so a stale entry for its name goes.
+  if (setup.opts.teamMap) setup.opts = { ...setup.opts, teamMap: Object.fromEntries(Object.entries(setup.opts.teamMap).filter(([n]) => here.includes(n))) };
   if (setup.format === "vote" || setup.format === "insync") setup.opts = { ...setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
   // A rematch prefers names this room has not played yet.
   if (setup.format === "vowelplay" || setup.format === "vowelparty") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("vp:")).map((x) => x.slice(3)) };
@@ -371,7 +463,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
 /** Leaving between games frees the seat (the next player in line becomes host); mid-game a bot takes over. */
 /** Party games close a phase once every seat still present has acted. Only a real leave counts: a locked phone keeps its turn. */
 function settleParty(room: Room, s: GameState, now: number): GameState {
-  const gone = room.seats.filter((x) => x.left).map((x) => x.name);
+  const gone = room.seats.filter((x) => x.left && !x.screen).map((x) => x.name);
   switch (room.setup?.format) {
     case "partytrivia": return PT.settle(s as PT.PTState, gone, now);
     case "mafia": return MF.settle(s as MF.MafiaState, gone, now);
@@ -387,6 +479,7 @@ function settleParty(room: Room, s: GameState, now: number): GameState {
 export function leaveRoom(room: Room, token: unknown) {
   const seat = seatFor(room, token);
   if (!seat) return;
+  refreshScreen(room);
   if (room.status === "playing") {
     seat.left = true;
     if (room.setup && PARTY_FORMATS.has(room.setup.format) && room.state) {
@@ -395,9 +488,10 @@ export function leaveRoom(room: Room, token: unknown) {
     }
   } else {
     room.seats = room.seats.filter((s) => s !== seat);
-    if (room.setup) room.setup.players = room.seats.map((s) => s.name);
+    if (room.setup) room.setup.players = playerNames(room);
   }
-  if (room.seats.every((s) => s.left)) {
+  // A screen left alone with a running game has nobody to show it to: close the room as if it were empty.
+  if (room.seats.every((s) => s.left || (room.status === "playing" && s.screen))) {
     rooms.delete(room.code);
     getIo()?.to(`playroom:${room.code}`).emit("playroom:update", { version: -1 });
     return;
@@ -417,8 +511,10 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   seat.lastSeen = Date.now();
   if (room.status !== "playing" || !room.state || !room.setup) return { ok: false, error: "Game is not running" };
   if (!raw || !ACTION_TYPES.has(raw.type)) return { ok: false, error: "Unknown action" };
+  // Not in the game (the screen host, or a seat that stopped hosting a screen mid-game) means host controls only.
+  if (!room.setup.players.includes(seat.name) && !HOST_ACTIONS.includes(raw.type)) return { ok: false, error: "Not allowed right now" };
   if (raw.type === "skipTalk" && !isHost(room, token)) return { ok: false, error: "Only the host can skip the talk" };
-  if (raw.type === "next" && HOST_MOVES_ON.has(room.setup.format) && !isHost(room, token)) return { ok: false, error: "Only the host can move on" };
+  if (raw.type === "next" && (HOST_MOVES_ON.has(room.setup.format) || !room.setup.players.includes(seat.name)) && !isHost(room, token)) return { ok: false, error: "Only the host can move on" };
   // Typed guesses are cheap to flood: about 3 a second per seat, counted whether or not they are right.
   if (raw.type === "guess" && (room.setup.format === "vowelplay" || room.setup.format === "vowelparty")) {
     if (typeof raw.text !== "string" || raw.text.length > VOWEL_GUESS_MAX) return { ok: false, error: "That guess is too long" };
@@ -433,7 +529,9 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   }
   // The seat decides who is acting; clients can't act for someone else, set the clock or pick RNG seeds.
   const { seed: _seed, at: _at, now: _now, ...rest } = raw;
-  const action = { ...rest, by: seat.name } as Action;
+  // The engine only lets players skip Mafia's talk; the screen host is no player, so its skip goes in under the first player's name.
+  const by = raw.type === "skipTalk" && !room.setup.players.includes(seat.name) ? room.setup.players[0] ?? seat.name : seat.name;
+  const action = { ...rest, by } as Action;
   const applied = applyAction(room.setup, room.state, action, Date.now());
   if (applied === room.state) return { ok: false, error: "Not allowed right now" };
   // Acting again means they are back at the table. Only an action that counted says so: this can change who hosts, and commit's bump tells the room.
@@ -466,7 +564,8 @@ function finish(room: Room) {
   room.status = "done";
   trackServer("room_finished", { format: setup.format, pool: setup.pool, seats: room.seats.length, duration_s: Math.round((Date.now() - room.createdAt) / 1000), left: room.seats.filter((s) => s.left).length }, room.code);
   const { teams } = buildTeams(setup, room.state!);
-  const record = { format: setup.format, pool: setup.pool, winner: null as string | null };
+  const seated = setup.players.filter((n) => room.seats.some((x) => x.name === n && !x.left && !x.screen));
+  const record = { format: setup.format, pool: setup.pool, ...((setup.pools?.length ?? 1) > 1 ? { title: setup.mission.title } : {}), winner: null as string | null }; // a mixed game is named by all its topics
   room.played = [...room.played, record].slice(-30);
   // Party games are scored by their own rules; no AI report.
   if (PARTY_FORMATS.has(setup.format)) {
@@ -483,6 +582,7 @@ function finish(room: Room) {
       // Only names that were played: a game that ended early leaves the rest to deal next time.
       room.seen = [...room.seen, ...vs.history.map((h) => `vp:${h.name}`)].slice(-400);
     }
+    recordTournamentGame(room, awardsFor(setup, room.state!, seated));
     if (setup.format === "partytrivia") room.seen = [...room.seen, ...(setup.quiz?.categories ?? []).map((c) => `cat:${c.name}`)].slice(-400);
     if (setup.format === "insync") room.seen = [...room.seen, ...(room.state as IS.InSyncState).pairs.map((q) => q.id)].slice(-400);
     if (setup.format === "vote") room.seen = [...room.seen, ...(room.state as V.VoteState).cards.map((c) => c.id)].slice(-400);
@@ -491,20 +591,25 @@ function finish(room: Room) {
   // Trivia games show the right answers instead of an AI report.
   if (setup.format === "jeopardy" || setup.format === "feud") {
     record.winner = triviaWinner(room.state!);
+    recordTournamentGame(room, awardsFor(setup, room.state!, seated));
     const s = room.state as { cats?: string[]; rounds?: { q: string }[] };
     room.seen = [...room.seen, ...(s.cats ?? []).map((c) => `cat:${c}`), ...(s.rounds ?? []).map((r) => r.q)].slice(-400);
     return;
   }
   const m = setup.mission;
   const state = room.state;
+  const seq = room.tournamentSeq;
+  const slot = recordTournamentGame(room, null); // credited when the verdict arrives
   judge({ game: setup.format, scenario: { title: m.title, blurb: m.blurb, weights: m.weights }, teams: teams as any })
     .then((v) => {
       record.winner = v?.winner ?? null;
+      if (slot !== null) creditTournamentGame(room, seq, slot, awardsFor(setup, state, seated, v));
       if (room.state !== state) return; // the room already moved on to another game
       room.verdict = v;
       bump(room);
     })
     .catch(() => {
+      if (slot !== null) creditTournamentGame(room, seq, slot, awardsFor(setup, state, seated));
       room.verdict = null;
     });
 }
@@ -547,6 +652,7 @@ export function tickRooms(now = Date.now()) {
       rooms.delete(c);
       continue;
     }
+    refreshScreen(room, now);
     if (room.status !== "playing" || !room.state || !room.setup) continue;
     let s = room.state;
     const setup = room.setup;
@@ -568,7 +674,7 @@ export function tickRooms(now = Date.now()) {
         }
       }
     }
-    for (const seat of room.seats.filter((x) => x.left)) {
+    for (const seat of room.seats.filter((x) => x.left && !x.screen)) {
       const a = autoplay(room, seat.name);
       if (a) {
         s = applyAction(setup, s, a, now);
@@ -624,6 +730,8 @@ function withoutQuiz(setup: GameSetup): GameSetup {
 export function snapshot(room: Room, token: unknown) {
   const seat = seatFor(room, token);
   const host = hostSeat(room);
+  // Anyone who isn't playing (the screen host) sees what a viewer with no seat sees, so no secret reaches them.
+  const playing = !!seat && !seat.screen && (room.status === "lobby" || !!room.setup?.players.includes(seat.name));
   return {
     code: room.code,
     status: room.status,
@@ -632,16 +740,23 @@ export function snapshot(room: Room, token: unknown) {
     // The setup seed rebuilds every shuffle and hidden pick, so a running party game never sends it.
     // Party trivia also carries its question bank (with answers) in setup.quiz, which stays on the server until the game is done.
     // Vowel Play never sends the seed, even when done: with the bundled word lists it rebuilds the names a game ended before playing.
+ party-night
+    setup: room.setup && PARTY_FORMATS.has(room.setup.format) && (room.status !== "done" || room.setup.format === "vowelplay" || room.setup.format === "vowelparty") ? withoutQuiz({ ...room.setup, seed: 0 }) : room.setup,
+    seats: room.seats.map((s) => ({ name: s.name, host: s === host, left: s.left, screen: !!s.screen })),
+    screen: !!seat?.screen,
+
     // Vowel Play's avoid list holds names this room already played, and a rematch deals from it once a topic runs short, so it never leaves the server.
     setup: room.setup && PARTY_FORMATS.has(room.setup.format) && (room.status !== "done" || room.setup.format === "vowelplay" || room.setup.format === "vowelparty")
       ? withoutQuiz({ ...room.setup, seed: 0, ...(room.setup.format === "vowelplay" || room.setup.format === "vowelparty" ? { opts: { ...room.setup.opts, avoid: [] } } : {}) })
       : room.setup,
     seats: room.seats.map((s) => ({ name: s.name, host: s === host, left: s.left })),
+ main
     me: seat?.name ?? null,
-    state: withoutLeftDrinks(room, redact(room, seat?.name ?? null)),
+    state: withoutLeftDrinks(room, redact(room, playing ? seat!.name : null)),
     verdict: room.status === "done" ? room.verdict : null,
     played: room.played,
     statLink: room.statLink,
+    tournament: room.tournament && { ...room.tournament, standings: standings(room.tournament, playerNames(room, false)).filter((r) => !room.seats.some((x) => x.screen && x.name === r.name)) },
   };
 }
 

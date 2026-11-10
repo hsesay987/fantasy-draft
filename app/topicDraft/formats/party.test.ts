@@ -559,3 +559,11 @@ describe("what an imposter seat is sent", () => {
     for (const me of [...players, null]) expect(IM.redactFor(s, me).startedAt).toBe(77);
   });
 });
+
+describe("imposter accuse from a non-player", () => {
+  it("is refused, so an outsider's vote never counts", () => {
+    const s = giveClues(start("vote"));
+    expect(s.phase).toBe("vote");
+    expect(IM.accuse(s, "Outsider", players[0]!, 5)).toBe(s);
+  });
+});

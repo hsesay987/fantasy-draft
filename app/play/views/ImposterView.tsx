@@ -12,6 +12,8 @@ import { DrinkCard, LeaveGame, PartyClock, playerSprite, WaterLine } from "./par
 import { has, own } from "../../topicDraft/party/own";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
+import { teamsFor } from "../teamStandings";
+import { TeamBoard } from "./TeamBoard";
 
 const SCENE = "A moonlit ballroom with a candle chandelier and masked couples waltzing";
 
@@ -48,13 +50,16 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as IM.ImposterState;
   const me = ctl.me ?? "";
-  const amImposter = s.imposter === me;
+  // Watching (the screen host, or a seat that joined after the deal): no card, no clue, no vote. The server blanks the
+  // imposter for a viewer, so "" must not read as "you are the imposter".
+  const seated = s.players.includes(me);
+  const amImposter = seated && s.imposter === me;
   const [peek, setPeek] = useState(false);
   const [text, setText] = useState("");
   const [guessing, setGuessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const turn = IM.turnPlayer(s);
-  const myTurn = turn === me;
+  const myTurn = seated && turn === me;
   const secretItem = ctl.pool.find((i) => i.id === s.secretId);
   const seat = (p: string) => Math.max(0, s.players.indexOf(p));
   const gone = ctl.gone ?? [];
@@ -100,7 +105,7 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         <WorldScene world="ball" actors={[]} labels={false} track={false} caption={SCENE} />
 
         {/* The secret card: tap to show, tap again to hide. It looks the same for everyone until it is opened. */}
-        <button type="button" onClick={() => setPeek((p) => !p)} aria-pressed={peek} className={`ball-card ${peek && amImposter ? "mask-card" : ""}`}>
+        {seated && <button type="button" onClick={() => setPeek((p) => !p)} aria-pressed={peek} className={`ball-card ${peek && amImposter ? "mask-card" : ""}`}>
           {peek ? (
             amImposter ? (
               <>
@@ -119,7 +124,7 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
               <span className="txt"><b>Tap to see your card</b><span className="sub">Keep your screen hidden</span></span>
             </>
           )}
-        </button>
+        </button>}
 
         <section className="ball-dance" aria-label="Clues">
           <h2>Clues</h2>
@@ -165,7 +170,9 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
           )
         )}
 
-        {s.phase === "vote" && (
+        {s.phase === "vote" && !seated && <p className="ball-wait">Voting on the phones: {here.filter((p) => has(s.votes, p)).length} of {here.length} voted</p>}
+
+        {s.phase === "vote" && seated && (
           <PixelBox as="section" pad={false} className="ball-panel">
             <div className="top">
               <h2>{myVote ? "Vote locked in" : "Vote for the imposter"}</h2>
@@ -215,8 +222,9 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 }
 
 /** Final screen, masks off: who the imposter was, the secret, and how it ended. */
-export function ImposterResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function ImposterResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
   const s = ctl.state as IM.ImposterState;
+  const teams = teamsFor(setup, s.players);
   const item = ctl.pool.find((i) => i.id === s.secretId);
   const seat = (p: string) => Math.max(0, s.players.indexOf(p));
   const how = s.guess
@@ -261,6 +269,7 @@ export function ImposterResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onA
             {!Object.keys(s.votes).length && <li><span className="name" style={{ gridColumn: "1 / -1", maxWidth: "none" }}>It ended before the vote.</span></li>}
           </ul>
         </PixelBox>
+        {teams && <PixelBox as="section" pad={false} className="ball-panel"><div className="top"><h2>Teams</h2></div><TeamBoard points={s.points} teams={teams} me={ctl.me} /></PixelBox>}
         {onRematch && (
           <div className="party-actions">
             <PixelButton variant="gold" onClick={onRematch}>Play again</PixelButton>

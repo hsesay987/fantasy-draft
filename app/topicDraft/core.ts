@@ -1,7 +1,7 @@
 // Format-agnostic game core. Pure + JSON-serializable so the browser (local play)
 // and the server (online rooms) run exactly the same rules.
 import type { GameSetup } from "../play/types";
-import { snakeConfig } from "../play/types";
+import { poolsOf, snakeConfig } from "../play/types";
 import { toJudgeItem, type JudgeTeamInput } from "../play/judging";
 import { getCatalog } from "./catalogs";
 import { autoPick, init as initSnake, pick as snakePick, turnPlayer as snakeTurn } from "./engine";
@@ -80,6 +80,9 @@ const statKeysOf = (setup: GameSetup) => catalogMeta(setup.pool)?.statKeys ?? Ob
 const triviaItem = (label: string, cat: string): Item => ({ id: `trivia-${label}`, name: label, universe: cat, archetype: "Trivia", stats: {}, tags: [] });
 const quizRounds = (setup: GameSetup) => Math.max(3, Math.min(8, setup.opts.teamSize));
 
+/** Hand-written trivia boards from every picked topic (one topic gives exactly that topic's). */
+const bundledMix = (setup: GameSetup) => poolsOf(setup).flatMap((p) => bundledCategories(p));
+
 export function initGame(setup: GameSetup, now: number): GameState {
   const o = setup.opts;
   const pool = poolFor(setup);
@@ -106,19 +109,21 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "jeopardy":
       return J.init({ players: setup.players, categories: setup.quiz?.categories?.length ? setup.quiz.categories : bundledCategories(setup.pool), avoid: o.avoid, seed: setup.seed });
     case "imposter":
-      return IM.init({ players: setup.players, pool, topic: catalogMeta(setup.pool)?.title ?? setup.pool, rounds: o.teamSize, ending: o.ending, drinking: o.drinking, seed: setup.seed, now });
+      return IM.init({ players: setup.players, pool, topic: catalogMeta(setup.pool)?.title ?? setup.pool, topics: poolsOf(setup).length > 1 ? poolsOf(setup).map((id) => ({ id, title: catalogMeta(id)?.title ?? id, pool: poolFor({ ...setup, pool: id }) })) : undefined, rounds: o.teamSize, ending: o.ending, drinking: o.drinking, seed: setup.seed, now });
     case "vote":
-      return V.init({ players: setup.players, deck: setup.pool, cards: deckOf(setup.pool)?.cards ?? [], rounds: o.teamSize, avoid: o.avoid, showVotes: o.showVotes, drinking: o.drinking, seed: setup.seed, now });
+      return V.init({ players: setup.players, deck: setup.pool, cards: poolsOf(setup).flatMap((id) => deckOf(id)?.cards ?? []), rounds: o.teamSize, avoid: o.avoid, showVotes: o.showVotes, drinking: o.drinking, seed: setup.seed, now });
     case "insync":
-      return IS.init({ players: setup.players, deck: setup.pool, pairs: insyncDeckOf(setup.pool)?.pairs ?? [], rounds: Math.max(4, setup.players.length), avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+      return IS.init({ players: setup.players, deck: setup.pool, pairs: poolsOf(setup).flatMap((id) => insyncDeckOf(id)?.pairs ?? []), rounds: Math.max(4, setup.players.length), avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "partytrivia":
-      return PT.init({ players: setup.players, categories: setup.quiz?.categories?.length ? setup.quiz.categories : bundledCategories(setup.pool), count: o.teamSize, teams: o.teams, teamMap: o.teamMap, drinking: o.drinking, seed: setup.seed, now });
+      return PT.init({ players: setup.players, categories: setup.quiz?.categories?.length ? setup.quiz.categories : bundledMix(setup), count: o.teamSize, teams: o.teams, teamMap: o.teamMap, drinking: o.drinking, answer: o.answer, seed: setup.seed, now });
     case "mafia":
       return MF.init({ players: setup.players, drinking: o.drinking, seed: setup.seed, now });
     case "vowelplay":
-      return VP.init({ players: setup.players, topic: setup.pool, mode: o.vowelMode, answer: o.vowelAnswer, count: o.teamSize, avoid: o.avoid, drinking: false, seed: setup.seed, now });
+      return VP.init({ players: setup.players, topic: setup.pool, topics: poolsOf(setup), mode: o.vowelMode, answer: o.vowelAnswer, count: o.teamSize, avoid: o.avoid, drinking: false, seed: setup.seed, now });
     case "vowelparty":
-      return VP.init({ players: setup.players, topic: setup.pool, mode: "all", answer: "type", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+      // Buzz mode plays as Vowel Play's voice game (first correct), still titled, counted and teamed as Vowel Party.
+      if (o.answer === "buzz") return VP.init({ players: setup.players, topic: setup.pool, topics: poolsOf(setup), mode: "first", answer: "voice", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+      return VP.init({ players: setup.players, topic: setup.pool, topics: poolsOf(setup), mode: "all", answer: "type", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }
@@ -269,6 +274,7 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
     case "partytrivia": {
       const x = s as PT.PTState;
       if (a.type === "answer") return PT.answer(x, a.by, a.choice as string, now);
+      if (a.type === "buzz") return PT.buzz(x, a.by, now);
       if (a.type === "next") return PT.next(x, now);
       if (a.type === "tick") return PT.tick(x, now);
       return s;

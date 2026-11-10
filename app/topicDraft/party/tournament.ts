@@ -1,0 +1,129 @@
+// Pure tournament scoring: who gets what for a finished game. Shared with the server, so types only come from elsewhere.
+import type { FormatId, GameSetup } from "../../play/types";
+import type { GameState } from "../core";
+import type { MafiaState } from "../formats/mafia";
+import type { PTState } from "../formats/partytrivia";
+import type { VPState } from "../formats/vowelplay";
+import { winners as vowelWinners } from "../formats/vowelplay";
+import { teamsFor } from "./teams";
+
+export type Awards = Record<string, number>;
+
+export const PLACE_POINTS = [5, 3, 2];
+export const REST_POINTS = 1;
+export const COOP_POINTS = 2;
+export const DRAW_POINTS = 3;
+
+export type Tournament = {
+  plan: FormatId[];
+  index: number;
+  games: { format: FormatId; title: string; awards: Awards | null }[];
+  totals: Record<string, number>;
+  done: boolean;
+};
+
+const placePoints = (place: number): number => PLACE_POINTS[place - 1] ?? REST_POINTS;
+const has = (o: object, k: string): boolean => Object.prototype.hasOwnProperty.call(o, k);
+
+/** Equal scores share the place of the first of them; the next distinct score comes after all of them (9, 9, 4, 1 -> 5, 5, 2, 1). */
+export function rankAwards(scores: Record<string, number>): Awards {
+  const names = Object.keys(scores);
+  return Object.fromEntries(names.map((n) => [n, placePoints(1 + names.filter((m) => scores[m]! > scores[n]!).length)]));
+}
+
+/** Players are ranked by their own scores; anyone seated with no entry gets the rest. */
+function byPoints(points: Record<string, number>, seated: string[]): Awards {
+  const ranked = rankAwards(Object.fromEntries(seated.filter((p) => has(points, p)).map((p) => [p, points[p]!])));
+  return Object.fromEntries(seated.map((p) => [p, has(ranked, p) ? ranked[p]! : REST_POINTS]));
+}
+
+/** Teams are ranked by team score, and every seated teammate gets the team's place points. */
+function byTeams(teams: string[][], scores: number[], seated: string[]): Awards {
+  const live = teams.map((_, i) => i).filter((i) => teams[i]!.some((p) => seated.includes(p)));
+  const ranked = rankAwards(Object.fromEntries(live.map((i) => [String(i), scores[i] ?? 0])));
+  const out: Awards = Object.fromEntries(seated.map((p) => [p, REST_POINTS]));
+  for (const i of live) for (const p of teams[i]!) if (seated.includes(p)) out[p] = ranked[String(i)]!;
+  return out;
+}
+
+type VerdictLike = { teams: { name?: string; player?: string; score: number }[] };
+
+/**
+ * Tournament points for a finished game, for the names in `seated` (those not left when it ended).
+ * `null` means no result and no points. Draft games are scored by the judge's `verdict`; without one everyone gets the rest.
+ */
+export function awardsFor(setup: GameSetup, state: GameState, seated: string[], verdict?: VerdictLike | null): Awards | null {
+  if (!seated.length) return null;
+  const f = setup.format;
+  const s = state as unknown as Record<string, unknown>;
+  const points = (): Record<string, number> => (s.points as Record<string, number> | undefined) ?? {};
+  const sumOf = (team: string[]) => team.reduce((n, p) => n + (has(points(), p) ? points()[p]! : 0), 0);
+
+  switch (f) {
+    case "insync":
+      return Object.fromEntries(seated.map((p) => [p, COOP_POINTS]));
+    case "mafia": {
+      const m = state as unknown as MafiaState;
+      if (!m.winner) return null;
+      return Object.fromEntries(seated.map((p) => [p, (m.roles[p] === "mafia") === (m.winner === "mafia") ? PLACE_POINTS[0]! : REST_POINTS]));
+    }
+    case "vowelplay": {
+      const v = state as unknown as VPState;
+      if (v.mode === "duel") {
+        const won = vowelWinners(v);
+        const draw = won.length !== 1;
+        return Object.fromEntries(seated.map((p) => [p, draw ? DRAW_POINTS : won.includes(p) ? PLACE_POINTS[0]! : REST_POINTS]));
+      }
+      return byPoints(points(), seated); // forfeit only ever happens in a duel (settle), so there is none to honour here
+    }
+    case "partytrivia": {
+      const t = state as unknown as PTState;
+      if (t.teams && t.teams.length >= 2) return byTeams(t.teams, t.teamPoints, seated);
+      return byPoints(points(), seated);
+    }
+    case "vote":
+    case "imposter":
+    case "vowelparty": {
+      const teams = teamsFor(setup, setup.players);
+      if (teams) return byTeams(teams, teams.map(sumOf), seated);
+      return byPoints(points(), seated);
+    }
+    case "jeopardy":
+    case "feud":
+      return byPoints(points(), seated);
+    default: {
+      // Drafts: the judge names each team after its player.
+      const scores: Record<string, number> = {};
+      for (const t of verdict?.teams ?? []) {
+        const who = t.player ?? t.name;
+        if (who !== undefined && seated.includes(who) && typeof t.score === "number" && !has(scores, who)) scores[who] = t.score;
+      }
+      if (!Object.keys(scores).length) return Object.fromEntries(seated.map((p) => [p, REST_POINTS]));
+      const ranked = rankAwards(scores);
+      return Object.fromEntries(seated.map((p) => [p, has(ranked, p) ? ranked[p]! : REST_POINTS]));
+    }
+  }
+}
+
+/** Records a finished game and moves on. `awards` null (no result) changes no totals. */
+export function addGame(t: Tournament, format: FormatId, title: string, awards: Awards | null): Tournament {
+  const totals = { ...t.totals };
+  for (const [p, n] of Object.entries(awards ?? {})) totals[p] = (has(totals, p) ? totals[p]! : 0) + n;
+  const index = t.index + 1;
+  return { ...t, index, games: [...t.games, { format, title, awards }], totals, done: index >= t.plan.length };
+}
+
+/** Best first; ties share a rank. Everyone present is listed (0 if new), and players who left stay listed as `left`. */
+export function standings(t: Tournament, present: string[]): { name: string; total: number; last: number; left: boolean; rank: number }[] {
+  const lastAwards = t.games[t.games.length - 1]?.awards ?? {};
+  const names = [...present, ...Object.keys(t.totals).filter((n) => !present.includes(n))];
+  const rows = names.map((name) => ({
+    name,
+    total: has(t.totals, name) ? t.totals[name]! : 0,
+    last: has(lastAwards, name) ? lastAwards[name]! : 0,
+    left: !present.includes(name),
+  }));
+  return rows
+    .map((r) => ({ ...r, rank: 1 + rows.filter((o) => o.total > r.total).length }))
+    .sort((a, b) => b.total - a.total || Number(a.left) - Number(b.left));
+}

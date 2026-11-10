@@ -1,0 +1,8 @@
+// No imports on purpose: room screens use this, and must not pull in the catalogs and decks.
+/** "A", "A and B", "A, B and C", then "Mixed: A, B +N more". */
+export function mixTitle(titles: string[]): string {
+  if (titles.length <= 1) return titles[0] ?? "";
+  if (titles.length === 2) return `${titles[0]} and ${titles[1]}`;
+  if (titles.length === 3) return `${titles[0]}, ${titles[1]} and ${titles[2]}`;
+  return `Mixed: ${titles[0]}, ${titles[1]} +${titles.length - 2} more`;
+}
