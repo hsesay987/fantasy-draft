@@ -72,8 +72,8 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verdictWinner]);
 
-  if (done && setup.format === "imposter") return <ImposterResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
-  if (done && setup.format === "vote") return <VoteResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
+  if (done && setup.format === "imposter") return <ImposterResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
+  if (done && setup.format === "vote") return <VoteResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "insync") return <InSyncResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "partytrivia") return <PartyTriviaResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "mafia") return <MafiaResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;

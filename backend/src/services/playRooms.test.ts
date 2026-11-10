@@ -51,6 +51,16 @@ describe("sanitizeSetup party pools", () => {
     expect(party("vowelparty", { pools: ["food", "films"] })!.mission.title).toBe("Vowel Party: Food and Films");
     expect(party("imposter", { pool: "superheroes" })!.mission.title).toMatch(/^Imposter: /);
   });
+
+  describe("teams", () => {
+    const teamed = (format: string, pool: string) => sanitizeSetup({ ...base(format), pool, opts: { ...base(format).opts, teams: 2, teamMap: { Ann: 0, Bob: 1, Cy: 7 } } })!;
+    it.each([["partytrivia", "superheroes"], ["vowelparty", "food"], ["vote", "icks"], ["imposter", "superheroes"]])("keeps teams for %s", (format, pool) => {
+      expect(teamed(format, pool).opts).toMatchObject({ teams: 2, teamMap: { Ann: 0, Bob: 1 } });
+    });
+    it.each([["vowelplay", "food"], ["mafia", "mafia"], ["insync", "friends"]])("forces no teams for %s", (format, pool) => {
+      expect(teamed(format, pool).opts).toMatchObject({ teams: 0, teamMap: {} });
+    });
+  });
 });
 
 describe("mixed vowel topics in a room", () => {
@@ -522,6 +532,17 @@ describe("party trivia room", () => {
     joinRoom(room.code, "Bob");
     expect(startRoom(room, toks.Ann)).toEqual({ ok: true });
     expect(room.state.questions).toHaveLength(10);
+  });
+
+  it("plays a team game with two topics: the mix is kept and the teams are built from the map", () => {
+    const names = ["Ann", "Bob", "Cy", "Di"];
+    const made = createRoom({ ...trivia({ teams: 2, teamMap: { Ann: 0, Bob: 1, Cy: 0, Di: 1 } }), pools: ["superheroes", "villains"] }, "Ann", { categories: cats }) as any;
+    for (const n of names.slice(1)) joinRoom(made.room.code, n);
+    expect(made.room.setup.pools).toEqual(["superheroes", "villains"]);
+    expect(made.room.setup.mission.title).toBe("Party Trivia: Superheroes and Villains");
+    expect(startRoom(made.room, made.seat.token)).toEqual({ ok: true });
+    expect(made.room.state.teams).toEqual([["Ann", "Cy"], ["Bob", "Di"]]);
+    expect(made.room.state.teamPoints).toEqual([0, 0]);
   });
 
   it("never sends the answer, later questions, the bank or the seed while it runs, but keeps the team map", () => {

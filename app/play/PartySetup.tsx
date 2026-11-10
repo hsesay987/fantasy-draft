@@ -56,7 +56,8 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const teamsOpen = format === "partytrivia" && seats.length >= TEAM_MIN_PLAYERS;
+  const teamFormat = format === "partytrivia" || format === "vote" || format === "imposter" || format === "vowelparty";
+  const teamsOpen = teamFormat && seats.length >= TEAM_MIN_PLAYERS;
   const pickTeams = (n: number) => {
     setTeams(n);
     setTeamMap(n ? splitTeams(seats, n, newSeed()) : {});
@@ -156,9 +157,9 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </Panel>
       )}
 
-      {format === "partytrivia" && (
+      {teamFormat && (
         teamsOpen ? (
-          <Panel title="Teams" hint="Each member votes. The team's answer is its most-voted option.">
+          <Panel title="Teams" hint={format === "partytrivia" ? "Each member votes. The team's answer is its most-voted option." : "Everyone still plays for themselves. A team's score is its players' points added up."}>
             <div className="flex flex-wrap gap-2">
               {[0, 2, 3, 4].map((n) => <Chip key={n} selected={teams === n} onClick={() => pickTeams(n)}>{n === 0 ? "No teams" : `${n} teams`}</Chip>)}
             </div>

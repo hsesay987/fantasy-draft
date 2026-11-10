@@ -11,16 +11,19 @@ import { useSound } from "../../components/SoundProvider";
 import { canMoveOn, DrinkCard, LeaveGame, PartyClock, playerSprite, VoteBooths, WaitingForHost, WaterLine } from "./partyBits";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
+import { teamsFor } from "../teamStandings";
+import { TeamBoard } from "./TeamBoard";
 
 const SCENE = "A small-town polling hall with a clerk, a ballot box and voting booths";
 
 /** Vote games on a phone, in a small-town polling hall: vote on a ballot, guess how the others voted, then the booths open. */
-export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
+export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as V.VoteState;
   const deck = deckOf(s.deck);
   const card = s.cards[s.round]!;
   const me = ctl.me ?? "";
+  const teams = teamsFor(setup, (ctl.state as V.VoteState).players);
   const mine = own(s.votes, me);
   const gone = ctl.gone ?? [];
   const reveal = s.phase === "reveal" ? s.history[s.history.length - 1]! : null;
@@ -98,7 +101,7 @@ export function VoteView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
           </PixelBox>
         )}
 
-        {s.showVotes && <div className="hall-score"><Scores points={s.points} me={me} /></div>}
+        {s.showVotes && <div className="hall-score">{teams ? <TeamBoard points={s.points} teams={teams} me={me} /> : <Scores points={s.points} me={me} />}</div>}
         {s.drinks && <WaterLine />}
         {s.drinks && s.phase === "reveal" && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
         {ctl.leave && <LeaveGame onLeave={ctl.leave} />}
@@ -179,8 +182,9 @@ function Scores({ points, me }: { points: Record<string, number>; me: string }) 
 }
 
 /** End of a vote game: the official count, and (Show votes on) every card with how the room split. */
-export function VoteResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function VoteResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
   const s = ctl.state as V.VoteState;
+  const teams = teamsFor(setup, s.players);
   const ranked = Object.entries(s.points).sort((a, b) => b[1] - a[1]);
   const tied = ranked.length > 1 && ranked[0]![1] === ranked[1]![1];
   return (
@@ -188,7 +192,7 @@ export function VoteResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain
       <div className="party-page">
         <WorldScene world="hall" actors={[]} labels={false} track={false} caption={SCENE} />
         <div className="hall-sign hall-banner px-confetti">
-          <p className="eyebrow">{deckOf(s.deck)?.title} · final scores</p>
+          <p className="eyebrow">{setup.mission.title || deckOf(s.deck)?.title} · final scores</p>
           <h1>{tied ? "It's a tie!" : `${ranked[0]![0]} wins`}</h1>
         </div>
         <ol className="hall-ranks" aria-label="Final scores">
@@ -201,6 +205,7 @@ export function VoteResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain
             </li>
           ))}
         </ol>
+        {teams && <div className="hall-score"><TeamBoard points={s.points} teams={teams} me={ctl.me} /></div>}
         {s.showVotes ? (
           <PixelBox as="section" pad={false} className="hall-board">
             <h2>How the room voted</h2>

@@ -15,6 +15,8 @@ import { vowelTopicTitle } from "../../topicDraft/party/vowelTopics";
 import { useTypingStage } from "../../vowelplay/useTypingStage";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
+import { teamsFor } from "../teamStandings";
+import { TeamBoard } from "./TeamBoard";
 import { DrinkCard, LeaveGame, playerSprite, WaterLine } from "./partyBits";
 
 const CLOCK_EVERY_MS = 200;
@@ -427,6 +429,7 @@ export function VowelPlayResults({ setup, ctl, onAgain, onRematch }: { setup: Ga
   const duel = s.mode === "duel";
   const rows = s.players.map((p, i) => ({ p, i, score: scoreOf(s, p) })).sort((a, b) => b.score - a.score || a.i - b.i);
   const top = rows[0]?.score ?? 0;
+  const teams = duel ? null : teamsFor(setup, s.players);
   const nobody = !duel && s.forfeit === null && top === 0;
   const headline = s.forfeit !== null ? `${won[0] ?? "Nobody"} wins` : nobody ? "Nobody scored" : won.length === 1 ? `${won[0]} wins` : duel ? "All square" : `Shared win: ${won.join(" and ")}`;
   const sub = s.forfeit !== null ? `${s.forfeit} left the table.` : nobody ? "Every key is still loose." : duel && won.length === 2 ? "Neither pulled ahead." : won.length === 1 && won[0] === me ? "That one is yours." : "";
@@ -454,6 +457,7 @@ export function VowelPlayResults({ setup, ctl, onAgain, onRematch }: { setup: Ga
               </li>
             ))}
           </ol>
+          {teams && <TeamBoard points={Object.fromEntries(s.players.map((p) => [p, scoreOf(s, p)]))} teams={teams} me={me} />}
           {s.history.length > 0 && (
             <>
               <h2>THE WORDS</h2>

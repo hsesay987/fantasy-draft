@@ -5,6 +5,8 @@ import type { TriviaCategory } from "../trivia/types";
 import { TIERS, tierPools, type TierQuestion } from "../trivia/tiers";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { has, own } from "../party/own";
+import { buildTeams } from "../party/teams";
+export { buildTeams };
 
 export const QUESTION_MS = 25_000, REVEAL_MS = 7_000, BASE = 100, SPEED_MAX = 50;
 /** Fewest players for teams. */
@@ -32,24 +34,6 @@ export type PTState = {
 
 /** What a seat is sent: the question being asked has no `answer` until the reveal, and later questions are not sent. */
 export type PTView = Omit<PTState, "questions"> & { questions: (Omit<PTQuestion, "answer"> & { answer?: string })[]; total: number };
-
-/** Host's team map first; anyone it doesn't place (late joiners, bad entries) goes on the smallest team. */
-export function buildTeams(players: string[], teams: number, map: Record<string, number>): string[][] {
-  const n = Math.max(1, Math.floor(teams));
-  const out: string[][] = Array.from({ length: n }, () => []);
-  const loose: string[] = [];
-  for (const p of players) {
-    const t = map[p];
-    if (typeof t === "number" && Number.isInteger(t) && t >= 0 && t < n) out[t]!.push(p);
-    else loose.push(p);
-  }
-  for (const p of loose) {
-    let at = 0;
-    out.forEach((m, i) => { if (m.length < out[at]!.length) at = i; });
-    out[at]!.push(p);
-  }
-  return out;
-}
 
 /** The most-voted option; on a tie, whichever was chosen first. */
 export function teamChoice(votes: { choice: string; at: number }[]): string | null {

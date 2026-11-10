@@ -12,6 +12,8 @@ import { DrinkCard, LeaveGame, PartyClock, playerSprite, WaterLine } from "./par
 import { has, own } from "../../topicDraft/party/own";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
+import { teamsFor } from "../teamStandings";
+import { TeamBoard } from "./TeamBoard";
 
 const SCENE = "A moonlit ballroom with a candle chandelier and masked couples waltzing";
 
@@ -215,8 +217,9 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 }
 
 /** Final screen, masks off: who the imposter was, the secret, and how it ended. */
-export function ImposterResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function ImposterResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
   const s = ctl.state as IM.ImposterState;
+  const teams = teamsFor(setup, s.players);
   const item = ctl.pool.find((i) => i.id === s.secretId);
   const seat = (p: string) => Math.max(0, s.players.indexOf(p));
   const how = s.guess
@@ -261,6 +264,7 @@ export function ImposterResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onA
             {!Object.keys(s.votes).length && <li><span className="name" style={{ gridColumn: "1 / -1", maxWidth: "none" }}>It ended before the vote.</span></li>}
           </ul>
         </PixelBox>
+        {teams && <PixelBox as="section" pad={false} className="ball-panel"><div className="top"><h2>Teams</h2></div><TeamBoard points={s.points} teams={teams} me={ctl.me} /></PixelBox>}
         {onRematch && (
           <div className="party-actions">
             <PixelButton variant="gold" onClick={onRematch}>Play again</PixelButton>

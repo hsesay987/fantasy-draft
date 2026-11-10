@@ -170,7 +170,8 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     pools.splice(0, pools.length, "mafia");
   } else if (pools.some((p) => !valid.includes(p))) return null;
   const pool = pools[0]!;
-  const teams = num(o.teams, 0, 4, 0);
+  const teamed = format === "partytrivia" || format === "vowelparty" || format === "vote" || format === "imposter"; // the others have no teams
+  const teams = teamed ? num(o.teams, 0, 4, 0) : 0;
   const teamMap: Record<string, number> = {};
   if (teams > 0 && o.teamMap && typeof o.teamMap === "object") {
     for (const [k, v] of Object.entries(o.teamMap).slice(0, MAX_SEATS)) {
@@ -190,8 +191,8 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     avoid: (Array.isArray(o.avoid) ? o.avoid : []).slice(0, 200).map((x: any) => clean(x, 40)),
     drinking: format === "vowelplay" ? false : o.drinking === true,
     showVotes: o.showVotes !== false,
-    teams: vowel ? 0 : teams,
-    teamMap: vowel ? {} : teamMap,
+    teams,
+    teamMap,
     vowelMode: (format === "vowelplay" && o.vowelMode === "duel" ? "duel" : "first") as "first" | "duel",
     vowelAnswer: (format === "vowelparty" || o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
