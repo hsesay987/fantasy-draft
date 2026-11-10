@@ -632,7 +632,10 @@ export function snapshot(room: Room, token: unknown) {
     // The setup seed rebuilds every shuffle and hidden pick, so a running party game never sends it.
     // Party trivia also carries its question bank (with answers) in setup.quiz, which stays on the server until the game is done.
     // Vowel Play never sends the seed, even when done: with the bundled word lists it rebuilds the names a game ended before playing.
-    setup: room.setup && PARTY_FORMATS.has(room.setup.format) && (room.status !== "done" || room.setup.format === "vowelplay" || room.setup.format === "vowelparty") ? withoutQuiz({ ...room.setup, seed: 0 }) : room.setup,
+    // Vowel Play's avoid list holds names this room already played, and a rematch deals from it once a topic runs short, so it never leaves the server.
+    setup: room.setup && PARTY_FORMATS.has(room.setup.format) && (room.status !== "done" || room.setup.format === "vowelplay" || room.setup.format === "vowelparty")
+      ? withoutQuiz({ ...room.setup, seed: 0, ...(room.setup.format === "vowelplay" || room.setup.format === "vowelparty" ? { opts: { ...room.setup.opts, avoid: [] } } : {}) })
+      : room.setup,
     seats: room.seats.map((s) => ({ name: s.name, host: s === host, left: s.left })),
     me: seat?.name ?? null,
     state: withoutLeftDrinks(room, redact(room, seat?.name ?? null)),
