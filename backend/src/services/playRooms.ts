@@ -201,7 +201,9 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     teams,
     teamMap,
     vowelMode: (format === "vowelplay" && o.vowelMode === "duel" ? "duel" : "first") as "first" | "duel",
-    vowelAnswer: (format === "vowelparty" || o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
+    // Buzz mode is in-person: only Party Trivia and Vowel Party have it, every other format plays on phones.
+    answer: ((format === "partytrivia" || format === "vowelparty") && o.answer === "buzz" ? "buzz" : "phones") as "phones" | "buzz",
+    vowelAnswer: (format === "vowelparty" ? (o.answer === "buzz" ? "voice" : "type") : o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
   return { id: "", format, pool, pools, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
 }

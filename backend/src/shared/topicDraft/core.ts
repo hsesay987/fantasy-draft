@@ -123,6 +123,8 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "vowelplay":
       return VP.init({ players: setup.players, topic: setup.pool, topics: poolsOf(setup), mode: o.vowelMode, answer: o.vowelAnswer, count: o.teamSize, avoid: o.avoid, drinking: false, seed: setup.seed, now });
     case "vowelparty":
+      // Buzz mode plays as Vowel Play's voice game (first correct), still titled, counted and teamed as Vowel Party.
+      if (o.answer === "buzz") return VP.init({ players: setup.players, topic: setup.pool, topics: poolsOf(setup), mode: "first", answer: "voice", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
       return VP.init({ players: setup.players, topic: setup.pool, topics: poolsOf(setup), mode: "all", answer: "type", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     default:
       return rolling(setup)

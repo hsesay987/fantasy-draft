@@ -1811,3 +1811,93 @@ describe("screen host", () => {
     });
   });
 });
+
+describe("buzz mode in rooms", () => {
+  const cats = ["Aa", "Bb", "Cc", "Dd", "Ee", "Ff"].map((name) => ({
+    name,
+    clues: [0, 1, 2, 3].map((i) => ({ q: `${name} question number ${i}?`, right: `RIGHT-${name}-${i}`, wrong: [`no1-${name}-${i}`, `no2-${name}-${i}`, `no3-${name}-${i}`] })),
+  }));
+  const topic = VOWEL_TOPICS[0]!.id;
+  const make = (setup: any, players: string[], screen = false, quiz?: any) => {
+    const made = createRoom(setup, screen ? "TV" : players[0]!, quiz) as any;
+    const toks: Record<string, string> = { [screen ? "TV" : players[0]!]: made.seat.token };
+    if (screen) expect(setScreen(made.room, toks.TV, true)).toEqual({ ok: true });
+    for (const n of screen ? players : players.slice(1)) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+    expect(startRoom(made.room, screen ? toks.TV : toks[players[0]!])).toEqual({ ok: true });
+    return { r: made.room, toks };
+  };
+  const trivia = (answer?: any) => ({ format: "partytrivia", pool: "superheroes", opts: { teamSize: 10, ...(answer ? { answer } : {}) } });
+
+  it("Party Trivia buzz: a player's buzz is accepted, the screen seat's is refused, and everyone sees who buzzed", () => {
+    const { r, toks } = make(trivia("buzz"), ["Ann", "Bob"], true, { categories: cats });
+    expect(r.setup.opts.answer).toBe("buzz");
+    expect(HOST_ACTIONS).not.toContain("buzz");
+    expect(HOST_ACTIONS).not.toContain("answer");
+    expect(act(r, toks.TV!, { type: "buzz" })).toEqual({ ok: false, error: "Not allowed right now" });
+    expect(act(r, toks.TV!, { type: "answer", choice: "x" })).toEqual({ ok: false, error: "Not allowed right now" });
+    expect((snapshot(r, toks.TV!).state as any).buzzer).toBeNull();
+    expect(act(r, toks.Bob!, { type: "buzz" })).toEqual({ ok: true });
+    for (const tok of [undefined, toks.TV, toks.Ann, toks.Bob]) {
+      const s = snapshot(r, tok).state as any;
+      expect(s.buzzer).toBe("Bob");
+      expect(typeof s.buzzMs).toBe("number");
+    }
+    // a second buzz while Bob answers changes nothing
+    act(r, toks.Ann!, { type: "buzz" });
+    expect((snapshot(r, toks.Ann!).state as any).buzzer).toBe("Bob");
+  });
+
+  it("Party Trivia buzz: the answer stays out of every seat's state, and the token-less one, until reveal", () => {
+    const { r, toks } = make(trivia("buzz"), ["Ann", "Bob"], true, { categories: cats });
+    act(r, toks.Bob!, { type: "buzz" });
+    for (const tok of [undefined, toks.TV, toks.Ann, toks.Bob]) {
+      const s = snapshot(r, tok).state as any;
+      expect(s.phase).toBe("question");
+      for (const q of s.questions) expect(q).not.toHaveProperty("answer");
+      expect(JSON.stringify(s).match(/RIGHT-/g) ?? []).toHaveLength(1); // only the one option on screen
+    }
+    const right = (r.state as any).questions[(r.state as any).round].answer;
+    expect(act(r, toks.Bob!, { type: "answer", choice: right })).toEqual({ ok: true });
+    expect((snapshot(r, undefined).state as any).phase).toBe("reveal");
+  });
+
+  it("answer is kept for Party Trivia and Vowel Party only, and defaults to phones", () => {
+    expect(sanitizeSetup(trivia())!.opts.answer).toBe("phones");
+    expect(sanitizeSetup(trivia("nope"))!.opts.answer).toBe("phones");
+    expect(sanitizeSetup(trivia("buzz"))!.opts.answer).toBe("buzz");
+    expect(sanitizeSetup({ format: "vowelparty", pool: topic, opts: { answer: "buzz" } })!.opts.answer).toBe("buzz");
+    expect(sanitizeSetup({ format: "vowelparty", pool: topic, opts: {} })!.opts.answer).toBe("phones");
+    expect(sanitizeSetup({ format: "vowelplay", pool: topic, opts: { answer: "buzz" } })!.opts.answer).toBe("phones");
+    expect(sanitizeSetup({ format: "vote", pool: "icks", opts: { answer: "buzz" } })!.opts.answer).toBe("phones");
+    expect(sanitizeSetup({ format: "imposter", pool: "superheroes", opts: { answer: "buzz" } })!.opts.answer).toBe("phones");
+    expect(sanitizeSetup({ format: "mafia", pool: "mafia", opts: { answer: "buzz" } })!.opts.answer).toBe("phones");
+    expect(sanitizeSetup({ format: "snake", pool: "nba", opts: { answer: "buzz" } } as any)?.opts.answer ?? "phones").toBe("phones");
+    const phones = make(trivia(), ["Ann", "Bob"], false, { categories: cats });
+    expect((phones.r.state as any).answerMode).toBeUndefined();
+    expect(act(phones.r, phones.toks.Bob!, { type: "buzz" }).ok).toBe(false); // nothing to buzz in
+    expect((phones.r.state as any).buzzer).toBeUndefined();
+  });
+
+  it("Vowel Party buzz plays voice first-correct with 3 players, keeps its title, and Vowel Party drinking and teams", () => {
+    const setup = { format: "vowelparty", pool: topic, opts: { answer: "buzz", drinking: true, teams: 2, teamMap: { Ann: 0, Bob: 1, Cy: 0 } } };
+    expect(sanitizeSetup(setup)!.mission.title).toMatch(/^Vowel Party: /);
+    expect(sanitizeSetup(setup)!.opts).toMatchObject({ answer: "buzz", drinking: true, teams: 2, vowelAnswer: "voice" });
+    const { r, toks } = make(setup, ["Ann", "Bob", "Cy"]);
+    const s = r.state as VPState;
+    expect(s).toMatchObject({ mode: "first", answer: "voice", phase: "guess", total: 10 });
+    expect(r.setup.format).toBe("vowelparty");
+    expect(act(r, toks.Bob!, { type: "buzz" })).toEqual({ ok: true });
+    expect((r.state as VPState).phase).toBe("speak");
+    expect(act(r, toks.Bob!, { type: "spoke" })).toEqual({ ok: true });
+    expect((r.state as VPState).phase).toBe("judge");
+    expect(act(r, toks.Ann!, { type: "mark", verdict: "right" })).toEqual({ ok: true });
+    expect(act(r, toks.Cy!, { type: "mark", verdict: "right" })).toEqual({ ok: true });
+    expect((r.state as VPState).phase).toBe("reveal");
+    expect((r.state as VPState).points.Bob).toBeGreaterThan(0);
+  });
+
+  it("Vowel Party without buzz is still the typed race", () => {
+    const { r } = make({ format: "vowelparty", pool: topic, opts: {} }, ["Ann", "Bob"]);
+    expect(r.state).toMatchObject({ mode: "all", answer: "type" });
+  });
+});
