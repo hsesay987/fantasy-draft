@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Check, Copy, Crown, ExternalLink, LogOut, Play, RefreshCw, Shuffle, Trophy, Users } from "lucide-react";
+import { Check, Copy, Crown, ExternalLink, LogOut, Play, RefreshCw, Shuffle, Trophy, Tv, Users } from "lucide-react";
 import { Button, Card, GameTile, PageHeader, PageShell, Panel, controlCls } from "../../components/ui";
 import { GameBody } from "../../play/GameScreen";
 import SetupScreen from "../../play/SetupScreen";
@@ -16,7 +16,7 @@ import { TEAM_MIN_PLAYERS } from "../../topicDraft/formats/partytrivia";
 import { MIN_PLAYERS as MAFIA_MIN } from "../../topicDraft/formats/mafia";
 import { category } from "../../play/categories";
 import { vowelTopicTitle } from "../../topicDraft/party/vowelTopics";
-import { clearToken, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setStatLink, startRoom, type RoomSnapshot } from "../../play/onlineApi";
+import { clearToken, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setScreen, setStatLink, startRoom, type RoomSnapshot } from "../../play/onlineApi";
 import { useRemoteCtl, useRemoteRoom } from "../../play/useRemoteGame";
 import { loadPrefs, savePrefs } from "../../play/storage";
 import { useAuth } from "../../hooks/useAuth";
@@ -35,6 +35,11 @@ const topicLine = (format: FormatId, title: string | undefined): string | null =
   return t && t !== head && t !== "Mafia" ? t : null;
 };
 const isVowel = (format: string) => format === "vowelplay" || format === "vowelparty";
+/** The game's topic as a short line: a party game's own title, else the deck or category it plays from. */
+const topicOf = (setup: GameSetup): string | null | undefined =>
+  PARTY_FORMATS.has(setup.format) ? topicLine(setup.format, setup.mission.title) : isVowel(setup.format) ? vowelTopicTitle(setup.pool) : setup.format === "vote" ? deckOf(setup.pool)?.title : setup.format === "insync" ? insyncDeckOf(setup.pool)?.title : category(setup.pool)?.title;
+/** The seats that play: everyone but the screen host. */
+const playingSeats = (snap: RoomSnapshot) => snap.seats.filter((s) => !s.screen);
 const DUEL_ONLY = "Head to head takes exactly 2 players";
 
 /**
@@ -127,7 +132,7 @@ export default function RoomPage() {
             </div>
           </div>
         )}
-        <PlayingRoom snap={{ ...snap, setup }} offset={offset} dispatch={dispatchRemote} onNew={isHost ? toLobby : () => setError(null)} onRematch={isHost ? rematch : undefined} onLeave={leave} />
+        <PlayingRoom code={code} snap={{ ...snap, setup }} offset={offset} dispatch={dispatchRemote} onNew={isHost ? toLobby : () => setError(null)} onRematch={isHost ? rematch : undefined} onLeave={leave} />
       </>
     );
   }
@@ -138,9 +143,10 @@ export default function RoomPage() {
 /** The server decides who hosts: the first seat that hasn't left and whose phone is awake. */
 const hostName = (snap: RoomSnapshot) => snap.seats.find((s) => s.host)?.name ?? "the host";
 
-function PlayingRoom({ snap, offset, dispatch, onNew, onRematch, onLeave }: { snap: RoomSnapshot & { setup: GameSetup }; offset: number; dispatch: ReturnType<typeof useRemoteRoom>["dispatchRemote"]; onNew: () => void; onRematch?: () => void; onLeave: () => void }) {
+function PlayingRoom({ code, snap, offset, dispatch, onNew, onRematch, onLeave }: { code: string; snap: RoomSnapshot & { setup: GameSetup }; offset: number; dispatch: ReturnType<typeof useRemoteRoom>["dispatchRemote"]; onNew: () => void; onRematch?: () => void; onLeave: () => void }) {
   const ctl = useRemoteCtl(snap, offset, dispatch, onLeave);
-  return <GameBody setup={snap.setup} ctl={ctl} serverVerdict={snap.verdict} onNew={onNew} onRematch={onRematch} />;
+  const screen = snap.screen ? { title: formatMeta(snap.setup.format)?.title ?? "Party night", topic: topicOf(snap.setup), code } : undefined;
+  return <GameBody setup={snap.setup} ctl={ctl} serverVerdict={snap.verdict} onNew={onNew} onRematch={onRematch} screen={screen} />;
 }
 
 function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; token: string; snap: RoomSnapshot; isHost: boolean; onLeave: () => void; refresh: () => Promise<void> }) {
@@ -153,19 +159,22 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   const [opening, setOpening] = useState<League | null>(null);
   const setup = snap.setup;
   const meta = setup ? formatMeta(setup.format) : null;
-  const cat = setup ? category(setup.pool) : null;
   const party = !!setup && PARTY_FORMATS.has(setup.format);
   const cap = !setup || party ? 12 : 6; // an empty room takes a party-sized group; drafts cap it at six
   const need = setup ? seatsNeeded(setup.format) : 2;
-  const shortForMafia = setup?.format === "mafia" && snap.seats.length < MAFIA_MIN;
-  const shortForGame = !!setup && snap.seats.length >= 2 && snap.seats.length < need && !shortForMafia;
-  const here = snap.seats.filter((s) => !s.left).length;
+  // The screen host never plays, so it counts for no minimum, no cap and no team.
+  const players = playingSeats(snap);
+  const count = players.length;
+  const shortForMafia = setup?.format === "mafia" && count < MAFIA_MIN;
+  const shortForGame = !!setup && count >= 2 && count < need && !shortForMafia;
+  const here = players.filter((s) => !s.left).length;
+  const [switching, setSwitching] = useState(false);
   const duelWrong = setup?.format === "vowelplay" && setup.opts.vowelMode === "duel" && here !== 2;
-  const poolTitle = setup && party ? topicLine(setup.format, setup.mission.title) : setup ? (isVowel(setup.format) ? vowelTopicTitle(setup.pool) : setup.format === "vote" ? deckOf(setup.pool)?.title : setup.format === "insync" ? insyncDeckOf(setup.pool)?.title : cat?.title) : null;
+  const poolTitle = setup ? topicOf(setup) : null;
 
   // Picking a game: the full setup screen for that format, saving to the room.
   if (isHost && (picking === "imposter" || picking === "vote" || picking === "insync" || picking === "partytrivia" || picking === "mafia" || picking === "vowelplay" || picking === "vowelparty")) {
-    return <PartySetup format={picking} seats={snap.seats.map((s) => s.name)} room={{ code, token, pool: setup?.pool, pools: setup?.pools, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
+    return <PartySetup format={picking} seats={players.map((s) => s.name)} room={{ code, token, pool: setup?.pool, pools: setup?.pools, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
   }
   if (isHost && picking && picking !== "menu") {
     return <SetupScreen format={picking} room={{ code, token, pool: setup?.pool, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
@@ -180,6 +189,15 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
     } catch {
       /* clipboard blocked */
     }
+  };
+  const toggleScreen = async (on: boolean) => {
+    if (on === snap.screen) return;
+    setError(null);
+    setSwitching(true);
+    const r = await setScreen(code, token, on);
+    setSwitching(false);
+    if (!r.ok) setError(r.data.error ?? "Couldn't switch");
+    else await refresh();
   };
   const start = async () => {
     setError(null);
@@ -199,7 +217,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   };
   const surprise = () => {
     // Only games this table can actually start: party games by their seat minimum, drafts and trivia up to six seats.
-    const n = snap.seats.length;
+    const n = count;
     const f = [...PARTY_GAMES.filter((x) => n >= seatsNeeded(x.id)), ...ROOM_GAMES.filter((x) => n >= seatsNeeded(x.id)), ...(n <= 6 ? FORMATS.filter((x) => x.id !== "loadout") : [])];
     setPicking(f[Math.floor(Math.random() * f.length)]!.id as FormatId);
   };
@@ -215,18 +233,29 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
             <Button variant="ghost" onClick={copy}>{copied ? <Check className="h-4 w-4" aria-hidden /> : <Copy className="h-4 w-4" aria-hidden />} {copied ? "Copied" : "Copy link"}</Button>
           </div>
         </Panel>
-        <Panel title={`Players (${snap.seats.length}/${cap})`}>
+        <Panel title={`Players (${count}/${cap})`}>
           <ul className="space-y-2">
             {snap.seats.map((s) => {
               const wins = snap.played.filter((g) => g.winner === s.name).length;
               return (
                 <li key={s.name} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-2.5">
-                  <span className="flex items-center gap-2 font-semibold">{s.host ? <Crown className="h-4 w-4 text-accent" aria-label="Host" /> : <Users className="h-4 w-4 text-muted-foreground" aria-hidden />}{s.name}{s.name === snap.me && <span className="text-xs text-secondary">you</span>}</span>
+                  <span className="flex items-center gap-2 font-semibold">{s.host ? <Crown className="h-4 w-4 text-accent" aria-label="Host" /> : <Users className="h-4 w-4 text-muted-foreground" aria-hidden />}{s.name}{s.name === snap.me && <span className="text-xs text-secondary">you</span>}{s.screen && <span className="flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5 text-xs text-muted-foreground"><Tv className="h-3.5 w-3.5" aria-hidden /> screen, not playing</span>}</span>
                   {wins > 0 && <span className="flex items-center gap-1 text-sm text-secondary"><Trophy className="h-4 w-4" aria-hidden /> {wins}</span>}
                 </li>
               );
             })}
           </ul>
+          {isHost && (
+            <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="How you host">
+              {([[false, "Play", "You play on this device"], [true, "Host on a screen", "This device is the TV. You don't play"]] as const).map(([on, label, hint]) => (
+                <button key={label} type="button" role="radio" aria-checked={snap.screen === on} disabled={switching} onClick={() => void toggleScreen(on)}
+                  className={`flex min-h-11 flex-col items-start gap-0.5 rounded-xl border px-3 py-2 text-left text-sm transition ${snap.screen === on ? "border-accent bg-accent/15" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+                  <span className="flex items-center gap-1.5 font-semibold">{on ? <Tv className="h-4 w-4" aria-hidden /> : <Play className="h-4 w-4" aria-hidden />}{label}</span>
+                  <span className="text-xs text-muted-foreground">{hint}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </Panel>
       </div>
 
@@ -243,7 +272,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
             <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${meta.gradient}`}><meta.icon className="h-7 w-7 text-white" aria-hidden /></span>
             <div className="min-w-0 flex-1">
               <div className="text-lg font-semibold">{meta.title}{poolTitle ? ` · ${poolTitle}` : ""}</div>
-              <div className="text-sm text-muted-foreground">{party ? (setup.format === "vowelplay" ? `${setup.opts.vowelMode === "duel" ? "Head to head · 2 players" : `First correct · ${setup.opts.teamSize} words · 2+ players`} · ${setup.opts.vowelAnswer === "type" ? "type it" : "say it"}` : setup.format === "vowelparty" ? "10 words · everyone races · typed · 2+ players" : setup.format === "mafia" ? `Secret roles · ${MAFIA_MIN}+ players` : setup.format === "partytrivia" ? `up to ${setup.opts.teamSize} questions · ${setup.opts.teams >= 2 ? (snap.seats.length >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"} · 2+ players` : setup.format === "insync" ? `${Math.max(4, snap.seats.length)} rounds · one group score · 2+ players` : setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}{party && setup.opts.drinking ? " · drinking mode" : ""}</div>
+              <div className="text-sm text-muted-foreground">{party ? (setup.format === "vowelplay" ? `${setup.opts.vowelMode === "duel" ? "Head to head · 2 players" : `First correct · ${setup.opts.teamSize} words · 2+ players`} · ${setup.opts.vowelAnswer === "type" ? "type it" : "say it"}` : setup.format === "vowelparty" ? "10 words · everyone races · typed · 2+ players" : setup.format === "mafia" ? `Secret roles · ${MAFIA_MIN}+ players` : setup.format === "partytrivia" ? `up to ${setup.opts.teamSize} questions · ${setup.opts.teams >= 2 ? (count >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"} · 2+ players` : setup.format === "insync" ? `${Math.max(4, count)} rounds · one group score · 2+ players` : setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}{party && setup.opts.drinking ? " · drinking mode" : ""}</div>
               {party && setup.opts.drinking && <WaterLine />}
             </div>
             {isHost && <Button variant="ghost" onClick={() => setPicking("menu")}><RefreshCw className="h-4 w-4" aria-hidden /> Change game</Button>}
@@ -297,11 +326,11 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
       {error && <p role="alert" className="text-sm text-accent">{error}</p>}
       <div className="flex gap-3">
         {isHost ? (
-          <Button variant="accent" className="flex-1 text-lg" disabled={!setup || snap.seats.length < 2 || duelWrong || shortForMafia || shortForGame || picking === "menu"} onClick={start}>
-            <Play className="h-5 w-5" aria-hidden /> {!setup ? "Pick a game first" : duelWrong ? DUEL_ONLY : shortForMafia ? `Need ${MAFIA_MIN} players` : shortForGame ? `Need ${need} players` : snap.seats.length < 2 ? "Waiting for players…" : "Start game"}
+          <Button variant="accent" className="flex-1 text-lg" disabled={!setup || count < 2 || duelWrong || shortForMafia || shortForGame || picking === "menu"} onClick={start}>
+            <Play className="h-5 w-5" aria-hidden /> {!setup ? "Pick a game first" : duelWrong ? DUEL_ONLY : shortForMafia ? `Need ${MAFIA_MIN} players` : shortForGame ? `Need ${need} players` : count < 2 ? "Waiting for players…" : "Start game"}
           </Button>
         ) : (
-          <p className="flex-1 self-center text-center text-muted-foreground">{duelWrong ? DUEL_ONLY : shortForMafia ? `Mafia needs ${MAFIA_MIN} players. ${snap.seats.length} here so far.` : shortForGame ? `${meta?.title} needs ${need} players. ${snap.seats.length} here so far.` : setup ? `Waiting for ${hostName(snap)} to start…` : `Waiting for ${hostName(snap)} to pick a game…`}</p>
+          <p className="flex-1 self-center text-center text-muted-foreground">{duelWrong ? DUEL_ONLY : shortForMafia ? `Mafia needs ${MAFIA_MIN} players. ${count} here so far.` : shortForGame ? `${meta?.title} needs ${need} players. ${count} here so far.` : setup ? `Waiting for ${hostName(snap)} to start…` : `Waiting for ${hostName(snap)} to pick a game…`}</p>
         )}
         <Button variant="ghost" onClick={onLeave}><LogOut className="h-4 w-4" aria-hidden /> Leave</Button>
       </div>

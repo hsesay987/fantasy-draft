@@ -23,6 +23,8 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const deck = deckOf(s.deck);
   const card = s.cards[s.round]!;
   const me = ctl.me ?? "";
+  // Watching (the screen host): the ballots show but can't be marked, and there is no guess sheet or personal score.
+  const seated = s.players.includes(me);
   const teams = teamsFor(setup, (ctl.state as V.VoteState).players);
   const mine = own(s.votes, me);
   const gone = ctl.gone ?? [];
@@ -44,7 +46,8 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const total = open ? Math.max(1, Object.keys(open).length) : 1;
   const sides: { id: V.Side; label: string }[] = [{ id: "a", label: card.a }, { id: "b", label: card.b }];
   const waiting = s.players.filter((p) => !gone.includes(p) && !has(s.votes, p)).length;
-  const status = s.phase !== "vote" ? null : mine ? `Locked in. Waiting for ${waiting} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
+  const status = !seated ? (s.phase === "vote" ? `Voting on the phones. ${waiting} still to vote.` : s.phase === "guess" ? "Everyone is reading the room on their phones…" : null)
+    : s.phase !== "vote" ? null : mine ? `Locked in. Waiting for ${waiting} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
 
   return (
     <PixelShell world="hall">
@@ -69,7 +72,7 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
             const n = count(id);
             const truth = !!reveal && card.answer === id;
             return (
-              <button key={id} type="button" disabled={!!mine || s.phase !== "vote"} aria-pressed={mine === id} onClick={() => ctl.dispatch({ type: "vote", by: me, side: id })}
+              <button key={id} type="button" disabled={!seated || !!mine || s.phase !== "vote"} aria-pressed={mine === id} onClick={() => ctl.dispatch({ type: "vote", by: me, side: id })}
                 className={`ballot ${mine === id ? "marked" : ""} ${mine && mine !== id && !reveal ? "faded" : ""} ${truth ? "true" : ""}`}>
                 <span className="box" aria-hidden>{mine === id && <span>X</span>}</span>
                 <span><span className="side">{id.toUpperCase()}</span>{label}{truth && <span className="truth">TRUE</span>}</span>
@@ -80,7 +83,7 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
           })}
         </div>
 
-        {s.phase === "guess" && <GuessSheet s={s} me={me} card={card} onGuess={(target, side) => ctl.dispatch({ type: "guessVote", by: me, target, side })} />}
+        {s.phase === "guess" && seated && <GuessSheet s={s} me={me} card={card} onGuess={(target, side) => ctl.dispatch({ type: "guessVote", by: me, target, side })} />}
 
         {status && <p className="party-status">{status}</p>}
 
@@ -93,8 +96,8 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <PixelBox as="section" pad={false} className="hall-board">
             <h2>{card.answer ? (card.answer === "a" ? "It really happened." : "Made up!") : "Votes are in."}</h2>
             {card.note && <p className="px-note">{card.note}</p>}
-            <p className="gain">{gain > 0 ? `+${gain} for you.` : "No point this time."}{reveal.nobodyGot.includes(me) ? " Nobody read you." : ""}</p>
-            {s.showVotes ? <Reads players={s.players} reveal={reveal} /> : <p className="px-note">The booths stay shut. Only you can see your score.</p>}
+            {seated && <p className="gain">{gain > 0 ? `+${gain} for you.` : "No point this time."}{reveal.nobodyGot.includes(me) ? " Nobody read you." : ""}</p>}
+            {s.showVotes ? <Reads players={s.players} reveal={reveal} /> : <p className="px-note">{seated ? "The booths stay shut. Only you can see your score." : "The booths stay shut. Scores stay secret until the end."}</p>}
             {canMoveOn(ctl)
               ? <PixelButton variant="gold" className="w-[calc(100%-8px)]" onClick={() => ctl.dispatch({ type: "next", by: me })}>Next card &gt;</PixelButton>
               : <WaitingForHost ctl={ctl} />}

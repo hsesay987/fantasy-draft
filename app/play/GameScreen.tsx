@@ -29,12 +29,21 @@ import { InSyncResults, InSyncView } from "./views/InSyncView";
 import { PartyTriviaResults, PartyTriviaView } from "./views/PartyTriviaView";
 import { MafiaResults, MafiaView } from "./views/MafiaView";
 import { VowelPlayResults, VowelPlayView } from "./views/VowelPlayView";
+import { ScreenFrame } from "./views/ScreenFrame";
 import { PARTY_FORMATS } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 /** Shows the right view for the format, then the verdict. Used by local and online games. */
-export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew: () => void; onRematch?: () => void }) {
+/** Set on the screen host's device: the game shows in the TV frame, in watch mode. */
+export type ScreenProps = { title: string; topic?: string | null; code: string };
+
+export function GameBody({ screen, ...props }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew: () => void; onRematch?: () => void; screen?: ScreenProps }) {
+  const view = <GameView {...props} />;
+  return screen ? <ScreenFrame setup={props.setup} ctl={props.ctl} {...screen}>{view}</ScreenFrame> : view;
+}
+
+function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew: () => void; onRematch?: () => void }) {
   const { token } = useAuth();
   const { play } = useSound();
   const done = isDone(setup, ctl.state);

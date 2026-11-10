@@ -23,8 +23,10 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const me = ctl.me ?? "";
   const pair = s.pairs[s.round]!;
   const host = IS.giver(s);
-  const isHost = me === host;
-  const canTune = s.phase === "tune" && !isHost && s.players.includes(me);
+  // Watching (the screen host): no mic, no marker, no lock.
+  const seated = s.players.includes(me);
+  const isHost = seated && me === host;
+  const canTune = s.phase === "tune" && !isHost && seated;
   const last = s.phase === "reveal" ? s.history[s.history.length - 1]! : null;
   const points = (last ? last.points : null) as Points | null;
 
@@ -140,6 +142,12 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <div className="sync-lock">
             <p className="sync-hint">{cleared ? "The signal moved, so the locks went out. Lock again." : "Drag the signal. Talk it over. Anyone can move it."}</p>
             <PixelButton variant="gold" className="sync-lock-btn" disabled={lockedByMe} aria-pressed={lockedByMe} onClick={lock}>{lockedByMe ? "Locked" : "Lock it in"}</PixelButton>
+            <LockLamps have={have} need={need} />
+          </div>
+        )}
+        {!canTune && !isHost && s.phase === "tune" && (
+          <div className="sync-lock">
+            <p className="sync-hint">The room is tuning the signal on their phones.</p>
             <LockLamps have={have} need={need} />
           </div>
         )}
