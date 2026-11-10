@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { applyAction, poolFor, type Action } from "../topicDraft/core";
 import { API_URL, getRoom, loadToken, sendAction, type RoomSnapshot } from "./onlineApi";
-import type { GameCtl } from "./useGame";
+import type { GameCtl, MoveResult } from "./useGame";
 import { trackAction } from "./trackAction";
 import { PARTY_FORMATS } from "./types";
 
@@ -50,18 +50,19 @@ export function useRemoteRoom(code: string) {
   }, [code, refresh]);
 
   const dispatchRemote = useCallback(
-    (a: Action) => {
+    (a: Action): Promise<MoveResult> => {
       const tk = token.current ?? loadToken(code);
-      if (!tk) return;
+      if (!tk) return Promise.resolve({ ok: false, error: "Not in this room" });
       if (snapRef.current?.setup) trackAction(snapRef.current.setup, a, true);
       // Optimistic: apply locally right away, then take the server's answer. Party games hide secrets from each
       // seat, so a local guess could be scored against a blank; those wait for the server.
       setSnap((cur) => (cur?.state && cur.setup && !PARTY_FORMATS.has(cur.setup.format) ? { ...cur, state: applyAction(cur.setup, cur.state, a, Date.now() + offset) } : cur));
-      void sendAction(code, tk, a).then((r) => {
+      return sendAction(code, tk, a).then((r) => {
         const s = (r.data as { snapshot?: RoomSnapshot }).snapshot;
         if (s) {
           accept(s);
         } else void refresh();
+        return { ok: r.ok, error: r.data?.error };
       });
     },
     [code, offset, accept, refresh]
@@ -70,7 +71,7 @@ export function useRemoteRoom(code: string) {
   return { snap, missing, offset, refresh, dispatchRemote, setToken: (t: string) => (token.current = t) };
 }
 
-export function useRemoteCtl(snap: RoomSnapshot & { setup: NonNullable<RoomSnapshot["setup"]> }, offset: number, dispatch: (a: Action) => void, leave?: () => void): GameCtl {
+export function useRemoteCtl(snap: RoomSnapshot & { setup: NonNullable<RoomSnapshot["setup"]> }, offset: number, dispatch: (a: Action) => void | Promise<MoveResult>, leave?: () => void): GameCtl {
   const pool = useMemo(() => poolFor(snap.setup), [snap.setup]);
   const map = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
   return {

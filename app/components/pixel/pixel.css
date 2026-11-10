@@ -934,3 +934,141 @@
 @media (prefers-reduced-motion: reduce) {
   .noir-scene { animation: none; }
 }
+
+/* ---------- Vowel Play: a typewriter repair shop at closing time. Walnut and bench light, paper and ribbon red, seafoam enamel. ---------- */
+.pixel[data-world="typewriter"] { --px-bg: #1b1312; --px-bg2: #221816; --px-panel: #33231e; --px-panel2: #4a3229; --px-ink: #120b0a; --px-fg: #f6ecd2; --px-dim: #c4ad92; --px-lav: #e8c58a; --px-rose: #c8341f; --px-gold: #e3b04b; --px-mint: #7fc8b4; --px-sky: #8cc6c9; --px-violet: #3a6a62;
+  background: #1b1312 repeating-linear-gradient(0deg, #221816 0 2px, #1b1312 2px 8px); }
+.vp-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; max-width: 40rem; margin-inline: auto; }
+.vp-back { justify-self: start; color: var(--px-lav); font-size: 19px; }
+.vp-back:hover { color: var(--px-gold); }
+.vp-sign { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px; padding: 8px 12px; min-width: 0; background: var(--px-panel2); box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 3px 0 0 #6a4b3c, inset 0 -3px 0 0 #2c1d17; }
+.vp-sign > div { min-width: 0; }
+.vp-sign .eyebrow { margin: 0 0 4px; font: 400 9px/1.4 var(--px-head); color: var(--px-lav); overflow-wrap: anywhere; }
+.pixel .vp-sign h1 { margin: 0; font: 400 14px/1.45 var(--px-head); text-shadow: none; }
+.vp-score { display: grid; justify-items: end; flex: none; line-height: 1; margin: 0; }
+.vp-score b { font: 400 32px/1 var(--px-body); color: var(--px-gold); }
+.vp-score span { font-size: 18px; color: var(--px-dim); }
+.vp-stage { position: relative; margin: 4px; box-shadow: 0 0 0 4px var(--px-ink); scroll-margin-top: 72px; }
+.vp-machine { width: 100%; overflow: hidden; line-height: 0; background: #1c1214; }
+/* Keyboard up on a short screen: show only the sheet and the platen (the top 46 scene pixels), with the score along its foot. */
+.vp-stage.compact .vp-machine { max-height: calc(46px * var(--tw-scale, 2)); }
+.vp-stage.compact .vp-pop { top: auto; bottom: 2px; font-size: 14px; padding: 4px 8px 3px; }
+/* The site's bottom bar would sit over the input above a phone's keyboard, so it steps aside while the player types. */
+html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
+.pixel .vp-machine canvas { margin-inline: auto; image-rendering: pixelated; }
+/* The score sits over the carriage and the type basket, under the sheet, so it never covers the name. */
+.vp-pop { position: absolute; left: 50%; top: 35%; margin: 0; padding: 6px 10px 5px; pointer-events: none; transform: translateX(-50%); white-space: nowrap; font: 400 20px/1 var(--px-head); color: var(--px-ink); background: var(--px-gold); box-shadow: 0 -3px 0 0 var(--px-ink), 0 3px 0 0 var(--px-ink), -3px 0 0 0 var(--px-ink), 3px 0 0 0 var(--px-ink), inset 0 2px 0 0 #ffe08a, inset 0 -2px 0 0 #b98a33; animation: vp-pop .46s steps(7) .32s both; }
+@keyframes vp-pop { 0% { opacity: 0; transform: translate(-50%, 32px) scale(.5); } 1% { opacity: 1; } 55% { transform: translate(-50%, -6px) scale(1.25); } 100% { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+.vp-clock { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; margin: 2px 4px 0; min-height: 26px; }
+.vp-clock .px-seg i { background: var(--px-gold); } .vp-clock .px-seg i.off { background: var(--px-ink); }
+.vp-clock.low .px-seg i:not(.off) { background: var(--px-rose); }
+.vp-clock span { font-size: 22px; line-height: 1; color: var(--px-dim); font-variant-numeric: tabular-nums; }
+.vp-clock b { font-weight: 400; color: var(--px-gold); }
+.vp-term { display: flex; gap: 6px; align-items: stretch; min-width: 0; }
+.vp-term .in { flex: 1; min-width: 0; background: var(--px-ink); display: flex; align-items: center; padding: 0 10px; gap: 6px; margin: 4px; box-shadow: 0 0 0 4px var(--px-panel2); }
+.vp-term .in > span { color: var(--px-rose); font-size: 28px; }
+.vp-term input { flex: 1; min-width: 0; width: 100%; background: transparent; border: 0; color: var(--px-fg); font: 400 28px var(--px-body); padding: 10px 0; caret-color: var(--px-rose); }
+.vp-term input::placeholder { color: var(--px-dim); opacity: .8; }
+.vp-term input:focus-visible { outline: 0; }
+.vp-term .in:focus-within { box-shadow: 0 0 0 4px var(--px-gold); }
+.vp-term .px-btn { flex: none; padding-inline: 12px; }
+.vp-term.miss .in { box-shadow: 0 0 0 4px var(--px-rose); }
+/* vp-shake-a and vp-shake-b are identical on purpose: swapping the class name restarts the shake on every wrong guess. */
+.vp-term.m0 { animation: vp-shake-a .3s steps(6); } .vp-term.m1 { animation: vp-shake-b .3s steps(6); }
+@keyframes vp-shake-a { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+@keyframes vp-shake-b { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.vp-word { margin: 0 4px; min-height: 30px; font-size: 24px; line-height: 1.15; }
+.vp-word b { font-weight: 400; color: var(--px-gold); }
+.vp-word .lost { color: #ef8a73; }
+.vp-word .no { color: #ef8a73; }
+.vp-pips { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin: 0 4px; padding: 0; list-style: none; }
+.vp-rules { display: grid; gap: 8px; }
+.vp-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.vp-actions .px-btn { min-width: 0; }
+.vp-topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 11.5rem), 1fr)); gap: 12px; margin: 0; padding: 4px; list-style: none; }
+.vp-topic { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 52px; padding: 8px 12px; background: var(--px-ink); color: var(--px-fg); font-size: 23px; line-height: 1.05; text-decoration: none; box-shadow: 0 0 0 4px var(--px-panel2); }
+.vp-topic:hover, .vp-topic:focus-visible { box-shadow: 0 0 0 4px var(--px-gold); color: var(--px-gold); }
+.vp-topic em { flex: none; font-style: normal; font-size: 19px; color: var(--px-gold); }
+/* The final screen is the shop's repair ticket: paper, ink and a rubber stamp. */
+.vp-ticket { position: relative; margin: 4px; padding: 16px 14px 14px; display: grid; gap: 10px; background: #f6ecd2; color: #1b1720; box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 -4px 0 0 #e7d9b4; }
+.vp-ticket::before { content: ""; position: absolute; left: 6px; right: 6px; top: 6px; height: 4px; background: repeating-linear-gradient(90deg, #120b0a 0 4px, transparent 4px 12px); }
+.pixel .vp-ticket h2 { margin: 0; font: 400 13px/1.4 var(--px-head); color: #1b1720; }
+.vp-ticket dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 0; }
+.vp-ticket dt { font: 400 8px/1.4 var(--px-head); color: #6a5b4a; }
+.vp-ticket dd { margin: 2px 0 0; font-size: 40px; line-height: 1; }
+.vp-stamp { justify-self: start; padding: 4px 8px 3px; font: 400 10px/1.3 var(--px-head); color: #c8341f; box-shadow: 0 0 0 3px #c8341f; transform: rotate(-3deg); }
+.vp-missed { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; font-size: 23px; line-height: 1.1; }
+.vp-missed li { display: flex; justify-content: space-between; gap: 10px; border-bottom: 2px dotted #c9b98f; padding-bottom: 2px; }
+.vp-missed span { flex: none; color: #c8341f; letter-spacing: .04em; }
+.vp-ticket .px-note { color: #6a5b4a; margin: 0; }
+/* Sip cards here sit in the page, under the standings, rather than floating over them. */
+.vp-page .tavern-card { position: static; transform: none; width: auto; margin: 4px; animation: none; }
+/* Online rooms: the players, the tug strip and the end-of-game ticket. */
+.vp-roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); gap: 5px; margin: 4px; padding: 0; list-style: none; }
+.vp-roster li { display: flex; align-items: center; gap: 5px; min-width: 0; min-height: 30px; padding: 3px 6px; background: var(--px-ink); box-shadow: 0 0 0 3px var(--px-panel2); font-size: 19px; line-height: 1; }
+.vp-roster li.me { box-shadow: 0 0 0 3px var(--px-lav); }
+.vp-roster li.got { box-shadow: 0 0 0 3px var(--px-gold); }
+.vp-roster canvas { flex: none; }
+.vp-roster .rk { flex: none; min-width: 10px; color: var(--px-dim); font-size: 18px; }
+.vp-roster .rk:empty { display: none; }
+.vp-roster .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vp-roster .tag { flex: none; font: 400 8px/1 var(--px-head); color: var(--px-gold); }
+.vp-roster .tag:empty { display: none; }
+.vp-roster .pts { flex: none; font-weight: 400; color: var(--px-gold); font-variant-numeric: tabular-nums; }
+.vp-headline { margin: 0; font: 400 28px/1.05 var(--px-body); }
+.vp-headline.mine { color: #c8341f; }
+.vp-board { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 24px; line-height: 1; }
+.vp-board li { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 3px 0; border-bottom: 2px dotted #c9b98f; }
+.vp-board li.top .name { color: #c8341f; }
+.vp-board li.me .name { text-decoration: underline; }
+.vp-board .rk { flex: none; min-width: 14px; color: #6a5b4a; }
+.vp-board .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vp-board b { flex: none; font-weight: 400; }
+.vp-words { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; font-size: 22px; line-height: 1.1; }
+.vp-words li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; padding-bottom: 2px; border-bottom: 2px dotted #c9b98f; }
+.vp-words b { min-width: 0; overflow-wrap: anywhere; }
+.vp-words .puz { color: #6a5b4a; font-size: 18px; letter-spacing: .04em; }
+.vp-words .who { margin-left: auto; color: #c8341f; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vp-words .who.none { color: #6a5b4a; }
+@media (prefers-reduced-motion: reduce) {
+  .vp-pop { animation: none; }
+  .vp-term.m0, .vp-term.m1 { animation: none; }
+  .vp-stamp { transform: none; }
+}
+/* Voice: the buzzer, the speaker's countdown, the answer slip and the judges' two keys. */
+.vp-voice { display: grid; gap: 8px; min-width: 0; }
+.vp-voice .vp-word { margin: 0 4px; }
+.pixel .vp-buzz { justify-self: stretch; min-height: 88px; font-size: 26px; letter-spacing: .08em; }
+.pixel .vp-buzz:not(:disabled) { animation: vp-buzz-glow 1.2s steps(2) infinite; }
+@keyframes vp-buzz-glow { 50% { background: #ffe08a; } }
+.vp-buzzed { display: flex; align-items: center; gap: 6px; margin: 0 4px; padding: 4px 8px; background: var(--px-ink); box-shadow: 0 0 0 3px var(--px-panel2); font-size: 22px; line-height: 1.1; min-width: 0; }
+.vp-buzzed canvas { flex: none; }
+.vp-buzzed span { min-width: 0; overflow-wrap: anywhere; }
+.vp-buzzed b { font-weight: 400; color: var(--px-gold); }
+.vp-buzzed .t { font-variant-numeric: tabular-nums; color: var(--px-fg); }
+.vp-say { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px; padding: 10px 12px; background: var(--px-rose); color: #fff; font: 400 18px/1.3 var(--px-head); box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 -5px 0 0 #7f1d13; }
+.vp-say b { flex: none; font: 400 40px/1 var(--px-body); color: #ffe08a; font-variant-numeric: tabular-nums; }
+.pixel .vp-done { justify-self: stretch; min-height: 60px; font-size: 16px; background: var(--px-panel2); }
+/* The answer slip, torn off the sheet: what the judges hold the speaker to. */
+.vp-answer { display: grid; justify-items: center; gap: 4px; margin: 4px; padding: 10px 10px 8px; background: #f6ecd2; color: #1b1720; text-align: center; box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 -4px 0 0 #e7d9b4; }
+.vp-answer .lbl { font: 400 8px/1.4 var(--px-head); color: #6a5b4a; }
+.vp-answer b { font-weight: 400; font-size: 34px; line-height: 1; overflow-wrap: anywhere; }
+.vp-answer .also { font-size: 19px; color: #6a5b4a; overflow-wrap: anywhere; }
+.vp-judge { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pixel .vp-judge .px-btn { min-height: 76px; min-width: 0; font-size: 16px; }
+.pixel .vp-judge .right { background: #3a6a62; }
+.pixel .vp-judge .wrong { background: var(--px-rose); }
+.vp-roster li.buzz { box-shadow: 0 0 0 3px var(--px-rose); }
+.vp-roster li.lost .tag { color: #ef8a73; }
+/* Head to head: the strip between the two machines, the names under them and who is ahead. */
+.vp-pull { display: grid; gap: 4px; margin: 4px; box-shadow: 0 0 0 4px var(--px-ink); background: var(--px-ink); }
+.vp-pull .ends { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 6px; padding: 2px 6px 4px; font-size: 20px; line-height: 1; }
+.vp-pull .ends .l, .vp-pull .ends .r { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.vp-pull .ends .r { justify-content: flex-end; }
+.vp-pull .ends canvas { flex: none; }
+.vp-pull .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vp-pull .lead { font: 400 8px/1.3 var(--px-head); color: var(--px-dim); white-space: nowrap; }
+.vp-pull .lead.to-l, .vp-pull .lead.to-r { color: var(--px-gold); }
+@media (prefers-reduced-motion: reduce) {
+  .pixel .vp-buzz:not(:disabled) { animation: none; }
+}

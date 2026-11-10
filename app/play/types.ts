@@ -3,10 +3,10 @@ import type { LoadoutMission } from "../topicDraft/formats/loadout";
 import type { Role } from "../topicDraft/formats/position";
 import type { QuizData } from "../topicDraft/trivia/types";
 
-export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote" | "insync" | "partytrivia" | "mafia";
+export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty";
 
 /** Party games: online only, played on phones in one room. `pool` is a topic (Imposter) or a card deck (vote games). */
-export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote", "insync", "partytrivia", "mafia"]);
+export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty"]);
 
 export type Opts = {
   teamSize: number;
@@ -46,6 +46,10 @@ export type Opts = {
   teams: number;
   /** Party games: player name to team index. */
   teamMap: Record<string, number>;
+  /** Vowel Play: "first" takes the word for the first correct answer, "duel" is Head to head. */
+  vowelMode: "first" | "duel";
+  /** Vowel Play: say it aloud and let the others judge, or type it. */
+  vowelAnswer: "voice" | "type";
 };
 
 export type GameSetup = {
@@ -90,6 +94,8 @@ export const DEFAULT_OPTS: Opts = {
   showVotes: true,
   teams: 0,
   teamMap: {},
+  vowelMode: "first",
+  vowelAnswer: "voice",
 };
 
 export function snakeConfig(setup: GameSetup): Config {

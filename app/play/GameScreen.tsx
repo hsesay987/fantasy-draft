@@ -28,6 +28,7 @@ import { VoteResults, VoteView } from "./views/VoteView";
 import { InSyncResults, InSyncView } from "./views/InSyncView";
 import { PartyTriviaResults, PartyTriviaView } from "./views/PartyTriviaView";
 import { MafiaResults, MafiaView } from "./views/MafiaView";
+import { VowelPlayResults, VowelPlayView } from "./views/VowelPlayView";
 import { PARTY_FORMATS } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -76,6 +77,7 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
   if (done && setup.format === "insync") return <InSyncResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "partytrivia") return <PartyTriviaResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "mafia") return <MafiaResults ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
+  if (done && (setup.format === "vowelplay" || setup.format === "vowelparty")) return <VowelPlayResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && finished && trivia) return <TriviaResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
 
   if (done && finished) {
@@ -120,6 +122,9 @@ export function GameBody({ setup, ctl, serverVerdict, onNew, onRematch }: { setu
       return <PartyTriviaView setup={setup} ctl={ctl} />;
     case "mafia":
       return <MafiaView ctl={ctl} />;
+    case "vowelplay":
+    case "vowelparty":
+      return <VowelPlayView setup={setup} ctl={ctl} />;
     default:
       return <SnakeView setup={setup} ctl={ctl} />;
   }

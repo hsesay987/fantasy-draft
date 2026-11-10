@@ -185,6 +185,8 @@ export const FORMAT_WHY: Record<FormatId, string> = {
   insync: "Give one clue, tune in together",
   partytrivia: "Answer fast, alone or in teams",
   mafia: "Find the mafia before they outnumber you",
+  vowelplay: "Name it with the vowels missing",
+  vowelparty: "Race to name it with the vowels missing",
 };
 
 /** Formats that make sense for a category (Loadout needs hero-ish items). */

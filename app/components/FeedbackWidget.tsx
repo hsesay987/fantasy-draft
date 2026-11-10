@@ -15,7 +15,7 @@ export default function FeedbackWidget() {
   // Sticky action bars live at the bottom of /play pages; keep the button clear of them.
   const lifted = pathname.startsWith("/play") || pathname.startsWith("/draft/new");
   // In a game the pill would sit on the board; on phones it shrinks to a small icon there.
-  const inGame = /^\/(play\/[^/]+\/game|room\/|daily\/|pinpoint\/|commonthread\/|toprung\/|costimation)/.test(pathname);
+  const inGame = /^\/(play\/[^/]+\/game|room\/|daily\/|pinpoint\/|commonthread\/|toprung\/|vowelplay\/|costimation)/.test(pathname);
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<FeedbackType>("feedback");
   const [category, setCategory] = useState("idea");

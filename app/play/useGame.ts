@@ -7,10 +7,13 @@ import type { GameSetup } from "./types";
 import { useRunState } from "./useRunState";
 import { trackAction } from "./trackAction";
 
+export type MoveResult = { ok: boolean; error?: string };
+
 /** One interface for local and online play: views read `state` and send `dispatch(action)`. */
 export type GameCtl = {
   state: GameState;
-  dispatch: (a: Action) => void;
+  /** Online, the promise says whether the server took the move (and why not), for the few moves that can be refused and shown so, like a wrong typed guess. */
+  dispatch: (a: Action) => void | Promise<MoveResult>;
   /** Your seat name when playing online, otherwise null. */
   me: string | null;
   online: boolean;

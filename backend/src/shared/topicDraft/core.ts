@@ -21,6 +21,7 @@ import * as V from "./formats/vote";
 import * as IS from "./formats/insync";
 import * as PT from "./formats/partytrivia";
 import * as MF from "./formats/mafia";
+import * as VP from "./formats/vowelplay";
 import { deckOf } from "./party/decks";
 import { insyncDeckOf } from "./party/insyncDecks";
 import { bundledCategories, surveysFor } from "./trivia";
@@ -29,7 +30,7 @@ import type { Item, State } from "./types";
 import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
-export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState;
+export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState;
 
 /** Every action says who is acting; the server checks that against the seat's token. */
 export type Action =
@@ -52,14 +53,18 @@ export type Action =
   | { type: "answer"; by: string; choice: string | number; seed?: number }
   | { type: "clue"; by: string; text: string }
   | { type: "accuse"; by: string; target: string }
-  | { type: "guess"; by: string; name: string }
+  | { type: "guess"; by: string; name?: string; text?: string }
   | { type: "vote"; by: string; side: string }
   | { type: "guessVote"; by: string; target: string; side: string }
   | { type: "move"; by: string; pos: number }
   | { type: "next"; by: string }
   | { type: "nightAct"; by: string; target: string }
   | { type: "dayVote"; by: string; target: string }
-  | { type: "skipTalk"; by: string };
+  | { type: "skipTalk"; by: string }
+  | { type: "buzz"; by: string }
+  | { type: "spoke"; by: string }
+  | { type: "mark"; by: string; verdict: "right" | "wrong" }
+  | { type: "giveUp"; by: string };
 
 export type Extra = { kind: "order"; title: string; names: string[] } | null;
 
@@ -112,6 +117,10 @@ export function initGame(setup: GameSetup, now: number): GameState {
       return PT.init({ players: setup.players, categories: setup.quiz?.categories?.length ? setup.quiz.categories : bundledCategories(setup.pool), count: o.teamSize, teams: o.teams, teamMap: o.teamMap, drinking: o.drinking, seed: setup.seed, now });
     case "mafia":
       return MF.init({ players: setup.players, drinking: o.drinking, seed: setup.seed, now });
+    case "vowelplay":
+      return VP.init({ players: setup.players, topic: setup.pool, mode: o.vowelMode, answer: o.vowelAnswer, count: o.teamSize, avoid: o.avoid, drinking: false, seed: setup.seed, now });
+    case "vowelparty":
+      return VP.init({ players: setup.players, topic: setup.pool, mode: "all", answer: "type", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }
@@ -266,6 +275,17 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       if (a.type === "tick") return PT.tick(x, now);
       return s;
     }
+    case "vowelplay":
+    case "vowelparty": {
+      const x = s as VP.VPState;
+      if (a.type === "guess") return VP.guess(x, a.by, a.text as string, now);
+      if (a.type === "buzz") return VP.buzz(x, a.by, now);
+      if (a.type === "spoke") return VP.spoke(x, a.by, now);
+      if (a.type === "mark") return VP.mark(x, a.by, a.verdict, now);
+      if (a.type === "giveUp") return VP.giveUp(x, a.by, now);
+      if (a.type === "tick") return VP.tick(x, now);
+      return s;
+    }
     case "mafia": {
       const x = s as MF.MafiaState;
       if (a.type === "nightAct") return MF.nightAct(x, a.by, a.target, now);
@@ -405,6 +425,8 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
     case "imposter":
     case "partytrivia":
     case "mafia":
+    case "vowelplay":
+    case "vowelparty":
     case "vote": {
       const pts = (s as { points: Record<string, number> }).points;
       return { extra: null, teams: setup.players.map((player) => ({ player, baseline: pts[player] ?? 0, items: [] })) };

@@ -9,6 +9,7 @@ import { OPTION_COUNT } from "../topicDraft/formats/imposter";
 import { TEAM_MIN_PLAYERS } from "../topicDraft/formats/partytrivia";
 import { MIN_PLAYERS as MAFIA_MIN, NIGHT_MS, QUIET_FIRST_NIGHT_AT, TALK_MS, VOTE_MS, rolesFor } from "../topicDraft/formats/mafia";
 import { newSeed } from "../topicDraft/rng";
+import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
 import { hasTrivia } from "../topicDraft/trivia";
 import { formatMeta } from "./formats";
 import { CATEGORIES, category } from "./categories";
@@ -25,17 +26,21 @@ export const IMPOSTER_TOPICS = CATALOG_META.filter((m) => m.kind === "character"
 const TRIVIA_TOPICS = CATEGORIES.filter((c) => !c.hidden && hasTrivia(c.id));
 
 /** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
-export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia"; room: { code: string; token: string; pool?: string; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
+export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty"; room: { code: string; token: string; pool?: string; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
   const meta = formatMeta(format)!;
   const decks = format === "insync" ? INSYNC_DECKS : DECKS;
   const [pool, setPool] = useState(() => {
     if (format === "mafia") return "mafia";
+    if (format === "vowelplay" || format === "vowelparty") return VOWEL_TOPICS.some((t) => t.id === room.pool) ? room.pool! : VOWEL_TOPICS[0]!.id;
     if (format === "imposter") return IMPOSTER_TOPICS.some((t) => t.id === room.pool) ? room.pool! : "superheroes";
     if (format === "partytrivia") return TRIVIA_TOPICS.some((t) => t.id === room.pool) ? room.pool! : TRIVIA_TOPICS[0]!.id;
     const ids = decks.map((d) => d.id);
     return ids.includes(room.pool ?? "") ? room.pool! : format === "insync" ? "friends" : ids[0]!;
   });
-  const [length, setLength] = useState(format === "imposter" ? 2 : format === "partytrivia" ? 10 : 8);
+  const [length, setLength] = useState(format === "imposter" ? 2 : format === "partytrivia" ? 10 : format === "vowelplay" ? 15 : format === "vowelparty" ? 10 : 8);
+  const [vowelMode, setVowelMode] = useState<"first" | "duel">("first");
+  const [vowelAnswer, setVowelAnswer] = useState<"voice" | "type">("voice");
+  const vowel = format === "vowelplay" || format === "vowelparty";
   const [teams, setTeams] = useState(0);
   const [teamMap, setTeamMap] = useState<TeamMap>({});
   const [ending, setEnding] = useState<"guess" | "vote">("guess");
@@ -56,7 +61,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking, showVotes, ...teamOpts }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking, showVotes, vowelMode, vowelAnswer, ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -83,6 +88,12 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
             {TRIVIA_TOPICS.map((t) => <Chip key={t.id} selected={pool === t.id} onClick={() => setPool(t.id)}>{t.title}</Chip>)}
           </div>
         </Panel>
+      ) : vowel ? (
+        <Panel title="Topic" hint="Every name comes from this topic. The topic is the only hint.">
+          <div className="flex flex-wrap gap-2">
+            {VOWEL_TOPICS.map((t) => <Chip key={t.id} selected={pool === t.id} onClick={() => setPool(t.id)}>{t.title}</Chip>)}
+          </div>
+        </Panel>
       ) : format === "mafia" ? (
         <MafiaTown seats={seats.length} />
       ) : (
@@ -98,7 +109,35 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </Panel>
       )}
 
-      {format === "mafia" ? null : format === "insync" ? (
+      {format === "vowelplay" && (
+        <>
+          <Panel title="Mode" hint={vowelMode === "duel" ? "Exactly 2 players. Each word pulls the marker one step. 5 steps ahead wins." : "The first right answer takes each word's point. Most points wins."}>
+            <div className="flex flex-wrap gap-2">
+              <Chip selected={vowelMode === "first"} onClick={() => setVowelMode("first")}>First correct</Chip>
+              <Chip selected={vowelMode === "duel"} onClick={() => setVowelMode("duel")}>Head to head</Chip>
+            </div>
+          </Panel>
+          <Panel title="Answer" hint={vowelAnswer === "voice" ? "Best in the same room or on a call." : "Everyone types on their own phone."}>
+            <div className="flex flex-wrap gap-2">
+              <Chip selected={vowelAnswer === "voice"} onClick={() => setVowelAnswer("voice")}>Voice</Chip>
+              <Chip selected={vowelAnswer === "type"} onClick={() => setVowelAnswer("type")}>Type</Chip>
+            </div>
+          </Panel>
+          {vowelMode === "first" && (
+            <Panel title="Words">
+              <div className="flex flex-wrap gap-2">
+                {[10, 15, 20].map((n) => <Chip key={n} selected={length === n} onClick={() => setLength(n)}>{n}</Chip>)}
+              </div>
+            </Panel>
+          )}
+        </>
+      )}
+
+      {format === "vowelplay" || format === "mafia" ? null : format === "vowelparty" ? (
+        <Panel title="Words">
+          <p className="text-sm text-muted-foreground">10 words, 20 seconds each. Everyone types on their own phone.</p>
+        </Panel>
+      ) : format === "insync" ? (
         <Panel title="Rounds">
           <p className="text-sm text-muted-foreground">One round per player, so everyone gets the mic. Never fewer than 4.</p>
         </Panel>
@@ -140,9 +179,11 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </Panel>
       )}
 
-      <Panel title="Drinking mode" hint="Optional. Off by default.">
-        <DrinkingToggle value={drinking} onChange={setDrinking} />
-      </Panel>
+      {format !== "vowelplay" && (
+        <Panel title="Drinking mode" hint="Optional. Off by default.">
+          <DrinkingToggle value={drinking} onChange={setDrinking} />
+        </Panel>
+      )}
 
       {error && <p role="alert" className="text-sm text-accent">{error}</p>}
       <div className="flex gap-3">
