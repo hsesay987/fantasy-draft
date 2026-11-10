@@ -48,6 +48,15 @@ describe("awardsFor", () => {
     expect(awardsFor(s, duel(-1), ["a", "b"])).toEqual({ a: 1, b: 5 });
     expect(awardsFor(s, duel(0), ["a", "b"])).toEqual({ a: 3, b: 3 });
   });
+  it("duel forfeit: the player who stayed wins, whatever the rope says", () => {
+    const s = setup("vowelplay", ["a", "b"], { vowelMode: "duel" });
+    expect(awardsFor(s, duel(-3, "a"), ["b"])).toEqual({ b: 5 });
+  });
+  it("duel with one player left: the winner gets nothing if they left", () => {
+    const s = setup("vowelplay", ["a", "b"], { vowelMode: "duel" });
+    expect(awardsFor(s, duel(2), ["b"])).toEqual({ b: 1 });
+    expect(awardsFor(s, duel(0), ["b"])).toEqual({ b: 3 });
+  });
   it("first-mode Vowel Play ranks points", () => {
     const s = setup("vowelplay", ["a", "b"]);
     expect(awardsFor(s, st({ mode: "first", players: ["a", "b"], points: { a: 1, b: 4 } }), ["a", "b"])).toEqual({ a: 3, b: 5 });
@@ -80,6 +89,17 @@ describe("addGame and standings", () => {
     const t2 = addGame(t1, "insync", "Sync", { a: 2, b: 2 });
     expect(t2).toMatchObject({ index: 2, totals: { a: 7, b: 3 }, done: true });
     expect(addGame(empty, "vote", "Vote", null).totals).toEqual({});
+  });
+  it("addGame does not mutate its input", () => {
+    const t: Tournament = { plan: ["vote", "insync"], index: 0, games: [], totals: { a: 1 }, done: false };
+    const copy = structuredClone(t);
+    addGame(t, "vote", "V", { a: 5 });
+    expect(t).toEqual(copy);
+  });
+  it("lists present players before left players on equal totals", () => {
+    const t = addGame(empty, "vote", "V", { gone: 3, here: 3 });
+    expect(standings(t, ["here"]).map((r) => r.name)).toEqual(["here", "gone"]);
+    expect(standings(t, ["here"]).map((r) => r.rank)).toEqual([1, 1]);
   });
   it("sorts, shares rank, lists left players and zero-point newcomers", () => {
     const t = addGame(addGame(empty, "vote", "V", { a: 5, b: 5, c: 1 }), "insync", "S", { a: 2, b: 2 });

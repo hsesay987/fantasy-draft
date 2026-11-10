@@ -5,7 +5,7 @@ import type { MafiaState } from "../formats/mafia";
 import type { PTState } from "../formats/partytrivia";
 import type { VPState } from "../formats/vowelplay";
 import { winners as vowelWinners } from "../formats/vowelplay";
-import { buildTeams } from "./teams";
+import { teamsFor } from "./teams";
 
 export type Awards = Record<string, number>;
 
@@ -13,9 +13,6 @@ export const PLACE_POINTS = [5, 3, 2];
 export const REST_POINTS = 1;
 export const COOP_POINTS = 2;
 export const DRAW_POINTS = 3;
-
-/** Fewest players for teams (the same as Party Trivia's). */
-const TEAM_MIN_PLAYERS = 4;
 
 export type Tournament = {
   plan: FormatId[];
@@ -32,14 +29,6 @@ const has = (o: object, k: string): boolean => Object.prototype.hasOwnProperty.c
 export function rankAwards(scores: Record<string, number>): Awards {
   const names = Object.keys(scores);
   return Object.fromEntries(names.map((n) => [n, placePoints(1 + names.filter((m) => scores[m]! > scores[n]!).length)]));
-}
-
-/** Teams for a team game, placed the way Party Trivia does (a copy of app/play/teamStandings.teamsFor, which the server does not get). */
-function teamsOf(setup: GameSetup): string[][] | null {
-  const { teams, teamMap } = setup.opts;
-  if (teams < 2 || setup.players.length < TEAM_MIN_PLAYERS) return null;
-  const filled = buildTeams(setup.players, teams, teamMap ?? {}).filter((t) => t.length > 0);
-  return filled.length >= 2 ? filled : null;
 }
 
 /** Players are ranked by their own scores; anyone seated with no entry gets the rest. */
@@ -85,7 +74,7 @@ export function awardsFor(setup: GameSetup, state: GameState, seated: string[], 
         const draw = won.length !== 1;
         return Object.fromEntries(seated.map((p) => [p, draw ? DRAW_POINTS : won.includes(p) ? PLACE_POINTS[0]! : REST_POINTS]));
       }
-      return byPoints(points(), seated);
+      return byPoints(points(), seated); // forfeit only ever happens in a duel (settle), so there is none to honour here
     }
     case "partytrivia": {
       const t = state as unknown as PTState;
@@ -95,7 +84,7 @@ export function awardsFor(setup: GameSetup, state: GameState, seated: string[], 
     case "vote":
     case "imposter":
     case "vowelparty": {
-      const teams = teamsOf(setup);
+      const teams = teamsFor(setup, setup.players);
       if (teams) return byTeams(teams, teams.map(sumOf), seated);
       return byPoints(points(), seated);
     }

@@ -7,12 +7,11 @@ import type { TriviaCategory } from "../trivia/types";
 import { TIERS, tierPools, type TierQuestion } from "../trivia/tiers";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { has, own } from "../party/own";
-import { buildTeams } from "../party/teams";
+import { buildTeams, TEAM_MIN_PLAYERS } from "../party/teams";
 export { buildTeams };
 
 export const QUESTION_MS = 25_000, REVEAL_MS = 7_000, BASE = 100, SPEED_MAX = 50;
-/** Fewest players for teams. */
-export const TEAM_MIN_PLAYERS = 4;
+export { TEAM_MIN_PLAYERS };
 
 export type PTQuestion = TierQuestion;
 export type PTState = {

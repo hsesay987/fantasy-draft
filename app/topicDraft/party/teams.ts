@@ -16,3 +16,17 @@ export function buildTeams(players: string[], teams: number, map: Record<string,
   }
   return out;
 }
+
+/** Fewest players for teams. */
+export const TEAM_MIN_PLAYERS = 4;
+
+/**
+ * The teams a party game was set up with, found from the seats and the host's map the way Party Trivia places them
+ * (loose players join the smallest team, empty teams are dropped). `null` when it is a solo game.
+ */
+export function teamsFor(setup: { opts: { teams: number; teamMap: Record<string, number> } }, players: string[]): string[][] | null {
+  const { teams, teamMap } = setup.opts;
+  if (teams < 2 || players.length < TEAM_MIN_PLAYERS) return null;
+  const filled = buildTeams(players, teams, teamMap ?? {}).filter((t) => t.length > 0);
+  return filled.length >= 2 ? filled : null;
+}
