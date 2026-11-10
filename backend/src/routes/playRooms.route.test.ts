@@ -107,3 +107,42 @@ describe("polling a room", () => {
     expect(JSON.stringify(back)).not.toContain("lastSeen");
   });
 });
+
+describe("typed Vowel Play guesses over HTTP", () => {
+  const get = (code: string, token?: string) => fetch(`${base}/${code}${token ? `?token=${token}` : ""}`).then((x) => x.json() as Promise<any>);
+
+  async function room(format: "vowelplay" | "vowelparty") {
+    const made = await post("", { setup: { format, pool: "superheroes", opts: { vowelAnswer: "type" } }, name: "Ann" });
+    const code = made.data.code as string;
+    const bob = (await post(`/${code}/join`, { name: "Bob" })).data.token as string;
+    expect((await post(`/${code}/start`, { token: made.data.token })).status).toBe(200);
+    return { code, ann: made.data.token as string, bob };
+  }
+  const names = (code: string) => {
+    const s = getRoom(code)!.state as any;
+    return s.words.slice(s.round).flatMap((w: any) => [w.name, ...w.also]) as string[];
+  };
+
+  for (const format of ["vowelplay", "vowelparty"] as const) {
+    it(`tells the sender a wrong ${format} guess was refused, and the reply holds no answer for any seat`, async () => {
+      const { code, ann, bob } = await room(format);
+      const hidden = names(code);
+      const wrong = await post(`/${code}/action`, { token: ann, action: { type: "guess", text: "zzzz" } });
+      expect(wrong.status).toBe(409);
+      expect(wrong.data).toMatchObject({ ok: false, error: "Not allowed right now" });
+      for (const json of [JSON.stringify(wrong.data), JSON.stringify(await get(code)), JSON.stringify(await get(code, bob))]) {
+        for (const n of hidden) expect(json).not.toContain(n);
+      }
+    });
+  }
+
+  it("says Slow down on a fourth guess within a second, and a right guess is a 200", async () => {
+    const { code, ann, bob } = await room("vowelplay");
+    const tries = [];
+    for (let i = 0; i < 4; i++) tries.push(await post(`/${code}/action`, { token: ann, action: { type: "guess", text: "zzzz" } }));
+    expect(tries.map((t) => t.data.error)).toEqual(["Not allowed right now", "Not allowed right now", "Not allowed right now", "Slow down"]);
+    const right = await post(`/${code}/action`, { token: bob, action: { type: "guess", text: (getRoom(code)!.state as any).words[0].name } });
+    expect(right.status).toBe(200);
+    expect(right.data.ok).toBe(true);
+  });
+});

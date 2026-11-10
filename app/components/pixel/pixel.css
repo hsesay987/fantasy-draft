@@ -1001,6 +1001,40 @@ html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
 .vp-missed li { display: flex; justify-content: space-between; gap: 10px; border-bottom: 2px dotted #c9b98f; padding-bottom: 2px; }
 .vp-missed span { flex: none; color: #c8341f; letter-spacing: .04em; }
 .vp-ticket .px-note { color: #6a5b4a; margin: 0; }
+/* Online rooms: the players, the tug strip and the end-of-game ticket. */
+.vp-roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); gap: 5px; margin: 4px; padding: 0; list-style: none; }
+.vp-roster li { display: flex; align-items: center; gap: 5px; min-width: 0; min-height: 30px; padding: 3px 6px; background: var(--px-ink); box-shadow: 0 0 0 3px var(--px-panel2); font-size: 19px; line-height: 1; }
+.vp-roster li.me { box-shadow: 0 0 0 3px var(--px-lav); }
+.vp-roster li.got { box-shadow: 0 0 0 3px var(--px-gold); }
+.vp-roster canvas { flex: none; }
+.vp-roster .rk { flex: none; min-width: 10px; color: var(--px-dim); font-size: 18px; }
+.vp-roster .rk:empty { display: none; }
+.vp-roster .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vp-roster .tag { flex: none; font: 400 8px/1 var(--px-head); color: var(--px-gold); }
+.vp-roster .tag:empty { display: none; }
+.vp-roster .pts { flex: none; font-weight: 400; color: var(--px-gold); font-variant-numeric: tabular-nums; }
+.vp-rope { display: grid; gap: 4px; margin: 4px; }
+.vp-rope .ends { display: flex; justify-content: space-between; gap: 8px; min-width: 0; font-size: 20px; line-height: 1; }
+.vp-rope .ends span { display: flex; align-items: center; gap: 4px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vp-rope ol { display: grid; grid-template-columns: repeat(11, 1fr); gap: 3px; height: 16px; margin: 0; padding: 0; list-style: none; }
+.vp-rope li { background: var(--px-ink); box-shadow: inset 0 0 0 2px var(--px-panel2); }
+.vp-rope li.goal { box-shadow: inset 0 0 0 2px var(--px-rose); }
+.vp-rope li.mark { background: #f6ecd2; box-shadow: 0 0 0 3px var(--px-gold); transform: scaleY(1.5); }
+.vp-headline { margin: 0; font: 400 28px/1.05 var(--px-body); }
+.vp-headline.mine { color: #c8341f; }
+.vp-board { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 24px; line-height: 1; }
+.vp-board li { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 3px 0; border-bottom: 2px dotted #c9b98f; }
+.vp-board li.top .name { color: #c8341f; }
+.vp-board li.me .name { text-decoration: underline; }
+.vp-board .rk { flex: none; min-width: 14px; color: #6a5b4a; }
+.vp-board .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vp-board b { flex: none; font-weight: 400; }
+.vp-words { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; font-size: 22px; line-height: 1.1; }
+.vp-words li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; padding-bottom: 2px; border-bottom: 2px dotted #c9b98f; }
+.vp-words b { min-width: 0; overflow-wrap: anywhere; }
+.vp-words .puz { color: #6a5b4a; font-size: 18px; letter-spacing: .04em; }
+.vp-words .who { margin-left: auto; color: #c8341f; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vp-words .who.none { color: #6a5b4a; }
 @media (prefers-reduced-motion: reduce) {
   .vp-pop { animation: none; }
   .vp-term.m0, .vp-term.m1 { animation: none; }

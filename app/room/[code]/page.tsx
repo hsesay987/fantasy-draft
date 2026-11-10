@@ -7,7 +7,7 @@ import { Check, Copy, Crown, ExternalLink, LogOut, Play, RefreshCw, Shuffle, Tro
 import { Button, Card, GameTile, PageHeader, PageShell, Panel, controlCls } from "../../components/ui";
 import { GameBody } from "../../play/GameScreen";
 import SetupScreen from "../../play/SetupScreen";
-import { FORMATS, PARTY_GAMES, formatMeta } from "../../play/formats";
+import { FORMATS, PARTY_GAMES, ROOM_GAMES, formatMeta } from "../../play/formats";
 import { PartySetup } from "../../play/PartySetup";
 import { WaterLine } from "../../play/views/partyBits";
 import { deckOf } from "../../topicDraft/party/decks";
@@ -15,6 +15,7 @@ import { insyncDeckOf } from "../../topicDraft/party/insyncDecks";
 import { TEAM_MIN_PLAYERS } from "../../topicDraft/formats/partytrivia";
 import { MIN_PLAYERS as MAFIA_MIN } from "../../topicDraft/formats/mafia";
 import { category } from "../../play/categories";
+import { VOWEL_TOPICS } from "../../topicDraft/party/vowelWords";
 import { clearToken, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setStatLink, startRoom, type RoomSnapshot } from "../../play/onlineApi";
 import { useRemoteCtl, useRemoteRoom } from "../../play/useRemoteGame";
 import { loadPrefs, savePrefs } from "../../play/storage";
@@ -24,7 +25,10 @@ import { track } from "../../lib/analytics";
 import { PARTY_FORMATS, type FormatId, type GameSetup } from "../../play/types";
 
 /** Fewest seats each game starts with (the server enforces the same numbers). */
-const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" || format === "vote" ? 3 : 2);
+const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" || format === "vote" ? 3 : 2); // Vowel Play and Vowel Party start at 2 (Head to head needs exactly 2: see duelWrong)
+
+const isVowel = (format: string) => format === "vowelplay" || format === "vowelparty";
+const DUEL_ONLY = "Head to head takes exactly 2 players";
 
 /**
  * One room for a whole evening: friends join once, the host picks a game, everyone plays, and when it ends the
@@ -148,10 +152,12 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   const need = setup ? seatsNeeded(setup.format) : 2;
   const shortForMafia = setup?.format === "mafia" && snap.seats.length < MAFIA_MIN;
   const shortForGame = !!setup && snap.seats.length >= 2 && snap.seats.length < need && !shortForMafia;
-  const poolTitle = setup ? (setup.format === "vote" ? deckOf(setup.pool)?.title : setup.format === "insync" ? insyncDeckOf(setup.pool)?.title : cat?.title) : null;
+  const here = snap.seats.filter((s) => !s.left).length;
+  const duelWrong = setup?.format === "vowelplay" && setup.opts.vowelMode === "duel" && here !== 2;
+  const poolTitle = setup ? (isVowel(setup.format) ? VOWEL_TOPICS.find((t) => t.id === setup.pool)?.title : setup.format === "vote" ? deckOf(setup.pool)?.title : setup.format === "insync" ? insyncDeckOf(setup.pool)?.title : cat?.title) : null;
 
   // Picking a game: the full setup screen for that format, saving to the room.
-  if (isHost && (picking === "imposter" || picking === "vote" || picking === "insync" || picking === "partytrivia" || picking === "mafia")) {
+  if (isHost && (picking === "imposter" || picking === "vote" || picking === "insync" || picking === "partytrivia" || picking === "mafia" || picking === "vowelplay" || picking === "vowelparty")) {
     return <PartySetup format={picking} seats={snap.seats.map((s) => s.name)} room={{ code, token, pool: setup?.pool, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
   }
   if (isHost && picking && picking !== "menu") {
@@ -187,7 +193,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   const surprise = () => {
     // Only games this table can actually start: party games by their seat minimum, drafts and trivia up to six seats.
     const n = snap.seats.length;
-    const f = [...PARTY_GAMES.filter((x) => n >= seatsNeeded(x.id)), ...(n <= 6 ? FORMATS.filter((x) => x.id !== "loadout") : [])];
+    const f = [...PARTY_GAMES.filter((x) => n >= seatsNeeded(x.id)), ...ROOM_GAMES.filter((x) => n >= seatsNeeded(x.id)), ...(n <= 6 ? FORMATS.filter((x) => x.id !== "loadout") : [])];
     setPicking(f[Math.floor(Math.random() * f.length)]!.id as FormatId);
   };
 
@@ -230,7 +236,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
             <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${meta.gradient}`}><meta.icon className="h-7 w-7 text-white" aria-hidden /></span>
             <div className="min-w-0 flex-1">
               <div className="text-lg font-semibold">{meta.title}{poolTitle ? ` · ${poolTitle}` : ""}</div>
-              <div className="text-sm text-muted-foreground">{party ? (setup.format === "mafia" ? `Secret roles · ${MAFIA_MIN}+ players` : setup.format === "partytrivia" ? `up to ${setup.opts.teamSize} questions · ${setup.opts.teams >= 2 ? (snap.seats.length >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"} · 2+ players` : setup.format === "insync" ? `${Math.max(4, snap.seats.length)} rounds · one group score · 2+ players` : setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}{party && setup.opts.drinking ? " · drinking mode" : ""}</div>
+              <div className="text-sm text-muted-foreground">{party ? (setup.format === "vowelplay" ? `${setup.opts.vowelMode === "duel" ? "Head to head · 2 players" : `First correct · ${setup.opts.teamSize} words · 2+ players`} · ${setup.opts.vowelAnswer === "type" ? "type it" : "say it"}` : setup.format === "vowelparty" ? "10 words · everyone races · typed · 2+ players" : setup.format === "mafia" ? `Secret roles · ${MAFIA_MIN}+ players` : setup.format === "partytrivia" ? `up to ${setup.opts.teamSize} questions · ${setup.opts.teams >= 2 ? (snap.seats.length >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"} · 2+ players` : setup.format === "insync" ? `${Math.max(4, snap.seats.length)} rounds · one group score · 2+ players` : setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}{party && setup.opts.drinking ? " · drinking mode" : ""}</div>
               {party && setup.opts.drinking && <WaterLine />}
             </div>
             {isHost && <Button variant="ghost" onClick={() => setPicking("menu")}><RefreshCw className="h-4 w-4" aria-hidden /> Change game</Button>}
@@ -253,8 +259,11 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
               <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} badge="New" onClick={() => setPicking(f.id)} />
             ))}
           </div>
-          <h3 className="text-lg">Drafts and trivia <span className="text-sm font-normal text-muted-foreground">· up to 6 players</span></h3>
+          <h3 className="text-lg">Drafts and trivia <span className="text-sm font-normal text-muted-foreground">· up to 6 players, Vowel Play takes 12</span></h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {ROOM_GAMES.map((f) => (
+              <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} badge="New" onClick={() => setPicking(f.id as FormatId)} />
+            ))}
             {FORMATS.filter((f) => f.id !== "loadout").map((f) => (
               <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} onClick={() => setPicking(f.id as FormatId)} />
             ))}
@@ -269,7 +278,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
         <Panel title="Played tonight">
           <ol className="space-y-1 text-sm">
             {snap.played.slice().reverse().map((g, i) => (
-              <li key={i} className="flex justify-between gap-3 rounded-lg bg-white/5 px-3 py-2"><span>{formatMeta(g.format)?.title}{g.format === "vote" ? ` · ${deckOf(g.pool)?.title ?? ""}` : g.format === "insync" ? ` · ${insyncDeckOf(g.pool)?.title ?? ""}` : category(g.pool) ? ` · ${category(g.pool)!.title}` : ""}</span><span className="text-muted-foreground">{g.winner ? `${g.winner} won` : g.format === "insync" ? "played together" : g.format === "partytrivia" ? "no single winner" : "no winner"}</span></li>
+              <li key={i} className="flex justify-between gap-3 rounded-lg bg-white/5 px-3 py-2"><span>{formatMeta(g.format)?.title}{isVowel(g.format) ? ` · ${VOWEL_TOPICS.find((t) => t.id === g.pool)?.title ?? ""}` : g.format === "vote" ? ` · ${deckOf(g.pool)?.title ?? ""}` : g.format === "insync" ? ` · ${insyncDeckOf(g.pool)?.title ?? ""}` : category(g.pool) ? ` · ${category(g.pool)!.title}` : ""}</span><span className="text-muted-foreground">{g.winner ? `${g.winner} won` : isVowel(g.format) ? "tie" : g.format === "insync" ? "played together" : g.format === "partytrivia" ? "no single winner" : "no winner"}</span></li>
             ))}
           </ol>
         </Panel>
@@ -278,11 +287,11 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
       {error && <p role="alert" className="text-sm text-accent">{error}</p>}
       <div className="flex gap-3">
         {isHost ? (
-          <Button variant="accent" className="flex-1 text-lg" disabled={!setup || snap.seats.length < 2 || shortForMafia || shortForGame || picking === "menu"} onClick={start}>
-            <Play className="h-5 w-5" aria-hidden /> {!setup ? "Pick a game first" : shortForMafia ? `Need ${MAFIA_MIN} players` : shortForGame ? `Need ${need} players` : snap.seats.length < 2 ? "Waiting for players…" : "Start game"}
+          <Button variant="accent" className="flex-1 text-lg" disabled={!setup || snap.seats.length < 2 || duelWrong || shortForMafia || shortForGame || picking === "menu"} onClick={start}>
+            <Play className="h-5 w-5" aria-hidden /> {!setup ? "Pick a game first" : duelWrong ? DUEL_ONLY : shortForMafia ? `Need ${MAFIA_MIN} players` : shortForGame ? `Need ${need} players` : snap.seats.length < 2 ? "Waiting for players…" : "Start game"}
           </Button>
         ) : (
-          <p className="flex-1 self-center text-center text-muted-foreground">{shortForMafia ? `Mafia needs ${MAFIA_MIN} players. ${snap.seats.length} here so far.` : shortForGame ? `${meta?.title} needs ${need} players. ${snap.seats.length} here so far.` : setup ? `Waiting for ${hostName(snap)} to start…` : `Waiting for ${hostName(snap)} to pick a game…`}</p>
+          <p className="flex-1 self-center text-center text-muted-foreground">{duelWrong ? DUEL_ONLY : shortForMafia ? `Mafia needs ${MAFIA_MIN} players. ${snap.seats.length} here so far.` : shortForGame ? `${meta?.title} needs ${need} players. ${snap.seats.length} here so far.` : setup ? `Waiting for ${hostName(snap)} to start…` : `Waiting for ${hostName(snap)} to pick a game…`}</p>
         )}
         <Button variant="ghost" onClick={onLeave}><LogOut className="h-4 w-4" aria-hidden /> Leave</Button>
       </div>
