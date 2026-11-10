@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import express from "express";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
@@ -109,6 +109,7 @@ describe("polling a room", () => {
 });
 
 describe("typed Vowel Play guesses over HTTP", () => {
+  afterEach(() => vi.useRealTimers());
   const get = (code: string, token?: string) => fetch(`${base}/${code}${token ? `?token=${token}` : ""}`).then((x) => x.json() as Promise<any>);
 
   async function room(format: "vowelplay" | "vowelparty") {
@@ -138,10 +139,14 @@ describe("typed Vowel Play guesses over HTTP", () => {
 
   it("says Slow down on a fourth guess within a second, and a right guess is a 200", async () => {
     const { code, ann, bob } = await room("vowelplay");
+    // The clock stands still, so the four guesses are in the same second however slow the machine is.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(Date.now());
     const tries = [];
     for (let i = 0; i < 4; i++) tries.push(await post(`/${code}/action`, { token: ann, action: { type: "guess", text: "zzzz" } }));
     expect(tries.map((t) => t.data.error)).toEqual(["Not allowed right now", "Not allowed right now", "Not allowed right now", "Slow down"]);
     const right = await post(`/${code}/action`, { token: bob, action: { type: "guess", text: (getRoom(code)!.state as any).words[0].name } });
+    vi.useRealTimers();
     expect(right.status).toBe(200);
     expect(right.data.ok).toBe(true);
   });

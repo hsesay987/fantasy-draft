@@ -8,7 +8,7 @@ import { wordPip } from "../../components/pixel/sprites";
 import { useSound } from "../../components/SoundProvider";
 import { DUEL_LEAD, GUESS_MS, speedPoints, winners, type VPHistory, type VPState } from "../../topicDraft/formats/vowelplay";
 import { has } from "../../topicDraft/party/own";
-import { VOWEL_TOPICS } from "../../topicDraft/party/vowelWords";
+import { vowelTopicTitle } from "../../topicDraft/party/vowelTopics";
 import { useTypingStage } from "../../vowelplay/useTypingStage";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
@@ -16,9 +16,14 @@ import { DrinkCard, LeaveGame, playerSprite, WaterLine } from "./partyBits";
 
 const CLOCK_EVERY_MS = 200;
 const REFUSED = "Not allowed right now";
+const LATE = "Too late for this one.";
 
-const topicTitle = (pool: string) => VOWEL_TOPICS.find((t) => t.id === pool)?.title ?? pool;
+const topicTitle = vowelTopicTitle;
 const gameTitle = (setup: GameSetup) => (setup.format === "vowelparty" ? "Vowel Party" : "Vowel Play");
+/** Did this seat take the word? Everyone-competes: it got it. Otherwise only the one who won it did. */
+const took = (s: VPState, h: VPHistory, me: string) => (s.mode === "all" ? has(h.gotMs, me) : h.winner === me);
+/** Was the word named by anyone this seat should see solved on the sheet? (Not the same as taking it.) */
+const named = (s: VPState, h: VPHistory, me: string) => (s.mode === "all" ? has(h.gotMs, me) : h.winner !== null);
 const wonBy = (s: VPState, p: string) => s.history.filter((h) => h.winner === p).length;
 /** What a player's score reads as: Head to head has no points, only words won. */
 const scoreOf = (s: VPState, p: string) => (s.mode === "duel" ? wonBy(s, p) : has(s.points, p) ? s.points[p]! : 0);
@@ -91,8 +96,7 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
   const revealed = reveal ? s.history.length : 0;
   useEffect(() => {
     if (!revealed || !last) return;
-    const ok = s.mode === "all" ? has(last.gotMs, me) : last.winner !== null;
-    play(ok ? "reveal" : "lose");
+    play(took(s, last, me) ? "reveal" : "lose");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [revealed]);
 
@@ -116,9 +120,14 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
       const r = await ctl.dispatch({ type: "guess", by: me, text });
       // Refused. Unless the word has moved on, or this seat has it (an answer already counted), that is a miss to show.
       if (r && !r.ok && live.current.round === round && !live.current.got) {
-        setMiss((n) => n + 1);
-        setRejected(r.error ?? REFUSED);
-        play("wrong");
+        // A guess that came after the clock ran out was late, not wrong.
+        if (r.error === REFUSED && Date.now() + ctl.offset - s.phaseAt >= GUESS_MS) {
+          setRejected(LATE);
+        } else {
+          setMiss((n) => n + 1);
+          setRejected(r.error ?? REFUSED);
+          play("wrong");
+        }
       }
     } finally {
       sending.current = false;
@@ -138,7 +147,7 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
     setRejected(null);
   };
 
-  const solved = !!last && (s.mode === "all" ? has(last.gotMs, me) : last.winner !== null);
+  const solved = !!last && named(s, last, me);
   const gained = solved && last && s.mode === "all" ? speedPoints(last.gotMs[me]!) : 0;
   const myScore = scoreOf(s, me);
   const worth = inGuess ? speedPoints(now - s.phaseAt) : 0;
@@ -160,8 +169,6 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
           {solved && s.mode === "all" && <p key={s.round} className="vp-pop" aria-hidden>+{gained}</p>}
         </div>
 
-        {/* Below the typewriter, so a sip card never covers the letters. */}
-        {s.drinks && s.mode === "all" && reveal && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
 
         {duel && <Rope s={s} />}
 
@@ -175,7 +182,7 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
         </div>
 
         {typed ? (
-          <form className={`vp-term ${rejected ? `miss m${miss % 2}` : ""}`} onSubmit={(e) => { e.preventDefault(); void submit(); }} autoComplete="off">
+          <form className={`vp-term ${rejected && rejected !== LATE ? `miss m${miss % 2}` : ""}`} onSubmit={(e) => { e.preventDefault(); void submit(); }} autoComplete="off">
             <label className="in">
               <span aria-hidden>&gt;</span>
               <input ref={input} value={text} onChange={(e) => typing(e.target.value)} readOnly={!canType} maxLength={60}
@@ -197,10 +204,13 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
 
         <Roster s={s} me={me} gone={gone} reveal={reveal} />
 
+        {/* Below the typewriter and the standings, in the flow: it covers neither the letters nor the table. */}
+        {s.drinks && s.mode === "all" && reveal && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
+
         <ol className="vp-pips" aria-label={`Name ${s.round + 1} of ${s.total}`}>
           {Array.from({ length: s.total }, (_, i) => {
             const h = s.history[i];
-            const ok = h && (s.mode === "all" ? has(h.gotMs, me) : h.winner !== null);
+            const ok = h && took(s, h, me);
             return <li key={i}><Sprite sprite={wordPip(h ? (ok ? "got" : "lost") : i === s.round ? "now" : "todo")} size={18} /></li>;
           })}
         </ol>

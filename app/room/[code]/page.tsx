@@ -15,7 +15,7 @@ import { insyncDeckOf } from "../../topicDraft/party/insyncDecks";
 import { TEAM_MIN_PLAYERS } from "../../topicDraft/formats/partytrivia";
 import { MIN_PLAYERS as MAFIA_MIN } from "../../topicDraft/formats/mafia";
 import { category } from "../../play/categories";
-import { VOWEL_TOPICS } from "../../topicDraft/party/vowelWords";
+import { vowelTopicTitle } from "../../topicDraft/party/vowelTopics";
 import { clearToken, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setStatLink, startRoom, type RoomSnapshot } from "../../play/onlineApi";
 import { useRemoteCtl, useRemoteRoom } from "../../play/useRemoteGame";
 import { loadPrefs, savePrefs } from "../../play/storage";
@@ -25,7 +25,8 @@ import { track } from "../../lib/analytics";
 import { PARTY_FORMATS, type FormatId, type GameSetup } from "../../play/types";
 
 /** Fewest seats each game starts with (the server enforces the same numbers). */
-const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" || format === "vote" ? 3 : 2); // Vowel Play and Vowel Party start at 2 (Head to head needs exactly 2: see duelWrong)
+// Vowel Play and Vowel Party start at 2 (Head to head needs exactly 2: see duelWrong).
+const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" || format === "vote" ? 3 : 2);
 
 const isVowel = (format: string) => format === "vowelplay" || format === "vowelparty";
 const DUEL_ONLY = "Head to head takes exactly 2 players";
@@ -154,7 +155,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   const shortForGame = !!setup && snap.seats.length >= 2 && snap.seats.length < need && !shortForMafia;
   const here = snap.seats.filter((s) => !s.left).length;
   const duelWrong = setup?.format === "vowelplay" && setup.opts.vowelMode === "duel" && here !== 2;
-  const poolTitle = setup ? (isVowel(setup.format) ? VOWEL_TOPICS.find((t) => t.id === setup.pool)?.title : setup.format === "vote" ? deckOf(setup.pool)?.title : setup.format === "insync" ? insyncDeckOf(setup.pool)?.title : cat?.title) : null;
+  const poolTitle = setup ? (isVowel(setup.format) ? vowelTopicTitle(setup.pool) : setup.format === "vote" ? deckOf(setup.pool)?.title : setup.format === "insync" ? insyncDeckOf(setup.pool)?.title : cat?.title) : null;
 
   // Picking a game: the full setup screen for that format, saving to the room.
   if (isHost && (picking === "imposter" || picking === "vote" || picking === "insync" || picking === "partytrivia" || picking === "mafia" || picking === "vowelplay" || picking === "vowelparty")) {
@@ -259,11 +260,14 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
               <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} badge="New" onClick={() => setPicking(f.id)} />
             ))}
           </div>
-          <h3 className="text-lg">Drafts and trivia <span className="text-sm font-normal text-muted-foreground">· up to 6 players, Vowel Play takes 12</span></h3>
+          <h3 className="text-lg">Word games <span className="text-sm font-normal text-muted-foreground">· 2 to 12 players</span></h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {ROOM_GAMES.map((f) => (
               <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} badge="New" onClick={() => setPicking(f.id as FormatId)} />
             ))}
+          </div>
+          <h3 className="text-lg">Drafts and trivia <span className="text-sm font-normal text-muted-foreground">· up to 6 players</span></h3>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {FORMATS.filter((f) => f.id !== "loadout").map((f) => (
               <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} onClick={() => setPicking(f.id as FormatId)} />
             ))}
@@ -278,7 +282,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
         <Panel title="Played tonight">
           <ol className="space-y-1 text-sm">
             {snap.played.slice().reverse().map((g, i) => (
-              <li key={i} className="flex justify-between gap-3 rounded-lg bg-white/5 px-3 py-2"><span>{formatMeta(g.format)?.title}{isVowel(g.format) ? ` · ${VOWEL_TOPICS.find((t) => t.id === g.pool)?.title ?? ""}` : g.format === "vote" ? ` · ${deckOf(g.pool)?.title ?? ""}` : g.format === "insync" ? ` · ${insyncDeckOf(g.pool)?.title ?? ""}` : category(g.pool) ? ` · ${category(g.pool)!.title}` : ""}</span><span className="text-muted-foreground">{g.winner ? `${g.winner} won` : isVowel(g.format) ? "tie" : g.format === "insync" ? "played together" : g.format === "partytrivia" ? "no single winner" : "no winner"}</span></li>
+              <li key={i} className="flex justify-between gap-3 rounded-lg bg-white/5 px-3 py-2"><span>{formatMeta(g.format)?.title}{isVowel(g.format) ? ` · ${vowelTopicTitle(g.pool)}` : g.format === "vote" ? ` · ${deckOf(g.pool)?.title ?? ""}` : g.format === "insync" ? ` · ${insyncDeckOf(g.pool)?.title ?? ""}` : category(g.pool) ? ` · ${category(g.pool)!.title}` : ""}</span><span className="text-muted-foreground">{g.winner ? `${g.winner} won` : isVowel(g.format) ? "tie" : g.format === "insync" ? "played together" : g.format === "partytrivia" ? "no single winner" : "no winner"}</span></li>
             ))}
           </ol>
         </Panel>

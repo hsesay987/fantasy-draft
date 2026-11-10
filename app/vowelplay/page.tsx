@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PixelBox, PixelShell } from "../components/pixel/PixelUI";
 import { WorldScene } from "../components/pixel/WorldScene";
-import { VOWEL_TOPICS } from "../topicDraft/party/vowelWords";
+import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
 import { bestFor } from "./best";
 
 /** Vowel Play's front door: the shop, how it works, and a topic to pick. */

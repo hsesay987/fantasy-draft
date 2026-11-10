@@ -1001,6 +1001,8 @@ html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
 .vp-missed li { display: flex; justify-content: space-between; gap: 10px; border-bottom: 2px dotted #c9b98f; padding-bottom: 2px; }
 .vp-missed span { flex: none; color: #c8341f; letter-spacing: .04em; }
 .vp-ticket .px-note { color: #6a5b4a; margin: 0; }
+/* Sip cards here sit in the page, under the standings, rather than floating over them. */
+.vp-page .tavern-card { position: static; transform: none; width: auto; margin: 4px; animation: none; }
 /* Online rooms: the players, the tug strip and the end-of-game ticket. */
 .vp-roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); gap: 5px; margin: 4px; padding: 0; list-style: none; }
 .vp-roster li { display: flex; align-items: center; gap: 5px; min-width: 0; min-height: 30px; padding: 3px 6px; background: var(--px-ink); box-shadow: 0 0 0 3px var(--px-panel2); font-size: 19px; line-height: 1; }

@@ -7,7 +7,7 @@ import { WorldScene } from "../components/pixel/WorldScene";
 import { playedOn, todayKey, todayNumber, type DailyGame, type Played } from "../lib/daily";
 import { CATEGORIES } from "../play/categories";
 import { hasTrivia } from "../topicDraft/trivia";
-import { VOWEL_TOPICS } from "../topicDraft/party/vowelWords";
+import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
 
 const topics = CATEGORIES.filter((c) => !c.hidden && hasTrivia(c.id));
 

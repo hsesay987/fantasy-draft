@@ -21,7 +21,8 @@ import * as IS from "../shared/topicDraft/formats/insync";
 import * as PT from "../shared/topicDraft/formats/partytrivia";
 import * as MF from "../shared/topicDraft/formats/mafia";
 import * as VP from "../shared/topicDraft/formats/vowelplay";
-import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelWords";
+import "../shared/topicDraft/party/vowelWords"; // loads the word list the Vowel Play engine deals from
+import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelTopics";
 import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
 import { deckOf } from "../shared/topicDraft/party/decks";
 import { insyncDeckOf } from "../shared/topicDraft/party/insyncDecks";

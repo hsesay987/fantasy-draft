@@ -4,7 +4,7 @@
 import { shuffle } from "../rng";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { matches, toPuzzle } from "../party/vowelText";
-import { wordsFor } from "../party/vowelWords";
+import { namesFor } from "../party/vowelSource";
 
 export const GUESS_MS = 20_000, SPEAK_MS = 5_000, JUDGE_MS = 6_000, REVEAL_MS = 3_000, REVEAL_ALL_MS = 5_000, DUEL_WORDS = 30, DUEL_LEAD = 5;
 
@@ -50,7 +50,7 @@ export function speedPoints(ms: number): number {
 }
 
 export function init(o: { players: string[]; topic: string; mode: VPMode; answer: VPAnswer; count: number; avoid?: string[]; drinking?: boolean; seed: number; now: number }): VPState {
-  const names = [...new Set(wordsFor(o.topic))];
+  const names = [...new Set(namesFor(o.topic))];
   const avoid = new Set(o.avoid ?? []);
   // Unseen names first; if there are too few, seen ones fill the rest.
   const [fresh, s1] = shuffle(names.filter((n) => !avoid.has(n)), o.seed);

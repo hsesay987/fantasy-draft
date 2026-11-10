@@ -9,7 +9,7 @@ import { OPTION_COUNT } from "../topicDraft/formats/imposter";
 import { TEAM_MIN_PLAYERS } from "../topicDraft/formats/partytrivia";
 import { MIN_PLAYERS as MAFIA_MIN, NIGHT_MS, QUIET_FIRST_NIGHT_AT, TALK_MS, VOTE_MS, rolesFor } from "../topicDraft/formats/mafia";
 import { newSeed } from "../topicDraft/rng";
-import { VOWEL_TOPICS } from "../topicDraft/party/vowelWords";
+import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
 import { hasTrivia } from "../topicDraft/trivia";
 import { formatMeta } from "./formats";
 import { CATEGORIES, category } from "./categories";
