@@ -8,6 +8,7 @@ import * as A from "../shared/topicDraft/formats/auction";
 import * as P from "../shared/topicDraft/formats/position";
 import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelWords";
 import { DUEL_LEAD, GUESS_MS, REVEAL_MS, type VPState } from "../shared/topicDraft/formats/vowelplay";
+import { namesFor } from "../shared/topicDraft/party/vowelSource";
 
 const base = (format: string, extra: any = {}) => ({
   format, pool: "superheroes",
@@ -1342,6 +1343,24 @@ describe("Vowel Play rooms", () => {
       watch(r, toks, "Bob");
       // the full state does hold the name
       expect(JSON.stringify(r.state)).toContain(first);
+    });
+    it("never sends the room's played names, which a rematch deals from once a topic runs short", () => {
+      for (const format of ["vowelplay", "vowelparty"]) {
+        const { r, toks } = seat(vp(format, format === "vowelplay" ? { vowelAnswer: "voice" } : {}), names);
+        // Every name of the topic already played: this game must deal from the avoid list.
+        const all = namesFor(topic);
+        r.seen = all.map((n: string) => `vp:${n}`);
+        expect(startRoom(r, toks.Ann!)).toEqual({ ok: true });
+        expect(r.setup.opts.avoid.length).toBeGreaterThan(0);
+        const s = st(r);
+        const hidden = s.words.slice(s.round).flatMap((w) => [w.name, ...w.also]);
+        for (const tok of [undefined, toks.Ann, toks.Bob, toks.Cy]) {
+          const body = snapshot(r, tok);
+          expect((body.setup as any).opts.avoid).toEqual([]);
+          const json = JSON.stringify(body);
+          for (const n of hidden) expect(json, `${format}: ${n} for ${tok}`).not.toContain(`"${n}"`);
+        }
+      }
     });
     it("lets the judges see the word being judged, but nothing after it", () => {
       const { r, toks } = running(vp("vowelplay", { vowelAnswer: "voice" }), names);
