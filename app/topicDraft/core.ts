@@ -115,7 +115,7 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "insync":
       return IS.init({ players: setup.players, deck: setup.pool, pairs: poolsOf(setup).flatMap((id) => insyncDeckOf(id)?.pairs ?? []), rounds: Math.max(4, setup.players.length), avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "partytrivia":
-      return PT.init({ players: setup.players, categories: setup.quiz?.categories?.length ? setup.quiz.categories : bundledMix(setup), count: o.teamSize, teams: o.teams, teamMap: o.teamMap, drinking: o.drinking, seed: setup.seed, now });
+      return PT.init({ players: setup.players, categories: setup.quiz?.categories?.length ? setup.quiz.categories : bundledMix(setup), count: o.teamSize, teams: o.teams, teamMap: o.teamMap, drinking: o.drinking, answer: o.answer, seed: setup.seed, now });
     case "mafia":
       return MF.init({ players: setup.players, drinking: o.drinking, seed: setup.seed, now });
     case "vowelplay":
@@ -272,6 +272,7 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
     case "partytrivia": {
       const x = s as PT.PTState;
       if (a.type === "answer") return PT.answer(x, a.by, a.choice as string, now);
+      if (a.type === "buzz") return PT.buzz(x, a.by, now);
       if (a.type === "next") return PT.next(x, now);
       if (a.type === "tick") return PT.tick(x, now);
       return s;

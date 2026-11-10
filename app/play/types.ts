@@ -50,6 +50,8 @@ export type Opts = {
   vowelMode: "first" | "duel";
   /** Vowel Play: say it aloud and let the others judge, or type it. */
   vowelAnswer: "voice" | "type";
+  /** Party games with one right answer: everyone answers on their phone, or buzz in at the table. */
+  answer: "phones" | "buzz";
 };
 
 export type GameSetup = {
@@ -101,6 +103,7 @@ export const DEFAULT_OPTS: Opts = {
   teamMap: {},
   vowelMode: "first",
   vowelAnswer: "voice",
+  answer: "phones",
 };
 
 export function snakeConfig(setup: GameSetup): Config {

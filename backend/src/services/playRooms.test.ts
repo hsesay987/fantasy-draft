@@ -559,7 +559,7 @@ describe("party trivia room", () => {
       expect(snap.setup.seed).toBe(0);
       expect(snap.setup.opts.teamMap).toEqual({ Ann: 0, Bob: 0, Cy: 1, Di: 1 });
       expect(json.match(/RIGHT-/g)).toHaveLength(1); // only the option on screen; the bank and later answers are not sent
-      expect(json).not.toContain('"answer"');
+      expect(json).not.toMatch(/"answer":"RIGHT/); // a question's answer key; setup.opts.answer ("phones"|"buzz") is public
       for (const q of room.state.questions.slice(1)) expect(json).not.toContain(q.q);
       expect(json).toContain(first.q);
     }

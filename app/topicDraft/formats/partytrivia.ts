@@ -9,6 +9,8 @@ import { buildTeams, TEAM_MIN_PLAYERS } from "../party/teams";
 export { buildTeams };
 
 export const QUESTION_MS = 25_000, REVEAL_MS = 7_000, BASE = 100, SPEED_MAX = 50;
+/** Buzz mode: how long the buzzer has to answer, and what a wrong or missing answer costs. */
+export const BUZZ_ANSWER_MS = 5_000, WRONG_BUZZ = 50;
 export { TEAM_MIN_PLAYERS };
 
 export type PTQuestion = TierQuestion;
@@ -29,6 +31,14 @@ export type PTState = {
   startedAt: number;
   done: boolean;
   drinks?: DrinkState;
+  /** "buzz": at the table, the first to buzz answers alone. Absent or "phones": everyone answers on their phone. */
+  answerMode?: "phones" | "buzz";
+  /** Buzz mode: who holds the buzz (answers for their team), and when, and how long after the question began (server clock). */
+  buzzer?: string | null;
+  buzzAt?: number | null;
+  buzzMs?: number | null;
+  /** Buzz mode: players locked out of this question by a wrong or missing answer (a whole team at once with teams). */
+  locked?: string[];
 };
 
 /** What a seat is sent: the question being asked has no `answer` until the reveal, and later questions are not sent. */
@@ -58,7 +68,7 @@ function flatten(categories: TriviaCategory[], count: number, seed: number): PTQ
   return tiers.flatMap((t, i) => t.slice(0, take[i]));
 }
 
-export function init(o: { players: string[]; categories: TriviaCategory[]; count: number; teams: number; teamMap: Record<string, number>; drinking?: boolean; seed: number; now: number }): PTState {
+export function init(o: { players: string[]; categories: TriviaCategory[]; count: number; teams: number; teamMap: Record<string, number>; drinking?: boolean; answer?: "phones" | "buzz"; seed: number; now: number }): PTState {
   const questions = flatten(o.categories, o.count, o.seed);
   const built = o.teams >= 2 && o.players.length >= TEAM_MIN_PLAYERS ? buildTeams(o.players, o.teams, o.teamMap) : null;
   const filled = built ? built.filter((t) => t.length > 0) : [];
@@ -68,6 +78,7 @@ export function init(o: { players: string[]; categories: TriviaCategory[]; count
     points: Object.fromEntries(o.players.map((p) => [p, 0])), teamPoints: teams ? teams.map(() => 0) : [],
     correct: Object.fromEntries(o.players.map((p) => [p, 0])), history: [], phaseAt: o.now, startedAt: o.now, done: questions.length === 0,
     ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),
+    ...(o.answer === "buzz" ? { answerMode: "buzz" as const, buzzer: null, buzzAt: null, buzzMs: null, locked: [] } : {}),
   };
 }
 
@@ -77,9 +88,42 @@ const bonus = (s: PTState, at: number) => Math.round(SPEED_MAX * Math.max(0, Mat
 export function answer(s: PTState, by: string, choice: string, now: number): PTState {
   if (s.done || s.phase !== "question" || !s.players.includes(by) || has(s.answers, by) || now - s.phaseAt > QUESTION_MS) return s;
   if (typeof choice !== "string" || !s.questions[s.round]!.options.includes(choice)) return s;
+  if (s.answerMode === "buzz") return buzzAnswer(s, by, choice, now);
   const answers = { ...s.answers, [by]: { choice, at: now } };
   const filled = { ...s, answers };
   return s.players.every((p) => has(answers, p)) ? reveal(filled, now) : filled;
+}
+
+const mateIdx = (s: PTState, p: string) => (s.teams ? s.teams.findIndex((t) => t.includes(p)) : -1);
+const mates = (s: PTState, p: string) => (s.teams ? (s.teams[mateIdx(s, p)] ?? [p]) : [p]);
+
+/** Buzz mode: the first to buzz holds it; nobody else can while it is held, or if their team is locked out. */
+export function buzz(s: PTState, by: string, now: number): PTState {
+  if (s.answerMode !== "buzz" || s.done || s.phase !== "question" || s.buzzer != null || !s.players.includes(by) || (s.locked ?? []).includes(by) || now - s.phaseAt > QUESTION_MS) return s;
+  return { ...s, buzzer: by, buzzAt: now, buzzMs: Math.max(0, now - s.phaseAt) };
+}
+
+/** A wrong or missing answer: 50 off (floored at 0) for the player, or the team, lock them out, and buzzing reopens. */
+function wrongBuzz(s: PTState, now: number, gone: string[] = []): PTState {
+  const by = s.buzzer!;
+  const points = { ...s.points, [by]: Math.max(0, (own(s.points, by) ?? 0) - WRONG_BUZZ) };
+  const ti = mateIdx(s, by);
+  const teamPoints = s.teams && ti >= 0 ? s.teamPoints.map((t, i) => (i === ti ? Math.max(0, t - WRONG_BUZZ) : t)) : s.teamPoints;
+  const locked = [...new Set([...(s.locked ?? []), ...mates(s, by)])];
+  return reopen({ ...s, points, teamPoints, locked }, now, gone);
+}
+
+/** Frees the buzz; if nobody left at the table can buzz, the question is over. */
+function reopen(s: PTState, now: number, gone: string[] = []): PTState {
+  const open = { ...s, buzzer: null, buzzAt: null, buzzMs: null };
+  const can = s.players.filter((p) => !gone.includes(p) && !(s.locked ?? []).includes(p));
+  return can.length === 0 ? reveal(open, now) : open;
+}
+
+function buzzAnswer(s: PTState, by: string, choice: string, now: number): PTState {
+  if (s.buzzer !== by) return s;
+  if (choice !== s.questions[s.round]!.answer) return wrongBuzz(s, now);
+  return reveal({ ...s, answers: { ...s.answers, [by]: { choice, at: now } } }, now);
 }
 
 function drinkCalls(s: PTState, entities: { members: string[]; right: boolean; last: number | null }[]): DrinkCall[] {
@@ -121,13 +165,17 @@ function reveal(s: PTState, now: number): PTState {
 function advance(s: PTState, now: number): PTState {
   const round = s.round + 1;
   if (round >= s.questions.length) return { ...s, done: true, phaseAt: now };
-  return { ...s, round, phase: "question", answers: {}, phaseAt: now };
+  return { ...s, round, phase: "question", answers: {}, phaseAt: now, ...(s.answerMode === "buzz" ? { buzzer: null, buzzAt: null, buzzMs: null, locked: [] } : {}) };
 }
 
 /** Closes the question early once every player still at the table (not in `gone`) has answered. */
 export function settle(s: PTState, gone: string[], now: number): PTState {
   if (s.done || s.phase !== "question") return s;
   const here = s.players.filter((p) => !gone.includes(p));
+  if (s.answerMode === "buzz") {
+    const held = s.buzzer != null && gone.includes(s.buzzer) ? { ...s, buzzer: null, buzzAt: null, buzzMs: null } : s;
+    return here.length > 0 && here.every((p) => (held.locked ?? []).includes(p)) ? reveal(held, now) : held;
+  }
   return here.length > 0 && here.every((p) => has(s.answers, p)) ? reveal(s, now) : s;
 }
 
@@ -140,6 +188,7 @@ export function next(s: PTState, now: number): PTState {
 export function tick(s: PTState, now: number): PTState {
   if (s.done) return s;
   if (s.phase === "question" && now - s.phaseAt > QUESTION_MS) return reveal(s, now);
+  if (s.phase === "question" && s.answerMode === "buzz" && s.buzzer != null && now - s.buzzAt! >= BUZZ_ANSWER_MS) return wrongBuzz(s, now);
   if (s.phase === "reveal" && now - s.phaseAt >= REVEAL_MS) return advance(s, now);
   return s;
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { answer, settle, buildTeams, init, next, redactFor, teamChoice, tick, QUESTION_MS, REVEAL_MS, type PTState } from "./partytrivia";
+import { answer, buzz, settle, buildTeams, init, next, redactFor, teamChoice, tick, QUESTION_MS, REVEAL_MS, BUZZ_ANSWER_MS, WRONG_BUZZ, type PTState } from "./partytrivia";
 import type { TriviaCategory } from "../trivia/types";
 
 const cat = (name: string, n = 4): TriviaCategory => ({
@@ -216,5 +216,169 @@ describe("sip card key", () => {
     expect(a.questions[0]).toEqual(b.questions[0]);
     expect(redactFor(a, "Ann").startedAt).toBe(T0);
     expect(redactFor(b, null).startedAt).toBe(T0 + 60_000);
+  });
+});
+
+describe("party trivia, buzz mode", () => {
+  const mk = (o: Partial<Parameters<typeof init>[0]> = {}) => make({ answer: "buzz", ...o });
+  const team4 = () => mk({ players: ["A", "B", "C", "D"], teams: 2, teamMap: { A: 0, B: 0, C: 1, D: 1 } });
+
+  it("starts with nobody buzzed; phones mode is unchanged", () => {
+    const s = mk();
+    expect(s.buzzer).toBeNull();
+    expect(s.locked).toEqual([]);
+    let p = make();
+    p = buzz(p, "Ann", T0 + 10);
+    expect(p.buzzer ?? null).toBeNull();
+    expect(answer(p, "Ann", rightOf(p), T0).phase).toBe("question");
+  });
+
+  it("first buzz wins and records server-clock ms; nobody else can buzz or answer", () => {
+    let s = mk();
+    s = buzz(s, "Bob", T0 + 1234);
+    expect(s.buzzer).toBe("Bob");
+    expect(s.buzzMs).toBe(1234);
+    const t = buzz(s, "Ann", T0 + 1300);
+    expect(t.buzzer).toBe("Bob");
+    expect(t.buzzMs).toBe(1234);
+    expect(answer(s, "Ann", rightOf(s), T0 + 1400)).toBe(s);
+    expect(buzz(mk(), "Zed", T0)).toEqual(mk());
+  });
+
+  it("buzzing is closed after the question deadline", () => {
+    const s = mk();
+    expect(buzz(s, "Ann", T0 + QUESTION_MS + 1)).toBe(s);
+  });
+
+  it("the buzzer's right answer scores as today and ends the question", () => {
+    let s = mk();
+    s = buzz(s, "Ann", T0 + 2000);
+    s = answer(s, "Ann", rightOf(s), T0 + 3000);
+    expect(s.phase).toBe("reveal");
+    expect(s.points).toEqual({ Ann: 100 + Math.round(50 * (1 - 3000 / QUESTION_MS)), Bob: 0, Cy: 0 });
+    expect(s.correct.Ann).toBe(1);
+  });
+
+  it("a wrong answer costs 50 (never below 0), locks the player and reopens buzzing", () => {
+    let s = mk();
+    s = buzz(s, "Ann", T0 + 1000);
+    s = answer(s, "Ann", wrongOf(s), T0 + 2000);
+    expect(s.phase).toBe("question");
+    expect(s.points.Ann).toBe(0);
+    expect(s.locked).toEqual(["Ann"]);
+    expect(s.buzzer).toBeNull();
+    expect(buzz(s, "Ann", T0 + 3000).buzzer ?? null).toBeNull();
+    s = buzz(s, "Bob", T0 + 4000);
+    expect(s.buzzer).toBe("Bob");
+    expect(s.buzzMs).toBe(4000);
+  });
+
+  it("subtracts WRONG_BUZZ from existing points", () => {
+    let s: PTState = { ...mk(), points: { Ann: 120, Bob: 0, Cy: 0 } };
+    s = buzz(s, "Ann", T0);
+    s = answer(s, "Ann", wrongOf(s), T0 + 10);
+    expect(s.points.Ann).toBe(120 - WRONG_BUZZ);
+  });
+
+  it("an unanswered buzz times out in tick: same penalty and lockout", () => {
+    let s: PTState = { ...mk(), points: { Ann: 70, Bob: 0, Cy: 0 } };
+    s = buzz(s, "Ann", T0 + 1000);
+    expect(tick(s, T0 + 1000 + BUZZ_ANSWER_MS - 1)).toBe(s);
+    s = tick(s, T0 + 1000 + BUZZ_ANSWER_MS);
+    expect(s.points.Ann).toBe(20);
+    expect(s.locked).toEqual(["Ann"]);
+    expect(s.buzzer).toBeNull();
+    expect(s.phase).toBe("question");
+  });
+
+  it("an option that is not on screen does not use up the buzz", () => {
+    let s = mk();
+    s = buzz(s, "Ann", T0);
+    expect(answer(s, "Ann", "nope", T0 + 5)).toBe(s);
+  });
+
+  it("the question ends at 25 s, with nobody penalised for a pending buzz", () => {
+    let s = mk();
+    s = buzz(s, "Ann", T0 + QUESTION_MS - 1000);
+    s = tick(s, T0 + QUESTION_MS + 1);
+    expect(s.phase).toBe("reveal");
+    expect(s.points.Ann).toBe(0);
+  });
+
+  it("ends when every player is locked out", () => {
+    let s = mk();
+    for (const [i, p] of ["Ann", "Bob", "Cy"].entries()) {
+      s = buzz(s, p, T0 + 100 * (i + 1));
+      s = answer(s, p, wrongOf(s), T0 + 100 * (i + 1) + 10);
+    }
+    expect(s.phase).toBe("reveal");
+    expect(s.points).toEqual({ Ann: 0, Bob: 0, Cy: 0 });
+  });
+
+  it("the next question starts fresh", () => {
+    let s = mk();
+    s = buzz(s, "Ann", T0);
+    s = answer(s, "Ann", wrongOf(s), T0 + 5);
+    s = tick(s, T0 + QUESTION_MS + 1);
+    s = next(s, T0 + QUESTION_MS + 2);
+    expect(s.round).toBe(1);
+    expect(s.locked).toEqual([]);
+    expect(s.buzzer).toBeNull();
+    expect(s.buzzMs).toBeNull();
+  });
+
+  it("teams: a buzz answers for the team; a wrong buzz locks the whole team and costs the team", () => {
+    let s = team4();
+    s = buzz(s, "A", T0);
+    expect(answer(s, "B", rightOf(s), T0 + 5)).toBe(s);
+    s = answer(s, "A", wrongOf(s), T0 + 10);
+    expect([...s.locked!].sort()).toEqual(["A", "B"]);
+    expect(s.teamPoints).toEqual([0, 0]);
+    expect(buzz(s, "B", T0 + 20).buzzer ?? null).toBeNull();
+    s = buzz(s, "C", T0 + 30);
+    s = answer(s, "C", rightOf(s), T0 + 40);
+    expect(s.phase).toBe("reveal");
+    expect(s.teamPoints[0]).toBe(0);
+    expect(s.teamPoints[1]).toBeGreaterThanOrEqual(100);
+    expect(s.points.C).toBeGreaterThanOrEqual(100);
+  });
+
+  it("teams: the question ends when every team is locked out, and a wrong buzz takes 50 from the team's points", () => {
+    let s: PTState = { ...team4(), teamPoints: [80, 30] };
+    s = buzz(s, "A", T0);
+    s = answer(s, "A", wrongOf(s), T0 + 5);
+    expect(s.teamPoints).toEqual([30, 30]);
+    s = buzz(s, "D", T0 + 10);
+    s = answer(s, "D", wrongOf(s), T0 + 15);
+    expect(s.teamPoints).toEqual([30, 0]);
+    expect(s.phase).toBe("reveal");
+  });
+
+  it("settle: a departed buzzer releases the buzz with no penalty, and leavers don't count for everyone locked", () => {
+    let s: PTState = { ...mk(), points: { Ann: 90, Bob: 0, Cy: 0 } };
+    s = buzz(s, "Ann", T0);
+    s = settle(s, ["Ann"], T0 + 100);
+    expect(s.buzzer).toBeNull();
+    expect(s.points.Ann).toBe(90);
+    expect(s.locked).toEqual([]);
+    expect(s.phase).toBe("question");
+    s = buzz(s, "Bob", T0 + 200);
+    s = answer(s, "Bob", wrongOf(s), T0 + 210);
+    expect(s.phase).toBe("question");
+    s = settle(s, ["Ann", "Cy"], T0 + 300);
+    expect(s.phase).toBe("reveal");
+  });
+
+  it("redaction hides the answer until reveal for every seat, including none", () => {
+    let s = mk();
+    s = buzz(s, "Ann", T0 + 50);
+    for (const me of ["Ann", "Bob", null]) {
+      const v = redactFor(s, me);
+      expect(v.questions[s.round]!.answer).toBeUndefined();
+      expect(v.buzzer).toBe("Ann");
+      expect(v.buzzMs).toBe(50);
+    }
+    s = answer(s, "Ann", rightOf(s), T0 + 60);
+    expect(redactFor(s, null).questions[s.round]!.answer).toBe(rightOf(s));
   });
 });
