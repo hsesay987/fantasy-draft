@@ -55,7 +55,13 @@ export async function quizFor(setup: any, seen: string[] = [], seed: number = ne
 }
 
 /** The setup the way the server will store it (so `pool` is `pools[0]`), or undefined when it is not valid. */
-const cleanSetup = (raw: unknown) => (raw ? sanitizeSetup(raw) ?? undefined : undefined);
+const cleanSetup = (raw: any) => {
+  const clean = raw ? sanitizeSetup(raw) ?? undefined : undefined;
+  if (!clean) return undefined;
+  // Non-party setups are stored without `opts.avoid`, but the client's seen questions must still steer the question bank.
+  const avoid = (Array.isArray(raw.opts?.avoid) ? raw.opts.avoid : []).slice(0, 200).map((x: unknown) => String(x ?? "").replace(/[\u0000-\u001f\u007f<>]/g, " ").trim().slice(0, 40));
+  return { ...clean, opts: { ...clean.opts, avoid } };
+};
 
 // Create a room, with a game already picked (`setup`) or empty for the host to pick one in the lobby.
 router.post("/", async (req, res) => {

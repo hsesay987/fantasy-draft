@@ -11,6 +11,7 @@ import express from "express";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import router, { quizFor } from "./playRooms.route";
+import { getFeud } from "../services/trivia.service";
 import { act, createRoom, joinRoom, leaveRoom, needsQuiz, startRoom } from "../services/playRooms";
 
 describe("quizFor party trivia", () => {
@@ -108,6 +109,28 @@ describe("POST /:code/start after a game", () => {
       expect(res.status).toBe(400);
       expect(r.setup.quiz).toBe(bank);
       expect(needsQuiz(r)).toBe(true);
+    } finally {
+      server.close();
+    }
+  });
+});
+
+describe("seen questions on non-party setups", () => {
+  it("reach the trivia bank on create (jeopardy) and on /game (feud), though they are not stored", async () => {
+    const app = express();
+    app.use(express.json());
+    app.use("/play-rooms", router);
+    const server = await new Promise<Server>((res) => { const s = app.listen(0, () => res(s)); });
+    const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}/play-rooms`;
+    const post = async (path: string, body: unknown) => (await fetch(base + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })).json() as Promise<any>;
+    try {
+      getJeopardy.mockClear();
+      const made = await post("", { name: "Ann", setup: { format: "jeopardy", pool: "superheroes", mission: { weights: { power: 1 } }, opts: { avoid: ["Some question", 5, "x<y>"] } } });
+      expect(made).toHaveProperty("code");
+      expect(getJeopardy.mock.lastCall![1]).toEqual(["Some question", "5", "x y"]);
+      vi.mocked(getFeud).mockClear();
+      await post(`/${made.code}/game`, { token: made.token, setup: { format: "feud", pool: "superheroes", mission: { weights: { power: 1 } }, opts: { avoid: ["Seen survey"] } } });
+      expect(vi.mocked(getFeud).mock.lastCall![2]).toEqual(["Seen survey"]);
     } finally {
       server.close();
     }
