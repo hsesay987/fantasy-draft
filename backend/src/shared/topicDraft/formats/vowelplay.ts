@@ -14,7 +14,10 @@ export type VPMode = "first" | "duel" | "all";
 export type VPAnswer = "voice" | "type";
 /** `also` holds the other names in the topic with the same puzzle. */
 export type VPWord = { name: string; puzzle: string; also: string[] };
-export type VPHistory = { name: string; puzzle: string; winner: string | null; wrongBuzz?: string; gotMs: Record<string, number> };
+/** `lost`: First correct only, the point a wrong buzz actually cost (0 when the buzzer had none). */
+export type VPHistory = { name: string; puzzle: string; winner: string | null; wrongBuzz?: string; lost?: number; gotMs: Record<string, number> };
+/** A judge's verdict. "voted" only appears in what a seat is sent: another judge's mark, hidden until the reveal. */
+export type VPMark = "right" | "wrong" | "voted";
 
 export type VPState = {
   players: string[];
@@ -31,7 +34,7 @@ export type VPState = {
   buzzer: string | null;
   /** Voice: how long after the word appeared the buzz reached the server, in ms. Kept until the next word. */
   buzzMs: number | null;
-  marks: Record<string, "right" | "wrong">;
+  marks: Record<string, VPMark>;
   /** Milliseconds from the start of this word to each player's right answer. */
   gotMs: Record<string, number>;
   gaveUp: string[];
@@ -88,11 +91,11 @@ function drinkCalls(s: VPState, gone: string[]): DrinkCall[] {
 }
 
 /** Closes the word: records it, hands out drinks (everyone-competes only) and starts the reveal. */
-function finish(s: VPState, now: number, o: { wrongBuzz?: string; gone?: string[] } = {}): VPState {
+function finish(s: VPState, now: number, o: { wrongBuzz?: string; lost?: number; gone?: string[] } = {}): VPState {
   const w = s.words[s.round]!;
   const got = Object.entries(s.gotMs);
   const winner = got.length ? got.reduce((a, b) => (b[1] < a[1] ? b : a))[0] : null;
-  const h: VPHistory = { name: w.name, puzzle: w.puzzle, winner, ...(o.wrongBuzz ? { wrongBuzz: o.wrongBuzz } : {}), gotMs: s.gotMs };
+  const h: VPHistory = { name: w.name, puzzle: w.puzzle, winner, ...(o.wrongBuzz ? { wrongBuzz: o.wrongBuzz } : {}), ...(o.lost !== undefined ? { lost: o.lost } : {}), gotMs: s.gotMs };
   const drinks = s.drinks && s.mode === "all" ? addCalls(s.drinks, drinkCalls(s, o.gone ?? []), s.players) : s.drinks;
   return { ...s, phase: "reveal", history: [...s.history, h], ...(drinks ? { drinks } : {}), phaseAt: now };
 }
@@ -159,7 +162,8 @@ function resolve(s: VPState, from: string[], now: number, gone: string[] = []): 
   const wrong = votes.filter((v) => v === "wrong").length;
   if (wrong > votes.length - wrong) {
     if (s.mode === "duel") return finish(pull(s, s.players.find((p) => p !== by)!), now, { wrongBuzz: by, gone });
-    return finish({ ...s, points: { ...s.points, [by]: Math.max(0, (s.points[by] ?? 0) - 1) } }, now, { wrongBuzz: by, gone });
+    const had = s.points[by] ?? 0;
+    return finish({ ...s, points: { ...s.points, [by]: Math.max(0, had - 1) } }, now, { wrongBuzz: by, lost: had > 0 ? 1 : 0, gone });
   }
   return won(s, by, 0, now);
 }
@@ -212,10 +216,12 @@ export function winners(s: VPState): string[] {
   return s.players.filter((p) => score(p) === top);
 }
 
-/** What any seat may see. The current name stays secret until it is finished, except that the judges see it; later words never leave the server. Once done, only the words played go out. */
-export function redactFor(s: VPState, _me: string | null): VPState {
+/** What any seat may see. The current name stays secret until it is finished, except that the judges see it; later words never leave the server. Once done, only the words played go out. While judging, other seats' marks read only "voted". */
+export function redactFor(s: VPState, me: string | null): VPState {
   // A head to head can end early (a lead, a forfeit): only the words that were finished go out, never the ones still to come or in play.
   if (s.done) return { ...s, words: s.words.slice(0, s.history.length), seed: 0 };
   const words = s.words.slice(0, s.round + 1).map((w, i) => (i === s.round && s.phase !== "reveal" && s.phase !== "judge" ? { ...w, name: "", also: [] } : w));
-  return { ...s, words, seed: 0 };
+  // While judging, a seat sees its own mark and only that the others have voted, so nobody can follow the crowd.
+  const marks = s.phase === "judge" ? Object.fromEntries(Object.keys(s.marks).map((p) => [p, p === me ? s.marks[p]! : ("voted" as const)])) : s.marks;
+  return { ...s, words, marks, seed: 0 };
 }

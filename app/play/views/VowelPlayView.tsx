@@ -31,17 +31,8 @@ const scoreOf = (s: VPState, p: string) => (s.mode === "duel" ? wonBy(s, p) : ha
 const fmt = (n: number) => n.toLocaleString("en-US");
 /** A buzz time as seconds with milliseconds: 2347 reads 2.347s. */
 const buzzTime = (ms: number) => `${(ms / 1000).toFixed(3)}s`;
-/** First correct, before word `n`: a player's points, replayed from the words so far (a right answer +1, a wrong buzz -1, never below 0). */
-function pointsBefore(s: VPState, p: string, n: number): number {
-  let pts = 0;
-  for (const h of s.history.slice(0, n)) pts = h.winner === p ? pts + 1 : h.wrongBuzz === p ? Math.max(0, pts - 1) : pts;
-  return pts;
-}
-/** Did word `n`'s wrong buzz cost the buzzer a point? Not if they had none to lose. */
-const lostPoint = (s: VPState, n: number) => {
-  const h = s.history[n];
-  return !!h?.wrongBuzz && s.mode === "first" && pointsBefore(s, h.wrongBuzz, n) > 0;
-};
+/** Did this word's wrong buzz cost the buzzer a point? The engine records what it took (none when they had none). */
+const lostPoint = (h: VPHistory | undefined) => !!h?.wrongBuzz && (h.lost ?? 0) > 0;
 /** How long each phase's clock runs, and so how many segments it has. */
 const PHASE_MS = { guess: GUESS_MS, speak: SPEAK_MS, judge: JUDGE_MS } as const;
 
@@ -132,9 +123,12 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
   }, [onClock, secs]);
 
   // Someone buzzed: everyone hears it.
+  // Only a buzz that happens while this screen is up: opening it mid-speak is silent.
   const buzzKey = s.phase === "speak" && !s.done ? `${s.round}:${s.buzzer}` : "";
+  const heardBuzz = useRef(buzzKey);
   useEffect(() => {
-    if (buzzKey) play("pick");
+    if (buzzKey && buzzKey !== heardBuzz.current) play("pick");
+    heardBuzz.current = buzzKey;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buzzKey]);
 
@@ -261,8 +255,7 @@ function VoiceControls({ s, me, seated, gone, dispatch, play, secs }: { s: VPSta
   /** Why this seat's last tap was refused, for as long as the round and phase it was tapped in last. */
   const [why, setWhy] = useState<{ key: string; msg: string } | null>(null);
   const busy = useRef(false);
-  /** A tap on its way to the server. A buzz is shown at once on this phone, but its time is the server's, so it waits. */
-  const [pending, setPending] = useState(false);
+  const buzzBtn = useRef<HTMLButtonElement>(null);
   const live = useRef(key);
   useEffect(() => { live.current = key; });
 
@@ -277,7 +270,6 @@ function VoiceControls({ s, me, seated, gone, dispatch, play, secs }: { s: VPSta
   const send = async (action: Parameters<GameCtl["dispatch"]>[0], refused: string) => {
     if (busy.current) return;
     busy.current = true;
-    if (action.type === "buzz") setPending(true);
     const at = live.current;
     try {
       const r = await dispatch(action);
@@ -285,31 +277,20 @@ function VoiceControls({ s, me, seated, gone, dispatch, play, secs }: { s: VPSta
       if (r && !r.ok && live.current === at) setWhy({ key: at, msg: r.error === REFUSED ? refused : r.error ?? refused });
     } finally {
       busy.current = false;
-      setPending(false);
     }
   };
   const buzz = () => { if (canBuzz) { play("click"); void send({ type: "buzz", by: me }, "Someone buzzed first."); } };
   const done = () => { if (playing && s.phase === "speak" && speaker) { play("click"); void send({ type: "spoke", by: me }, "Time was already up."); } };
   const markIt = (verdict: "right" | "wrong") => { if (judge && !marked) { play(verdict === "right" ? "click" : "wrong"); void send({ type: "mark", by: me, verdict }, "Too late to judge this one."); } };
 
-  // On a computer, the space bar buzzes, unless a button or field has the keys.
-  const buzzRef = useRef(buzz);
-  useEffect(() => { buzzRef.current = buzz; });
+  // Each new word puts the Buzz button in focus, so on a computer the space bar (or Enter) buzzes the usual way a button
+  // does, and the space bar scrolls the page as normal whenever anything else has focus.
   useEffect(() => {
-    if (!canBuzz) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.code !== "Space" || e.repeat) return;
-      const t = e.target as HTMLElement | null;
-      if (t && (t.closest("button, input, textarea, select, a, [contenteditable]"))) return;
-      e.preventDefault();
-      buzzRef.current();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [canBuzz]);
+    if (canBuzz) buzzBtn.current?.focus({ preventScroll: true });
+  }, [canBuzz, s.round]);
 
   const buzzer = s.buzzer;
-  const timeLine = buzzer && s.buzzMs !== null && s.buzzMs !== undefined && !pending
+  const timeLine = buzzer && s.buzzMs !== null && s.buzzMs !== undefined
     ? <p className="vp-buzzed"><Sprite sprite={playerSprite(Math.max(0, s.players.indexOf(buzzer)))} size={18} /><span><b>{buzzer === me ? "You" : buzzer}</b> buzzed in <b className="t">{buzzTime(s.buzzMs)}</b></span></p>
     : null;
   const note = why && why.key === key ? <p className="vp-word"><span className="no">{why.msg}</span></p> : null;
@@ -319,10 +300,18 @@ function VoiceControls({ s, me, seated, gone, dispatch, play, secs }: { s: VPSta
 
   if (s.done || s.phase === "reveal") return timeLine;
 
+  // Read out once per phase (and when a refusal comes back), never the ticking seconds or the buttons.
+  const said = s.phase === "guess" ? (canBuzz ? "New word. Buzz when you know it." : "New word.")
+    : s.phase === "speak" ? (speaker ? "You buzzed. Say it now." : `${buzzer} buzzed.`)
+    : `The answer is ${word?.name ?? ""}. ${judge && !marked ? `Did ${buzzer} say it?` : "Judging."}`;
+  const announce = <p className="sr-only" role="status">{why && why.key === key ? why.msg : said}</p>;
+
   if (s.phase === "guess") {
     return (
-      <div className="vp-voice" role="status">
-        <PixelButton className="vp-buzz" variant="gold" disabled={!canBuzz} onClick={buzz} aria-keyshortcuts="Space">Buzz</PixelButton>
+      <div className="vp-voice">
+        {announce}
+        {/* A plain button in the pixel kit's look, so it can take focus at each new word. */}
+        <button ref={buzzBtn} type="button" className="px-btn gold vp-buzz" disabled={!canBuzz} onClick={buzz}>Buzz</button>
         {note ?? <p className="vp-word">{!seated ? "Watching this one." : out ? "You left the table." : "Buzz when you know it, then say it out loud."}</p>}
       </div>
     );
@@ -330,11 +319,12 @@ function VoiceControls({ s, me, seated, gone, dispatch, play, secs }: { s: VPSta
 
   if (s.phase === "speak") {
     return (
-      <div className="vp-voice" role="status">
+      <div className="vp-voice">
+        {announce}
         {timeLine}
         {speaker && !out ? (
           <>
-            <p className="vp-say"><span>Say it now!</span><b aria-label={`${secs} seconds`}>{secs}</b></p>
+            <p className="vp-say"><span>Say it now!</span><b aria-hidden>{secs}</b></p>
             <PixelButton className="vp-done" onClick={done}>Done</PixelButton>
             {note}
           </>
@@ -345,12 +335,12 @@ function VoiceControls({ s, me, seated, gone, dispatch, play, secs }: { s: VPSta
 
   // Judging: the name is out for everyone.
   return (
-    <div className="vp-voice" role="status">
+    <div className="vp-voice">
+      {announce}
       {timeLine}
       <div className="vp-answer">
         <span className="lbl">THE ANSWER</span>
-        {/* Blank only for the moment between this phone's own tap and the server's reply. */}
-        <b>{word?.name || "…"}</b>
+        <b>{word?.name}</b>
         {word && word.also.length > 0 && <span className="also">or {word.also.join(", or ")}</span>}
       </div>
       {judge && !marked ? (
@@ -376,12 +366,11 @@ function Verdict({ s, h, name, me, gained }: { s: VPState; h: VPHistory; name: s
     return <><b>{name}</b> · {has(h.gotMs, me) ? `you +${gained}` : n ? `${first} was first` : "nobody got it"}{n > 0 ? ` · ${n} of ${s.players.length}` : ""}</>;
   }
   if (s.answer === "voice") {
-    const n = s.history.indexOf(h);
     const other = (p: string) => s.players.find((q) => q !== p) ?? "";
     const you = (p: string) => (p === me ? "You" : p);
     if (h.winner) return <><b>{name}</b> · {you(h.winner)} said it{s.mode === "duel" ? ` · a step to ${h.winner === me ? "you" : h.winner}` : " · +1"}</>;
     if (h.wrongBuzz) {
-      const cost = s.mode === "duel" ? ` · a step to ${other(h.wrongBuzz) === me ? "you" : other(h.wrongBuzz)}` : lostPoint(s, n) ? " · -1 point" : "";
+      const cost = s.mode === "duel" ? ` · a step to ${other(h.wrongBuzz) === me ? "you" : other(h.wrongBuzz)}` : lostPoint(h) ? " · -1 point" : "";
       return <span className="lost"><b>{name}</b> · {you(h.wrongBuzz)} buzzed wrong{cost}</span>;
     }
     if (s.buzzer) return <span className="lost">{you(s.buzzer)} left the table. It was <b>{name}</b></span>;
@@ -402,7 +391,7 @@ function Roster({ s, me, gone, reveal }: { s: VPState; me: string; gone: string[
         const has_ = all && !reveal && has(s.gotMs, p);
         const passed = all && !reveal && s.gaveUp.includes(p);
         const gain = last ? (all ? (has(last.gotMs, p) ? speedPoints(last.gotMs[p]!) : 0) : last.winner === p ? 1 : 0) : 0;
-        const lost = last && last.wrongBuzz === p && lostPoint(s, s.history.length - 1);
+        const lost = last && last.wrongBuzz === p && lostPoint(last);
         // Voice: who buzzed, and during judging who has voted (never which way).
         const live = !reveal && !s.done;
         const buzzed = live && (s.phase === "speak" || s.phase === "judge") && s.buzzer === p;

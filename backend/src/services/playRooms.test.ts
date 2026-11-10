@@ -1355,6 +1355,22 @@ describe("Vowel Play rooms", () => {
         for (const n of later) expect(json).not.toContain(n);
       }
     });
+    it("while judging, sends each seat only its own mark; others, and a seat with no token, see voted", () => {
+      const four = ["Ann", "Bob", "Cy", "Di"];
+      const { r, toks } = running(vp("vowelplay", { vowelAnswer: "voice" }), four);
+      act(r, toks.Bob!, { type: "buzz" });
+      act(r, toks.Bob!, { type: "spoke" });
+      expect(act(r, toks.Ann!, { type: "mark", verdict: "wrong" })).toEqual({ ok: true });
+      expect(act(r, toks.Cy!, { type: "mark", verdict: "right" })).toEqual({ ok: true });
+      expect(st(r).phase).toBe("judge");
+      const marks = (tok: string | undefined) => (snapshot(r, tok).state as any).marks;
+      expect(marks(toks.Ann)).toEqual({ Ann: "wrong", Cy: "voted" });
+      expect(marks(toks.Cy)).toEqual({ Ann: "voted", Cy: "right" });
+      for (const tok of [toks.Bob, toks.Di, undefined]) expect(marks(tok)).toEqual({ Ann: "voted", Cy: "voted" });
+      expect(act(r, toks.Di!, { type: "mark", verdict: "wrong" })).toEqual({ ok: true });
+      expect(st(r).phase).toBe("reveal");
+      for (const tok of [toks.Ann, toks.Bob, toks.Cy, toks.Di, undefined]) expect(marks(tok)).toEqual({ Ann: "wrong", Cy: "right", Di: "wrong" });
+    });
     it("typed play hides them too, and the client cannot set the clock or the seed", () => {
       const { r, toks } = running(vp("vowelparty"), names);
       watch(r, toks, null);

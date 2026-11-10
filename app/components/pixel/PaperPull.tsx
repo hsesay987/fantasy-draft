@@ -7,9 +7,17 @@ import { TW_COLORS as C, twType } from "./worlds";
 
 // Head to head: one long strip of paper runs out of the left machine's carriage, over the top and down into the right
 // one's. Each word won winds it a step into the winner's machine; the red mark printed on it is the score.
-const H = 52, MIN_W = 144, BENCH = 37;
-/** Where each machine stands from the centre, and the top run of the strip. */
-const MACHINE_DX = 54, STRIP_TOP = 3, STRIP_H = 10, FEED = 5, REACH = 45;
+const H = 52, BENCH = 37;
+/** The narrowest scene that still holds both machines and the strip; below this a whole scale steps down. */
+const MIN_SCENE = 120;
+/** How far each machine may stand from the centre at most, and the top run of the strip. */
+const MAX_DX = 54, STRIP_TOP = 3, STRIP_H = 10, FEED = 5;
+/** Where the machines stand in a scene `w` wide (a narrow bench brings them in), and how far the mark may travel. */
+const layout = (w: number) => { const dx = Math.min(MAX_DX, Math.floor(w / 2) - 18); return { dx, reach: dx - 9 }; };
+/** The largest whole scale at which the scene is at least MIN_SCENE wide (and at most 3), so every pixel is square. */
+export function pullScale(avail: number): number {
+  return Math.max(1, Math.min(3, Math.floor(avail / MIN_SCENE), avail >= 144 * 3 ? 3 : 2));
+}
 const MOVE_MS = 460, DING_MS = 900;
 /** The right-hand machine is an oxblood one, so the two sides read apart at a glance. */
 const OX = { o0: "#2e1210", o1: "#5c2219", o2: "#8a3a2a", o3: "#b8634a", o4: "#e29a7c" };
@@ -106,8 +114,8 @@ function machine(ctx: CanvasRenderingContext2D, mx: number, e: typeof SEAFOAM, d
  * The strip of paper. `shift` is how far it has been wound towards the left machine, in scene pixels: its type and ruled
  * lines slide with it, and the red mark printed on it sits at `cx - shift`.
  */
-function strip(ctx: CanvasRenderingContext2D, cx: number, shift: number) {
-  const lx = cx - MACHINE_DX, rx = cx + MACHINE_DX;
+function strip(ctx: CanvasRenderingContext2D, cx: number, dx: number, shift: number) {
+  const lx = cx - dx, rx = cx + dx;
   const top = STRIP_TOP, bot = STRIP_TOP + STRIP_H;
   // The two legs, feeding down into each carriage, and the top run between them, with rounded outer corners.
   const sheet = (x: number, y: number, w: number, h: number) => px(ctx, x, y, C.paper2, w, h);
@@ -151,26 +159,29 @@ function strip(ctx: CanvasRenderingContext2D, cx: number, shift: number) {
 /**
  * Head to head as a sheet of paper pulled between two typewriters. `rope` is how many words `left` is ahead (negative:
  * `right` is), and `lead` is how far ahead wins. Each change winds the strip one step into the machine that pulled it, and
- * at the lead that machine's bell rings. Pixel art at a whole scale, widening the bench rather than stretching it.
+ * at the lead that machine's bell rings. Pixel art at a whole scale at every width: a wider box widens the bench, a narrower
+ * one brings the machines in, and below that the scale steps down rather than stretching.
  */
 export function PaperPull({ rope, lead, left, right, sprites }: { rope: number; lead: number; left: string; right: string; sprites?: [SpriteData, SpriteData] }) {
   const box = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [size, setSize] = useState<{ w: number; scale: number; fluid: boolean }>({ w: MIN_W, scale: 2, fluid: true });
+  const [size, setSize] = useState<{ w: number; scale: number; pad: number }>({ w: 144, scale: 2, pad: 0 });
   const at = Math.max(-lead, Math.min(lead, rope));
   const props = useRef({ at, lead });
   useLayoutEffect(() => { props.current = { at, lead }; });
-  const draw = useRef<(now: number) => void>(() => {});
+  /** Paints now, and keeps animating for as long as something moves (the strip winding, the bell ringing). */
+  const wake = useRef<() => void>(() => {});
 
   useEffect(() => {
     const el = box.current;
     if (!el) return;
     const fit = () => {
       const avail = el.clientWidth;
-      const scale = avail >= MIN_W * 3 ? 3 : 2;
-      const fluid = avail < MIN_W * 2;
-      const w = fluid ? MIN_W : Math.floor(avail / scale);
-      setSize((o) => (o.w === w && o.scale === scale && o.fluid === fluid ? o : { w, scale, fluid }));
+      const scale = pullScale(avail);
+      const w = Math.floor(avail / scale);
+      // Centred on a whole CSS pixel, so the scene's pixels land square on the screen's.
+      const pad = Math.floor((avail - w * scale) / 2);
+      setSize((o) => (o.w === w && o.scale === scale && o.pad === pad ? o : { w, scale, pad }));
     };
     fit();
     const ro = new ResizeObserver(fit);
@@ -183,12 +194,14 @@ export function PaperPull({ rope, lead, left, right, sprites }: { rope: number; 
     if (!c || !ctx) return;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const cx = Math.floor(size.w / 2);
-    const stepOf = (l: number) => Math.max(1, Math.floor(REACH / Math.max(1, l)));
+    const { dx, reach } = layout(size.w);
+    const stepOf = (l: number) => Math.max(1, Math.floor(reach / Math.max(1, l)));
     let back: HTMLCanvasElement | null = null, backLead = -1;
     // Where the strip is drawn from and to, and when the move began. A strip that mounts mid-game starts where it is.
     const st = { from: props.current.at, to: props.current.at, moveAt: -1e9, dingAt: -1e9 };
 
-    const paint = (now: number) => {
+    /** Draws one frame; true while there is still motion to show. */
+    const paint = (now: number): boolean => {
       const p = props.current;
       const step = stepOf(p.lead);
       if (!back || backLead !== p.lead) {
@@ -217,31 +230,29 @@ export function PaperPull({ rope, lead, left, right, sprites }: { rope: number; 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, size.w, H);
       ctx.drawImage(back, 0, 0);
-      strip(ctx, cx, shift);
-      machine(ctx, cx - MACHINE_DX, SEAFOAM, jog(-1), Math.floor(((shift % 3) + 3) % 3), ding(-1), false);
-      machine(ctx, cx + MACHINE_DX, OX, jog(1), Math.floor(((-shift % 3) + 3) % 3), ding(1), true);
+      strip(ctx, cx, dx, shift);
+      machine(ctx, cx - dx, SEAFOAM, jog(-1), Math.floor(((shift % 3) + 3) % 3), ding(-1), false);
+      machine(ctx, cx + dx, OX, jog(1), Math.floor(((-shift % 3) + 3) % 3), ding(1), true);
+      return !still && (moving || (won !== 0 && now < st.dingAt + DING_MS));
     };
-    draw.current = paint;
 
-    // Painted at once, so the strip shows even before the first frame (or in a tab the browser isn't animating).
-    paint(performance.now());
-    if (still) return;
+    // Idle, nothing runs: a frame loop starts on a change and stops once the strip has settled and the bell is quiet.
+    // With reduced motion each change paints once, already in place.
     let raf = 0, last = 0;
     const loop = (now: number) => {
+      raf = 0;
+      if (now - last >= 30) { last = now; if (!paint(now)) return; }
       raf = requestAnimationFrame(loop);
-      if (document.hidden || now - last < 30) return;
-      last = now;
-      paint(now);
     };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    wake.current = () => {
+      // Painted at once, so the strip shows even before the first frame (or in a tab the browser isn't animating).
+      if (paint(performance.now()) && !raf) raf = requestAnimationFrame(loop);
+    };
+    wake.current();
+    return () => { if (raf) cancelAnimationFrame(raf); wake.current = () => {}; };
   }, [size]);
 
-  // With reduced motion nothing loops, so each change paints once, already in place.
-  useEffect(() => {
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    draw.current(performance.now());
-  }, [at, lead, size]);
+  useEffect(() => { wake.current(); }, [at, lead]);
 
   const ahead = at === 0 ? "Level" : `${at > 0 ? left : right} +${Math.abs(at)}`;
   const label = Math.abs(at) >= lead ? `${at > 0 ? left : right} pulled the paper in, ${lead} ahead.` : `${at === 0 ? "Level" : `${at > 0 ? left : right} ahead by ${Math.abs(at)}`}. ${lead} ahead wins.`;
@@ -249,7 +260,7 @@ export function PaperPull({ rope, lead, left, right, sprites }: { rope: number; 
     <div className="vp-pull">
       <div ref={box} className="vp-machine">
         <canvas ref={canvas} width={size.w} height={H}
-          style={size.fluid ? { width: "100%", height: "auto" } : { width: size.w * size.scale, height: H * size.scale }}
+          style={{ width: size.w * size.scale, height: H * size.scale, marginLeft: size.pad, marginRight: 0 }}
           role="img" aria-label={label} />
       </div>
       <div className="ends">

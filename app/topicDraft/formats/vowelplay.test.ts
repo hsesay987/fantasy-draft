@@ -276,6 +276,26 @@ describe("voice", () => {
     expect(s.history[0]!.winner).toBeNull();
     expect(buzz(mkV(), "Ann", T0 + GUESS_MS)).toEqual(mkV());
   });
+  it("records the point a wrong buzz actually cost: 1 from 2 points, 0 from none", () => {
+    const j = { ...judging(), points: { Ann: 0, Bo: 2, Cy: 0 } };
+    const w = mark(mark(j, "Ann", "wrong", T0 + 1), "Cy", "wrong", T0 + 2);
+    expect(w.history[0]!.lost).toBe(1);
+    const z = mark(mark(judging(), "Ann", "wrong", T0 + 1), "Cy", "wrong", T0 + 2);
+    expect(z.history[0]!.lost).toBe(0);
+    const r = mark(mark(judging(), "Ann", "right", T0 + 1), "Cy", "right", T0 + 2);
+    expect(r.history[0]!.lost).toBeUndefined();
+  });
+  it("while judging, each seat sees only its own mark; the rest read voted; all of them at the reveal", () => {
+    const j = judging("first", ["Ann", "Bo", "Cy", "Di"]);
+    const two = mark(mark(j, "Ann", "wrong", T0 + 1), "Cy", "right", T0 + 2);
+    expect(two.phase).toBe("judge");
+    expect(redactFor(two, "Ann").marks).toEqual({ Ann: "wrong", Cy: "voted" });
+    expect(redactFor(two, "Cy").marks).toEqual({ Ann: "voted", Cy: "right" });
+    for (const me of ["Bo", "Di", null]) expect(redactFor(two, me).marks).toEqual({ Ann: "voted", Cy: "voted" });
+    const done = mark(two, "Di", "wrong", T0 + 3);
+    expect(done.phase).toBe("reveal");
+    for (const me of ["Ann", "Bo", "Cy", "Di", null]) expect(redactFor(done, me).marks).toEqual({ Ann: "wrong", Cy: "right", Di: "wrong" });
+  });
   it("redactFor hides the name in speak for everyone, shows it in judge", () => {
     const sp = buzz(mkV(), "Bo", T0 + 1);
     for (const me of ["Bo", "Ann", null]) expect(JSON.stringify(redactFor(sp, me))).not.toContain(cur(sp).name);
