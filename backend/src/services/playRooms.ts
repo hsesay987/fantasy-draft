@@ -64,7 +64,7 @@ type Room = {
   createdAt: number;
   touchedAt: number;
   /** Games finished in this room, newest last. */
-  played: { format: FormatId; pool: string; winner: string | null }[];
+  played: { format: FormatId; pool: string; title?: string; winner: string | null }[];
   /** Trivia already asked in this room, so the next board is different. */
   seen: string[];
   /** False once the current trivia board has been played, so a rematch gets new questions. */
@@ -464,7 +464,7 @@ function finish(room: Room) {
   room.status = "done";
   trackServer("room_finished", { format: setup.format, pool: setup.pool, seats: room.seats.length, duration_s: Math.round((Date.now() - room.createdAt) / 1000), left: room.seats.filter((s) => s.left).length }, room.code);
   const { teams } = buildTeams(setup, room.state!);
-  const record = { format: setup.format, pool: setup.pool, winner: null as string | null };
+  const record = { format: setup.format, pool: setup.pool, ...((setup.pools?.length ?? 1) > 1 ? { title: setup.mission.title } : {}), winner: null as string | null }; // a mixed game is named by all its topics
   room.played = [...room.played, record].slice(-30);
   // Party games are scored by their own rules; no AI report.
   if (PARTY_FORMATS.has(setup.format)) {

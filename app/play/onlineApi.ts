@@ -17,7 +17,7 @@ export type RoomSnapshot = {
   me: string | null;
   state: GameState | null;
   verdict: Verdict | null;
-  played: { format: string; pool: string; winner: string | null }[];
+  played: { format: string; pool: string; title?: string; winner: string | null }[];
   /** An NBA, NFL or Cartoon stat draft room the host opened for the group. */
   statLink: { code: string; league: "NBA" | "NFL" | "CARTOON" } | null;
 };

@@ -28,6 +28,12 @@ import { PARTY_FORMATS, type FormatId, type GameSetup } from "../../play/types";
 // Vowel Play and Vowel Party start at 2 (Head to head needs exactly 2: see duelWrong).
 const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" || format === "vote" ? 3 : 2);
 
+/** The topic part of a party game's title ("Imposter: A and B" shows as "A and B"; vote games are titled by their decks). */
+const topicLine = (format: FormatId, title: string | undefined): string | null => {
+  const head = formatMeta(format)?.title ?? "";
+  const t = (title ?? "").startsWith(`${head}: `) ? title!.slice(head.length + 2) : title ?? "";
+  return t && t !== head && t !== "Mafia" ? t : null;
+};
 const isVowel = (format: string) => format === "vowelplay" || format === "vowelparty";
 const DUEL_ONLY = "Head to head takes exactly 2 players";
 
@@ -155,11 +161,11 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   const shortForGame = !!setup && snap.seats.length >= 2 && snap.seats.length < need && !shortForMafia;
   const here = snap.seats.filter((s) => !s.left).length;
   const duelWrong = setup?.format === "vowelplay" && setup.opts.vowelMode === "duel" && here !== 2;
-  const poolTitle = setup ? (isVowel(setup.format) ? vowelTopicTitle(setup.pool) : setup.format === "vote" ? deckOf(setup.pool)?.title : setup.format === "insync" ? insyncDeckOf(setup.pool)?.title : cat?.title) : null;
+  const poolTitle = setup && party ? topicLine(setup.format, setup.mission.title) : setup ? (isVowel(setup.format) ? vowelTopicTitle(setup.pool) : setup.format === "vote" ? deckOf(setup.pool)?.title : setup.format === "insync" ? insyncDeckOf(setup.pool)?.title : cat?.title) : null;
 
   // Picking a game: the full setup screen for that format, saving to the room.
   if (isHost && (picking === "imposter" || picking === "vote" || picking === "insync" || picking === "partytrivia" || picking === "mafia" || picking === "vowelplay" || picking === "vowelparty")) {
-    return <PartySetup format={picking} seats={snap.seats.map((s) => s.name)} room={{ code, token, pool: setup?.pool, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
+    return <PartySetup format={picking} seats={snap.seats.map((s) => s.name)} room={{ code, token, pool: setup?.pool, pools: setup?.pools, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
   }
   if (isHost && picking && picking !== "menu") {
     return <SetupScreen format={picking} room={{ code, token, pool: setup?.pool, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
@@ -282,7 +288,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
         <Panel title="Played tonight">
           <ol className="space-y-1 text-sm">
             {snap.played.slice().reverse().map((g, i) => (
-              <li key={i} className="flex justify-between gap-3 rounded-lg bg-white/5 px-3 py-2"><span>{formatMeta(g.format)?.title}{isVowel(g.format) ? ` · ${vowelTopicTitle(g.pool)}` : g.format === "vote" ? ` · ${deckOf(g.pool)?.title ?? ""}` : g.format === "insync" ? ` · ${insyncDeckOf(g.pool)?.title ?? ""}` : category(g.pool) ? ` · ${category(g.pool)!.title}` : ""}</span><span className="text-muted-foreground">{g.winner ? `${g.winner} won` : isVowel(g.format) ? "tie" : g.format === "insync" ? "played together" : g.format === "partytrivia" ? "no single winner" : "no winner"}</span></li>
+              <li key={i} className="flex justify-between gap-3 rounded-lg bg-white/5 px-3 py-2"><span>{formatMeta(g.format)?.title}{g.title && PARTY_FORMATS.has(g.format as FormatId) ? (topicLine(g.format as FormatId, g.title) ? ` · ${topicLine(g.format as FormatId, g.title)}` : "") : isVowel(g.format) ? ` · ${vowelTopicTitle(g.pool)}` : g.format === "vote" ? ` · ${deckOf(g.pool)?.title ?? ""}` : g.format === "insync" ? ` · ${insyncDeckOf(g.pool)?.title ?? ""}` : category(g.pool) ? ` · ${category(g.pool)!.title}` : ""}</span><span className="text-muted-foreground">{g.winner ? `${g.winner} won` : isVowel(g.format) ? "tie" : g.format === "insync" ? "played together" : g.format === "partytrivia" ? "no single winner" : "no winner"}</span></li>
             ))}
           </ol>
         </Panel>
