@@ -1130,3 +1130,9 @@ html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
 .lb-rows .tag { font: 400 8px/1 var(--px-head); color: var(--px-dim); text-transform: uppercase; }
 .lb-rows .last { font: 400 11px/1 var(--px-head); color: var(--px-mint); animation: lb-pop .5s steps(3); }
 @keyframes lb-pop { from { transform: translateY(8px); opacity: 0; } }
+/* Trivia hub art for Pinpoint and Common Thread. */
+.hub-pulse { animation: hub-pulse 1.6s steps(4) infinite; }
+@keyframes hub-pulse { 50% { transform: scale(1.25); opacity: .7; } }
+.hub-thread { stroke-dasharray: 260; stroke-dashoffset: 260; animation: hub-thread 2.4s steps(12) forwards; }
+@keyframes hub-thread { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .hub-pulse { animation: none; } .hub-thread { animation: none; stroke-dashoffset: 0; } }
