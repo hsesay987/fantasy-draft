@@ -126,12 +126,12 @@ describe("pecking order engine", () => {
   it("pickName locks a name for one player; a second pick of it is refused, then another name is accepted", () => {
     let s = make([nameQ(4)]);
     s = pickName(s, "Ann", "  dee ", T0 + 5); // alias, any case
-    expect(s.answers.Ann).toEqual({ guess: null, name: "Delta", at: T0 + 5 });
+    expect(s.answers.Ann).toEqual({ guess: null, name: "Delta", known: true, at: T0 + 5 });
     expect(s.taken).toEqual(["Delta"]);
     const refused = pickName(s, "Bob", "Delta", T0 + 6);
     expect(refused).toBe(s);
     s = pickName(s, "Bob", "Charlie", T0 + 7);
-    expect(s.answers.Bob).toEqual({ guess: null, name: "Charlie", at: T0 + 7 });
+    expect(s.answers.Bob).toEqual({ guess: null, name: "Charlie", known: true, at: T0 + 7 });
     expect(s.taken).toEqual(["Delta", "Charlie"]);
     expect(pickName(s, "Ann", "Bravo", T0 + 8)).toBe(s); // one answer each
     expect(guessRank(s, "Cy", 4, T0 + 8)).toBe(s); // wrong kind
@@ -151,6 +151,20 @@ describe("pecking order engine", () => {
     expect(s.phase).toBe("reveal");
     expect(s.points).toEqual({ Ann: 0, Bob: 0, Cy: 120 }); // exact, and the only one above 0
     expect(s.history[0]!.scores.Ann).toEqual({ guess: null, name: "Zulu", points: 0, bonus: false });
+  });
+
+  it("a long padded name that only matches once cut to length stays unknown: no lock bypass, scores 0", () => {
+    let s = make([nameQ(4)]);
+    s = pickName(s, "Ann", "Delta", T0);
+    const padded = "Delta" + " ".repeat(55) + "x"; // "deltax": no match; its first 60 chars would match Delta
+    s = pickName(s, "Bob", padded, T0 + 1);
+    expect(s.answers.Bob).toEqual({ guess: null, name: "Delta" + " ".repeat(55), at: T0 + 1 });
+    expect(s.taken).toEqual(["Delta"]);
+    s = pickName(s, "Cy", "Kilo", T0 + 2);
+    expect(s.phase).toBe("reveal");
+    expect(s.history[0]!.scores.Bob).toEqual({ guess: null, name: "Delta" + " ".repeat(55), points: 0, bonus: false });
+    expect(s.points.Bob).toBe(0);
+    expect(s.points.Ann).toBe(120);
   });
 
   it("who's at #N scores by the picked name's span", () => {

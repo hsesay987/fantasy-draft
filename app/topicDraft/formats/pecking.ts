@@ -27,7 +27,8 @@ export type PeckQuestion = {
   /** Name kind: the whole list, to match picks against. Never sent to a seat. */
   pool?: { name: string; span: Span; aliases?: string[] }[];
 };
-export type PeckAnswer = { guess: number | null; name?: string; at: number };
+/** `known`: the pick matched a list name (decided once, at pick time; `name` is then canonical). */
+export type PeckAnswer = { guess: number | null; name?: string; known?: true; at: number };
 export type PeckScore = { guess: number | null; name?: string; span?: Span; points: number; bonus: boolean };
 export type PeckState = {
   players: string[];
@@ -173,7 +174,7 @@ export function pickName(s: PeckState, by: string, text: unknown, now: number): 
   const hit = lookup(s.questions[s.round]!, text);
   if (!hit) return record(s, by, { guess: null, name: text.trim().slice(0, NAME_MAX), at: now }, s.taken, now);
   if (s.taken.includes(hit.name)) return s;
-  return record(s, by, { guess: null, name: hit.name, at: now }, [...s.taken, hit.name], now);
+  return record(s, by, { guess: null, name: hit.name, known: true, at: now }, [...s.taken, hit.name], now);
 }
 
 function reveal(s: PeckState, now: number): PeckState {
@@ -186,7 +187,8 @@ function reveal(s: PeckState, now: number): PeckState {
       const error = a.guess == null ? Infinity : distance(a.guess, q.answer.span);
       scored[p] = { guess: a.guess, points: Number.isFinite(error) ? pointsFor(error, q.size) : 0, bonus: false, error };
     } else {
-      const hit = a.name != null ? lookup(q, a.name) : null;
+      // Score exactly what was decided at pick time: no second lookup of the stored text.
+      const hit = a.known ? (q.pool ?? []).find((p) => p.name === a.name) ?? null : null;
       const error = hit ? distance(q.at!, hit.span) : Infinity;
       scored[p] = { guess: null, ...(a.name != null ? { name: a.name } : {}), ...(hit ? { span: hit.span } : {}), points: hit ? pointsFor(error, q.size) : 0, bonus: false, error };
     }
