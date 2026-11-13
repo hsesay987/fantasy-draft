@@ -1,0 +1,17 @@
+// Word lists for Say Less. Easy, medium and hard are in wordList.json; topic decks reuse Vowel Play's names at par 3.
+import data from "./wordList.json";
+import vowel from "../party/vowelWordList.json";
+import { setWordSource, type SayWord } from "./source";
+
+const LEVELS = data as Record<string, SayWord[]>;
+const TOPICS = vowel.words as Record<string, string[]>;
+
+/** Words for a deck; empty for an unknown deck. */
+export function wordsFor(deck: string): SayWord[] {
+  if (["easy", "medium", "hard"].includes(deck)) return LEVELS[deck]!;
+  if (Object.hasOwn(TOPICS, deck)) return TOPICS[deck]!.map((name) => ({ name, par: 3 }));
+  return [];
+}
+
+// Importing this module is what lets the engine deal words (see source.ts).
+setWordSource(wordsFor);
