@@ -24,6 +24,12 @@ describe("where a setup starts", () => {
     expect(startPools("mafia", ["villains"], [], true)).toEqual(["mafia"]);
   });
 
+  it("a game with no topics at all (Loadout) starts with none, in a tournament or not", () => {
+    expect(startPools("loadout", ["villains"], ["superheroes"], true)).toEqual([]);
+    expect(startPools("loadout", null, [], true)).toEqual([]);
+    expect(startPools("loadout", null, ["superheroes"], false)).toEqual([]);
+  });
+
   it("every game but Mafia and Loadout has topics, and each default is one of them", () => {
     for (const f of ["imposter", "vote", "insync", "partytrivia", "vowelplay", "vowelparty", "snake", "feud"] as const) {
       expect(topicOptions(f).length).toBeGreaterThan(0);

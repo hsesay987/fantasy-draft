@@ -361,6 +361,7 @@ function planSlot(entry: unknown): { format: FormatId; pools: string[] | null } 
     return ok ? { format: f, pools: ok } : { error: "has a topic that game doesn't have" };
   }
   const ids = [...new Set(pools.map((p) => clean(p, 30)))];
+  if (ids.length > 1) return { error: "is a draft, which plays from one topic" };
   return ids.every(draftPoolOk) ? { format: f, pools: ids } : { error: "has a topic that game doesn't have" };
 }
 

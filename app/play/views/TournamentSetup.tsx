@@ -23,7 +23,7 @@ export type LiveTournament = Tournament & { standings: Standing[] };
  * The host's lineup for a night of games: numbered slots, each with its topic, a way to reorder it and take it out.
  * Games are added from the game tiles below it. `options` are the games this table can start right now (for Surprise me).
  */
-export function LineupPanel({ options, plan, onPlan, onStart, busy, error }: { options: FormatId[]; plan: PlanSlot[]; onPlan: (plan: PlanSlot[]) => void; onStart: () => void; busy: boolean; error: string | null }) {
+export function LineupPanel({ options, plan, onPlan, onStart, busy, error }: { options: FormatId[]; plan: PlanSlot[]; onPlan: (plan: PlanSlot[]) => void; /** Leave out when the page has its own Start. */ onStart?: () => void; busy: boolean; error: string | null }) {
   // The slot whose topic picker is open.
   const [open, setOpen] = useState<number | null>(null);
   const edit = (next: PlanSlot[], keepOpen: number | null = null) => { setOpen(keepOpen); onPlan(next); };
@@ -72,7 +72,7 @@ export function LineupPanel({ options, plan, onPlan, onStart, busy, error }: { o
         {error && <p role="alert" className="tn-error">{error}</p>}
         <div className="tn-actions">
           <PixelButton variant="alt" onClick={() => edit(surpriseLineup(options, (f) => topicOptions(f).map((o) => o.id)))} disabled={!options.length}>Surprise me</PixelButton>
-          <PixelButton variant="gold" onClick={onStart} disabled={!planReady(plan) || busy}>{busy ? "Starting…" : plan.length < 2 ? "Add 2+ games" : `Start ${plan.length}-game tournament`}</PixelButton>
+          {onStart && <PixelButton variant="gold" onClick={onStart} disabled={!planReady(plan) || busy}>{busy ? "Starting…" : plan.length < 2 ? "Add 2+ games" : `Start ${plan.length}-game tournament`}</PixelButton>}
         </div>
       </div>
     </section>

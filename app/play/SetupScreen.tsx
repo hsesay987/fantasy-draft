@@ -11,7 +11,8 @@ import { CUSTOM_CHALLENGE, LOADOUT_PRESETS, type LoadoutMission } from "../topic
 import { rolesFor, type Role } from "../topicDraft/formats/position";
 import { newSeed } from "../topicDraft/rng";
 import { formatMeta } from "./formats";
-import { CATEGORIES, category, formatsFor } from "./categories";
+import { category, formatsFor } from "./categories";
+import { defaultTopic, topicOptions } from "./topicOptions";
 import { DEFAULT_OPTS, type FormatId, type GameSetup, type Opts } from "./types";
 import { loadPrefs, resumable, saveSetup, savePrefs } from "./storage";
 import { createRoom, fetchQuiz, saveToken, setRoomGame } from "./onlineApi";
@@ -82,7 +83,7 @@ export default function SetupScreen({ format: forced, room }: { format?: FormatI
 
   const initialPool = (() => {
     const q = room?.pool ?? search.get("pool");
-    return q && category(q) && formatsFor(q).includes(format) ? q : CATEGORIES.find((c) => formatsFor(c.id).includes(format))?.id ?? "superheroes";
+    return q && category(q) && formatsFor(q).includes(format) ? q : defaultTopic(format) ?? "superheroes";
   })();
   const [pool, setPool] = useState(initialPool);
   const [missionId, setMissionId] = useState(() => baseOpts(initialPool, format).missionId);
@@ -113,6 +114,11 @@ export default function SetupScreen({ format: forced, room }: { format?: FormatI
   }, []);
 
   const catMeta = category(pool);
+  // The topics this format lists, plus the current one when it is a hidden topic reached by link.
+  const topicChips = useMemo(() => {
+    const list = topicOptions(format);
+    return list.some((o) => o.id === pool) || !catMeta || !formatsFor(pool).includes(format) ? list : [...list, { id: pool, title: catMeta.title }];
+  }, [format, pool, catMeta]);
   const missions = useMemo(() => (format === "blind" ? metricsFor(pool) : missionsFor(pool)), [pool, format]);
 
   /** Switching topic re-applies that topic's defaults. */
@@ -263,7 +269,7 @@ export default function SetupScreen({ format: forced, room }: { format?: FormatI
       ) : (
         <>
           <Panel title="Topic">
-            <div className="flex flex-wrap gap-2">{CATEGORIES.filter((c) => formatsFor(c.id).includes(format) && (!c.hidden || c.id === pool)).map((c) => <Chip key={c.id} selected={pool === c.id} onClick={() => changePool(c.id)}>{c.title}</Chip>)}</div>
+            <div className="flex flex-wrap gap-2">{topicChips.map((c) => <Chip key={c.id} selected={pool === c.id} onClick={() => changePool(c.id)}>{c.title}</Chip>)}</div>
             <p className="text-xs text-muted-foreground">{catalogMeta(pool)?.blurb} · {getCatalog(pool).length} to choose from</p>
           </Panel>
           {format !== "feud" && format !== "jeopardy" && <Panel title={format === "blind" ? "Rank by" : SCREEN_POOLS.has(pool) ? "Judged on" : "Mission"} hint={format === "blind" ? "The category you rank by." : "What the AI judge scores you on."}>

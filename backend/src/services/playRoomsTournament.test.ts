@@ -151,6 +151,7 @@ describe("a topic per planned game", () => {
       [{ pools: ["villains"] }, "vote"],
       [null, "vote"],
       [{ format: "snake", pools: ["nope"] }, "vote"],
+      [{ format: "snake", pools: ["superheroes", "villains"] }, "vote"],
     ];
     for (const plan of bad) {
       const out = startTournament(r, tokens.Ann!, plan) as { error: string };
@@ -159,6 +160,14 @@ describe("a topic per planned game", () => {
     }
     expect((startTournament(r, tokens.Ann!, [{ format: "imposter", pools: ["nope"] }, "vote"]) as { error: string }).error).toMatch(/game 1/i);
     expect(r.tournament).toBeUndefined();
+  });
+
+  it("a draft slot takes at most one topic", () => {
+    const { r, tokens } = lobby();
+    expect((startTournament(r, tokens.Ann!, ["vote", { format: "snake", pools: ["superheroes", "villains"] }]) as { error: string }).error).toMatch(/Game 2 .*one topic/);
+    expect(r.tournament).toBeUndefined();
+    expect(startTournament(r, tokens.Ann!, ["vote", { format: "snake", pools: ["villains", "villains"] }])).toEqual({ ok: true }); // a repeat is one topic
+    expect(r.tournament.topics).toEqual([null, ["villains"]]);
   });
 
   it("Mafia and games without topics take null", () => {

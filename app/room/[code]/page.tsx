@@ -328,9 +328,9 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
 
       {running && <TournamentCard t={tour} seats={seatNames} isHost={isHost} ready={setup?.format === planned} error={tourError} onSetUp={() => setPicking(planned!)} onEnd={stopTournament} />}
       {isHost && !running && (
-        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="What to play">
+        <div className="grid grid-cols-2 gap-2" role="group" aria-label="What to play">
           {([["one", "One game", "Pick a game and play it", Play], ["tour", "Tournament", "Line up 2 to 8 games, one leaderboard", ListOrdered]] as const).map(([id, label, hint, Icon]) => (
-            <button key={id} type="button" role="radio" aria-checked={mode === id} onClick={() => { setMode(id); if (id === "one" && !setup) setPicking("menu"); }}
+            <button key={id} type="button" aria-pressed={mode === id} onClick={() => { setMode(id); if (id === "one" && !setup) setPicking("menu"); }}
               className={`flex min-h-11 flex-col items-start gap-0.5 rounded-xl border px-3 py-2 text-left text-sm transition ${mode === id ? "border-accent bg-accent/15" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
               <span className="flex items-center gap-1.5 text-base font-semibold"><Icon className="h-4 w-4" aria-hidden />{label}{id === "tour" && plan.length > 0 && <span className="rounded-md bg-white/10 px-1.5 text-xs">{plan.length}</span>}</span>
               <span className="text-xs text-muted-foreground">{hint}</span>
@@ -341,7 +341,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
 
       {tourMode && (
         <section className="space-y-4" aria-label="Line up a tournament">
-          <LineupPanel options={tourOptions} plan={plan} onPlan={(p) => { setPlan(p); setAdded(null); }} onStart={() => void runTournament(plan)} busy={tourBusy} error={tourError} />
+          <LineupPanel options={tourOptions} plan={plan} onPlan={(p) => { setPlan(p); setAdded(null); }} busy={tourBusy} error={tourError} />
           <div><h2 className="text-2xl">Add games</h2><p className="text-sm text-muted-foreground">Tap a game to add it to the lineup. Add the same game twice to play it twice. Only games this table can start are shown.</p></div>
           <p className="sr-only" role="status">{added ?? ""}</p>
           {tourOptions.length === 0 && <p className="text-sm text-muted-foreground">Games show up here once 2 players are in the room.</p>}

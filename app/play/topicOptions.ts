@@ -53,6 +53,7 @@ export function defaultTopic(format: FormatId): string | null {
 export function startPools(format: FormatId, slotPools: string[] | null | undefined, lastPools: string[], inTournament: boolean): string[] {
   if (format === "mafia") return ["mafia"];
   const ids = topicOptions(format).map((o) => o.id);
+  if (!ids.length) return []; // nothing to pick from (Loadout): its setup chooses for itself
   const fit = (pools: string[] | null | undefined) => [...new Set(pools ?? [])].filter((p) => ids.includes(p));
   const slot = fit(slotPools);
   if (slot.length) return singleTopic(format) ? slot.slice(0, 1) : slot;
