@@ -21,6 +21,8 @@ const GAMES: { id: string; daily?: DailyGame; world?: "summit" | "sky" | "launch
   { id: "toprung", daily: "toprung", world: "ladder", title: "Top Rung", blurb: "Climb a lighthouse ladder, one question a rung, up to the lamp. A slip drops you to your last safe ledge, so know when to walk away.", href: "/toprung", demo: 0.18, topics: true, topicHref: (pool) => `/toprung/${pool}` },
   { id: "vowelplay", world: "typewriter", title: "Vowel Play", blurb: "A battered typewriter has lost its vowels. Name each one from the letters left, fast, and the keys snap back into place.", href: "/vowelplay", demo: 0, topics: true, topicHref: (pool) => `/vowelplay/${pool}`, topicList: VOWEL_TOPICS },
   { id: "pinpoint", art: "pinpoint", title: "Pinpoint", blurb: "Guess today's hidden pick in any topic. Every guess is checked against real facts about the pick and shows how close you are.", href: "/pinpoint", demo: 0, topics: true, topicHref: (pool) => `/pinpoint/${pool}`, topicList: PINPOINT_TOPICS },
+  // art is borrowed from pinpoint until Pecking Order gets its own (Task 8).
+  { id: "pecking", art: "pinpoint", title: "Pecking Order", blurb: "Guess where an item ranks on a list, or who sits at a given rank. The closer you are, the more you score.", href: "/pecking", demo: 0, topics: false },
   { id: "commonthread", art: "thread", title: "Common Thread", blurb: "Six clues share one hidden fact, from obscure to obvious. Work out what links them in any topic: the fewer clues you need, the more you score.", href: "/commonthread", demo: 0, topics: true, topicHref: (pool) => `/commonthread/${pool}`, topicList: THREAD_TOPICS },
 ];
 

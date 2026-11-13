@@ -134,8 +134,9 @@ export function makeQuestions(lists: PeckList[], mode: PeckMode, count: number, 
   return out;
 }
 
-export function init(o: { players: string[]; lists: PeckList[]; mode: PeckMode; count: number; avoid?: string[]; drinking?: boolean; seed: number; now: number }): PeckState {
-  const questions = makeQuestions(o.lists, o.mode, o.count, o.seed, o.avoid);
+/** `questions`, when given, are used as they are (a daily deals the same ones to everyone); `lists`, `mode`, `count`, `avoid` and `seed` then only matter if it is left out. */
+export function init(o: { players: string[]; lists: PeckList[]; mode: PeckMode; count: number; avoid?: string[]; drinking?: boolean; seed: number; now: number; questions?: PeckQuestion[] }): PeckState {
+  const questions = o.questions ?? makeQuestions(o.lists, o.mode, o.count, o.seed, o.avoid);
   return {
     players: o.players, questions, round: 0, phase: "question", answers: {}, taken: [],
     points: Object.fromEntries(o.players.map((p) => [p, 0])), history: [], phaseAt: o.now, startedAt: o.now, done: questions.length === 0,
