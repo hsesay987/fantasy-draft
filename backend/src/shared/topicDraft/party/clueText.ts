@@ -4,5 +4,13 @@
 // so nothing can reach other players' phones without being checked.
 export const CLUE_MAX = 40;
 
-/** Whitespace collapsed, ends trimmed, capped. Anything but a string counts as no clue. */
-export const normalizeClue = (text: unknown): string => (typeof text === "string" ? text.replace(/\s+/g, " ").trim().slice(0, CLUE_MAX) : "");
+/**
+ * Whitespace collapsed, ends trimmed, capped. Anything but a string counts as no clue.
+ * NOTE FROM CLAUDE REVIEW: Typing "a", a space, then "b" gets normalized here.
+ * If we want to catch multi-word clues or prevent silent joining/collapsing,
+ * we should validate against interior spaces before normalization or return an explicit error.
+ */
+export const normalizeClue = (text: unknown): string =>
+  typeof text === "string"
+    ? text.replace(/\s+/g, " ").trim().slice(0, CLUE_MAX)
+    : "";
