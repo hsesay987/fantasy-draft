@@ -17,13 +17,34 @@ export const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN :
 export const fitsTable = (format: FormatId, players: number) =>
   players >= seatsNeeded(format) && (PARTY_FORMATS.has(format) || players <= DRAFT_CAP);
 
+/** One game in the lineup and the topics the host picked for it (`null`: picked when that game is set up). */
+export type PlanSlot = { format: FormatId; pools: string[] | null };
+
 /** Adds a game to the end of the plan (repeats allowed), up to the most a tournament takes. */
-export const addToPlan = (plan: FormatId[], format: FormatId): FormatId[] => (plan.length >= PLAN_MAX ? plan : [...plan, format]);
+export const addToPlan = <T>(plan: T[], game: T): T[] => (plan.length >= PLAN_MAX ? plan : [...plan, game]);
 
 /** Removes the game at `index`. */
-export const dropFromPlan = (plan: FormatId[], index: number): FormatId[] => plan.filter((_, i) => i !== index);
+export const dropFromPlan = <T>(plan: T[], index: number): T[] => plan.filter((_, i) => i !== index);
 
-export const planReady = (plan: FormatId[]) => plan.length >= PLAN_MIN && plan.length <= PLAN_MAX;
+/** Moves the game at `index` one place up (-1) or down (1); at either end nothing moves. */
+export function moveInPlan<T>(plan: T[], index: number, by: -1 | 1): T[] {
+  const to = index + by;
+  if (index < 0 || index >= plan.length || to < 0 || to >= plan.length) return plan;
+  const out = [...plan];
+  [out[index], out[to]] = [out[to]!, out[index]!];
+  return out;
+}
+
+/** Sets the topics of the slot at `index`. */
+export const setSlotPools = (plan: PlanSlot[], index: number, pools: string[] | null): PlanSlot[] => plan.map((s, i) => (i === index ? { ...s, pools } : s));
+
+export const planReady = (plan: unknown[]) => plan.length >= PLAN_MIN && plan.length <= PLAN_MAX;
+
+/** What the server takes: a slot with topics as `{ format, pools }`, one without as the bare format. */
+export const planEntries = (plan: PlanSlot[]): (FormatId | { format: FormatId; pools: string[] })[] => plan.map((s) => (s.pools?.length ? { format: s.format, pools: s.pools } : s.format));
+
+/** A tournament's plan back as slots (a server from before topics sends none). */
+export const slotsOf = (t: { plan: FormatId[]; topics?: (string[] | null)[] }): PlanSlot[] => t.plan.map((format, i) => ({ format, pools: t.topics?.[i] ?? null }));
 
 /** `size` random games from `options`: all different while there are enough of them, repeats only once they run out. */
 export function surprisePlan(options: FormatId[], rand: () => number = Math.random, size = SURPRISE_SIZE): FormatId[] {
@@ -36,6 +57,14 @@ export function surprisePlan(options: FormatId[], rand: () => number = Math.rand
     out.push(bag.splice(i, 1)[0]!);
   }
   return out;
+}
+
+/** A surprise lineup: `surprisePlan`'s games, each with one random topic where the game has topics. */
+export function surpriseLineup(options: FormatId[], topicsOf: (f: FormatId) => string[], rand: () => number = Math.random): PlanSlot[] {
+  return surprisePlan(options, rand).map((format) => {
+    const ids = topicsOf(format);
+    return { format, pools: ids.length ? [ids[Math.min(ids.length - 1, Math.floor(rand() * ids.length))]!] : null };
+  });
 }
 
 export type Standing = { name: string; total: number; last: number; left: boolean; rank: number };

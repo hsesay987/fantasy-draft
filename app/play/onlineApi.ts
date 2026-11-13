@@ -70,7 +70,8 @@ export const setRoomGame = (code: string, token: string, setup: GameSetup) => ca
 export const roomToLobby = (code: string, token: string) => call<RoomSnapshot>(`/${code.toUpperCase()}/lobby`, { method: "POST", body: JSON.stringify({ token }) });
 export const setStatLink = (code: string, token: string, link: RoomSnapshot["statLink"]) => call<RoomSnapshot>(`/${code.toUpperCase()}/stat-link`, { method: "POST", body: JSON.stringify({ token, link }) });
 export const setScreen = (code: string, token: string, on: boolean) => call<RoomSnapshot>(`/${code.toUpperCase()}/screen`, { method: "POST", body: JSON.stringify({ token, on }) });
-export const startTournament = (code: string, token: string, plan: FormatId[]) => call<RoomSnapshot>(`/${code.toUpperCase()}/tournament`, { method: "POST", body: JSON.stringify({ token, plan }) });
+/** `plan`: each game as its format, or `{ format, pools }` with the topics picked for it. */
+export const startTournament = (code: string, token: string, plan: (FormatId | { format: FormatId; pools: string[] })[]) => call<RoomSnapshot>(`/${code.toUpperCase()}/tournament`, { method: "POST", body: JSON.stringify({ token, plan }) });
 export const endTournament = (code: string, token: string) => call<RoomSnapshot>(`/${code.toUpperCase()}/tournament/end`, { method: "POST", body: JSON.stringify({ token }) });
 export const leaveRoom = (code: string, token: string) => call<{ ok: boolean }>(`/${code.toUpperCase()}/leave`, { method: "POST", body: JSON.stringify({ token }) });
 

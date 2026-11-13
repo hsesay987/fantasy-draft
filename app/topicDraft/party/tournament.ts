@@ -16,6 +16,8 @@ export const DRAW_POINTS = 3;
 
 export type Tournament = {
   plan: FormatId[];
+  /** The topics the host chose for each planned game, parallel to `plan`. `null`: picked when that game is set up. */
+  topics: (string[] | null)[];
   index: number;
   games: { format: FormatId; title: string; awards: Awards | null }[];
   totals: Record<string, number>;

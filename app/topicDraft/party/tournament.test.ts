@@ -80,7 +80,7 @@ describe("awardsFor", () => {
   });
 });
 
-const empty: Tournament = { plan: ["vote", "insync"], index: 0, games: [], totals: {}, done: false };
+const empty: Tournament = { plan: ["vote", "insync"], topics: [null, null], index: 0, games: [], totals: {}, done: false };
 
 describe("addGame and standings", () => {
   it("adds awards, advances and finishes", () => {
@@ -91,7 +91,7 @@ describe("addGame and standings", () => {
     expect(addGame(empty, "vote", "Vote", null).totals).toEqual({});
   });
   it("addGame does not mutate its input", () => {
-    const t: Tournament = { plan: ["vote", "insync"], index: 0, games: [], totals: { a: 1 }, done: false };
+    const t: Tournament = { plan: ["vote", "insync"], topics: [null, null], index: 0, games: [], totals: { a: 1 }, done: false };
     const copy = structuredClone(t);
     addGame(t, "vote", "V", { a: 5 });
     expect(t).toEqual(copy);

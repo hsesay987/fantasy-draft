@@ -2,48 +2,27 @@
 
 import { useState } from "react";
 import { Button, Chip, PageHeader, PageShell, Panel } from "../components/ui";
-import { CATALOG_META, getCatalog } from "../topicDraft/catalogs";
 import { DECKS } from "../topicDraft/party/decks";
 import { INSYNC_DECKS } from "../topicDraft/party/insyncDecks";
-import { OPTION_COUNT } from "../topicDraft/formats/imposter";
 import { TEAM_MIN_PLAYERS } from "../topicDraft/formats/partytrivia";
 import { MIN_PLAYERS as MAFIA_MIN, NIGHT_MS, QUIET_FIRST_NIGHT_AT, TALK_MS, VOTE_MS, rolesFor } from "../topicDraft/formats/mafia";
 import { newSeed } from "../topicDraft/rng";
-import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
-import { hasTrivia } from "../topicDraft/trivia";
 import { formatMeta } from "./formats";
-import { CATEGORIES, category } from "./categories";
 import { setRoomGame } from "./onlineApi";
 import { PoolPicker } from "./PoolPicker";
 import { TeamPicker } from "./TeamPicker";
+import { startPools, topicOptions } from "./topicOptions";
 import { compactTeams, splitTeams, type TeamMap } from "./teamMoves";
 import { DEFAULT_OPTS, type GameSetup } from "./types";
 import { DrinkingToggle, ShowVotesToggle } from "./views/partyBits";
 
-/** Topics Imposter can use: any character pool big enough for a secret plus look-alikes to guess from. */
-export const IMPOSTER_TOPICS = CATALOG_META.filter((m) => m.kind === "character" && getCatalog(m.id).length >= OPTION_COUNT);
-
-/** Topics Party Trivia can use: anything with a trivia bank. */
-const TRIVIA_TOPICS = CATEGORIES.filter((c) => !c.hidden && hasTrivia(c.id));
-
 /** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
-export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty"; room: { code: string; token: string; pool?: string; pools?: string[]; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
+export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty"; room: { code: string; token: string; pool?: string; pools?: string[]; slotPools?: string[] | null; inTournament?: boolean; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
   const meta = formatMeta(format)!;
   const decks = format === "insync" ? INSYNC_DECKS : DECKS;
-  const options: { id: string; title: string; blurb?: string }[] =
-    format === "imposter" ? IMPOSTER_TOPICS.map((t) => ({ id: t.id, title: category(t.id)?.title ?? t.title }))
-    : format === "partytrivia" ? TRIVIA_TOPICS.map((t) => ({ id: t.id, title: t.title }))
-    : format === "vowelplay" || format === "vowelparty" ? VOWEL_TOPICS.map((t) => ({ id: t.id, title: t.title }))
-    : format === "mafia" ? []
-    : decks.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
-  // Start from the room's last mix when it still fits this format, otherwise one default topic.
-  const [pools, setPools] = useState<string[]>(() => {
-    if (format === "mafia") return ["mafia"];
-    const ids = options.map((o) => o.id);
-    const last = [...new Set(room.pools?.length ? room.pools : room.pool ? [room.pool] : [])].filter((p) => ids.includes(p));
-    if (last.length) return last;
-    return [format === "imposter" && ids.includes("superheroes") ? "superheroes" : format === "insync" && ids.includes("friends") ? "friends" : ids[0]!];
-  });
+  const options = topicOptions(format);
+  // A planned tournament game opens on its slot's topics, else its own default; otherwise the room's last mix when it fits.
+  const [pools, setPools] = useState<string[]>(() => startPools(format, room.slotPools, room.pools?.length ? room.pools : room.pool ? [room.pool] : [], !!room.inTournament));
   const [length, setLength] = useState(format === "imposter" ? 2 : format === "partytrivia" ? 10 : format === "vowelplay" ? 15 : format === "vowelparty" ? 10 : 8);
   const [vowelMode, setVowelMode] = useState<"first" | "duel">("first");
   const [vowelAnswer, setVowelAnswer] = useState<"voice" | "type">("voice");
