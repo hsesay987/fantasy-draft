@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addToPlan, championTitle, dropFromPlan, fitsTable, moveInPlan, planEntries, planReady, PLAN_MAX, setSlotPools, slotsOf, standingRows, surpriseLineup, surprisePlan, type PlanSlot, type Standing } from "./tournamentPlan";
+import { addToPlan, championTitle, dropFromPlan, fitsTable, moveInPlan, planEntries, planReady, PLAN_MAX, resultsActions, setSlotPools, slotsOf, standingRows, surpriseLineup, surprisePlan, type PlanSlot, type Standing } from "./tournamentPlan";
 import type { FormatId } from "./types";
 
 const row = (name: string, total: number, extra: Partial<Standing> = {}): Standing => ({ name, total, last: 0, left: false, rank: 1, ...extra });
@@ -137,5 +137,22 @@ describe("standing rows", () => {
     const plan = addToPlan<PlanSlot>([], slot("sayless", ["easy"]));
     expect(plan).toEqual([slot("sayless", ["easy"])]);
     expect(setSlotPools(plan, 0, ["hard", "medium"])[0]).toEqual(slot("sayless", ["hard", "medium"]));
+  });
+});
+
+describe("resultsActions", () => {
+  const tour = (plan: FormatId[], index: number, done = false) => ({ plan, index, done });
+  it("gives a guest nothing to press", () => {
+    expect(resultsActions(false, "sayless")).toEqual({ lobby: false, rematch: false });
+  });
+  it("lets the host rematch outside a tournament", () => {
+    expect(resultsActions(true, "sayless")).toEqual({ lobby: true, rematch: true });
+  });
+  it("keeps the way back to the lobby when the next planned game differs", () => {
+    expect(resultsActions(true, "sayless", tour(["sayless", "vote"], 1))).toEqual({ lobby: true, rematch: false });
+  });
+  it("allows a rematch when the next planned game is the same, or the tournament is over", () => {
+    expect(resultsActions(true, "vote", tour(["vote", "vote"], 1))).toEqual({ lobby: true, rematch: true });
+    expect(resultsActions(true, "vote", tour(["sayless", "vote"], 2, true))).toEqual({ lobby: true, rematch: true });
   });
 });

@@ -17,7 +17,7 @@ import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 import { teamsFor } from "../teamStandings";
 import { TeamBoard } from "./TeamBoard";
-import { DrinkCard, LeaveGame, playerSprite, WaterLine } from "./partyBits";
+import { DrinkCard, LeaveGame, PartyActions, playerSprite, WaterLine } from "./partyBits";
 
 const CLOCK_EVERY_MS = 200;
 const REFUSED = "Not allowed right now";
@@ -422,7 +422,7 @@ function Pull({ s }: { s: VPState }) {
 }
 
 /** The end: who won, the final table, and every word with who got it. */
-export function VowelPlayResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function VowelPlayResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain?: () => void; onRematch?: () => void }) {
   const s = ctl.state as unknown as VPState;
   const me = ctl.me;
   const won = winners(s);
@@ -474,12 +474,7 @@ export function VowelPlayResults({ setup, ctl, onAgain, onRematch }: { setup: Ga
               </ul>
             </>
           )}
-          {onRematch && (
-            <div className="vp-actions">
-              <PixelButton variant="gold" onClick={onRematch}>Play again</PixelButton>
-              <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
-            </div>
-          )}
+          <PartyActions onAgain={onAgain} onRematch={onRematch} className="vp-actions" />
         </section>
         {s.drinks && <WaterLine />}
         {s.drinks && s.mode !== "duel" && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}

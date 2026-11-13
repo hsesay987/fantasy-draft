@@ -85,3 +85,12 @@ export function championTitle(standings: Standing[]): string {
   const best = standings.filter((s) => s.total === top).map((s) => s.name);
   return best.length === 1 ? `${best[0]} wins the night` : `${joinNames(best)} share the night`;
 }
+
+/**
+ * What a finished game's results screen offers. Only the host moves the room on: back to the lobby always, and a
+ * rematch of the same game unless a running tournament has a different game planned next.
+ */
+export function resultsActions(isHost: boolean, format: FormatId, t?: { plan: FormatId[]; index: number; done: boolean }): { lobby: boolean; rematch: boolean } {
+  if (!isHost) return { lobby: false, rematch: false };
+  return { lobby: true, rematch: !(t && !t.done && t.plan[t.index] !== format) };
+}

@@ -7,7 +7,7 @@ import { PixelBox, PixelButton, PixelShell } from "../../components/pixel/PixelU
 import { Sprite } from "../../components/pixel/Sprite";
 import { WorldScene } from "../../components/pixel/WorldScene";
 import { useSound } from "../../components/SoundProvider";
-import { canMoveOn, DrinkCard, LeaveGame, PartyClock, playerSprite, WaitingForHost, WaterLine } from "./partyBits";
+import { canMoveOn, DrinkCard, LeaveGame, PartyActions, PartyClock, playerSprite, WaitingForHost, WaterLine } from "./partyBits";
 import { SignalCanvas } from "./SignalCanvas";
 import { createThrottle, locksNeeded, MARKER_HOLD_MS, REVEAL_OUTCOME_MS, shownMarker, syncGameKey, verdictFor, type LocalMarker, type Points } from "./signal";
 import type { GameCtl } from "../useGame";
@@ -225,7 +225,7 @@ function Crew({ players, host, locks, me, gone }: { players: string[]; host: str
 }
 
 /** End of the show: one group score, a playful rank, and the log of every round. */
-export function InSyncResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function InSyncResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAgain?: () => void; onRematch?: () => void }) {
   const s = ctl.state as IS.InSyncState;
   const deck = insyncDeckOf(s.deck);
   const rank = IS.rankFor(s.score, s.maxScore);
@@ -260,12 +260,7 @@ export function InSyncResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAga
             ))}
           </ol>
         </PixelBox>
-        {onRematch && (
-          <div className="party-actions">
-            <PixelButton variant="gold" onClick={onRematch}>New pairs</PixelButton>
-            <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
-          </div>
-        )}
+        <PartyActions onAgain={onAgain} onRematch={onRematch} again="New pairs" />
         {s.drinks && <WaterLine />}
         {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={syncGameKey(s.pairs)} names={s.players} />}
       </div>

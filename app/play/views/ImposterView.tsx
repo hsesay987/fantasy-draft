@@ -8,7 +8,7 @@ import { Sprite } from "../../components/pixel/Sprite";
 import { WorldScene } from "../../components/pixel/WorldScene";
 import type { Sprite as SpriteData } from "../../components/pixel/sprites";
 import { useSound } from "../../components/SoundProvider";
-import { DrinkCard, LeaveGame, PartyClock, playerSprite, WaterLine } from "./partyBits";
+import { DrinkCard, LeaveGame, PartyActions, PartyClock, playerSprite, WaterLine } from "./partyBits";
 import { has, own } from "../../topicDraft/party/own";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
@@ -222,7 +222,7 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 }
 
 /** Final screen, masks off: who the imposter was, the secret, and how it ended. */
-export function ImposterResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function ImposterResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain?: () => void; onRematch?: () => void }) {
   const s = ctl.state as IM.ImposterState;
   const teams = teamsFor(setup, s.players);
   const item = ctl.pool.find((i) => i.id === s.secretId);
@@ -270,12 +270,7 @@ export function ImposterResults({ setup, ctl, onAgain, onRematch }: { setup: Gam
           </ul>
         </PixelBox>
         {teams && <PixelBox as="section" pad={false} className="ball-panel"><div className="top"><h2>Teams</h2></div><TeamBoard points={s.points} teams={teams} me={ctl.me} /></PixelBox>}
-        {onRematch && (
-          <div className="party-actions">
-            <PixelButton variant="gold" onClick={onRematch}>Play again</PixelButton>
-            <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
-          </div>
-        )}
+        <PartyActions onAgain={onAgain} onRematch={onRematch} />
         {s.drinks && <WaterLine />}
         {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
       </div>
