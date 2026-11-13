@@ -24,8 +24,9 @@
 // - buildings, rivers, mountains: Wikidata heights, lengths and elevations are messy (antenna vs roof heights,
 //   unfinished towers, river sections, subsidiary summits), so these come from the curated Wikipedia lists:
 //   "List of tallest buildings" (architectural height, the 98 completed buildings of 350 m+ in its main table),
-//   "List of river systems by length" (top 100, named by the system's main river, first figure of a range)
-//   and "List of highest mountains on Earth" (top 100, peaks with 500 m+ prominence).
+//   "List of river systems by length" (top 100, named by the system's main river, first figure of a range,
+//   leaving out its "Upper …" reaches of rivers already listed) and "List of highest mountains on Earth"
+//   (top 100, peaks with 500 m+ prominence).
 // - nba-points: the NBA catalog has no career totals, so career points come from Wikipedia's
 //   "List of NBA career scoring leaders", which ranks the top 50 (not 100).
 // - pokemon-bst: PokéAPI, every species' default form, base stat total.
@@ -100,7 +101,7 @@ const colOf = (header: Cell[], re: RegExp) => header.findIndex((c) => re.test(c.
 
 // ---------------- ranking ----------------
 type Raw = { name: string; value: number; aliases?: string[] };
-type Spec = { title: string; stat: string; unit?: string; fmt?: PeckList["fmt"]; source: string; top?: number; round?: (v: number) => number; build: () => Promise<Raw[]> };
+type Spec = { title: string; stat: string; unit?: string; fmt?: PeckList["fmt"]; source: string; top?: number; round?: (v: number) => number; aliases?: Record<string, string[]>; build: () => Promise<Raw[]> };
 
 function rank(spec: Spec, raw: Raw[]): PeckItem[] {
   const seen = new Set<string>();
@@ -112,7 +113,7 @@ function rank(spec: Spec, raw: Raw[]): PeckItem[] {
     .slice(0, spec.top ?? Infinity);
   return rows.map((r) => {
     const keys = new Set([norm(r.name)]);
-    const aliases = (r.aliases ?? []).map((a) => a.trim()).filter((a) => { const k = norm(a); if (!k || keys.has(k)) return false; keys.add(k); return true; });
+    const aliases = [...(r.aliases ?? []), ...(spec.aliases?.[r.name] ?? [])].map((a) => a.trim()).filter((a) => { const k = norm(a); if (!k || keys.has(k)) return false; keys.add(k); return true; });
     const item: PeckItem = { name: r.name, value: r.value, rank: 1 + rows.filter((o) => o.value > r.value).length };
     if (aliases.length) item.aliases = aliases;
     return item;
@@ -241,6 +242,7 @@ const SPECS: Record<string, Spec> = {
   },
   buildings: {
     title: "Tallest buildings", stat: "Height", unit: "m", fmt: "dec", source: "Wikipedia: List of tallest buildings", top: 100,
+    aliases: { "Merdeka Maybank Tower": ["Merdeka 118"] },
     round: (v) => Math.round(v * 10) / 10,
     build: async () => {
       const t = (await wikiTables("List of tallest buildings")).find((t) => t.length > 50 && t[0]?.some((c) => c.text === "Name"))!;
@@ -274,6 +276,7 @@ const SPECS: Record<string, Spec> = {
   },
   rivers: {
     title: "Longest rivers", stat: "Length", unit: "km", fmt: "int", source: "Wikipedia: List of river systems by length", top: 100,
+    aliases: { "Northern Salado": ["Salado"] },
     build: async () => {
       const t = (await wikiTables("List of river systems by length")).find((t) => t[0]?.some((c) => /^Length \(km\)/.test(c.text)))!;
       const n = colOf(t[0]!, /^River/), v = colOf(t[0]!, /^Length \(km\)/);
@@ -283,9 +286,12 @@ const SPECS: Record<string, Spec> = {
         const paren = text.match(/\(([^)]+)\)\s*$/)?.[1];
         const first = text.replace(/\s*\([^)]*\)\s*$/, "").split(/[–—]/)[0]!;
         const fix = RIVER_FIX[first];
-        const name = fix?.[0] ?? first.split(/-(?=\p{Lu})/u)[0]!.trim();
+        const name = fix?.[0] ?? first.split(/-(?=\p{Lu})/u)[0]!.trim().replace(/ River$/, ""); // "Murrumbidgee River" reads as "Murrumbidgee", like the rest
         return { name, value: num(r[v]?.text), aliases: [...(fix?.slice(1) ?? []), ...(paren && !NOT_ALIASES.has(paren) ? paren.split(/,\s*/) : [])] };
-      });
+      })
+        // "Upper Ob", "Upper Jubba" and "Upper Murray" are reaches of rivers the list already has, so they go.
+        // ("Lower Tunguska" stays: it is its own river.)
+        .filter((r) => !/^Upper /.test(r.name));
     },
   },
   mountains: {

@@ -1,6 +1,6 @@
 {"id":"buildings","title":"Tallest buildings","stat":"Height","unit":"m","fmt":"dec","source":"Wikipedia: List of tallest buildings","asOf":"2026-11-13","items":[
 {"name":"Burj Khalifa","value":828,"rank":1},
-{"name":"Merdeka Maybank Tower","value":678.9,"rank":2},
+{"name":"Merdeka Maybank Tower","value":678.9,"rank":2,"aliases":["Merdeka 118"]},
 {"name":"Shanghai Tower","value":632,"rank":3},
 {"name":"Mecca Royal Clock Tower","value":601,"rank":4},
 {"name":"Ping An Finance Centre","value":599.1,"rank":5},

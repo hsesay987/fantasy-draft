@@ -31,6 +31,13 @@ describe("pecking lists", () => {
     if (peckingList("buildings")) expect(top("buildings", 1)).toEqual(["Burj Khalifa"]);
     if (peckingList("rivers")) expect(top("rivers", 2)).toEqual(expect.arrayContaining(["Nile"]));
   });
+  it("rivers has no upper reach of a river it already lists, and knows the short names", () => {
+    const rivers = peckingList("rivers");
+    if (!rivers) return;
+    expect(rivers.items.filter((i) => /^Upper /.test(i.name)).map((i) => i.name)).toEqual([]);
+    expect(matchName(rivers, "Salado")?.name).toBe("Northern Salado");
+    if (peckingList("buildings")) expect(matchName(peckingList("buildings")!, "Merdeka 118")?.name).toBe("Merdeka Maybank Tower");
+  });
   it("tie groups share a rank and span it", () => {
     const l: PeckList = { id: "t", title: "T", stat: "S", source: "x", asOf: "2026-11-13", items: [
       { name: "A", value: 9, rank: 1 }, { name: "B", value: 5, rank: 2 }, { name: "C", value: 5, rank: 2 }, { name: "D", value: 1, rank: 4 } ] };
