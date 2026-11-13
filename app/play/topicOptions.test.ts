@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PECKING_META } from "../topicDraft/pecking/meta";
-import { defaultTopic, startPools, topicOptions, topicTitle } from "./topicOptions";
+import { PARTY_FORMATS } from "./types";
+import { defaultTopic, usesPartySetup, startPools, topicOptions, topicTitle } from "./topicOptions";
 
 describe("where a setup starts", () => {
   it("a planned game opens on its slot's topics", () => {
@@ -53,5 +54,11 @@ describe("where a setup starts", () => {
     expect(opts[0]!.blurb).toContain(PECKING_META[0]!.source);
     expect(startPools("pecking", ["cities", "rivers"], [], true)).toEqual(["cities", "rivers"]);
     expect(topicTitle("pecking", ["cities", "rivers"])).toBe("Most populous cities and Longest rivers");
+  });
+
+  it("every party format, Pecking Order included, is set up on PartySetup, and no draft is", () => {
+    for (const f of PARTY_FORMATS) expect(usesPartySetup(f)).toBe(true);
+    expect(usesPartySetup("snake")).toBe(false);
+    expect(usesPartySetup("menu")).toBe(false);
   });
 });

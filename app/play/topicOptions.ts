@@ -9,7 +9,7 @@ import { mixTitle } from "../topicDraft/party/mixTitle";
 import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
 import { hasTrivia } from "../topicDraft/trivia";
 import { CATEGORIES, category, formatsFor } from "./categories";
-import type { FormatId } from "./types";
+import { PARTY_FORMATS, type FormatId } from "./types";
 
 export type TopicOption = { id: string; title: string; blurb?: string };
 
@@ -73,3 +73,7 @@ export function topicTitle(format: FormatId, pools: string[] | null | undefined)
   const opts = topicOptions(format);
   return mixTitle(pools.map((p) => opts.find((o) => o.id === p)?.title ?? p));
 }
+
+/** Party games the host sets up on PartySetup (every party format); drafts use SetupScreen. */
+export const usesPartySetup = (format: string): format is "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" =>
+  PARTY_FORMATS.has(format as FormatId);

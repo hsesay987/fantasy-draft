@@ -18,7 +18,7 @@ import { category } from "../../play/categories";
 import { vowelTopicTitle } from "../../topicDraft/party/vowelTopics";
 import { clearToken, endTournament, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setScreen, setStatLink, startRoom, startTournament, type RoomSnapshot } from "../../play/onlineApi";
 import { addToPlan, fitsTable, PLAN_MAX, planEntries, planReady, seatsNeeded, slotsOf, type PlanSlot } from "../../play/tournamentPlan";
-import { startPools } from "../../play/topicOptions";
+import { startPools, usesPartySetup } from "../../play/topicOptions";
 import { ChampionScreen, LineupPanel, TournamentBoard, TournamentCard, type LiveTournament } from "../../play/views/TournamentSetup";
 import { useRemoteCtl, useRemoteRoom } from "../../play/useRemoteGame";
 import { loadPrefs, savePrefs } from "../../play/storage";
@@ -237,7 +237,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
   const slotPools = !running || picking !== planned ? null : ownSetup ? (setup!.pools?.length ? setup!.pools : [setup!.pool]) : tour!.topics?.[tour!.index] ?? null;
 
   // Picking a game: the full setup screen for that format, saving to the room.
-  if (isHost && (picking === "imposter" || picking === "vote" || picking === "insync" || picking === "partytrivia" || picking === "mafia" || picking === "vowelplay" || picking === "vowelparty")) {
+  if (isHost && picking && usesPartySetup(picking)) {
     return <PartySetup format={picking} seats={players.map((s) => s.name)} room={{ code, token, pool: setup?.pool, pools: setup?.pools, slotPools, inTournament: running, onDone: donePicking, onCancel: cancelPicking }} />;
   }
   if (isHost && picking && picking !== "menu") {
