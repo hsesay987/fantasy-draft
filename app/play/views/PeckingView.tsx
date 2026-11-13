@@ -74,7 +74,7 @@ export function PeckingView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.phase, s.round]);
-  useEffect(() => { window.scrollTo(0, 0); }, [s.round]);
+  useEffect(() => { window.scrollTo(0, 0); }, [s.round, s.phase]); // each question, and its answer, starts at the top
 
   const lockRank = () => {
     if (!canAnswer) return;
