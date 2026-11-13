@@ -168,24 +168,25 @@ describe("Say Less play", () => {
     expect(r.status).toBe("done");
   });
 
-  it("buzz mode: buzz, spoke, and the other seats' votes resolve; others' marks read voted while judging", () => {
+  it("buzz mode: buzz, spoke, then only the describer's call counts; a wrong call locks the buzzer out", () => {
     const { r, toks } = running(["Ann", "Bob", "Cy", "Di"], say({ answer: "buzz" }));
     const d = describer(r);
-    const [b, j1, j2] = ["Ann", "Bob", "Cy", "Di"].filter((n) => n !== d) as [string, string, string];
+    const [b, o1, o2] = ["Ann", "Bob", "Cy", "Di"].filter((n) => n !== d) as [string, string, string];
     expect(act(r, toks[b]!, { type: "guess", text: "anything" })).toMatchObject({ ok: false });
     expect(act(r, toks[b]!, { type: "buzz" })).toEqual({ ok: true });
-    expect(act(r, toks[j1]!, { type: "buzz" })).toMatchObject({ ok: false });
+    expect(act(r, toks[o1]!, { type: "buzz" })).toMatchObject({ ok: false });
     expect(act(r, toks[b]!, { type: "spoke" })).toEqual({ ok: true });
     expect(state(r).phase).toBe("judge");
-    expect(act(r, toks[d]!, { type: "mark", verdict: "right" })).toMatchObject({ ok: false });
-    expect(act(r, toks[j1]!, { type: "mark", verdict: "maybe" })).toMatchObject({ ok: false });
-    expect(act(r, toks[j1]!, { type: "mark", verdict: "right" })).toEqual({ ok: true });
-    expect((snapshot(r, toks[j2]!) as any).state.marks).toEqual({ [j1]: "voted" });
-    expect((snapshot(r, toks[j1]!) as any).state.marks).toEqual({ [j1]: "right" });
-    expect((snapshot(r, null) as any).state.marks).toEqual({ [j1]: "voted" });
-    expect(act(r, toks[j2]!, { type: "mark", verdict: "right" })).toEqual({ ok: true });
+    for (const n of [b, o1, o2]) expect(act(r, toks[n]!, { type: "mark", verdict: "right" })).toMatchObject({ ok: false });
+    expect(act(r, toks[d]!, { type: "mark", verdict: "maybe" })).toMatchObject({ ok: false });
+    expect((snapshot(r, null) as any).state).not.toHaveProperty("marks");
+    expect(act(r, toks[d]!, { type: "mark", verdict: "wrong" })).toEqual({ ok: true });
+    expect(state(r)).toMatchObject({ phase: "clue", buzzer: null, locked: [b] });
+    expect(act(r, toks[o1]!, { type: "buzz" })).toEqual({ ok: true });
+    expect(act(r, toks[o1]!, { type: "spoke" })).toEqual({ ok: true });
+    expect(act(r, toks[d]!, { type: "mark", verdict: "right" })).toEqual({ ok: true });
     expect(state(r).phase).toBe("reveal");
-    expect(state(r).history[0]!.winner).toBe(b);
+    expect(state(r).history[0]!.winner).toBe(o1);
   });
 
   it("records the top scorer, and a team game has no single winner", () => {

@@ -53,9 +53,13 @@ describe("awardsFor", () => {
     const s = setup("sayless", ["a", "b", "c", "d"]);
     expect(awardsFor(s, st({ points: { a: 12, b: 12, c: 4, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 5, b: 5, c: 2, d: 1 });
   });
-  it("Say Less teams rank by summed member points", () => {
+  it("Say Less teams rank by summed member points, using the teams the engine played", () => {
     const s = setup("sayless", ["a", "b", "c", "d"], { teams: 2, teamMap: { a: 0, b: 0, c: 1, d: 1 } });
-    expect(awardsFor(s, st({ points: { a: 4, b: 4, c: 9, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 3, b: 3, c: 5, d: 5 });
+    expect(awardsFor(s, st({ teams: [["a", "b"], ["c", "d"]], points: { a: 4, b: 4, c: 9, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 3, b: 3, c: 5, d: 5 });
+  });
+  it("Say Less with a 3-1 team map played solo, so it awards by each player's points", () => {
+    const s = setup("sayless", ["a", "b", "c", "d"], { teams: 2, teamMap: { a: 0, b: 0, c: 0, d: 1 } });
+    expect(awardsFor(s, st({ teams: null, points: { a: 4, b: 2, c: 9, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 3, b: 2, c: 5, d: 1 });
   });
   const duel = (rope: number, forfeit: string | null = null) => st({ mode: "duel", players: ["a", "b"], rope, forfeit, points: {} });
   it("duel winner 5/1, draw 3 each", () => {

@@ -363,7 +363,7 @@ describe("buzz mode", () => {
     const t = mk();
     expect(buzz(t, "Bo", T0 + 1)).toBe(t);
   });
-  it("buzz holds, spoke goes to judge, describer and buzzer cannot vote, a tie is right", () => {
+  it("buzz holds, spoke goes to judge, and only the describer's call counts", () => {
     const s = bz();
     expect(buzz(s, "Ann", T0 + 1)).toBe(s);
     const b = buzz(s, "Bo", T0 + 1);
@@ -373,20 +373,19 @@ describe("buzz mode", () => {
     expect(spoke(b, "Cy", T0 + 2)).toBe(b);
     const j = spoke(b, "Bo", T0 + 2);
     expect(j.phase).toBe("judge");
-    expect(mark(j, "Ann", "wrong", T0 + 3)).toBe(j);
-    expect(mark(j, "Bo", "right", T0 + 3)).toBe(j);
-    const m1 = mark(j, "Cy", "right", T0 + 3);
-    expect(m1.phase).toBe("judge");
-    expect(mark(m1, "Cy", "wrong", T0 + 3)).toBe(m1);
-    const m2 = mark(m1, "Di", "wrong", T0 + 4);
-    expect(m2.phase).toBe("reveal");
-    expect(m2.history[0]!.winner).toBe("Bo");
-    expect(m2.points).toMatchObject({ Ann: 5, Bo: 5 });
+    // Nobody but the describer may judge: not the buzzer, not the other guessers.
+    for (const p of ["Bo", "Cy", "Di"]) for (const v of ["right", "wrong"]) expect(mark(j, p, v, T0 + 3)).toBe(j);
+    expect(mark(j, "Ann", "maybe", T0 + 3)).toBe(j);
+    const r = mark(j, "Ann", "right", T0 + 3);
+    expect(r.phase).toBe("reveal");
+    expect(r.history[0]!.winner).toBe("Bo");
+    expect(r.points).toMatchObject({ Ann: 5, Bo: 5 });
+    expect(r).not.toHaveProperty("marks");
   });
   it("wrong locks the buzzer out of this word only and reopens buzzing", () => {
     let s = spoke(buzz(bz(), "Bo", T0 + 1), "Bo", T0 + 2);
-    s = mark(mark(s, "Cy", "wrong", T0 + 3), "Di", "wrong", T0 + 3);
-    expect(s).toMatchObject({ phase: "clue", buzzer: null, locked: ["Bo"], marks: {} });
+    s = mark(s, "Ann", "wrong", T0 + 3);
+    expect(s).toMatchObject({ phase: "clue", buzzer: null, locked: ["Bo"] });
     expect(s.points.Bo).toBe(0);
     expect(buzz(s, "Bo", T0 + 4)).toBe(s);
     expect(buzz(s, "Cy", T0 + 4).buzzer).toBe("Cy");
@@ -395,7 +394,7 @@ describe("buzz mode", () => {
     expect(n.locked).toEqual([]);
     expect(buzz(n, "Bo", T0 + 7).buzzer).toBe("Bo");
   });
-  it("no judges (2 players): the describer judges", () => {
+  it("2 players: the describer judges the same way", () => {
     const s = spoke(buzz(bz(["Ann", "Bo"]), "Bo", T0 + 1), "Bo", T0 + 2);
     const w = mark(s, "Ann", "wrong", T0 + 3);
     expect(w.locked).toEqual(["Bo"]);
@@ -405,7 +404,7 @@ describe("buzz mode", () => {
     const r = mark(s, "Ann", "right", T0 + 3);
     expect(r.history[0]!.winner).toBe("Bo");
   });
-  it("speak timeout is wrong; judge timeout with no votes is right", () => {
+  it("speak timeout is wrong; judge timeout with no call is right", () => {
     const b = buzz(bz(), "Bo", T0 + 1);
     expect(spoke(b, "Bo", T0 + 1 + SPEAK_MS).phase).toBe("judge");
     expect(spoke(b, "Bo", T0 + 2 + SPEAK_MS)).toBe(b);
@@ -415,10 +414,12 @@ describe("buzz mode", () => {
     const j = spoke(b, "Bo", T0 + 2);
     expect(tick(j, T0 + 2 + JUDGE_MS)).toBe(j);
     expect(tick(j, T0 + 3 + JUDGE_MS).history[0]!.winner).toBe("Bo");
+    // a call after the clock is refused
+    expect(mark(j, "Ann", "wrong", T0 + 3 + JUDGE_MS)).toBe(j);
   });
   it("a reopen after the word clock ran out ends the word", () => {
     let s = spoke(buzz(bz(), "Bo", T0 + WORD_MS - 1), "Bo", T0 + WORD_MS);
-    s = mark(mark(s, "Cy", "wrong", T0 + WORD_MS + 2), "Di", "wrong", T0 + WORD_MS + 2);
+    s = mark(s, "Ann", "wrong", T0 + WORD_MS + 2);
     expect(s.phase).toBe("reveal");
     expect(s.history[0]!.winner).toBeNull();
   });
@@ -440,7 +441,7 @@ describe("drinking", () => {
   it("a wrong buzz sips the buzzer; right guesses, passes and timeouts sip nobody", () => {
     const s = withWords(mk({ players: ["Ann", "Bo", "Cy", "Di"], answer: "buzz", drinking: true }), [FIX.alpha![0]!, FIX.alpha![1]!, FIX.alpha![2]!]);
     let w = spoke(buzz(s, "Bo", T0 + 1), "Bo", T0 + 2);
-    w = mark(mark(w, "Cy", "wrong", T0 + 3), "Di", "wrong", T0 + 3);
+    w = mark(w, "Ann", "wrong", T0 + 3);
     expect(w.drinks!.calls).toEqual([expect.objectContaining({ to: "Bo", sips: 1 })]);
     const t = mk({ drinking: true });
     expect(guess(t, "Bo", cur(t).name, T0 + 1).drinks).toEqual(t.drinks);
@@ -478,11 +479,8 @@ describe("redactFor", () => {
     check(b, true);
     const j = spoke(b, "Bo", T0 + 2);
     check(j, true);
-    const m = mark(j, "Cy", "right", T0 + 3);
-    check(m, true);
-    expect(redactFor(m, "Cy").marks).toEqual({ Cy: "right" });
-    expect(redactFor(m, "Di").marks).toEqual({ Cy: "voted" });
-    expect(redactFor(m, null).marks).toEqual({ Cy: "voted" });
+    // a wrong call reopens buzzing: the word stays hidden from the guessers still in
+    check(mark(j, "Ann", "wrong", T0 + 3), true);
   });
   it("shows the word to everyone in the reveal and in history, never later words", () => {
     const s = withWords(mk({ players }), [FIX.alpha![1]!, FIX.alpha![4]!, FIX.alpha![2]!]);
@@ -546,13 +544,20 @@ describe("settle", () => {
     expect(r.history[0]).toMatchObject({ winner: null, points: 0 });
     expect(settle(s, ["Bo", "Cy"], T0 + 2)).toBe(s);
   });
-  it("buzzer gone counts as wrong; judges gone are not waited for", () => {
+  it("buzzer gone counts as wrong, while speaking or being judged; other guessers leaving changes nothing", () => {
     const b = buzz(base("buzz"), "Bo", T0 + 1);
     const r = settle(b, ["Bo"], T0 + 2);
     expect(r).toMatchObject({ phase: "clue", buzzer: null, locked: ["Bo"] });
-    const j = mark(spoke(b, "Bo", T0 + 2), "Cy", "right", T0 + 3);
-    const done = settle(j, ["Di"], T0 + 4);
-    expect(done.history[0]!.winner).toBe("Bo");
+    const j = spoke(b, "Bo", T0 + 2);
+    expect(settle(j, ["Bo"], T0 + 3)).toMatchObject({ phase: "clue", buzzer: null, locked: ["Bo"] });
+    expect(settle(j, ["Di"], T0 + 3)).toBe(j);
+  });
+  it("describer gone while judging: the word ends with no points and the next turn starts", () => {
+    const j = spoke(buzz(base("buzz"), "Bo", T0 + 1), "Bo", T0 + 2);
+    const r = settle(j, ["Ann"], T0 + 3);
+    expect(r.history[0]).toMatchObject({ word: "zebrafish", winner: null, points: 0 });
+    expect(Object.values(r.points).every((p) => p === 0)).toBe(true);
+    expect(r).toMatchObject({ turn: 1, phase: "clue", buzzer: null });
   });
 });
 

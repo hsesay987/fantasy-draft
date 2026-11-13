@@ -5,15 +5,13 @@
 // words come from ../sayless/source, which only the places that deal words fill in.
 import { shuffle } from "../rng";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
-import { has, own } from "../party/own";
+import { own } from "../party/own";
 import { buildTeams, TEAM_MIN_PLAYERS } from "../party/teams";
 import { JUDGE_MS, REVEAL_MS, SPEAK_MS, WORD_MS, checkClue, clueScore, guardLoss, matchesGuess, normText, turnBudget } from "../sayless/rules";
 import { wordsOf, type SayWord } from "../sayless/source";
 
 export type SLTurn = { describer: string; team: number | null };
 export type SLWord = SayWord & { id: string };
-/** A judge's verdict. "voted" only appears in what a seat is sent: another judge's mark, hidden until the word ends. */
-export type SLMark = "right" | "wrong" | "voted";
 /** `guarded`: what the par guard actually took from each other guesser. `bonus`: unused budget, on a turn's last word. */
 export type SLHistory = { word: string; par: number; describer: string; clues: string[]; winner: string | null; points: number; passed?: boolean; bonus?: number; guarded?: Record<string, number> };
 
@@ -37,7 +35,6 @@ export type SLState = {
   /** Buzzers judged wrong on this word. */
   locked: string[];
   buzzer: string | null;
-  marks: Record<string, SLMark>;
   answerMode: "type" | "buzz";
   guard: boolean;
   points: Record<string, number>;
@@ -112,7 +109,7 @@ export function init(o: {
   const budget = deal.length ? turnBudget(deal[0]!.map((w) => w.par)) : 0;
   return {
     players: o.players, teams, decks: o.decks, turns, turn: 0, wordsPerTurn, deal, at: 0, phase: "clue", clues: [], budget, budgetStart: budget,
-    guessers: guessersFor({ players: o.players, teams, turns }, 0), locked: [], buzzer: null, marks: {},
+    guessers: guessersFor({ players: o.players, teams, turns }, 0), locked: [], buzzer: null,
     answerMode: o.answer === "buzz" ? "buzz" : "type", guard: o.guard === true,
     points: Object.fromEntries(o.players.map((p) => [p, 0])), teamPoints: teams ? teams.map(() => 0) : [], history: [],
     phaseAt: o.now, wordAt: o.now, startedAt: o.now, done: deal.length === 0, seed,
@@ -167,14 +164,14 @@ function finish(s: SLState, now: number, o: { winner?: string; passed?: boolean;
 
 function startTurn(s: SLState, turn: number, now: number): SLState {
   const rest = unrefused(s);
-  if (turn >= s.turns.length) return { ...rest, buzzer: null, marks: {}, done: true, phaseAt: now };
+  if (turn >= s.turns.length) return { ...rest, buzzer: null, done: true, phaseAt: now };
   const budget = turnBudget(s.deal[turn]!.map((w) => w.par));
-  return { ...rest, turn, at: 0, phase: "clue", clues: [], budget, budgetStart: budget, guessers: guessersFor(s, turn), locked: [], buzzer: null, marks: {}, phaseAt: now, wordAt: now };
+  return { ...rest, turn, at: 0, phase: "clue", clues: [], budget, budgetStart: budget, guessers: guessersFor(s, turn), locked: [], buzzer: null, phaseAt: now, wordAt: now };
 }
 
 function advance(s: SLState, now: number): SLState {
   if (s.budget > 0 && s.at + 1 < s.deal[s.turn]!.length) {
-    return { ...unrefused(s), at: s.at + 1, phase: "clue", clues: [], locked: [], buzzer: null, marks: {}, phaseAt: now, wordAt: now };
+    return { ...unrefused(s), at: s.at + 1, phase: "clue", clues: [], locked: [], buzzer: null, phaseAt: now, wordAt: now };
   }
   return startTurn(s, s.turn + 1, now);
 }
@@ -210,60 +207,45 @@ export function pass(s: SLState, by: string, now: number): SLState {
 /** Buzz mode: the first guesser to buzz gets to say it out loud. */
 export function buzz(s: SLState, by: string, now: number): SLState {
   if (s.done || s.phase !== "clue" || s.answerMode !== "buzz" || s.buzzer !== null || !s.guessers.includes(by) || s.locked.includes(by) || !inTime(s, now)) return s;
-  return { ...s, phase: "speak", buzzer: by, marks: {}, phaseAt: now };
+  return { ...s, phase: "speak", buzzer: by, phaseAt: now };
 }
 
-/** Buzz mode: the buzzer has said it, so it goes to the judges. Too late counts as wrong (see tick). */
+/** Buzz mode: the buzzer has said it, so it goes to the describer to judge. Too late counts as wrong (see tick). */
 export function spoke(s: SLState, by: string, now: number): SLState {
   if (s.done || s.phase !== "speak" || by !== s.buzzer || now - s.phaseAt > SPEAK_MS) return s;
-  return { ...s, phase: "judge", marks: {}, phaseAt: now };
-}
-
-/** Everyone but the buzzer and the describer; with nobody else, the describer judges. */
-function judges(s: SLState, gone: string[] = []): string[] {
-  const d = currentDescriber(s);
-  const out = s.players.filter((p) => p !== s.buzzer && p !== d && !gone.includes(p));
-  return out.length ? out : gone.includes(d) ? [] : [d];
+  return { ...s, phase: "judge", phaseAt: now };
 }
 
 /** A wrong buzz: the buzzer is locked out of this word, sips, and buzzing reopens if there is time and someone left to buzz. */
 function wrongBuzz(s: SLState, now: number, gone: string[] = []): SLState {
   const by = s.buzzer!;
-  const next: SLState = { ...s, phase: "clue", buzzer: null, marks: {}, locked: [...s.locked, by], phaseAt: now, ...sip(s, gone.includes(by) ? [] : [{ to: by, sips: 1, reason: "Wrong buzz" }]) };
+  const next: SLState = { ...s, phase: "clue", buzzer: null, locked: [...s.locked, by], phaseAt: now, ...sip(s, gone.includes(by) ? [] : [{ to: by, sips: 1, reason: "Wrong buzz" }]) };
   const open = next.guessers.some((p) => !next.locked.includes(p) && !gone.includes(p));
   return open && inTime(next, now) ? next : finish(next, now);
 }
 
-/** Settles the buzz from the marks of `from`: more wrong than right is wrong; a tie or none is right. */
-function resolve(s: SLState, from: string[], now: number, gone: string[] = []): SLState {
-  const votes = from.filter((p) => has(s.marks, p)).map((p) => s.marks[p]);
-  const wrong = votes.filter((v) => v === "wrong").length;
-  return wrong > votes.length - wrong ? wrongBuzz(s, now, gone) : finish(s, now, { winner: s.buzzer! });
-}
-
+/**
+ * Buzz mode: only the describer judges, because only they can see the word (showing it to anyone else would give it
+ * away to the guessers still in after a wrong call). Their verdict settles the buzz at once.
+ */
 export function mark(s: SLState, by: string, verdict: unknown, now: number): SLState {
-  if (s.done || s.phase !== "judge" || (verdict !== "right" && verdict !== "wrong") || !judges(s).includes(by) || has(s.marks, by) || now - s.phaseAt > JUDGE_MS) return s;
-  const next: SLState = { ...s, marks: { ...s.marks, [by]: verdict as "right" | "wrong" } };
-  return judges(next).every((p) => has(next.marks, p)) ? resolve(next, judges(next), now) : next;
+  if (s.done || s.phase !== "judge" || (verdict !== "right" && verdict !== "wrong") || by !== currentDescriber(s) || now - s.phaseAt > JUDGE_MS) return s;
+  return verdict === "wrong" ? wrongBuzz(s, now) : finish(s, now, { winner: s.buzzer! });
 }
 
 /**
  * Closes what is waiting on people who left (`gone`): a departed describer's word ends with no points and their turn is
- * over; with every guesser gone the word ends like a timeout; a departed buzzer is wrong; departed judges are not waited for.
+ * over; with every guesser gone the word ends like a timeout; a departed buzzer is wrong.
  */
 export function settle(s: SLState, gone: string[], now: number): SLState {
   let x = s;
   // A departed describer can't describe: cut each such turn (more than one may be waiting).
   while (!x.done && live(x) && gone.includes(currentDescriber(x))) {
-    const cut = finish({ ...x, buzzer: null, marks: {} }, now, { cut: true });
+    const cut = finish({ ...x, buzzer: null }, now, { cut: true });
     x = startTurn(cut, x.turn + 1, now);
   }
   if (x.done || !live(x)) return x;
   if ((x.phase === "speak" || x.phase === "judge") && x.buzzer !== null && gone.includes(x.buzzer)) return wrongBuzz(x, now, gone);
-  if (x.phase === "judge") {
-    const here = judges(x, gone);
-    return here.every((p) => has(x.marks, p)) ? resolve(x, here, now, gone) : x;
-  }
   if (x.phase === "clue" && x.guessers.every((p) => gone.includes(p) || x.locked.includes(p))) return finish(x, now);
   return x;
 }
@@ -278,7 +260,7 @@ export function tick(s: SLState, now: number): SLState {
   if (s.done) return s;
   if (s.phase === "clue" && !inTime(s, now)) return finish(s, now);
   if (s.phase === "speak" && now - s.phaseAt > SPEAK_MS) return wrongBuzz(s, now);
-  if (s.phase === "judge" && now - s.phaseAt > JUDGE_MS) return resolve(s, judges(s), now);
+  if (s.phase === "judge" && now - s.phaseAt > JUDGE_MS) return finish(s, now, { winner: s.buzzer! }); // no call in time counts as right
   if (s.phase === "reveal" && now - s.phaseAt >= REVEAL_MS) return advance(s, now);
   return s;
 }
@@ -296,7 +278,7 @@ export function seenKeys(s: SLState): string[] {
 
 /**
  * What one seat may see. No deal and no seed ever. The live word's name, aliases and id (which holds the name) go only to
- * the describer, at `word`; everyone gets it at `current` once it has ended. While judging, other seats' marks read "voted".
+ * the describer, at `word`; everyone gets it at `current` once it has ended.
  */
 export function redactFor(s: SLState, me: string | null): SLView {
   const rest: Partial<SLState> = { ...s };
@@ -306,6 +288,5 @@ export function redactFor(s: SLState, me: string | null): SLView {
   const open = s.phase === "reveal";
   const current = w ? (open ? w : { ...w, id: "", name: "", also: [] }) : null;
   const word = w && live(s) && me !== null && me === currentDescriber(s) ? w : null;
-  const marks = s.phase === "judge" ? Object.fromEntries(Object.keys(s.marks).map((p) => [p, p === me ? s.marks[p]! : ("voted" as const)])) : s.marks;
-  return { ...(rest as Omit<SLState, "deal" | "seed">), marks, total: s.turns.length, current, word };
+  return { ...(rest as Omit<SLState, "deal" | "seed">), total: s.turns.length, current, word };
 }

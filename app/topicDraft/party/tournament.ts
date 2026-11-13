@@ -3,6 +3,7 @@ import type { FormatId, GameSetup } from "../../play/types";
 import type { GameState } from "../core";
 import type { MafiaState } from "../formats/mafia";
 import type { PTState } from "../formats/partytrivia";
+import type { SLState } from "../formats/sayless";
 import type { VPState } from "../formats/vowelplay";
 import { winners as vowelWinners } from "../formats/vowelplay";
 import { teamsFor } from "./teams";
@@ -88,7 +89,8 @@ export function awardsFor(setup: GameSetup, state: GameState, seated: string[], 
     case "vowelparty":
     case "pecking":
     case "sayless": {
-      const teams = teamsFor(setup, setup.players);
+      // Say Less plays teams only when every team has 2+ players, so its own state says whether teams played.
+      const teams = setup.format === "sayless" ? (state as SLState).teams ?? null : teamsFor(setup, setup.players);
       if (teams) return byTeams(teams, teams.map(sumOf), seated);
       return byPoints(points(), seated);
     }

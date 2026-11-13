@@ -5,7 +5,7 @@
 import { Sprite } from "../../components/pixel/Sprite";
 import type { SLHistory, SLState, SLView } from "../../topicDraft/formats/sayless";
 import { currentDescriber } from "../../topicDraft/formats/sayless";
-import { has, own } from "../../topicDraft/party/own";
+import { own } from "../../topicDraft/party/own";
 import { JUDGE_MS, REVEAL_MS, SPEAK_MS, WORD_MS } from "../../topicDraft/sayless/rules";
 import { TEAM_COLORS, teamName } from "../teamMoves";
 import { playerSprite } from "./partyBits";
@@ -25,19 +25,6 @@ export function slClock(s: SLView): { deadline: number; total: number } | null {
   const total = s.phase === "speak" ? SPEAK_MS : s.phase === "judge" ? JUDGE_MS : REVEAL_MS;
   return { deadline: s.phaseAt + total, total };
 }
-
-/** Who judges a buzz, as the engine counts them: everyone but the buzzer and the describer, else the describer alone. */
-export function judgesOf(s: SLView, gone: string[] = []): string[] {
-  const d = describerOf(s);
-  const out = s.players.filter((p) => p !== s.buzzer && p !== d && !gone.includes(p));
-  return out.length ? out : gone.includes(d) ? [] : [d];
-}
-
-/** This word's mark from `me`, if they made one (other judges' marks read "voted" until the word ends). */
-export const myMark = (s: SLView, me: string): "right" | "wrong" | null => {
-  const m = has(s.marks, me) ? s.marks[me] : null;
-  return m === "right" || m === "wrong" ? m : null;
-};
 
 /** The describing team's name when teams play, else null. */
 export const describingTeam = (s: SLView): string | null => {
@@ -138,7 +125,7 @@ export function RevealCard({ s, h, me }: { s: SLView; h: SLHistory; me: string }
 
 /**
  * Everyone's score, and while a word is live what they are doing (never what they typed): describing, buzzed, out on a
- * wrong buzz, voted. After a word, its points. Team totals underneath when teams play.
+ * wrong buzz, said it. After a word, its points. Team totals underneath when teams play.
  */
 export function SLRoster({ s, me, gone }: { s: SLView; me: string; gone: string[] }) {
   const d = describerOf(s);
@@ -156,9 +143,8 @@ export function SLRoster({ s, me, gone }: { s: SLView; me: string; gone: string[
           const tag = g ? (g > 0 ? `+${g}` : `${g}`)
             : !live ? ""
             : p === d ? "DESCRIBING"
-            : s.buzzer === p ? "BUZZED"
+            : s.buzzer === p ? (s.phase === "judge" ? "SAID IT" : "BUZZED")
             : s.locked.includes(p) ? "OUT"
-            : s.phase === "judge" && has(s.marks, p) ? "VOTED"
             : s.guessers.includes(p) ? "" : "WATCHING";
           const ti = team(p);
           return (

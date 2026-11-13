@@ -103,7 +103,7 @@ The host chooses one type or Mixed, which alternates them.
      - the clue contains the secret word, or any part of a multi-word answer that has 3 or more letters;
      - the secret word contains the clue, and the clue has 4 or more letters;
      - the clue is a plural of the secret word.
-3. Guessers type guesses at any time. Typed guesses match on normalised text plus stored aliases (my call). In buzz mode in a room, they buzz and say the answer out loud, and the room votes Right or Wrong, as in Vowel Play. The describer doesn't judge (my call).
+3. Guessers type guesses at any time. Typed guesses match on normalised text plus stored aliases (my call). In buzz mode in a room, they buzz and say the answer out loud, and the describer alone calls it Right or Wrong within 6 s (no call counts as right). A wrong call locks that buzzer out of the word and buzzing reopens. Only the describer judges because only they can see the word: other judges would vote blind, and showing them the word would give it away to the guessers still in after a wrong call.
 4. The word ends on the first right guess, when the describer passes, or after 60 s.
 
 **Scoring (owner agreed to this proposal).**
@@ -128,7 +128,7 @@ The host chooses one type or Mixed, which alternates them.
 
 **Screen and TV.** A big clue strip that counts up against par, the describer's budget meter, and the guess race. The word itself is never shown before the word ends.
 
-**Hidden information.** The word and any stored aliases go only to the describer's seat until the word ends.
+**Hidden information.** The word and any stored aliases go only to the describer's seat until the word ends, including while a buzz is being judged (which is why the describer is the only judge).
 
 ---
 

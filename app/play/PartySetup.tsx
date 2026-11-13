@@ -143,7 +143,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
               {([3, 4, 5] as const).map((n) => <Chip key={n} selected={saylessWords === n} onClick={() => setSaylessWords(n)}>{n}</Chip>)}
             </div>
           </Panel>
-          <Panel title="Answer" hint={answer === "buzz" ? "Others vote right or wrong." : "Guessers type their answer on their own phone."}>
+          <Panel title="Answer" hint={answer === "buzz" ? "Guessers buzz and say it out loud; the describer says right or wrong." : "Guessers type their answer on their own phone."}>
             <div className="flex flex-wrap gap-2">
               <Chip selected={answer === "phones"} onClick={() => setAnswer("phones")}>Type</Chip>
               <Chip selected={answer === "buzz"} onClick={() => setAnswer("buzz")}>Buzz (say it out loud)</Chip>

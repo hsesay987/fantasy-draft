@@ -11,7 +11,7 @@ import { teamName } from "../teamMoves";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 import { DrinkCard, LeaveGame, PartyClock, playerSprite, WaterLine } from "./partyBits";
-import { BudgetMeter, ClueTape, describerOf, describingTeam, isLive, judgesOf, myMark, ParCount, RevealCard, SLRoster, slClock, wordKey } from "./saylessParts";
+import { BudgetMeter, ClueTape, describerOf, describingTeam, isLive, ParCount, RevealCard, SLRoster, slClock, wordKey } from "./saylessParts";
 import { TeamBoard } from "./TeamBoard";
 
 /** The server takes about 3 sends a second from a seat; the send button rests this long after each one. */
@@ -25,7 +25,7 @@ type Play = ReturnType<typeof useSound>["play"];
 
 /**
  * Say Less on a phone. The describer sees the secret word and sends one-word clues from the turn's budget; everyone
- * else watches the clue tape and types a guess (or buzzes and says it out loud, and the room judges). A seat with no
+ * else watches the clue tape and types a guess (or buzzes and says it out loud, and the describer calls it right or wrong). A seat with no
  * player (the screen host, or someone watching) gets the big tape instead. Only the describer's phone is ever sent the word.
  */
 export function SayLessView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
@@ -75,7 +75,7 @@ export function SayLessView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
             {live && !describing && <DescriberLine s={s} me={me} />}
             {live && (describing ? <DescriberDesk key={key} s={s} me={me} dispatch={ctl.dispatch} play={play} />
               : <GuessDesk key={key} s={s} me={me} out={out} offset={ctl.offset} dispatch={ctl.dispatch} play={play} />)}
-            {live && s.answerMode === "buzz" && s.phase !== "clue" && <JudgeDesk key={`${key}:${s.phase}:${s.buzzer}`} s={s} me={me} gone={gone} out={out} dispatch={ctl.dispatch} play={play} />}
+            {live && s.answerMode === "buzz" && s.phase !== "clue" && <JudgeDesk key={`${key}:${s.phase}:${s.buzzer}`} s={s} me={me} out={out} dispatch={ctl.dispatch} play={play} />}
           </>
         )}
 
@@ -84,7 +84,8 @@ export function SayLessView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         <SLRoster s={s} me={me} gone={gone} />
 
         {s.drinks && <WaterLine />}
-        {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
+        {/* Between words only: a card never covers a live word. One called mid-word waits for the reveal. */}
+        {s.drinks && !live && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
         {seated && ctl.leave && <LeaveGame onLeave={ctl.leave} />}
       </div>
     </PixelShell>
@@ -113,6 +114,12 @@ function DescriberDesk({ s, me, dispatch, play }: { s: SLView; me: string; dispa
   const input = useRef<HTMLInputElement>(null);
   const describing = s.phase === "clue";
   const canClue = describing && s.budget > 0;
+  // What the room says now, for a refusal that comes back after the word may have moved on.
+  const latest = useRef(s);
+  useEffect(() => { latest.current = s; });
+  const key = wordKey(s);
+  /** A plain "not allowed": time's up if the word is over (or its clock ran out), otherwise just too late. */
+  const tooLate = () => (latest.current.phase !== "clue" || wordKey(latest.current) !== key ? "Time's up for this word" : "Too late");
 
   const rest = () => { setCool(true); setTimeout(() => setCool(false), COOL_MS); };
   const send = async () => {
@@ -124,7 +131,7 @@ function DescriberDesk({ s, me, dispatch, play }: { s: SLView; me: string; dispa
     play("click");
     try {
       const r = await dispatch({ type: "clue", by: me, text: t });
-      if (r && !r.ok) { setError(r.error === REFUSED ? "Time's up for this word" : r.error ?? NOT_SENT); play("wrong"); }
+      if (r && !r.ok) { setError(r.error === REFUSED ? tooLate() : r.error ?? NOT_SENT); play("wrong"); }
       else setText("");
     } finally {
       sending.current = false;
@@ -137,7 +144,7 @@ function DescriberDesk({ s, me, dispatch, play }: { s: SLView; me: string; dispa
     play("click");
     try {
       const r = await dispatch({ type: "pass", by: me });
-      if (r && !r.ok) setError(r.error === REFUSED ? "Time's up for this word" : r.error ?? NOT_SENT);
+      if (r && !r.ok) setError(r.error === REFUSED ? tooLate() : r.error ?? NOT_SENT);
     } finally { sending.current = false; }
   };
 
@@ -158,7 +165,12 @@ function DescriberDesk({ s, me, dispatch, play }: { s: SLView; me: string; dispa
             <label className="in">
               <span aria-hidden>&gt;</span>
               <input ref={input} value={text} maxLength={CLUE_MAX} disabled={!canClue} autoFocus
-                onChange={(e) => { setText(e.target.value.replace(/\s+/g, "")); setError(null); }}
+                onChange={(e) => {
+                  // A space would make two words: keep the field as it was and say why, rather than gluing them together.
+                  if (/\s/.test(e.target.value)) { setError("One word only"); return; }
+                  setText(e.target.value);
+                  setError(null);
+                }}
                 placeholder={canClue ? "One word" : "Budget spent"} aria-label="Your clue, one word" aria-describedby="sl-clue-msg"
                 autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} enterKeyHint="send" />
             </label>
@@ -168,11 +180,7 @@ function DescriberDesk({ s, me, dispatch, play }: { s: SLView; me: string; dispa
           <p id="sl-clue-msg" className={`sl-msg ${error ? "no" : ""}`} role="status">{error ?? (canClue ? "One word per clue. Each one costs 1 from the budget." : "No budget left: pass or wait for a guess.")}</p>
           <PixelButton variant="alt" className="sl-pass" onClick={() => void pass()}>{s.budget > 0 ? "Pass · costs 1" : "Pass"}</PixelButton>
         </>
-      ) : s.phase === "speak" ? (
-        <p className="sl-msg" role="status"><b>{s.buzzer}</b> buzzed. Listen to what they say.</p>
-      ) : judgesOf(s).includes(me) ? null : (
-        <p className="sl-msg" role="status">The room is deciding whether <b>{s.buzzer}</b> got it.</p>
-      )}
+      ) : null /* after a buzz, JudgeDesk below says what is happening */}
     </section>
   );
 }
@@ -266,17 +274,17 @@ function BuzzButton({ s, me, dispatch, play }: { s: SLView; me: string; dispatch
   );
 }
 
-/** Buzz mode after a buzz: the buzzer says it and taps Said it; then the judges mark it. Shown to every seat. */
-function JudgeDesk({ s, me, gone, out, dispatch, play }: { s: SLView; me: string; gone: string[]; out: boolean; dispatch: Dispatch; play: Play }) {
+/**
+ * Buzz mode after a buzz, for every seat: the buzzer says it out loud and taps Said it, then the describer, the only one
+ * who can see the word, calls it Right or Wrong. Everyone else waits on that call.
+ */
+function JudgeDesk({ s, me, out, dispatch, play }: { s: SLView; me: string; out: boolean; dispatch: Dispatch; play: Play }) {
   const [note, setNote] = useState<string | null>(null);
-  const [mine, setMine] = useState<"right" | "wrong" | null>(null);
+  const [sent, setSent] = useState(false);
   const busy = useRef(false);
   const buzzer = s.buzzer ?? "";
-  const judges = judgesOf(s, gone);
-  const judge = !out && judges.includes(me);
-  const marked = myMark(s, me) ?? mine;
-  const votes = judges.filter((p) => own(s.marks, p) !== undefined).length;
   const d = describerOf(s);
+  const judge = !out && me === d;
 
   const send = async (a: Parameters<Dispatch>[0], refused: string) => {
     if (busy.current) return false;
@@ -288,11 +296,11 @@ function JudgeDesk({ s, me, gone, out, dispatch, play }: { s: SLView; me: string
     } finally { busy.current = false; }
   };
   const said = () => { play("click"); void send({ type: "spoke", by: me }, "Time was already up."); };
-  const markIt = async (verdict: "right" | "wrong") => {
-    if (!judge || marked) return;
+  const call = async (verdict: "right" | "wrong") => {
+    if (!judge || sent) return;
     play(verdict === "right" ? "click" : "wrong");
-    setMine(verdict);
-    if (!(await send({ type: "mark", by: me, verdict }, "Too late to judge this one."))) setMine(null);
+    setSent(true);
+    if (!(await send({ type: "mark", by: me, verdict }, "Too late: it counted as right."))) setSent(false);
   };
 
   if (s.phase === "speak") {
@@ -303,7 +311,7 @@ function JudgeDesk({ s, me, gone, out, dispatch, play }: { s: SLView; me: string
             <p className="sl-say">Say it out loud, then tap Said it</p>
             <PixelButton variant="gold" className="sl-said" onClick={said}>Said it</PixelButton>
           </>
-        ) : <p className="sl-msg" role="status"><b>{buzzer}</b> buzzed and is saying it.</p>}
+        ) : <p className="sl-msg" role="status"><b>{buzzer}</b> buzzed and is saying it{judge ? ". Listen." : "."}</p>}
         {note && <p className="sl-msg no">{note}</p>}
       </section>
     );
@@ -311,17 +319,16 @@ function JudgeDesk({ s, me, gone, out, dispatch, play }: { s: SLView; me: string
 
   return (
     <section className="px-box sl-judge" aria-label="Right or wrong?">
-      {judge && !marked ? (
+      {judge ? (
         <>
-          <p className="sl-msg">Did <b>{buzzer}</b> say it? {d === me ? "You know the word." : <>Go with <b>{d}</b>&apos;s face.</>}</p>
+          <p className="sl-msg"><b>{buzzer}</b> said it. Right or Wrong?</p>
           <div className="sl-marks">
-            <PixelButton className="right" onClick={() => void markIt("right")}>Right</PixelButton>
-            <PixelButton className="wrong" onClick={() => void markIt("wrong")}>Wrong</PixelButton>
+            <PixelButton className="right" disabled={sent} onClick={() => void call("right")}>Right</PixelButton>
+            <PixelButton className="wrong" disabled={sent} onClick={() => void call("wrong")}>Wrong</PixelButton>
           </div>
+          <p className="sl-msg">No call in time counts as right.</p>
         </>
-      ) : judge ? <p className="sl-msg" role="status">You said <b>{marked === "right" ? "Right" : "Wrong"}</b>. {votes} of {judges.length} voted.</p>
-        : buzzer === me ? <p className="sl-msg" role="status">The room is deciding on your answer. {votes} of {judges.length} voted.</p>
-        : <p className="sl-msg" role="status">The room is deciding. {votes} of {judges.length} voted.</p>}
+      ) : <p className="sl-msg" role="status">The describer is deciding{buzzer === me ? " on your answer" : ""}.</p>}
       {note && <p className="sl-msg no">{note}</p>}
     </section>
   );
@@ -332,8 +339,6 @@ function TvBoard({ s, gone }: { s: SLView; gone: string[] }) {
   const d = describerOf(s);
   const live = isLive(s);
   const par = s.current?.par ?? 0;
-  const judges = judgesOf(s, gone);
-  const votes = judges.filter((p) => own(s.marks, p) !== undefined).length;
   const team = s.turns[s.turn]?.team;
   if (!live) return null;
   return (
@@ -351,7 +356,7 @@ function TvBoard({ s, gone }: { s: SLView; gone: string[] }) {
       {s.answerMode === "buzz" ? (
         <p className="sl-race" role="status">
           {s.phase === "speak" ? <><b>{s.buzzer}</b> buzzed. Saying it now.</>
-            : s.phase === "judge" ? <>Did <b>{s.buzzer}</b> get it? {votes} of {judges.length} voted.</>
+            : s.phase === "judge" ? <>Did <b>{s.buzzer}</b> get it? Describer <b>{d}</b> is deciding.</>
             : s.locked.length ? <>Out on this word: {s.locked.join(", ")}. Buzz open.</>
             : <>Buzz open. First to buzz says it out loud.</>}
         </p>
