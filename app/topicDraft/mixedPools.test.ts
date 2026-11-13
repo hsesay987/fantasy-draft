@@ -15,6 +15,10 @@ import { PECKING_LISTS, PECKING_LIST_IDS } from "./pecking/lists";
 import { poolIdsFor } from "./party/pools";
 import type { PeckState } from "./formats/pecking";
 import { redactFor } from "./formats/vowelplay";
+import "./sayless/words";
+import { SAY_DECK_IDS } from "./sayless/decks";
+import { wordsOf } from "./sayless/source";
+import type { SLState } from "./formats/sayless";
 
 const setup = (format: GameSetup["format"], pools: string[], opts: Partial<GameSetup["opts"]> = {}, seed = 3): GameSetup => ({
   id: "t", format, pool: pools[0]!, pools, players: ["A", "B", "C", "D"], aiPlayers: [], mission: { id: "party", title: "t", blurb: "", weights: { fun: 1 } },
@@ -131,5 +135,34 @@ describe("pecking pools", () => {
   it("drops unknown list ids", () => {
     const s = initGame(setup("pecking", [PECKING_LIST_IDS[0]!, "nope"], { teamSize: 3 }), 0) as PeckState;
     expect(s.questions.every((q) => q.list === PECKING_LIST_IDS[0])).toBe(true);
+  });
+});
+
+describe("sayless pools", () => {
+  it("poolIdsFor lists every deck", () => {
+    expect(poolIdsFor("sayless")).toEqual(SAY_DECK_IDS);
+  });
+  it("a mixed setup deals words from every chosen deck", () => {
+    const ids = ["easy", "hard"];
+    const names = (d: string) => new Set(wordsOf(d).map((w) => w.name));
+    const from = new Set<string>();
+    for (let seed = 1; seed < 20; seed++) {
+      const s = initGame(setup("sayless", ids, { saylessRounds: 3, saylessWords: 5 }, seed), 0) as SLState;
+      for (const w of s.deal.flat()) {
+        const hit = ids.filter((d) => names(d).has(w.name));
+        expect(hit.length).toBeGreaterThan(0);
+        hit.forEach((d) => from.add(d));
+      }
+    }
+    expect([...from].sort()).toEqual(["easy", "hard"]);
+  });
+  it("applies the setup options", () => {
+    const s = initGame(setup("sayless", ["easy"], { saylessRounds: 1, saylessWords: 4, saylessGuard: true, answer: "buzz" }), 0) as SLState;
+    expect(s.wordsPerTurn).toBe(4);
+    expect(s.guard).toBe(true);
+    expect(s.answerMode).toBe("buzz");
+    expect(s.turns.length).toBe(4);
+    const d = initGame(setup("sayless", ["easy"]), 0) as SLState;
+    expect([d.wordsPerTurn, d.guard, d.answerMode, d.turns.length]).toEqual([3, false, "type", 8]);
   });
 });

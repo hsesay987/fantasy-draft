@@ -49,6 +49,14 @@ describe("awardsFor", () => {
     const s = setup("pecking", ["a", "b", "c", "d"], { teams: 2, teamMap: { a: 0, b: 0, c: 1, d: 1 } });
     expect(awardsFor(s, st({ points: { a: 40, b: 40, c: 90, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 3, b: 3, c: 5, d: 5 });
   });
+  it("Say Less ranks per-player points, ties share a place", () => {
+    const s = setup("sayless", ["a", "b", "c", "d"]);
+    expect(awardsFor(s, st({ points: { a: 12, b: 12, c: 4, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 5, b: 5, c: 2, d: 1 });
+  });
+  it("Say Less teams rank by summed member points", () => {
+    const s = setup("sayless", ["a", "b", "c", "d"], { teams: 2, teamMap: { a: 0, b: 0, c: 1, d: 1 } });
+    expect(awardsFor(s, st({ points: { a: 4, b: 4, c: 9, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 3, b: 3, c: 5, d: 5 });
+  });
   const duel = (rope: number, forfeit: string | null = null) => st({ mode: "duel", players: ["a", "b"], rope, forfeit, points: {} });
   it("duel winner 5/1, draw 3 each", () => {
     const s = setup("vowelplay", ["a", "b"], { vowelMode: "duel" });

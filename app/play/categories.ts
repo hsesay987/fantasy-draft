@@ -188,6 +188,7 @@ export const FORMAT_WHY: Record<FormatId, string> = {
   vowelplay: "Name it with the vowels missing",
   vowelparty: "Race to name it with the vowels missing",
   pecking: "Guess where things rank",
+  sayless: "Describe it in as few words as you can",
 };
 
 /** Formats that make sense for a category (Loadout needs hero-ish items). */

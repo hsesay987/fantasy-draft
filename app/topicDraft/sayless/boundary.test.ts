@@ -61,6 +61,14 @@ describe("room bundles", () => {
     expect(bad).toEqual([]);
   });
 
+  it("core.ts and pools.ts on their own never reach the word list", () => {
+    for (const entry of ["app/topicDraft/core.ts", "app/topicDraft/party/pools.ts"]) {
+      const from = reached([entry]);
+      expect(from.has(entry)).toBe(true);
+      expect([...from].filter((f) => f === "app/topicDraft/sayless/words.ts" || f === "app/topicDraft/sayless/wordList.json")).toEqual([]);
+    }
+  });
+
   it("never reach Vowel Play's word list", () => {
     const bad = [...files].filter((f) => f.endsWith("/vowelWordList.json"));
     expect(bad).toEqual([]);

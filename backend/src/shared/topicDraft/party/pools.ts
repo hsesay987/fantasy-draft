@@ -8,6 +8,7 @@ import { TRIVIA_POOLS } from "../trivia";
 import { DECKS, deckOf } from "./decks";
 import { INSYNC_DECKS, insyncDeckOf } from "./insyncDecks";
 import { mixTitle } from "./mixTitle";
+import { SAY_DECK_IDS, sayDeckOf } from "../sayless/decks";
 import { PECKING_META } from "../pecking/meta";
 import { VOWEL_TOPICS, vowelTopicTitle } from "./vowelTopics";
 
@@ -24,6 +25,7 @@ export function poolIdsFor(format: FormatId): string[] {
     case "vowelplay":
     case "vowelparty": return VOWEL_TOPICS.map((t) => t.id);
     case "pecking": return PECKING_META.map((m) => m.id);
+    case "sayless": return [...SAY_DECK_IDS];
     default: return [];
   }
 }
@@ -36,6 +38,7 @@ export function poolTitleFor(format: FormatId, id: string): string {
     case "vowelplay":
     case "vowelparty": return vowelTopicTitle(id);
     case "pecking": return PECKING_META.find((m) => m.id === id)?.title ?? id;
+    case "sayless": return sayDeckOf(id)?.title ?? id;
     default: return CATALOG_META.find((m) => m.id === id)?.title ?? id;
   }
 }

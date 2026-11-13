@@ -23,6 +23,7 @@ import * as PT from "./formats/partytrivia";
 import * as MF from "./formats/mafia";
 import * as VP from "./formats/vowelplay";
 import * as PK from "./formats/pecking";
+import * as SL from "./formats/sayless";
 import { listFor } from "./pecking/source";
 import { deckOf } from "./party/decks";
 import { insyncDeckOf } from "./party/insyncDecks";
@@ -32,7 +33,7 @@ import type { Item, State } from "./types";
 import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
-export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState | PK.PeckState;
+export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState | PK.PeckState | SL.SLState;
 
 /** Every action says who is acting; the server checks that against the seat's token. */
 export type Action =
@@ -130,6 +131,8 @@ export function initGame(setup: GameSetup, now: number): GameState {
       return VP.init({ players: setup.players, topic: setup.pool, topics: poolsOf(setup), mode: "all", answer: "type", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "pecking":
       return PK.init({ players: setup.players, lists: poolsOf(setup).flatMap((id) => listFor(id) ?? []), mode: o.peckMode ?? "mixed", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+    case "sayless":
+      return SL.init({ players: setup.players, decks: poolsOf(setup), rounds: o.saylessRounds ?? 2, wordsPerTurn: o.saylessWords ?? 3, teams: o.teams, teamMap: o.teamMap, guard: o.saylessGuard ?? false, answer: o.answer === "buzz" ? "buzz" : "phones", avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }
@@ -174,6 +177,8 @@ export function currentTurn(setup: GameSetup, s: GameState): string | null {
       const x = s as IS.InSyncState;
       return x.phase === "clue" ? IS.giver(x) : null;
     }
+    case "sayless":
+      return SL.currentDescriber(s as SL.SLState) || null;
     default:
       return null;
   }
@@ -302,6 +307,18 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       if (a.type === "pick") return PK.pickName(x, a.by, a.name, now);
       if (a.type === "next") return PK.next(x, now);
       if (a.type === "tick") return PK.tick(x, now);
+      return s;
+    }
+    case "sayless": {
+      const x = s as SL.SLState;
+      if (a.type === "clue") return SL.clue(x, a.by, a.text, now);
+      if (a.type === "guess") return SL.guess(x, a.by, a.text, now);
+      if (a.type === "pass") return SL.pass(x, a.by, now);
+      if (a.type === "buzz") return SL.buzz(x, a.by, now);
+      if (a.type === "spoke") return SL.spoke(x, a.by, now);
+      if (a.type === "mark") return SL.mark(x, a.by, a.verdict, now);
+      if (a.type === "next") return SL.next(x, now);
+      if (a.type === "tick") return SL.tick(x, now);
       return s;
     }
     case "mafia": {
@@ -446,6 +463,7 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
     case "vowelplay":
     case "vowelparty":
     case "pecking":
+    case "sayless":
     case "vote": {
       const pts = (s as { points: Record<string, number> }).points;
       return { extra: null, teams: setup.players.map((player) => ({ player, baseline: pts[player] ?? 0, items: [] })) };
