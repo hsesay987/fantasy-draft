@@ -61,7 +61,7 @@ describe("pecking order engine", () => {
     const qs = makeQuestions([LIST, LIST2], "mixed", 6, 42);
     expect(qs).toHaveLength(6);
     expect(qs.map((q) => q.kind)).toEqual(["rank", "name", "rank", "name", "rank", "name"]);
-    expect(qs.map((q) => q.list)).toEqual(["fx", "fy", "fx", "fy", "fx", "fy"]);
+    for (let c = 0; c < 6; c += 2) expect([qs[c]!.list, qs[c + 1]!.list].sort()).toEqual(["fx", "fy"]); // each cycle asks every list
     expect(makeQuestions([LIST, LIST2], "mixed", 6, 42)).toEqual(qs); // deterministic
     expect(makeQuestions([LIST], "rank", 4, 1).every((q) => q.kind === "rank")).toBe(true);
     expect(makeQuestions([LIST], "name", 4, 1).every((q) => q.kind === "name" && q.at! >= 1 && q.at! <= 20)).toBe(true);
@@ -81,6 +81,22 @@ describe("pecking order engine", () => {
     // Questions within one game do not repeat an item.
     const ranks = makeQuestions([LIST], "rank", 20, 5).map((q) => q.item);
     expect(new Set(ranks).size).toBe(20);
+  });
+
+  it("mixed mode with an even number of lists: each list is asked as both kinds across seeds", () => {
+    const kinds: Record<string, Set<string>> = { fx: new Set(), fy: new Set() };
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) for (const q of makeQuestions([LIST, LIST2], "mixed", 4, seed)) kinds[q.list]!.add(q.kind);
+    expect([...kinds.fx!].sort()).toEqual(["name", "rank"]);
+    expect([...kinds.fy!].sort()).toEqual(["name", "rank"]);
+  });
+
+  it("a list that runs out does not stop the others", () => {
+    const tiny: PeckList = { ...LIST, id: "tiny", items: LIST.items.slice(0, 1).map((i) => ({ ...i, rank: 1 })) };
+    for (const seed of [1, 2, 3, 4]) {
+      const qs = makeQuestions([tiny, LIST], "rank", 6, seed);
+      expect(qs).toHaveLength(6);
+      expect(qs.filter((q) => q.list === "tiny")).toHaveLength(1);
+    }
   });
 
   it("init draws the questions and seenKeys lists asked items", () => {

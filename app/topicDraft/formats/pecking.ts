@@ -5,7 +5,7 @@
 import { normName, spanOf, type PeckItem, type PeckList } from "../pecking/lists";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { has, own } from "../party/own";
-import { next as rand } from "../rng";
+import { next as rand, shuffle } from "../rng";
 
 export const QUESTION_MS = 20_000, REVEAL_MS = 8_000, CLOSEST_BONUS = 20, DAILY_COUNT = 5;
 /** Longest unknown name kept from what a player typed. */
@@ -96,8 +96,8 @@ function nameQuestion(list: PeckList, n: number): PeckQuestion {
 }
 
 /**
- * `count` questions, lists taken in turn, each drawn uniformly from its whole list. Mixed mode alternates kinds,
- * starting with "rank". Items in `avoid` (seenKeys output) are skipped while anything else is left; nothing repeats
+ * `count` questions, lists taken in turn (in a fresh seeded order each cycle, so in mixed mode a list is not tied to
+ * one kind), each drawn uniformly from its whole list. Mixed mode alternates kinds by question, starting with "rank". Items in `avoid` (seenKeys output) are skipped while anything else is left; nothing repeats
  * within one game. Deterministic for a seed.
  */
 export function makeQuestions(lists: PeckList[], mode: PeckMode, count: number, seed: number, avoid: string[] = []): PeckQuestion[] {
@@ -105,9 +105,13 @@ export function makeQuestions(lists: PeckList[], mode: PeckMode, count: number, 
   if (lists.length === 0) return out;
   const avoided = new Set(avoid);
   const used = new Set<string>();
-  let s = seed, misses = 0;
-  for (let t = 0; out.length < count && misses < lists.length; t++) {
-    const list = lists[t % lists.length]!;
+  let s = seed;
+  let order: PeckList[] = [];
+  const empty = new Set<PeckList>(); // lists with nothing left to ask (used only grows, so they stay empty)
+  for (let t = 0; out.length < count && empty.size < lists.length; t++) {
+    if (t % lists.length === 0) [order, s] = shuffle(lists, s);
+    const list = order[t % lists.length]!;
+    if (empty.has(list)) continue;
     const kind = mode === "mixed" ? (out.length % 2 === 0 ? "rank" : "name") : mode;
     // Candidates: indexes for rank kind, ranks 1..size for name kind; each with the keys it would ask.
     const cands: { v: number; keys: string[] }[] = kind === "rank"
@@ -116,8 +120,7 @@ export function makeQuestions(lists: PeckList[], mode: PeckMode, count: number, 
     const fresh = cands.filter((c) => !c.keys.every((k) => used.has(k)));
     const unseen = fresh.filter((c) => !c.keys.every((k) => avoided.has(k)));
     const pick = unseen.length ? unseen : fresh;
-    if (pick.length === 0) { misses++; continue; }
-    misses = 0;
+    if (pick.length === 0) { empty.add(list); continue; }
     const [r, ns] = rand(s);
     s = ns;
     const c = pick[Math.floor(r * pick.length)]!;
