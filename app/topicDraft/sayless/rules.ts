@@ -1,0 +1,48 @@
+// Say Less rules: pure helpers shared by the engine and the server. No data imports.
+import { normName } from "../pecking/normName"
+import { normalizeClue } from "../party/clueText"
+
+export const WORD_MS = 60_000
+export const SPEAK_MS = 5_000
+export const JUDGE_MS = 6_000
+export const REVEAL_MS = 4_000
+export const GUESS_MAX = 60
+
+/** Comparison text: no case, accents, punctuation, spaces or leading "the". */
+export const normText = (text: string): string => normName(text)
+
+export type ClueCheck =
+  | { ok: true; clue: string }
+  | { ok: false; reason: "empty" | "spaces" | "contains" | "contained" | "plural"; secret: boolean }
+
+const fail = (reason: "empty" | "spaces" | "contains" | "contained" | "plural", secret = false): ClueCheck => ({ ok: false, reason, secret })
+
+/** True when `b` is the simple English plural of `a`. */
+const pluralOf = (a: string, b: string): boolean =>
+  b === `${a}s` || b === `${a}es` || (a.endsWith("y") && b === `${a.slice(0, -1)}ies`)
+
+export const checkClue = (word: string, text: unknown): ClueCheck => {
+  const clue = normalizeClue(text)
+  if (!clue) return fail("empty")
+  if (clue.includes(" ")) return fail("spaces")
+  const nc = normText(clue)
+  if (!nc) return fail("empty")
+  const nw = normText(word)
+  if (nw && nc.includes(nw)) return fail("contains", true)
+  const parts = word.split(/[\s-]+/).map(normText).filter((p) => p.length >= 3)
+  if (parts.some((p) => nc.includes(p))) return fail("contains")
+  if (nw.includes(nc) && nc.length >= 4) return fail("contained")
+  if (pluralOf(nc, nw) || pluralOf(nw, nc)) return fail("plural")
+  return { ok: true, clue }
+}
+
+export const matchesGuess = (word: { name: string; also?: string[] }, text: unknown): boolean => {
+  if (typeof text !== "string") return false
+  const g = normText(text.slice(0, GUESS_MAX))
+  if (!g) return false
+  return [word.name, ...(word.also ?? [])].some((n) => normText(n) === g)
+}
+
+export const clueScore = (par: number, clues: number): number => Math.max(1, par + 2 - clues)
+export const turnBudget = (pars: number[]): number => pars.reduce((a, b) => a + b, 0) + 5
+export const guardLoss = (par: number, clues: number): number => Math.max(0, clues - par)
