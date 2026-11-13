@@ -281,7 +281,10 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
     await setStatLink(code, token, { code: r.code, league });
     window.location.assign(statRoomHref(r.code, league));
   };
-  const tourOptions = [...PARTY_GAMES, ...ROOM_GAMES, ...FORMATS.filter((x) => x.id !== "loadout")].map((x) => x.id as FormatId).filter((f) => fitsTable(f, count));
+  // The lineup can be built before friends join: a game is plannable if it fits this table once it has enough players.
+  // Surprise me plans for the table as it is, or for 4 players while the host is still waiting on friends.
+  const canPlan = (f: FormatId) => fitsTable(f, Math.max(count, seatsNeeded(f)));
+  const tourOptions = [...PARTY_GAMES, ...ROOM_GAMES, ...FORMATS.filter((x) => x.id !== "loadout")].map((x) => x.id as FormatId).filter((f) => fitsTable(f, Math.max(count, 4)));
   const surprise = () => {
     // Only games this table can actually start: party games by their seat minimum, drafts and trivia up to six seats.
     const n = count;
@@ -342,11 +345,10 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
       {tourMode && (
         <section className="space-y-4" aria-label="Line up a tournament">
           <LineupPanel options={tourOptions} plan={plan} onPlan={(p) => { setPlan(p); setAdded(null); }} busy={tourBusy} error={tourError} />
-          <div><h2 className="text-2xl">Add games</h2><p className="text-sm text-muted-foreground">Tap a game to add it to the lineup. Add the same game twice to play it twice. Only games this table can start are shown.</p></div>
+          <div><h2 className="text-2xl">Add games</h2><p className="text-sm text-muted-foreground">Tap a game to add it to the lineup. Add the same game twice to play it twice. You can plan before friends join: a game marked &ldquo;needs&rdquo; starts once that many players are in.</p></div>
           <p className="sr-only" role="status">{added ?? ""}</p>
-          {tourOptions.length === 0 && <p className="text-sm text-muted-foreground">Games show up here once 2 players are in the room.</p>}
           {([["Party games", "up to 12 players", PARTY_GAMES], ["Word games", "2 to 12 players", ROOM_GAMES], ["Drafts and trivia", "up to 6 players", FORMATS.filter((f) => f.id !== "loadout")]] as const).map(([group, note, games]) => {
-            const fit = games.filter((f) => fitsTable(f.id, count));
+            const fit = games.filter((f) => canPlan(f.id as FormatId));
             if (!fit.length) return null;
             return (
               <div key={group} className="space-y-3">
@@ -355,7 +357,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
                   {fit.map((f) => {
                     const n = plan.filter((s) => s.format === f.id).length;
                     return (
-                      <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} badge={plan.length >= PLAN_MAX ? "Lineup full" : n ? `+ Add · ${n} in` : "+ Add"}
+                      <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} badge={plan.length >= PLAN_MAX ? "Lineup full" : `+ Add${n ? ` · ${n} in` : ""}${count < seatsNeeded(f.id) ? ` · needs ${seatsNeeded(f.id)}` : ""}`}
                         onClick={() => {
                           if (plan.length >= PLAN_MAX) return setAdded(`The lineup is full at ${PLAN_MAX} games`);
                           setPlan(addToPlan(plan, { format: f.id, pools: null }));
