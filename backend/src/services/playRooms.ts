@@ -21,6 +21,7 @@ import * as IS from "../shared/topicDraft/formats/insync";
 import * as PT from "../shared/topicDraft/formats/partytrivia";
 import * as MF from "../shared/topicDraft/formats/mafia";
 import * as VP from "../shared/topicDraft/formats/vowelplay";
+import * as PK from "../shared/topicDraft/formats/pecking";
 import "../shared/topicDraft/party/vowelWords"; // loads the word list the Vowel Play engine deals from
 import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelTopics";
 import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
@@ -29,9 +30,10 @@ import { insyncDeckOf } from "../shared/topicDraft/party/insyncDecks";
 import { mixTitle, poolIdsFor, poolTitleFor } from "../shared/topicDraft/party/pools";
 import { addGame, awardsFor, standings, type Awards, type Tournament } from "../shared/topicDraft/party/tournament";
 import { GROUP_CALL } from "../shared/topicDraft/party/drinks";
+import { teamsFor } from "../shared/topicDraft/party/teams";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty"];
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking"];
 /** Party games take a bigger group; drafts and trivia stay at six. */
 const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
@@ -175,6 +177,12 @@ function partyPools(format: FormatId, asked: unknown[]): string[] | null {
 /** A draft's topic, checked the way its setup checks it: a character catalog with enough to draft from. */
 const draftPoolOk = (pool: string) => CATALOG_META.some((m) => m.id === pool && m.kind === "character") && getCatalog(pool).length >= DRAFT_SEATS * 2;
 
+/** The allowed value closest to what was asked (ties go to the smaller one), or `d` when nothing usable was asked. */
+const nearest = (allowed: number[], asked: unknown, d: number) => {
+  const n = asked == null || asked === "" ? NaN : Number(asked);
+  return Number.isFinite(n) ? allowed.reduce((a, b) => (Math.abs(b - n) < Math.abs(a - n) ? b : a)) : d;
+};
+
 /** Party games: Imposter needs a character topic, vote games need a card deck, In-Sync a pair deck. Mafia has one fixed pool. */
 function sanitizeParty(format: FormatId, input: any): GameSetup | null {
   const o = input.opts ?? {};
@@ -190,7 +198,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     pools = ok;
   }
   const pool = pools[0]!;
-  const teamed = format === "partytrivia" || format === "vowelparty" || format === "vote" || format === "imposter"; // the others have no teams
+  const teamed = format === "partytrivia" || format === "vowelparty" || format === "vote" || format === "imposter" || format === "pecking"; // the others have no teams
   const teams = teamed ? num(o.teams, 0, 4, 0) : 0;
   const teamMap: Record<string, number> = {};
   if (teams > 0 && o.teamMap && typeof o.teamMap === "object") {
@@ -200,13 +208,13 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     }
   }
   const mixed = mixTitle(pools.map((p) => poolTitleFor(format, p)));
-  const title = format === "vowelplay" ? `Vowel Play: ${mixed}` : format === "vowelparty" ? `Vowel Party: ${mixed}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${mixed}` : format === "insync" ? `In-Sync: ${mixed}` : format === "partytrivia" ? `Party Trivia: ${mixed}` : mixed;
+  const title = format === "vowelplay" ? `Vowel Play: ${mixed}` : format === "vowelparty" ? `Vowel Party: ${mixed}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${mixed}` : format === "insync" ? `In-Sync: ${mixed}` : format === "partytrivia" ? `Party Trivia: ${mixed}` : format === "pecking" ? `Pecking Order: ${mixed}` : mixed;
   const vowel = format === "vowelplay" || format === "vowelparty";
   const wanted = o.teamSize == null || o.teamSize === "" ? 15 : Number(o.teamSize);
   const opts = {
     ...DEFAULT_OPTS,
     timerSeconds: null,
-    teamSize: format === "vowelplay" ? ([10, 15, 20].reduce((a, b) => (Math.abs(b - wanted) < Math.abs(a - wanted) ? b : a), 15)) : format === "vowelparty" ? 10 : format === "imposter" ? num(o.teamSize, 1, 3, 2) : format === "partytrivia" ? ([10, 15, 20].reduce((a, b) => (Math.abs(b - Number(o.teamSize)) < Math.abs(a - Number(o.teamSize)) ? b : a))) : num(o.teamSize, 3, 15, 8),
+    teamSize: format === "pecking" ? nearest([4, 6, 8, 10], o.teamSize, 6) : format === "vowelplay" ? ([10, 15, 20].reduce((a, b) => (Math.abs(b - wanted) < Math.abs(a - wanted) ? b : a), 15)) : format === "vowelparty" ? 10 : format === "imposter" ? num(o.teamSize, 1, 3, 2) : format === "partytrivia" ? ([10, 15, 20].reduce((a, b) => (Math.abs(b - Number(o.teamSize)) < Math.abs(a - Number(o.teamSize)) ? b : a))) : num(o.teamSize, 3, 15, 8),
     ending: (o.ending === "vote" ? "vote" : "guess") as "guess" | "vote",
     avoid: (Array.isArray(o.avoid) ? o.avoid : []).slice(0, 200).map((x: any) => clean(x, 40)),
     drinking: format === "vowelplay" ? false : o.drinking === true,
@@ -216,6 +224,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     vowelMode: (format === "vowelplay" && o.vowelMode === "duel" ? "duel" : "first") as "first" | "duel",
     // Buzz mode is in-person: only Party Trivia and Vowel Party have it, every other format plays on phones.
     answer: ((format === "partytrivia" || format === "vowelparty") && o.answer === "buzz" ? "buzz" : "phones") as "phones" | "buzz",
+    ...(format === "pecking" ? { peckMode: (o.peckMode === "rank" || o.peckMode === "name" ? o.peckMode : "mixed") as PK.PeckMode } : {}),
     vowelAnswer: (format === "vowelparty" ? (o.answer === "buzz" ? "voice" : "type") : o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
   return { id: "", format, pool, pools, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
@@ -487,6 +496,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   if (setup.format === "vote" || setup.format === "insync") setup.opts = { ...setup.opts, avoid: room.seen.slice(-200) }; // new cards on a rematch
   // A rematch prefers names this room has not played yet.
   if (setup.format === "vowelplay" || setup.format === "vowelparty") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("vp:")).map((x) => x.slice(3)) };
+  if (setup.format === "pecking") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("pk:")) };
   const state = initGame(setup, Date.now());
   if (isDone(setup, state)) return { error: "No questions are available for this topic right now" }; // nothing to play
   if (room.status === "done") resetToLobby(room);
@@ -514,6 +524,7 @@ function settleParty(room: Room, s: GameState, now: number): GameState {
     case "imposter": return IM.settle(s as IM.ImposterState, gone, now);
     case "vowelplay":
     case "vowelparty": return VP.settle(s as VP.VPState, gone, now);
+    case "pecking": return PK.settle(s as PK.PeckState, gone, now);
     default: return s;
   }
 }
@@ -542,7 +553,8 @@ export function leaveRoom(room: Room, token: unknown) {
 }
 
 /** A reveal is the point of these games, so one eager tap can't clear it for the whole table. */
-const HOST_MOVES_ON = new Set<FormatId>(["vote", "insync", "partytrivia"]);
+const HOST_MOVES_ON = new Set<FormatId>(["vote", "insync", "partytrivia", "pecking"]);
+const PECK_NAME_MAX = 60;
 const VOWEL_GUESS_MAX = 60;
 const VOWEL_GUESSES_PER_SECOND = 3;
 const ACTION_TYPES = new Set(["buzz", "spoke", "mark", "giveUp", "pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next", "nightAct", "dayVote", "skipTalk"]);
@@ -568,6 +580,12 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
       return { ok: false, error: "Slow down" };
     }
     log.set(seat.name, [...recent, now]);
+  }
+  // Pecking Order: the engine refuses bad answers too, but nothing malformed reaches it.
+  if (room.setup.format === "pecking") {
+    if (raw.type === "answer" && typeof raw.rank !== "number") return { ok: false, error: "Not allowed right now" };
+    if (raw.type === "pick" && typeof raw.name !== "string") return { ok: false, error: "Not allowed right now" };
+    if (raw.type === "pick" && raw.name.length > PECK_NAME_MAX) return { ok: false, error: "That name is too long" };
   }
   // The seat decides who is acting; clients can't act for someone else, set the clock or pick RNG seeds.
   const { seed: _seed, at: _at, now: _now, ...rest } = raw;
@@ -624,6 +642,10 @@ function finish(room: Room) {
       // Only names that were played: a game that ended early leaves the rest to deal next time.
       room.seen = [...room.seen, ...vs.history.map((h) => `vp:${h.name}`)].slice(-400);
     }
+    if (setup.format === "pecking") {
+      record.winner = teamsFor(setup, setup.players) ? null : triviaWinner(room.state!); // a team game has no single winner
+      room.seen = [...room.seen, ...PK.seenKeys(room.state as PK.PeckState)].slice(-400);
+    }
     recordTournamentGame(room, awardsFor(setup, room.state!, seated));
     if (setup.format === "partytrivia") room.seen = [...room.seen, ...(setup.quiz?.categories ?? []).map((c) => `cat:${c.name}`)].slice(-400);
     if (setup.format === "insync") room.seen = [...room.seen, ...(room.state as IS.InSyncState).pairs.map((q) => q.id)].slice(-400);
@@ -665,7 +687,7 @@ function autoplay(room: Room, name: string): Action | null {
     if (x.phase === "clue" && IM.turnPlayer(x) === name) return { type: "clue", by: name, text: "" };
     return null; // votes and guesses run out on their own clocks
   }
-  if (format === "vote" || format === "insync" || format === "partytrivia" || format === "mafia" || format === "vowelplay" || format === "vowelparty") return null; // every phase ends on its own clock
+  if (format === "vote" || format === "insync" || format === "partytrivia" || format === "mafia" || format === "vowelplay" || format === "vowelparty" || format === "pecking") return null; // every phase ends on its own clock
   if (format === "auction") {
     const a = s as A.AuctionState;
     if (a.nominate?.offer) return A.nominator(a) === name ? { type: "nominate", by: name, itemId: a.nominate.offer[0]! } : null;
@@ -741,6 +763,7 @@ function redact(room: Room, me: string | null): GameState | null {
   if (room.setup?.format === "insync") return IS.redactFor(s as IS.InSyncState, me); // opens up by itself once the game is done
   if (room.setup?.format === "partytrivia") return PT.redactFor(s as PT.PTState, me) as unknown as GameState; // opens up by itself once the game is done
   if (room.setup?.format === "vowelplay" || room.setup?.format === "vowelparty") return VP.redactFor(s as VP.VPState, me) as unknown as GameState; // opens up by itself once the game is done, to the words played
+  if (room.setup?.format === "pecking") return PK.redactFor(s as PK.PeckState, me) as unknown as GameState; // never the pool; answers open up once asked
   if (room.setup?.format === "mafia") return MF.redactFor(s as MF.MafiaState, me) as unknown as GameState; // same
   if (room.status === "done" || !room.setup) return s;
   if (room.setup.format === "position") {
@@ -769,6 +792,9 @@ function withoutQuiz(setup: GameSetup): GameSetup {
   return rest;
 }
 
+/** Formats whose setup never sends its seed or avoid list, even when done. */
+const keepsAvoid = (f: FormatId) => f === "vowelplay" || f === "vowelparty" || f === "pecking";
+
 export function snapshot(room: Room, token: unknown) {
   const seat = seatFor(room, token);
   const host = hostSeat(room);
@@ -783,8 +809,9 @@ export function snapshot(room: Room, token: unknown) {
     // Party trivia also carries its question bank (with answers) in setup.quiz, which stays on the server until the game is done.
     // Vowel Play never sends the seed, even when done: with the bundled word lists it rebuilds the names a game ended before playing.
     // Vowel Play's avoid list holds names this room already played, and a rematch deals from it once a topic runs short, so it never leaves the server.
-    setup: room.setup && PARTY_FORMATS.has(room.setup.format) && (room.status !== "done" || room.setup.format === "vowelplay" || room.setup.format === "vowelparty")
-      ? withoutQuiz({ ...room.setup, seed: 0, ...(room.setup.format === "vowelplay" || room.setup.format === "vowelparty" ? { opts: { ...room.setup.opts, avoid: [] } } : {}) })
+    // Pecking Order is the same: its avoid list holds items this room already asked, which a rematch falls back on.
+    setup: room.setup && PARTY_FORMATS.has(room.setup.format) && (room.status !== "done" || keepsAvoid(room.setup.format))
+      ? withoutQuiz({ ...room.setup, seed: 0, ...(keepsAvoid(room.setup.format) ? { opts: { ...room.setup.opts, avoid: [] } } : {}) })
       : room.setup,
     seats: room.seats.map((s) => ({ name: s.name, host: s === host, left: s.left, screen: !!s.screen })),
     screen: !!seat?.screen,
