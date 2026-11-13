@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Check, Copy, Crown, ExternalLink, LogOut, Play, RefreshCw, Shuffle, Trophy, Tv, Users } from "lucide-react";
+import { Check, Copy, Crown, ExternalLink, ListOrdered, LogOut, Play, RefreshCw, Shuffle, Trophy, Tv, Users } from "lucide-react";
 import { Button, Card, GameTile, PageHeader, PageShell, Panel, controlCls } from "../../components/ui";
 import { GameBody } from "../../play/GameScreen";
 import SetupScreen from "../../play/SetupScreen";
@@ -17,8 +17,9 @@ import { MIN_PLAYERS as MAFIA_MIN } from "../../topicDraft/formats/mafia";
 import { category } from "../../play/categories";
 import { vowelTopicTitle } from "../../topicDraft/party/vowelTopics";
 import { clearToken, endTournament, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setScreen, setStatLink, startRoom, startTournament, type RoomSnapshot } from "../../play/onlineApi";
-import { fitsTable, seatsNeeded } from "../../play/tournamentPlan";
-import { ChampionScreen, TournamentBoard, TournamentCard, TournamentSetup, type LiveTournament } from "../../play/views/TournamentSetup";
+import { addToPlan, fitsTable, PLAN_MAX, planEntries, planReady, seatsNeeded, slotsOf, type PlanSlot } from "../../play/tournamentPlan";
+import { startPools } from "../../play/topicOptions";
+import { ChampionScreen, LineupPanel, TournamentBoard, TournamentCard, type LiveTournament } from "../../play/views/TournamentSetup";
 import { useRemoteCtl, useRemoteRoom } from "../../play/useRemoteGame";
 import { loadPrefs, savePrefs } from "../../play/storage";
 import { useAuth } from "../../hooks/useAuth";
@@ -176,7 +177,11 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
   // (this also covers a player who just became host).
   const auto = isHost && planned && pickedFor !== tour!.index ? planned : null;
   const picking = choice ?? auto ?? (snap.setup ? null : "menu");
-  const [plan, setPlan] = useState<FormatId[]>([]);
+  // The host either picks one game, or lines up a tournament from the same game tiles.
+  const [mode, setMode] = useState<"one" | "tour">("one");
+  const tourMode = isHost && !running && mode === "tour";
+  const [plan, setPlan] = useState<PlanSlot[]>([]);
+  const [added, setAdded] = useState<string | null>(null);
   const [tourBusy, setTourBusy] = useState(false);
   const [tourError, setTourError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -198,13 +203,15 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
   const poolTitle = setup ? topicOf(setup) : null;
 
   const seatNames = players.map((s) => s.name); // sprites follow the playing seats, as in the games
-  const runTournament = async (games: FormatId[]) => {
+  const runTournament = async (games: PlanSlot[]) => {
     setTourError(null);
     setTourBusy(true);
-    const r = await startTournament(code, token, games);
+    const r = await startTournament(code, token, planEntries(games));
     setTourBusy(false);
     if (!r.ok) return setTourError(r.data.error ?? "Couldn't start the tournament");
     setPlan([]);
+    setMode("one");
+    setAdded(null);
     setPickedFor(null);
     setPicking(null);
     await refresh();
@@ -218,19 +225,25 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
 
   // The night is over: the champion first, until this player closes it.
   if (tour?.done && closedChampion !== tournamentKey(tour)) {
-    return <ChampionScreen t={tour} seats={seatNames} isHost={isHost} busy={tourBusy} error={tourError} onPlayAgain={() => void runTournament(tour.plan.filter((f) => fitsTable(f, count)))} onBack={() => onCloseChampion(tournamentKey(tour))} onLeave={onLeave} />;
+    return <ChampionScreen t={tour} seats={seatNames} isHost={isHost} busy={tourBusy} error={tourError} onPlayAgain={() => void runTournament(slotsOf(tour).filter((s) => fitsTable(s.format, count)))} onBack={() => onCloseChampion(tournamentKey(tour))} onLeave={onLeave} />;
   }
 
   // Leaving a setup screen: in a tournament it counts as this game's pick, so the lobby shows instead of reopening it.
   const donePicking = () => { if (running) setPickedFor(tour!.index); setPicking(null); void refresh(); };
   const cancelPicking = () => { if (running && picking === planned) { setPickedFor(tour!.index); setPicking(null); } else setPicking("menu"); };
 
+  // The planned game's topics: what the host already saved for it in this visit, else the topics picked in the lineup.
+  const ownSetup = running && pickedFor === tour!.index && setup?.format === planned;
+  const slotPools = !running || picking !== planned ? null : ownSetup ? (setup!.pools?.length ? setup!.pools : [setup!.pool]) : tour!.topics?.[tour!.index] ?? null;
+
   // Picking a game: the full setup screen for that format, saving to the room.
   if (isHost && (picking === "imposter" || picking === "vote" || picking === "insync" || picking === "partytrivia" || picking === "mafia" || picking === "vowelplay" || picking === "vowelparty")) {
-    return <PartySetup format={picking} seats={players.map((s) => s.name)} room={{ code, token, pool: setup?.pool, pools: setup?.pools, onDone: donePicking, onCancel: cancelPicking }} />;
+    return <PartySetup format={picking} seats={players.map((s) => s.name)} room={{ code, token, pool: setup?.pool, pools: setup?.pools, slotPools, inTournament: running, onDone: donePicking, onCancel: cancelPicking }} />;
   }
   if (isHost && picking && picking !== "menu") {
-    return <SetupScreen format={picking} room={{ code, token, pool: setup?.pool, onDone: donePicking, onCancel: cancelPicking }} />;
+    // Drafts play from one topic: the slot's first, or in a tournament the format's own default rather than the last game's.
+    const pool = running ? startPools(picking, slotPools, [], true)[0] : setup?.pool;
+    return <SetupScreen format={picking} room={{ code, token, pool, onDone: donePicking, onCancel: cancelPicking }} />;
   }
 
   const link = typeof window !== "undefined" ? `${window.location.origin}/room/${code}` : `/room/${code}`;
@@ -268,6 +281,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
     await setStatLink(code, token, { code: r.code, league });
     window.location.assign(statRoomHref(r.code, league));
   };
+  const tourOptions = [...PARTY_GAMES, ...ROOM_GAMES, ...FORMATS.filter((x) => x.id !== "loadout")].map((x) => x.id as FormatId).filter((f) => fitsTable(f, count));
   const surprise = () => {
     // Only games this table can actually start: party games by their seat minimum, drafts and trivia up to six seats.
     const n = count;
@@ -314,7 +328,50 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
 
       {running && <TournamentCard t={tour} seats={seatNames} isHost={isHost} ready={setup?.format === planned} error={tourError} onSetUp={() => setPicking(planned!)} onEnd={stopTournament} />}
       {isHost && !running && (
-        <TournamentSetup options={[...PARTY_GAMES, ...ROOM_GAMES, ...FORMATS.filter((x) => x.id !== "loadout")].map((x) => x.id as FormatId).filter((f) => fitsTable(f, count))} plan={plan} onPlan={setPlan} onStart={() => void runTournament(plan)} busy={tourBusy} error={tourError} />
+        <div className="grid grid-cols-2 gap-2" role="group" aria-label="What to play">
+          {([["one", "One game", "Pick a game and play it", Play], ["tour", "Tournament", "Line up 2 to 8 games, one leaderboard", ListOrdered]] as const).map(([id, label, hint, Icon]) => (
+            <button key={id} type="button" aria-pressed={mode === id} onClick={() => { setMode(id); if (id === "one" && !setup) setPicking("menu"); }}
+              className={`flex min-h-11 flex-col items-start gap-0.5 rounded-xl border px-3 py-2 text-left text-sm transition ${mode === id ? "border-accent bg-accent/15" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+              <span className="flex items-center gap-1.5 text-base font-semibold"><Icon className="h-4 w-4" aria-hidden />{label}{id === "tour" && plan.length > 0 && <span className="rounded-md bg-white/10 px-1.5 text-xs">{plan.length}</span>}</span>
+              <span className="text-xs text-muted-foreground">{hint}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {tourMode && (
+        <section className="space-y-4" aria-label="Line up a tournament">
+          <LineupPanel options={tourOptions} plan={plan} onPlan={(p) => { setPlan(p); setAdded(null); }} busy={tourBusy} error={tourError} />
+          <div><h2 className="text-2xl">Add games</h2><p className="text-sm text-muted-foreground">Tap a game to add it to the lineup. Add the same game twice to play it twice. Only games this table can start are shown.</p></div>
+          <p className="sr-only" role="status">{added ?? ""}</p>
+          {tourOptions.length === 0 && <p className="text-sm text-muted-foreground">Games show up here once 2 players are in the room.</p>}
+          {([["Party games", "up to 12 players", PARTY_GAMES], ["Word games", "2 to 12 players", ROOM_GAMES], ["Drafts and trivia", "up to 6 players", FORMATS.filter((f) => f.id !== "loadout")]] as const).map(([group, note, games]) => {
+            const fit = games.filter((f) => fitsTable(f.id, count));
+            if (!fit.length) return null;
+            return (
+              <div key={group} className="space-y-3">
+                <h3 className="text-lg">{group} <span className="text-sm font-normal text-muted-foreground">· {note}</span></h3>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {fit.map((f) => {
+                    const n = plan.filter((s) => s.format === f.id).length;
+                    return (
+                      <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} badge={plan.length >= PLAN_MAX ? "Lineup full" : n ? `+ Add · ${n} in` : "+ Add"}
+                        onClick={() => {
+                          if (plan.length >= PLAN_MAX) return setAdded(`The lineup is full at ${PLAN_MAX} games`);
+                          setPlan(addToPlan(plan, { format: f.id, pools: null }));
+                          setAdded(`${f.title} added as game ${plan.length + 1}`);
+                        }} />
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+          <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 rounded-xl border border-white/10 bg-background/90 py-2 pl-4 pr-16 md:bottom-3 md:pr-4 backdrop-blur-xl">
+            <span className="flex-1 text-sm" aria-hidden>{added ?? `${plan.length} of ${PLAN_MAX} games in the lineup`}</span>
+            <Button variant="accent" disabled={!planReady(plan) || tourBusy} onClick={() => void runTournament(plan)}>{tourBusy ? "Starting…" : plan.length < 2 ? "Add 2+" : "Start"}</Button>
+          </div>
+        </section>
       )}
 
       {snap.statLink && (
@@ -325,7 +382,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
       )}
 
       {/* Guests only see the next game once it is the planned one, not the last game while the host sets up. */}
-      {setup && meta && picking !== "menu" && (isHost || !planned || setup.format === planned) && (
+      {setup && meta && picking !== "menu" && !tourMode && (isHost || !planned || setup.format === planned) && (
         <Panel title="Next game">
           <div className="flex flex-wrap items-center gap-4">
             <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${meta.gradient}`}><meta.icon className="h-7 w-7 text-white" aria-hidden /></span>
@@ -340,7 +397,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
         </Panel>
       )}
 
-      {isHost && picking === "menu" && (
+      {isHost && picking === "menu" && !tourMode && (
         <section className="space-y-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div><h2 className="text-2xl">Pick a game</h2><p className="text-sm text-muted-foreground">You choose the topic and rules next. Everyone stays in the room between games.</p></div>
@@ -385,7 +442,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
 
       {error && <p role="alert" className="text-sm text-accent">{error}</p>}
       <div className="flex gap-3">
-        {isHost ? (
+        {tourMode ? <span className="flex-1" /> : isHost ? (
           <Button variant="accent" className="flex-1 text-lg" disabled={!setup || count < 2 || duelWrong || shortForMafia || shortForGame || picking === "menu"} onClick={start}>
             <Play className="h-5 w-5" aria-hidden /> {!setup ? "Pick a game first" : duelWrong ? DUEL_ONLY : shortForMafia ? `Need ${MAFIA_MIN} players` : shortForGame ? `Need ${need} players` : count < 2 ? "Waiting for players…" : "Start game"}
           </Button>

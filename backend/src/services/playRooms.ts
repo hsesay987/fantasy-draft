@@ -164,18 +164,31 @@ export function sanitizeSetup(input: any): GameSetup | null {
   return { id: "", format, pool, players: [], aiPlayers: [], mission, mystery: !!input.mystery, loadout, roles: format === "position" ? roles : [], opts, seed: 0 };
 }
 
+/** A party game's topics, checked the way its setup checks them: de-duplicated, each a known id, no more than the format has. `null` when not valid. */
+function partyPools(format: FormatId, asked: unknown[]): string[] | null {
+  const valid = poolIdsFor(format);
+  if (!asked.length || asked.length > Math.max(1, valid.length)) return null;
+  const pools = [...new Set(asked.map((p) => clean(p, 30)))];
+  return pools.every((p) => valid.includes(p)) ? pools : null;
+}
+
+/** A draft's topic, checked the way its setup checks it: a character catalog with enough to draft from. */
+const draftPoolOk = (pool: string) => CATALOG_META.some((m) => m.id === pool && m.kind === "character") && getCatalog(pool).length >= DRAFT_SEATS * 2;
+
 /** Party games: Imposter needs a character topic, vote games need a card deck, In-Sync a pair deck. Mafia has one fixed pool. */
 function sanitizeParty(format: FormatId, input: any): GameSetup | null {
   const o = input.opts ?? {};
-  const valid = poolIdsFor(format);
   // One id is checked the way it always was; several are each checked that way, de-duplicated, and capped by what the format has.
   const asked: unknown[] = format !== "mafia" && Array.isArray(input.pools) && input.pools.length ? input.pools : [input.pool];
-  if (asked.length > Math.max(1, valid.length)) return null;
-  const pools = [...new Set(asked.map((p) => clean(p, 30)))];
+  let pools: string[];
   if (format === "mafia") {
     if (clean(input.pool, 30) !== "mafia") return null;
-    pools.splice(0, pools.length, "mafia");
-  } else if (pools.some((p) => !valid.includes(p))) return null;
+    pools = ["mafia"];
+  } else {
+    const ok = partyPools(format, asked);
+    if (!ok) return null;
+    pools = ok;
+  }
   const pool = pools[0]!;
   const teamed = format === "partytrivia" || format === "vowelparty" || format === "vote" || format === "imposter"; // the others have no teams
   const teams = teamed ? num(o.teams, 0, 4, 0) : 0;
@@ -329,13 +342,42 @@ export function setGame(room: Room, token: unknown, input: unknown, quiz?: QuizD
   return { ok: true };
 }
 
+/**
+ * One planned game: a format id (older clients), or `{ format, pools? }` with the topics picked for it.
+ * Topics are checked as that game's setup checks them. Mafia and games without topics never take any.
+ */
+function planSlot(entry: unknown): { format: FormatId; pools: string[] | null } | { error: string } {
+  const e = typeof entry === "string" ? { format: entry } : entry;
+  if (!e || typeof e !== "object") return { error: "isn't a game" };
+  const { format, pools } = e as { format?: unknown; pools?: unknown };
+  if (typeof format !== "string" || !FORMAT_IDS.includes(format as FormatId)) return { error: "isn't a game we know" };
+  const f = format as FormatId;
+  if (pools == null) return { format: f, pools: null };
+  if (!Array.isArray(pools)) return { error: "has topics that aren't a list" };
+  if (!pools.length) return { error: "needs at least one topic, or none to pick it when it starts" };
+  if (f === "mafia" || f === "loadout") return { error: "has no topics to pick" };
+  if (PARTY_FORMATS.has(f)) {
+    const ok = partyPools(f, pools);
+    return ok ? { format: f, pools: ok } : { error: "has a topic that game doesn't have" };
+  }
+  const ids = [...new Set(pools.map((p) => clean(p, 30)))];
+  if (ids.length > 1) return { error: "is a draft, which plays from one topic" };
+  return ids.every(draftPoolOk) ? { format: f, pools: ids } : { error: "has a topic that game doesn't have" };
+}
+
 /** The host starts a tournament: 2 to 8 games, lobby only. Replaces a finished or earlier one. */
 export function startTournament(room: Room, token: unknown, plan: unknown): { ok: true } | { error: string } {
   refreshScreen(room);
   if (!isHost(room, token)) return { error: "Only the host can do that" };
   if (room.status !== "lobby") return { error: "Start a tournament from the lobby" };
-  if (!Array.isArray(plan) || plan.length < 2 || plan.length > 8 || !plan.every((f) => typeof f === "string" && FORMAT_IDS.includes(f as FormatId))) return { error: "Pick 2 to 8 games" };
-  room.tournament = { plan: plan as FormatId[], index: 0, games: [], totals: {}, done: false };
+  if (!Array.isArray(plan) || plan.length < 2 || plan.length > 8) return { error: "Pick 2 to 8 games" };
+  const slots: { format: FormatId; pools: string[] | null }[] = [];
+  for (const [i, entry] of plan.entries()) {
+    const slot = planSlot(entry);
+    if ("error" in slot) return { error: `Game ${i + 1} ${slot.error}` };
+    slots.push(slot);
+  }
+  room.tournament = { plan: slots.map((s) => s.format), topics: slots.map((s) => s.pools), index: 0, games: [], totals: {}, done: false };
   room.tournamentSeq = (room.tournamentSeq ?? 0) + 1;
   room.tournamentEnded = false;
   bump(room);

@@ -118,6 +118,73 @@ describe("tournament start and end", () => {
   });
 });
 
+describe("a topic per planned game", () => {
+  it("an old plan of format names still works, every slot's topic unset", () => {
+    const { r, tokens } = lobby();
+    expect(startTournament(r, tokens.Ann!, ["insync", "vote"])).toEqual({ ok: true });
+    expect(r.tournament).toMatchObject({ plan: ["insync", "vote"], topics: [null, null] });
+  });
+
+  it("stores each slot's topics, de-duplicated, mixing old and new entries", () => {
+    const { r, tokens } = lobby("insync", ["Ann", "Bob", "Cy"]);
+    const plan = [
+      { format: "imposter", pools: ["villains"] },
+      { format: "vowelparty", pools: ["superheroes", "villains", "superheroes"] },
+      { format: "vote" },
+      "insync",
+      { format: "snake", pools: ["superheroes"] },
+      { format: "vote", pools: null },
+    ];
+    expect(startTournament(r, tokens.Ann!, plan)).toEqual({ ok: true });
+    expect(r.tournament.plan).toEqual(["imposter", "vowelparty", "vote", "insync", "snake", "vote"]);
+    expect(r.tournament.topics).toEqual([["villains"], ["superheroes", "villains"], null, null, ["superheroes"], null]);
+  });
+
+  it("refuses an unknown topic, an empty list, topics on Mafia, and bad entries, with a clear error", () => {
+    const { r, tokens } = lobby();
+    const bad: unknown[] = [
+      [{ format: "imposter", pools: ["nope"] }, "vote"],
+      [{ format: "vowelparty", pools: [] }, "vote"],
+      [{ format: "mafia", pools: ["mafia"] }, "vote"],
+      [{ format: "vote", pools: "classics" }, "vote"],
+      [{ format: "nope" }, "vote"],
+      [{ pools: ["villains"] }, "vote"],
+      [null, "vote"],
+      [{ format: "snake", pools: ["nope"] }, "vote"],
+      [{ format: "snake", pools: ["superheroes", "villains"] }, "vote"],
+    ];
+    for (const plan of bad) {
+      const out = startTournament(r, tokens.Ann!, plan) as { error: string };
+      expect(out.error).toEqual(expect.any(String));
+      expect(out.error.length).toBeGreaterThan(5);
+    }
+    expect((startTournament(r, tokens.Ann!, [{ format: "imposter", pools: ["nope"] }, "vote"]) as { error: string }).error).toMatch(/game 1/i);
+    expect(r.tournament).toBeUndefined();
+  });
+
+  it("a draft slot takes at most one topic", () => {
+    const { r, tokens } = lobby();
+    expect((startTournament(r, tokens.Ann!, ["vote", { format: "snake", pools: ["superheroes", "villains"] }]) as { error: string }).error).toMatch(/Game 2 .*one topic/);
+    expect(r.tournament).toBeUndefined();
+    expect(startTournament(r, tokens.Ann!, ["vote", { format: "snake", pools: ["villains", "villains"] }])).toEqual({ ok: true }); // a repeat is one topic
+    expect(r.tournament.topics).toEqual([null, ["villains"]]);
+  });
+
+  it("Mafia and games without topics take null", () => {
+    const { r, tokens } = lobby();
+    expect(startTournament(r, tokens.Ann!, [{ format: "mafia" }, { format: "insync", pools: ["music"] }])).toEqual({ ok: true });
+    expect(r.tournament.topics).toEqual([null, ["music"]]);
+  });
+
+  it("the snapshot carries the topics for every seat, even with no token, and they survive finished games", () => {
+    const { r, tokens } = lobby();
+    startTournament(r, tokens.Ann!, [{ format: "insync", pools: ["music"] }, { format: "vote" }]);
+    for (const tok of [null, tokens.Ann!, tokens.Bob!, "bad"]) expect(snapshot(r, tok).tournament!.topics).toEqual([["music"], null]);
+    playSync(r, tokens);
+    expect(snapshot(r, null).tournament).toMatchObject({ index: 1, topics: [["music"], null] });
+  });
+});
+
 describe("draft verdicts", () => {
   function draft() {
     const { r, tokens } = lobby("snake", ["Ann", "Bob"]);
