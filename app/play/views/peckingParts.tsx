@@ -9,6 +9,7 @@ import { normName } from "../../topicDraft/pecking/normName";
 import { has } from "../../topicDraft/party/own";
 import { Sprite } from "../../components/pixel/Sprite";
 import { playerSprite } from "./partyBits";
+import { spriteLanes } from "./peckBoard";
 
 export type PeckQ = PeckView["questions"][number];
 
@@ -104,7 +105,13 @@ export function RankPicker({ size, value, onChange, disabled }: { size: number; 
           <span>#</span>
           <input type="number" inputMode="numeric" min={1} max={size} step={1} disabled={disabled} aria-label={`Rank, 1 to ${size}`}
             value={draft ?? String(value)}
-            onChange={(e) => { setDraft(e.target.value); const n = Number(e.target.value); if (e.target.value !== "" && Number.isFinite(n)) set(n); }}
+            onChange={(e) => {
+              const t = e.target.value, n = Number(t);
+              if (t === "" || !Number.isFinite(n)) { setDraft(t); return; }
+              const c = clampRank(n, size);
+              setDraft(c === n ? t : String(c)); // out of range: the field shows the rank Lock will send
+              set(n);
+            }}
             onBlur={() => setDraft(null)} />
         </label>
         <button type="button" className="pk-step" disabled={disabled || value >= size} onClick={() => set(value + 1)} aria-label="One lower down the list">+</button>
@@ -202,6 +209,8 @@ export function TvLadder({ q, players, answers, scores, gone = [] }: { q: PeckQ;
   const span = scores && q.answer ? q.answer.span : null;
   const rankOf = (sc?: PeckScore) => (sc?.guess != null ? sc.guess : sc?.span ? sc.span[0] : null);
   const off = scores ? players.filter((p) => rankOf(scores[p]) == null) : [];
+  // Guesses that land close together sit side by side (in a few lanes that fit the screen) instead of on top of each other.
+  const lanes = scores ? spriteLanes(players.map((p) => { const r = rankOf(scores[p]); return r == null ? null : pos(r); }), NEAR) : [];
   return (
     <section className="pk-tv" aria-label="The ladder">
       <div className="pk-pole" aria-hidden>
@@ -210,10 +219,8 @@ export function TvLadder({ q, players, answers, scores, gone = [] }: { q: PeckQ;
         {scores && players.map((p, seat) => {
           const r = rankOf(scores[p]);
           if (r == null) return null;
-          // Guesses that land close together sit side by side instead of on top of each other.
-          const near = players.slice(0, seat).filter((o) => { const x = rankOf(scores[o]); return x != null && Math.abs(pos(x) - pos(r)) < NEAR; }).length;
           return (
-            <span key={p} className="peep" style={{ top: `${pos(r)}%`, marginLeft: near * 110, ["--d" as string]: `${seat * 60}ms` }}>
+            <span key={p} className="peep" style={{ top: `${pos(r)}%`, ["--lane" as string]: lanes[seat] ?? 0, ["--d" as string]: `${seat * 60}ms` }}>
               <Sprite sprite={playerSprite(seat)} size={22} /><i>{p}</i>
             </span>
           );

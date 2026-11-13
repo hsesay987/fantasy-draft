@@ -207,7 +207,8 @@ function reveal(s: PeckState, now: number): PeckState {
   for (const p of s.players) {
     const sc = has(scored, p) ? scored[p]! : null;
     if (sc) {
-      const { error: _error, ...shown } = sc;
+      const shown: PeckScore & { error?: number } = { ...sc };
+      delete shown.error; // the distance is for picking the closest, not for showing
       scores[p] = shown;
       points[p] = (own(points, p) ?? 0) + sc.points + (sc.bonus ? CLOSEST_BONUS : 0);
       if (sc.points === 0) calls.push({ to: p, sips: 1, reason: "Way off" });

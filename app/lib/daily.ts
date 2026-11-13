@@ -87,5 +87,5 @@ export function untilNext(now = Date.now()): string {
 }
 
 export function shareText(g: DailyGame, p: Played): string {
-  return [`TopPic ${DAILY_TITLES[g]} #${p.number}`, `${p.checkpoint} · ${Math.round(p.score * 100)}%`, p.grid, "toppicgames.com/trivia"].join("\n");
+  return [`TopPic ${DAILY_TITLES[g]} #${p.number}`, `${p.checkpoint} · ${g === "pecking" ? `${Math.round(p.score * 500)}/500` : `${Math.round(p.score * 100)}%`}`, p.grid, "toppicgames.com/trivia"].join("\n");
 }

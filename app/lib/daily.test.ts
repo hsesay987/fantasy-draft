@@ -28,4 +28,7 @@ describe("daily history", () => {
   it("shares the game, number, checkpoint, score and grid", () => {
     expect(shareText("summit", { ...p("2026-11-02", 0.62), number: 2 })).toBe("TopPic Summit #2\nEagle Rock · 62%\n🟩\ntoppicgames.com/trivia");
   });
+  it("shares Pecking Order as points out of 500, as its stats show", () => {
+    expect(shareText("pecking", { ...p("2026-11-02", 0.84), checkpoint: "Top perch" })).toBe("TopPic Pecking Order #1\nTop perch · 420/500\n🟩\ntoppicgames.com/trivia");
+  });
 });

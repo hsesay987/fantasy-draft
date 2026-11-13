@@ -12,10 +12,13 @@ import type { GameSetup } from "../types";
 import { canMoveOn, DrinkCard, LeaveGame, PartyClock, playerSprite, WaitingForHost, WaterLine } from "./partyBits";
 import { NamePicker, PeckPrompt, PeckReveal, RankPicker, spanText, TvLadder, guessText } from "./peckingParts";
 import { TeamBoard } from "./TeamBoard";
+import { peckWinner } from "./peckBoard";
+import { normName } from "../../topicDraft/pecking/normName";
 
 /** If the server hasn't confirmed a lock by now it was lost, so the controls come back. */
 const TAP_RETRY_MS = 3000;
 const TAKEN = "Taken, pick another";
+const NOT_SENT = "Not sent, try again";
 
 /**
  * Pecking Order on a phone: the question, then a ladder to place a guess on (or a name to pick), locked with one tap;
@@ -37,8 +40,9 @@ export function PeckingView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const value = rank?.round === s.round ? rank.v : Math.ceil(q.size / 2);
   const [typed, setTyped] = useState<{ round: number; t: string } | null>(null);
   const text = typed?.round === s.round ? typed.t : "";
-  const [refused, setRefused] = useState<{ round: number; text: string } | null>(null);
-  const error = refused?.round === s.round && refused.text === text ? TAKEN : null;
+  const [refused, setRefused] = useState<{ round: number; text: string; name: string } | null>(null);
+  // Refused because someone claimed the name first (it shows in the taken list), or lost on the way: say which.
+  const error = refused?.round === s.round && refused.text === text ? (s.taken.some((t) => normName(t) === normName(refused.name)) ? TAKEN : NOT_SENT) : null;
 
   // Locked but not yet confirmed: shown straight away, because party moves wait for the server.
   const [tap, setTap] = useState<number | null>(null);
@@ -90,8 +94,8 @@ export function PeckingView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
     setTap(s.round);
     try {
       const r = await ctl.dispatch({ type: "pick", by: me, name });
-      // Someone claimed it first: this seat may pick again.
-      if (r && !r.ok) { setTap(null); setRefused({ round: s.round, text }); play("wrong"); }
+      // Refused (most often someone claimed it first): this seat may pick again.
+      if (r && !r.ok) { setTap(null); setRefused({ round: s.round, text, name }); play("wrong"); }
     } finally { sending.current = false; }
   };
 
@@ -151,19 +155,19 @@ export function PeckingResults({ setup, ctl, onAgain, onRematch }: { setup: Game
   const s = ctl.state as unknown as PK.PeckView;
   const me = ctl.me;
   const rows = s.players.map((p, seat) => ({ p, seat, score: s.points[p] ?? 0 })).sort((a, b) => b.score - a.score || a.seat - b.seat);
-  const top = rows[0]?.score ?? 0;
-  const won = top > 0 ? rows.filter((r) => r.score === top) : [];
   const teams = teamsFor(setup, s.players);
+  // Teamed games are won by a team (as the server records them), so the headline comes from team totals then.
+  const result = peckWinner(s.players, s.points, teams);
   const place = (i: number) => rows.findIndex((r) => r.score === rows[i]!.score) + 1;
-  const headline = won.length === 0 ? "Nobody scored" : won.length === 1 ? `${won[0]!.p} wins!` : "It's a tie!";
+  const headline = result.kind === "none" ? "Nobody scored" : result.kind === "win" ? `${result.label} wins!` : "It's a tie!";
   return (
     <PixelShell world="ladder">
       <div className="party-page pk-page">
-        <section className={`px-box pk-card pk-winner ${won.length === 1 ? "px-confetti" : ""}`}>
+        <section className={`px-box pk-card pk-winner ${result.kind === "win" ? "px-confetti" : ""}`}>
           <p className="pk-list">Pecking Order</p>
           <h2>{headline}</h2>
-          {won.length > 1 && <p>{won.map((r) => r.p).join(" and ")}</p>}
-          {won.length === 1 && <p>{top.toLocaleString("en-US")} points</p>}
+          {result.kind === "tie" && <p>{result.labels.join(" and ")}</p>}
+          {result.kind === "win" && <p>{result.score.toLocaleString("en-US")} points</p>}
         </section>
         <section className="px-box pk-card" aria-label="Final scores">
           <h3 className="pk-sub">Final scores</h3>

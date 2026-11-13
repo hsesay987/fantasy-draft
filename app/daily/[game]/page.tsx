@@ -6,7 +6,7 @@ import { PixelBox, PixelShell } from "../../components/pixel/PixelUI";
 import { checkpointAt, WORLDS } from "../../components/pixel/worlds";
 import { Play } from "../../costimation/CostimationGame";
 import { track } from "../../lib/analytics";
-import { DAILY_TITLES, DAILY_WORLD, fetchPuzzle, fetchStats, hasWorld, isDailyGame, peckingBand, peckingSquare, playedOn, remember, sendResult, type DailyGame, type Played, type Puzzle } from "../../lib/daily";
+import { DAILY_TITLES, DAILY_WORLD, fetchPuzzle, fetchStats, hasWorld, isDailyGame, peckingBand, peckingSquare, playedOn, remember, sendResult, type Played, type Puzzle } from "../../lib/daily";
 import { PeckingSolo, SOLO_PLAYER } from "../../pecking/PeckingSolo";
 import { DAILY_COUNT, type PeckState } from "../../topicDraft/formats/pecking";
 import { CATEGORIES } from "../../play/categories";

@@ -1290,13 +1290,14 @@ button.tn-slot:hover { background: var(--px-rose); }
 .pk-mine { margin: 0; font-size: 24px; overflow-wrap: anywhere; } .pk-mine.good { color: var(--px-mint); } .pk-mine.bad { color: var(--px-rose); }
 
 /* The screen's ladder: a long pole, 1 at the top. Sprites jump to their guesses, then the true span lights up. */
-.pk-tv { margin: 4px; padding: 14px 12px; display: grid; gap: 12px; background: var(--px-panel); box-shadow: 0 0 0 4px var(--px-ink); min-width: 0; }
+.pk-tv { margin: 4px; padding: 14px 12px; display: grid; gap: 12px; background: var(--px-panel); box-shadow: 0 0 0 4px var(--px-ink); min-width: 0;
+  overflow: hidden; container-type: inline-size; }
 .pk-pole { position: relative; height: clamp(320px, 56vh, 760px); margin: 10px 0 10px 64px; border-left: 6px solid #b7803e; border-right: 6px solid #b7803e; width: 60px;
   background: repeating-linear-gradient(180deg, transparent 0 14px, #b7803e 14px 18px); }
 .pk-pole .mark { position: absolute; right: calc(100% + 12px); transform: translateY(-50%); font: 400 10px/1 var(--px-head); color: var(--px-dim); white-space: nowrap; }
 .pk-pole .truth { position: absolute; left: -10px; right: -10px; transform: translateY(-5px); background: var(--px-gold); box-shadow: 0 0 0 3px var(--px-ink), 0 0 18px 4px #ffd27a99; opacity: 0; animation: pk-truth .3s steps(3) 1.1s forwards; }
 @keyframes pk-truth { to { opacity: 1; } }
-.pk-pole .peep { position: absolute; left: calc(100% + 10px); display: flex; align-items: center; gap: 6px; transform: translateY(-50%); white-space: nowrap; animation: pk-jump .5s steps(5) var(--d, 0ms) both; }
+.pk-pole .peep { position: absolute; left: calc(100% + 10px); margin-left: calc(var(--lane, 0) * min(110px, (100cqw - 180px) / 3)); display: flex; align-items: center; gap: 6px; transform: translateY(-50%); white-space: nowrap; animation: pk-jump .5s steps(5) var(--d, 0ms) both; }
 .pk-pole .peep i { font-style: normal; font-size: 18px; color: var(--px-fg); text-shadow: 1px 1px 0 #000; }
 @keyframes pk-jump { 0% { opacity: 0; transform: translate(0, -50%) translateY(-40px); } 60% { opacity: 1; transform: translate(0, -50%) translateY(6px); } 100% { opacity: 1; transform: translate(0, -50%); } }
 .pk-locks { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
