@@ -4,6 +4,9 @@ import { matchName, normName, peckingList, PECKING_LIST_IDS, PECKING_LISTS, span
 
 describe("pecking lists", () => {
   it("PECKING_META matches the lists", () => { expect(PECKING_META.map((m) => m.id)).toEqual(PECKING_LIST_IDS); });
+  it("PECKING_META carries each list's title, stat, unit, format, size, source and date", () => {
+    expect(PECKING_META).toEqual(PECKING_LISTS.map((l) => ({ id: l.id, title: l.title, stat: l.stat, ...(l.unit ? { unit: l.unit } : {}), ...(l.fmt ? { fmt: l.fmt } : {}), size: l.items.length, source: l.source, asOf: l.asOf })));
+  });
   it("ships at least 4 lists, each complete and in rank order", () => {
     expect(PECKING_LISTS.length).toBeGreaterThanOrEqual(4);
     for (const l of PECKING_LISTS) {

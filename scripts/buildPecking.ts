@@ -304,9 +304,9 @@ const ORDER = Object.keys(SPECS);
 
 function writeMeta() {
   const lists = ORDER.filter((id) => fs.existsSync(path.join(OUT, `${id}.json`))).map((id) => JSON.parse(fs.readFileSync(path.join(OUT, `${id}.json`), "utf8")) as PeckList);
-  const meta = lists.map((l) => ({ id: l.id, title: l.title, stat: l.stat, size: l.items.length, source: l.source, asOf: l.asOf }));
+  const meta = lists.map((l) => ({ id: l.id, title: l.title, stat: l.stat, ...(l.unit ? { unit: l.unit } : {}), ...(l.fmt ? { fmt: l.fmt } : {}), size: l.items.length, source: l.source, asOf: l.asOf }));
   const body = `// Written by scripts/buildPecking.ts. List metadata only: no items, so room screens can import it.\n` +
-    `export type PeckMeta = { id: string; title: string; stat: string; size: number; source: string; asOf: string };\n\n` +
+    `export type PeckMeta = { id: string; title: string; stat: string; unit?: string; fmt?: "big" | "int" | "dec"; size: number; source: string; asOf: string };\n\n` +
     `export const PECKING_META: PeckMeta[] = [\n${meta.map((m) => `  ${JSON.stringify(m)},`).join("\n")}\n];\n`;
   fs.writeFileSync(path.join(ROOT, "meta.ts"), body);
 }
