@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { ArrowDown, ArrowUp, Check, Copy, Crosshair, Shuffle } from "lucide-react";
@@ -12,6 +12,31 @@ import { PINPOINT_DATA } from "../data";
 import type { Item } from "../../topicDraft/types";
 import { PINPOINT_TOPICS, loadPinpoint, pinpointPicks, savePinpoint } from "../topics";
 import { track } from "../../lib/analytics";
+import { PinpointRadar } from "../PinpointRadar";
+import "../pinpoint.css";
+
+/** Counts up to `to` once when `run` is set, so a fresh guess's closeness ticks up with its bar. */
+function useCountUp(to: number, run: boolean) {
+  const [n, setN] = useState<number | null>(null);
+  const raf = useRef(0);
+  useEffect(() => {
+    if (!run || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const start = performance.now();
+    const step = (t: number) => {
+      const k = Math.min(1, (t - start) / 900);
+      setN(Math.round(to * (1 - (1 - k) ** 3)));
+      if (k < 1) raf.current = requestAnimationFrame(step);
+    };
+    raf.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf.current);
+  }, [to, run]);
+  return run && n !== null ? n : to;
+}
+
+function Percent({ value, fresh }: { value: number; fresh: boolean }) {
+  const n = useCountUp(value, fresh);
+  return <span className="shrink-0 text-xl font-semibold tabular-nums" aria-label={`${value} percent close`}>{n}%</span>;
+}
 
 const HEAT = { hit: "bg-emerald-500/25 border-emerald-400/60", warm: "bg-amber-400/20 border-amber-300/50", cold: "bg-white/5 border-white/10", none: "bg-transparent border-dashed border-white/10 text-muted-foreground" } as const;
 
@@ -29,6 +54,8 @@ export default function PinpointGame() {
   const [guesses, setGuesses] = useState<string[]>([]);
   const [text, setText] = useState("");
   const [copied, setCopied] = useState(false);
+  // The guess just made, so only it plays its reveal; guesses restored from storage show at rest.
+  const [fresh, setFresh] = useState<string | null>(null);
 
   useEffect(() => {
     if (!practice) setGuesses(loadPinpoint(pool, day)?.guesses ?? []);
@@ -46,6 +73,7 @@ export default function PinpointGame() {
     if (over || guesses.includes(item.id)) return;
     const next = [...guesses, item.id];
     setGuesses(next);
+    setFresh(item.id);
     setText("");
     const h = compare(item, answer, columns, facts);
     const done = h.correct || next.length >= MAX_GUESSES;
@@ -68,6 +96,8 @@ export default function PinpointGame() {
   return (
     <PageShell width="md">
       <PageHeader title={`Pinpoint · ${topic.title}`} subtitle={practice ? "Practice round: a random pick, not saved." : `Daily #${day}. ${MAX_GUESSES} guesses to find today's pick.`} iconSrc={topic.iconSrc} back={{ href: "/pinpoint", label: "All topics" }} />
+
+      <PinpointRadar hints={hints} fresh={fresh} won={won} />
 
       {!over && (
         <div className="relative">
@@ -102,26 +132,28 @@ export default function PinpointGame() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="accent" onClick={copy}>{copied ? <Check className="h-4 w-4" aria-hidden /> : <Copy className="h-4 w-4" aria-hidden />} {copied ? "Copied" : "Share result"}</Button>
-            <Button variant="ghost" onClick={() => { setPractice(items[Math.floor(Math.random() * items.length)]!); setGuesses([]); }}><Shuffle className="h-4 w-4" aria-hidden /> Practice round</Button>
+            <Button variant="ghost" onClick={() => { setPractice(items[Math.floor(Math.random() * items.length)]!); setGuesses([]); setFresh(null); }}><Shuffle className="h-4 w-4" aria-hidden /> Practice round</Button>
             <Link href="/pinpoint" className="inline-flex min-h-11 items-center rounded-xl border border-white/10 bg-white/5 px-5 font-semibold hover:bg-white/10">Another topic</Link>
           </div>
         </Panel>
       )}
 
       <ol className="space-y-3" aria-label="Your guesses">
-        {[...hints].reverse().map((h) => (
-          <li key={h.item.id} className={`space-y-3 rounded-2xl border p-3 ${h.correct ? "border-emerald-400/70 bg-emerald-500/10" : "border-white/10 bg-card/70"}`}>
+        {[...hints].reverse().map((h) => {
+          const isNew = h.item.id === fresh;
+          return (
+          <li key={h.item.id} className={`space-y-3 rounded-2xl border p-3 ${isNew ? "pp-row-new" : ""} ${h.correct ? "border-emerald-400/70 bg-emerald-500/10" : "border-white/10 bg-card/70"}`}>
             <div className="flex items-center gap-3">
               <CharacterAvatar name={h.item.name} query={h.item.q} size={44} className="shrink-0 rounded-xl" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{h.item.name}</p>
-                <div className="mt-1 h-2 overflow-hidden rounded-full bg-white/10" aria-hidden><div className={`h-full rounded-full ${h.closeness >= 80 ? "bg-emerald-400" : h.closeness >= 50 ? "bg-amber-300" : "bg-rose-400"}`} style={{ width: `${h.closeness}%` }} /></div>
+                <div className="mt-1 h-2 overflow-hidden rounded-full bg-white/10" aria-hidden><div className={`h-full rounded-full ${isNew ? "pp-fill" : ""} ${h.closeness >= 80 ? "bg-emerald-400" : h.closeness >= 50 ? "bg-amber-300" : "bg-rose-400"}`} style={{ width: `${h.closeness}%` }} /></div>
               </div>
-              <span className="shrink-0 text-xl font-semibold tabular-nums" aria-label={`${h.closeness} percent close`}>{h.closeness}%</span>
+              <Percent value={h.closeness} fresh={isNew} />
             </div>
             <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
               {h.cells.map((c, k) => (
-                <div key={c.key} className={`min-w-0 rounded-lg border px-2 py-1.5 ${HEAT[c.heat]}`}>
+                <div key={c.key} className={`min-w-0 rounded-lg border px-2 py-1.5 ${isNew ? "pp-flip" : ""} ${HEAT[c.heat]}`} style={isNew ? { animationDelay: `${250 + k * 110}ms` } : undefined}>
                   <p className="truncate text-[11px] uppercase tracking-wide text-muted-foreground">{columns[k]!.label}</p>
                   <p className="flex items-start gap-1 text-sm font-semibold leading-snug">
                     <span className="min-w-0 break-words">{c.text}</span>
@@ -132,7 +164,8 @@ export default function PinpointGame() {
               ))}
             </div>
           </li>
-        ))}
+          );
+        })}
       </ol>
 
       {hints.length === 0 && (

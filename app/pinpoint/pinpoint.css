@@ -1,0 +1,21 @@
+/* Pinpoint: radar scope and the reveal of each new guess. */
+.pp-sweep { transform-origin: 0 0; animation: pp-sweep 3.2s linear infinite; }
+@keyframes pp-sweep { to { transform: rotate(360deg); } }
+.pp-blip.new { animation: pp-fly .7s cubic-bezier(.2, .8, .3, 1) both; }
+@keyframes pp-fly { from { transform: translate(var(--dx), var(--dy)); opacity: 0; } 30% { opacity: 1; } }
+.pp-ping { transform-box: fill-box; transform-origin: center; animation: pp-ping 1.2s .6s ease-out 2 both; }
+@keyframes pp-ping { from { transform: scale(1); opacity: .9; } to { transform: scale(3.5); opacity: 0; } }
+.pp-cross { transform-origin: 0 0; transition: transform .4s; }
+.pp-radar.won .pp-cross { animation: pp-lock .9s .5s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes pp-lock { from { transform: scale(2.6) rotate(-90deg); opacity: .2; } to { transform: scale(1) rotate(0); opacity: 1; } }
+.pp-radar.won::after { content: ""; position: absolute; inset: 0; border-radius: 9999px; box-shadow: 0 0 0 3px #34d399; animation: pp-ring 1.4s .9s ease-out both; pointer-events: none; }
+@keyframes pp-ring { from { transform: scale(.2); opacity: 1; } to { transform: scale(1.25); opacity: 0; } }
+.pp-flip { animation: pp-flip .45s ease-out both; }
+@keyframes pp-flip { from { transform: perspective(400px) rotateX(-90deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.pp-fill { animation: pp-fill .9s ease-out both; }
+@keyframes pp-fill { from { width: 0; } }
+.pp-row-new { animation: pp-drop .35s ease-out both; }
+@keyframes pp-drop { from { transform: translateY(-10px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .pp-sweep, .pp-blip.new, .pp-ping, .pp-radar.won .pp-cross, .pp-radar.won::after, .pp-flip, .pp-fill, .pp-row-new { animation: none; }
+}
