@@ -304,6 +304,29 @@ describe("voice", () => {
   });
 });
 
+describe("voice drinks", () => {
+  const mkD = (drinking: boolean) => init({ players: ["Ann", "Bo", "Cy"], topic, mode: "first", answer: "voice", count: 3, drinking, seed: 7, now: T0 });
+  const judged = (drinking: boolean, verdict: "right" | "wrong") => {
+    const j = spoke(buzz(mkD(drinking), "Bo", T0 + 100), "Bo", T0 + 200);
+    return mark(mark(j, "Ann", verdict, T0 + 300), "Cy", verdict, T0 + 400);
+  };
+  it("a wrong buzz costs the buzzer one sip", () => {
+    const w = judged(true, "wrong");
+    expect(w.phase).toBe("reveal");
+    expect(w.drinks!.calls).toEqual([{ to: "Bo", sips: 1, reason: "Wrong buzz" }]);
+    expect(w.drinks!.totals.Bo).toBe(1);
+  });
+  it("a right buzz, a word nobody buzzed, and drinks off give none", () => {
+    expect(judged(true, "right").drinks!.calls).toEqual([]);
+    expect(tick(mkD(true), T0 + GUESS_MS).drinks!.calls).toEqual([]);
+    expect(judged(false, "wrong").drinks).toBeUndefined();
+  });
+  it("a buzzer who leaves mid-word is not called to drink", () => {
+    const sp = buzz(mkD(true), "Bo", T0 + 100);
+    expect(settle(sp, ["Bo"], T0 + 200).drinks!.calls).toEqual([]);
+  });
+});
+
 describe("duel", () => {
   const duel = (answer: "voice" | "type" = "voice") => init({ players: ["Ann", "Bo"], topic, mode: "duel", answer, count: 10, seed: 7, now: T0 });
   const rightBuzz = (s: VPState, by: string, now: number) => {
