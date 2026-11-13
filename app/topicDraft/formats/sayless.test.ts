@@ -253,14 +253,39 @@ describe("turn flow", () => {
     expect(s.history.every((h) => h.bonus === undefined)).toBe(true);
     s = clues(s, 1, T0 + 7); // budget 9
     s = guess(s, "Cy", "xylophone", T0 + 8); // 4 each
-    expect(s.history[2]!.bonus).toBe(9);
-    expect(s.points).toEqual({ Ann: 3 + 4 + 9, Bo: 3, Cy: 4 });
+    // 9 unused, capped at the 3 + 4 the turn's guessed words earned
+    expect(s.history[2]!.bonus).toBe(7);
+    expect(s.points).toEqual({ Ann: 3 + 4 + 7, Bo: 3, Cy: 4 });
     s = next(s, T0 + 9);
     expect(s.turn).toBe(1);
     expect(D(s)).toBe("Bo");
     expect(s.guessers).toEqual(["Ann", "Cy"]);
     expect(s.budget).toBe(turnBudget(s.deal[1]!.map((w) => w.par)));
     expect(s.at).toBe(0);
+  });
+  it("an idle describer (no clues, every word times out) gets no bonus", () => {
+    let s = withWords(mk(), three);
+    for (let i = 0; i < 3; i++) {
+      s = tick(s, s.wordAt + WORD_MS + 1);
+      if (i < 2) s = next(s, s.phaseAt);
+    }
+    expect(s.history[2]!.bonus).toBe(0);
+    expect(s.points).toEqual({ Ann: 0, Bo: 0, Cy: 0 });
+  });
+  it("one guessed word worth 3 with 10 unused: bonus 3", () => {
+    let s = withWords(mk(), three); // budget 14
+    s = next(pass(s, "Ann", T0 + 1), T0 + 2); // 13
+    s = next(pass(s, "Ann", T0 + 3), T0 + 4); // 12
+    s = clues(s, 2, T0 + 5); // 10
+    s = guess(s, "Bo", "xylophone", T0 + 6); // 3 each
+    expect(s.history[2]!.bonus).toBe(3);
+    expect(s.points.Ann).toBe(6);
+  });
+  it("a 5-point turn with 2 unused: bonus 2", () => {
+    const s = { ...withWords(mk(), three), at: 2, budget: 2 };
+    const r = guess(s, "Bo", "xylophone", T0 + 1); // no clues, par 3: 5 each
+    expect(r.history[0]!.bonus).toBe(2);
+    expect(r.points.Ann).toBe(7);
   });
   it("is done after the last turn, and a small pool ends early", () => {
     let s = mk({ decks: ["alpha"], rounds: 2, wordsPerTurn: 4 }); // 6 words: turns of 4 and 2

@@ -150,8 +150,12 @@ function finish(s: SLState, now: number, o: { winner?: string; passed?: boolean;
     }
   }
   if (!o.cut && s.at >= s.deal[s.turn]!.length - 1) {
-    h.bonus = s.budget;
-    if (s.budget > 0) award(points, teamPoints, s, describer, s.budget);
+    // Unused budget pays only for a turn that got somewhere, and never more than the turn's guessed words earned:
+    // a describer can't farm it by sitting on the budget. This turn's earlier words are the last `at` history entries.
+    const turnSoFar = s.at > 0 ? s.history.slice(-s.at) : [];
+    const earned = [...turnSoFar, h].reduce((a, x) => a + (x.winner !== null ? x.points : 0), 0);
+    h.bonus = Math.min(s.budget, earned);
+    if (h.bonus > 0) award(points, teamPoints, s, describer, h.bonus);
   }
   return { ...unrefused(s), phase: "reveal", points, teamPoints, history: [...s.history, h], phaseAt: now };
 }
