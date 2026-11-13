@@ -129,4 +129,13 @@ describe("standing rows", () => {
     expect(plan).toEqual([slot("pecking", ["cities"])]);
     expect(setSlotPools(plan, 0, ["rivers", "mountains"])[0]).toEqual(slot("pecking", ["rivers", "mountains"]));
   });
+
+  it("a lineup can hold Say Less with its own deck, for any table of two or more", () => {
+    expect(fitsTable("sayless", 2)).toBe(true);
+    expect(fitsTable("sayless", 1)).toBe(false);
+    const slot = (format: FormatId, pools: string[] | null = null): PlanSlot => ({ format, pools });
+    const plan = addToPlan<PlanSlot>([], slot("sayless", ["easy"]));
+    expect(plan).toEqual([slot("sayless", ["easy"])]);
+    expect(setSlotPools(plan, 0, ["hard", "medium"])[0]).toEqual(slot("sayless", ["hard", "medium"]));
+  });
 });

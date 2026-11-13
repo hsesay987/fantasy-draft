@@ -1,4 +1,4 @@
-import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, BarChart3, HelpCircle, VenetianMask, Vote, AudioWaveform, Brain, CloudRain, Keyboard, Trophy } from "lucide-react";
+import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, BarChart3, HelpCircle, VenetianMask, Vote, AudioWaveform, Brain, CloudRain, Keyboard, Trophy, MessageSquareText } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { FormatId } from "./types";
 
@@ -33,6 +33,7 @@ export const PARTY_GAMES: FormatMeta[] = [
   { id: "mafia", title: "Mafia", tagline: "A rainy town, secret roles and no narrator needed. Find the mafia before they outnumber you.", how: ["Everyone gets a secret card. At night every phone taps a name, so nobody can tell who's up to what.", "Each morning the town hears who's gone. Talk it out, then vote someone onto the next bus.", "The village wins when the mafia are gone. The mafia win when they match everyone else."], icon: CloudRain, gradient: "from-slate-600/60 to-primary/20", usesPool: false },
   { id: "vowelparty", title: "Vowel Party", tagline: "Everyone races the same missing-vowel name. Faster scores more.", how: ["Everyone sees the same name with its vowels removed.", "Type it fast: a quick right answer scores up to 100.", "Give up on a word to move on without waiting."], icon: Keyboard, gradient: "from-amber-500/50 to-primary/20", usesPool: true },
   { id: "pecking", title: "Pecking Order", tagline: "Guess where things rank, from big countries to tall buildings. The closest guess scores the most.", how: ["Each question shows an item from a real top list and asks for its rank, or gives a rank and asks who is there.", "Everyone answers at once on their own phone.", "Exact scores 100 and the points fall off the further away you are. Most points wins."], icon: Trophy, gradient: "from-emerald-600/50 to-primary/20", usesPool: true },
+  { id: "sayless", title: "Say Less", tagline: "Describe the word in as few words as you can. Everyone else guesses.", how: ["One player sees a secret word and describes it to the room, with a small budget of words.", "Everyone else guesses. A guess that lands early scores the most.", "Everyone takes turns describing. Most points wins."], icon: MessageSquareText, gradient: "from-amber-600/50 to-primary/20", usesPool: true },
 ];
 
 /** Room-only games that are not parties: kept out of FORMATS so they never show as a solo draft. */

@@ -4,6 +4,7 @@ import { CATALOG_META, getCatalog } from "../topicDraft/catalogs";
 import { OPTION_COUNT } from "../topicDraft/formats/imposter";
 import { DECKS } from "../topicDraft/party/decks";
 import { INSYNC_DECKS } from "../topicDraft/party/insyncDecks";
+import { SAY_DECKS } from "../topicDraft/sayless/decks";
 import { PECKING_META } from "../topicDraft/pecking/meta";
 import { mixTitle } from "../topicDraft/party/mixTitle";
 import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
@@ -27,6 +28,7 @@ export function topicOptions(format: FormatId): TopicOption[] {
     case "vowelplay":
     case "vowelparty": return VOWEL_TOPICS.map((t) => ({ id: t.id, title: t.title }));
     case "pecking": return PECKING_META.map((m) => ({ id: m.id, title: m.title, blurb: `${m.size} items · ${m.source} · as of ${m.asOf}` }));
+    case "sayless": return SAY_DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "vote": return DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "insync": return INSYNC_DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "mafia":
@@ -36,7 +38,7 @@ export function topicOptions(format: FormatId): TopicOption[] {
 }
 
 /** Drafts play from one topic; party games can mix several. */
-export const singleTopic = (format: FormatId) => !["imposter", "vote", "insync", "partytrivia", "pecking", "vowelplay", "vowelparty"].includes(format);
+export const singleTopic = (format: FormatId) => !["imposter", "vote", "insync", "partytrivia", "pecking", "sayless", "vowelplay", "vowelparty"].includes(format);
 
 /** The topic a game's setup starts on when nothing else applies. */
 export function defaultTopic(format: FormatId): string | null {
@@ -75,5 +77,5 @@ export function topicTitle(format: FormatId, pools: string[] | null | undefined)
 }
 
 /** Party games the host sets up on PartySetup (every party format); drafts use SetupScreen. */
-export const usesPartySetup = (format: string): format is "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" =>
+export const usesPartySetup = (format: string): format is Extract<FormatId, "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless"> =>
   PARTY_FORMATS.has(format as FormatId);

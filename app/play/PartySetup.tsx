@@ -17,19 +17,22 @@ import { DEFAULT_OPTS, type GameSetup } from "./types";
 import { DrinkingToggle, ShowVotesToggle } from "./views/partyBits";
 
 /** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
-export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking"; room: { code: string; token: string; pool?: string; pools?: string[]; slotPools?: string[] | null; inTournament?: boolean; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
+export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless"; room: { code: string; token: string; pool?: string; pools?: string[]; slotPools?: string[] | null; inTournament?: boolean; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
   const meta = formatMeta(format)!;
   const decks = format === "insync" ? INSYNC_DECKS : DECKS;
   const options = topicOptions(format);
   // A planned tournament game opens on its slot's topics, else its own default; otherwise the room's last mix when it fits.
   const [pools, setPools] = useState<string[]>(() => startPools(format, room.slotPools, room.pools?.length ? room.pools : room.pool ? [room.pool] : [], !!room.inTournament));
   const [length, setLength] = useState(format === "imposter" ? 2 : format === "partytrivia" ? 10 : format === "vowelplay" ? 15 : format === "vowelparty" ? 10 : format === "pecking" ? 6 : 8);
+  const [saylessRounds, setSaylessRounds] = useState<1 | 2 | 3>(2);
+  const [saylessWords, setSaylessWords] = useState<3 | 4 | 5>(3);
+  const [saylessGuard, setSaylessGuard] = useState(false);
   const [vowelMode, setVowelMode] = useState<"first" | "duel">("first");
   const [vowelAnswer, setVowelAnswer] = useState<"voice" | "type">("voice");
   const vowel = format === "vowelplay" || format === "vowelparty";
   /** Party Trivia and Vowel Party: everyone answers on their phone, or buzz in at the table. */
   const [answer, setAnswer] = useState<"phones" | "buzz">("phones");
-  const buzzable = format === "partytrivia" || format === "vowelparty";
+  const buzzable = format === "partytrivia" || format === "vowelparty" || format === "sayless";
   const [peckMode, setPeckMode] = useState<"rank" | "name" | "mixed">("mixed");
   const [teams, setTeams] = useState(0);
   const [teamMap, setTeamMap] = useState<TeamMap>({});
@@ -39,7 +42,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const teamFormat = format === "partytrivia" || format === "vote" || format === "imposter" || format === "vowelparty" || format === "pecking";
+  const teamFormat = format === "partytrivia" || format === "vote" || format === "imposter" || format === "vowelparty" || format === "pecking" || format === "sayless";
   const teamsOpen = teamFormat && seats.length >= TEAM_MIN_PLAYERS;
   const pickTeams = (n: number) => {
     setTeams(n);
@@ -52,7 +55,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool: pools[0]!, pools, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...teamOpts }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessGuard } : {}), ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -77,6 +80,10 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </Panel>
       ) : format === "pecking" ? (
         <Panel title="Lists" hint="Questions come from the lists you select. Pick several to mix them.">
+          <PoolPicker options={options} value={pools} onChange={setPools} />
+        </Panel>
+      ) : format === "sayless" ? (
+        <Panel title="Lists and topics" hint="Words come from what you select. Pick several to mix them. Each deck has a par, the clue count a good describer hits.">
           <PoolPicker options={options} value={pools} onChange={setPools} />
         </Panel>
       ) : vowel ? (
@@ -115,13 +122,40 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </>
       )}
 
-      {buzzable && (
+      {buzzable && format !== "sayless" && (
         <Panel title="Answer" hint={answer === "buzz" ? "Buzz is for playing in one room: first to buzz answers." : "Everyone answers on their own phone."}>
           <div className="flex flex-wrap gap-2">
             <Chip selected={answer === "phones"} onClick={() => setAnswer("phones")}>On phones</Chip>
             <Chip selected={answer === "buzz"} onClick={() => setAnswer("buzz")}>Buzz</Chip>
           </div>
         </Panel>
+      )}
+
+      {format === "sayless" && (
+        <>
+          <Panel title="Rounds" hint="How many times the turn goes round the table.">
+            <div className="flex flex-wrap gap-2">
+              {([1, 2, 3] as const).map((n) => <Chip key={n} selected={saylessRounds === n} onClick={() => setSaylessRounds(n)}>{n}</Chip>)}
+            </div>
+          </Panel>
+          <Panel title="Words per turn" hint="How many words you get to describe with.">
+            <div className="flex flex-wrap gap-2">
+              {([3, 4, 5] as const).map((n) => <Chip key={n} selected={saylessWords === n} onClick={() => setSaylessWords(n)}>{n}</Chip>)}
+            </div>
+          </Panel>
+          <Panel title="Answer" hint={answer === "buzz" ? "Others vote right or wrong." : "Guessers type their answer on their own phone."}>
+            <div className="flex flex-wrap gap-2">
+              <Chip selected={answer === "phones"} onClick={() => setAnswer("phones")}>Type</Chip>
+              <Chip selected={answer === "buzz"} onClick={() => setAnswer("buzz")}>Buzz (say it out loud)</Chip>
+            </div>
+          </Panel>
+          <Panel title="Par guard" hint="Guessers lose a point for each clue over par when someone else guesses it.">
+            <div className="flex flex-wrap gap-2">
+              <Chip selected={!saylessGuard} onClick={() => setSaylessGuard(false)}>Off</Chip>
+              <Chip selected={saylessGuard} onClick={() => setSaylessGuard(true)}>On</Chip>
+            </div>
+          </Panel>
+        </>
       )}
 
       {format === "pecking" && (
@@ -136,7 +170,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         <Panel title="Words">
           <p className="text-sm text-muted-foreground">{answer === "buzz" ? "10 words, 20 seconds each. First to buzz says it out loud, and the rest judge." : "10 words, 20 seconds each. Everyone types on their own phone."}</p>
         </Panel>
-      ) : format === "insync" ? (
+      ) : format === "sayless" ? null : format === "insync" ? (
         <Panel title="Rounds">
           <p className="text-sm text-muted-foreground">One round per player, so everyone gets the mic. Never fewer than 4.</p>
         </Panel>
@@ -163,7 +197,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
 
       {teamFormat && (
         teamsOpen ? (
-          <Panel title="Teams" hint={format === "partytrivia" ? "Each member votes. The team's answer is its most-voted option." : "Everyone still plays for themselves. A team's score is its players' points added up."}>
+          <Panel title="Teams" hint={format === "partytrivia" ? "Each member votes. The team's answer is its most-voted option." : format === "sayless" ? "Teams need 2+ players each; otherwise everyone races." : "Everyone still plays for themselves. A team's score is its players' points added up."}>
             <div className="flex flex-wrap gap-2">
               {[0, 2, 3, 4].map((n) => <Chip key={n} selected={teams === n} onClick={() => pickTeams(n)}>{n === 0 ? "No teams" : `${n} teams`}</Chip>)}
             </div>
@@ -179,7 +213,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
       )}
 
       {format !== "vowelplay" && (
-        <Panel title="Drinking mode" hint="Optional. Off by default.">
+        <Panel title="Drinking mode" hint={format === "sayless" ? "A sip for giving the word away, or a wrong buzz. Off by default." : "Optional. Off by default."}>
           <DrinkingToggle value={drinking} onChange={setDrinking} />
         </Panel>
       )}

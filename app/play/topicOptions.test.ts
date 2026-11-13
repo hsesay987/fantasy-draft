@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { SAY_DECK_IDS } from "../topicDraft/sayless/decks";
 import { PECKING_META } from "../topicDraft/pecking/meta";
 import { PARTY_FORMATS } from "./types";
-import { defaultTopic, usesPartySetup, startPools, topicOptions, topicTitle } from "./topicOptions";
+import { defaultTopic, usesPartySetup, singleTopic, startPools, topicOptions, topicTitle } from "./topicOptions";
 
 describe("where a setup starts", () => {
   it("a planned game opens on its slot's topics", () => {
@@ -56,8 +57,19 @@ describe("where a setup starts", () => {
     expect(topicTitle("pecking", ["cities", "rivers"])).toBe("Most populous cities and Longest rivers");
   });
 
+  it("Say Less offers every deck with the par decks first, shows par, and mixes several", () => {
+    const opts = topicOptions("sayless");
+    expect(opts.map((o) => o.id)).toEqual(SAY_DECK_IDS);
+    expect(opts.slice(0, 3).map((o) => o.id)).toEqual(["easy", "medium", "hard"]);
+    expect(opts[0]!.blurb).toContain("Par 2");
+    expect(singleTopic("sayless")).toBe(false);
+    expect(startPools("sayless", ["easy", "hard"], [], true)).toEqual(["easy", "hard"]);
+    expect(topicTitle("sayless", ["easy", "hard"])).toBe("Easy and Hard");
+  });
+
   it("every party format, Pecking Order included, is set up on PartySetup, and no draft is", () => {
     for (const f of PARTY_FORMATS) expect(usesPartySetup(f)).toBe(true);
+    expect(usesPartySetup("sayless")).toBe(true);
     expect(usesPartySetup("snake")).toBe(false);
     expect(usesPartySetup("menu")).toBe(false);
   });
