@@ -10,6 +10,9 @@ import nbaPoints from "./data/nba-points.json";
 import pokemonBst from "./data/pokemon-bst.json";
 import rivers from "./data/rivers.json";
 import mountains from "./data/mountains.json";
+import { normName } from "./normName";
+
+export { normName };
 
 export type PeckItem = { name: string; value: number; rank: number; aliases?: string[] };
 export type PeckList = {
@@ -36,12 +39,6 @@ export function spanOf(list: PeckList, item: PeckItem): [number, number] {
   const tied = list.items.filter((o) => o.value === item.value).length;
   return [item.rank, item.rank + Math.max(1, tied) - 1];
 }
-
-/** Text for matching: no case, accents, punctuation, spaces or leading "the". Keeps Nidoran ♀ and ♂ apart. */
-export const normName = (text: string): string =>
-  text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
-    .replace(/♀/g, " f").replace(/♂/g, " m").replace(/&/g, " and ")
-    .trim().replace(/^the\s+/, "").replace(/[^a-z0-9]+/g, "");
 
 const indexes = new WeakMap<PeckList, Map<string, PeckItem>>();
 /** The item a typed name means, by its name or an alias; names win over another item's alias. */

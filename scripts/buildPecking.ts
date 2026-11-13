@@ -32,6 +32,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { PeckItem, PeckList } from "../app/topicDraft/pecking/lists";
+import { normName as norm } from "../app/topicDraft/pecking/normName";
 
 const ROOT = path.resolve(__dirname, "../app/topicDraft/pecking");
 const OUT = path.join(ROOT, "data");
@@ -117,8 +118,6 @@ function rank(spec: Spec, raw: Raw[]): PeckItem[] {
     return item;
   });
 }
-// The same normalisation as lists.ts; kept here so the script doesn't need the data it is writing.
-const norm = (t: string) => t.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/♀/g, " f").replace(/♂/g, " m").replace(/&/g, " and ").trim().replace(/^the\s+/, "").replace(/[^a-z0-9]+/g, "");
 
 // ---------------- countries ----------------
 const NAME_FIX: Record<string, [string, ...string[]]> = {
@@ -162,7 +161,8 @@ async function unMembers() {
   unCache = rows.map((r) => {
     const label: string = r.cLabel.value;
     const [name, ...fixAliases] = NAME_FIX[label] ?? [label];
-    const officials = String(r.officials?.value ?? "").split("|").filter(Boolean);
+    // GROUP_CONCAT order varies between runs; sort so rebuilds give the same file.
+    const officials = String(r.officials?.value ?? "").split("|").filter(Boolean).sort();
     return { name, aliases: [...fixAliases, ...(EXTRA_ALIASES[name] ?? []), ...officials] };
   });
   if (unCache.length !== 193) throw new Error(`expected 193 UN members, got ${unCache.length}`);
