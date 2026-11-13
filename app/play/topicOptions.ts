@@ -4,11 +4,12 @@ import { CATALOG_META, getCatalog } from "../topicDraft/catalogs";
 import { OPTION_COUNT } from "../topicDraft/formats/imposter";
 import { DECKS } from "../topicDraft/party/decks";
 import { INSYNC_DECKS } from "../topicDraft/party/insyncDecks";
+import { PECKING_META } from "../topicDraft/pecking/meta";
 import { mixTitle } from "../topicDraft/party/mixTitle";
 import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
 import { hasTrivia } from "../topicDraft/trivia";
 import { CATEGORIES, category, formatsFor } from "./categories";
-import type { FormatId } from "./types";
+import { PARTY_FORMATS, type FormatId } from "./types";
 
 export type TopicOption = { id: string; title: string; blurb?: string };
 
@@ -25,6 +26,7 @@ export function topicOptions(format: FormatId): TopicOption[] {
     case "partytrivia": return TRIVIA_TOPICS.map((t) => ({ id: t.id, title: t.title }));
     case "vowelplay":
     case "vowelparty": return VOWEL_TOPICS.map((t) => ({ id: t.id, title: t.title }));
+    case "pecking": return PECKING_META.map((m) => ({ id: m.id, title: m.title, blurb: `${m.size} items · ${m.source} · as of ${m.asOf}` }));
     case "vote": return DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "insync": return INSYNC_DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "mafia":
@@ -34,7 +36,7 @@ export function topicOptions(format: FormatId): TopicOption[] {
 }
 
 /** Drafts play from one topic; party games can mix several. */
-export const singleTopic = (format: FormatId) => !["imposter", "vote", "insync", "partytrivia", "vowelplay", "vowelparty"].includes(format);
+export const singleTopic = (format: FormatId) => !["imposter", "vote", "insync", "partytrivia", "pecking", "vowelplay", "vowelparty"].includes(format);
 
 /** The topic a game's setup starts on when nothing else applies. */
 export function defaultTopic(format: FormatId): string | null {
@@ -71,3 +73,7 @@ export function topicTitle(format: FormatId, pools: string[] | null | undefined)
   const opts = topicOptions(format);
   return mixTitle(pools.map((p) => opts.find((o) => o.id === p)?.title ?? p));
 }
+
+/** Party games the host sets up on PartySetup (every party format); drafts use SetupScreen. */
+export const usesPartySetup = (format: string): format is "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" =>
+  PARTY_FORMATS.has(format as FormatId);

@@ -1,10 +1,25 @@
 import { API_URL } from "../play/onlineApi";
 import { voterId } from "./triviaRate";
 
-export type DailyGame = "summit" | "hotair" | "costimation" | "toprung";
-export const DAILY_GAMES: DailyGame[] = ["summit", "hotair", "costimation", "toprung"];
-export const DAILY_TITLES: Record<DailyGame, string> = { summit: "Summit", hotair: "Hot Air", costimation: "Costimation", toprung: "Top Rung" };
-export const DAILY_WORLD: Record<DailyGame, "summit" | "sky" | "launch" | "ladder"> = { summit: "summit", hotair: "sky", costimation: "launch", toprung: "ladder" };
+export type DailyGame = "summit" | "hotair" | "costimation" | "toprung" | "pecking";
+export const DAILY_GAMES: DailyGame[] = ["summit", "hotair", "costimation", "toprung", "pecking"];
+export const DAILY_TITLES: Record<DailyGame, string> = { summit: "Summit", hotair: "Hot Air", costimation: "Costimation", toprung: "Top Rung", pecking: "Pecking Order" };
+/** The dailies that play in a pixel world. Pecking Order has none: it is scored in bands instead (`PECKING_BANDS`). */
+export type WorldDaily = Exclude<DailyGame, "pecking">;
+export const DAILY_WORLD: Record<WorldDaily, "summit" | "sky" | "launch" | "ladder"> = { summit: "summit", hotair: "sky", costimation: "launch", toprung: "ladder" };
+export const hasWorld = (g: DailyGame): g is WorldDaily => g in DAILY_WORLD;
+
+/** Pecking Order's checkpoints, by share of the 500 points on offer: the highest one reached names the result. `mark` is the run chart's shorter label. */
+export const PECKING_BANDS: { name: string; at: number; mark?: string }[] = [
+  { name: "Bottom of the order", at: 0 },
+  { name: "Low perch", at: 0.2 },
+  { name: "Middle rung", at: 0.4 },
+  { name: "High perch", at: 0.6 },
+  { name: "Top of the pecking order", at: 0.8, mark: "Top perch" },
+];
+export const peckingBand = (score: number) => [...PECKING_BANDS].reverse().find((b) => score >= b.at)!.name;
+/** One square per question: green from 80 points, yellow from 40, red below. */
+export const peckingSquare = (points: number) => (points >= 80 ? "🟩" : points >= 40 ? "🟨" : "🟥");
 export const isDailyGame = (g: string): g is DailyGame => (DAILY_GAMES as string[]).includes(g);
 
 /** Puzzle numbers count up from the first daily (31 October 2026, UTC). */
@@ -72,5 +87,5 @@ export function untilNext(now = Date.now()): string {
 }
 
 export function shareText(g: DailyGame, p: Played): string {
-  return [`TopPic ${DAILY_TITLES[g]} #${p.number}`, `${p.checkpoint} · ${Math.round(p.score * 100)}%`, p.grid, "toppicgames.com/trivia"].join("\n");
+  return [`TopPic ${DAILY_TITLES[g]} #${p.number}`, `${p.checkpoint} · ${g === "pecking" ? `${Math.round(p.score * 500)}/500` : `${Math.round(p.score * 100)}%`}`, p.grid, "toppicgames.com/trivia"].join("\n");
 }

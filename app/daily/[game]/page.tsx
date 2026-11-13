@@ -6,7 +6,9 @@ import { PixelBox, PixelShell } from "../../components/pixel/PixelUI";
 import { checkpointAt, WORLDS } from "../../components/pixel/worlds";
 import { Play } from "../../costimation/CostimationGame";
 import { track } from "../../lib/analytics";
-import { DAILY_TITLES, DAILY_WORLD, fetchPuzzle, fetchStats, isDailyGame, playedOn, remember, sendResult, type DailyGame, type Played, type Puzzle } from "../../lib/daily";
+import { DAILY_TITLES, DAILY_WORLD, fetchPuzzle, fetchStats, hasWorld, isDailyGame, peckingBand, peckingSquare, playedOn, remember, sendResult, type Played, type Puzzle } from "../../lib/daily";
+import { PeckingSolo, SOLO_PLAYER } from "../../pecking/PeckingSolo";
+import { DAILY_COUNT, type PeckState } from "../../topicDraft/formats/pecking";
 import { CATEGORIES } from "../../play/categories";
 import { climbDetail, climbGrid, climbHistory, dailySaveKey, daySeed } from "../../toprung/climb";
 import { scoreFraction } from "../../toprung/engine";
@@ -38,11 +40,12 @@ export default function DailyPage() {
   }, [game]);
 
   if (!isDailyGame(game)) return notFound();
-  const world = DAILY_WORLD[game];
+  // Pecking Order has no pixel world; its pages use the ladder backdrop and its result is named by score band.
+  const world = hasWorld(game) ? DAILY_WORLD[game] : null;
   if (played) return <DailyStats game={game} played={played} />;
   if (error || !puzzle) {
     return (
-      <PixelShell world={world}>
+      <PixelShell world={world ?? "ladder"}>
         <PixelBox>
           <p className="px-eyebrow">DAILY {DAILY_TITLES[game].toUpperCase()}</p>
           <h1 className="mt-2">{error ? "Today's puzzle is not ready" : "Loading today's puzzle…"}</h1>
@@ -54,7 +57,7 @@ export default function DailyPage() {
 
   const record = async (score: number, history: number[], grid: string, detail: unknown) => {
     const s = Math.max(0, Math.min(1, score));
-    const base: Played = { day: puzzle.day, number: puzzle.number, score: s, history, grid, checkpoint: checkpointAt(WORLDS[world], s).name };
+    const base: Played = { day: puzzle.day, number: puzzle.number, score: s, history, grid, checkpoint: world ? checkpointAt(WORLDS[world], s).name : peckingBand(s) };
     remember(game, base);
     const stats = await sendResult(game, puzzle.day, s, detail);
     const withStats = stats ? { ...base, stats } : base;
@@ -63,6 +66,9 @@ export default function DailyPage() {
   };
   const finish = async (score: number, history: number[], grid: string, detail: unknown) => setPlayed(await record(score, history, grid, detail));
 
+  if (game === "pecking") {
+    return <PeckingSolo daily questions={puzzle.content.questions ?? []} backHref="/trivia" backLabel="All trivia" onFinish={(s) => finishPecking(s, puzzle.day, finish)} />;
+  }
   if (game === "toprung") {
     return (
       <TopRungDaily puzzle={puzzle} onFinish={record} onStats={setPlayed} />
@@ -77,6 +83,17 @@ export default function DailyPage() {
     );
   }
   return <DailyQuiz game={game} puzzle={puzzle} onFinish={finish} />;
+}
+
+/** Today's five questions are worth 100 points each: the score is the share of the 500, the grid one square a question. */
+function finishPecking(s: PeckState, day: string, finish: (score: number, history: number[], grid: string, detail: unknown) => void) {
+  if (playedOn("pecking", day)) return;
+  const max = DAILY_COUNT * 100;
+  const points = s.history.map((h) => h.scores[SOLO_PLAYER]?.points ?? 0);
+  const total = points.reduce((a, b) => a + b, 0);
+  track("pecking_finished", { daily: true, points: total });
+  let run = 0;
+  finish(total / max, points.map((p) => (run += p) / max), points.map(peckingSquare).join(""), { points });
 }
 
 /** Today's climb. The result goes in the moment the climb ends; the stats wait until the player has seen how it ended. */

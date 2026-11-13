@@ -15,12 +15,13 @@ import { HubArt } from "./HubArt";
 const topics = CATEGORIES.filter((c) => !c.hidden && hasTrivia(c.id));
 
 /** The trivia games, each in its own pixel world, with free play and, for most, a daily puzzle. `topicList` is for a game whose topics aren't the trivia ones. */
-const GAMES: { id: string; daily?: DailyGame; world?: "summit" | "sky" | "launch" | "ladder" | "typewriter"; art?: "pinpoint" | "thread"; title: string; blurb: string; href: string; demo: number; topics: boolean; topicHref?: (pool: string) => string; topicList?: { id: string; title: string }[] }[] = [
+const GAMES: { id: string; daily?: DailyGame; world?: "summit" | "sky" | "launch" | "ladder" | "typewriter"; art?: "pinpoint" | "pecking" | "thread"; title: string; blurb: string; href: string; demo: number; topics: boolean; topicHref?: (pool: string) => string; topicList?: { id: string; title: string }[] }[] = [
   { id: "jeopardy", daily: "summit", world: "summit", title: "Summit", blurb: "Pick a clue, climb the mountain. Harder clues take you higher, past nine named camps to the top.", href: "/play/jeopardy", demo: 0.42, topics: true },
   { id: "feud", daily: "hotair", world: "sky", title: "Hot Air", blurb: "Say what everyone would say. Popular answers lift your balloon from the sea to the edge of space.", href: "/play/feud", demo: 0.5, topics: true },
   { id: "toprung", daily: "toprung", world: "ladder", title: "Top Rung", blurb: "Climb a lighthouse ladder, one question a rung, up to the lamp. A slip drops you to your last safe ledge, so know when to walk away.", href: "/toprung", demo: 0.18, topics: true, topicHref: (pool) => `/toprung/${pool}` },
   { id: "vowelplay", world: "typewriter", title: "Vowel Play", blurb: "A battered typewriter has lost its vowels. Name each one from the letters left, fast, and the keys snap back into place.", href: "/vowelplay", demo: 0, topics: true, topicHref: (pool) => `/vowelplay/${pool}`, topicList: VOWEL_TOPICS },
   { id: "pinpoint", art: "pinpoint", title: "Pinpoint", blurb: "Guess today's hidden pick in any topic. Every guess is checked against real facts about the pick and shows how close you are.", href: "/pinpoint", demo: 0, topics: true, topicHref: (pool) => `/pinpoint/${pool}`, topicList: PINPOINT_TOPICS },
+  { id: "pecking", daily: "pecking", art: "pecking", title: "Pecking Order", blurb: "Guess where an item ranks on a list, or who sits at a given rank. The closer you are, the more you score.", href: "/pecking", demo: 0, topics: false },
   { id: "commonthread", art: "thread", title: "Common Thread", blurb: "Six clues share one hidden fact, from obscure to obvious. Work out what links them in any topic: the fewer clues you need, the more you score.", href: "/commonthread", demo: 0, topics: true, topicHref: (pool) => `/commonthread/${pool}`, topicList: THREAD_TOPICS },
 ];
 

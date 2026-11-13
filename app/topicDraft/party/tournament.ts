@@ -85,7 +85,8 @@ export function awardsFor(setup: GameSetup, state: GameState, seated: string[], 
     }
     case "vote":
     case "imposter":
-    case "vowelparty": {
+    case "vowelparty":
+    case "pecking": {
       const teams = teamsFor(setup, setup.players);
       if (teams) return byTeams(teams, teams.map(sumOf), seated);
       return byPoints(points(), seated);

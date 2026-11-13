@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { defaultTopic, startPools, topicOptions, topicTitle } from "./topicOptions";
+import { PECKING_META } from "../topicDraft/pecking/meta";
+import { PARTY_FORMATS } from "./types";
+import { defaultTopic, usesPartySetup, startPools, topicOptions, topicTitle } from "./topicOptions";
 
 describe("where a setup starts", () => {
   it("a planned game opens on its slot's topics", () => {
@@ -42,5 +44,21 @@ describe("where a setup starts", () => {
   it("names a slot's topics", () => {
     expect(topicTitle("imposter", null)).toBeNull();
     expect(topicTitle("vowelparty", ["superheroes", "villains"])).toBe("Superheroes and Villains");
+  });
+
+  it("Pecking Order offers every list, with its source and date, and plays from several", () => {
+    const opts = topicOptions("pecking");
+    expect(opts.map((o) => o.id)).toEqual(PECKING_META.map((m) => m.id));
+    expect(opts[0]!.title).toBe(PECKING_META[0]!.title);
+    expect(opts[0]!.blurb).toContain(`as of ${PECKING_META[0]!.asOf}`);
+    expect(opts[0]!.blurb).toContain(PECKING_META[0]!.source);
+    expect(startPools("pecking", ["cities", "rivers"], [], true)).toEqual(["cities", "rivers"]);
+    expect(topicTitle("pecking", ["cities", "rivers"])).toBe("Most populous cities and Longest rivers");
+  });
+
+  it("every party format, Pecking Order included, is set up on PartySetup, and no draft is", () => {
+    for (const f of PARTY_FORMATS) expect(usesPartySetup(f)).toBe(true);
+    expect(usesPartySetup("snake")).toBe(false);
+    expect(usesPartySetup("menu")).toBe(false);
   });
 });
