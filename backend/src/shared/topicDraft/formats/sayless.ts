@@ -22,6 +22,8 @@ export type SLState = {
   turns: SLTurn[];
   turn: number;
   wordsPerTurn: number;
+  /** Extra clue words on top of each turn's pars. */
+  slack: number;
   /** The words dealt for each turn. Never sent to any seat. */
   deal: SLWord[][];
   /** Index of the current word within the turn. */
@@ -86,13 +88,14 @@ function guessersFor(s: Pick<SLState, "players" | "teams" | "turns">, turn: numb
 }
 
 export function init(o: {
-  players: string[]; decks: string[]; rounds: number; wordsPerTurn: number; teams: number; teamMap: Record<string, number>;
+  players: string[]; decks: string[]; rounds: number; wordsPerTurn: number; slack?: number; teams: number; teamMap: Record<string, number>;
   guard?: boolean; answer?: "phones" | "buzz"; avoid?: string[]; drinking?: boolean; seed: number; now: number;
 }): SLState {
   const built = o.teams >= 2 && o.players.length >= TEAM_MIN_PLAYERS ? buildTeams(o.players, o.teams, o.teamMap ?? {}).filter((t) => t.length > 0) : null;
   const teams = built && built.length >= 2 && built.every((t) => t.length >= 2) ? built : null;
-  const rounds = Number.isFinite(o.rounds) ? Math.min(3, Math.max(1, Math.floor(o.rounds))) : 1;
-  const wordsPerTurn = Number.isFinite(o.wordsPerTurn) ? Math.min(5, Math.max(3, Math.floor(o.wordsPerTurn))) : 3;
+  const rounds = Number.isFinite(o.rounds) ? Math.min(10, Math.max(1, Math.floor(o.rounds))) : 1;
+  const wordsPerTurn = Number.isFinite(o.wordsPerTurn) ? Math.min(8, Math.max(2, Math.floor(o.wordsPerTurn))) : 3;
+  const slack = Number.isFinite(o.slack) ? Math.min(15, Math.max(0, Math.floor(o.slack as number))) : 5;
 
   // Mixed decks pool their words; a name in more than one deck counts once (the first deck's par).
   const avoid = new Set(o.avoid ?? []);
@@ -106,9 +109,9 @@ export function init(o: {
   const deal: SLWord[][] = [];
   for (let i = 0; i < order.length && i * wordsPerTurn < pool.length; i++) deal.push(pool.slice(i * wordsPerTurn, (i + 1) * wordsPerTurn));
   const turns = order.slice(0, deal.length);
-  const budget = deal.length ? turnBudget(deal[0]!.map((w) => w.par)) : 0;
+  const budget = deal.length ? turnBudget(deal[0]!.map((w) => w.par), slack) : 0;
   return {
-    players: o.players, teams, decks: o.decks, turns, turn: 0, wordsPerTurn, deal, at: 0, phase: "clue", clues: [], budget, budgetStart: budget,
+    players: o.players, teams, decks: o.decks, turns, turn: 0, wordsPerTurn, slack, deal, at: 0, phase: "clue", clues: [], budget, budgetStart: budget,
     guessers: guessersFor({ players: o.players, teams, turns }, 0), locked: [], buzzer: null,
     answerMode: o.answer === "buzz" ? "buzz" : "type", guard: o.guard === true,
     points: Object.fromEntries(o.players.map((p) => [p, 0])), teamPoints: teams ? teams.map(() => 0) : [], history: [],
@@ -165,7 +168,7 @@ function finish(s: SLState, now: number, o: { winner?: string; passed?: boolean;
 function startTurn(s: SLState, turn: number, now: number): SLState {
   const rest = unrefused(s);
   if (turn >= s.turns.length) return { ...rest, buzzer: null, done: true, phaseAt: now };
-  const budget = turnBudget(s.deal[turn]!.map((w) => w.par));
+  const budget = turnBudget(s.deal[turn]!.map((w) => w.par), s.slack);
   return { ...rest, turn, at: 0, phase: "clue", clues: [], budget, budgetStart: budget, guessers: guessersFor(s, turn), locked: [], buzzer: null, phaseAt: now, wordAt: now };
 }
 

@@ -95,6 +95,11 @@ const num = (v: unknown, lo: number, hi: number, d: number) => {
   const n = Number(v);
   return Number.isFinite(n) ? Math.min(hi, Math.max(lo, Math.round(n))) : d;
 };
+/** An integer clamped to lo..hi; anything that is not a number (null, "", text, objects) is `d`. */
+const intIn = (v: unknown, lo: number, hi: number, d: number) => {
+  const n = typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN;
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, Math.round(n))) : d;
+};
 const weights = (w: any, keys?: string[]) => {
   const out: Record<string, number> = {};
   for (const [k, v] of Object.entries(w ?? {}).slice(0, 12)) {
@@ -229,7 +234,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     vowelMode: (format === "vowelplay" && o.vowelMode === "duel" ? "duel" : "first") as "first" | "duel",
     // Buzz mode is in-person: only Party Trivia, Vowel Party and Say Less have it, every other format plays on phones.
     answer: ((format === "partytrivia" || format === "vowelparty" || format === "sayless") && o.answer === "buzz" ? "buzz" : "phones") as "phones" | "buzz",
-    ...(format === "sayless" ? { saylessRounds: nearest([1, 2, 3], o.saylessRounds, 2) as 1 | 2 | 3, saylessWords: nearest([3, 4, 5], o.saylessWords, 3) as 3 | 4 | 5, saylessGuard: o.saylessGuard === true } : {}),
+    ...(format === "sayless" ? { saylessRounds: intIn(o.saylessRounds, 1, 10, 2), saylessWords: intIn(o.saylessWords, 2, 8, 3), saylessSlack: intIn(o.saylessSlack, 0, 15, 5), saylessGuard: o.saylessGuard === true } : {}),
     ...(format === "pecking" ? { peckMode: (o.peckMode === "rank" || o.peckMode === "name" ? o.peckMode : "mixed") as PK.PeckMode } : {}),
     vowelAnswer: (format === "vowelparty" ? (o.answer === "buzz" ? "voice" : "type") : o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };

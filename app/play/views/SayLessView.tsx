@@ -73,7 +73,7 @@ export function SayLessView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         {tv ? <TvBoard s={s} gone={gone} /> : (
           <>
             {live && !describing && <DescriberLine s={s} me={me} />}
-            {live && (describing ? <DescriberDesk key={key} s={s} me={me} dispatch={ctl.dispatch} play={play} />
+            {live && (describing ? <DescriberDesk key={key} s={s} me={me} offset={ctl.offset} dispatch={ctl.dispatch} play={play} />
               : <GuessDesk key={key} s={s} me={me} out={out} offset={ctl.offset} dispatch={ctl.dispatch} play={play} />)}
             {live && s.answerMode === "buzz" && s.phase !== "clue" && <JudgeDesk key={`${key}:${s.phase}:${s.buzzer}`} s={s} me={me} out={out} dispatch={ctl.dispatch} play={play} />}
           </>
@@ -105,7 +105,7 @@ function DescriberLine({ s, me }: { s: SLView; me: string }) {
 }
 
 /** The describer's phone: the word, par and budget, a one-word clue field, the clues so far, and Pass. */
-function DescriberDesk({ s, me, dispatch, play }: { s: SLView; me: string; dispatch: Dispatch; play: Play }) {
+function DescriberDesk({ s, me, offset, dispatch, play }: { s: SLView; me: string; offset: number; dispatch: Dispatch; play: Play }) {
   const w = s.word!;
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -118,8 +118,8 @@ function DescriberDesk({ s, me, dispatch, play }: { s: SLView; me: string; dispa
   const latest = useRef(s);
   useEffect(() => { latest.current = s; });
   const key = wordKey(s);
-  /** A plain "not allowed": time's up if the word is over (or its clock ran out), otherwise just too late. */
-  const tooLate = () => (latest.current.phase !== "clue" || wordKey(latest.current) !== key ? "Time's up for this word" : "Too late");
+  /** A plain "not allowed": time's up only if the word is no longer live or its clock ran out, otherwise just too late. */
+  const tooLate = () => (latest.current.phase !== "clue" || wordKey(latest.current) !== key || Date.now() + offset > latest.current.wordAt + WORD_MS ? "Time's up for this word" : "Too late");
 
   const rest = () => { setCool(true); setTimeout(() => setCool(false), COOL_MS); };
   const send = async () => {
@@ -166,9 +166,11 @@ function DescriberDesk({ s, me, dispatch, play }: { s: SLView; me: string; dispa
               <span aria-hidden>&gt;</span>
               <input ref={input} value={text} maxLength={CLUE_MAX} disabled={!canClue} autoFocus
                 onChange={(e) => {
-                  // A space would make two words: keep the field as it was and say why, rather than gluing them together.
-                  if (/\s/.test(e.target.value)) { setError("One word only"); return; }
-                  setText(e.target.value);
+                  // A stray space at either end (a predictive-text tap adds one) is dropped silently. A space between
+                  // letters would make two words: keep the first word and say why.
+                  const v = e.target.value.trim();
+                  if (/\s/.test(v)) { setText(v.split(/\s+/)[0]!); setError("One word only"); return; }
+                  setText(v);
                   setError(null);
                 }}
                 placeholder={canClue ? "One word" : "Budget spent"} aria-label="Your clue, one word" aria-describedby="sl-clue-msg"

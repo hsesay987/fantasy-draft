@@ -36,14 +36,29 @@ function playOut(r: any, toks: Record<string, string>) {
 
 beforeEach(() => _rooms.clear());
 
+describe("Say Less custom rounds, words and budget", () => {
+  it("a room with rounds 4, words 2, slack 0 plays 4 rounds of 2 words, first budget = pars", () => {
+    const { r, toks } = running(["Ann", "Bo", "Cy"], say({ saylessRounds: 4, saylessWords: 2, saylessSlack: 0 }));
+    const s = state(r);
+    expect(s.turns).toHaveLength(12);
+    expect(s.deal[0]).toHaveLength(2);
+    expect(s.budget).toBe(s.deal[0]!.reduce((a, w) => a + w.par, 0));
+    expect((snapshot(r, toks.Ann!) as any).state.budget).toBe(s.budget);
+  });
+});
+
 describe("Say Less setup", () => {
   it("snaps rounds and words per turn, reads the guard, and titles the game", () => {
     const s = (opts: any) => sanitizeSetup({ format: "sayless", pool: "easy", opts })!.opts;
     expect(s({}).saylessRounds).toBe(2);
     expect(s({}).saylessWords).toBe(3);
     expect(s({}).saylessGuard).toBe(false);
-    expect(s({ saylessRounds: 9, saylessWords: 1, saylessGuard: "yes" })).toMatchObject({ saylessRounds: 3, saylessWords: 3, saylessGuard: false });
-    expect(s({ saylessRounds: 1, saylessWords: 5, saylessGuard: true })).toMatchObject({ saylessRounds: 1, saylessWords: 5, saylessGuard: true });
+    expect(s({}).saylessSlack).toBe(5);
+    expect(s({ saylessRounds: 99, saylessWords: 1, saylessSlack: 99, saylessGuard: "yes" })).toMatchObject({ saylessRounds: 10, saylessWords: 2, saylessSlack: 15, saylessGuard: false });
+    expect(s({ saylessRounds: 0, saylessWords: 50, saylessSlack: -4 })).toMatchObject({ saylessRounds: 1, saylessWords: 8, saylessSlack: 0 });
+    expect(s({ saylessRounds: 4, saylessWords: 2, saylessSlack: 0, saylessGuard: true })).toMatchObject({ saylessRounds: 4, saylessWords: 2, saylessSlack: 0, saylessGuard: true });
+    expect(s({ saylessRounds: 7.6, saylessWords: "6", saylessSlack: "12" })).toMatchObject({ saylessRounds: 8, saylessWords: 6, saylessSlack: 12 });
+    for (const junk of ["abc", null, "", {}, [], NaN, true]) expect(s({ saylessRounds: junk, saylessWords: junk, saylessSlack: junk })).toMatchObject({ saylessRounds: 2, saylessWords: 3, saylessSlack: 5 });
     expect(s({ answer: "buzz", drinking: true })).toMatchObject({ answer: "buzz", drinking: true });
     expect(s({ answer: "nope" }).answer).toBe("phones");
     const mixed = sanitizeSetup({ format: "sayless", pool: "easy", pools: ["easy", "hard"], opts: { teams: 2, teamMap: { Ann: 0, Bob: 1 } } })!;

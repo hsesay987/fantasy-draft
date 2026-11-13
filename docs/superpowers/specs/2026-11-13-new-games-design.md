@@ -110,8 +110,8 @@ The host chooses one type or Mixed, which alternates them.
 
 - The first right guesser scores `par + 2 − clues used`, at least 1. The describer scores the same amount, so both want it fast and nobody gains from holding back a guess.
   - Example: with par 3, a guess after 2 clues gives both players 3 points. A guess after 5 clues gives both 1 point.
-- **Rounds (my call).** Each player describes once per round. The host sets 1 to 3 rounds.
-- **Budget.** The describer has a word budget for their turn: the sum of the pars of their words, plus 5. Their turn has 3 words by default; the host can pick 3 to 5.
+- **Rounds (my call).** Each player describes once per round. The host sets 1 to 10 rounds (default 2).
+- **Budget.** The describer has a word budget for their turn: the sum of the pars of their words, plus an extra the host sets (0 to 15, default 5). Their turn has 3 words by default; the host can pick 2 to 8.
   - When the budget runs out, the turn ends after the current word ends.
   - Each unused budget word at the end of the turn is +1 for the describer.
 - **Pass.** Skips the word: 0 points, and 1 budget word spent.

@@ -54,8 +54,9 @@ export type Opts = {
   /** Pecking Order question kinds; absent means "mixed". */
   peckMode?: PeckMode;
   /** Say Less: how many times round the table, how many words per turn, and whether the par guard is on. */
-  saylessRounds?: 1 | 2 | 3;
-  saylessWords?: 3 | 4 | 5;
+  saylessRounds?: number;
+  saylessWords?: number;
+  saylessSlack?: number;
   saylessGuard?: boolean;
   /** Vowel Play: say it aloud and let the others judge, or type it. */
   vowelAnswer: "voice" | "type";

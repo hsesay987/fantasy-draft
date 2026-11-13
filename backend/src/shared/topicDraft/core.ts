@@ -132,7 +132,7 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "pecking":
       return PK.init({ players: setup.players, lists: poolsOf(setup).flatMap((id) => listFor(id) ?? []), mode: o.peckMode ?? "mixed", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "sayless":
-      return SL.init({ players: setup.players, decks: poolsOf(setup), rounds: o.saylessRounds ?? 2, wordsPerTurn: o.saylessWords ?? 3, teams: o.teams, teamMap: o.teamMap, guard: o.saylessGuard ?? false, answer: o.answer === "buzz" ? "buzz" : "phones", avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+      return SL.init({ players: setup.players, decks: poolsOf(setup), rounds: o.saylessRounds ?? 2, wordsPerTurn: o.saylessWords ?? 3, slack: o.saylessSlack ?? 5, teams: o.teams, teamMap: o.teamMap, guard: o.saylessGuard ?? false, answer: o.answer === "buzz" ? "buzz" : "phones", avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }

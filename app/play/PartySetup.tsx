@@ -10,6 +10,7 @@ import { newSeed } from "../topicDraft/rng";
 import { formatMeta } from "./formats";
 import { setRoomGame } from "./onlineApi";
 import { PoolPicker } from "./PoolPicker";
+import { Stepper } from "./setupParts";
 import { TeamPicker } from "./TeamPicker";
 import { startPools, topicOptions } from "./topicOptions";
 import { compactTeams, splitTeams, type TeamMap } from "./teamMoves";
@@ -24,8 +25,9 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   // A planned tournament game opens on its slot's topics, else its own default; otherwise the room's last mix when it fits.
   const [pools, setPools] = useState<string[]>(() => startPools(format, room.slotPools, room.pools?.length ? room.pools : room.pool ? [room.pool] : [], !!room.inTournament));
   const [length, setLength] = useState(format === "imposter" ? 2 : format === "partytrivia" ? 10 : format === "vowelplay" ? 15 : format === "vowelparty" ? 10 : format === "pecking" ? 6 : 8);
-  const [saylessRounds, setSaylessRounds] = useState<1 | 2 | 3>(2);
-  const [saylessWords, setSaylessWords] = useState<3 | 4 | 5>(3);
+  const [saylessRounds, setSaylessRounds] = useState(2);
+  const [saylessWords, setSaylessWords] = useState(3);
+  const [saylessSlack, setSaylessSlack] = useState(5);
   const [saylessGuard, setSaylessGuard] = useState(false);
   const [vowelMode, setVowelMode] = useState<"first" | "duel">("first");
   const [vowelAnswer, setVowelAnswer] = useState<"voice" | "type">("voice");
@@ -55,7 +57,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool: pools[0]!, pools, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessGuard } : {}), ...teamOpts }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -134,14 +136,13 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
       {format === "sayless" && (
         <>
           <Panel title="Rounds" hint="How many times the turn goes round the table.">
-            <div className="flex flex-wrap gap-2">
-              {([1, 2, 3] as const).map((n) => <Chip key={n} selected={saylessRounds === n} onClick={() => setSaylessRounds(n)}>{n}</Chip>)}
-            </div>
+            <Stepper value={saylessRounds} min={1} max={10} onChange={setSaylessRounds} label="Rounds" />
           </Panel>
           <Panel title="Words per turn" hint="How many words you get to describe with.">
-            <div className="flex flex-wrap gap-2">
-              {([3, 4, 5] as const).map((n) => <Chip key={n} selected={saylessWords === n} onClick={() => setSaylessWords(n)}>{n}</Chip>)}
-            </div>
+            <Stepper value={saylessWords} min={2} max={8} onChange={setSaylessWords} label="Words per turn" />
+          </Panel>
+          <Panel title="Extra budget" hint="Clue words allowed on top of each word's par. Lower is harder.">
+            <Stepper value={saylessSlack} min={0} max={15} onChange={setSaylessSlack} label="Extra budget" />
           </Panel>
           <Panel title="Answer" hint={answer === "buzz" ? "Guessers buzz and say it out loud; the describer says right or wrong." : "Guessers type their answer on their own phone."}>
             <div className="flex flex-wrap gap-2">

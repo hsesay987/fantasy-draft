@@ -290,10 +290,11 @@ describe("turn flow", () => {
     expect(seenKeys(s)).toEqual(["sl:zebrafish", "sl:marzipan"]);
     for (const me of ["Ann", "Bo", "Cy", null]) for (const w of [...unplayed, "kumquat", "cumquat", "gondola"]) expect(JSON.stringify(redactFor(s, me))).not.toContain(w);
   });
-  it("clamps rounds to 1..3", () => {
-    const many: SayWord[] = Array.from({ length: 60 }, (_, i) => ({ name: `word${i}`, par: 2 }));
+  it("clamps rounds to 1..10", () => {
+    const many: SayWord[] = Array.from({ length: 200 }, (_, i) => ({ name: `word${i}`, par: 2 }));
     setWordSource((d) => (d === "many" ? many : FIX[d] ?? []));
-    expect(mk({ decks: ["many"], rounds: 9 }).turns).toHaveLength(9);
+    expect(mk({ decks: ["many"], rounds: 9 }).turns).toHaveLength(27);
+    expect(mk({ decks: ["many"], rounds: 99, wordsPerTurn: 2 }).turns).toHaveLength(30);
     expect(mk({ decks: ["many"], rounds: 0 }).turns).toHaveLength(3);
     setWordSource((d) => FIX[d] ?? []);
   });
@@ -335,9 +336,27 @@ describe("turn flow", () => {
     expect(tick(s, now + 99_999)).toBe(s);
     expect(clue(s, "Ann", "x", now)).toBe(s);
   });
-  it("clamps words per turn to 3..5", () => {
-    expect(mk({ wordsPerTurn: 1 }).deal[0]).toHaveLength(3);
-    expect(mk({ decks: ["alpha", "beta"], wordsPerTurn: 9 }).deal[0]).toHaveLength(5);
+  it("clamps words per turn to 2..8", () => {
+    expect(mk({ wordsPerTurn: 1 }).deal[0]).toHaveLength(2);
+    expect(mk({ wordsPerTurn: 2 }).deal[0]).toHaveLength(2);
+    expect(mk({ decks: ["alpha", "beta"], wordsPerTurn: 9 }).deal[0]).toHaveLength(8);
+  });
+  it("the host's extra budget (slack) sets every turn's budget: pars + slack, clamped 0..15, default 5", () => {
+    const pars = (s: SLState, t: number) => s.deal[t]!.reduce((a, w) => a + w.par, 0);
+    const s0 = mk({ rounds: 2, slack: 0 });
+    expect(s0.budget).toBe(pars(s0, 0));
+    const s12 = mk({ rounds: 2, slack: 12 });
+    expect(s12.budget).toBe(pars(s12, 0) + 12);
+    expect(mk({ slack: 99 }).budget).toBe(pars(mk({ slack: 99 }), 0) + 15);
+    expect(mk({ slack: -3 }).budget).toBe(pars(mk({ slack: -3 }), 0));
+    expect(mk({ slack: NaN }).budget).toBe(pars(mk({}), 0) + 5);
+    expect(mk({}).budget).toBe(pars(mk({}), 0) + 5);
+  });
+  it("later turns use the same slack", () => {
+    let s = mk({ decks: ["alpha", "beta"], rounds: 2, slack: 1 });
+    for (let i = 0; i < 20 && s.turn === 0; i++) s = s.phase === "reveal" ? next(s, s.phaseAt + REVEAL_MS) : pass(s, currentDescriber(s)!, s.phaseAt);
+    expect(s.turn).toBe(1);
+    expect(s.budget).toBe(s.deal[s.turn]!.reduce((a, w) => a + w.par, 0) + 1);
   });
 });
 

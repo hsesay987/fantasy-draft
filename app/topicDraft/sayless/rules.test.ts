@@ -17,6 +17,10 @@ describe("scoring", () => {
     expect(turnBudget([2, 3, 4])).toBe(14)
     expect(turnBudget([])).toBe(5)
   })
+  it("turnBudget takes a host-set extra: slack 0 is exactly the pars", () => {
+    expect(turnBudget([2, 3, 4], 0)).toBe(9)
+    expect(turnBudget([2, 3, 4], 12)).toBe(21)
+  })
   it("guardLoss = max(0, clues - par)", () => {
     expect(guardLoss(3, 5)).toBe(2)
     expect(guardLoss(3, 1)).toBe(0)

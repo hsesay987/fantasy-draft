@@ -44,5 +44,6 @@ export const matchesGuess = (word: { name: string; also?: string[] }, text: unkn
 }
 
 export const clueScore = (par: number, clues: number): number => Math.max(1, par + 2 - clues)
-export const turnBudget = (pars: number[]): number => pars.reduce((a, b) => a + b, 0) + 5
+/** The clue words a turn may spend: the sum of its words' pars plus the host's extra. */
+export const turnBudget = (pars: number[], slack = 5): number => pars.reduce((a, b) => a + b, 0) + slack
 export const guardLoss = (par: number, clues: number): number => Math.max(0, clues - par)
