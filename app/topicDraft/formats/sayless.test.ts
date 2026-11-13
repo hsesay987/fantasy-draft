@@ -398,6 +398,7 @@ describe("buzz mode", () => {
     const r = mark(j, "Ann", "right", T0 + 3);
     expect(r.phase).toBe("reveal");
     expect(r.history[0]!.winner).toBe("Bo");
+    expect(r.history[0]!.judged).toBe("call");
     expect(r.points).toMatchObject({ Ann: 5, Bo: 5 });
     expect(r).not.toHaveProperty("marks");
   });
@@ -432,7 +433,7 @@ describe("buzz mode", () => {
     expect(late).toMatchObject({ phase: "clue", locked: ["Bo"] });
     const j = spoke(b, "Bo", T0 + 2);
     expect(tick(j, T0 + 2 + JUDGE_MS)).toBe(j);
-    expect(tick(j, T0 + 3 + JUDGE_MS).history[0]!.winner).toBe("Bo");
+    expect(tick(j, T0 + 3 + JUDGE_MS).history[0]).toMatchObject({ winner: "Bo", judged: "clock" });
     // a call after the clock is refused
     expect(mark(j, "Ann", "wrong", T0 + 3 + JUDGE_MS)).toBe(j);
   });

@@ -144,7 +144,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
           <Panel title="Extra budget" hint="Clue words allowed on top of each word's par. Lower is harder.">
             <Stepper value={saylessSlack} min={0} max={15} onChange={setSaylessSlack} label="Extra budget" />
           </Panel>
-          <Panel title="Answer" hint={answer === "buzz" ? "Guessers buzz and say it out loud; the describer says right or wrong." : "Guessers type their answer on their own phone."}>
+          <Panel title="Answer" hint={answer === "buzz" ? "Guessers buzz and say it out loud. The describer judges what they hear." : "Guessers type their answer on their own phone."}>
             <div className="flex flex-wrap gap-2">
               <Chip selected={answer === "phones"} onClick={() => setAnswer("phones")}>Type</Chip>
               <Chip selected={answer === "buzz"} onClick={() => setAnswer("buzz")}>Buzz (say it out loud)</Chip>

@@ -105,6 +105,7 @@ export function RevealCard({ s, h, me }: { s: SLView; h: SLHistory; me: string }
       <p className="sl-eyebrow">The word was</p>
       <h2 className="sl-word" role="status">{h.word}</h2>
       <p className="sl-verdict">{verdict} · {h.clues.length} {h.clues.length === 1 ? "clue" : "clues"}, par {h.par}</p>
+      {h.judged && <p className="sl-judged">{h.judged === "call" ? `Judged by ${you(h.describer)}` : `No call from ${you(h.describer)} in time: counted right`}</p>}
       {h.clues.length > 0 && <ClueTape clues={h.clues} par={h.par} label="The clues" />}
       {gains.length > 0 && (
         <ul className="sl-gains">

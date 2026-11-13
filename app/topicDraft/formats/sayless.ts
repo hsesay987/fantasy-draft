@@ -10,8 +10,9 @@ import { wordsOf, type SayWord } from "../sayless/source";
 
 export type SLTurn = { describer: string; team: number | null };
 export type SLWord = SayWord & { id: string };
-/** `guarded`: what the par guard actually took from each other guesser. `bonus`: unused budget, on a turn's last word. */
-export type SLHistory = { word: string; par: number; describer: string; clues: string[]; winner: string | null; points: number; passed?: boolean; bonus?: number; guarded?: Record<string, number> };
+/** `guarded`: what the par guard actually took from each other guesser. `bonus`: unused budget, on a turn's last word.
+ * `judged`: how a buzz win was settled, by the describer's call or by their clock running out. */
+export type SLHistory = { word: string; par: number; describer: string; clues: string[]; winner: string | null; points: number; passed?: boolean; bonus?: number; guarded?: Record<string, number>; judged?: "call" | "clock" };
 
 export type SLState = {
   players: string[];
@@ -129,12 +130,12 @@ function award(points: Record<string, number>, teamPoints: number[], s: SLState,
 }
 
 /** Ends the current word: scores, the par guard, the unused-budget bonus on the turn's last word, then the reveal. */
-function finish(s: SLState, now: number, o: { winner?: string; passed?: boolean; cut?: boolean } = {}): SLState {
+function finish(s: SLState, now: number, o: { winner?: string; passed?: boolean; cut?: boolean; judged?: "call" | "clock" } = {}): SLState {
   const w = wordOf(s)!;
   const describer = currentDescriber(s);
   const points = { ...s.points };
   const teamPoints = [...s.teamPoints];
-  const h: SLHistory = { word: w.name, par: w.par, describer, clues: s.clues, winner: o.winner ?? null, points: 0, ...(o.passed ? { passed: true } : {}) };
+  const h: SLHistory = { word: w.name, par: w.par, describer, clues: s.clues, winner: o.winner ?? null, points: 0, ...(o.passed ? { passed: true } : {}), ...(o.judged ? { judged: o.judged } : {}) };
   if (o.winner !== undefined) {
     const score = clueScore(w.par, s.clues.length);
     h.points = score;
@@ -231,7 +232,7 @@ function wrongBuzz(s: SLState, now: number, gone: string[] = []): SLState {
  */
 export function mark(s: SLState, by: string, verdict: unknown, now: number): SLState {
   if (s.done || s.phase !== "judge" || (verdict !== "right" && verdict !== "wrong") || by !== currentDescriber(s) || now - s.phaseAt > JUDGE_MS) return s;
-  return verdict === "wrong" ? wrongBuzz(s, now) : finish(s, now, { winner: s.buzzer! });
+  return verdict === "wrong" ? wrongBuzz(s, now) : finish(s, now, { winner: s.buzzer!, judged: "call" });
 }
 
 /**
@@ -261,7 +262,7 @@ export function tick(s: SLState, now: number): SLState {
   if (s.done) return s;
   if (s.phase === "clue" && !inTime(s, now)) return finish(s, now);
   if (s.phase === "speak" && now - s.phaseAt > SPEAK_MS) return wrongBuzz(s, now);
-  if (s.phase === "judge" && now - s.phaseAt > JUDGE_MS) return finish(s, now, { winner: s.buzzer! }); // no call in time counts as right
+  if (s.phase === "judge" && now - s.phaseAt > JUDGE_MS) return finish(s, now, { winner: s.buzzer!, judged: "clock" }); // no call in time counts as right
   if (s.phase === "reveal" && now - s.phaseAt >= REVEAL_MS) return advance(s, now);
   return s;
 }
