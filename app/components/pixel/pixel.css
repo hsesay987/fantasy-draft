@@ -246,6 +246,8 @@
 .ballot .bar { position: absolute; left: 0; bottom: 0; height: 7px; background: repeating-linear-gradient(90deg, #c8392b 0 4px, #e0705f 4px 8px); transition: width .7s steps(10); }
 .ballot.faded { opacity: .55; }
 .ballot.true { background: linear-gradient(#2d8a4e 0 5px, transparent 5px), #e2f2d0; box-shadow: 0 0 0 4px #2d8a4e, 4px 8px 0 0 #0006; }
+.hall-notice .ask { margin: 8px 0 0; font: 400 13px/1.3 var(--px-head); color: #c8392b; text-transform: uppercase; }
+.ballot .pick-tag { display: block; margin-top: 3px; font: 400 9px/1.3 var(--px-head); color: #c8392b; text-transform: uppercase; }
 .ballot .truth { display: block; margin-top: 2px; font: 400 9px/1.3 var(--px-head); color: #1f6a3a; }
 @keyframes hall-stamp { 0% { transform: scale(2.2); } 100% { transform: scale(1); } }
 /* The guess sheet: a clipboard with one row per person. */

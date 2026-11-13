@@ -26,7 +26,7 @@ import { PARTY_FORMATS, type FormatId, type GameSetup } from "../../play/types";
 
 /** Fewest seats each game starts with (the server enforces the same numbers). */
 // Vowel Play and Vowel Party start at 2 (Head to head needs exactly 2: see duelWrong).
-const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" || format === "vote" ? 3 : 2);
+const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" ? 3 : 2);
 
 /** The topic part of a party game's title ("Imposter: A and B" shows as "A and B"; vote games are titled by their decks). */
 const topicLine = (format: FormatId, title: string | undefined): string | null => {

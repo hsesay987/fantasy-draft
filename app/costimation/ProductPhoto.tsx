@@ -17,13 +17,13 @@ export function ProductPhoto({ product, blur }: { product: Product; blur: number
   const [a, b] = KIND_COLORS[product.kind ?? "box"]!;
   const showPhoto = !!product.imageUrl && !failed;
   return (
-    <div className="grid h-[200px] place-items-center overflow-hidden bg-[var(--px-ink)]">
+    <div className="grid h-[240px] place-items-center overflow-hidden bg-[var(--px-ink)]">
       {showPhoto ? (
-        <div className="grid h-full w-full place-items-center bg-white p-2">
+        <div className="h-full w-full bg-white p-2">
           {/* Open Food Facts photos come from many hosts and sizes, so a plain img is used instead of next/image. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={product.imageUrl} alt={blur > 0 ? "Blurred product photo" : `Photo of ${product.name}`} referrerPolicy="no-referrer" onError={() => setFailed(true)}
-            className="max-h-full max-w-full object-contain transition-[filter] duration-700" style={{ filter: blur > 0 ? `blur(${blur}px)` : "none" }} />
+            className="block h-full w-full object-contain transition-[filter] duration-700" style={{ filter: blur > 0 ? `blur(${blur}px)` : "none" }} />
         </div>
       ) : (
         <Sprite sprite={productIcon(product.kind ?? "box", a, b)} size={128} label={`${product.kind ?? "product"} icon`} />
