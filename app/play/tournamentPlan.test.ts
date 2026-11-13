@@ -120,4 +120,13 @@ describe("standing rows", () => {
       { name: "Dee", score: 2, seat: 5, left: true },
     ]);
   });
+
+  it("a lineup can hold Pecking Order with its own list, for any table of two or more", () => {
+    expect(fitsTable("pecking", 2)).toBe(true);
+    expect(fitsTable("pecking", 1)).toBe(false);
+    const slot = (format: FormatId, pools: string[] | null = null): PlanSlot => ({ format, pools });
+    const plan = addToPlan<PlanSlot>([], slot("pecking", ["cities"]));
+    expect(plan).toEqual([slot("pecking", ["cities"])]);
+    expect(setSlotPools(plan, 0, ["rivers", "mountains"])[0]).toEqual(slot("pecking", ["rivers", "mountains"]));
+  });
 });

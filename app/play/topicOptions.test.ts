@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PECKING_META } from "../topicDraft/pecking/meta";
 import { defaultTopic, startPools, topicOptions, topicTitle } from "./topicOptions";
 
 describe("where a setup starts", () => {
@@ -42,5 +43,15 @@ describe("where a setup starts", () => {
   it("names a slot's topics", () => {
     expect(topicTitle("imposter", null)).toBeNull();
     expect(topicTitle("vowelparty", ["superheroes", "villains"])).toBe("Superheroes and Villains");
+  });
+
+  it("Pecking Order offers every list, with its source and date, and plays from several", () => {
+    const opts = topicOptions("pecking");
+    expect(opts.map((o) => o.id)).toEqual(PECKING_META.map((m) => m.id));
+    expect(opts[0]!.title).toBe(PECKING_META[0]!.title);
+    expect(opts[0]!.blurb).toContain(`as of ${PECKING_META[0]!.asOf}`);
+    expect(opts[0]!.blurb).toContain(PECKING_META[0]!.source);
+    expect(startPools("pecking", ["cities", "rivers"], [], true)).toEqual(["cities", "rivers"]);
+    expect(topicTitle("pecking", ["cities", "rivers"])).toBe("Most populous cities and Longest rivers");
   });
 });

@@ -22,7 +22,7 @@ export function PoolPicker({ options, value, onChange }: { options: Option[]; va
             return (
               <button key={o.id} type="button" onClick={() => toggle(o.id)} aria-pressed={on}
                 className={`min-h-11 rounded-xl border p-3 text-left ${on ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
-                <b className="block">{o.title}</b><span className="text-sm text-muted-foreground">{o.blurb}</span>
+                <b className="block">{o.title}</b><span className="break-words text-sm text-muted-foreground">{o.blurb}</span>
               </button>
             );
           })}
