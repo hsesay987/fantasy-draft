@@ -341,6 +341,21 @@ describe("party trivia, buzz mode", () => {
     expect(r.missed).toEqual(["Ann"]);
   });
 
+  it("a late buzzer who leaves before answering doesn't hold the question: the reveal comes as normal, with no penalty", () => {
+    let s: PTState = { ...mk(), points: { Ann: 70, Bob: 0, Cy: 0 } };
+    s = buzz(s, "Ann", T0 + 22_000);
+    const before = settle(s, ["Ann"], T0 + 23_000); // leaves inside the question time
+    expect(before.buzzer).toBeNull();
+    expect(before.phase).toBe("question");
+    expect(tick(before, T0 + QUESTION_MS + 1).phase).toBe("reveal");
+    const after = settle(s, ["Ann"], T0 + 26_000); // leaves after it, while the buzz was holding the question open
+    expect(after.buzzer).toBeNull();
+    const r = tick(after, T0 + 26_000);
+    expect(r.phase).toBe("reveal");
+    expect(r.points.Ann).toBe(70);
+    expect(r.locked).toEqual([]);
+  });
+
   it("a late buzz answered right after 25 s still scores", () => {
     let s = mk();
     s = buzz(s, "Ann", T0 + 22_000);

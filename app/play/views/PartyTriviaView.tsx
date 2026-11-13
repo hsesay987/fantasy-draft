@@ -89,17 +89,18 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
   }, [tap, confirmed]);
   const mine = confirmed || (tap?.round === s.round && (!buzzMode || buzzer === me) ? tap.choice : "");
 
-  // When the clock runs out the buttons close and say so, a moment before the server closes the round. Kept per question,
-  // and the timer is only set again for a new question, so a poll's new clock offset can't briefly reopen the buttons.
+  // When the clock runs out the buttons close and say so, a moment before the server closes the round. Kept per deadline
+  // (server time), so a poll's new clock offset can't briefly reopen the buttons, but a late buzz that extends the
+  // deadline does reopen them for the buzzer.
   const offset = useRef(ctl.offset);
   offset.current = ctl.offset;
   const [expired, setExpired] = useState<number | null>(null);
   useEffect(() => {
     if (!asking) return;
-    const id = setTimeout(() => setExpired(s.phaseAt), Math.max(0, deadline - (Date.now() + offset.current)));
+    const id = setTimeout(() => setExpired(deadline), Math.max(0, deadline - (Date.now() + offset.current)));
     return () => clearTimeout(id);
-  }, [asking, deadline, s.phaseAt]);
-  const outOfTime = asking && expired === s.phaseAt;
+  }, [asking, deadline]);
+  const outOfTime = asking && expired === deadline;
 
   // Scores wait with the answer, so the table doesn't give the result away first.
   const before = useRef({ points: s.points, teamPoints: s.teamPoints });
@@ -197,7 +198,7 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
           </div>
 
           <div className="arc-deck">
-            {outOfTime && <p className="arc-time" role="status">Time!</p>}
+            {outOfTime && !buzzer && <p className="arc-time" role="status">Time!</p>}
             {buzzMode && asking && (
               <BuzzPanel s={s} me={me} seated={seated} buzzer={buzzer} iLocked={iLocked} canBuzz={canBuzz} onBuzz={buzzIn} offset={ctl.offset}
                 team={buzzer ? teamOf(buzzer) : null} lastMiss={lastMiss} missTeam={lastMiss ? teamOf(lastMiss) : null} />
@@ -267,9 +268,6 @@ function BuzzPanel({ s, me, seated, buzzer, iLocked, canBuzz, onBuzz, offset, te
   s: PT.PTView; me: string; seated: boolean; buzzer: string | null; iLocked: boolean; canBuzz: boolean; onBuzz: () => void; offset: number;
   team: number | null; lastMiss: string | null; missTeam: number | null;
 }) {
-  const btn = useRef<HTMLButtonElement>(null);
-  // Each time buzzing opens, the button takes focus, so on a computer the space bar buzzes.
-  useEffect(() => { if (canBuzz) btn.current?.focus({ preventScroll: true }); }, [canBuzz, s.round]);
   if (buzzer) {
     const who = buzzer === me ? "You" : buzzer;
     return (
@@ -291,7 +289,7 @@ function BuzzPanel({ s, me, seated, buzzer, iLocked, canBuzz, onBuzz, offset, te
       {miss}
       {!seated ? <p className="arc-buzzhint">First to buzz answers.</p>
         : iLocked ? <p className="arc-buzzout">Locked out</p>
-        : <button ref={btn} type="button" className="arc-buzz" disabled={!canBuzz} onClick={onBuzz}>Buzz</button>}
+        : <button type="button" className="arc-buzz" disabled={!canBuzz} onClick={onBuzz}>Buzz</button>}
     </div>
   );
 }
