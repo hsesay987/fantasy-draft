@@ -5,10 +5,8 @@
 export const CLUE_MAX = 40;
 
 /**
- * Whitespace collapsed, ends trimmed, capped. Anything but a string counts as no clue.
- * NOTE FROM CLAUDE REVIEW: Typing "a", a space, then "b" gets normalized here.
- * If we want to catch multi-word clues or prevent silent joining/collapsing,
- * we should validate against interior spaces before normalization or return an explicit error.
+ * Whitespace collapsed, ends trimmed, capped. Anything but a string counts as no clue. Interior spaces survive as one
+ * space, so a game that wants one word (Say Less) can still see and refuse two.
  */
 export const normalizeClue = (text: unknown): string =>
   typeof text === "string"

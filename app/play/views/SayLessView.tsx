@@ -11,6 +11,7 @@ import { teamName } from "../teamMoves";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 import { DrinkCard, LeaveGame, PartyClock, playerSprite, WaterLine } from "./partyBits";
+import { clueDraft, clueToSend } from "./clueDraft";
 import { BudgetMeter, ClueTape, describerOf, describingTeam, isLive, ParCount, RevealCard, SLRoster, slClock, wordKey } from "./saylessParts";
 import { TeamBoard } from "./TeamBoard";
 
@@ -124,7 +125,7 @@ function DescriberDesk({ s, me, offset, dispatch, play }: { s: SLView; me: strin
   const rest = () => { setCool(true); setTimeout(() => setCool(false), COOL_MS); };
   const send = async () => {
     if (!canClue || sending.current || cool) return;
-    const t = text.trim();
+    const t = clueToSend(text);
     if (!t) { setError("Type a clue"); return; }
     sending.current = true;
     rest();
@@ -166,18 +167,16 @@ function DescriberDesk({ s, me, offset, dispatch, play }: { s: SLView; me: strin
               <span aria-hidden>&gt;</span>
               <input ref={input} value={text} maxLength={CLUE_MAX} disabled={!canClue} autoFocus
                 onChange={(e) => {
-                  // A stray space at either end (a predictive-text tap adds one) is dropped silently. A space between
-                  // letters would make two words: keep the first word and say why.
-                  const v = e.target.value.trim();
-                  if (/\s/.test(v)) { setText(v.split(/\s+/)[0]!); setError("One word only"); return; }
-                  setText(v);
-                  setError(null);
+                  // A space at either end stays until sending; a space between two words is refused, never joined.
+                  const d = clueDraft(text, e.target.value);
+                  setText(d.value);
+                  setError(d.warn ? "One word only" : null);
                 }}
                 placeholder={canClue ? "One word" : "Budget spent"} aria-label="Your clue, one word" aria-describedby="sl-clue-msg"
                 autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} enterKeyHint="send" />
             </label>
             {/* Holding the press keeps the field focused, so a phone's keyboard stays up. */}
-            <button type="submit" className="sl-send" disabled={!canClue || cool || !text} onPointerDown={(e) => e.preventDefault()}>Send</button>
+            <button type="submit" className="sl-send" disabled={!canClue || cool || !clueToSend(text)} onPointerDown={(e) => e.preventDefault()}>Send</button>
           </form>
           <p id="sl-clue-msg" className={`sl-msg ${error ? "no" : ""}`} role="status">{error ?? (canClue ? "One word per clue. Each one costs 1 from the budget." : "No budget left: pass or wait for a guess.")}</p>
           <PixelButton variant="alt" className="sl-pass" onClick={() => void pass()}>{s.budget > 0 ? "Pass · costs 1" : "Pass"}</PixelButton>
