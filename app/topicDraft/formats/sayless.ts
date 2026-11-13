@@ -90,7 +90,7 @@ export function init(o: {
 }): SLState {
   const built = o.teams >= 2 && o.players.length >= TEAM_MIN_PLAYERS ? buildTeams(o.players, o.teams, o.teamMap ?? {}).filter((t) => t.length > 0) : null;
   const teams = built && built.length >= 2 && built.every((t) => t.length >= 2) ? built : null;
-  const rounds = Number.isFinite(o.rounds) ? Math.max(1, Math.floor(o.rounds)) : 1;
+  const rounds = Number.isFinite(o.rounds) ? Math.min(3, Math.max(1, Math.floor(o.rounds))) : 1;
   const wordsPerTurn = Number.isFinite(o.wordsPerTurn) ? Math.min(5, Math.max(3, Math.floor(o.wordsPerTurn))) : 3;
 
   // Mixed decks pool their words; a name in more than one deck counts once (the first deck's par).
@@ -149,7 +149,8 @@ function finish(s: SLState, now: number, o: { winner?: string; passed?: boolean;
       if (Object.keys(guarded).length) h.guarded = { ...guarded };
     }
   }
-  if (!o.cut && s.at >= s.deal[s.turn]!.length - 1) {
+  // A word ending with the budget spent is the turn's last: no more clues are possible, so the leftover words stay unplayed.
+  if (!o.cut && (s.at >= s.deal[s.turn]!.length - 1 || s.budget <= 0)) {
     // Unused budget pays only for a turn that got somewhere, and never more than the turn's guessed words earned:
     // a describer can't farm it by sitting on the budget. This turn's earlier words are the last `at` history entries.
     const turnSoFar = s.at > 0 ? s.history.slice(-s.at) : [];
@@ -168,7 +169,7 @@ function startTurn(s: SLState, turn: number, now: number): SLState {
 }
 
 function advance(s: SLState, now: number): SLState {
-  if (s.at + 1 < s.deal[s.turn]!.length) {
+  if (s.budget > 0 && s.at + 1 < s.deal[s.turn]!.length) {
     return { ...unrefused(s), at: s.at + 1, phase: "clue", clues: [], locked: [], buzzer: null, marks: {}, phaseAt: now, wordAt: now };
   }
   return startTurn(s, s.turn + 1, now);

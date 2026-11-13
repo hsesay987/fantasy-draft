@@ -263,6 +263,40 @@ describe("turn flow", () => {
     expect(s.budget).toBe(turnBudget(s.deal[1]!.map((w) => w.par)));
     expect(s.at).toBe(0);
   });
+  it("the budget running out ends the turn after that word; the unplayed words never show", () => {
+    const A = FIX.alpha!;
+    const deal = [[A[0]!, A[1]!, A[2]!], [A[3]!, A[4]!, A[5]!]].map((t) => t.map((w) => ({ ...w, id: `sl:${w.name}` })));
+    let s: SLState = { ...mk(), deal, budget: 1, budgetStart: 14 };
+    expect(s.turns.map((t) => t.describer)).toEqual(["Ann", "Bo"]);
+    s = clues(s, 1); // budget 0
+    expect(s.budget).toBe(0);
+    s = guess(s, "Bo", "zebrafish", T0 + 2); // 4 each
+    expect(s.history[0]!.bonus).toBe(0);
+    expect(s.points).toEqual({ Ann: 4, Bo: 4, Cy: 0 });
+    s = next(s, T0 + 3);
+    expect(s).toMatchObject({ turn: 1, at: 0, phase: "clue" });
+    expect(D(s)).toBe("Bo");
+    expect(s.history.filter((h) => h.describer === "Ann")).toHaveLength(1);
+    const unplayed = ["quokka", "setonix", "xylophone"];
+    for (const me of ["Ann", "Bo", "Cy", null]) for (const w of unplayed) expect(JSON.stringify(redactFor(s, me))).not.toContain(w);
+    expect(seenKeys(s)).toEqual(["sl:zebrafish"]);
+    // the same on the last turn ends the game cleanly
+    s = clues({ ...s, budget: 1 }, 1, T0 + 4);
+    s = pass(s, "Bo", T0 + 5);
+    expect(s.history[1]).toMatchObject({ word: "marzipan", passed: true, bonus: 0 });
+    s = tick(s, T0 + 5 + REVEAL_MS);
+    expect(s.done).toBe(true);
+    expect(s.history).toHaveLength(2);
+    expect(seenKeys(s)).toEqual(["sl:zebrafish", "sl:marzipan"]);
+    for (const me of ["Ann", "Bo", "Cy", null]) for (const w of [...unplayed, "kumquat", "cumquat", "gondola"]) expect(JSON.stringify(redactFor(s, me))).not.toContain(w);
+  });
+  it("clamps rounds to 1..3", () => {
+    const many: SayWord[] = Array.from({ length: 60 }, (_, i) => ({ name: `word${i}`, par: 2 }));
+    setWordSource((d) => (d === "many" ? many : FIX[d] ?? []));
+    expect(mk({ decks: ["many"], rounds: 9 }).turns).toHaveLength(9);
+    expect(mk({ decks: ["many"], rounds: 0 }).turns).toHaveLength(3);
+    setWordSource((d) => FIX[d] ?? []);
+  });
   it("an idle describer (no clues, every word times out) gets no bonus", () => {
     let s = withWords(mk(), three);
     for (let i = 0; i < 3; i++) {
