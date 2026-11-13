@@ -47,6 +47,13 @@ describe("room bundles", () => {
 
   it("walks a real graph", () => {
     expect(files.has("app/topicDraft/core.ts")).toBe(true);
+    expect(files.size).toBeGreaterThan(50);
+  });
+
+  it("positive control: walking from words.ts does reach the JSON lists", () => {
+    const from = reached(["app/topicDraft/sayless/words.ts"]);
+    expect(from.has("app/topicDraft/sayless/wordList.json")).toBe(true);
+    expect(from.has("app/topicDraft/party/vowelWordList.json")).toBe(true);
   });
 
   it("never reach Say Less's word list", () => {
