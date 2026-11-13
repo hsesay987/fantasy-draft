@@ -22,8 +22,10 @@ import * as PT from "../shared/topicDraft/formats/partytrivia";
 import * as MF from "../shared/topicDraft/formats/mafia";
 import * as VP from "../shared/topicDraft/formats/vowelplay";
 import * as PK from "../shared/topicDraft/formats/pecking";
+import * as SL from "../shared/topicDraft/formats/sayless";
 import "../shared/topicDraft/party/vowelWords"; // loads the word list the Vowel Play engine deals from
 import "../shared/topicDraft/pecking/lists"; // loads the ranked lists the Pecking Order engine deals from
+import "../shared/topicDraft/sayless/words"; // loads the words the Say Less engine deals from
 import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelTopics";
 import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
 import { deckOf } from "../shared/topicDraft/party/decks";
@@ -34,7 +36,7 @@ import { GROUP_CALL } from "../shared/topicDraft/party/drinks";
 import { teamsFor } from "../shared/topicDraft/party/teams";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking"];
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless"];
 /** Party games take a bigger group; drafts and trivia stay at six. */
 const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
@@ -74,8 +76,10 @@ type Room = {
   /** False once the current trivia board has been played, so a rematch gets new questions. */
   freshQuiz: boolean;
   statLink: StatLink | null;
-  /** Vowel Play: recent guess times per seat name, for the rate limit. Lives and dies with the room. */
+  /** Vowel Play and Say Less: recent guess times per seat name, for the rate limit. Lives and dies with the room. */
   guessAt?: Map<string, number[]>;
+  /** Say Less: recent clue times per seat name, kept apart from guesses so one never uses up the other. */
+  clueAt?: Map<string, number[]>;
   /** A tournament across games in this room. Stays visible once done, until a new one starts or the room closes. */
   tournament?: Tournament;
   /** Which tournament this is, so a late judge verdict never lands in a later one. */
@@ -199,7 +203,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     pools = ok;
   }
   const pool = pools[0]!;
-  const teamed = format === "partytrivia" || format === "vowelparty" || format === "vote" || format === "imposter" || format === "pecking"; // the others have no teams
+  const teamed = format === "partytrivia" || format === "vowelparty" || format === "vote" || format === "imposter" || format === "pecking" || format === "sayless"; // the others have no teams
   const teams = teamed ? num(o.teams, 0, 4, 0) : 0;
   const teamMap: Record<string, number> = {};
   if (teams > 0 && o.teamMap && typeof o.teamMap === "object") {
@@ -209,7 +213,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     }
   }
   const mixed = mixTitle(pools.map((p) => poolTitleFor(format, p)));
-  const title = format === "vowelplay" ? `Vowel Play: ${mixed}` : format === "vowelparty" ? `Vowel Party: ${mixed}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${mixed}` : format === "insync" ? `In-Sync: ${mixed}` : format === "partytrivia" ? `Party Trivia: ${mixed}` : format === "pecking" ? `Pecking Order: ${mixed}` : mixed;
+  const title = format === "vowelplay" ? `Vowel Play: ${mixed}` : format === "vowelparty" ? `Vowel Party: ${mixed}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${mixed}` : format === "insync" ? `In-Sync: ${mixed}` : format === "partytrivia" ? `Party Trivia: ${mixed}` : format === "pecking" ? `Pecking Order: ${mixed}` : format === "sayless" ? `Say Less: ${mixed}` : mixed;
   const vowel = format === "vowelplay" || format === "vowelparty";
   const wanted = o.teamSize == null || o.teamSize === "" ? 15 : Number(o.teamSize);
   const opts = {
@@ -223,8 +227,9 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     teams,
     teamMap,
     vowelMode: (format === "vowelplay" && o.vowelMode === "duel" ? "duel" : "first") as "first" | "duel",
-    // Buzz mode is in-person: only Party Trivia and Vowel Party have it, every other format plays on phones.
-    answer: ((format === "partytrivia" || format === "vowelparty") && o.answer === "buzz" ? "buzz" : "phones") as "phones" | "buzz",
+    // Buzz mode is in-person: only Party Trivia, Vowel Party and Say Less have it, every other format plays on phones.
+    answer: ((format === "partytrivia" || format === "vowelparty" || format === "sayless") && o.answer === "buzz" ? "buzz" : "phones") as "phones" | "buzz",
+    ...(format === "sayless" ? { saylessRounds: nearest([1, 2, 3], o.saylessRounds, 2) as 1 | 2 | 3, saylessWords: nearest([3, 4, 5], o.saylessWords, 3) as 3 | 4 | 5, saylessGuard: o.saylessGuard === true } : {}),
     ...(format === "pecking" ? { peckMode: (o.peckMode === "rank" || o.peckMode === "name" ? o.peckMode : "mixed") as PK.PeckMode } : {}),
     vowelAnswer: (format === "vowelparty" ? (o.answer === "buzz" ? "voice" : "type") : o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
@@ -498,6 +503,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   // A rematch prefers names this room has not played yet.
   if (setup.format === "vowelplay" || setup.format === "vowelparty") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("vp:")).map((x) => x.slice(3)) };
   if (setup.format === "pecking") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("pk:")) };
+  if (setup.format === "sayless") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("sl:")) }; // the engine skips these words
   const state = initGame(setup, Date.now());
   if (isDone(setup, state)) return { error: "No questions are available for this topic right now" }; // nothing to play
   if (room.status === "done") resetToLobby(room);
@@ -506,6 +512,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   room.status = "playing";
   room.freshQuiz = false;
   room.guessAt = undefined;
+  room.clueAt = undefined;
   trackServer("room_started", { format: room.setup.format, pool: room.setup.pool, seats: room.seats.length }, room.code);
   room.turnMarker = turnMarker(room.setup, room.state);
   room.turnStartedAt = Date.now();
@@ -526,6 +533,7 @@ function settleParty(room: Room, s: GameState, now: number): GameState {
     case "vowelplay":
     case "vowelparty": return VP.settle(s as VP.VPState, gone, now);
     case "pecking": return PK.settle(s as PK.PeckState, gone, now);
+    case "sayless": return SL.settle(s as SL.SLState, gone, now);
     default: return s;
   }
 }
@@ -558,6 +566,22 @@ const HOST_MOVES_ON = new Set<FormatId>(["vote", "insync", "partytrivia", "pecki
 const PECK_NAME_MAX = 60;
 const VOWEL_GUESS_MAX = 60;
 const VOWEL_GUESSES_PER_SECOND = 3;
+/** Say Less clues: the engine trims a clue to 40 characters, but nothing longer than this reaches it. */
+const SAY_CLUE_MAX = 60;
+/** What the describer's phone says when the engine refuses a clue, by the engine's reason. */
+const SAY_REFUSED: Record<string, string> = { empty: "Type a clue", spaces: "One word only", contains: "That gives it away", contained: "That gives it away", plural: "That gives it away" };
+
+/** True when this seat already sent 3 in the last second; otherwise counts this one. */
+function tooFast(log: Map<string, number[]>, name: string): boolean {
+  const now = Date.now();
+  const recent = (log.get(name) ?? []).filter((t) => now - t < 1000);
+  if (recent.length >= VOWEL_GUESSES_PER_SECOND) {
+    log.set(name, recent);
+    return true;
+  }
+  log.set(name, [...recent, now]);
+  return false;
+}
 const ACTION_TYPES = new Set(["buzz", "spoke", "mark", "giveUp", "pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next", "nightAct", "dayVote", "skipTalk"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
@@ -571,17 +595,18 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   if (raw.type === "skipTalk" && !isHost(room, token)) return { ok: false, error: "Only the host can skip the talk" };
   if (raw.type === "next" && (HOST_MOVES_ON.has(room.setup.format) || !room.setup.players.includes(seat.name)) && !isHost(room, token)) return { ok: false, error: "Only the host can move on" };
   // Typed guesses are cheap to flood: about 3 a second per seat, counted whether or not they are right.
-  if (raw.type === "guess" && (room.setup.format === "vowelplay" || room.setup.format === "vowelparty")) {
+  const format = room.setup.format;
+  if (raw.type === "guess" && (format === "vowelplay" || format === "vowelparty" || format === "sayless")) {
     if (typeof raw.text !== "string" || raw.text.length > VOWEL_GUESS_MAX) return { ok: false, error: "That guess is too long" };
-    const log = (room.guessAt ??= new Map());
-    const now = Date.now();
-    const recent = (log.get(seat.name) ?? []).filter((t) => now - t < 1000);
-    if (recent.length >= VOWEL_GUESSES_PER_SECOND) {
-      log.set(seat.name, recent);
-      return { ok: false, error: "Slow down" };
-    }
-    log.set(seat.name, [...recent, now]);
+    if (tooFast((room.guessAt ??= new Map()), seat.name)) return { ok: false, error: "Slow down" };
   }
+  // Say Less clues: same limit, on their own log. A refused clue counts too.
+  if (raw.type === "clue" && format === "sayless") {
+    if (typeof raw.text !== "string") return { ok: false, error: "Type a clue" };
+    if (raw.text.length > SAY_CLUE_MAX) return { ok: false, error: "That clue is too long" };
+    if (tooFast((room.clueAt ??= new Map()), seat.name)) return { ok: false, error: "Slow down" };
+  }
+  if (raw.type === "mark" && format === "sayless" && raw.verdict !== "right" && raw.verdict !== "wrong") return { ok: false, error: "Not allowed right now" };
   // Pecking Order: the engine refuses bad answers too, but nothing malformed reaches it.
   if (room.setup.format === "pecking") {
     if (raw.type === "answer" && typeof raw.rank !== "number") return { ok: false, error: "Not allowed right now" };
@@ -595,6 +620,14 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   const action = { ...rest, by } as Action;
   const applied = applyAction(room.setup, room.state, action, Date.now());
   if (applied === room.state) return { ok: false, error: "Not allowed right now" };
+  // Say Less refuses a clue with a new state (its reason, maybe a sip) so the describer's phone can say why: keep it, but it's still a no.
+  if (format === "sayless" && raw.type === "clue") {
+    const before = room.state as SL.SLState, after = applied as SL.SLState;
+    if (after.refused && after.refused.seq !== before.refused?.seq && after.phase === before.phase && after.clues === before.clues) {
+      commit(room, settleParty(room, applied, Date.now()));
+      return { ok: false, error: SAY_REFUSED[after.refused.reason] ?? "Not allowed right now" };
+    }
+  }
   // Acting again means they are back at the table. Only an action that counted says so: this can change who hosts, and commit's bump tells the room.
   if (seat.left && PARTY_FORMATS.has(room.setup.format)) seat.left = false;
   const next = settleParty(room, applied, Date.now());
@@ -647,6 +680,11 @@ function finish(room: Room) {
       record.winner = teamsFor(setup, setup.players) ? null : triviaWinner(room.state!); // a team game has no single winner
       room.seen = [...room.seen, ...PK.seenKeys(room.state as PK.PeckState)].slice(-400);
     }
+    if (setup.format === "sayless") {
+      const ss = room.state as SL.SLState;
+      record.winner = ss.teams ? null : triviaWinner(ss); // the engine decides whether teams played; a team game has no single winner
+      room.seen = [...room.seen, ...SL.seenKeys(ss)].slice(-400); // only words that were shown
+    }
     recordTournamentGame(room, awardsFor(setup, room.state!, seated));
     if (setup.format === "partytrivia") room.seen = [...room.seen, ...(setup.quiz?.categories ?? []).map((c) => `cat:${c.name}`)].slice(-400);
     if (setup.format === "insync") room.seen = [...room.seen, ...(room.state as IS.InSyncState).pairs.map((q) => q.id)].slice(-400);
@@ -688,7 +726,7 @@ function autoplay(room: Room, name: string): Action | null {
     if (x.phase === "clue" && IM.turnPlayer(x) === name) return { type: "clue", by: name, text: "" };
     return null; // votes and guesses run out on their own clocks
   }
-  if (format === "vote" || format === "insync" || format === "partytrivia" || format === "mafia" || format === "vowelplay" || format === "vowelparty" || format === "pecking") return null; // every phase ends on its own clock
+  if (format === "vote" || format === "insync" || format === "partytrivia" || format === "mafia" || format === "vowelplay" || format === "vowelparty" || format === "pecking" || format === "sayless") return null; // every phase ends on its own clock
   if (format === "auction") {
     const a = s as A.AuctionState;
     if (a.nominate?.offer) return A.nominator(a) === name ? { type: "nominate", by: name, itemId: a.nominate.offer[0]! } : null;
@@ -764,6 +802,7 @@ function redact(room: Room, me: string | null): GameState | null {
   if (room.setup?.format === "insync") return IS.redactFor(s as IS.InSyncState, me); // opens up by itself once the game is done
   if (room.setup?.format === "partytrivia") return PT.redactFor(s as PT.PTState, me) as unknown as GameState; // opens up by itself once the game is done
   if (room.setup?.format === "vowelplay" || room.setup?.format === "vowelparty") return VP.redactFor(s as VP.VPState, me) as unknown as GameState; // opens up by itself once the game is done, to the words played
+  if (room.setup?.format === "sayless") return SL.redactFor(s as SL.SLState, me) as unknown as GameState; // never the deal or seed; the live word only to its describer
   if (room.setup?.format === "pecking") return PK.redactFor(s as PK.PeckState, me) as unknown as GameState; // never the pool; answers open up once asked
   if (room.setup?.format === "mafia") return MF.redactFor(s as MF.MafiaState, me) as unknown as GameState; // same
   if (room.status === "done" || !room.setup) return s;
@@ -794,7 +833,7 @@ function withoutQuiz(setup: GameSetup): GameSetup {
 }
 
 /** Formats whose setup never sends its seed or avoid list, even when done. */
-const keepsAvoid = (f: FormatId) => f === "vowelplay" || f === "vowelparty" || f === "pecking";
+const keepsAvoid = (f: FormatId) => f === "vowelplay" || f === "vowelparty" || f === "pecking" || f === "sayless";
 
 export function snapshot(room: Room, token: unknown) {
   const seat = seatFor(room, token);
@@ -811,6 +850,7 @@ export function snapshot(room: Room, token: unknown) {
     // Vowel Play never sends the seed, even when done: with the bundled word lists it rebuilds the names a game ended before playing.
     // Vowel Play's avoid list holds names this room already played, and a rematch deals from it once a topic runs short, so it never leaves the server.
     // Pecking Order is the same: its avoid list holds items this room already asked, which a rematch falls back on.
+    // Say Less too: with the bundled decks the seed rebuilds the words a game ended before playing.
     setup: room.setup && PARTY_FORMATS.has(room.setup.format) && (room.status !== "done" || keepsAvoid(room.setup.format))
       ? withoutQuiz({ ...room.setup, seed: 0, ...(keepsAvoid(room.setup.format) ? { opts: { ...room.setup.opts, avoid: [] } } : {}) })
       : room.setup,
