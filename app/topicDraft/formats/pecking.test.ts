@@ -313,4 +313,20 @@ describe("pecking order engine", () => {
   it("init with no questions is done", () => {
     expect(init({ players: PLAYERS, lists: [], mode: "mixed", count: 5, seed: 1, now: T0 }).done).toBe(true);
   });
+
+  it("init with given questions uses them verbatim and ignores lists, count and seed", () => {
+    const given = [nameQ(3), rankQ("Bravo")];
+    const a = init({ players: ["You"], lists: [LIST, LIST2], mode: "rank", count: 9, seed: 1, now: T0, questions: given });
+    const b = init({ players: ["You"], lists: [], mode: "name", count: 1, seed: 99, now: T0, questions: given });
+    expect(a.questions).toEqual(given);
+    expect(b.questions).toEqual(given);
+    expect(a.done).toBe(false);
+    expect(a.round).toBe(0);
+  });
+
+  it("init with an empty questions array is done, even with lists to draw from", () => {
+    const s = init({ players: ["You"], lists: [LIST], mode: "mixed", count: 5, seed: 1, now: T0, questions: [] });
+    expect(s.questions).toEqual([]);
+    expect(s.done).toBe(true);
+  });
 });
