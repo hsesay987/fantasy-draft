@@ -23,7 +23,7 @@ import * as PT from "./formats/partytrivia";
 import * as MF from "./formats/mafia";
 import * as VP from "./formats/vowelplay";
 import * as PK from "./formats/pecking";
-import { peckingList } from "./pecking/lists";
+import { listFor } from "./pecking/source";
 import { deckOf } from "./party/decks";
 import { insyncDeckOf } from "./party/insyncDecks";
 import { bundledCategories, surveysFor } from "./trivia";
@@ -129,7 +129,7 @@ export function initGame(setup: GameSetup, now: number): GameState {
       if (o.answer === "buzz") return VP.init({ players: setup.players, topic: setup.pool, topics: poolsOf(setup), mode: "first", answer: "voice", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
       return VP.init({ players: setup.players, topic: setup.pool, topics: poolsOf(setup), mode: "all", answer: "type", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "pecking":
-      return PK.init({ players: setup.players, lists: poolsOf(setup).flatMap((id) => peckingList(id) ?? []), mode: o.peckMode ?? "mixed", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+      return PK.init({ players: setup.players, lists: poolsOf(setup).flatMap((id) => listFor(id) ?? []), mode: o.peckMode ?? "mixed", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }

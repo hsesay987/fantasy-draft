@@ -4,7 +4,8 @@
 // "Where does it rank?" names an item and asks for its rank; "Who's at #N?" asks for a name, and each name can be
 // claimed by one player per question. Points fall off linearly to 0 at a quarter of the list away, and the closest
 // answer earns a bonus.
-import { normName, spanOf, type PeckItem, type PeckList } from "../pecking/lists";
+import { normName } from "../pecking/normName";
+import { spanOf, type PeckItem, type PeckList } from "../pecking/types";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { has, own } from "../party/own";
 import { next as rand, shuffle } from "../rng";

@@ -23,6 +23,7 @@ import * as MF from "../shared/topicDraft/formats/mafia";
 import * as VP from "../shared/topicDraft/formats/vowelplay";
 import * as PK from "../shared/topicDraft/formats/pecking";
 import "../shared/topicDraft/party/vowelWords"; // loads the word list the Vowel Play engine deals from
+import "../shared/topicDraft/pecking/lists"; // loads the ranked lists the Pecking Order engine deals from
 import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelTopics";
 import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
 import { deckOf } from "../shared/topicDraft/party/decks";

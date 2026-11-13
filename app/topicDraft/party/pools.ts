@@ -6,7 +6,6 @@ import { TRIVIA_POOLS } from "../trivia";
 import { DECKS, deckOf } from "./decks";
 import { INSYNC_DECKS, insyncDeckOf } from "./insyncDecks";
 import { mixTitle } from "./mixTitle";
-import { PECKING_LIST_IDS } from "../pecking/lists";
 import { PECKING_META } from "../pecking/meta";
 import { VOWEL_TOPICS, vowelTopicTitle } from "./vowelTopics";
 
@@ -22,7 +21,7 @@ export function poolIdsFor(format: FormatId): string[] {
     case "partytrivia": return [...TRIVIA_POOLS];
     case "vowelplay":
     case "vowelparty": return VOWEL_TOPICS.map((t) => t.id);
-    case "pecking": return [...PECKING_LIST_IDS];
+    case "pecking": return PECKING_META.map((m) => m.id);
     default: return [];
   }
 }
