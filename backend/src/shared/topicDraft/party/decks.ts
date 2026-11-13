@@ -126,3 +126,13 @@ export const DECKS: Deck[] = [
 ];
 
 export const deckOf = (id: string) => DECKS.find((d) => d.id === id);
+
+const DECK_BY_CARD = new Map<string, Deck>(DECKS.flatMap((d) => d.cards.map((c) => [c.id, d] as const)));
+/** The deck a card belongs to. A vote game can mix decks, so labels come from the card, not the game's first deck. */
+export const deckOfCard = (cardId: string) => DECK_BY_CARD.get(cardId);
+
+/** Ballot labels for one card: its own deck's, falling back to the game's stored deck. */
+export const cardLabels = (card: { id: string }, fallbackDeckId: string) => {
+  const d = deckOfCard(card.id) ?? deckOf(fallbackDeckId);
+  return { title: d?.title, ask: d?.ask, tag: d?.tag, how: d?.how };
+};
