@@ -320,13 +320,14 @@ describe("party rooms", () => {
     expect(snapshot(made.room, crewToken).state.secret).toBe(st.secret);
   });
 
-  it("a 12th player can join an empty room, a 13th cannot, and a vote game needs 3 players", () => {
+  it("a 12th player can join an empty room, a 13th cannot, and a vote game starts with 2 players", () => {
     const empty = createRoom(null, "H0") as any;
     for (let i = 1; i < 12; i++) expect((joinRoom(empty.room.code, `H${i}`) as any).error).toBeUndefined();
     expect((joinRoom(empty.room.code, "H12") as any).error).toMatch(/^Room is full/);
     const made = createRoom(party("vote", "icks"), "Ann") as any;
+    expect(startRoom(made.room, made.seat.token)).toEqual({ error: "Need at least 2 players" });
     joinRoom(made.room.code, "Bob");
-    expect(startRoom(made.room, made.seat.token)).toEqual({ error: "Need at least 3 players" });
+    expect(startRoom(made.room, made.seat.token)).toEqual({ ok: true });
   });
 
   it("keeps drinking off unless asked and cleans team settings", () => {
@@ -1690,7 +1691,7 @@ describe("screen host", () => {
       expect(r.setup.players).toEqual(["Ann", "Bob", "Cy"]);
       leaveRoom(r, (r.seats.find((s: any) => s.name === "Cy")).token);
       expect(r.setup.players).toEqual(["Ann", "Bob"]);
-      expect(setGame(r, toks.TV, party("vote", "icks"))).toEqual({ ok: true });
+      expect(setGame(r, toks.TV, party("imposter", "villains"))).toEqual({ ok: true });
       expect(r.setup.players).toEqual(["Ann", "Bob"]);
       expect(startRoom(r, toks.TV)).toEqual({ error: "Need at least 3 players" });
       joinRoom(r.code, "Cy");

@@ -8,16 +8,20 @@ import { playedOn, todayKey, todayNumber, type DailyGame, type Played } from "..
 import { CATEGORIES } from "../play/categories";
 import { hasTrivia } from "../topicDraft/trivia";
 import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
+import { PINPOINT_TOPICS } from "../pinpoint/topics";
+import { THREAD_TOPICS } from "../commonthread/topics";
+import { HubArt } from "./HubArt";
 
 const topics = CATEGORIES.filter((c) => !c.hidden && hasTrivia(c.id));
 
 /** The trivia games, each in its own pixel world, with free play and, for most, a daily puzzle. `topicList` is for a game whose topics aren't the trivia ones. */
-const GAMES: { id: string; daily?: DailyGame; world: "summit" | "sky" | "launch" | "ladder" | "typewriter"; title: string; blurb: string; href: string; demo: number; topics: boolean; topicHref?: (pool: string) => string; topicList?: { id: string; title: string }[] }[] = [
+const GAMES: { id: string; daily?: DailyGame; world?: "summit" | "sky" | "launch" | "ladder" | "typewriter"; art?: "pinpoint" | "thread"; title: string; blurb: string; href: string; demo: number; topics: boolean; topicHref?: (pool: string) => string; topicList?: { id: string; title: string }[] }[] = [
   { id: "jeopardy", daily: "summit", world: "summit", title: "Summit", blurb: "Pick a clue, climb the mountain. Harder clues take you higher, past nine named camps to the top.", href: "/play/jeopardy", demo: 0.42, topics: true },
   { id: "feud", daily: "hotair", world: "sky", title: "Hot Air", blurb: "Say what everyone would say. Popular answers lift your balloon from the sea to the edge of space.", href: "/play/feud", demo: 0.5, topics: true },
-  { id: "costimation", daily: "costimation", world: "launch", title: "Costimation", blurb: "Guess what real products cost. Close guesses fly your ship across the solar system, planet by planet.", href: "/costimation", demo: 0.3, topics: false },
   { id: "toprung", daily: "toprung", world: "ladder", title: "Top Rung", blurb: "Climb a lighthouse ladder, one question a rung, up to the lamp. A slip drops you to your last safe ledge, so know when to walk away.", href: "/toprung", demo: 0.18, topics: true, topicHref: (pool) => `/toprung/${pool}` },
   { id: "vowelplay", world: "typewriter", title: "Vowel Play", blurb: "A battered typewriter has lost its vowels. Name each one from the letters left, fast, and the keys snap back into place.", href: "/vowelplay", demo: 0, topics: true, topicHref: (pool) => `/vowelplay/${pool}`, topicList: VOWEL_TOPICS },
+  { id: "pinpoint", art: "pinpoint", title: "Pinpoint", blurb: "Guess today's hidden pick in any topic. Every guess is checked against real facts about the pick and shows how close you are.", href: "/pinpoint", demo: 0, topics: true, topicHref: (pool) => `/pinpoint/${pool}`, topicList: PINPOINT_TOPICS },
+  { id: "commonthread", art: "thread", title: "Common Thread", blurb: "Six clues share one hidden fact, from obscure to obvious. Work out what links them in any topic: the fewer clues you need, the more you score.", href: "/commonthread", demo: 0, topics: true, topicHref: (pool) => `/commonthread/${pool}`, topicList: THREAD_TOPICS },
 ];
 
 export default function TriviaHub() {
@@ -26,7 +30,7 @@ export default function TriviaHub() {
   useEffect(() => {
     setN(todayNumber());
     const day = todayKey();
-    setDone(Object.fromEntries(GAMES.flatMap((g) => (g.daily ? [[g.daily, playedOn(g.daily, day)]] : []))));
+    setDone({ ...Object.fromEntries(GAMES.flatMap((g) => (g.daily ? [[g.daily, playedOn(g.daily, day)]] : []))), costimation: playedOn("costimation", day) });
   }, []);
 
   return (
@@ -34,7 +38,7 @@ export default function TriviaHub() {
       <div className="space-y-8">
         <header className="max-w-2xl space-y-3">
           <p className="px-eyebrow">TRIVIA</p>
-          <h1>Five worlds. Most have a new puzzle every day.</h1>
+          <h1>Seven games. Most have a new puzzle every day.</h1>
           <p className="px-note">Play a daily to compare with everyone else, or free play any topic, solo, against the AI or with friends. Every question is made of real facts, and you can rate any one you play.</p>
         </header>
 
@@ -46,7 +50,7 @@ export default function TriviaHub() {
               <div key={g.id} className="pixel !min-h-0 !bg-transparent" data-world={g.world}>
                 <PixelBox className="grid h-full content-start gap-4">
                   <Link href={home} aria-label={g.daily ? `Play today's ${g.title}` : `Play ${g.title}`} className="block">
-                    <WorldScene world={g.world} caption={g.title} actors={[{ name: "YOU", value: mine?.score ?? g.demo }]} labels={false} track={false} />
+                    {g.world ? <WorldScene world={g.world} caption={g.title} actors={[{ name: "YOU", value: mine?.score ?? g.demo }]} labels={false} track={false} /> : <HubArt art={g.art ?? "pinpoint"} title={g.title} />}
                   </Link>
                   <div>
                     <h2>{g.title}</h2>
@@ -71,23 +75,19 @@ export default function TriviaHub() {
           })}
         </div>
 
-        <PixelBox className="flex flex-wrap items-center justify-between gap-4">
-          <div className="max-w-2xl">
-            <p className="px-eyebrow">NEW · DAILY</p>
-            <h2 className="mt-2">Pinpoint</h2>
-            <p className="px-note mt-2">Guess today&apos;s hidden pick in any topic. Every guess is checked against real facts about the pick and shows how close you are.</p>
-          </div>
-          <Link href="/pinpoint" className="px-btn gold no-underline">PLAY PINPOINT</Link>
-        </PixelBox>
-
-        <PixelBox className="flex flex-wrap items-center justify-between gap-4">
-          <div className="max-w-2xl">
-            <p className="px-eyebrow">NEW · DAILY</p>
-            <h2 className="mt-2">Common Thread</h2>
-            <p className="px-note mt-2">Six clues share one hidden fact, from obscure to obvious. Work out what links them in any topic: the fewer clues you need, the more you score.</p>
-          </div>
-          <Link href="/commonthread" className="px-btn gold no-underline">PLAY COMMON THREAD</Link>
-        </PixelBox>
+        <div className="pixel !min-h-0 !bg-transparent" data-world="launch">
+          <PixelBox className="flex flex-wrap items-center justify-between gap-4">
+            <div className="max-w-2xl">
+              <p className="px-eyebrow">DAILY · NO TOPICS</p>
+              <h2 className="mt-2">Costimation</h2>
+              <p className="px-note mt-2">Guess what real products cost. Close guesses fly your ship across the solar system, planet by planet.</p>
+            </div>
+            <div className="flex flex-wrap items-center">
+              <Link href="/daily/costimation" className="px-btn gold no-underline">{done.costimation ? `DAILY #${done.costimation.number} · ${Math.round(done.costimation.score * 100)}%` : `PLAY DAILY${n ? ` #${n}` : ""}`}</Link>
+              <Link href="/costimation" className="px-btn alt no-underline">FREE PLAY</Link>
+            </div>
+          </PixelBox>
+        </div>
       </div>
     </PixelShell>
   );

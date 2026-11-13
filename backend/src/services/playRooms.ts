@@ -36,7 +36,7 @@ export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "p
 const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
 /** Fewest players each game starts with; anything not listed needs 2. */
-export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, vote: 3, mafia: MF.MIN_PLAYERS };
+export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, mafia: MF.MIN_PLAYERS };
 /** An empty room (no game picked yet) takes the bigger party group; picking a draft caps it at six. */
 const seatCap = (format: FormatId | undefined) => (!format || PARTY_FORMATS.has(format) ? MAX_SEATS : DRAFT_SEATS);
 const MAX_ROOMS = 500;
@@ -740,17 +740,12 @@ export function snapshot(room: Room, token: unknown) {
     // The setup seed rebuilds every shuffle and hidden pick, so a running party game never sends it.
     // Party trivia also carries its question bank (with answers) in setup.quiz, which stays on the server until the game is done.
     // Vowel Play never sends the seed, even when done: with the bundled word lists it rebuilds the names a game ended before playing.
- party-night
-    setup: room.setup && PARTY_FORMATS.has(room.setup.format) && (room.status !== "done" || room.setup.format === "vowelplay" || room.setup.format === "vowelparty") ? withoutQuiz({ ...room.setup, seed: 0 }) : room.setup,
-    seats: room.seats.map((s) => ({ name: s.name, host: s === host, left: s.left, screen: !!s.screen })),
-    screen: !!seat?.screen,
-
     // Vowel Play's avoid list holds names this room already played, and a rematch deals from it once a topic runs short, so it never leaves the server.
     setup: room.setup && PARTY_FORMATS.has(room.setup.format) && (room.status !== "done" || room.setup.format === "vowelplay" || room.setup.format === "vowelparty")
       ? withoutQuiz({ ...room.setup, seed: 0, ...(room.setup.format === "vowelplay" || room.setup.format === "vowelparty" ? { opts: { ...room.setup.opts, avoid: [] } } : {}) })
       : room.setup,
-    seats: room.seats.map((s) => ({ name: s.name, host: s === host, left: s.left })),
- main
+    seats: room.seats.map((s) => ({ name: s.name, host: s === host, left: s.left, screen: !!s.screen })),
+    screen: !!seat?.screen,
     me: seat?.name ?? null,
     state: withoutLeftDrinks(room, redact(room, playing ? seat!.name : null)),
     verdict: room.status === "done" ? room.verdict : null,

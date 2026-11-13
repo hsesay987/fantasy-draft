@@ -2,7 +2,8 @@
 // Did That Happen cards have a right answer: real TV plots retold in our own words, mixed with made-up ones.
 
 export type VoteCard = { id: string; prompt: string; a: string; b: string; answer?: "a" | "b"; note?: string };
-export type Deck = { id: string; title: string; blurb: string; how: string; cards: VoteCard[] };
+/** `ask` is the question every ballot answers; `tag` says what a vote for a side means, shown on the ballot. */
+export type Deck = { id: string; title: string; blurb: string; how: string; ask?: string; tag?: string; cards: VoteCard[] };
 
 const opinion = (prefix: string, a: string, b: string, rows: string[]): VoteCard[] => rows.map((prompt, i) => ({ id: `${prefix}-${i + 1}`, prompt, a, b }));
 const pairs = (prefix: string, rows: [string, string, string][]): VoteCard[] => rows.map(([prompt, a, b], i) => ({ id: `${prefix}-${i + 1}`, prompt, a, b }));
@@ -15,6 +16,8 @@ export const DECKS: Deck[] = [
     title: "Who's Wrong?",
     blurb: "Two sides of a messy story. Pick who's in the wrong.",
     how: "Score by guessing how your friends voted.",
+    ask: "Who's in the wrong?",
+    tag: "In the wrong",
     cards: pairs("wrong", [
       ["Sam's roommate ate Sam's labelled leftovers, then left $10 on the counter. Sam is still furious.", "Sam", "The roommate"],
       ["Priya RSVP'd yes to a wedding, skipped it for a concert, and sent a big gift. The couple has stopped talking to her.", "Priya", "The couple"],

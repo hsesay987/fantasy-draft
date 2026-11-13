@@ -47,7 +47,7 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const sides: { id: V.Side; label: string }[] = [{ id: "a", label: card.a }, { id: "b", label: card.b }];
   const waiting = s.players.filter((p) => !gone.includes(p) && !has(s.votes, p)).length;
   const status = !seated ? (s.phase === "vote" ? `Voting on the phones. ${waiting} still to vote.` : s.phase === "guess" ? "Everyone is reading the room on their phones…" : null)
-    : s.phase !== "vote" ? null : mine ? `Locked in. Waiting for ${waiting} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
+    : s.phase !== "vote" ? null : mine ? `You voted ${mine === "a" ? card.a : card.b}${deck?.tag ? ` (${deck.tag.toLowerCase()})` : ""}. Waiting for ${waiting} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
 
   return (
     <PixelShell world="hall">
@@ -64,6 +64,7 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
         <section className="hall-notice">
           <p className="q">{card.prompt}</p>
+          {deck?.ask && <p className="ask">{deck.ask}</p>}
           <p className="how">{deck?.how}</p>
         </section>
 
@@ -75,7 +76,7 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
               <button key={id} type="button" disabled={!seated || !!mine || s.phase !== "vote"} aria-pressed={mine === id} onClick={() => ctl.dispatch({ type: "vote", by: me, side: id })}
                 className={`ballot ${mine === id ? "marked" : ""} ${mine && mine !== id && !reveal ? "faded" : ""} ${truth ? "true" : ""}`}>
                 <span className="box" aria-hidden>{mine === id && <span>X</span>}</span>
-                <span><span className="side">{id.toUpperCase()}</span>{label}{truth && <span className="truth">TRUE</span>}</span>
+                <span><span className="side">{id.toUpperCase()}</span>{label}{deck?.tag && <span className="pick-tag">{mine === id ? `You: ${deck.tag}` : deck.tag}</span>}{truth && <span className="truth">TRUE</span>}</span>
                 {open && <span className="n">{n}</span>}
                 {open && <span className="bar" style={{ width: `${(n / total) * 100}%` }} aria-hidden />}
               </button>
@@ -83,7 +84,7 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
           })}
         </div>
 
-        {s.phase === "guess" && seated && <GuessSheet s={s} me={me} card={card} onGuess={(target, side) => ctl.dispatch({ type: "guessVote", by: me, target, side })} />}
+        {s.phase === "guess" && seated && <GuessSheet s={s} me={me} card={card} tag={deck?.tag} onGuess={(target, side) => ctl.dispatch({ type: "guessVote", by: me, target, side })} />}
 
         {status && <p className="party-status">{status}</p>}
 
@@ -114,14 +115,14 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
 }
 
 /** One row per person this player has to read, with A and B stamps. A guess cannot be changed. */
-function GuessSheet({ s, me, card, onGuess }: { s: V.VoteState; me: string; card: VoteCard; onGuess: (target: string, side: V.Side) => void }) {
+function GuessSheet({ s, me, card, tag, onGuess }: { s: V.VoteState; me: string; card: VoteCard; tag?: string; onGuess: (target: string, side: V.Side) => void }) {
   const targets = own(s.targets, me) ?? [];
   const mine = own(s.guesses, me) ?? {};
   const made = targets.filter((t) => has(mine, t)).length;
   return (
     <section className="hall-sheet" aria-label="Guess how they voted">
       <div className="top">
-        <h2>How did they vote?</h2>
+        <h2>{tag ? "Who did they say is in the wrong?" : "How did they vote?"}</h2>
         {targets.length > 0 && <p className="count" aria-live="polite">{made} of {targets.length} guessed</p>}
       </div>
       {targets.length === 0 ? <p className="sat">You sat this one out. The room is guessing.</p> : (
@@ -137,7 +138,7 @@ function GuessSheet({ s, me, card, onGuess }: { s: V.VoteState; me: string; card
                 <span className="name">{t}</span>
                 <span className="pick">
                   {(["a", "b"] as const).map((side) => (
-                    <button key={side} type="button" disabled={has(mine, t)} aria-pressed={own(mine, t) === side} aria-label={`${t} voted ${side === "a" ? card.a : card.b}`} onClick={() => onGuess(t, side)}
+                    <button key={side} type="button" disabled={has(mine, t)} aria-pressed={own(mine, t) === side} aria-label={`${t} voted ${side === "a" ? card.a : card.b}${tag ? ` ${tag.toLowerCase()}` : ""}`} onClick={() => onGuess(t, side)}
                       className={`stamp ${own(mine, t) === side ? "on" : ""}`}>{side.toUpperCase()}</button>
                   ))}
                 </span>
