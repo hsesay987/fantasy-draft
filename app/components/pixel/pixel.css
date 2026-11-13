@@ -656,6 +656,32 @@
 .arc-verdict.good { color: var(--px-mint); } .arc-verdict.bad { color: #ff8a97; }
 .pixel .arc-next { margin: 4px; width: calc(100% - 8px); }
 
+/* Buzz mode: one big red arcade button, then who holds it and their few seconds, and who is locked out. */
+.arc-buzzbox { display: grid; gap: 8px; min-width: 0; }
+.arc-buzz { display: block; width: 100%; min-height: 96px; padding: 8px 8px 12px; border: 0; cursor: pointer; position: relative; top: 0; font: 400 30px/1 var(--px-head); letter-spacing: .1em; color: #fff; text-shadow: 3px 3px 0 #8a1224; background: #d6273c;
+  box-shadow: 0 0 0 4px var(--px-ink), 0 8px 0 4px var(--px-ink), inset 0 4px 0 0 #ff7d8a, inset 0 -8px 0 0 #8a1224; animation: arc-buzz-glow 1s steps(2) infinite; touch-action: manipulation; }
+.arc-buzz:not(:disabled):active { top: 6px; animation: none; box-shadow: 0 0 0 4px var(--px-ink), 0 2px 0 4px var(--px-ink), inset 0 8px 0 0 #8a1224, inset 0 -4px 0 0 #8a1224; }
+.arc-buzz:disabled { cursor: default; animation: none; color: #cfc8e8; text-shadow: none; background: #231c3f; box-shadow: 0 0 0 4px var(--px-ink), 0 4px 0 4px var(--px-ink); top: 4px; }
+.arc-buzz:focus-visible { outline: 3px solid #fff; outline-offset: 6px; }
+@keyframes arc-buzz-glow { 50% { background: #ff4a5c; } }
+.arc-buzzline { display: flex; align-items: center; gap: 6px; margin: 0; padding: 6px 8px; min-width: 0; color: #fff; background: #000; box-shadow: 0 0 0 3px var(--px-ink); font-size: 22px; line-height: 1.1; }
+.arc-buzzline > canvas { flex: none; }
+.arc-buzzline > span:first-of-type { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.arc-buzzline b { font-weight: 400; color: var(--px-gold); }
+.arc-buzzline .t { font-variant-numeric: tabular-nums; color: #fff; }
+.arc-buzzline em { font-style: normal; color: #cfc8e8; }
+.arc-buzzline .swatch { display: inline-block; width: 10px; height: 10px; margin-right: 4px; }
+.arc-buzzline .px-clock { flex: none; }
+.arc-buzzhint, .arc-buzzout, .arc-buzzmiss { margin: 0; padding: 6px 8px 4px; text-align: center; font: 400 10px/1.4 var(--px-head); color: #fff; background: #0008; overflow-wrap: anywhere; }
+.arc-buzzout { padding: 18px 8px 16px; font-size: 16px; color: #ff8a97; background: #2a0810; box-shadow: 0 0 0 3px #ff5a6e, 0 0 0 6px var(--px-ink); }
+.arc-buzzmiss { color: #fff; background: #d6273c; box-shadow: 0 0 0 3px var(--px-ink); }
+.arc-lockedlist { margin: 0; font-size: 20px; line-height: 1.1; color: #ff8a97; overflow-wrap: anywhere; }
+.arc-lockedlist em { margin-right: 4px; font: 400 8px/1 var(--px-head); font-style: normal; color: #2a0810; background: #ff8a97; padding: 3px 5px 2px; vertical-align: 3px; }
+.arc-board .bz { flex: none; padding: 3px 4px 2px; font: 400 7px/1.2 var(--px-head); color: #ff8a97; background: #2a0810; }
+.arc-board .bz.on { color: #1a1204; background: var(--px-gold); }
+@media (max-height: 700px) { .arc-buzz { min-height: 72px; font-size: 24px; } .arc-buzzout { padding: 12px 8px 10px; } }
+@media (prefers-reduced-motion: reduce) { .arc-buzz { animation: none; } }
+
 /* The high-score table: amber on black, in fixed columns. */
 .arc-board { padding: 10px 10px 8px; min-width: 0; background: #06040e; box-shadow: 0 0 0 4px var(--px-ink), inset 0 0 0 2px #2d2350; }
 .arc-page .arc-board h2 { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 0 8px; font: 400 10px/1.3 var(--px-head); color: var(--px-gold); text-transform: uppercase; }

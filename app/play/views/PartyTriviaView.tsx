@@ -21,6 +21,8 @@ const LETTERS = ["A", "B", "C", "D", "E", "F"];
 const REVEAL_BEAT_MS = 700;
 /** If the server hasn't confirmed a tap by now it was lost, so the buttons come back. */
 const TAP_RETRY_MS = 3000;
+/** A buzz time as seconds with milliseconds: 1234 reads 1.234s. */
+const buzzTime = (ms: number) => `${(ms / 1000).toFixed(3)}s`;
 
 const TROPHY: SpriteData = {
   rows: ["..GGGGGGGG..", "XXGWGGGGGDXX", "X.GWGGGGGD.X", "X.GWGGGGGD.X", ".XGGGGGGGDX.", "..GGGGGGGD..", "...GGGGGD...", "....GGGD....", ".....GD.....", ".....GD.....", "...GGGGDD...", "..KKKKKKKK.."],
@@ -68,7 +70,15 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
   const phaseMs = asking ? PT.QUESTION_MS : PT.REVEAL_MS;
   const deadline = s.phaseAt + phaseMs;
 
-  // Tapped but not yet confirmed: shown straight away, because party moves wait for the server.
+  // Buzz mode: the first to buzz answers alone, for their team; a wrong answer locks them (or their team) out.
+  const buzzMode = s.answerMode === "buzz";
+  const buzzer = buzzMode ? s.buzzer ?? null : null;
+  const lockedOut = buzzMode ? s.locked ?? [] : [];
+  const missed = buzzMode ? s.missed ?? [] : [];
+  const iLocked = lockedOut.includes(me);
+
+  // Tapped but not yet confirmed: shown straight away, because party moves wait for the server. In buzz mode a tap
+  // only stands while this seat still holds the buzz: a wrong answer frees it at once.
   const [tap, setTap] = useState<{ round: number; choice: string } | null>(null);
   const confirmed = own(s.answers, me)?.choice;
   useEffect(() => {
@@ -76,7 +86,7 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
     const id = setTimeout(() => setTap(null), TAP_RETRY_MS);
     return () => clearTimeout(id);
   }, [tap, confirmed]);
-  const mine = confirmed || (tap?.round === s.round ? tap.choice : "");
+  const mine = confirmed || (tap?.round === s.round && (!buzzMode || buzzer === me) ? tap.choice : "");
 
   // When the clock runs out the buttons close and say so, a moment before the server closes the round. Kept per question,
   // and the timer is only set again for a new question, so a poll's new clock offset can't briefly reopen the buttons.
@@ -127,7 +137,8 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
 
   const votes = votesFor(s.answers);
   const teamPick = asking && myTeam >= 0 ? PT.teamChoice(s.teams![myTeam]!.flatMap((p) => { const a = own(s.answers, p); return a?.choice ? [a] : []; })) : null;
-  const canAnswer = asking && seated && !mine && !outOfTime;
+  const canAnswer = asking && seated && !mine && !outOfTime && (!buzzMode || buzzer === me);
+  const canBuzz = buzzMode && asking && seated && buzzer === null && !iLocked && !outOfTime;
   const myRow = rows.find((r) => r.mine);
 
   const pick = (choice: string) => {
@@ -136,6 +147,33 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
     setTap({ round: s.round, choice });
     ctl.dispatch({ type: "answer", by: me, choice });
   };
+
+  // Buzz: one tap in flight at a time; a refusal (someone was first) needs no message, the screen already shows who.
+  const buzzing = useRef(false);
+  const buzzIn = async () => {
+    if (!canBuzz || buzzing.current) return;
+    buzzing.current = true;
+    play("click");
+    try { await ctl.dispatch({ type: "buzz", by: me }); } finally { buzzing.current = false; }
+  };
+
+  // Everyone hears a buzz land and a wrong one go down, but only ones that happen while this screen is up.
+  const buzzKey = buzzer ? `${s.round}:${buzzer}:${s.buzzAt ?? ""}` : "";
+  const heardBuzz = useRef(buzzKey);
+  const missKey = `${s.round}:${missed.length}`;
+  const heardMiss = useRef(missKey);
+  useEffect(() => {
+    if (buzzKey && buzzKey !== heardBuzz.current) play("pick");
+    heardBuzz.current = buzzKey;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buzzKey]);
+  useEffect(() => {
+    if (missKey !== heardMiss.current && missed.length > 0 && asking) play("lose");
+    heardMiss.current = missKey;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [missKey]);
+  const teamOf = (p: string) => { const i = teamIndexOf(s.teams, p); return i >= 0 ? i : null; };
+  const lastMiss = missed.length ? missed[missed.length - 1]! : null;
 
   return (
     <PixelShell world="arcade">
@@ -151,6 +189,7 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
                 <PartyClock deadline={deadline} offset={ctl.offset} total={phaseMs} />
               </div>
               <h2 className="arc-question" aria-live="polite">{q.q}</h2>
+              {asking && lockedOut.length > 0 && <p className="arc-lockedlist"><em>Locked out</em> {lockedOut.join(", ")}</p>}
               {/* Up here too, because a sip card can cover the buttons for its few seconds. */}
               {!asking && landed && <p className="arc-answer"><em>Answer</em> {right}</p>}
             </section>
@@ -158,12 +197,16 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
 
           <div className="arc-deck">
             {outOfTime && <p className="arc-time" role="status">Time!</p>}
+            {buzzMode && asking && (
+              <BuzzPanel s={s} me={me} seated={seated} buzzer={buzzer} iLocked={iLocked} canBuzz={canBuzz} onBuzz={buzzIn} offset={ctl.offset}
+                team={buzzer ? teamOf(buzzer) : null} lastMiss={lastMiss} missTeam={lastMiss ? teamOf(lastMiss) : null} />
+            )}
             <ul className={`arc-buttons ${asking ? "" : "reveal"}`} aria-label="Answers">
               {q.options.map((opt, i) => {
                 const lit = landed && !asking;
                 const isRight = lit && opt === right;
                 const isMine = mine === opt;
-                const state = isRight ? "right" : lit && isMine ? "wrong" : !asking ? (isMine ? "locked dark" : "dark") : isMine ? "locked" : mine || outOfTime || !seated ? "dark" : "";
+                const state = isRight ? "right" : lit && isMine ? "wrong" : !asking ? (isMine ? "locked dark" : "dark") : isMine ? "locked" : mine || outOfTime || !seated || (buzzMode && buzzer !== me) ? "dark" : "";
                 const backers = votes[opt] ?? [];
                 const showBackers = (asking ? myTeam >= 0 : lit) && backers.length > 0; // who picked what stays with the team until the reveal
                 const showMine = isMine && (asking || lit);
@@ -187,13 +230,13 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
                 );
               })}
             </ul>
-            {!asking && landed && <Verdict s={s} me={me} right={right!} scored={scored} />}
+            {!asking && landed && <Verdict s={s} me={me} right={right!} scored={scored} buzzMode={buzzMode} />}
             {!asking && landed && (canMoveOn(ctl)
               ? <PixelButton variant="gold" className="arc-next" onClick={() => ctl.dispatch({ type: "next", by: me })}>{s.round + 1 >= s.total ? "Final scores >" : "Next question >"}</PixelButton>
               : <WaitingForHost ctl={ctl} />)}
           </div>
 
-          <Board rows={rows} s={s} asking={asking} landed={landed} gained={gained} right={right} q={q} />
+          <Board rows={rows} s={s} asking={asking} landed={landed} gained={gained} right={right} q={q} buzzer={buzzer} lockedOut={buzzMode ? lockedOut : null} />
           <CabinetFoot />
         </div>
 
@@ -215,11 +258,54 @@ function Backers({ names, players }: { names: string[]; players: string[] }) {
   );
 }
 
-function Verdict({ s, me, right, scored }: { s: PT.PTView; me: string; right: string; scored: boolean }) {
+/**
+ * Buzz mode, above the options: a big BUZZ for every seated player who can still buzz, "Locked out" for those who can't,
+ * and once someone holds it, who and how fast, with the few seconds they have to answer. The screen seat only watches.
+ */
+function BuzzPanel({ s, me, seated, buzzer, iLocked, canBuzz, onBuzz, offset, team, lastMiss, missTeam }: {
+  s: PT.PTView; me: string; seated: boolean; buzzer: string | null; iLocked: boolean; canBuzz: boolean; onBuzz: () => void; offset: number;
+  team: number | null; lastMiss: string | null; missTeam: number | null;
+}) {
+  const btn = useRef<HTMLButtonElement>(null);
+  // Each time buzzing opens, the button takes focus, so on a computer the space bar buzzes.
+  useEffect(() => { if (canBuzz) btn.current?.focus({ preventScroll: true }); }, [canBuzz, s.round]);
+  if (buzzer) {
+    const who = buzzer === me ? "You" : buzzer;
+    return (
+      <div className="arc-buzzbox">
+        <p className="arc-buzzline" role="status">
+          <Sprite sprite={playerSprite(Math.max(0, s.players.indexOf(buzzer)))} size={18} />
+          <span>
+            <b>{who}</b>{team !== null && <> <i className="swatch" style={{ background: TEAM_COLORS[team] }} aria-hidden /><em>{teamName(team)} team</em></>} buzzed in <b className="t">{buzzTime(s.buzzMs ?? 0)}</b>
+          </span>
+          {s.buzzAt != null && <PartyClock deadline={s.buzzAt + PT.BUZZ_ANSWER_MS} offset={offset} total={PT.BUZZ_ANSWER_MS} />}
+        </p>
+        <p className="arc-buzzhint">{buzzer === me ? "Pick your answer!" : `${buzzer} is answering${team !== null ? ` for ${teamName(team)} team` : ""}.`}</p>
+      </div>
+    );
+  }
+  const miss = lastMiss && <p className="arc-buzzmiss" role="status">-{PT.WRONG_BUZZ}, {missTeam !== null ? `${teamName(missTeam)} team` : lastMiss === me ? "you" : lastMiss} {missTeam !== null || lastMiss !== me ? "is" : "are"} locked out</p>;
+  return (
+    <div className="arc-buzzbox">
+      {miss}
+      {!seated ? <p className="arc-buzzhint">First to buzz answers.</p>
+        : iLocked ? <p className="arc-buzzout">Locked out</p>
+        : <button ref={btn} type="button" className="arc-buzz" disabled={!canBuzz} onClick={onBuzz}>Buzz</button>}
+    </div>
+  );
+}
+
+function Verdict({ s, me, right, scored, buzzMode }: { s: PT.PTView; me: string; right: string; scored: boolean; buzzMode: boolean }) {
   const seated = s.players.includes(me);
   const team = s.teams?.find((t) => t.includes(me));
   const lastRound = s.history[s.history.length - 1];
   const answered = !!lastRound && has(lastRound.answers, me);
+  const got = buzzMode && lastRound ? Object.keys(lastRound.answers)[0] : undefined;
+  const gotTeam = got ? teamIndexOf(s.teams, got) : -1;
+  if (buzzMode && (!scored || !seated)) {
+    const line = got ? `${got}${gotTeam >= 0 ? ` (${teamName(gotTeam)} team)` : ""} got it!` : seated ? "Nobody got it." : `The answer: ${right}`;
+    return <p className={`arc-verdict ${got && !seated ? "good" : "bad"}`} role="status">{line}</p>;
+  }
   const line = !seated ? `The answer: ${right}` : team
     ? scored ? "Your team got it!" : "Your team missed that one."
     : scored ? "Correct!" : answered ? "Not this time." : "Too slow!";
@@ -227,7 +313,7 @@ function Verdict({ s, me, right, scored }: { s: PT.PTView; me: string; right: st
 }
 
 /** The high-score table: lamps show who has locked in during a question, and what they picked after it. */
-function Board({ rows, s, asking, landed, gained, right, q }: { rows: Standing[]; s: PT.PTView; asking: boolean; landed: boolean; gained: (r: Standing) => number; right?: string; q: { options: string[] } }) {
+function Board({ rows, s, asking, landed, gained, right, q, buzzer, lockedOut }: { rows: Standing[]; s: PT.PTView; asking: boolean; landed: boolean; gained: (r: Standing) => number; right?: string; q: { options: string[] }; buzzer: string | null; lockedOut: string[] | null }) {
   const last = !asking ? s.history[s.history.length - 1] : undefined;
   const letter = (choice: string | null | undefined) => (choice ? LETTERS[q.options.indexOf(choice)] ?? "-" : "-");
   return (
@@ -244,7 +330,8 @@ function Board({ rows, s, asking, landed, gained, right, q }: { rows: Standing[]
               <span className="rank">{rankLabel(r.rank)}</span>
               {teamRow ? <i className="swatch" style={{ background: TEAM_COLORS[r.id] }} aria-hidden /> : <Sprite sprite={playerSprite(r.id)} size={16} />}
               <span className="name">{r.label}</span>
-              {asking && (
+              {asking && lockedOut && (buzzer && r.members.includes(buzzer) ? <span className="bz on">Buzz</span> : r.members.every((m) => lockedOut.includes(m)) ? <span className="bz">Out</span> : null)}
+              {asking && !lockedOut && (
                 <span className="lamps" role="img" aria-label={teamRow ? `${locked} of ${r.members.length} locked in` : locked ? "Locked in" : "Thinking"}>
                   {r.members.map((m) => <i key={m} className={has(s.answers, m) ? "on" : ""} />)}
                 </span>
