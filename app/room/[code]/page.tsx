@@ -59,6 +59,7 @@ export default function RoomPage() {
   else if (snap?.status === "lobby" && counting !== null) setCounting(null);
   // The champion screen a player closed; it stays closed for that tournament on this device.
   const [closedChampion, setClosedChampion] = useState<string | null>(null);
+  if (live && closedChampion !== null) setClosedChampion(null); // a new tournament gets its own champion screen
 
   useEffect(() => setName(loadPrefs().name ?? ""), []);
 
@@ -124,8 +125,8 @@ export default function RoomPage() {
     };
     const t = snap.tournament as LiveTournament | undefined;
     const last = t?.games[t.games.length - 1];
-    // A page opened mid-results has not seen the game start: a finished tournament still counts it when its last game is this one.
-    const counted = snap.status === "done" && !!t && !!last && (counting ?? (!t.done || (last.format === setup.format && last.title === setup.mission.title)));
+    // A page opened mid-results has not seen the game start: only a tournament still running counted it for sure.
+    const counted = snap.status === "done" && !!t && !!last && (counting ?? !t.done);
     const night = counted ? <TournamentBoard t={t!} seats={playingSeats(snap).map((s) => s.name)} /> : undefined;
     return (
       <>
@@ -143,7 +144,7 @@ export default function RoomPage() {
           </div>
         )}
         {night && !snap.screen && <div className="pixel mx-auto max-w-xl px-1 py-2">{night}</div>}
-        <PlayingRoom code={code} snap={{ ...snap, setup }} offset={offset} dispatch={dispatchRemote} onNew={isHost ? toLobby : () => setError(null)} onRematch={isHost ? rematch : undefined} onLeave={leave} tournament={night} />
+        <PlayingRoom code={code} snap={{ ...snap, setup }} offset={offset} dispatch={dispatchRemote} onNew={isHost ? toLobby : () => setError(null)} onRematch={isHost && !(t && !t.done && t.plan[t.index] !== setup.format) ? rematch : undefined} onLeave={leave} tournament={night} />
       </>
     );
   }
@@ -217,7 +218,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
 
   // The night is over: the champion first, until this player closes it.
   if (tour?.done && closedChampion !== tournamentKey(tour)) {
-    return <ChampionScreen t={tour} seats={seatNames} isHost={isHost} busy={tourBusy} error={tourError} onPlayAgain={() => void runTournament(tour.plan)} onBack={() => onCloseChampion(tournamentKey(tour))} onLeave={onLeave} />;
+    return <ChampionScreen t={tour} seats={seatNames} isHost={isHost} busy={tourBusy} error={tourError} onPlayAgain={() => void runTournament(tour.plan.filter((f) => fitsTable(f, count)))} onBack={() => onCloseChampion(tournamentKey(tour))} onLeave={onLeave} />;
   }
 
   // Leaving a setup screen: in a tournament it counts as this game's pick, so the lobby shows instead of reopening it.
