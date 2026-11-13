@@ -1916,6 +1916,23 @@ describe("buzz mode in rooms", () => {
     expect((r.state as VPState).points.Bob).toBeGreaterThan(0);
   });
 
+  it("Vowel Party buzz: starts with 2, refuses the screen seat's buzz, hides the word from the token-less view, and a wrong buzz costs a sip", () => {
+    const setup = { format: "vowelparty", pool: topic, opts: { answer: "buzz", drinking: true } };
+    const two = make(setup, ["Ann", "Bob"]);
+    expect(two.r.state).toMatchObject({ mode: "first", answer: "voice", phase: "guess" });
+    const { r, toks } = make(setup, ["Ann", "Bob", "Cy"], true);
+    expect(act(r, toks.TV!, { type: "buzz" })).toEqual({ ok: false, error: "Not allowed right now" });
+    const name = (r.state as VPState).words[0]!.name;
+    expect(act(r, toks.Bob!, { type: "buzz" })).toEqual({ ok: true });
+    expect(JSON.stringify(snapshot(r, undefined).state)).not.toContain(name);
+    expect(act(r, toks.Bob!, { type: "spoke" })).toEqual({ ok: true });
+    expect(act(r, toks.Ann!, { type: "mark", verdict: "wrong" })).toEqual({ ok: true });
+    expect(act(r, toks.Cy!, { type: "mark", verdict: "wrong" })).toEqual({ ok: true });
+    const s = r.state as VPState;
+    expect(s.phase).toBe("reveal");
+    expect(s.drinks!.calls).toEqual([{ to: "Bob", sips: 1, reason: "Wrong buzz" }]);
+  });
+
   it("Vowel Party without buzz is still the typed race", () => {
     const { r } = make({ format: "vowelparty", pool: topic, opts: {} }, ["Ann", "Bob"]);
     expect(r.state).toMatchObject({ mode: "all", answer: "type" });

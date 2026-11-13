@@ -93,13 +93,17 @@ function drinkCalls(s: VPState, gone: string[]): DrinkCall[] {
   return calls;
 }
 
-/** Closes the word: records it, hands out drinks (everyone-competes only) and starts the reveal. */
+/** Closes the word: records it, hands out drinks (everyone-competes, or a wrong buzz in first correct) and starts the reveal. */
 function finish(s: VPState, now: number, o: { wrongBuzz?: string; lost?: number; gone?: string[] } = {}): VPState {
   const w = s.words[s.round]!;
   const got = Object.entries(s.gotMs);
   const winner = got.length ? got.reduce((a, b) => (b[1] < a[1] ? b : a))[0] : null;
   const h: VPHistory = { name: w.name, puzzle: w.puzzle, winner, ...(o.wrongBuzz ? { wrongBuzz: o.wrongBuzz } : {}), ...(o.lost !== undefined ? { lost: o.lost } : {}), gotMs: s.gotMs };
-  const drinks = s.drinks && s.mode === "all" ? addCalls(s.drinks, drinkCalls(s, o.gone ?? []), s.players) : s.drinks;
+  // Everyone-competes: slowest and misses. First correct (buzz): only a buzz judged wrong costs a sip. Head to head never drinks.
+  const drinks = !s.drinks ? s.drinks
+    : s.mode === "all" ? addCalls(s.drinks, drinkCalls(s, o.gone ?? []), s.players)
+    : s.mode === "first" && o.wrongBuzz ? addCalls(s.drinks, [{ to: o.wrongBuzz, sips: 1, reason: "Wrong buzz" }], s.players)
+    : s.drinks;
   return { ...s, phase: "reveal", history: [...s.history, h], ...(drinks ? { drinks } : {}), phaseAt: now };
 }
 

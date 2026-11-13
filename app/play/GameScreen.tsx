@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../hooks/useAuth";
 import { PageShell } from "../components/ui";
@@ -36,7 +36,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 /** Shows the right view for the format, then the verdict. Used by local and online games. */
 /** Set on the screen host's device: the game shows in the TV frame, in watch mode. */
-export type ScreenProps = { title: string; topic?: string | null; code: string };
+/** `tournament` is the night's leaderboard, shown beside the game once it is finished. */
+export type ScreenProps = { title: string; topic?: string | null; code: string; tournament?: ReactNode };
 
 export function GameBody({ screen, ...props }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew: () => void; onRematch?: () => void; screen?: ScreenProps }) {
   const view = <GameView {...props} />;

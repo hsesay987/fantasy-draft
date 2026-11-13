@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Check, Copy, Crown, ExternalLink, LogOut, Play, RefreshCw, Shuffle, Trophy, Tv, Users } from "lucide-react";
@@ -16,17 +16,15 @@ import { TEAM_MIN_PLAYERS } from "../../topicDraft/formats/partytrivia";
 import { MIN_PLAYERS as MAFIA_MIN } from "../../topicDraft/formats/mafia";
 import { category } from "../../play/categories";
 import { vowelTopicTitle } from "../../topicDraft/party/vowelTopics";
-import { clearToken, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setScreen, setStatLink, startRoom, type RoomSnapshot } from "../../play/onlineApi";
+import { clearToken, endTournament, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setScreen, setStatLink, startRoom, startTournament, type RoomSnapshot } from "../../play/onlineApi";
+import { fitsTable, seatsNeeded } from "../../play/tournamentPlan";
+import { ChampionScreen, TournamentBoard, TournamentCard, TournamentSetup, type LiveTournament } from "../../play/views/TournamentSetup";
 import { useRemoteCtl, useRemoteRoom } from "../../play/useRemoteGame";
 import { loadPrefs, savePrefs } from "../../play/storage";
 import { useAuth } from "../../hooks/useAuth";
 import { openStatRoom, STAT_LEAGUES, statRoomHref, type League } from "../../lib/statRooms";
 import { track } from "../../lib/analytics";
 import { PARTY_FORMATS, type FormatId, type GameSetup } from "../../play/types";
-
-/** Fewest seats each game starts with (the server enforces the same numbers). */
-// Vowel Play and Vowel Party start at 2 (Head to head needs exactly 2: see duelWrong).
-const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" ? 3 : 2);
 
 /** The topic part of a party game's title ("Imposter: A and B" shows as "A and B"; vote games are titled by their decks). */
 const topicLine = (format: FormatId, title: string | undefined): string | null => {
@@ -54,6 +52,14 @@ export default function RoomPage() {
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Whether a tournament was running while the current game played, so its finished screen only shows standings it counted toward.
+  const [counting, setCounting] = useState<boolean | null>(null);
+  const live = !!snap?.tournament && !snap.tournament.done;
+  if (snap?.status === "playing" && counting !== live) setCounting(live);
+  else if (snap?.status === "lobby" && counting !== null) setCounting(null);
+  // The champion screen a player closed; it stays closed for that tournament on this device.
+  const [closedChampion, setClosedChampion] = useState<string | null>(null);
+  if (live && closedChampion !== null) setClosedChampion(null); // a new tournament gets its own champion screen
 
   useEffect(() => setName(loadPrefs().name ?? ""), []);
 
@@ -117,6 +123,11 @@ export default function RoomPage() {
       if (!r.ok) setError(r.data.error ?? "Couldn't start");
       else await refresh();
     };
+    const t = snap.tournament as LiveTournament | undefined;
+    const last = t?.games[t.games.length - 1];
+    // A page opened mid-results has not seen the game start: only a tournament still running counted it for sure.
+    const counted = snap.status === "done" && !!t && !!last && (counting ?? !t.done);
+    const night = counted ? <TournamentBoard t={t!} seats={playingSeats(snap).map((s) => s.name)} /> : undefined;
     return (
       <>
         {snap.status === "done" && (
@@ -132,28 +143,42 @@ export default function RoomPage() {
             </div>
           </div>
         )}
-        <PlayingRoom code={code} snap={{ ...snap, setup }} offset={offset} dispatch={dispatchRemote} onNew={isHost ? toLobby : () => setError(null)} onRematch={isHost ? rematch : undefined} onLeave={leave} />
+        {night && !snap.screen && <div className="pixel mx-auto max-w-xl px-1 py-2">{night}</div>}
+        <PlayingRoom code={code} snap={{ ...snap, setup }} offset={offset} dispatch={dispatchRemote} onNew={isHost ? toLobby : () => setError(null)} onRematch={isHost && !(t && !t.done && t.plan[t.index] !== setup.format) ? rematch : undefined} onLeave={leave} tournament={night} />
       </>
     );
   }
 
-  return <Lobby code={code} token={token} snap={snap} isHost={isHost} onLeave={leave} refresh={refresh} />;
+  return <Lobby code={code} token={token} snap={snap} isHost={isHost} onLeave={leave} refresh={refresh} closedChampion={closedChampion} onCloseChampion={setClosedChampion} />;
 }
 
 /** The server decides who hosts: the first seat that hasn't left and whose phone is awake. */
 const hostName = (snap: RoomSnapshot) => snap.seats.find((s) => s.host)?.name ?? "the host";
 
-function PlayingRoom({ code, snap, offset, dispatch, onNew, onRematch, onLeave }: { code: string; snap: RoomSnapshot & { setup: GameSetup }; offset: number; dispatch: ReturnType<typeof useRemoteRoom>["dispatchRemote"]; onNew: () => void; onRematch?: () => void; onLeave: () => void }) {
+function PlayingRoom({ code, snap, offset, dispatch, onNew, onRematch, onLeave, tournament }: { code: string; snap: RoomSnapshot & { setup: GameSetup }; offset: number; dispatch: ReturnType<typeof useRemoteRoom>["dispatchRemote"]; onNew: () => void; onRematch?: () => void; onLeave: () => void; tournament?: ReactNode }) {
   const ctl = useRemoteCtl(snap, offset, dispatch, onLeave);
-  const screen = snap.screen ? { title: formatMeta(snap.setup.format)?.title ?? "Party night", topic: topicOf(snap.setup), code } : undefined;
+  const screen = snap.screen ? { title: formatMeta(snap.setup.format)?.title ?? "Party night", topic: topicOf(snap.setup), code, tournament } : undefined;
   return <GameBody setup={snap.setup} ctl={ctl} serverVerdict={snap.verdict} onNew={onNew} onRematch={onRematch} screen={screen} />;
 }
 
-function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; token: string; snap: RoomSnapshot; isHost: boolean; onLeave: () => void; refresh: () => Promise<void> }) {
+/** Names a tournament on this device, so a closed champion screen stays closed for it. */
+const tournamentKey = (t: LiveTournament) => `${t.plan.join(",")}|${t.games.length}|${JSON.stringify(t.totals)}`;
+
+function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, onCloseChampion }: { code: string; token: string; snap: RoomSnapshot; isHost: boolean; onLeave: () => void; refresh: () => Promise<void>; closedChampion: string | null; onCloseChampion: (key: string) => void }) {
   const { user, token: authToken } = useAuth();
   const [choice, setPicking] = useState<FormatId | "menu" | null>(null);
-  // With no game picked yet, the host starts on the menu (this also covers a player who just became host).
-  const picking = choice ?? (snap.setup ? null : "menu");
+  const tour = snap.tournament as LiveTournament | undefined;
+  const running = !!tour && !tour.done;
+  const planned = running ? tour.plan[tour.index] : undefined;
+  // The game index the host already set up (or skipped setting up) in this visit to the lobby.
+  const [pickedFor, setPickedFor] = useState<number | null>(null);
+  // During a tournament the host's next pick opens the planned game's setup; otherwise, with no game picked yet, the menu
+  // (this also covers a player who just became host).
+  const auto = isHost && planned && pickedFor !== tour!.index ? planned : null;
+  const picking = choice ?? auto ?? (snap.setup ? null : "menu");
+  const [plan, setPlan] = useState<FormatId[]>([]);
+  const [tourBusy, setTourBusy] = useState(false);
+  const [tourError, setTourError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [opening, setOpening] = useState<League | null>(null);
@@ -172,12 +197,40 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
   const duelWrong = setup?.format === "vowelplay" && setup.opts.vowelMode === "duel" && here !== 2;
   const poolTitle = setup ? topicOf(setup) : null;
 
+  const seatNames = players.map((s) => s.name); // sprites follow the playing seats, as in the games
+  const runTournament = async (games: FormatId[]) => {
+    setTourError(null);
+    setTourBusy(true);
+    const r = await startTournament(code, token, games);
+    setTourBusy(false);
+    if (!r.ok) return setTourError(r.data.error ?? "Couldn't start the tournament");
+    setPlan([]);
+    setPickedFor(null);
+    setPicking(null);
+    await refresh();
+  };
+  const stopTournament = async () => {
+    setTourError(null);
+    const r = await endTournament(code, token);
+    if (!r.ok) setTourError(r.data.error ?? "Couldn't end the tournament");
+    else await refresh();
+  };
+
+  // The night is over: the champion first, until this player closes it.
+  if (tour?.done && closedChampion !== tournamentKey(tour)) {
+    return <ChampionScreen t={tour} seats={seatNames} isHost={isHost} busy={tourBusy} error={tourError} onPlayAgain={() => void runTournament(tour.plan.filter((f) => fitsTable(f, count)))} onBack={() => onCloseChampion(tournamentKey(tour))} onLeave={onLeave} />;
+  }
+
+  // Leaving a setup screen: in a tournament it counts as this game's pick, so the lobby shows instead of reopening it.
+  const donePicking = () => { if (running) setPickedFor(tour!.index); setPicking(null); void refresh(); };
+  const cancelPicking = () => { if (running && picking === planned) { setPickedFor(tour!.index); setPicking(null); } else setPicking("menu"); };
+
   // Picking a game: the full setup screen for that format, saving to the room.
   if (isHost && (picking === "imposter" || picking === "vote" || picking === "insync" || picking === "partytrivia" || picking === "mafia" || picking === "vowelplay" || picking === "vowelparty")) {
-    return <PartySetup format={picking} seats={players.map((s) => s.name)} room={{ code, token, pool: setup?.pool, pools: setup?.pools, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
+    return <PartySetup format={picking} seats={players.map((s) => s.name)} room={{ code, token, pool: setup?.pool, pools: setup?.pools, onDone: donePicking, onCancel: cancelPicking }} />;
   }
   if (isHost && picking && picking !== "menu") {
-    return <SetupScreen format={picking} room={{ code, token, pool: setup?.pool, onDone: () => { setPicking(null); void refresh(); }, onCancel: () => setPicking("menu") }} />;
+    return <SetupScreen format={picking} room={{ code, token, pool: setup?.pool, onDone: donePicking, onCancel: cancelPicking }} />;
   }
 
   const link = typeof window !== "undefined" ? `${window.location.origin}/room/${code}` : `/room/${code}`;
@@ -259,6 +312,11 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
         </Panel>
       </div>
 
+      {running && <TournamentCard t={tour} seats={seatNames} isHost={isHost} ready={setup?.format === planned} error={tourError} onSetUp={() => setPicking(planned!)} onEnd={stopTournament} />}
+      {isHost && !running && (
+        <TournamentSetup options={[...PARTY_GAMES, ...ROOM_GAMES, ...FORMATS.filter((x) => x.id !== "loadout")].map((x) => x.id as FormatId).filter((f) => fitsTable(f, count))} plan={plan} onPlan={setPlan} onStart={() => void runTournament(plan)} busy={tourBusy} error={tourError} />
+      )}
+
       {snap.statLink && (
         <Card className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm"><b>{hostName(snap)}</b> opened a live {snap.statLink.league} stat draft room. It needs a login{snap.statLink.league === "NBA" ? "" : " and a premium plan"}.</p>
@@ -266,14 +324,16 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh }: { code: string; 
         </Card>
       )}
 
-      {setup && meta && picking !== "menu" && (
+      {/* Guests only see the next game once it is the planned one, not the last game while the host sets up. */}
+      {setup && meta && picking !== "menu" && (isHost || !planned || setup.format === planned) && (
         <Panel title="Next game">
           <div className="flex flex-wrap items-center gap-4">
             <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${meta.gradient}`}><meta.icon className="h-7 w-7 text-white" aria-hidden /></span>
             <div className="min-w-0 flex-1">
               <div className="text-lg font-semibold">{meta.title}{poolTitle ? ` · ${poolTitle}` : ""}</div>
-              <div className="text-sm text-muted-foreground">{party ? (setup.format === "vowelplay" ? `${setup.opts.vowelMode === "duel" ? "Head to head · 2 players" : `First correct · ${setup.opts.teamSize} words · 2+ players`} · ${setup.opts.vowelAnswer === "type" ? "type it" : "say it"}` : setup.format === "vowelparty" ? "10 words · everyone races · typed · 2+ players" : setup.format === "mafia" ? `Secret roles · ${MAFIA_MIN}+ players` : setup.format === "partytrivia" ? `up to ${setup.opts.teamSize} questions · ${setup.opts.teams >= 2 ? (count >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"} · 2+ players` : setup.format === "insync" ? `${Math.max(4, count)} rounds · one group score · 2+ players` : setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}{party && setup.opts.drinking ? " · drinking mode" : ""}</div>
+              <div className="text-sm text-muted-foreground">{party ? (setup.format === "vowelplay" ? `${setup.opts.vowelMode === "duel" ? "Head to head · 2 players" : `First correct · ${setup.opts.teamSize} words · 2+ players`} · ${setup.opts.vowelAnswer === "type" ? "type it" : "say it"}` : setup.format === "vowelparty" ? (setup.opts.answer === "buzz" ? "10 words · Buzz · say it out loud · 2+ players" : "10 words · everyone races · typed · 2+ players") : setup.format === "mafia" ? `Secret roles · ${MAFIA_MIN}+ players` : setup.format === "partytrivia" ? `up to ${setup.opts.teamSize} questions · ${setup.opts.teams >= 2 ? (count >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"}${setup.opts.answer === "buzz" ? " · Buzz" : ""} · 2+ players` : setup.format === "insync" ? `${Math.max(4, count)} rounds · one group score · 2+ players` : setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}{party && setup.opts.drinking ? " · drinking mode" : ""}</div>
               {party && setup.opts.drinking && <WaterLine />}
+              {isHost && running && planned && setup.format !== planned && <p className="mt-1 text-sm text-accent">Not the planned game ({formatMeta(planned)?.title}). It still counts as game {tour!.index + 1} of the tournament.</p>}
             </div>
             {isHost && <Button variant="ghost" onClick={() => setPicking("menu")}><RefreshCw className="h-4 w-4" aria-hidden /> Change game</Button>}
           </div>

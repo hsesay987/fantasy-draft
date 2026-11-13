@@ -48,6 +48,9 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const [vowelMode, setVowelMode] = useState<"first" | "duel">("first");
   const [vowelAnswer, setVowelAnswer] = useState<"voice" | "type">("voice");
   const vowel = format === "vowelplay" || format === "vowelparty";
+  /** Party Trivia and Vowel Party: everyone answers on their phone, or buzz in at the table. */
+  const [answer, setAnswer] = useState<"phones" | "buzz">("phones");
+  const buzzable = format === "partytrivia" || format === "vowelparty";
   const [teams, setTeams] = useState(0);
   const [teamMap, setTeamMap] = useState<TeamMap>({});
   const [ending, setEnding] = useState<"guess" | "vote">("guess");
@@ -69,7 +72,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool: pools[0]!, pools, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking, showVotes, vowelMode, vowelAnswer, ...teamOpts }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -128,9 +131,18 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </>
       )}
 
+      {buzzable && (
+        <Panel title="Answer" hint={answer === "buzz" ? "Buzz is for playing in one room: first to buzz answers." : "Everyone answers on their own phone."}>
+          <div className="flex flex-wrap gap-2">
+            <Chip selected={answer === "phones"} onClick={() => setAnswer("phones")}>On phones</Chip>
+            <Chip selected={answer === "buzz"} onClick={() => setAnswer("buzz")}>Buzz</Chip>
+          </div>
+        </Panel>
+      )}
+
       {format === "vowelplay" || format === "mafia" ? null : format === "vowelparty" ? (
         <Panel title="Words">
-          <p className="text-sm text-muted-foreground">10 words, 20 seconds each. Everyone types on their own phone.</p>
+          <p className="text-sm text-muted-foreground">{answer === "buzz" ? "10 words, 20 seconds each. First to buzz says it out loud, and the rest judge." : "10 words, 20 seconds each. Everyone types on their own phone."}</p>
         </Panel>
       ) : format === "insync" ? (
         <Panel title="Rounds">

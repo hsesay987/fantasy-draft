@@ -233,7 +233,7 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
         <Roster s={s} me={me} gone={gone} reveal={reveal} />
 
         {/* Below the typewriter and the standings, in the flow: it covers neither the letters nor the table. */}
-        {s.drinks && s.mode === "all" && reveal && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
+        {s.drinks && s.mode !== "duel" && reveal && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
 
         <ol className="vp-pips" aria-label={`Name ${s.round + 1} of ${s.total}`}>
           {Array.from({ length: s.total }, (_, i) => {
@@ -482,7 +482,7 @@ export function VowelPlayResults({ setup, ctl, onAgain, onRematch }: { setup: Ga
           )}
         </section>
         {s.drinks && <WaterLine />}
-        {s.drinks && s.mode === "all" && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
+        {s.drinks && s.mode !== "duel" && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
       </div>
     </PixelShell>
   );

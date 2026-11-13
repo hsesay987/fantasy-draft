@@ -90,13 +90,21 @@ const bonus = (s: PTState, at: number) => Math.round(SPEED_MAX * Math.max(0, Mat
 
 /** A player locks in an option. One answer each, only options on screen, and the clock is the server's. At exactly QUESTION_MS still counts; after it, the round is closed to answers. */
 export function answer(s: PTState, by: string, choice: string, now: number): PTState {
-  if (s.done || s.phase !== "question" || !s.players.includes(by) || has(s.answers, by) || now - s.phaseAt > QUESTION_MS) return s;
+  if (s.done || s.phase !== "question" || !s.players.includes(by) || has(s.answers, by) || now > answerDeadline(s, by)) return s;
   if (typeof choice !== "string" || !s.questions[s.round]!.options.includes(choice)) return s;
   if (s.answerMode === "buzz") return buzzAnswer(s, by, choice, now);
   const answers = { ...s.answers, [by]: { choice, at: now } };
   const filled = { ...s, answers };
   return s.players.every((p) => has(answers, p)) ? reveal(filled, now) : filled;
 }
+
+/** The question closes at QUESTION_MS, except that a buzz keeps its full BUZZ_ANSWER_MS window even past it. */
+export function questionDeadline(s: Pick<PTState, "phaseAt" | "answerMode" | "buzzer" | "buzzAt">): number {
+  const end = s.phaseAt + QUESTION_MS;
+  return s.answerMode === "buzz" && s.buzzer != null && s.buzzAt != null ? Math.max(end, s.buzzAt + BUZZ_ANSWER_MS) : end;
+}
+const answerDeadline = (s: PTState, by: string) => (s.answerMode === "buzz" && s.buzzer === by ? questionDeadline(s) : s.phaseAt + QUESTION_MS);
+const timeUp = (s: PTState, now: number) => now - s.phaseAt > QUESTION_MS;
 
 const mateIdx = (s: PTState, p: string) => (s.teams ? s.teams.findIndex((t) => t.includes(p)) : -1);
 const mates = (s: PTState, p: string) => (s.teams ? (s.teams[mateIdx(s, p)] ?? [p]) : [p]);
@@ -126,7 +134,10 @@ function reopen(s: PTState, now: number, gone: string[] = []): PTState {
 
 function buzzAnswer(s: PTState, by: string, choice: string, now: number): PTState {
   if (s.buzzer !== by) return s;
-  if (choice !== s.questions[s.round]!.answer) return wrongBuzz(s, now);
+  if (choice !== s.questions[s.round]!.answer) {
+    const w = wrongBuzz(s, now);
+    return w.phase === "question" && timeUp(w, now) ? reveal(w, now) : w; // a late buzz that misses ends the question
+  }
   return reveal({ ...s, answers: { ...s.answers, [by]: { choice, at: now } } }, now);
 }
 
@@ -194,8 +205,13 @@ export function next(s: PTState, now: number): PTState {
 /** Clocks: an unfinished question closes when time is up, so a player who left never holds it; a reveal moves on. */
 export function tick(s: PTState, now: number): PTState {
   if (s.done) return s;
-  if (s.phase === "question" && now - s.phaseAt > QUESTION_MS) return reveal(s, now);
-  if (s.phase === "question" && s.answerMode === "buzz" && s.buzzer != null && now - s.buzzAt! >= BUZZ_ANSWER_MS) return wrongBuzz(s, now);
+  // A held buzz runs its own clock, even past the question's: no answer in time is a wrong one, then the reveal if time is up.
+  if (s.phase === "question" && s.answerMode === "buzz" && s.buzzer != null) {
+    if (now - s.buzzAt! < BUZZ_ANSWER_MS) return s;
+    const w = wrongBuzz(s, now);
+    return w.phase === "question" && timeUp(w, now) ? reveal(w, now) : w;
+  }
+  if (s.phase === "question" && timeUp(s, now)) return reveal(s, now);
   if (s.phase === "reveal" && now - s.phaseAt >= REVEAL_MS) return advance(s, now);
   return s;
 }
