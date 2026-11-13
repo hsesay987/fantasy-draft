@@ -1122,7 +1122,7 @@ html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
 @keyframes screen-turn { from { transform: scale(.6); opacity: 0; } }
 .screen-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 26rem); gap: 20px; align-items: start; }
 .screen-frame.solo .screen-main { grid-template-columns: minmax(0, 1fr); }
-.screen-side { position: sticky; top: 16px; }
+.screen-side { position: sticky; top: 16px; display: grid; gap: 12px; align-content: start; }
 .screen-board { min-width: 0; }
 /* The board is a phone layout: drop the page padding, and zoom it up to fill a TV. */
 .screen-board > .pixel { min-height: 0; box-shadow: 0 0 0 4px var(--px-ink); margin: 4px; }
@@ -1164,3 +1164,42 @@ html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
 .hub-thread { stroke-dasharray: 260; stroke-dashoffset: 260; animation: hub-thread 2.4s steps(12) forwards; }
 @keyframes hub-thread { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .hub-pulse { animation: none; } .hub-thread { animation: none; stroke-dashoffset: 0; } }
+
+/* Tournament: the plan builder and card in the lobby, and the champion screen. */
+.tn-wrap { padding: 4px; display: grid; gap: 8px; }
+.tn { display: grid; gap: 12px; }
+.tn h2, .tn .px-eyebrow, .tn .px-note { margin: 0; }
+.tn h2 { color: var(--px-gold); overflow-wrap: anywhere; }
+.tn-plan { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.tn-plan li { min-width: 0; max-width: 100%; }
+.tn-empty { padding: 8px 10px; background: var(--px-ink); color: var(--px-dim); font-size: 19px; }
+.tn-slot { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-height: 40px; padding: 6px 10px; border: 0; background: var(--px-violet); color: var(--px-fg); font: 400 20px/1 var(--px-body); box-shadow: 0 0 0 2px var(--px-ink); }
+button.tn-slot { cursor: pointer; }
+button.tn-slot:hover { background: var(--px-rose); }
+.tn-slot .n { font: 400 9px/1 var(--px-head); color: var(--px-gold); }
+.tn-slot .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tn-slot .x { font: 400 9px/1 var(--px-head); color: var(--px-lav); }
+.tn-plan.static .tn-slot { background: var(--px-ink); color: var(--px-dim); }
+.tn-plan.static li.done .tn-slot { background: var(--px-panel2); color: var(--px-lav); }
+.tn-plan.static li.done .tn-slot .t { text-decoration: line-through; }
+.tn-plan.static li.now .tn-slot { background: var(--px-gold); color: var(--px-ink); }
+.tn-plan.static li.now .tn-slot .n { color: var(--px-ink); }
+.tn-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.tn-game { min-height: 40px; padding: 6px 10px; border: 0; background: var(--px-ink); color: var(--px-fg); font: 400 20px/1 var(--px-body); cursor: pointer; box-shadow: inset 0 0 0 2px var(--px-panel2); }
+.tn-game:hover:not(:disabled) { box-shadow: inset 0 0 0 2px var(--px-gold); }
+.tn-game:disabled { opacity: .4; cursor: not-allowed; }
+.tn-actions { display: flex; flex-wrap: wrap; gap: 4px; }
+.tn-actions .px-btn { flex: 1 1 8rem; }
+.tn-wide { width: calc(100% - 8px); }
+.tn-end { display: grid; gap: 6px; }
+.tn-end .px-note { margin: 0 4px; }
+.tn-error { margin: 0; color: var(--px-rose); font-size: 19px; }
+.tn-champ-page { min-height: calc(100vh - 4rem); padding: 24px 12px 64px; }
+.tn-champ { max-width: 34rem; margin: 0 auto; display: grid; gap: 14px; text-align: center; }
+.tn-champ .px-eyebrow { margin: 0; }
+.tn-winners { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; animation: tn-bob 1.2s steps(2) infinite; }
+.tn-champ-title { margin: 0; font-size: clamp(30px, 8vw, 56px) !important; color: var(--px-gold); overflow-wrap: anywhere; }
+.tn-champ .lb { text-align: left; }
+@keyframes tn-bob { 50% { transform: translateY(-4px); } }
+@media (max-width: 380px) { .tn-champ-page { padding: 16px 4px 48px; } .lb-rows li { gap: 6px; padding: 6px 8px; } }
+@media (prefers-reduced-motion: reduce) { .tn-winners { animation: none; } }
