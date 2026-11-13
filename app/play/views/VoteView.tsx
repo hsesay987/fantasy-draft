@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as V from "../../topicDraft/formats/vote";
-import { deckOf, type VoteCard } from "../../topicDraft/party/decks";
+import { cardLabels, deckOf, type VoteCard } from "../../topicDraft/party/decks";
 import { has, own } from "../../topicDraft/party/own";
 import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/pixel/PixelUI";
 import { Sprite } from "../../components/pixel/Sprite";
@@ -20,8 +20,8 @@ const SCENE = "A small-town polling hall with a clerk, a ballot box and voting b
 export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as V.VoteState;
-  const deck = deckOf(s.deck);
   const card = s.cards[s.round]!;
+  const deck = cardLabels(card, s.deck); // a mixed game labels each card by its own deck
   const me = ctl.me ?? "";
   // Watching (the screen host): the ballots show but can't be marked, and there is no guess sheet or personal score.
   const seated = s.players.includes(me);
@@ -47,14 +47,14 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const sides: { id: V.Side; label: string }[] = [{ id: "a", label: card.a }, { id: "b", label: card.b }];
   const waiting = s.players.filter((p) => !gone.includes(p) && !has(s.votes, p)).length;
   const status = !seated ? (s.phase === "vote" ? `Voting on the phones. ${waiting} still to vote.` : s.phase === "guess" ? "Everyone is reading the room on their phones…" : null)
-    : s.phase !== "vote" ? null : mine ? `You voted ${mine === "a" ? card.a : card.b}${deck?.tag ? ` (${deck.tag.toLowerCase()})` : ""}. Waiting for ${waiting} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
+    : s.phase !== "vote" ? null : mine ? `You voted ${mine === "a" ? card.a : card.b}${deck.tag ? ` (${deck.tag.toLowerCase()})` : ""}. Waiting for ${waiting} more…` : s.showVotes ? "Pick a side. Nobody sees it until everyone votes." : "Pick a side. Show votes is off, so these booths never open.";
 
   return (
     <PixelShell world="hall">
       <div className="party-page">
         <header className="party-sign hall-sign">
           <div>
-            <p className="eyebrow">{deck?.title}</p>
+            <p className="eyebrow">{deck.title}</p>
             <h1>Card {s.round + 1} of {s.total}</h1>
           </div>
           <PartyClock deadline={s.phaseAt + phaseMs} offset={ctl.offset} total={phaseMs} />
@@ -64,8 +64,8 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
         <section className="hall-notice">
           <p className="q">{card.prompt}</p>
-          {deck?.ask && <p className="ask">{deck.ask}</p>}
-          <p className="how">{deck?.how}</p>
+          {deck.ask && <p className="ask">{deck.ask}</p>}
+          <p className="how">{deck.how}</p>
         </section>
 
         <div className="hall-ballots">
@@ -76,7 +76,7 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
               <button key={id} type="button" disabled={!seated || !!mine || s.phase !== "vote"} aria-pressed={mine === id} onClick={() => ctl.dispatch({ type: "vote", by: me, side: id })}
                 className={`ballot ${mine === id ? "marked" : ""} ${mine && mine !== id && !reveal ? "faded" : ""} ${truth ? "true" : ""}`}>
                 <span className="box" aria-hidden>{mine === id && <span>X</span>}</span>
-                <span><span className="side">{id.toUpperCase()}</span>{label}{deck?.tag && <span className="pick-tag">{mine === id ? `You: ${deck.tag}` : deck.tag}</span>}{truth && <span className="truth">TRUE</span>}</span>
+                <span><span className="side">{id.toUpperCase()}</span>{label}{deck.tag && <span className="pick-tag">{mine === id ? `You: ${deck.tag}` : deck.tag}</span>}{truth && <span className="truth">TRUE</span>}</span>
                 {open && <span className="n">{n}</span>}
                 {open && <span className="bar" style={{ width: `${(n / total) * 100}%` }} aria-hidden />}
               </button>
@@ -84,7 +84,7 @@ export function VoteView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
           })}
         </div>
 
-        {s.phase === "guess" && seated && <GuessSheet s={s} me={me} card={card} tag={deck?.tag} onGuess={(target, side) => ctl.dispatch({ type: "guessVote", by: me, target, side })} />}
+        {s.phase === "guess" && seated && <GuessSheet s={s} me={me} card={card} tag={deck.tag} onGuess={(target, side) => ctl.dispatch({ type: "guessVote", by: me, target, side })} />}
 
         {status && <p className="party-status">{status}</p>}
 
