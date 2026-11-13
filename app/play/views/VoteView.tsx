@@ -8,7 +8,7 @@ import { PixelBox, PixelButton, PixelScore, PixelShell } from "../../components/
 import { Sprite } from "../../components/pixel/Sprite";
 import { WorldScene } from "../../components/pixel/WorldScene";
 import { useSound } from "../../components/SoundProvider";
-import { canMoveOn, DrinkCard, LeaveGame, PartyClock, playerSprite, VoteBooths, WaitingForHost, WaterLine } from "./partyBits";
+import { canMoveOn, DrinkCard, LeaveGame, PartyActions, PartyClock, playerSprite, VoteBooths, WaitingForHost, WaterLine } from "./partyBits";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 import { teamsFor } from "../teamStandings";
@@ -186,7 +186,7 @@ function Scores({ points, me }: { points: Record<string, number>; me: string }) 
 }
 
 /** End of a vote game: the official count, and (Show votes on) every card with how the room split. */
-export function VoteResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function VoteResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain?: () => void; onRematch?: () => void }) {
   const s = ctl.state as V.VoteState;
   const teams = teamsFor(setup, s.players);
   const ranked = Object.entries(s.points).sort((a, b) => b[1] - a[1]);
@@ -230,12 +230,7 @@ export function VoteResults({ setup, ctl, onAgain, onRematch }: { setup: GameSet
         ) : (
           <p className="party-status">The booths stayed shut. Only the totals go on the record.</p>
         )}
-        {onRematch && (
-          <div className="party-actions">
-            <PixelButton variant="gold" onClick={onRematch}>New cards</PixelButton>
-            <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
-          </div>
-        )}
+        <PartyActions onAgain={onAgain} onRematch={onRematch} again="New cards" />
         {s.drinks && <WaterLine />}
         {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
       </div>

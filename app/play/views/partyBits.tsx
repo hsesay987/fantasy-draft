@@ -211,3 +211,18 @@ export function LeaveGame({ onLeave }: { onLeave: () => void }) {
     </div>
   );
 }
+
+/**
+ * A party game's results buttons, for the host only (a guest gets neither). "Pick another game" takes the room back to
+ * the lobby and is always there for the host, also mid-tournament when the next planned game is a different one and a
+ * rematch is not offered.
+ */
+export function PartyActions({ onAgain, onRematch, again = "Play again", className = "party-actions" }: { onAgain?: () => void; onRematch?: () => void; again?: string; className?: string }) {
+  if (!onAgain && !onRematch) return null;
+  return (
+    <div className={className}>
+      {onRematch && <PixelButton variant="gold" onClick={onRematch}>{again}</PixelButton>}
+      {onAgain && <PixelButton variant={onRematch ? "alt" : "gold"} onClick={onAgain}>Pick another game</PixelButton>}
+    </div>
+  );
+}

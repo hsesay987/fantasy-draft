@@ -10,7 +10,7 @@ import { useSound } from "../../components/SoundProvider";
 import { category } from "../categories";
 import { TEAM_COLORS, teamName } from "../teamMoves";
 import { has, own } from "../../topicDraft/party/own";
-import { canMoveOn, DrinkCard, LeaveGame, PartyClock, playerSprite, WaitingForHost, WaterLine } from "./partyBits";
+import { canMoveOn, DrinkCard, LeaveGame, PartyActions, PartyClock, playerSprite, WaitingForHost, WaterLine } from "./partyBits";
 import { playerStats, rankLabel, scoreDigits, standings, teamIndexOf, votesFor, winnerOf, type Standing } from "./quizBoard";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
@@ -347,7 +347,7 @@ function Board({ rows, s, asking, landed, gained, right, q, buzzer, lockedOut }:
 }
 
 /** Game over: the winner in lights, the final table, and who carried whom. */
-export function PartyTriviaResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function PartyTriviaResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain?: () => void; onRematch?: () => void }) {
   const s = ctl.state as unknown as PT.PTState;
   const me = ctl.me;
   const rows = standings(s, me);
@@ -384,12 +384,7 @@ export function PartyTriviaResults({ setup, ctl, onAgain, onRematch }: { setup: 
             <h2>{s.teams ? "Who carried the team" : "Right answers"}</h2>
             {s.teams ? rows.map((r) => <StatList key={r.id} s={s} members={r.members} total={total} title={r.label} color={TEAM_COLORS[r.id]} />) : <StatList s={s} members={s.players} total={total} />}
           </section>
-          {onRematch && (
-            <div className="party-actions arc-actions">
-              <PixelButton variant="gold" onClick={onRematch}>Play again</PixelButton>
-              <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
-            </div>
-          )}
+          <PartyActions onAgain={onAgain} onRematch={onRematch} className="party-actions arc-actions" />
           <CabinetFoot />
         </div>
         {s.drinks && <WaterLine />}

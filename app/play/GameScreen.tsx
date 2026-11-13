@@ -41,12 +41,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 /** `tournament` is the night's leaderboard, shown beside the game once it is finished. */
 export type ScreenProps = { title: string; topic?: string | null; code: string; tournament?: ReactNode };
 
-export function GameBody({ screen, ...props }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew: () => void; onRematch?: () => void; screen?: ScreenProps }) {
+const noop = () => {};
+
+export function GameBody({ screen, ...props }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew?: () => void; onRematch?: () => void; screen?: ScreenProps }) {
   const view = <GameView {...props} />;
   return screen ? <ScreenFrame setup={props.setup} ctl={props.ctl} {...screen}>{view}</ScreenFrame> : view;
 }
 
-function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew: () => void; onRematch?: () => void }) {
+/** `onNew` is missing for a guest: only the host takes the room back to the lobby. */
+function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew?: () => void; onRematch?: () => void }) {
   const { token } = useAuth();
   const { play } = useSound();
   const done = isDone(setup, ctl.state);
@@ -92,7 +95,7 @@ function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: Game
   if (done && (setup.format === "vowelplay" || setup.format === "vowelparty")) return <VowelPlayResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "pecking") return <PeckingResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "sayless") return <SayLessResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
-  if (done && finished && trivia) return <TriviaResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
+  if (done && finished && trivia) return <TriviaResults setup={setup} ctl={ctl} onAgain={onNew ?? noop} onRematch={onRematch} />;
 
   if (done && finished) {
     const v = serverVerdict ?? verdict;
@@ -106,7 +109,7 @@ function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: Game
     return (
       <PageShell width="md">
         <h1 className="text-3xl md:text-4xl">{setup.mission.title}</h1>
-        <VerdictView format={setup.format} verdict={v ?? null} loading={!v} extra={extra} shareText={lines} onAgain={onNew} onRematch={onRematch} />
+        <VerdictView format={setup.format} verdict={v ?? null} loading={!v} extra={extra} shareText={lines} onAgain={onNew ?? noop} onRematch={onRematch} />
       </PageShell>
     );
   }

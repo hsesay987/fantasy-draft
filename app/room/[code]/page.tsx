@@ -17,7 +17,7 @@ import { MIN_PLAYERS as MAFIA_MIN } from "../../topicDraft/formats/mafia";
 import { category } from "../../play/categories";
 import { vowelTopicTitle } from "../../topicDraft/party/vowelTopics";
 import { clearToken, endTournament, joinRoom, leaveRoom, loadToken, roomToLobby, saveToken, setScreen, setStatLink, startRoom, startTournament, type RoomSnapshot } from "../../play/onlineApi";
-import { addToPlan, fitsTable, PLAN_MAX, planEntries, planReady, seatsNeeded, slotsOf, type PlanSlot } from "../../play/tournamentPlan";
+import { addToPlan, fitsTable, PLAN_MAX, planEntries, planReady, resultsActions, seatsNeeded, slotsOf, type PlanSlot } from "../../play/tournamentPlan";
 import { startPools, usesPartySetup } from "../../play/topicOptions";
 import { ChampionScreen, LineupPanel, TournamentBoard, TournamentCard, type LiveTournament } from "../../play/views/TournamentSetup";
 import { useRemoteCtl, useRemoteRoom } from "../../play/useRemoteGame";
@@ -128,6 +128,7 @@ export default function RoomPage() {
     const last = t?.games[t.games.length - 1];
     // A page opened mid-results has not seen the game start: only a tournament still running counted it for sure.
     const counted = snap.status === "done" && !!t && !!last && (counting ?? !t.done);
+    const actions = resultsActions(isHost, setup.format, t);
     const night = counted ? <TournamentBoard t={t!} seats={playingSeats(snap).map((s) => s.name)} /> : undefined;
     return (
       <>
@@ -145,7 +146,7 @@ export default function RoomPage() {
           </div>
         )}
         {night && !snap.screen && <div className="pixel mx-auto max-w-xl px-1 py-2">{night}</div>}
-        <PlayingRoom code={code} snap={{ ...snap, setup }} offset={offset} dispatch={dispatchRemote} onNew={isHost ? toLobby : () => setError(null)} onRematch={isHost && !(t && !t.done && t.plan[t.index] !== setup.format) ? rematch : undefined} onLeave={leave} tournament={night} />
+        <PlayingRoom code={code} snap={{ ...snap, setup }} offset={offset} dispatch={dispatchRemote} onNew={actions.lobby ? toLobby : undefined} onRematch={actions.rematch ? rematch : undefined} onLeave={leave} tournament={night} />
       </>
     );
   }
@@ -156,7 +157,7 @@ export default function RoomPage() {
 /** The server decides who hosts: the first seat that hasn't left and whose phone is awake. */
 const hostName = (snap: RoomSnapshot) => snap.seats.find((s) => s.host)?.name ?? "the host";
 
-function PlayingRoom({ code, snap, offset, dispatch, onNew, onRematch, onLeave, tournament }: { code: string; snap: RoomSnapshot & { setup: GameSetup }; offset: number; dispatch: ReturnType<typeof useRemoteRoom>["dispatchRemote"]; onNew: () => void; onRematch?: () => void; onLeave: () => void; tournament?: ReactNode }) {
+function PlayingRoom({ code, snap, offset, dispatch, onNew, onRematch, onLeave, tournament }: { code: string; snap: RoomSnapshot & { setup: GameSetup }; offset: number; dispatch: ReturnType<typeof useRemoteRoom>["dispatchRemote"]; onNew?: () => void; onRematch?: () => void; onLeave: () => void; tournament?: ReactNode }) {
   const ctl = useRemoteCtl(snap, offset, dispatch, onLeave);
   const screen = snap.screen ? { title: formatMeta(snap.setup.format)?.title ?? "Party night", topic: topicOf(snap.setup), code, tournament } : undefined;
   return <GameBody setup={snap.setup} ctl={ctl} serverVerdict={snap.verdict} onNew={onNew} onRematch={onRematch} screen={screen} />;

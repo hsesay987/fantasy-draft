@@ -9,7 +9,7 @@ import { useSound } from "../../components/SoundProvider";
 import { teamsFor } from "../teamStandings";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
-import { canMoveOn, DrinkCard, LeaveGame, PartyClock, playerSprite, WaitingForHost, WaterLine } from "./partyBits";
+import { canMoveOn, DrinkCard, LeaveGame, PartyActions, PartyClock, playerSprite, WaitingForHost, WaterLine } from "./partyBits";
 import { NamePicker, PeckPrompt, PeckReveal, RankPicker, spanText, TvLadder, guessText } from "./peckingParts";
 import { TeamBoard } from "./TeamBoard";
 import { peckWinner } from "./peckBoard";
@@ -151,7 +151,7 @@ function MyLine({ sc, q }: { sc?: PK.PeckScore; q: PK.PeckView["questions"][numb
 }
 
 /** Game over: the winner, the final table, team totals when teamed, and every answer. */
-export function PeckingResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function PeckingResults({ setup, ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain?: () => void; onRematch?: () => void }) {
   const s = ctl.state as unknown as PK.PeckView;
   const me = ctl.me;
   const rows = s.players.map((p, seat) => ({ p, seat, score: s.points[p] ?? 0 })).sort((a, b) => b.score - a.score || a.seat - b.seat);
@@ -194,12 +194,7 @@ export function PeckingResults({ setup, ctl, onAgain, onRematch }: { setup: Game
             ))}
           </ul>
         </section>
-        {onRematch && (
-          <div className="party-actions">
-            <PixelButton variant="gold" onClick={onRematch}>Play again</PixelButton>
-            <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
-          </div>
-        )}
+        <PartyActions onAgain={onAgain} onRematch={onRematch} />
         {s.drinks && <WaterLine />}
         {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
       </div>

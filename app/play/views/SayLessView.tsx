@@ -10,7 +10,7 @@ import { GUESS_MAX, WORD_MS } from "../../topicDraft/sayless/rules";
 import { teamName } from "../teamMoves";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
-import { DrinkCard, LeaveGame, PartyClock, playerSprite, WaterLine } from "./partyBits";
+import { DrinkCard, LeaveGame, PartyActions, PartyClock, playerSprite, WaterLine } from "./partyBits";
 import { clueDraft, clueToSend } from "./clueDraft";
 import { BudgetMeter, ClueTape, describerOf, describingTeam, isLive, ParCount, RevealCard, SLRoster, slClock, wordKey } from "./saylessParts";
 import { TeamBoard } from "./TeamBoard";
@@ -376,7 +376,7 @@ function TvBoard({ s, gone }: { s: SLView; gone: string[] }) {
 }
 
 /** Game over: who won, the final table with shared places, team totals, and every word with its par and who got it. */
-export function SayLessResults({ ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain: () => void; onRematch?: () => void }) {
+export function SayLessResults({ ctl, onAgain, onRematch }: { setup: GameSetup; ctl: GameCtl; onAgain?: () => void; onRematch?: () => void }) {
   const s = ctl.state as unknown as SLView;
   const me = ctl.me;
   const score = (p: string) => own(s.points, p) ?? 0;
@@ -431,12 +431,7 @@ export function SayLessResults({ ctl, onAgain, onRematch }: { setup: GameSetup; 
             </ul>
           </section>
         )}
-        {onRematch && (
-          <div className="party-actions">
-            <PixelButton variant="gold" onClick={onRematch}>Play again</PixelButton>
-            <PixelButton variant="alt" onClick={onAgain}>Pick another game</PixelButton>
-          </div>
-        )}
+        <PartyActions onAgain={onAgain} onRematch={onRematch} />
         {s.drinks && <WaterLine />}
         {s.drinks && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={s.startedAt} names={s.players} />}
       </div>
