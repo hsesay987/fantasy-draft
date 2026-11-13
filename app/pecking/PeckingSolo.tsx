@@ -8,7 +8,9 @@ import { PixelButton, PixelShell } from "../components/pixel/PixelUI";
 import { PartyClock } from "../play/views/partyBits";
 import { NamePicker, PeckPrompt, PeckReveal, RankPicker, spanText, guessText } from "../play/views/peckingParts";
 
-const ME = "You";
+/** The solo player's seat; scores are kept under this name. */
+export const SOLO_PLAYER = "You";
+const ME = SOLO_PLAYER;
 const noop = () => () => {};
 
 /** `lists`/`count` deal a fresh game; `questions` plays exactly those (a daily). `onFinish` fires once when a game ends. */

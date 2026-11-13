@@ -14,7 +14,7 @@ import { JeopardyView } from "../play/views/JeopardyView";
 const seedOf = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; };
 
 /** Summit or Hot Air, solo, on today's fixed questions. Progress is recorded after every question for the run chart. */
-export function DailyQuiz({ game, puzzle, onFinish }: { game: Exclude<DailyGame, "costimation" | "toprung">; puzzle: Puzzle; onFinish: (score: number, history: number[], grid: string, detail: unknown) => void }) {
+export function DailyQuiz({ game, puzzle, onFinish }: { game: Exclude<DailyGame, "costimation" | "toprung" | "pecking">; puzzle: Puzzle; onFinish: (score: number, history: number[], grid: string, detail: unknown) => void }) {
   const setup = useMemo<GameSetup>(() => ({
     id: `daily-${game}-${puzzle.day}`, format: game === "summit" ? "jeopardy" : "feud", pool: puzzle.content.pool ?? "films",
     players: ["YOU"], aiPlayers: [], mystery: false, loadout: null, roles: [], seed: seedOf(`${game}${puzzle.day}`),

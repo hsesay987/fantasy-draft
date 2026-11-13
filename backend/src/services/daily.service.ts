@@ -1,7 +1,11 @@
-// Daily puzzles: one Summit board, one Hot Air game, one Costimation run and one Top Rung climb per day, the same for everyone.
+import { DAILY_COUNT, makeQuestions } from "../shared/topicDraft/formats/pecking";
+import { PECKING_LISTS } from "../shared/topicDraft/pecking/lists";
+
+// Daily puzzles: one Summit board, one Hot Air game, one Costimation run, one Top Rung climb and one Pecking Order
+// round per day, the same for everyone.
 // The puzzle is built from the stored banks the first time someone asks for it that day and then saved, so it
 // never changes mid-day. Results are anonymous; each player's first result counts and feeds the day's stats.
-export const DAILY_GAMES = ["summit", "hotair", "costimation", "toprung"] as const;
+export const DAILY_GAMES = ["summit", "hotair", "costimation", "toprung", "pecking"] as const;
 export type DailyGame = (typeof DAILY_GAMES)[number];
 export const isDailyGame = (g: unknown): g is DailyGame => typeof g === "string" && (DAILY_GAMES as readonly string[]).includes(g);
 
@@ -15,6 +19,9 @@ export const DAILY_TOPICS = ["films", "videogames", "football", "history", "show
 /** Summit, Hot Air and Top Rung use different topics on the same day. */
 const TOPIC_OFFSET: Partial<Record<DailyGame, number>> = { hotair: 3, toprung: 6 };
 export const topicFor = (game: DailyGame, day: string) => DAILY_TOPICS[(dayNumber(day) + (TOPIC_OFFSET[game] ?? 0)) % DAILY_TOPICS.length]!;
+
+/** Pecking Order's daily: five questions across the lists, alternating rank and name, seeded by the day. */
+export const peckingPuzzle = (day: string) => ({ questions: makeQuestions(PECKING_LISTS, "mixed", DAILY_COUNT, dayNumber(day)) });
 
 export type Stats = { players: number; average: number; percentile: number | null; buckets: number[]; best: number };
 

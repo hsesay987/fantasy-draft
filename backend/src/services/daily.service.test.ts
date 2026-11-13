@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { tierPools } from "../shared/topicDraft/trivia/tiers";
-import { DAILY_TOPICS, dayNumber, isDailyGame, puzzleFor, statsOf, submitResult, topicFor, type DailyStore } from "./daily.service";
+import { DAILY_TOPICS, dayNumber, isDailyGame, peckingPuzzle, puzzleFor, statsOf, submitResult, topicFor, type DailyStore } from "./daily.service";
 import { getJeopardy, memoryStore } from "./trivia.service";
 
 const memory = (): DailyStore & { builds: number } => {
@@ -49,6 +49,15 @@ describe("daily puzzles", () => {
       return true;
     }));
     for (const tier of usable) expect(tier.length).toBeGreaterThanOrEqual(4);
+  });
+  it("deals Pecking Order five mixed questions a day, the same all day and different the next", () => {
+    expect(isDailyGame("pecking")).toBe(true);
+    const a = peckingPuzzle("2026-11-13");
+    expect(peckingPuzzle("2026-11-13")).toEqual(a);
+    expect(a.questions.map((q) => q.kind)).toEqual(["rank", "name", "rank", "name", "rank"]);
+    const b = peckingPuzzle("2026-11-14");
+    expect(b.questions).toHaveLength(5);
+    expect(b.questions.map((q) => q.answer.names[0])).not.toEqual(a.questions.map((q) => q.answer.names[0]));
   });
   it("builds a day's puzzle once and serves the same one after", async () => {
     const s = memory();

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { captureError } from "../lib/monitoring";
 import { pickProducts, prismaCostStore, type CostProductDto } from "../services/costimation.service";
-import { dayKey, dayNumber, isDailyGame, prismaDailyStore, puzzleFor, statsOf, submitResult, topicFor, type DailyGame } from "../services/daily.service";
+import { dayKey, dayNumber, isDailyGame, peckingPuzzle, prismaDailyStore, puzzleFor, statsOf, submitResult, topicFor, type DailyGame } from "../services/daily.service";
 import { getFeud, getJeopardy } from "../services/trivia.service";
 
 const router = Router();
@@ -27,6 +27,7 @@ function pickFive(all: CostProductDto[]): CostProductDto[] {
 
 async function build(game: DailyGame, day: string) {
   if (game === "summit" || game === "toprung") { const pool = topicFor(game, day); return { pool, categories: await getJeopardy(pool, []) }; }
+  if (game === "pecking") return peckingPuzzle(day);
   if (game === "hotair") { const pool = topicFor(game, day); return { pool, surveys: await getFeud(pool, 5, []) }; }
   return { products: pickFive(await pickProducts(prismaCostStore, { n: 120 })) };
 }
