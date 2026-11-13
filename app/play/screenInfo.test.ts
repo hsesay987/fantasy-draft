@@ -4,6 +4,7 @@ import { DEFAULT_OPTS, type GameSetup } from "./types";
 import * as IM from "../topicDraft/formats/imposter";
 import * as V from "../topicDraft/formats/vote";
 import * as PK from "../topicDraft/formats/pecking";
+import { JUDGE_MS as SL_JUDGE_MS, REVEAL_MS as SL_REVEAL_MS, SPEAK_MS as SL_SPEAK_MS, WORD_MS as SL_WORD_MS } from "../topicDraft/sayless/rules";
 
 const players = ["Ann", "Bob", "Cy", "Di"];
 const setup = (format: string, opts: Partial<GameSetup["opts"]> = {}) => ({ format, pool: "x", players, opts: { ...DEFAULT_OPTS, ...opts } }) as unknown as GameSetup;
@@ -45,6 +46,15 @@ describe("screenInfo turn", () => {
     expect(screenInfo(setup("pecking"), s(name, { phase: "reveal" }))).toEqual({ turn: null, phase: "Question 2 of 6 · Answer" });
     expect(screenInfo(setup("pecking"), s(name, { done: true }))).toEqual({ turn: null, phase: "Final scores" });
   });
+  it("Say Less: the describer's turn through every phase, Final scores at the end", () => {
+    const turns = [{ describer: "Bob", team: null }, { describer: "Cy", team: null }, { describer: "Di", team: null }, { describer: "Ann", team: null }];
+    const s = (phase: string, o: Record<string, unknown> = {}) => st({ phase, turn: 1, turns, total: 4, buzzer: phase === "clue" ? null : "Di", clues: [], points: {}, teamPoints: [], teams: null, history: [], wordAt: 500, ...o });
+    expect(screenInfo(setup("sayless"), s("clue"))).toEqual({ turn: "Cy", phase: "Turn 2 of 4 · Describing" });
+    expect(screenInfo(setup("sayless"), s("speak"))).toEqual({ turn: "Cy", phase: "Turn 2 of 4 · Say it" });
+    expect(screenInfo(setup("sayless"), s("judge"))).toEqual({ turn: "Cy", phase: "Turn 2 of 4 · Right or wrong?" });
+    expect(screenInfo(setup("sayless"), s("reveal"))).toEqual({ turn: "Cy", phase: "Turn 2 of 4 · Reveal" });
+    expect(screenInfo(setup("sayless"), s("reveal", { done: true }))).toEqual({ turn: null, phase: "Final scores" });
+  });
   it("nobody's turn once the game is done", () => {
     expect(screenInfo(setup("imposter"), st({ phase: "done", done: true, order: players, clues: [], rounds: 1 })).turn).toBeNull();
   });
@@ -58,6 +68,11 @@ describe("screenClock", () => {
     expect(screenClock(setup("imposter"), st({ phase: "done", done: true }))).toBeNull();
     expect(screenClock(setup("pecking"), st({ phase: "question" }))).toEqual({ deadline: 1000 + PK.QUESTION_MS, total: PK.QUESTION_MS });
     expect(screenClock(setup("pecking"), st({ phase: "reveal" }))).toEqual({ deadline: 1000 + PK.REVEAL_MS, total: PK.REVEAL_MS });
+    expect(screenClock(setup("sayless"), st({ phase: "clue", wordAt: 400 }))).toEqual({ deadline: 400 + SL_WORD_MS, total: SL_WORD_MS });
+    expect(screenClock(setup("sayless"), st({ phase: "speak", wordAt: 400 }))).toEqual({ deadline: 1000 + SL_SPEAK_MS, total: SL_SPEAK_MS });
+    expect(screenClock(setup("sayless"), st({ phase: "judge", wordAt: 400 }))).toEqual({ deadline: 1000 + SL_JUDGE_MS, total: SL_JUDGE_MS });
+    expect(screenClock(setup("sayless"), st({ phase: "reveal", wordAt: 400 }))).toEqual({ deadline: 1000 + SL_REVEAL_MS, total: SL_REVEAL_MS });
+    expect(screenClock(setup("sayless"), st({ phase: "reveal", done: true }))).toBeNull();
   });
 });
 
@@ -93,6 +108,17 @@ describe("screenBoard", () => {
     expect(screenBoard(setup("pecking"), s("question"))!.rows.every((r) => r.last === undefined)).toBe(true);
     const teamed = screenBoard(setup("pecking", { teams: 2, teamMap: { Ann: 0, Bob: 1, Cy: 1, Di: 0 } }), s("question"))!;
     expect(teamed.teams!.map((t) => [t.name, t.score])).toEqual([["Red team", 100], ["Blue team", 45]]);
+  });
+  it("Say Less: rows from points, what the word just paid (bonus in, guard losses out), and the engine's team points", () => {
+    const h = { word: "Owl", par: 2, describer: "Ann", clues: ["night", "bird"], winner: "Bob", points: 2, bonus: 3, guarded: { Cy: 1 } };
+    const s = (phase: string, o: Record<string, unknown> = {}) => st({ phase, points: { Ann: 5, Bob: 2, Cy: 0 }, teams: null, teamPoints: [], history: [h], ...o });
+    const reveal = screenBoard(setup("sayless"), s("reveal"))!;
+    expect(reveal.rows.map((r) => [r.name, r.score, r.last])).toEqual([["Ann", 5, 5], ["Bob", 2, 2], ["Cy", 0, undefined], ["Di", 0, undefined]]);
+    expect(reveal.teams).toBeUndefined();
+    expect(screenBoard(setup("sayless"), s("clue"))!.rows.every((r) => r.last === undefined)).toBe(true);
+    const teamed = screenBoard(setup("sayless"), s("clue", { teams: [["Ann", "Cy"], ["Bob", "Di"]], teamPoints: [5, 2] }))!;
+    expect(teamed.teams!.map((t) => [t.name, t.score])).toEqual([["Red team", 5], ["Blue team", 2]]);
+    expect(teamed.rows.find((r) => r.name === "Di")!.team).toBe(1);
   });
   it("Head to head counts words won", () => {
     const b = screenBoard(setup("vowelplay"), st({ mode: "duel", players: ["Ann", "Bob"], points: {}, history: [{ winner: "Bob" }, { winner: "Bob" }, { winner: null }] }))!;

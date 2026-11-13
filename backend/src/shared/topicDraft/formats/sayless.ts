@@ -46,6 +46,8 @@ export type SLState = {
   phaseAt: number;
   /** When the current word started: its WORD_MS clock. */
   wordAt: number;
+  /** When the game started: a public key for this game (the drink cards use it). */
+  startedAt: number;
   done: boolean;
   seed: number;
   drinks?: DrinkState;
@@ -113,7 +115,7 @@ export function init(o: {
     guessers: guessersFor({ players: o.players, teams, turns }, 0), locked: [], buzzer: null, marks: {},
     answerMode: o.answer === "buzz" ? "buzz" : "type", guard: o.guard === true,
     points: Object.fromEntries(o.players.map((p) => [p, 0])), teamPoints: teams ? teams.map(() => 0) : [], history: [],
-    phaseAt: o.now, wordAt: o.now, done: deal.length === 0, seed,
+    phaseAt: o.now, wordAt: o.now, startedAt: o.now, done: deal.length === 0, seed,
     ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),
   };
 }

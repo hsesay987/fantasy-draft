@@ -4,6 +4,9 @@ import * as IS from "../topicDraft/formats/insync";
 import * as MF from "../topicDraft/formats/mafia";
 import * as PK from "../topicDraft/formats/pecking";
 import * as PT from "../topicDraft/formats/partytrivia";
+import { currentDescriber, type SLState, type SLView } from "../topicDraft/formats/sayless";
+import * as SLR from "../topicDraft/sayless/rules";
+import { own } from "../topicDraft/party/own";
 import * as V from "../topicDraft/formats/vote";
 import type { VPState } from "../topicDraft/formats/vowelplay";
 import { TEAM_COLORS, teamName } from "./teamMoves";
@@ -52,6 +55,12 @@ export function screenInfo(setup: GameSetup, state: GameState): ScreenInfo {
       const step = s.phase === "reveal" ? "Answer" : q?.kind === "name" ? `Who's at #${q.at}?` : "Where does it rank?";
       return { turn: null, phase: `Question ${s.round + 1} of ${s.total ?? s.questions.length} · ${step}` };
     }
+    case "sayless": {
+      const s = state as unknown as SLView;
+      if (done) return { turn: null, phase: "Final scores" };
+      const step = s.phase === "clue" ? "Describing" : s.phase === "speak" ? "Say it" : s.phase === "judge" ? "Right or wrong?" : "Reveal";
+      return { turn: currentDescriber(s as unknown as SLState) || null, phase: `Turn ${s.turn + 1} of ${s.total ?? s.turns.length} · ${step}` };
+    }
     case "mafia": {
       const s = state as MF.MafiaState;
       if (done) return { turn: null, phase: "The case is closed" };
@@ -98,6 +107,11 @@ export function screenClock(setup: GameSetup, state: GameState): { deadline: num
     case "pecking": {
       const s = state as PK.PeckView;
       return at(s.phase === "reveal" ? PK.REVEAL_MS : PK.QUESTION_MS, s.phaseAt);
+    }
+    case "sayless": {
+      // Describing runs on the word's own minute; saying, judging and the reveal on their phase clocks.
+      const s = state as unknown as SLView;
+      return s.phase === "clue" ? at(SLR.WORD_MS, s.wordAt) : at(s.phase === "speak" ? SLR.SPEAK_MS : s.phase === "judge" ? SLR.JUDGE_MS : SLR.REVEAL_MS, s.phaseAt);
     }
     default:
       return null;
@@ -154,6 +168,21 @@ export function screenBoard(setup: GameSetup, state: GameState, gone: string[] =
       const h = s.phase === "reveal" && !done ? s.history[s.history.length - 1] : undefined;
       const gain = (p: string) => { const sc = h?.scores[p]; return sc ? sc.points + (sc.bonus ? PK.CLOSEST_BONUS : 0) : undefined; };
       return { rows: rowsFor(s.players, (p) => s.points[p] ?? 0, h ? gain : undefined, teams), teams: summed(s.points, teams) };
+    }
+    case "sayless": {
+      const s = state as unknown as SLView;
+      // The engine decides whether teams played (too few players means solo) and keeps their points itself.
+      const teams = s.teams && s.teams.length >= 2 ? s.teams : null;
+      const h = s.phase === "reveal" && !done ? s.history[s.history.length - 1] : undefined;
+      const gain = (p: string) => {
+        if (!h) return undefined;
+        const g = (h.winner === p ? h.points : 0) + (h.describer === p && h.winner !== null ? h.points : 0) + (h.describer === p ? h.bonus ?? 0 : 0) - (own(h.guarded ?? {}, p) ?? 0);
+        return g > 0 ? g : undefined;
+      };
+      return {
+        rows: rowsFor(s.players, (p) => s.points[p] ?? 0, h ? gain : undefined, teams),
+        teams: teams ? teams.map((_, i) => ({ name: `${teamName(i)} team`, score: s.teamPoints[i] ?? 0, color: TEAM_COLORS[i] })).sort((a, b) => b.score - a.score) : undefined,
+      };
     }
     case "vowelplay":
     case "vowelparty": {

@@ -55,7 +55,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool: pools[0]!, pools, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, teamSize: length, ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessGuard } : {}), ...teamOpts }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessGuard } : {}), ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -197,7 +197,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
 
       {teamFormat && (
         teamsOpen ? (
-          <Panel title="Teams" hint={format === "partytrivia" ? "Each member votes. The team's answer is its most-voted option." : format === "sayless" ? "Teams need 2+ players each; otherwise everyone races." : "Everyone still plays for themselves. A team's score is its players' points added up."}>
+          <Panel title="Teams" hint={format === "partytrivia" ? "Each member votes. The team's answer is its most-voted option." : format === "sayless" ? "Needs 2+ players on each team. Otherwise everyone plays for themselves." : "Everyone still plays for themselves. A team's score is its players' points added up."}>
             <div className="flex flex-wrap gap-2">
               {[0, 2, 3, 4].map((n) => <Chip key={n} selected={teams === n} onClick={() => pickTeams(n)}>{n === 0 ? "No teams" : `${n} teams`}</Chip>)}
             </div>
