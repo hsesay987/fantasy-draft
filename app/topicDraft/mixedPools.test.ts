@@ -11,6 +11,9 @@ import type { InSyncState } from "./formats/insync";
 import type { ImposterState } from "./formats/imposter";
 import type { VPState } from "./formats/vowelplay";
 import type { PTState } from "./formats/partytrivia";
+import { PECKING_LISTS, PECKING_LIST_IDS } from "./pecking/lists";
+import { poolIdsFor } from "./party/pools";
+import type { PeckState } from "./formats/pecking";
 import { redactFor } from "./formats/vowelplay";
 
 const setup = (format: GameSetup["format"], pools: string[], opts: Partial<GameSetup["opts"]> = {}, seed = 3): GameSetup => ({
@@ -105,5 +108,28 @@ describe("party trivia fallback", () => {
     const bundled = new Set(["superheroes", "villains"].flatMap((p) => bundledCategories(p).flatMap((c) => c.clues.map((x) => x.q))));
     expect(s.questions.length).toBeGreaterThan(0);
     expect(s.questions.every((q) => bundled.has(q.q))).toBe(true);
+  });
+});
+
+describe("pecking pools", () => {
+  it("poolIdsFor lists every ranked list", () => {
+    expect(poolIdsFor("pecking")).toEqual(PECKING_LIST_IDS);
+  });
+  it("a mixed setup draws questions from every chosen list", () => {
+    const ids = PECKING_LISTS.slice(0, 2).map((l) => l.id);
+    const seen = new Set<string>();
+    for (let seed = 1; seed < 20; seed++) {
+      const s = initGame(setup("pecking", ids, { teamSize: 6, peckMode: "rank" }, seed), 0) as PeckState;
+      expect(s.questions.length).toBe(6);
+      for (const q of s.questions) {
+        expect(ids).toContain(q.list);
+        seen.add(q.list);
+      }
+    }
+    expect(seen.size).toBe(2);
+  });
+  it("drops unknown list ids", () => {
+    const s = initGame(setup("pecking", [PECKING_LIST_IDS[0]!, "nope"], { teamSize: 3 }), 0) as PeckState;
+    expect(s.questions.every((q) => q.list === PECKING_LIST_IDS[0])).toBe(true);
   });
 });

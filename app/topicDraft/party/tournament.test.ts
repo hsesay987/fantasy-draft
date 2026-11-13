@@ -41,6 +41,14 @@ describe("awardsFor", () => {
     const s = setup("vowelparty", ["a", "b", "c"], { teams: 2, teamMap: { a: 0, b: 1, c: 1 } });
     expect(awardsFor(s, st({ points: { a: 5, b: 1, c: 0 }, mode: "all" }), ["a", "b", "c"])).toEqual({ a: 5, b: 3, c: 2 });
   });
+  it("Pecking ranks per-player points, ties share a place", () => {
+    const s = setup("pecking", ["a", "b", "c", "d"]);
+    expect(awardsFor(s, st({ points: { a: 80, b: 80, c: 10, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 5, b: 5, c: 2, d: 1 });
+  });
+  it("Pecking teams rank by summed member points", () => {
+    const s = setup("pecking", ["a", "b", "c", "d"], { teams: 2, teamMap: { a: 0, b: 0, c: 1, d: 1 } });
+    expect(awardsFor(s, st({ points: { a: 40, b: 40, c: 90, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 3, b: 3, c: 5, d: 5 });
+  });
   const duel = (rope: number, forfeit: string | null = null) => st({ mode: "duel", players: ["a", "b"], rope, forfeit, points: {} });
   it("duel winner 5/1, draw 3 each", () => {
     const s = setup("vowelplay", ["a", "b"], { vowelMode: "duel" });

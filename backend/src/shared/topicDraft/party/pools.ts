@@ -8,6 +8,8 @@ import { TRIVIA_POOLS } from "../trivia";
 import { DECKS, deckOf } from "./decks";
 import { INSYNC_DECKS, insyncDeckOf } from "./insyncDecks";
 import { mixTitle } from "./mixTitle";
+import { PECKING_LIST_IDS } from "../pecking/lists";
+import { PECKING_META } from "../pecking/meta";
 import { VOWEL_TOPICS, vowelTopicTitle } from "./vowelTopics";
 
 /** Character catalogs big enough for Imposter: a secret plus look-alikes to guess from. */
@@ -22,6 +24,7 @@ export function poolIdsFor(format: FormatId): string[] {
     case "partytrivia": return [...TRIVIA_POOLS];
     case "vowelplay":
     case "vowelparty": return VOWEL_TOPICS.map((t) => t.id);
+    case "pecking": return [...PECKING_LIST_IDS];
     default: return [];
   }
 }
@@ -33,6 +36,7 @@ export function poolTitleFor(format: FormatId, id: string): string {
     case "insync": return insyncDeckOf(id)?.title ?? id;
     case "vowelplay":
     case "vowelparty": return vowelTopicTitle(id);
+    case "pecking": return PECKING_META.find((m) => m.id === id)?.title ?? id;
     default: return CATALOG_META.find((m) => m.id === id)?.title ?? id;
   }
 }

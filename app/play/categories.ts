@@ -187,6 +187,7 @@ export const FORMAT_WHY: Record<FormatId, string> = {
   mafia: "Find the mafia before they outnumber you",
   vowelplay: "Name it with the vowels missing",
   vowelparty: "Race to name it with the vowels missing",
+  pecking: "Guess where things rank",
 };
 
 /** Formats that make sense for a category (Loadout needs hero-ish items). */
