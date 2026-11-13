@@ -68,7 +68,8 @@ export function PartyTriviaView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl
   const myTeam = teamIndexOf(s.teams, me);
   const asking = s.phase === "question";
   const phaseMs = asking ? PT.QUESTION_MS : PT.REVEAL_MS;
-  const deadline = s.phaseAt + phaseMs;
+  // A buzz near the end keeps its full answer window, so the question's clock waits for it (the server does the same).
+  const deadline = asking ? PT.questionDeadline(s) : s.phaseAt + phaseMs;
 
   // Buzz mode: the first to buzz answers alone, for their team; a wrong answer locks them (or their team) out.
   const buzzMode = s.answerMode === "buzz";

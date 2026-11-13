@@ -327,12 +327,36 @@ describe("party trivia, buzz mode", () => {
     expect(answer(s, "Ann", "nope", T0 + 5)).toBe(s);
   });
 
-  it("the question ends at 25 s, with nobody penalised for a pending buzz", () => {
+  it("a late buzz keeps its answer window: no answer by buzzAt + 5 s is wrong (-50, locked) and then the reveal", () => {
+    let s: PTState = { ...mk(), points: { Ann: 70, Bob: 0, Cy: 0 } };
+    const at = T0 + 22_000;
+    s = buzz(s, "Ann", at);
+    expect(tick(s, T0 + QUESTION_MS + 1)).toBe(s); // the question waits for the buzzer
+    expect(tick(s, at + BUZZ_ANSWER_MS - 1)).toBe(s);
+    const r = tick(s, at + BUZZ_ANSWER_MS);
+    expect(r.phase).toBe("reveal");
+    expect(r.phaseAt).toBe(at + BUZZ_ANSWER_MS);
+    expect(r.points.Ann).toBe(70 - WRONG_BUZZ);
+    expect(r.locked).toEqual(["Ann"]);
+    expect(r.missed).toEqual(["Ann"]);
+  });
+
+  it("a late buzz answered right after 25 s still scores", () => {
     let s = mk();
-    s = buzz(s, "Ann", T0 + QUESTION_MS - 1000);
-    s = tick(s, T0 + QUESTION_MS + 1);
+    s = buzz(s, "Ann", T0 + 22_000);
+    s = answer(s, "Ann", rightOf(s), T0 + 26_000);
     expect(s.phase).toBe("reveal");
-    expect(s.points.Ann).toBe(0);
+    expect(s.points.Ann).toBe(100);
+    expect(s.correct.Ann).toBe(1);
+  });
+
+  it("a late buzz answered wrong after 25 s reveals at once, with the penalty", () => {
+    let s: PTState = { ...mk(), points: { Ann: 70, Bob: 0, Cy: 0 } };
+    s = buzz(s, "Ann", T0 + 22_000);
+    s = answer(s, "Ann", wrongOf(s), T0 + 26_000);
+    expect(s.phase).toBe("reveal");
+    expect(s.points.Ann).toBe(20);
+    expect(s.locked).toEqual(["Ann"]);
   });
 
   it("ends when every player is locked out", () => {
