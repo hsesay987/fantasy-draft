@@ -78,6 +78,7 @@ model User {
   revenueEvents       RevenueEvent[]
   draftStyles         DraftStyle[]
   topPicCardReports   TopPicCardReport[]
+  customGames         CustomGame[]
 }
 
 model VerificationToken {
@@ -147,6 +148,9 @@ model Room {
   createdAt DateTime @default(now())
 
   participants RoomParticipant[]
+
+  @@index([hostId])
+  @@index([isPublic, status])
 }
 
 model RoomParticipant {
@@ -160,6 +164,7 @@ model RoomParticipant {
   user User @relation(fields: [userId], references: [id])
 
   @@unique([roomId, userId])
+  @@index([userId])
 }
 
 model CommunityAd {
@@ -216,6 +221,8 @@ model NBAPlayer {
 
   seasonStats NBAPlayerSeasonStat[]
   draftPicks  NBADraftPick[]
+
+  @@index([name])
 }
 
 model NBAPlayerSeasonStat {
@@ -292,6 +299,9 @@ model NFLPlayer {
 
   seasons       NFLPlayerSeasonStat[]
   nfldraftPicks NFLDraftPick[]
+
+  @@index([name])
+  @@index([normalizedPos])
 }
 
 model NFLPlayerSeasonStat {
@@ -313,6 +323,7 @@ model NFLPlayerSeasonStat {
   player NFLPlayer @relation(fields: [playerId], references: [id])
 
   @@unique([playerId, season])
+  @@index([season])
 }
 
 model Draft {
@@ -348,6 +359,9 @@ model Draft {
   styles       DraftStyle[]
 
   game Game @relation(fields: [gameId], references: [id])
+
+  @@index([ownerId, createdAt])
+  @@index([gameId])
 }
 
 model DraftStyle {
@@ -366,6 +380,9 @@ model DraftStyle {
   owner   User    @relation(fields: [ownerId], references: [id])
   draft   Draft?  @relation(fields: [draftId], references: [id])
   draftId String?
+
+  @@index([ownerId])
+  @@index([visibility, plays])
 }
 
 model NBADraftPick {
@@ -476,6 +493,9 @@ model Feedback {
   url       String?
   userAgent String?
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId])
 }
 
 model TopPicCardReport {
@@ -594,4 +614,184 @@ model DailyResult {
 
   @@unique([game, day, player])
   @@index([game, day])
+}
+
+// ───────────────────────────── Content ─────────────────────────────
+// What the games are played with. These tables are the source of truth for topics, the things in them and their
+// stats; `npm run content:export` writes them back out as the JSON catalogs the game engines bundle, so a game
+// never waits on the database. Every stat number says where it came from.
+
+/// Where a number comes from: a public dataset, an API, or our own rubric.
+model Source {
+  id      String @id // "worldbank"
+  name    String
+  url     String @default("")
+  licence String @default("")
+
+  statDefs StatDef[]
+  stats    EntityStat[]
+}
+
+/// A stat a family of topics is rated on. `method` says whether its numbers are computed from the source or estimated.
+model StatDef {
+  id        String @id @default(cuid())
+  family    String // "basketball", "characters", "countries" ...
+  key       String // "defense"
+  label     String // noun: "defense"
+  best      String // superlative: "Best defender"
+  code      String // three letters for tight cards: "DEF"
+  method    String // "measured" | "editorial"
+  basis     String // one line a player can read
+  sortOrder Int    @default(0)
+  sourceId  String
+
+  source Source @relation(fields: [sourceId], references: [id])
+
+  @@unique([family, key])
+}
+
+/// A topic players can draft from or be quizzed on.
+model Topic {
+  id         String   @id // "films"
+  title      String
+  blurb      String
+  section    String // "characters" | "sports" | "screen" | "world" | "gear"
+  kind       String // "character" (draftable) | "item" (Loadout slots only)
+  statFamily String
+  /// A mixed pool lists the topics it is made of ("fictional" holds heroes, villains, anime ...) and has no entities of its own.
+  includes   String[] @default([])
+  sortOrder  Int      @default(0)
+  active     Boolean  @default(true)
+
+  entities Entity[]
+}
+
+/// One thing in a topic: a character, a film, a country, a player.
+model Entity {
+  id         String   @id @default(cuid())
+  topicId    String
+  slug       String
+  name       String
+  /// The group it belongs to inside the topic: a franchise, a genre, a continent, a team.
+  universe   String   @default("")
+  archetype  String   @default("")
+  tags       String[] @default([])
+  /// Real-world details used for clues (a player's height, teams, best season).
+  facts      Json?
+  /// Exact lookup for its picture when the name alone finds the wrong one.
+  imageQuery String?
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  topic Topic            @relation(fields: [topicId], references: [id])
+  stats EntityStat[]
+  votes EntityStatVote[]
+
+  @@unique([topicId, slug])
+  @@index([topicId, active])
+}
+
+/// One rating, 0 to 100. `measured` is true when it was computed from `source`, false when it is an estimate.
+model EntityStat {
+  entityId  String
+  key       String
+  value     Int
+  measured  Boolean  @default(false)
+  sourceId  String?
+  updatedAt DateTime @updatedAt
+
+  entity Entity  @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  source Source? @relation(fields: [sourceId], references: [id])
+
+  @@id([entityId, key])
+}
+
+/// A player saying an estimated rating is too low (+1) or too high (-1). One vote per voter per rating; voting again replaces it.
+/// Editors use the totals to correct editorial stats; measured stats are not open to votes.
+model EntityStatVote {
+  id        String   @id @default(cuid())
+  entityId  String
+  key       String
+  voter     String // anonymous id kept in the player's browser, or a user id
+  direction Int // +1 should be higher, -1 should be lower
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entity Entity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@unique([entityId, key, voter])
+  @@index([entityId, key])
+}
+
+/// A way to judge a draft: a title and how much each stat counts.
+model Mission {
+  id        String   @id @default(cuid())
+  family    String
+  slug      String
+  title     String
+  blurb     String   @default("")
+  weights   Json // { stat key: weight }
+  wantTags  String[] @default([])
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+
+  @@unique([family, slug])
+}
+
+// ───────────────────────────── Custom mode ─────────────────────────────
+
+/// A player's own version of a game. `content` is checked by the shared rules in app/topicDraft/custom.ts
+/// before it is saved and again before it is published.
+model CustomGame {
+  id          String    @id @default(cuid())
+  /// Short share code in the link: toppicgames.com/community/k3f9x2ab
+  slug        String    @unique
+  authorId    String
+  kind        String // "draft" | "summit" | "hotair"
+  title       String
+  description String    @default("")
+  content     Json
+  status      String    @default("draft") // "draft" | "published" | "removed"
+  /// "public" games are listed; "unlisted" ones open only from their link.
+  visibility  String    @default("public")
+  plays       Int       @default(0)
+  likes       Int       @default(0)
+  dislikes    Int       @default(0)
+  reports     Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+
+  author      User               @relation(fields: [authorId], references: [id])
+  ratings     CustomGameRating[]
+  reportItems CustomGameReport[]
+
+  @@index([status, visibility, plays])
+  @@index([status, visibility, publishedAt])
+  @@index([authorId, updatedAt])
+}
+
+/// One player's thumbs up (+1) or down (-1) on a custom game. Voting again replaces it.
+model CustomGameRating {
+  gameId    String
+  voter     String // anonymous id kept in the player's browser, or a user id
+  value     Int
+  updatedAt DateTime @updatedAt
+
+  game CustomGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@id([gameId, voter])
+}
+
+model CustomGameReport {
+  id        String   @id @default(cuid())
+  gameId    String
+  reporter  String // anonymous id or user id, so one person cannot report a game twice
+  reason    String
+  createdAt DateTime @default(now())
+
+  game CustomGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, reporter])
 }

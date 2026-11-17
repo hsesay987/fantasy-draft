@@ -21,6 +21,7 @@ import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
 import judgeRoutes from "./routes/judge.route";
 import playRoomRoutes from "./routes/playRooms.route";
+import customRoutes from "./routes/custom.route";
 import { startTicker } from "./services/playRooms";
 import { authOptional } from "./middleware/auth";
 
@@ -74,6 +75,7 @@ app.use("/play-rooms", playRoomRoutes);
 app.use("/trivia", triviaRoutes);
 app.use("/costimation", costimationRoutes);
 app.use("/daily", dailyRoutes);
+app.use("/custom", customRoutes);
 
 // Sentry must see errors before our own handler responds (no-op without SENTRY_DSN).
 Sentry.setupExpressErrorHandler(app);
