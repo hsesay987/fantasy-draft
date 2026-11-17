@@ -22,7 +22,8 @@ import allies from "./allies.json";
 import vehicles from "./vehicles.json";
 import traps from "./traps.json";
 
-export const STD_KEYS = ["power", "intellect", "speed", "durability", "combat", "teamwork"];
+/** Stats every fictional character has. Pokémon carry four of them, straight from their base stats. */
+export const STD_KEYS = ["power", "intellect", "speed", "durability", "combat"];
 
 export type CatalogMeta = {
   id: string;
@@ -96,7 +97,7 @@ export const CATALOG_META: CatalogMeta[] = [
   { id: "heroes-villains", title: "Heroes & Villains", blurb: "One big pool, both sides.", statKeys: STD_KEYS, kind: "character" },
   { id: "anime", title: "Anime", blurb: "Fighters, rivals and sidekicks.", statKeys: STD_KEYS, kind: "character" },
   { id: "videogames", title: "Video Game Icons", blurb: "Mascots, heroes and bosses.", statKeys: STD_KEYS, kind: "character" },
-  { id: "pokemon", title: "Pokémon", blurb: "Build a team of six.", statKeys: STD_KEYS, kind: "character" },
+  { id: "pokemon", title: "Pokémon", blurb: "Build a team of six.", statKeys: keysOf("pokemon"), kind: "character" },
   { id: "disney", title: "Disney & Pixar", blurb: "Magic, heart and a few villains.", statKeys: STD_KEYS, kind: "character" },
   { id: "movies", title: "Movie Icons", blurb: "Action stars to monsters.", statKeys: STD_KEYS, kind: "character" },
   { id: "history", title: "Historical Figures", blurb: "Leaders, geniuses and icons.", statKeys: keysOf("history"), kind: "character" },

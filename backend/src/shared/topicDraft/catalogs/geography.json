@@ -5,12 +5,12 @@
   "universe": "North America",
   "archetype": "Superpower",
   "stats": {
-   "economy": 99,
+   "economy": 97,
    "military": 99,
+   "tourism": 96,
+   "culture": 83,
    "landscape": 88,
-   "culture": 92,
-   "cuisine": 75,
-   "climate": 75
+   "cuisine": 75
   },
   "tags": [
    "g7",
@@ -24,12 +24,12 @@
   "universe": "Asia",
   "archetype": "Superpower",
   "stats": {
-   "economy": 95,
-   "military": 95,
+   "economy": 99,
+   "military": 94,
+   "tourism": 96,
+   "culture": 98,
    "landscape": 85,
-   "culture": 93,
-   "cuisine": 92,
-   "climate": 70
+   "cuisine": 92
   },
   "tags": [
    "big"
@@ -42,12 +42,12 @@
   "universe": "Asia",
   "archetype": "Island Nation",
   "stats": {
-   "economy": 90,
-   "military": 70,
+   "economy": 87,
+   "military": 80,
+   "tourism": 76,
+   "culture": 83,
    "landscape": 82,
-   "culture": 96,
-   "cuisine": 96,
-   "climate": 72
+   "cuisine": 96
   },
   "tags": [
    "g7",
@@ -61,12 +61,12 @@
   "universe": "Europe",
   "archetype": "Industrial Power",
   "stats": {
-   "economy": 92,
-   "military": 70,
+   "economy": 86,
+   "military": 87,
+   "tourism": 80,
+   "culture": 96,
    "landscape": 70,
-   "culture": 88,
-   "cuisine": 70,
-   "climate": 58
+   "cuisine": 70
   },
   "tags": [
    "g7"
@@ -79,12 +79,12 @@
   "universe": "Asia",
   "archetype": "Rising Power",
   "stats": {
-   "economy": 85,
-   "military": 88,
+   "economy": 93,
+   "military": 86,
+   "tourism": 67,
+   "culture": 92,
    "landscape": 85,
-   "culture": 95,
-   "cuisine": 95,
-   "climate": 70
+   "cuisine": 95
   },
   "tags": [
    "big"
@@ -97,12 +97,12 @@
   "universe": "Europe",
   "archetype": "Island Nation",
   "stats": {
-   "economy": 88,
-   "military": 82,
+   "economy": 83,
+   "military": 85,
+   "tourism": 81,
+   "culture": 88,
    "landscape": 65,
-   "culture": 94,
-   "cuisine": 62,
-   "climate": 50
+   "cuisine": 62
   },
   "tags": [
    "g7",
@@ -116,12 +116,12 @@
   "universe": "Europe",
   "archetype": "Cultural Power",
   "stats": {
-   "economy": 88,
-   "military": 82,
+   "economy": 82,
+   "military": 81,
+   "tourism": 99,
+   "culture": 96,
    "landscape": 82,
-   "culture": 97,
-   "cuisine": 98,
-   "climate": 74
+   "cuisine": 98
   },
   "tags": [
    "g7"
@@ -134,12 +134,12 @@
   "universe": "Europe",
   "archetype": "Cultural Power",
   "stats": {
-   "economy": 82,
-   "military": 65,
+   "economy": 80,
+   "military": 77,
+   "tourism": 90,
+   "culture": 99,
    "landscape": 85,
-   "culture": 97,
-   "cuisine": 99,
-   "climate": 82
+   "cuisine": 99
   },
   "tags": [
    "g7"
@@ -152,12 +152,12 @@
   "universe": "South America",
   "archetype": "Rising Power",
   "stats": {
-   "economy": 78,
-   "military": 70,
+   "economy": 84,
+   "military": 68,
+   "tourism": 50,
+   "culture": 81,
    "landscape": 97,
-   "culture": 88,
-   "cuisine": 82,
-   "climate": 85
+   "cuisine": 82
   },
   "tags": [
    "big",
@@ -171,12 +171,12 @@
   "universe": "North America",
   "archetype": "Wilderness",
   "stats": {
-   "economy": 85,
-   "military": 55,
-   "landscape": 95,
+   "economy": 75,
+   "military": 73,
+   "tourism": 77,
    "culture": 78,
-   "cuisine": 60,
-   "climate": 40
+   "landscape": 95,
+   "cuisine": 60
   },
   "tags": [
    "g7",
@@ -190,12 +190,12 @@
   "universe": "Europe",
   "archetype": "Superpower",
   "stats": {
-   "economy": 72,
-   "military": 96,
+   "economy": 88,
+   "military": 90,
+   "tourism": 73,
+   "culture": 86,
    "landscape": 88,
-   "culture": 85,
-   "cuisine": 62,
-   "climate": 30
+   "cuisine": 62
   },
   "tags": [
    "big"
@@ -208,12 +208,12 @@
   "universe": "Oceania",
   "archetype": "Island Nation",
   "stats": {
-   "economy": 82,
-   "military": 58,
+   "economy": 71,
+   "military": 72,
+   "tourism": 56,
+   "culture": 77,
    "landscape": 92,
-   "culture": 75,
-   "cuisine": 65,
-   "climate": 88
+   "cuisine": 65
   },
   "tags": [
    "big",
@@ -227,12 +227,12 @@
   "universe": "Asia",
   "archetype": "Tech Power",
   "stats": {
-   "economy": 85,
-   "military": 78,
+   "economy": 78,
+   "military": 77,
+   "tourism": 66,
+   "culture": 72,
    "landscape": 70,
-   "culture": 92,
-   "cuisine": 90,
-   "climate": 65
+   "cuisine": 90
   },
   "tags": [
    "tech"
@@ -245,12 +245,12 @@
   "universe": "North America",
   "archetype": "Cultural Power",
   "stats": {
-   "economy": 72,
-   "military": 55,
+   "economy": 79,
+   "military": 61,
+   "tourism": 90,
+   "culture": 89,
    "landscape": 88,
-   "culture": 92,
-   "cuisine": 96,
-   "climate": 85
+   "cuisine": 96
   },
   "tags": [],
   "q": "Tourism in Mexico"
@@ -261,12 +261,12 @@
   "universe": "Europe",
   "archetype": "Cultural Power",
   "stats": {
-   "economy": 78,
-   "military": 60,
+   "economy": 76,
+   "military": 74,
+   "tourism": 93,
+   "culture": 94,
    "landscape": 82,
-   "culture": 92,
-   "cuisine": 92,
-   "climate": 88
+   "cuisine": 92
   },
   "tags": [],
   "q": "Tourism in Spain"
@@ -277,12 +277,12 @@
   "universe": "Africa",
   "archetype": "Ancient Land",
   "stats": {
-   "economy": 55,
-   "military": 65,
+   "economy": 73,
+   "military": 42,
+   "tourism": 60,
+   "culture": 49,
    "landscape": 75,
-   "culture": 96,
-   "cuisine": 70,
-   "climate": 82
+   "cuisine": 70
   },
   "tags": [
    "ancient"
@@ -295,12 +295,12 @@
   "universe": "Europe",
   "archetype": "Ancient Land",
   "stats": {
-   "economy": 55,
-   "military": 50,
+   "economy": 49,
+   "military": 57,
+   "tourism": 78,
+   "culture": 77,
    "landscape": 88,
-   "culture": 95,
-   "cuisine": 88,
-   "climate": 90
+   "cuisine": 88
   },
   "tags": [
    "ancient",
@@ -314,12 +314,12 @@
   "universe": "Asia",
   "archetype": "Crossroads",
   "stats": {
-   "economy": 68,
-   "military": 75,
+   "economy": 81,
+   "military": 71,
+   "tourism": 84,
+   "culture": 78,
    "landscape": 82,
-   "culture": 90,
-   "cuisine": 92,
-   "climate": 78
+   "cuisine": 92
   },
   "tags": [],
   "q": "Tourism in Turkey"
@@ -330,12 +330,12 @@
   "universe": "Europe",
   "archetype": "Alpine",
   "stats": {
-   "economy": 92,
-   "military": 30,
+   "economy": 60,
+   "military": 55,
+   "tourism": 59,
+   "culture": 67,
    "landscape": 96,
-   "culture": 75,
-   "cuisine": 70,
-   "climate": 60
+   "cuisine": 70
   },
   "tags": [
    "alpine"
@@ -348,12 +348,12 @@
   "universe": "Europe",
   "archetype": "Wilderness",
   "stats": {
-   "economy": 88,
-   "military": 40,
+   "economy": 52,
+   "military": 65,
+   "tourism": 49,
+   "culture": 54,
    "landscape": 98,
-   "culture": 72,
-   "cuisine": 55,
-   "climate": 35
+   "cuisine": 55
   },
   "tags": [
    "nordic"
@@ -366,12 +366,12 @@
   "universe": "Europe",
   "archetype": "Wilderness",
   "stats": {
-   "economy": 75,
+   "economy": 31,
    "military": 1,
+   "tourism": 35,
+   "culture": 38,
    "landscape": 99,
-   "culture": 68,
-   "cuisine": 45,
-   "climate": 25
+   "cuisine": 45
   },
   "tags": [
    "island",
@@ -385,12 +385,12 @@
   "universe": "Oceania",
   "archetype": "Island Nation",
   "stats": {
-   "economy": 72,
-   "military": 30,
+   "economy": 44,
+   "military": 44,
+   "tourism": 40,
+   "culture": 38,
    "landscape": 99,
-   "culture": 70,
-   "cuisine": 60,
-   "climate": 75
+   "cuisine": 60
   },
   "tags": [
    "island"
@@ -403,12 +403,12 @@
   "universe": "Asia",
   "archetype": "Tropical",
   "stats": {
-   "economy": 62,
-   "military": 50,
+   "economy": 69,
+   "military": 52,
+   "tourism": 81,
+   "culture": 59,
    "landscape": 88,
-   "culture": 88,
-   "cuisine": 96,
-   "climate": 85
+   "cuisine": 96
   },
   "tags": [
    "tropical"
@@ -421,12 +421,12 @@
   "universe": "Asia",
   "archetype": "Island Nation",
   "stats": {
-   "economy": 68,
-   "military": 60,
+   "economy": 85,
+   "military": 63,
+   "tourism": 64,
+   "culture": 61,
    "landscape": 92,
-   "culture": 82,
-   "cuisine": 85,
-   "climate": 85
+   "cuisine": 85
   },
   "tags": [
    "island",
@@ -441,12 +441,12 @@
   "universe": "Asia",
   "archetype": "Rising Power",
   "stats": {
-   "economy": 60,
-   "military": 60,
+   "economy": 68,
+   "military": 59,
+   "tourism": 68,
+   "culture": 59,
    "landscape": 88,
-   "culture": 82,
-   "cuisine": 92,
-   "climate": 80
+   "cuisine": 92
   },
   "tags": [],
   "q": "Tourism in Vietnam"
@@ -457,12 +457,12 @@
   "universe": "South America",
   "archetype": "Wilderness",
   "stats": {
-   "economy": 58,
-   "military": 45,
+   "economy": 65,
+   "military": 47,
+   "tourism": 52,
+   "culture": 64,
    "landscape": 95,
-   "culture": 85,
-   "cuisine": 82,
-   "climate": 75
+   "cuisine": 82
   },
   "tags": [
    "big"
@@ -475,12 +475,12 @@
   "universe": "South America",
   "archetype": "Ancient Land",
   "stats": {
-   "economy": 52,
-   "military": 40,
+   "economy": 54,
+   "military": 43,
+   "tourism": 46,
+   "culture": 67,
    "landscape": 95,
-   "culture": 88,
-   "cuisine": 92,
-   "climate": 70
+   "cuisine": 92
   },
   "tags": [
    "ancient"
@@ -493,12 +493,12 @@
   "universe": "Africa",
   "archetype": "Crossroads",
   "stats": {
-   "economy": 58,
-   "military": 50,
+   "economy": 61,
+   "military": 46,
+   "tourism": 63,
+   "culture": 64,
    "landscape": 95,
-   "culture": 82,
-   "cuisine": 72,
-   "climate": 85
+   "cuisine": 72
   },
   "tags": [],
   "q": "Tourism in South Africa"
@@ -509,12 +509,12 @@
   "universe": "Africa",
   "archetype": "Rising Power",
   "stats": {
-   "economy": 60,
-   "military": 55,
+   "economy": 72,
+   "military": 41,
+   "tourism": 46,
+   "culture": 33,
    "landscape": 72,
-   "culture": 88,
-   "cuisine": 80,
-   "climate": 70
+   "cuisine": 80
   },
   "tags": [],
   "q": "Tourism in Nigeria"
@@ -525,12 +525,12 @@
   "universe": "Africa",
   "archetype": "Wilderness",
   "stats": {
-   "economy": 45,
-   "military": 35,
+   "economy": 47,
+   "military": 38,
+   "tourism": 33,
+   "culture": 54,
    "landscape": 96,
-   "culture": 80,
-   "cuisine": 62,
-   "climate": 82
+   "cuisine": 62
   },
   "tags": [
    "safari"
@@ -543,12 +543,12 @@
   "universe": "Africa",
   "archetype": "Crossroads",
   "stats": {
-   "economy": 52,
-   "military": 45,
+   "economy": 48,
+   "military": 53,
+   "tourism": 61,
+   "culture": 59,
    "landscape": 88,
-   "culture": 88,
-   "cuisine": 92,
-   "climate": 85
+   "cuisine": 92
   },
   "tags": [],
   "q": "Tourism in Morocco"
@@ -559,12 +559,12 @@
   "universe": "Asia",
   "archetype": "Oil Power",
   "stats": {
-   "economy": 82,
-   "military": 72,
+   "economy": 75,
+   "military": 83,
+   "tourism": 71,
+   "culture": 54,
    "landscape": 70,
-   "culture": 70,
-   "cuisine": 65,
-   "climate": 45
+   "cuisine": 65
   },
   "tags": [
    "oil"
@@ -577,12 +577,12 @@
   "universe": "Asia",
   "archetype": "Oil Power",
   "stats": {
-   "economy": 85,
+   "economy": 59,
    "military": 55,
+   "tourism": 74,
+   "culture": 38,
    "landscape": 65,
-   "culture": 65,
-   "cuisine": 70,
-   "climate": 50
+   "cuisine": 70
   },
   "tags": [
    "oil"
@@ -595,12 +595,12 @@
   "universe": "Asia",
   "archetype": "Tech Power",
   "stats": {
-   "economy": 80,
-   "military": 85,
+   "economy": 53,
+   "military": 78,
+   "tourism": 45,
+   "culture": 59,
    "landscape": 65,
-   "culture": 85,
-   "cuisine": 82,
-   "climate": 80
+   "cuisine": 82
   },
   "tags": [
    "tech"
@@ -613,12 +613,12 @@
   "universe": "Asia",
   "archetype": "City-State",
   "stats": {
-   "economy": 95,
-   "military": 45,
+   "economy": 61,
+   "military": 66,
+   "tourism": 69,
+   "culture": 31,
    "landscape": 40,
-   "culture": 78,
-   "cuisine": 92,
-   "climate": 70
+   "cuisine": 92
   },
   "tags": [
    "city",
@@ -632,12 +632,12 @@
   "universe": "Europe",
   "archetype": "Trading Nation",
   "stats": {
-   "economy": 88,
-   "military": 50,
+   "economy": 66,
+   "military": 70,
+   "tourism": 70,
+   "culture": 67,
    "landscape": 50,
-   "culture": 85,
-   "cuisine": 55,
-   "climate": 55
+   "cuisine": 55
   },
   "tags": [
    "trade"
@@ -650,12 +650,12 @@
   "universe": "Europe",
   "archetype": "Nordic",
   "stats": {
-   "economy": 85,
-   "military": 55,
+   "economy": 57,
+   "military": 64,
+   "tourism": 53,
+   "culture": 69,
    "landscape": 85,
-   "culture": 82,
-   "cuisine": 60,
-   "climate": 40
+   "cuisine": 60
   },
   "tags": [
    "nordic"
@@ -668,12 +668,12 @@
   "universe": "Europe",
   "archetype": "Nordic",
   "stats": {
-   "economy": 80,
-   "military": 55,
+   "economy": 46,
+   "military": 56,
+   "tourism": 38,
+   "culture": 54,
    "landscape": 85,
-   "culture": 75,
-   "cuisine": 50,
-   "climate": 30
+   "cuisine": 50
   },
   "tags": [
    "nordic"
@@ -686,12 +686,12 @@
   "universe": "Europe",
   "archetype": "Island Nation",
   "stats": {
-   "economy": 85,
-   "military": 15,
+   "economy": 58,
+   "military": 39,
+   "tourism": 57,
+   "culture": 33,
    "landscape": 82,
-   "culture": 88,
-   "cuisine": 60,
-   "climate": 52
+   "cuisine": 60
   },
   "tags": [
    "island"
@@ -704,12 +704,12 @@
   "universe": "Europe",
   "archetype": "Trading Nation",
   "stats": {
-   "economy": 65,
-   "military": 40,
+   "economy": 51,
+   "military": 51,
+   "tourism": 65,
+   "culture": 72,
    "landscape": 82,
-   "culture": 85,
-   "cuisine": 85,
-   "climate": 88
+   "cuisine": 85
   },
   "tags": [],
   "q": "Tourism in Portugal"
@@ -721,11 +721,11 @@
   "archetype": "Industrial Power",
   "stats": {
    "economy": 70,
-   "military": 65,
+   "military": 76,
+   "tourism": 88,
+   "culture": 73,
    "landscape": 72,
-   "culture": 80,
-   "cuisine": 70,
-   "climate": 50
+   "cuisine": 70
   },
   "tags": [],
   "q": "Tourism in Poland"
@@ -736,12 +736,12 @@
   "universe": "Europe",
   "archetype": "Breadbasket",
   "stats": {
-   "economy": 45,
-   "military": 70,
+   "economy": 55,
+   "military": 84,
+   "tourism": 62,
+   "culture": 54,
    "landscape": 72,
-   "culture": 80,
-   "cuisine": 72,
-   "climate": 55
+   "cuisine": 72
   },
   "tags": [],
   "q": "Tourism in Ukraine"
@@ -752,12 +752,12 @@
   "universe": "Asia",
   "archetype": "Rising Power",
   "stats": {
-   "economy": 45,
-   "military": 80,
+   "economy": 67,
+   "military": 60,
+   "tourism": 75,
+   "culture": 46,
    "landscape": 85,
-   "culture": 82,
-   "cuisine": 85,
-   "climate": 65
+   "cuisine": 85
   },
   "tags": [],
   "q": "Tourism in Pakistan"
@@ -768,12 +768,12 @@
   "universe": "Asia",
   "archetype": "Ancient Land",
   "stats": {
-   "economy": 55,
-   "military": 75,
+   "economy": 68,
+   "military": 54,
+   "tourism": 55,
+   "culture": 85,
    "landscape": 82,
-   "culture": 92,
-   "cuisine": 88,
-   "climate": 65
+   "cuisine": 88
   },
   "tags": [
    "ancient"
@@ -788,10 +788,10 @@
   "stats": {
    "economy": 30,
    "military": 35,
+   "tourism": 42,
+   "culture": 59,
    "landscape": 82,
-   "culture": 88,
-   "cuisine": 70,
-   "climate": 88
+   "cuisine": 70
   },
   "tags": [
    "island",
@@ -805,12 +805,12 @@
   "universe": "North America",
   "archetype": "Island Nation",
   "stats": {
-   "economy": 35,
-   "military": 10,
+   "economy": 33,
+   "military": 31,
+   "tourism": 41,
+   "culture": 33,
    "landscape": 85,
-   "culture": 92,
-   "cuisine": 82,
-   "climate": 92
+   "cuisine": 82
   },
   "tags": [
    "island",
@@ -824,12 +824,12 @@
   "universe": "South America",
   "archetype": "Wilderness",
   "stats": {
-   "economy": 65,
-   "military": 45,
+   "economy": 56,
+   "military": 50,
+   "tourism": 47,
+   "culture": 49,
    "landscape": 97,
-   "culture": 75,
-   "cuisine": 72,
-   "climate": 72
+   "cuisine": 72
   },
   "tags": [],
   "q": "Tourism in Chile"
@@ -840,12 +840,12 @@
   "universe": "South America",
   "archetype": "Tropical",
   "stats": {
-   "economy": 55,
-   "military": 50,
+   "economy": 63,
+   "military": 62,
+   "tourism": 43,
+   "culture": 59,
    "landscape": 92,
-   "culture": 85,
-   "cuisine": 80,
-   "climate": 85
+   "cuisine": 80
   },
   "tags": [
    "tropical"
@@ -858,12 +858,12 @@
   "universe": "Asia",
   "archetype": "Alpine",
   "stats": {
-   "economy": 25,
-   "military": 20,
+   "economy": 41,
+   "military": 32,
+   "tourism": 31,
+   "culture": 41,
    "landscape": 99,
-   "culture": 80,
-   "cuisine": 65,
-   "climate": 55
+   "cuisine": 65
   },
   "tags": [
    "alpine"
@@ -876,12 +876,12 @@
   "universe": "Asia",
   "archetype": "Island Nation",
   "stats": {
-   "economy": 40,
+   "economy": 31,
    "military": 1,
-   "landscape": 92,
+   "tourism": 31,
    "culture": 60,
-   "cuisine": 55,
-   "climate": 95
+   "landscape": 92,
+   "cuisine": 55
   },
   "tags": [
    "island",

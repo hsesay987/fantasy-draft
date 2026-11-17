@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "sync:shared": "node scripts/sync-shared.mjs",
+    "stats:build": "node scripts/buildStats.mjs && node scripts/sync-shared.mjs",
     "dev:all": "bash scripts/dev.sh",
     "db:backup": "bash scripts/db/backup.sh",
     "db:restore": "bash scripts/db/restore.sh",

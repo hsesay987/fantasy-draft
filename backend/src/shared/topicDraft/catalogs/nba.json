@@ -5,12 +5,12 @@
   "universe": "Cleveland Cavaliers",
   "archetype": "small forward",
   "stats": {
-   "scoring": 94,
-   "playmaking": 65,
-   "rebounding": 53,
-   "defense": 56,
-   "shooting": 73,
-   "impact": 100
+   "scoring": 82,
+   "playmaking": 83,
+   "rebounding": 60,
+   "defense": 80,
+   "shooting": 67,
+   "impact": 99
   },
   "tags": [
    "all-nba",
@@ -51,12 +51,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "center",
   "stats": {
-   "scoring": 99,
-   "playmaking": 30,
-   "rebounding": 100,
-   "defense": 5,
-   "shooting": 100,
-   "impact": 99
+   "scoring": 83,
+   "playmaking": 63,
+   "rebounding": 81,
+   "defense": 88,
+   "shooting": 51,
+   "impact": 97
   },
   "tags": [
    "hall-of-fame",
@@ -99,12 +99,12 @@
   "universe": "Utah Jazz",
   "archetype": "forward",
   "stats": {
-   "scoring": 80,
-   "playmaking": 38,
-   "rebounding": 65,
-   "defense": 47,
-   "shooting": 79,
-   "impact": 94
+   "scoring": 81,
+   "playmaking": 55,
+   "rebounding": 76,
+   "defense": 73,
+   "shooting": 55,
+   "impact": 89
   },
   "tags": [
    "hall-of-fame",
@@ -148,12 +148,12 @@
   "universe": "Chicago Bulls",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 100,
-   "playmaking": 42,
-   "rebounding": 35,
-   "defense": 85,
-   "shooting": 68,
-   "impact": 100
+   "scoring": 90,
+   "playmaking": 68,
+   "rebounding": 52,
+   "defense": 86,
+   "shooting": 76,
+   "impact": 95
   },
   "tags": [
    "hall-of-fame",
@@ -196,12 +196,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "center",
   "stats": {
-   "scoring": 100,
-   "playmaking": 17,
-   "rebounding": 100,
-   "defense": 5,
-   "shooting": 33,
-   "impact": 100
+   "scoring": 99,
+   "playmaking": 75,
+   "rebounding": 99,
+   "defense": 85,
+   "shooting": 31,
+   "impact": 90
   },
   "tags": [
    "hall-of-fame",
@@ -246,12 +246,12 @@
   "universe": "San Antonio Spurs",
   "archetype": "power forward",
   "stats": {
-   "scoring": 73,
-   "playmaking": 35,
-   "rebounding": 86,
-   "defense": 56,
-   "shooting": 70,
-   "impact": 84
+   "scoring": 65,
+   "playmaking": 48,
+   "rebounding": 83,
+   "defense": 97,
+   "shooting": 48,
+   "impact": 87
   },
   "tags": [
    "hall-of-fame",
@@ -293,12 +293,12 @@
   "universe": "Dallas Mavericks",
   "archetype": "power forward",
   "stats": {
-   "scoring": 81,
-   "playmaking": 28,
-   "rebounding": 65,
-   "defense": 49,
-   "shooting": 82,
-   "impact": 89
+   "scoring": 71,
+   "playmaking": 44,
+   "rebounding": 68,
+   "defense": 55,
+   "shooting": 89,
+   "impact": 78
   },
   "tags": [
    "hall-of-fame",
@@ -339,12 +339,12 @@
   "universe": "Utah Jazz",
   "archetype": "point guard",
   "stats": {
-   "scoring": 53,
-   "playmaking": 100,
-   "rebounding": 20,
-   "defense": 73,
-   "shooting": 100,
-   "impact": 66
+   "scoring": 37,
+   "playmaking": 98,
+   "rebounding": 32,
+   "defense": 66,
+   "shooting": 80,
+   "impact": 71
   },
   "tags": [
    "hall-of-fame",
@@ -387,12 +387,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 86,
-   "playmaking": 55,
-   "rebounding": 40,
-   "defense": 40,
-   "shooting": 69,
-   "impact": 89
+   "scoring": 85,
+   "playmaking": 67,
+   "rebounding": 50,
+   "defense": 82,
+   "shooting": 80,
+   "impact": 82
   },
   "tags": [
    "hall-of-fame",
@@ -433,12 +433,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "center",
   "stats": {
-   "scoring": 88,
-   "playmaking": 22,
-   "rebounding": 76,
-   "defense": 48,
-   "shooting": 89,
-   "impact": 100
+   "scoring": 83,
+   "playmaking": 46,
+   "rebounding": 83,
+   "defense": 71,
+   "shooting": 31,
+   "impact": 88
   },
   "tags": [
    "hall-of-fame",
@@ -485,12 +485,12 @@
   "universe": "Los Angeles Clippers",
   "archetype": "point guard",
   "stats": {
-   "scoring": 66,
-   "playmaking": 100,
-   "rebounding": 27,
-   "defense": 60,
-   "shooting": 80,
-   "impact": 100
+   "scoring": 52,
+   "playmaking": 91,
+   "rebounding": 43,
+   "defense": 77,
+   "shooting": 91,
+   "impact": 83
   },
   "tags": [
    "all-nba",
@@ -537,12 +537,12 @@
   "universe": "Cincinnati Royals",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 88,
-   "playmaking": 86,
-   "rebounding": 70,
-   "defense": 5,
-   "shooting": 90,
-   "impact": 87
+   "scoring": 86,
+   "playmaking": 99,
+   "rebounding": 55,
+   "defense": 50,
+   "shooting": 75,
+   "impact": 81
   },
   "tags": [
    "hall-of-fame",
@@ -585,12 +585,12 @@
   "universe": "Minnesota Timberwolves",
   "archetype": "power forward",
   "stats": {
-   "scoring": 72,
-   "playmaking": 55,
-   "rebounding": 90,
-   "defense": 52,
-   "shooting": 61,
-   "impact": 97
+   "scoring": 62,
+   "playmaking": 64,
+   "rebounding": 87,
+   "defense": 94,
+   "shooting": 69,
+   "impact": 79
   },
   "tags": [
    "hall-of-fame",
@@ -633,12 +633,12 @@
   "universe": "Philadelphia 76ers",
   "archetype": "forward",
   "stats": {
-   "scoring": 79,
-   "playmaking": 35,
-   "rebounding": 77,
-   "defense": 50,
-   "shooting": 100,
-   "impact": 94
+   "scoring": 73,
+   "playmaking": 57,
+   "rebounding": 85,
+   "defense": 59,
+   "shooting": 57,
+   "impact": 80
   },
   "tags": [
    "hall-of-fame",
@@ -682,12 +682,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "point guard",
   "stats": {
-   "scoring": 90,
-   "playmaking": 51,
-   "rebounding": 40,
-   "defense": 5,
-   "shooting": 68,
-   "impact": 72
+   "scoring": 85,
+   "playmaking": 83,
+   "rebounding": 43,
+   "defense": 67,
+   "shooting": 70,
+   "impact": 81
   },
   "tags": [
    "hall-of-fame",
@@ -729,12 +729,12 @@
   "universe": "Boston Celtics",
   "archetype": "center",
   "stats": {
-   "scoring": 46,
-   "playmaking": 17,
-   "rebounding": 100,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 60
+   "scoring": 41,
+   "playmaking": 68,
+   "rebounding": 98,
+   "defense": 99,
+   "shooting": 30,
+   "impact": 80
   },
   "tags": [
    "hall-of-fame",
@@ -776,12 +776,12 @@
   "universe": "Oklahoma City Thunder",
   "archetype": "small forward",
   "stats": {
-   "scoring": 88,
-   "playmaking": 42,
-   "rebounding": 53,
-   "defense": 50,
-   "shooting": 100,
-   "impact": 99
+   "scoring": 83,
+   "playmaking": 65,
+   "rebounding": 58,
+   "defense": 56,
+   "shooting": 93,
+   "impact": 86
   },
   "tags": [
    "all-nba",
@@ -826,12 +826,12 @@
   "universe": "Houston Rockets",
   "archetype": "center",
   "stats": {
-   "scoring": 67,
-   "playmaking": 20,
-   "rebounding": 80,
-   "defense": 100,
-   "shooting": 61,
-   "impact": 85
+   "scoring": 75,
+   "playmaking": 45,
+   "rebounding": 86,
+   "defense": 95,
+   "shooting": 47,
+   "impact": 75
   },
   "tags": [
    "hall-of-fame",
@@ -874,12 +874,12 @@
   "universe": "San Antonio Spurs",
   "archetype": "center",
   "stats": {
-   "scoring": 78,
-   "playmaking": 27,
-   "rebounding": 81,
-   "defense": 76,
-   "shooting": 91,
-   "impact": 100
+   "scoring": 74,
+   "playmaking": 45,
+   "rebounding": 79,
+   "defense": 89,
+   "shooting": 46,
+   "impact": 85
   },
   "tags": [
    "hall-of-fame",
@@ -920,12 +920,12 @@
   "universe": "Philadelphia 76ers",
   "archetype": "small forward",
   "stats": {
-   "scoring": 87,
-   "playmaking": 50,
-   "rebounding": 73,
-   "defense": 75,
-   "shooting": 71,
-   "impact": 93
+   "scoring": 79,
+   "playmaking": 63,
+   "rebounding": 65,
+   "defense": 70,
+   "shooting": 60,
+   "impact": 83
   },
   "tags": [
    "hall-of-fame",
@@ -969,12 +969,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 59,
-   "playmaking": 100,
-   "rebounding": 39,
-   "defense": 38,
-   "shooting": 100,
-   "impact": 83
+   "scoring": 53,
+   "playmaking": 95,
+   "rebounding": 60,
+   "defense": 52,
+   "shooting": 83,
+   "impact": 88
   },
   "tags": [
    "hall-of-fame",
@@ -1016,12 +1016,12 @@
   "universe": "Houston Rockets",
   "archetype": "center",
   "stats": {
-   "scoring": 87,
-   "playmaking": 16,
-   "rebounding": 98,
-   "defense": 49,
-   "shooting": 88,
-   "impact": 82
+   "scoring": 76,
+   "playmaking": 32,
+   "rebounding": 91,
+   "defense": 63,
+   "shooting": 59,
+   "impact": 74
   },
   "tags": [
    "hall-of-fame",
@@ -1069,12 +1069,12 @@
   "universe": "Syracuse Nationals",
   "archetype": "power forward",
   "stats": {
-   "scoring": 43,
-   "playmaking": 26,
-   "rebounding": 82,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 74
+   "scoring": 66,
+   "playmaking": 61,
+   "rebounding": 85,
+   "defense": 66,
+   "shooting": 79,
+   "impact": 75
   },
   "tags": [
    "hall-of-fame",
@@ -1117,12 +1117,12 @@
   "universe": "Boston Celtics",
   "archetype": "forward",
   "stats": {
-   "scoring": 88,
-   "playmaking": 70,
-   "rebounding": 61,
-   "defense": 53,
-   "shooting": 100,
-   "impact": 88
+   "scoring": 75,
+   "playmaking": 72,
+   "rebounding": 73,
+   "defense": 70,
+   "shooting": 88,
+   "impact": 86
   },
   "tags": [
    "hall-of-fame",
@@ -1164,12 +1164,12 @@
   "universe": "Boston Celtics",
   "archetype": "small forward",
   "stats": {
-   "scoring": 76,
-   "playmaking": 62,
-   "rebounding": 52,
-   "defense": 5,
-   "shooting": 44,
-   "impact": 49
+   "scoring": 67,
+   "playmaking": 75,
+   "rebounding": 46,
+   "defense": 82,
+   "shooting": 66,
+   "impact": 54
   },
   "tags": [
    "hall-of-fame",
@@ -1211,12 +1211,12 @@
   "universe": "St. Louis Hawks",
   "archetype": "power forward",
   "stats": {
-   "scoring": 80,
-   "playmaking": 24,
-   "rebounding": 100,
-   "defense": 5,
-   "shooting": 19,
-   "impact": 91
+   "scoring": 81,
+   "playmaking": 52,
+   "rebounding": 89,
+   "defense": 63,
+   "shooting": 51,
+   "impact": 79
   },
   "tags": [
    "hall-of-fame",
@@ -1259,12 +1259,12 @@
   "universe": "Houston Rockets",
   "archetype": "point guard",
   "stats": {
-   "scoring": 95,
-   "playmaking": 80,
-   "rebounding": 36,
+   "scoring": 86,
+   "playmaking": 88,
+   "rebounding": 53,
    "defense": 48,
-   "shooting": 100,
-   "impact": 100
+   "shooting": 92,
+   "impact": 83
   },
   "tags": [
    "all-nba",
@@ -1307,12 +1307,12 @@
   "universe": "Seattle SuperSonics",
   "archetype": "point guard",
   "stats": {
-   "scoring": 68,
-   "playmaking": 79,
-   "rebounding": 33,
-   "defense": 51,
-   "shooting": 32,
-   "impact": 64
+   "scoring": 61,
+   "playmaking": 82,
+   "rebounding": 44,
+   "defense": 82,
+   "shooting": 57,
+   "impact": 63
   },
   "tags": [
    "hall-of-fame",
@@ -1357,12 +1357,12 @@
   "universe": "Golden State Warriors",
   "archetype": "point guard",
   "stats": {
-   "scoring": 74,
-   "playmaking": 70,
-   "rebounding": 28,
-   "defense": 48,
-   "shooting": 100,
-   "impact": 100
+   "scoring": 79,
+   "playmaking": 76,
+   "rebounding": 45,
+   "defense": 49,
+   "shooting": 99,
+   "impact": 82
   },
   "tags": [
    "all-nba",
@@ -1402,12 +1402,12 @@
   "universe": "Indiana Pacers",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 77,
-   "playmaking": 34,
-   "rebounding": 24,
-   "defense": 33,
-   "shooting": 100,
-   "impact": 51
+   "scoring": 58,
+   "playmaking": 46,
+   "rebounding": 35,
+   "defense": 35,
+   "shooting": 95,
+   "impact": 57
   },
   "tags": [
    "hall-of-fame",
@@ -1449,12 +1449,12 @@
   "universe": "Orlando Magic",
   "archetype": "center",
   "stats": {
-   "scoring": 57,
-   "playmaking": 16,
-   "rebounding": 88,
-   "defense": 59,
-   "shooting": 100,
-   "impact": 78
+   "scoring": 53,
+   "playmaking": 32,
+   "rebounding": 89,
+   "defense": 90,
+   "shooting": 31,
+   "impact": 71
   },
   "tags": [
    "hall-of-fame",
@@ -1501,12 +1501,12 @@
   "universe": "Dallas Mavericks",
   "archetype": "point guard",
   "stats": {
-   "scoring": 36,
-   "playmaking": 83,
-   "rebounding": 41,
-   "defense": 48,
-   "shooting": 18,
-   "impact": 58
+   "scoring": 40,
+   "playmaking": 88,
+   "rebounding": 57,
+   "defense": 79,
+   "shooting": 74,
+   "impact": 57
   },
   "tags": [
    "hall-of-fame",
@@ -1551,12 +1551,12 @@
   "universe": "KEN",
   "archetype": "center",
   "stats": {
-   "scoring": 75,
-   "playmaking": 25,
-   "rebounding": 100,
-   "defense": 70,
-   "shooting": 100,
-   "impact": 69
+   "scoring": 63,
+   "playmaking": 47,
+   "rebounding": 85,
+   "defense": 83,
+   "shooting": 49,
+   "impact": 71
   },
   "tags": [
    "hall-of-fame",
@@ -1594,12 +1594,12 @@
   "universe": "Miami Heat",
   "archetype": "point guard",
   "stats": {
-   "scoring": 77,
-   "playmaking": 63,
-   "rebounding": 28,
-   "defense": 48,
-   "shooting": 57,
-   "impact": 100
+   "scoring": 76,
+   "playmaking": 75,
+   "rebounding": 46,
+   "defense": 63,
+   "shooting": 60,
+   "impact": 70
   },
   "tags": [
    "hall-of-fame",
@@ -1643,11 +1643,11 @@
   "archetype": "point guard",
   "stats": {
    "scoring": 68,
-   "playmaking": 61,
-   "rebounding": 43,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 54
+   "playmaking": 92,
+   "rebounding": 50,
+   "defense": 68,
+   "shooting": 63,
+   "impact": 63
   },
   "tags": [
    "hall-of-fame",
@@ -1690,12 +1690,12 @@
   "universe": "Boston Celtics",
   "archetype": "small forward",
   "stats": {
-   "scoring": 67,
-   "playmaking": 39,
-   "rebounding": 44,
-   "defense": 42,
-   "shooting": 86,
-   "impact": 64
+   "scoring": 70,
+   "playmaking": 59,
+   "rebounding": 52,
+   "defense": 60,
+   "shooting": 81,
+   "impact": 52
   },
   "tags": [
    "hall-of-fame",
@@ -1740,12 +1740,12 @@
   "universe": "New York Knicks",
   "archetype": "center",
   "stats": {
-   "scoring": 71,
-   "playmaking": 21,
-   "rebounding": 62,
-   "defense": 81,
-   "shooting": 100,
-   "impact": 77
+   "scoring": 72,
+   "playmaking": 36,
+   "rebounding": 73,
+   "defense": 76,
+   "shooting": 46,
+   "impact": 64
   },
   "tags": [
    "hall-of-fame",
@@ -1789,12 +1789,12 @@
   "universe": "Golden State Warriors",
   "archetype": "forward",
   "stats": {
-   "scoring": 100,
-   "playmaking": 35,
-   "rebounding": 63,
-   "defense": 5,
-   "shooting": 100,
-   "impact": 72
+   "scoring": 84,
+   "playmaking": 73,
+   "rebounding": 49,
+   "defense": 51,
+   "shooting": 87,
+   "impact": 70
   },
   "tags": [
    "hall-of-fame",
@@ -1841,12 +1841,12 @@
   "universe": "Phoenix Suns",
   "archetype": "point guard",
   "stats": {
-   "scoring": 59,
-   "playmaking": 95,
-   "rebounding": 28,
-   "defense": 19,
-   "shooting": 100,
-   "impact": 66
+   "scoring": 41,
+   "playmaking": 92,
+   "rebounding": 35,
+   "defense": 30,
+   "shooting": 94,
+   "impact": 70
   },
   "tags": [
    "hall-of-fame",
@@ -1891,11 +1891,11 @@
   "archetype": "point guard",
   "stats": {
    "scoring": 68,
-   "playmaking": 63,
-   "rebounding": 42,
-   "defense": 67,
-   "shooting": 60,
-   "impact": 67
+   "playmaking": 70,
+   "rebounding": 54,
+   "defense": 53,
+   "shooting": 69,
+   "impact": 65
   },
   "tags": [
    "hall-of-fame",
@@ -1938,12 +1938,12 @@
   "universe": "San Antonio Spurs",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 72,
-   "playmaking": 26,
-   "rebounding": 37,
-   "defense": 46,
-   "shooting": 100,
-   "impact": 71
+   "scoring": 84,
+   "playmaking": 46,
+   "rebounding": 47,
+   "defense": 39,
+   "shooting": 74,
+   "impact": 66
   },
   "tags": [
    "hall-of-fame",
@@ -1988,12 +1988,12 @@
   "universe": "Chicago Bulls",
   "archetype": "small forward",
   "stats": {
-   "scoring": 58,
-   "playmaking": 57,
-   "rebounding": 51,
-   "defense": 60,
-   "shooting": 25,
-   "impact": 62
+   "scoring": 54,
+   "playmaking": 69,
+   "rebounding": 56,
+   "defense": 86,
+   "shooting": 56,
+   "impact": 64
   },
   "tags": [
    "hall-of-fame",
@@ -2037,12 +2037,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "forward",
   "stats": {
-   "scoring": 93,
-   "playmaking": 32,
-   "rebounding": 100,
-   "defense": 5,
-   "shooting": 8,
-   "impact": 90
+   "scoring": 88,
+   "playmaking": 66,
+   "rebounding": 81,
+   "defense": 60,
+   "shooting": 55,
+   "impact": 72
   },
   "tags": [
    "hall-of-fame",
@@ -2085,12 +2085,12 @@
   "universe": "Milwaukee Bucks",
   "archetype": "small forward",
   "stats": {
-   "scoring": 95,
-   "playmaking": 59,
+   "scoring": 80,
+   "playmaking": 68,
    "rebounding": 79,
-   "defense": 35,
-   "shooting": 100,
-   "impact": 100
+   "defense": 78,
+   "shooting": 49,
+   "impact": 84
   },
   "tags": [
    "all-nba",
@@ -2129,12 +2129,12 @@
   "universe": "Boston Celtics",
   "archetype": "center",
   "stats": {
-   "scoring": 53,
-   "playmaking": 15,
-   "rebounding": 73,
-   "defense": 40,
-   "shooting": 51,
-   "impact": 73
+   "scoring": 46,
+   "playmaking": 33,
+   "rebounding": 76,
+   "defense": 58,
+   "shooting": 46,
+   "impact": 55
   },
   "tags": [
    "hall-of-fame",
@@ -2179,12 +2179,12 @@
   "universe": "Milwaukee Bucks",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 68,
-   "playmaking": 36,
-   "rebounding": 30,
-   "defense": 32,
-   "shooting": 99,
-   "impact": 63
+   "scoring": 65,
+   "playmaking": 57,
+   "rebounding": 43,
+   "defense": 45,
+   "shooting": 95,
+   "impact": 46
   },
   "tags": [
    "hall-of-fame",
@@ -2229,12 +2229,12 @@
   "universe": "Washington Bullets",
   "archetype": "power forward",
   "stats": {
-   "scoring": 62,
-   "playmaking": 14,
-   "rebounding": 73,
-   "defense": 64,
-   "shooting": 17,
-   "impact": 43
+   "scoring": 73,
+   "playmaking": 39,
+   "rebounding": 80,
+   "defense": 74,
+   "shooting": 37,
+   "impact": 46
   },
   "tags": [
    "hall-of-fame",
@@ -2282,11 +2282,11 @@
   "archetype": "small forward",
   "stats": {
    "scoring": 82,
-   "playmaking": 24,
-   "rebounding": 46,
-   "defense": 41,
-   "shooting": 40,
-   "impact": 70
+   "playmaking": 43,
+   "rebounding": 57,
+   "defense": 43,
+   "shooting": 71,
+   "impact": 59
   },
   "tags": [
    "hall-of-fame",
@@ -2331,12 +2331,12 @@
   "universe": "Memphis Grizzlies",
   "archetype": "center",
   "stats": {
-   "scoring": 64,
-   "playmaking": 42,
-   "rebounding": 59,
-   "defense": 39,
-   "shooting": 63,
-   "impact": 67
+   "scoring": 47,
+   "playmaking": 51,
+   "rebounding": 74,
+   "defense": 56,
+   "shooting": 60,
+   "impact": 60
   },
   "tags": [
    "hall-of-fame",
@@ -2381,12 +2381,12 @@
   "universe": "Oklahoma City Thunder",
   "archetype": "point guard",
   "stats": {
-   "scoring": 73,
-   "playmaking": 95,
-   "rebounding": 52,
-   "defense": 48,
-   "shooting": 61,
-   "impact": 100
+   "scoring": 76,
+   "playmaking": 90,
+   "rebounding": 67,
+   "defense": 53,
+   "shooting": 72,
+   "impact": 69
   },
   "tags": [
    "all-nba",
@@ -2432,12 +2432,12 @@
   "universe": "Denver Nuggets",
   "archetype": "center",
   "stats": {
-   "scoring": 96,
-   "playmaking": 21,
-   "rebounding": 75,
-   "defense": 5,
-   "shooting": 53,
-   "impact": 64
+   "scoring": 74,
+   "playmaking": 43,
+   "rebounding": 64,
+   "defense": 56,
+   "shooting": 64,
+   "impact": 62
   },
   "tags": [
    "hall-of-fame",
@@ -2479,12 +2479,12 @@
   "universe": "Denver Nuggets",
   "archetype": "center",
   "stats": {
-   "scoring": 92,
-   "playmaking": 93,
-   "rebounding": 85,
-   "defense": 49,
-   "shooting": 100,
-   "impact": 100
+   "scoring": 71,
+   "playmaking": 83,
+   "rebounding": 80,
+   "defense": 54,
+   "shooting": 77,
+   "impact": 87
   },
   "tags": [
    "all-nba",
@@ -2523,12 +2523,12 @@
   "universe": "Portland Trail Blazers",
   "archetype": "point guard",
   "stats": {
-   "scoring": 81,
-   "playmaking": 63,
-   "rebounding": 31,
-   "defense": 30,
-   "shooting": 90,
-   "impact": 83
+   "scoring": 77,
+   "playmaking": 76,
+   "rebounding": 40,
+   "defense": 34,
+   "shooting": 96,
+   "impact": 65
   },
   "tags": [
    "all-nba",
@@ -2569,12 +2569,12 @@
   "universe": "Philadelphia 76ers",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 61,
-   "playmaking": 31,
-   "rebounding": 38,
-   "defense": 5,
-   "shooting": 39,
-   "impact": 32
+   "scoring": 62,
+   "playmaking": 64,
+   "rebounding": 39,
+   "defense": 44,
+   "shooting": 61,
+   "impact": 40
   },
   "tags": [
    "hall-of-fame",
@@ -2617,12 +2617,12 @@
   "universe": "New York Knicks",
   "archetype": "point guard",
   "stats": {
-   "scoring": 68,
-   "playmaking": 61,
-   "rebounding": 45,
-   "defense": 5,
-   "shooting": 63,
-   "impact": 53
+   "scoring": 51,
+   "playmaking": 78,
+   "rebounding": 44,
+   "defense": 80,
+   "shooting": 64,
+   "impact": 67
   },
   "tags": [
    "hall-of-fame",
@@ -2665,12 +2665,12 @@
   "universe": "Philadelphia 76ers",
   "archetype": "point guard",
   "stats": {
-   "scoring": 96,
-   "playmaking": 72,
-   "rebounding": 27,
-   "defense": 54,
-   "shooting": 43,
-   "impact": 77
+   "scoring": 85,
+   "playmaking": 77,
+   "rebounding": 39,
+   "defense": 56,
+   "shooting": 67,
+   "impact": 58
   },
   "tags": [
    "hall-of-fame",
@@ -2713,12 +2713,12 @@
   "universe": "Denver Nuggets",
   "archetype": "forward",
   "stats": {
-   "scoring": 71,
-   "playmaking": 33,
-   "rebounding": 42,
-   "defense": 31,
-   "shooting": 37,
-   "impact": 71
+   "scoring": 78,
+   "playmaking": 49,
+   "rebounding": 56,
+   "defense": 38,
+   "shooting": 79,
+   "impact": 45
   },
   "tags": [
    "hall-of-fame",
@@ -2765,12 +2765,12 @@
   "universe": "Houston Rockets",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 80,
-   "playmaking": 48,
-   "rebounding": 52,
-   "defense": 48,
-   "shooting": 43,
-   "impact": 100
+   "scoring": 78,
+   "playmaking": 67,
+   "rebounding": 53,
+   "defense": 55,
+   "shooting": 58,
+   "impact": 63
   },
   "tags": [
    "hall-of-fame",
@@ -2815,12 +2815,12 @@
   "universe": "Philadelphia Warriors",
   "archetype": "small forward",
   "stats": {
-   "scoring": 54,
-   "playmaking": 19,
-   "rebounding": 66,
-   "defense": 5,
-   "shooting": 26,
-   "impact": 76
+   "scoring": 79,
+   "playmaking": 45,
+   "rebounding": 64,
+   "defense": 46,
+   "shooting": 63,
+   "impact": 66
   },
   "tags": [
    "hall-of-fame",
@@ -2862,12 +2862,12 @@
   "universe": "Chicago Bulls",
   "archetype": "small forward",
   "stats": {
-   "scoring": 67,
-   "playmaking": 50,
-   "rebounding": 39,
-   "defense": 43,
-   "shooting": 94,
-   "impact": 87
+   "scoring": 55,
+   "playmaking": 66,
+   "rebounding": 48,
+   "defense": 62,
+   "shooting": 78,
+   "impact": 68
   },
   "tags": [
    "all-nba",
@@ -2910,12 +2910,12 @@
   "universe": "Toronto Raptors",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 80,
-   "playmaking": 36,
-   "rebounding": 39,
-   "defense": 45,
-   "shooting": 53,
-   "impact": 72
+   "scoring": 71,
+   "playmaking": 58,
+   "rebounding": 48,
+   "defense": 43,
+   "shooting": 74,
+   "impact": 42
   },
   "tags": [
    "hall-of-fame",
@@ -2963,12 +2963,12 @@
   "universe": "Boston Celtics",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 33,
-   "playmaking": 22,
-   "rebounding": 23,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 43
+   "scoring": 60,
+   "playmaking": 60,
+   "rebounding": 37,
+   "defense": 42,
+   "shooting": 82,
+   "impact": 62
   },
   "tags": [
    "hall-of-fame",
@@ -3011,12 +3011,12 @@
   "universe": "San Antonio Spurs",
   "archetype": "point guard",
   "stats": {
-   "scoring": 59,
-   "playmaking": 54,
-   "rebounding": 21,
-   "defense": 19,
-   "shooting": 51,
-   "impact": 63
+   "scoring": 48,
+   "playmaking": 74,
+   "rebounding": 34,
+   "defense": 49,
+   "shooting": 61,
+   "impact": 50
   },
   "tags": [
    "hall-of-fame",
@@ -3058,12 +3058,12 @@
   "universe": "Portland Trail Blazers",
   "archetype": "power forward",
   "stats": {
-   "scoring": 54,
-   "playmaking": 18,
-   "rebounding": 48,
-   "defense": 31,
-   "shooting": 43,
-   "impact": 72
+   "scoring": 61,
+   "playmaking": 38,
+   "rebounding": 67,
+   "defense": 50,
+   "shooting": 71,
+   "impact": 50
   },
   "tags": [
    "all-nba",
@@ -3105,12 +3105,12 @@
   "universe": "Denver Nuggets",
   "archetype": "center",
   "stats": {
-   "scoring": 42,
-   "playmaking": 13,
-   "rebounding": 77,
-   "defense": 60,
-   "shooting": 87,
-   "impact": 43
+   "scoring": 33,
+   "playmaking": 31,
+   "rebounding": 84,
+   "defense": 84,
+   "shooting": 44,
+   "impact": 49
   },
   "tags": [
    "hall-of-fame",
@@ -3157,12 +3157,12 @@
   "universe": "New Orleans Pelicans",
   "archetype": "power forward",
   "stats": {
-   "scoring": 65,
-   "playmaking": 14,
-   "rebounding": 67,
-   "defense": 69,
-   "shooting": 85,
-   "impact": 100
+   "scoring": 72,
+   "playmaking": 46,
+   "rebounding": 78,
+   "defense": 75,
+   "shooting": 66,
+   "impact": 73
   },
   "tags": [
    "all-nba",
@@ -3206,12 +3206,12 @@
   "universe": "Detroit Pistons",
   "archetype": "point guard",
   "stats": {
-   "scoring": 53,
-   "playmaking": 65,
-   "rebounding": 23,
-   "defense": 30,
-   "shooting": 93,
-   "impact": 64
+   "scoring": 42,
+   "playmaking": 74,
+   "rebounding": 34,
+   "defense": 48,
+   "shooting": 91,
+   "impact": 65
   },
   "tags": [
    "hall-of-fame",
@@ -3257,12 +3257,12 @@
   "universe": "Utah Jazz",
   "archetype": "small forward",
   "stats": {
-   "scoring": 96,
-   "playmaking": 43,
-   "rebounding": 42,
-   "defense": 20,
-   "shooting": 100,
-   "impact": 70
+   "scoring": 84,
+   "playmaking": 50,
+   "rebounding": 51,
+   "defense": 33,
+   "shooting": 72,
+   "impact": 59
   },
   "tags": [
    "hall-of-fame",
@@ -3310,12 +3310,12 @@
   "universe": "Philadelphia 76ers",
   "archetype": "small forward",
   "stats": {
-   "scoring": 69,
-   "playmaking": 20,
-   "rebounding": 48,
-   "defense": 5,
-   "shooting": 51,
-   "impact": 54
+   "scoring": 49,
+   "playmaking": 39,
+   "rebounding": 47,
+   "defense": 45,
+   "shooting": 72,
+   "impact": 55
   },
   "tags": [
    "hall-of-fame",
@@ -3357,12 +3357,12 @@
   "universe": "Utah Jazz",
   "archetype": "center",
   "stats": {
-   "scoring": 45,
-   "playmaking": 11,
-   "rebounding": 90,
-   "defense": 50,
-   "shooting": 100,
-   "impact": 71
+   "scoring": 33,
+   "playmaking": 31,
+   "rebounding": 84,
+   "defense": 90,
+   "shooting": 37,
+   "impact": 68
   },
   "tags": [
    "all-nba",
@@ -3403,12 +3403,12 @@
   "universe": "Detroit Pistons",
   "archetype": "small forward",
   "stats": {
-   "scoring": 63,
-   "playmaking": 62,
-   "rebounding": 65,
-   "defense": 36,
-   "shooting": 48,
-   "impact": 75
+   "scoring": 59,
+   "playmaking": 70,
+   "rebounding": 59,
+   "defense": 56,
+   "shooting": 65,
+   "impact": 54
   },
   "tags": [
    "hall-of-fame",
@@ -3454,12 +3454,12 @@
   "universe": "Toronto Raptors",
   "archetype": "power forward",
   "stats": {
-   "scoring": 71,
-   "playmaking": 23,
-   "rebounding": 67,
-   "defense": 33,
-   "shooting": 74,
-   "impact": 72
+   "scoring": 59,
+   "playmaking": 37,
+   "rebounding": 71,
+   "defense": 50,
+   "shooting": 68,
+   "impact": 44
   },
   "tags": [
    "hall-of-fame",
@@ -3502,12 +3502,12 @@
   "universe": "San Antonio Spurs",
   "archetype": "forward",
   "stats": {
-   "scoring": 66,
-   "playmaking": 23,
-   "rebounding": 46,
-   "defense": 53,
-   "shooting": 100,
-   "impact": 87
+   "scoring": 67,
+   "playmaking": 53,
+   "rebounding": 51,
+   "defense": 80,
+   "shooting": 87,
+   "impact": 74
   },
   "tags": [
    "all-nba",
@@ -3549,12 +3549,12 @@
   "universe": "Cincinnati Royals",
   "archetype": "power forward",
   "stats": {
-   "scoring": 55,
-   "playmaking": 23,
-   "rebounding": 100,
-   "defense": 5,
-   "shooting": 82,
-   "impact": 49
+   "scoring": 49,
+   "playmaking": 53,
+   "rebounding": 87,
+   "defense": 54,
+   "shooting": 56,
+   "impact": 51
   },
   "tags": [
    "hall-of-fame",
@@ -3598,12 +3598,12 @@
   "universe": "Detroit Pistons",
   "archetype": "point guard",
   "stats": {
-   "scoring": 67,
-   "playmaking": 100,
-   "rebounding": 27,
-   "defense": 60,
-   "shooting": 33,
-   "impact": 57
+   "scoring": 54,
+   "playmaking": 89,
+   "rebounding": 37,
+   "defense": 47,
+   "shooting": 52,
+   "impact": 40
   },
   "tags": [
    "hall-of-fame",
@@ -3646,12 +3646,12 @@
   "universe": "Philadelphia Warriors",
   "archetype": "center",
   "stats": {
-   "scoring": 69,
-   "playmaking": 29,
-   "rebounding": 83,
-   "defense": 5,
-   "shooting": 63,
-   "impact": 83
+   "scoring": 77,
+   "playmaking": 52,
+   "rebounding": 81,
+   "defense": 41,
+   "shooting": 56,
+   "impact": 72
   },
   "tags": [
    "hall-of-fame",
@@ -3693,12 +3693,12 @@
   "universe": "Boston Celtics",
   "archetype": "power forward",
   "stats": {
-   "scoring": 67,
-   "playmaking": 24,
-   "rebounding": 54,
-   "defense": 37,
-   "shooting": 100,
-   "impact": 67
+   "scoring": 58,
+   "playmaking": 35,
+   "rebounding": 63,
+   "defense": 65,
+   "shooting": 72,
+   "impact": 59
   },
   "tags": [
    "hall-of-fame",
@@ -3740,12 +3740,12 @@
   "universe": "Detroit Pistons",
   "archetype": "power forward",
   "stats": {
-   "scoring": 20,
-   "playmaking": 14,
-   "rebounding": 88,
-   "defense": 62,
-   "shooting": 5,
-   "impact": 37
+   "scoring": 30,
+   "playmaking": 33,
+   "rebounding": 86,
+   "defense": 94,
+   "shooting": 30,
+   "impact": 44
   },
   "tags": [
    "hall-of-fame",
@@ -3793,12 +3793,12 @@
   "universe": "Milwaukee Bucks",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 62,
-   "playmaking": 43,
-   "rebounding": 45,
-   "defense": 42,
-   "shooting": 100,
-   "impact": 59
+   "scoring": 53,
+   "playmaking": 56,
+   "rebounding": 48,
+   "defense": 70,
+   "shooting": 71,
+   "impact": 65
   },
   "tags": [
    "hall-of-fame",
@@ -3841,12 +3841,12 @@
   "universe": "Detroit Pistons",
   "archetype": "center",
   "stats": {
-   "scoring": 79,
-   "playmaking": 30,
-   "rebounding": 78,
+   "scoring": 67,
+   "playmaking": 53,
+   "rebounding": 71,
    "defense": 52,
-   "shooting": 78,
-   "impact": 71
+   "shooting": 55,
+   "impact": 58
   },
   "tags": [
    "hall-of-fame",
@@ -3889,11 +3889,11 @@
   "archetype": "forward",
   "stats": {
    "scoring": 79,
-   "playmaking": 48,
-   "rebounding": 45,
-   "defense": 44,
-   "shooting": 96,
-   "impact": 67
+   "playmaking": 59,
+   "rebounding": 56,
+   "defense": 31,
+   "shooting": 70,
+   "impact": 36
   },
   "tags": [
    "hall-of-fame",
@@ -3938,12 +3938,12 @@
   "universe": "Detroit Pistons",
   "archetype": "forward",
   "stats": {
-   "scoring": 62,
-   "playmaking": 21,
-   "rebounding": 84,
-   "defense": 5,
-   "shooting": 49,
-   "impact": 53
+   "scoring": 55,
+   "playmaking": 43,
+   "rebounding": 61,
+   "defense": 46,
+   "shooting": 55,
+   "impact": 55
   },
   "tags": [
    "hall-of-fame",
@@ -3989,12 +3989,12 @@
   "universe": "Boston Celtics",
   "archetype": "center",
   "stats": {
-   "scoring": 60,
-   "playmaking": 32,
-   "rebounding": 53,
-   "defense": 5,
-   "shooting": 54,
-   "impact": 68
+   "scoring": 64,
+   "playmaking": 62,
+   "rebounding": 61,
+   "defense": 33,
+   "shooting": 53,
+   "impact": 62
   },
   "tags": [
    "hall-of-fame",
@@ -4038,12 +4038,12 @@
   "universe": "Indiana Pacers",
   "archetype": "small forward",
   "stats": {
-   "scoring": 69,
-   "playmaking": 30,
-   "rebounding": 38,
-   "defense": 52,
-   "shooting": 75,
-   "impact": 63
+   "scoring": 63,
+   "playmaking": 57,
+   "rebounding": 53,
+   "defense": 72,
+   "shooting": 90,
+   "impact": 48
   },
   "tags": [
    "all-nba",
@@ -4086,12 +4086,12 @@
   "universe": "Seattle SuperSonics",
   "archetype": "center",
   "stats": {
-   "scoring": 58,
-   "playmaking": 27,
-   "rebounding": 69,
-   "defense": 37,
-   "shooting": 27,
-   "impact": 48
+   "scoring": 45,
+   "playmaking": 49,
+   "rebounding": 77,
+   "defense": 63,
+   "shooting": 78,
+   "impact": 41
   },
   "tags": [
    "hall-of-fame",
@@ -4132,12 +4132,12 @@
   "universe": "Golden State Warriors",
   "archetype": "small forward",
   "stats": {
-   "scoring": 83,
-   "playmaking": 46,
-   "rebounding": 39,
-   "defense": 54,
-   "shooting": 84,
-   "impact": 59
+   "scoring": 71,
+   "playmaking": 55,
+   "rebounding": 45,
+   "defense": 35,
+   "shooting": 89,
+   "impact": 45
   },
   "tags": [
    "hall-of-fame",
@@ -4180,12 +4180,12 @@
   "universe": "Toronto Raptors",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 73,
-   "playmaking": 37,
-   "rebounding": 30,
-   "defense": 27,
-   "shooting": 58,
-   "impact": 67
+   "scoring": 68,
+   "playmaking": 66,
+   "rebounding": 43,
+   "defense": 36,
+   "shooting": 76,
+   "impact": 42
   },
   "tags": [
    "all-nba",
@@ -4228,12 +4228,12 @@
   "universe": "Boston Celtics",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 81,
-   "playmaking": 25,
-   "rebounding": 34,
-   "defense": 5,
-   "shooting": 21,
-   "impact": 54
+   "scoring": 59,
+   "playmaking": 48,
+   "rebounding": 38,
+   "defense": 59,
+   "shooting": 61,
+   "impact": 57
   },
   "tags": [
    "hall-of-fame",
@@ -4274,12 +4274,12 @@
   "universe": "Boston Celtics",
   "archetype": "point guard",
   "stats": {
-   "scoring": 88,
-   "playmaking": 84,
-   "rebounding": 19,
-   "defense": 5,
-   "shooting": 77,
-   "impact": 73
+   "scoring": 69,
+   "playmaking": 85,
+   "rebounding": 31,
+   "defense": 31,
+   "shooting": 66,
+   "impact": 47
   },
   "tags": [
    "hall-of-fame",
@@ -4326,12 +4326,12 @@
   "universe": "Washington Bullets",
   "archetype": "center",
   "stats": {
-   "scoring": 41,
-   "playmaking": 33,
-   "rebounding": 100,
-   "defense": 5,
-   "shooting": 38,
-   "impact": 34
+   "scoring": 31,
+   "playmaking": 60,
+   "rebounding": 80,
+   "defense": 70,
+   "shooting": 34,
+   "impact": 45
   },
   "tags": [
    "hall-of-fame",
@@ -4376,12 +4376,12 @@
   "universe": "San Antonio Spurs",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 52,
-   "playmaking": 32,
-   "rebounding": 29,
-   "defense": 37,
-   "shooting": 100,
-   "impact": 68
+   "scoring": 39,
+   "playmaking": 57,
+   "rebounding": 40,
+   "defense": 57,
+   "shooting": 84,
+   "impact": 64
   },
   "tags": [
    "hall-of-fame",
@@ -4422,12 +4422,12 @@
   "universe": "Boston Celtics",
   "archetype": "center",
   "stats": {
-   "scoring": 59,
-   "playmaking": 40,
-   "rebounding": 100,
-   "defense": 44,
-   "shooting": 5,
-   "impact": 41
+   "scoring": 46,
+   "playmaking": 61,
+   "rebounding": 82,
+   "defense": 76,
+   "shooting": 57,
+   "impact": 48
   },
   "tags": [
    "hall-of-fame",
@@ -4470,12 +4470,12 @@
   "universe": "Golden State Warriors",
   "archetype": "point guard",
   "stats": {
-   "scoring": 46,
-   "playmaking": 79,
-   "rebounding": 26,
-   "defense": 48,
-   "shooting": 38,
-   "impact": 49
+   "scoring": 56,
+   "playmaking": 84,
+   "rebounding": 36,
+   "defense": 43,
+   "shooting": 69,
+   "impact": 45
   },
   "tags": [
    "hall-of-fame",
@@ -4519,12 +4519,12 @@
   "universe": "Phoenix Suns",
   "archetype": "forward",
   "stats": {
-   "scoring": 61,
-   "playmaking": 17,
-   "rebounding": 75,
-   "defense": 65,
-   "shooting": 64,
-   "impact": 64
+   "scoring": 49,
+   "playmaking": 37,
+   "rebounding": 74,
+   "defense": 66,
+   "shooting": 75,
+   "impact": 51
   },
   "tags": [
    "all-nba",
@@ -4566,12 +4566,12 @@
   "universe": "Minneapolis Lakers",
   "archetype": "center",
   "stats": {
-   "scoring": 86,
-   "playmaking": 26,
-   "rebounding": 5,
-   "defense": 5,
-   "shooting": 6,
-   "impact": 50
+   "scoring": 87,
+   "playmaking": 56,
+   "rebounding": 75,
+   "defense": 77,
+   "shooting": 47,
+   "impact": 75
   },
   "tags": [
    "hall-of-fame",
@@ -4613,12 +4613,12 @@
   "universe": "Sacramento Kings",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 72,
-   "playmaking": 29,
-   "rebounding": 22,
-   "defense": 37,
-   "shooting": 92,
-   "impact": 53
+   "scoring": 66,
+   "playmaking": 54,
+   "rebounding": 42,
+   "defense": 31,
+   "shooting": 86,
+   "impact": 34
   },
   "tags": [
    "hall-of-fame",
@@ -4663,12 +4663,12 @@
   "universe": "Detroit Pistons",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 56,
-   "playmaking": 45,
-   "rebounding": 19,
-   "defense": 19,
-   "shooting": 62,
-   "impact": 33
+   "scoring": 51,
+   "playmaking": 60,
+   "rebounding": 31,
+   "defense": 57,
+   "shooting": 83,
+   "impact": 35
   },
   "tags": [
    "hall-of-fame",
@@ -4711,12 +4711,12 @@
   "universe": "Phoenix Suns",
   "archetype": "point guard",
   "stats": {
-   "scoring": 70,
-   "playmaking": 100,
-   "rebounding": 24,
-   "defense": 31,
-   "shooting": 88,
-   "impact": 65
+   "scoring": 52,
+   "playmaking": 87,
+   "rebounding": 36,
+   "defense": 37,
+   "shooting": 75,
+   "impact": 58
   },
   "tags": [
    "all-nba",
@@ -4756,12 +4756,12 @@
   "universe": "New York Knicks",
   "archetype": "center",
   "stats": {
-   "scoring": 65,
-   "playmaking": 18,
-   "rebounding": 88,
-   "defense": 5,
-   "shooting": 47,
-   "impact": 52
+   "scoring": 52,
+   "playmaking": 35,
+   "rebounding": 69,
+   "defense": 66,
+   "shooting": 45,
+   "impact": 60
   },
   "tags": [
    "hall-of-fame",
@@ -4803,12 +4803,12 @@
   "universe": "Miami Heat",
   "archetype": "center",
   "stats": {
-   "scoring": 63,
-   "playmaking": 15,
-   "rebounding": 73,
-   "defense": 71,
-   "shooting": 69,
-   "impact": 77
+   "scoring": 57,
+   "playmaking": 31,
+   "rebounding": 70,
+   "defense": 76,
+   "shooting": 43,
+   "impact": 59
   },
   "tags": [
    "hall-of-fame",
@@ -4852,12 +4852,12 @@
   "universe": "Minneapolis Lakers",
   "archetype": "power forward",
   "stats": {
-   "scoring": 44,
-   "playmaking": 26,
+   "scoring": 45,
+   "playmaking": 45,
    "rebounding": 68,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 56
+   "defense": 65,
+   "shooting": 52,
+   "impact": 53
   },
   "tags": [
    "hall-of-fame",
@@ -4899,12 +4899,12 @@
   "universe": "Houston Rockets",
   "archetype": "center",
   "stats": {
-   "scoring": 70,
-   "playmaking": 14,
-   "rebounding": 68,
-   "defense": 35,
-   "shooting": 93,
-   "impact": 81
+   "scoring": 54,
+   "playmaking": 33,
+   "rebounding": 70,
+   "defense": 60,
+   "shooting": 70,
+   "impact": 60
   },
   "tags": [
    "hall-of-fame",
@@ -4946,12 +4946,12 @@
   "universe": "Atlanta Hawks",
   "archetype": "center",
   "stats": {
-   "scoring": 99,
-   "playmaking": 24,
-   "rebounding": 100,
-   "defense": 5,
-   "shooting": 62,
-   "impact": 72
+   "scoring": 73,
+   "playmaking": 44,
+   "rebounding": 78,
+   "defense": 36,
+   "shooting": 35,
+   "impact": 52
   },
   "tags": [
    "hall-of-fame",
@@ -4996,12 +4996,12 @@
   "universe": "Phoenix Suns",
   "archetype": "power forward",
   "stats": {
-   "scoring": 64,
-   "playmaking": 9,
-   "rebounding": 64,
-   "defense": 40,
-   "shooting": 100,
-   "impact": 87
+   "scoring": 67,
+   "playmaking": 32,
+   "rebounding": 65,
+   "defense": 44,
+   "shooting": 59,
+   "impact": 61
   },
   "tags": [
    "all-nba",
@@ -5042,12 +5042,12 @@
   "universe": "Atlanta Hawks",
   "archetype": "center",
   "stats": {
-   "scoring": 54,
-   "playmaking": 29,
-   "rebounding": 68,
-   "defense": 38,
-   "shooting": 66,
-   "impact": 56
+   "scoring": 36,
+   "playmaking": 54,
+   "rebounding": 69,
+   "defense": 55,
+   "shooting": 78,
+   "impact": 43
   },
   "tags": [
    "all-nba",
@@ -5091,12 +5091,12 @@
   "universe": "Sacramento Kings",
   "archetype": "power forward",
   "stats": {
-   "scoring": 76,
-   "playmaking": 42,
-   "rebounding": 70,
-   "defense": 59,
-   "shooting": 42,
-   "impact": 71
+   "scoring": 67,
+   "playmaking": 59,
+   "rebounding": 76,
+   "defense": 64,
+   "shooting": 44,
+   "impact": 52
   },
   "tags": [
    "hall-of-fame",
@@ -5142,12 +5142,12 @@
   "universe": "New Jersey Nets",
   "archetype": "forward",
   "stats": {
-   "scoring": 82,
-   "playmaking": 19,
-   "rebounding": 34,
-   "defense": 25,
-   "shooting": 100,
-   "impact": 73
+   "scoring": 75,
+   "playmaking": 51,
+   "rebounding": 52,
+   "defense": 40,
+   "shooting": 53,
+   "impact": 48
   },
   "tags": [
    "hall-of-fame",
@@ -5193,12 +5193,12 @@
   "universe": "St. Louis Hawks",
   "archetype": "point guard",
   "stats": {
-   "scoring": 62,
-   "playmaking": 84,
-   "rebounding": 30,
-   "defense": 5,
-   "shooting": 24,
-   "impact": 46
+   "scoring": 48,
+   "playmaking": 86,
+   "rebounding": 37,
+   "defense": 43,
+   "shooting": 53,
+   "impact": 33
   },
   "tags": [
    "hall-of-fame",
@@ -5241,12 +5241,12 @@
   "universe": "Toronto Raptors",
   "archetype": "point guard",
   "stats": {
-   "scoring": 66,
-   "playmaking": 58,
-   "rebounding": 32,
-   "defense": 51,
-   "shooting": 81,
-   "impact": 61
+   "scoring": 47,
+   "playmaking": 78,
+   "rebounding": 42,
+   "defense": 45,
+   "shooting": 86,
+   "impact": 49
   },
   "tags": [
    "all-nba",
@@ -5290,12 +5290,12 @@
   "universe": "New Jersey Nets",
   "archetype": "power forward",
   "stats": {
-   "scoring": 48,
-   "playmaking": 12,
+   "scoring": 39,
+   "playmaking": 31,
    "rebounding": 82,
-   "defense": 37,
-   "shooting": 100,
-   "impact": 37
+   "defense": 67,
+   "shooting": 42,
+   "impact": 39
   },
   "tags": [
    "all-nba",
@@ -5337,12 +5337,12 @@
   "universe": "Philadelphia 76ers",
   "archetype": "power forward",
   "stats": {
-   "scoring": 73,
-   "playmaking": 54,
-   "rebounding": 82,
-   "defense": 5,
-   "shooting": 29,
-   "impact": 71
+   "scoring": 63,
+   "playmaking": 65,
+   "rebounding": 63,
+   "defense": 52,
+   "shooting": 43,
+   "impact": 50
   },
   "tags": [
    "hall-of-fame",
@@ -5385,12 +5385,12 @@
   "universe": "Cleveland Cavaliers",
   "archetype": "point guard",
   "stats": {
-   "scoring": 74,
-   "playmaking": 63,
-   "rebounding": 33,
-   "defense": 41,
-   "shooting": 93,
-   "impact": 79
+   "scoring": 69,
+   "playmaking": 69,
+   "rebounding": 41,
+   "defense": 37,
+   "shooting": 92,
+   "impact": 51
   },
   "tags": [
    "all-nba",
@@ -5433,12 +5433,12 @@
   "universe": "St. Louis Hawks",
   "archetype": "center",
   "stats": {
-   "scoring": 72,
-   "playmaking": 18,
-   "rebounding": 100,
-   "defense": 5,
-   "shooting": 100,
-   "impact": 70
+   "scoring": 55,
+   "playmaking": 34,
+   "rebounding": 66,
+   "defense": 49,
+   "shooting": 59,
+   "impact": 60
   },
   "tags": [
    "hall-of-fame",
@@ -5480,12 +5480,12 @@
   "universe": "St. Louis Hawks",
   "archetype": "small forward",
   "stats": {
-   "scoring": 57,
-   "playmaking": 45,
-   "rebounding": 40,
-   "defense": 5,
-   "shooting": 65,
-   "impact": 78
+   "scoring": 60,
+   "playmaking": 62,
+   "rebounding": 55,
+   "defense": 38,
+   "shooting": 63,
+   "impact": 55
   },
   "tags": [
    "hall-of-fame",
@@ -5528,11 +5528,11 @@
   "universe": "Seattle SuperSonics",
   "archetype": "power forward",
   "stats": {
-   "scoring": 47,
-   "playmaking": 31,
-   "rebounding": 37,
-   "defense": 21,
-   "shooting": 70,
+   "scoring": 43,
+   "playmaking": 56,
+   "rebounding": 59,
+   "defense": 40,
+   "shooting": 73,
    "impact": 46
   },
   "tags": [
@@ -5575,12 +5575,12 @@
   "universe": "Seattle SuperSonics",
   "archetype": "power forward",
   "stats": {
-   "scoring": 56,
-   "playmaking": 22,
-   "rebounding": 62,
-   "defense": 45,
-   "shooting": 27,
-   "impact": 64
+   "scoring": 48,
+   "playmaking": 35,
+   "rebounding": 71,
+   "defense": 64,
+   "shooting": 50,
+   "impact": 53
   },
   "tags": [
    "all-nba",
@@ -5623,12 +5623,12 @@
   "universe": "Boston Celtics",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 59,
-   "playmaking": 37,
-   "rebounding": 34,
-   "defense": 53,
-   "shooting": 7,
-   "impact": 28
+   "scoring": 42,
+   "playmaking": 72,
+   "rebounding": 41,
+   "defense": 74,
+   "shooting": 64,
+   "impact": 31
   },
   "tags": [
    "hall-of-fame",
@@ -5672,12 +5672,12 @@
   "universe": "Detroit Pistons",
   "archetype": "forward",
   "stats": {
-   "scoring": 20,
-   "playmaking": 7,
-   "rebounding": 29,
-   "defense": 20,
-   "shooting": 67,
-   "impact": 30
+   "scoring": 30,
+   "playmaking": 38,
+   "rebounding": 94,
+   "defense": 88,
+   "shooting": 32,
+   "impact": 43
   },
   "tags": [
    "hall-of-fame",
@@ -5724,12 +5724,12 @@
   "universe": "Philadelphia 76ers",
   "archetype": "point guard",
   "stats": {
-   "scoring": 35,
-   "playmaking": 77,
-   "rebounding": 21,
-   "defense": 64,
-   "shooting": 75,
-   "impact": 37
+   "scoring": 32,
+   "playmaking": 79,
+   "rebounding": 33,
+   "defense": 68,
+   "shooting": 68,
+   "impact": 39
   },
   "tags": [
    "hall-of-fame",
@@ -5772,12 +5772,12 @@
   "universe": "Chicago Bulls",
   "archetype": "power forward",
   "stats": {
-   "scoring": 40,
-   "playmaking": 21,
-   "rebounding": 56,
-   "defense": 39,
-   "shooting": 87,
-   "impact": 48
+   "scoring": 32,
+   "playmaking": 40,
+   "rebounding": 66,
+   "defense": 62,
+   "shooting": 42,
+   "impact": 47
   },
   "tags": [
    "1990s"
@@ -5818,12 +5818,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "forward",
   "stats": {
-   "scoring": 55,
-   "playmaking": 23,
-   "rebounding": 43,
-   "defense": 36,
-   "shooting": 100,
-   "impact": 47
+   "scoring": 50,
+   "playmaking": 48,
+   "rebounding": 49,
+   "defense": 39,
+   "shooting": 58,
+   "impact": 40
   },
   "tags": [
    "hall-of-fame",
@@ -5865,12 +5865,12 @@
   "universe": "Phoenix Suns",
   "archetype": "point guard",
   "stats": {
-   "scoring": 67,
-   "playmaking": 52,
-   "rebounding": 16,
-   "defense": 40,
-   "shooting": 76,
-   "impact": 66
+   "scoring": 59,
+   "playmaking": 69,
+   "rebounding": 30,
+   "defense": 35,
+   "shooting": 67,
+   "impact": 51
   },
   "tags": [
    "hall-of-fame",
@@ -5915,12 +5915,12 @@
   "universe": "Buffalo Braves",
   "archetype": "center",
   "stats": {
-   "scoring": 95,
-   "playmaking": 21,
-   "rebounding": 100,
-   "defense": 73,
-   "shooting": 95,
-   "impact": 77
+   "scoring": 82,
+   "playmaking": 49,
+   "rebounding": 75,
+   "defense": 53,
+   "shooting": 52,
+   "impact": 61
   },
   "tags": [
    "hall-of-fame",
@@ -5966,12 +5966,12 @@
   "universe": "Portland Trail Blazers",
   "archetype": "point guard",
   "stats": {
-   "scoring": 55,
-   "playmaking": 83,
-   "rebounding": 23,
-   "defense": 42,
-   "shooting": 98,
-   "impact": 54
+   "scoring": 40,
+   "playmaking": 81,
+   "rebounding": 38,
+   "defense": 41,
+   "shooting": 82,
+   "impact": 47
   },
   "tags": [
    "1990s"
@@ -6013,11 +6013,11 @@
   "archetype": "shooting guard",
   "stats": {
    "scoring": 57,
-   "playmaking": 47,
-   "rebounding": 49,
-   "defense": 5,
-   "shooting": 24,
-   "impact": 53
+   "playmaking": 76,
+   "rebounding": 45,
+   "defense": 32,
+   "shooting": 60,
+   "impact": 37
   },
   "tags": [
    "hall-of-fame",
@@ -6061,12 +6061,12 @@
   "universe": "New York Knicks",
   "archetype": "power forward",
   "stats": {
-   "scoring": 39,
-   "playmaking": 16,
-   "rebounding": 87,
-   "defense": 5,
-   "shooting": 37,
-   "impact": 69
+   "scoring": 38,
+   "playmaking": 42,
+   "rebounding": 83,
+   "defense": 39,
+   "shooting": 57,
+   "impact": 56
   },
   "tags": [
    "hall-of-fame",
@@ -6109,12 +6109,12 @@
   "universe": "Detroit Pistons",
   "archetype": "point guard",
   "stats": {
-   "scoring": 72,
-   "playmaking": 54,
-   "rebounding": 28,
-   "defense": 5,
-   "shooting": 31,
-   "impact": 58
+   "scoring": 65,
+   "playmaking": 79,
+   "rebounding": 33,
+   "defense": 36,
+   "shooting": 54,
+   "impact": 32
   },
   "tags": [
    "hall-of-fame",
@@ -6159,12 +6159,12 @@
   "universe": "Los Angeles Clippers",
   "archetype": "power forward",
   "stats": {
-   "scoring": 63,
-   "playmaking": 23,
-   "rebounding": 63,
-   "defense": 46,
-   "shooting": 62,
-   "impact": 81
+   "scoring": 53,
+   "playmaking": 42,
+   "rebounding": 74,
+   "defense": 54,
+   "shooting": 47,
+   "impact": 49
   },
   "tags": [
    "all-nba",
@@ -6208,12 +6208,12 @@
   "universe": "Phoenix Suns",
   "archetype": "point guard",
   "stats": {
-   "scoring": 42,
-   "playmaking": 54,
-   "rebounding": 23,
+   "scoring": 43,
+   "playmaking": 65,
+   "rebounding": 38,
    "defense": 38,
-   "shooting": 54,
-   "impact": 42
+   "shooting": 87,
+   "impact": 44
   },
   "tags": [
    "1980s"
@@ -6253,12 +6253,12 @@
   "universe": "Atlanta Hawks",
   "archetype": "small forward",
   "stats": {
-   "scoring": 85,
-   "playmaking": 31,
-   "rebounding": 42,
-   "defense": 5,
-   "shooting": 40,
-   "impact": 42
+   "scoring": 69,
+   "playmaking": 49,
+   "rebounding": 38,
+   "defense": 31,
+   "shooting": 66,
+   "impact": 37
   },
   "tags": [
    "hall-of-fame",
@@ -6302,11 +6302,11 @@
   "universe": "Philadelphia 76ers",
   "archetype": "forward",
   "stats": {
-   "scoring": 46,
-   "playmaking": 36,
-   "rebounding": 64,
-   "defense": 76,
-   "shooting": 100,
+   "scoring": 34,
+   "playmaking": 50,
+   "rebounding": 53,
+   "defense": 81,
+   "shooting": 63,
    "impact": 51
   },
   "tags": [
@@ -6349,12 +6349,12 @@
   "universe": "Los Angeles Clippers",
   "archetype": "power forward",
   "stats": {
-   "scoring": 56,
-   "playmaking": 34,
-   "rebounding": 55,
-   "defense": 35,
-   "shooting": 76,
-   "impact": 66
+   "scoring": 61,
+   "playmaking": 61,
+   "rebounding": 68,
+   "defense": 42,
+   "shooting": 50,
+   "impact": 54
   },
   "tags": [
    "all-nba",
@@ -6397,12 +6397,12 @@
   "universe": "Phoenix Suns",
   "archetype": "power forward",
   "stats": {
-   "scoring": 63,
-   "playmaking": 30,
-   "rebounding": 56,
-   "defense": 46,
-   "shooting": 100,
-   "impact": 57
+   "scoring": 48,
+   "playmaking": 42,
+   "rebounding": 63,
+   "defense": 64,
+   "shooting": 58,
+   "impact": 47
   },
   "tags": [
    "1980s"
@@ -6441,12 +6441,12 @@
   "universe": "Los Angeles Clippers",
   "archetype": "center",
   "stats": {
-   "scoring": 38,
-   "playmaking": 14,
-   "rebounding": 100,
-   "defense": 24,
-   "shooting": 100,
-   "impact": 56
+   "scoring": 31,
+   "playmaking": 31,
+   "rebounding": 88,
+   "defense": 69,
+   "shooting": 31,
+   "impact": 58
   },
   "tags": [
    "all-nba",
@@ -6489,12 +6489,12 @@
   "universe": "Portland Trail Blazers",
   "archetype": "power forward",
   "stats": {
-   "scoring": 51,
-   "playmaking": 16,
-   "rebounding": 47,
-   "defense": 42,
-   "shooting": 64,
-   "impact": 49
+   "scoring": 42,
+   "playmaking": 37,
+   "rebounding": 58,
+   "defense": 58,
+   "shooting": 58,
+   "impact": 38
   },
   "tags": [
    "2000s"
@@ -6537,11 +6537,11 @@
   "archetype": "power forward",
   "stats": {
    "scoring": 57,
-   "playmaking": 21,
-   "rebounding": 93,
-   "defense": 23,
-   "shooting": 5,
-   "impact": 83
+   "playmaking": 41,
+   "rebounding": 82,
+   "defense": 42,
+   "shooting": 85,
+   "impact": 57
   },
   "tags": [
    "all-nba",
@@ -6584,12 +6584,12 @@
   "universe": "Cincinnati Royals",
   "archetype": "small forward",
   "stats": {
-   "scoring": 54,
-   "playmaking": 14,
-   "rebounding": 43,
-   "defense": 5,
-   "shooting": 29,
-   "impact": 52
+   "scoring": 68,
+   "playmaking": 47,
+   "rebounding": 50,
+   "defense": 32,
+   "shooting": 62,
+   "impact": 40
   },
   "tags": [
    "hall-of-fame",
@@ -6632,12 +6632,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 55,
-   "playmaking": 44,
-   "rebounding": 22,
-   "defense": 5,
-   "shooting": 34,
-   "impact": 45
+   "scoring": 64,
+   "playmaking": 72,
+   "rebounding": 31,
+   "defense": 32,
+   "shooting": 68,
+   "impact": 33
   },
   "tags": [
    "hall-of-fame",
@@ -6681,12 +6681,12 @@
   "universe": "Seattle SuperSonics",
   "archetype": "power forward",
   "stats": {
-   "scoring": 82,
-   "playmaking": 18,
-   "rebounding": 85,
-   "defense": 5,
-   "shooting": 39,
-   "impact": 59
+   "scoring": 70,
+   "playmaking": 39,
+   "rebounding": 72,
+   "defense": 49,
+   "shooting": 60,
+   "impact": 49
   },
   "tags": [
    "hall-of-fame",
@@ -6732,12 +6732,12 @@
   "universe": "Chicago Bulls",
   "archetype": "center",
   "stats": {
-   "scoring": 27,
-   "playmaking": 10,
-   "rebounding": 64,
-   "defense": 30,
-   "shooting": 100,
-   "impact": 45
+   "scoring": 31,
+   "playmaking": 30,
+   "rebounding": 77,
+   "defense": 66,
+   "shooting": 45,
+   "impact": 55
   },
   "tags": [
    "all-nba",
@@ -6783,12 +6783,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "center",
   "stats": {
-   "scoring": 44,
-   "playmaking": 35,
-   "rebounding": 72,
-   "defense": 45,
-   "shooting": 55,
-   "impact": 47
+   "scoring": 34,
+   "playmaking": 54,
+   "rebounding": 67,
+   "defense": 51,
+   "shooting": 40,
+   "impact": 35
   },
   "tags": [
    "hall-of-fame",
@@ -6829,12 +6829,12 @@
   "universe": "Philadelphia 76ers",
   "archetype": "center",
   "stats": {
-   "scoring": 100,
-   "playmaking": 38,
-   "rebounding": 68,
-   "defense": 46,
-   "shooting": 100,
-   "impact": 100
+   "scoring": 76,
+   "playmaking": 48,
+   "rebounding": 75,
+   "defense": 65,
+   "shooting": 70,
+   "impact": 73
   },
   "tags": [
    "all-nba",
@@ -6874,12 +6874,12 @@
   "universe": "INA",
   "archetype": "power forward",
   "stats": {
-   "scoring": 81,
-   "playmaking": 30,
-   "rebounding": 100,
-   "defense": 51,
-   "shooting": 31,
-   "impact": 73
+   "scoring": 70,
+   "playmaking": 62,
+   "rebounding": 73,
+   "defense": 61,
+   "shooting": 38,
+   "impact": 46
   },
   "tags": [
    "hall-of-fame",
@@ -6920,12 +6920,12 @@
   "universe": "Boston Celtics",
   "archetype": "power forward",
   "stats": {
-   "scoring": 67,
-   "playmaking": 17,
-   "rebounding": 66,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 46
+   "scoring": 50,
+   "playmaking": 41,
+   "rebounding": 58,
+   "defense": 61,
+   "shooting": 54,
+   "impact": 41
   },
   "tags": [
    "hall-of-fame",
@@ -6967,12 +6967,12 @@
   "universe": "Detroit Pistons",
   "archetype": "center",
   "stats": {
-   "scoring": 43,
-   "playmaking": 29,
+   "scoring": 37,
+   "playmaking": 37,
    "rebounding": 81,
-   "defense": 34,
-   "shooting": 60,
-   "impact": 40
+   "defense": 57,
+   "shooting": 77,
+   "impact": 41
   },
   "tags": [
    "1980s"
@@ -7012,12 +7012,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 53,
-   "playmaking": 28,
-   "rebounding": 25,
-   "defense": 54,
-   "shooting": 93,
-   "impact": 43
+   "scoring": 44,
+   "playmaking": 50,
+   "rebounding": 42,
+   "defense": 62,
+   "shooting": 77,
+   "impact": 39
   },
   "tags": [
    "all-nba",
@@ -7061,12 +7061,12 @@
   "universe": "Phoenix Suns",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 76,
-   "playmaking": 31,
-   "rebounding": 40,
-   "defense": 34,
-   "shooting": 80,
-   "impact": 61
+   "scoring": 60,
+   "playmaking": 59,
+   "rebounding": 36,
+   "defense": 39,
+   "shooting": 81,
+   "impact": 42
   },
   "tags": [
    "hall-of-fame",
@@ -7109,12 +7109,12 @@
   "universe": "Memphis Grizzlies",
   "archetype": "point guard",
   "stats": {
-   "scoring": 48,
-   "playmaking": 56,
-   "rebounding": 20,
-   "defense": 30,
-   "shooting": 48,
-   "impact": 62
+   "scoring": 42,
+   "playmaking": 71,
+   "rebounding": 33,
+   "defense": 46,
+   "shooting": 85,
+   "impact": 44
   },
   "tags": [
    "2010s"
@@ -7154,12 +7154,12 @@
   "universe": "San Francisco Warriors",
   "archetype": "center",
   "stats": {
-   "scoring": 58,
-   "playmaking": 23,
-   "rebounding": 100,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 39
+   "scoring": 50,
+   "playmaking": 52,
+   "rebounding": 88,
+   "defense": 78,
+   "shooting": 38,
+   "impact": 31
   },
   "tags": [
    "hall-of-fame",
@@ -7202,12 +7202,12 @@
   "universe": "Miami Heat",
   "archetype": "forward",
   "stats": {
-   "scoring": 66,
-   "playmaking": 21,
-   "rebounding": 36,
-   "defense": 35,
-   "shooting": 60,
-   "impact": 43
+   "scoring": 64,
+   "playmaking": 36,
+   "rebounding": 41,
+   "defense": 36,
+   "shooting": 83,
+   "impact": 37
   },
   "tags": [
    "all-nba",
@@ -7252,12 +7252,12 @@
   "universe": "Minneapolis Lakers",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 31,
-   "playmaking": 33,
-   "rebounding": 16,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 13
+   "scoring": 32,
+   "playmaking": 73,
+   "rebounding": 35,
+   "defense": 48,
+   "shooting": 49,
+   "impact": 31
   },
   "tags": [
    "hall-of-fame",
@@ -7300,12 +7300,12 @@
   "universe": "Cleveland Cavaliers",
   "archetype": "point guard",
   "stats": {
-   "scoring": 53,
-   "playmaking": 94,
-   "rebounding": 19,
-   "defense": 60,
-   "shooting": 100,
-   "impact": 59
+   "scoring": 43,
+   "playmaking": 78,
+   "rebounding": 31,
+   "defense": 34,
+   "shooting": 92,
+   "impact": 56
   },
   "tags": [
    "all-nba",
@@ -7348,12 +7348,12 @@
   "universe": "Milwaukee Bucks",
   "archetype": "small forward",
   "stats": {
-   "scoring": 62,
-   "playmaking": 28,
-   "rebounding": 46,
-   "defense": 42,
-   "shooting": 21,
-   "impact": 39
+   "scoring": 50,
+   "playmaking": 55,
+   "rebounding": 47,
+   "defense": 51,
+   "shooting": 58,
+   "impact": 36
   },
   "tags": [
    "hall-of-fame",
@@ -7395,12 +7395,12 @@
   "universe": "Fort Wayne Pistons",
   "archetype": "center",
   "stats": {
-   "scoring": 53,
-   "playmaking": 15,
-   "rebounding": 67,
-   "defense": 5,
-   "shooting": 75,
-   "impact": 66
+   "scoring": 46,
+   "playmaking": 42,
+   "rebounding": 77,
+   "defense": 47,
+   "shooting": 53,
+   "impact": 56
   },
   "tags": [
    "all-nba",
@@ -7442,12 +7442,12 @@
   "universe": "Boston Celtics",
   "archetype": "forward",
   "stats": {
-   "scoring": 84,
-   "playmaking": 40,
-   "rebounding": 53,
-   "defense": 31,
-   "shooting": 82,
-   "impact": 65
+   "scoring": 73,
+   "playmaking": 58,
+   "rebounding": 59,
+   "defense": 54,
+   "shooting": 84,
+   "impact": 50
   },
   "tags": [
    "all-nba",
@@ -7487,12 +7487,12 @@
   "universe": "Houston Rockets",
   "archetype": "power forward",
   "stats": {
-   "scoring": 59,
-   "playmaking": 22,
-   "rebounding": 67,
-   "defense": 23,
-   "shooting": 100,
-   "impact": 37
+   "scoring": 43,
+   "playmaking": 41,
+   "rebounding": 69,
+   "defense": 50,
+   "shooting": 47,
+   "impact": 33
   },
   "tags": [
    "1980s"
@@ -7536,12 +7536,12 @@
   "universe": "Minnesota Timberwolves",
   "archetype": "center",
   "stats": {
-   "scoring": 76,
-   "playmaking": 31,
-   "rebounding": 83,
-   "defense": 42,
-   "shooting": 100,
-   "impact": 81
+   "scoring": 64,
+   "playmaking": 47,
+   "rebounding": 77,
+   "defense": 45,
+   "shooting": 82,
+   "impact": 54
   },
   "tags": [
    "all-nba",
@@ -7582,12 +7582,12 @@
   "universe": "Dallas Mavericks",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 48,
-   "playmaking": 29,
-   "rebounding": 17,
-   "defense": 27,
-   "shooting": 78,
-   "impact": 41
+   "scoring": 44,
+   "playmaking": 68,
+   "rebounding": 34,
+   "defense": 33,
+   "shooting": 86,
+   "impact": 37
   },
   "tags": [
    "2000s"
@@ -7629,12 +7629,12 @@
   "universe": "Los Angeles Lakers",
   "archetype": "power forward",
   "stats": {
-   "scoring": 36,
-   "playmaking": 10,
-   "rebounding": 58,
-   "defense": 31,
-   "shooting": 84,
-   "impact": 32
+   "scoring": 31,
+   "playmaking": 30,
+   "rebounding": 63,
+   "defense": 42,
+   "shooting": 49,
+   "impact": 35
   },
   "tags": [
    "1980s"
@@ -7675,12 +7675,12 @@
   "universe": "Atlanta Hawks",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 6,
-   "playmaking": 5,
-   "rebounding": 5,
-   "defense": 5,
-   "shooting": 100,
-   "impact": 100
+   "scoring": 56,
+   "playmaking": 64,
+   "rebounding": 42,
+   "defense": 32,
+   "shooting": 78,
+   "impact": 30
   },
   "tags": [
    "all-nba",
@@ -7724,11 +7724,11 @@
   "universe": "New York Knicks",
   "archetype": "forward",
   "stats": {
-   "scoring": 46,
-   "playmaking": 40,
-   "rebounding": 62,
-   "defense": 24,
-   "shooting": 100,
+   "scoring": 34,
+   "playmaking": 56,
+   "rebounding": 68,
+   "defense": 58,
+   "shooting": 42,
    "impact": 38
   },
   "tags": [
@@ -7774,11 +7774,11 @@
   "universe": "Detroit Pistons",
   "archetype": "small forward",
   "stats": {
-   "scoring": 27,
-   "playmaking": 14,
-   "rebounding": 47,
-   "defense": 5,
-   "shooting": 5,
+   "scoring": 40,
+   "playmaking": 49,
+   "rebounding": 61,
+   "defense": 77,
+   "shooting": 39,
    "impact": 30
   },
   "tags": [
@@ -7823,12 +7823,12 @@
   "universe": "KEN",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 65,
-   "playmaking": 32,
+   "scoring": 54,
+   "playmaking": 70,
    "rebounding": 31,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 38
+   "defense": 47,
+   "shooting": 75,
+   "impact": 33
   },
   "tags": [
    "hall-of-fame",
@@ -7865,12 +7865,12 @@
   "universe": "Seattle SuperSonics",
   "archetype": "power forward",
   "stats": {
-   "scoring": 5,
-   "playmaking": 5,
-   "rebounding": 8,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 100
+   "scoring": 61,
+   "playmaking": 39,
+   "rebounding": 54,
+   "defense": 40,
+   "shooting": 68,
+   "impact": 31
   },
   "tags": [
    "all-nba",
@@ -7915,12 +7915,12 @@
   "universe": "New York Knicks",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 76,
-   "playmaking": 39,
-   "rebounding": 38,
-   "defense": 5,
-   "shooting": 31,
-   "impact": 36
+   "scoring": 59,
+   "playmaking": 63,
+   "rebounding": 32,
+   "defense": 40,
+   "shooting": 65,
+   "impact": 32
   },
   "tags": [
    "hall-of-fame",
@@ -7963,12 +7963,12 @@
   "universe": "Utah Jazz",
   "archetype": "forward",
   "stats": {
-   "scoring": 54,
-   "playmaking": 22,
-   "rebounding": 51,
-   "defense": 43,
-   "shooting": 82,
-   "impact": 54
+   "scoring": 41,
+   "playmaking": 44,
+   "rebounding": 62,
+   "defense": 57,
+   "shooting": 54,
+   "impact": 39
   },
   "tags": [
    "2010s"
@@ -8009,12 +8009,12 @@
   "universe": "Milwaukee Bucks",
   "archetype": "forward",
   "stats": {
-   "scoring": 72,
-   "playmaking": 16,
-   "rebounding": 64,
-   "defense": 35,
-   "shooting": 48,
-   "impact": 56
+   "scoring": 60,
+   "playmaking": 38,
+   "rebounding": 66,
+   "defense": 53,
+   "shooting": 41,
+   "impact": 39
   },
   "tags": [
    "all-nba",
@@ -8058,12 +8058,12 @@
   "universe": "Dallas Mavericks",
   "archetype": "power forward",
   "stats": {
-   "scoring": 34,
-   "playmaking": 15,
-   "rebounding": 49,
-   "defense": 28,
-   "shooting": 46,
-   "impact": 31
+   "scoring": 36,
+   "playmaking": 33,
+   "rebounding": 60,
+   "defense": 41,
+   "shooting": 73,
+   "impact": 36
   },
   "tags": [
    "1980s"
@@ -8103,12 +8103,12 @@
   "universe": "Milwaukee Bucks",
   "archetype": "small forward",
   "stats": {
-   "scoring": 61,
-   "playmaking": 22,
-   "rebounding": 71,
-   "defense": 43,
-   "shooting": 69,
-   "impact": 66
+   "scoring": 57,
+   "playmaking": 53,
+   "rebounding": 55,
+   "defense": 47,
+   "shooting": 45,
+   "impact": 56
   },
   "tags": [
    "all-nba",
@@ -8150,12 +8150,12 @@
   "universe": "Syracuse Nationals",
   "archetype": "point guard",
   "stats": {
-   "scoring": 44,
-   "playmaking": 57,
+   "scoring": 35,
+   "playmaking": 73,
    "rebounding": 36,
-   "defense": 5,
-   "shooting": 36,
-   "impact": 29
+   "defense": 37,
+   "shooting": 76,
+   "impact": 38
   },
   "tags": [
    "hall-of-fame",
@@ -8199,12 +8199,12 @@
   "universe": "Indiana Pacers",
   "archetype": "center",
   "stats": {
-   "scoring": 63,
-   "playmaking": 19,
-   "rebounding": 66,
-   "defense": 52,
-   "shooting": 7,
-   "impact": 61
+   "scoring": 52,
+   "playmaking": 36,
+   "rebounding": 70,
+   "defense": 61,
+   "shooting": 48,
+   "impact": 37
   },
   "tags": [
    "all-nba",
@@ -8248,12 +8248,12 @@
   "universe": "Houston Rockets",
   "archetype": "forward",
   "stats": {
-   "scoring": 60,
-   "playmaking": 20,
-   "rebounding": 77,
-   "defense": 5,
-   "shooting": 28,
-   "impact": 47
+   "scoring": 51,
+   "playmaking": 40,
+   "rebounding": 57,
+   "defense": 34,
+   "shooting": 62,
+   "impact": 34
   },
   "tags": [
    "hall-of-fame",
@@ -8294,12 +8294,12 @@
   "universe": "Fort Wayne Pistons",
   "archetype": "small forward",
   "stats": {
-   "scoring": 67,
-   "playmaking": 19,
-   "rebounding": 70,
-   "defense": 5,
-   "shooting": 15,
-   "impact": 63
+   "scoring": 62,
+   "playmaking": 38,
+   "rebounding": 62,
+   "defense": 35,
+   "shooting": 51,
+   "impact": 49
   },
   "tags": [
    "hall-of-fame",
@@ -8343,12 +8343,12 @@
   "universe": "Philadelphia 76ers",
   "archetype": "small forward",
   "stats": {
-   "scoring": 57,
-   "playmaking": 52,
-   "rebounding": 38,
-   "defense": 50,
-   "shooting": 68,
-   "impact": 39
+   "scoring": 41,
+   "playmaking": 66,
+   "rebounding": 49,
+   "defense": 60,
+   "shooting": 50,
+   "impact": 32
   },
   "tags": [
    "2000s"
@@ -8389,12 +8389,12 @@
   "universe": "Memphis Grizzlies",
   "archetype": "center",
   "stats": {
-   "scoring": 45,
-   "playmaking": 33,
-   "rebounding": 48,
-   "defense": 40,
-   "shooting": 38,
-   "impact": 54
+   "scoring": 39,
+   "playmaking": 54,
+   "rebounding": 61,
+   "defense": 59,
+   "shooting": 71,
+   "impact": 43
   },
   "tags": [
    "all-nba",
@@ -8435,12 +8435,12 @@
   "universe": "Minneapolis Lakers",
   "archetype": "center",
   "stats": {
-   "scoring": 59,
-   "playmaking": 13,
-   "rebounding": 76,
-   "defense": 5,
-   "shooting": 5,
-   "impact": 64
+   "scoring": 63,
+   "playmaking": 40,
+   "rebounding": 72,
+   "defense": 44,
+   "shooting": 61,
+   "impact": 52
   },
   "tags": [
    "hall-of-fame",
@@ -8485,12 +8485,12 @@
   "universe": "Seattle SuperSonics",
   "archetype": "forward",
   "stats": {
-   "scoring": 63,
-   "playmaking": 21,
-   "rebounding": 33,
-   "defense": 38,
-   "shooting": 88,
-   "impact": 48
+   "scoring": 47,
+   "playmaking": 36,
+   "rebounding": 51,
+   "defense": 44,
+   "shooting": 80,
+   "impact": 34
   },
   "tags": [
    "2000s"
@@ -8530,12 +8530,12 @@
   "universe": "Dallas Mavericks",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 100,
-   "playmaking": 84,
-   "rebounding": 58,
-   "defense": 47,
-   "shooting": 100,
-   "impact": 98
+   "scoring": 80,
+   "playmaking": 82,
+   "rebounding": 62,
+   "defense": 46,
+   "shooting": 65,
+   "impact": 63
   },
   "tags": [
    "all-nba",
@@ -8575,12 +8575,12 @@
   "universe": "Phoenix Suns",
   "archetype": "power forward",
   "stats": {
-   "scoring": 84,
-   "playmaking": 42,
-   "rebounding": 90,
-   "defense": 5,
-   "shooting": 98,
-   "impact": 98
+   "scoring": 66,
+   "playmaking": 60,
+   "rebounding": 55,
+   "defense": 52,
+   "shooting": 54,
+   "impact": 67
   },
   "tags": [
    "hall-of-fame",
@@ -8626,12 +8626,12 @@
   "universe": "Houston Rockets",
   "archetype": "shooting guard",
   "stats": {
-   "scoring": 41,
-   "playmaking": 31,
-   "rebounding": 13,
-   "defense": 5,
-   "shooting": 44,
-   "impact": 44
+   "scoring": 55,
+   "playmaking": 71,
+   "rebounding": 30,
+   "defense": 30,
+   "shooting": 84,
+   "impact": 35
   },
   "tags": [
    "hall-of-fame",

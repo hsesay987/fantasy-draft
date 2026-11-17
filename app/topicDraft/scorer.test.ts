@@ -17,21 +17,21 @@ describe("scorer", () => {
   });
 
   it("weights shift ranking", () => {
-    const tank = mk("tank", { power: 100, durability: 100, combat: 90, intellect: 10, speed: 40, teamwork: 30 });
-    const brain = mk("brain", { power: 20, durability: 30, combat: 60, intellect: 100, speed: 70, teamwork: 90 });
+    const tank = mk("tank", { power: 100, durability: 100, combat: 90, intellect: 10, speed: 40 });
+    const brain = mk("brain", { power: 20, durability: 30, combat: 60, intellect: 100, speed: 70 });
     expect(itemScore(tank, brawn.weights)).toBeGreaterThan(itemScore(brain, brawn.weights));
     expect(itemScore(brain, brains.weights)).toBeGreaterThan(itemScore(tank, brains.weights));
   });
 
   it("covering wanted tags raises synergy", () => {
-    const stats = { power: 50, intellect: 50, speed: 50, durability: 50, combat: 50, teamwork: 50 };
+    const stats = { power: 50, intellect: 50, speed: 50, durability: 50, combat: 50 };
     const withTags = scoreTeam([mk("a", stats, "x", ["spy", "tech", "human"])], brains);
     const noTags = scoreTeam([mk("a", stats, "x", [])], brains);
     expect(withTags.synergy).toBeGreaterThan(noTags.synergy);
   });
 
   it("clamps out-of-range and NaN stats", () => {
-    const wild = mk("w", { power: 9999, intellect: NaN, speed: -50, durability: 100, combat: 100, teamwork: 100 });
+    const wild = mk("w", { power: 9999, intellect: NaN, speed: -50, durability: 100, combat: 100 });
     const r = scoreTeam([wild], SCENARIOS[0]);
     expect(r.total).toBeLessThanOrEqual(100);
     expect(r.total).toBeGreaterThanOrEqual(0);
@@ -67,7 +67,9 @@ describe("all catalogs", () => {
     expect(c.length).toBeGreaterThanOrEqual(25);
     expect(new Set(c.map((i) => i.id)).size).toBe(c.length);
     for (const i of c) {
-      expect(Object.keys(i.stats).sort()).toEqual([...catalogMeta(id)!.statKeys].sort());
+      // The mixed pool holds Pokémon, which carry four of the five character stats (no invented "brains" number).
+      if (id === "fictional") expect(catalogMeta(id)!.statKeys).toEqual(expect.arrayContaining(Object.keys(i.stats)));
+      else expect(Object.keys(i.stats).sort()).toEqual([...catalogMeta(id)!.statKeys].sort());
       for (const v of Object.values(i.stats)) {
         expect(v).toBeGreaterThanOrEqual(0);
         expect(v).toBeLessThanOrEqual(100);

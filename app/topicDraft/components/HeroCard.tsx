@@ -4,10 +4,8 @@ import { motion } from "motion/react";
 import { Check, Ban } from "lucide-react";
 import type { Item } from "../types";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
+import { statCode } from "../stats";
 
-const SHORT: Record<string, string> = {
-  power: "PWR", intellect: "INT", speed: "SPD", durability: "DUR", combat: "CMB", teamwork: "TMW",
-};
 
 export function HeroCard({
   item, selected, taken, banned, onClick, onDoubleClick, compact, price,
@@ -55,7 +53,7 @@ export function HeroCard({
           {Object.entries(item.stats).map(([k, v]) => (
             <div key={k} title={`${k} ${v}`}>
               <div className="flex justify-between text-[10px] font-semibold text-muted-foreground">
-                <span>{SHORT[k] ?? k.slice(0, 3).toUpperCase()}</span>
+                <span>{statCode(k)}</span>
                 <span>{v}</span>
               </div>
               <div className="h-1 overflow-hidden rounded-full bg-white/10">

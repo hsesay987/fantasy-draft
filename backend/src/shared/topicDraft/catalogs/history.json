@@ -8,7 +8,7 @@
    "leadership": 98,
    "intellect": 79,
    "courage": 77,
-   "influence": 84,
+   "influence": 87,
    "charisma": 73,
    "strategy": 100
   },
@@ -26,7 +26,7 @@
    "leadership": 77,
    "intellect": 72,
    "courage": 66,
-   "influence": 64,
+   "influence": 96,
    "charisma": 96,
    "strategy": 88
   },
@@ -44,7 +44,7 @@
    "leadership": 95,
    "intellect": 72,
    "courage": 80,
-   "influence": 84,
+   "influence": 81,
    "charisma": 78,
    "strategy": 92
   },
@@ -62,7 +62,7 @@
    "leadership": 98,
    "intellect": 64,
    "courage": 98,
-   "influence": 84,
+   "influence": 89,
    "charisma": 85,
    "strategy": 96
   },
@@ -80,7 +80,7 @@
    "leadership": 98,
    "intellect": 59,
    "courage": 86,
-   "influence": 94,
+   "influence": 97,
    "charisma": 54,
    "strategy": 96
   },
@@ -98,7 +98,7 @@
    "leadership": 43,
    "intellect": 98,
    "courage": 55,
-   "influence": 54,
+   "influence": 93,
    "charisma": 73,
    "strategy": 65
   },
@@ -116,7 +116,7 @@
    "leadership": 34,
    "intellect": 98,
    "courage": 45,
-   "influence": 73,
+   "influence": 84,
    "charisma": 60,
    "strategy": 48
   },
@@ -134,7 +134,7 @@
    "leadership": 29,
    "intellect": 98,
    "courage": 40,
-   "influence": 60,
+   "influence": 99,
    "charisma": 30,
    "strategy": 48
   },
@@ -152,7 +152,7 @@
    "leadership": 51,
    "intellect": 90,
    "courage": 80,
-   "influence": 60,
+   "influence": 82,
    "charisma": 54,
    "strategy": 59
   },
@@ -170,7 +170,7 @@
    "leadership": 34,
    "intellect": 98,
    "courage": 49,
-   "influence": 54,
+   "influence": 76,
    "charisma": 54,
    "strategy": 59
   },
@@ -188,7 +188,7 @@
    "leadership": 91,
    "intellect": 72,
    "courage": 80,
-   "influence": 94,
+   "influence": 66,
    "charisma": 85,
    "strategy": 82
   },
@@ -206,7 +206,7 @@
    "leadership": 91,
    "intellect": 68,
    "courage": 86,
-   "influence": 84,
+   "influence": 68,
    "charisma": 91,
    "strategy": 88
   },
@@ -242,7 +242,7 @@
    "leadership": 64,
    "intellect": 90,
    "courage": 55,
-   "influence": 60,
+   "influence": 56,
    "charisma": 44,
    "strategy": 100
   },
@@ -260,7 +260,7 @@
    "leadership": 85,
    "intellect": 72,
    "courage": 72,
-   "influence": 84,
+   "influence": 90,
    "charisma": 85,
    "strategy": 82
   },
@@ -278,7 +278,7 @@
    "leadership": 91,
    "intellect": 79,
    "courage": 92,
-   "influence": 100,
+   "influence": 95,
    "charisma": 96,
    "strategy": 82
   },
@@ -296,7 +296,7 @@
    "leadership": 95,
    "intellect": 79,
    "courage": 98,
-   "influence": 100,
+   "influence": 78,
    "charisma": 100,
    "strategy": 82
   },
@@ -314,7 +314,7 @@
    "leadership": 91,
    "intellect": 72,
    "courage": 98,
-   "influence": 94,
+   "influence": 71,
    "charisma": 91,
    "strategy": 77
   },
@@ -332,7 +332,7 @@
    "leadership": 80,
    "intellect": 59,
    "courage": 98,
-   "influence": 73,
+   "influence": 46,
    "charisma": 73,
    "strategy": 88
   },
@@ -350,7 +350,7 @@
    "leadership": 47,
    "intellect": 98,
    "courage": 40,
-   "influence": 84,
+   "influence": 92,
    "charisma": 60,
    "strategy": 73
   },
@@ -368,7 +368,7 @@
    "leadership": 39,
    "intellect": 90,
    "courage": 86,
-   "influence": 67,
+   "influence": 85,
    "charisma": 65,
    "strategy": 59
   },
@@ -385,7 +385,7 @@
    "leadership": 26,
    "intellect": 90,
    "courage": 55,
-   "influence": 94,
+   "influence": 78,
    "charisma": 91,
    "strategy": 48
   },
@@ -403,7 +403,7 @@
    "leadership": 22,
    "intellect": 90,
    "courage": 45,
-   "influence": 84,
+   "influence": 88,
    "charisma": 85,
    "strategy": 35
   },
@@ -421,7 +421,7 @@
    "leadership": 34,
    "intellect": 79,
    "courage": 55,
-   "influence": 73,
+   "influence": 75,
    "charisma": 73,
    "strategy": 38
   },
@@ -438,7 +438,7 @@
    "leadership": 55,
    "intellect": 54,
    "courage": 92,
-   "influence": 64,
+   "influence": 46,
    "charisma": 81,
    "strategy": 48
   },
@@ -456,7 +456,7 @@
    "leadership": 69,
    "intellect": 72,
    "courage": 92,
-   "influence": 73,
+   "influence": 60,
    "charisma": 54,
    "strategy": 88
   },
@@ -474,7 +474,7 @@
    "leadership": 59,
    "intellect": 43,
    "courage": 72,
-   "influence": 50,
+   "influence": 85,
    "charisma": 44,
    "strategy": 42
   },
@@ -491,7 +491,7 @@
    "leadership": 51,
    "intellect": 59,
    "courage": 72,
-   "influence": 54,
+   "influence": 91,
    "charisma": 73,
    "strategy": 59
   },
@@ -508,7 +508,7 @@
    "leadership": 39,
    "intellect": 90,
    "courage": 61,
-   "influence": 84,
+   "influence": 74,
    "charisma": 44,
    "strategy": 48
   },
@@ -526,7 +526,7 @@
    "leadership": 47,
    "intellect": 90,
    "courage": 80,
-   "influence": 73,
+   "influence": 86,
    "charisma": 49,
    "strategy": 48
   },
@@ -544,7 +544,7 @@
    "leadership": 85,
    "intellect": 84,
    "courage": 66,
-   "influence": 94,
+   "influence": 68,
    "charisma": 85,
    "strategy": 73
   },
@@ -562,7 +562,7 @@
    "leadership": 77,
    "intellect": 64,
    "courage": 55,
-   "influence": 67,
+   "influence": 53,
    "charisma": 54,
    "strategy": 77
   },
@@ -579,7 +579,7 @@
    "leadership": 55,
    "intellect": 68,
    "courage": 86,
-   "influence": 84,
+   "influence": 61,
    "charisma": 96,
    "strategy": 59
   },
@@ -597,7 +597,7 @@
    "leadership": 69,
    "intellect": 59,
    "courage": 92,
-   "influence": 94,
+   "influence": 72,
    "charisma": 100,
    "strategy": 59
   },
@@ -615,7 +615,7 @@
    "leadership": 64,
    "intellect": 50,
    "courage": 98,
-   "influence": 84,
+   "influence": 49,
    "charisma": 73,
    "strategy": 65
   },
@@ -632,7 +632,7 @@
    "leadership": 64,
    "intellect": 90,
    "courage": 55,
-   "influence": 94,
+   "influence": 80,
    "charisma": 65,
    "strategy": 82
   },
@@ -649,7 +649,7 @@
    "leadership": 91,
    "intellect": 79,
    "courage": 86,
-   "influence": 67,
+   "influence": 64,
    "charisma": 65,
    "strategy": 96
   },
@@ -667,7 +667,7 @@
    "leadership": 80,
    "intellect": 50,
    "courage": 61,
-   "influence": 84,
+   "influence": 62,
    "charisma": 65,
    "strategy": 68
   },
@@ -684,7 +684,7 @@
    "leadership": 85,
    "intellect": 79,
    "courage": 72,
-   "influence": 73,
+   "influence": 63,
    "charisma": 78,
    "strategy": 92
   },
@@ -702,7 +702,7 @@
    "leadership": 69,
    "intellect": 90,
    "courage": 66,
-   "influence": 84,
+   "influence": 59,
    "charisma": 96,
    "strategy": 82
   },

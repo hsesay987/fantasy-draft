@@ -4,23 +4,11 @@
 // Every pool gets clues from the fields all catalogs share (universe, archetype, stats, tags). Items with `facts`
 // (real players) also get real-world clues: height, team colours, past teams, college, best season, shooting.
 import type { Item } from "./types";
+import { statLabel } from "./stats";
 
 export type Clue = { key: string; label: string; text: string; /** 1 is vague, 3 is pointed. */ tier: 1 | 2 | 3 };
 
-const STAT: Record<string, string> = {
-  power: "raw power", intellect: "brains", speed: "speed", durability: "toughness", combat: "fighting skill", teamwork: "teamwork", loyalty: "loyalty",
-  utility: "usefulness", tech: "tech", stealth: "stealth", range: "reach", damage: "damage", firepower: "firepower",
-  story: "storytelling", acting: "acting", visuals: "visuals", rewatch: "rewatch value", impact: "cultural impact", fun: "fun",
-  pace: "pace", shooting: "shooting", passing: "passing", dribbling: "dribbling", defending: "defending", physical: "physicality",
-  taste: "taste", comfort: "comfort", health: "healthiness", spice: "heat", presentation: "presentation", versatility: "versatility",
-  economy: "wealth", military: "military might", landscape: "scenery", culture: "culture", cuisine: "food", climate: "weather",
-  colors: "colour", symbolism: "symbolism", simplicity: "simplicity", recognition: "recognisability", uniqueness: "uniqueness", boldness: "boldness",
-  plot: "plot", prose: "writing", characters: "characters", worldbuilding: "worldbuilding", legacy: "legacy", pageturner: "page-turning pull",
-  vocals: "vocals", songwriting: "songwriting", hits: "hit count", stage: "stage presence", longevity: "longevity",
-  leadership: "leadership", courage: "courage", influence: "influence", charisma: "charisma", strategy: "strategy",
-  scoring: "scoring", playmaking: "playmaking", rebounding: "rebounding", defense: "defense", athleticism: "athleticism",
-};
-export const statName = (k: string) => STAT[k] ?? k;
+export const statName = (k: string) => statLabel(k);
 
 type Voice = { universe: (u: string) => string; archetype: (a: string) => string };
 const v = (universe: Voice["universe"], archetype: Voice["archetype"]): Voice => ({ universe, archetype });

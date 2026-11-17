@@ -9,8 +9,7 @@
    "intellect": 85,
    "speed": 80,
    "durability": 70,
-   "combat": 100,
-   "teamwork": 40
+   "combat": 100
   },
   "tags": [
    "assassin",
@@ -27,8 +26,7 @@
    "intellect": 90,
    "speed": 70,
    "durability": 60,
-   "combat": 80,
-   "teamwork": 70
+   "combat": 80
   },
   "tags": [
    "explorer",
@@ -45,8 +43,7 @@
    "intellect": 90,
    "speed": 75,
    "durability": 65,
-   "combat": 92,
-   "teamwork": 55
+   "combat": 92
   },
   "tags": [
    "spy",
@@ -63,8 +60,7 @@
    "intellect": 88,
    "speed": 85,
    "durability": 70,
-   "combat": 92,
-   "teamwork": 90
+   "combat": 92
   },
   "tags": [
    "spy",
@@ -82,8 +78,7 @@
    "intellect": 90,
    "speed": 70,
    "durability": 70,
-   "combat": 85,
-   "teamwork": 80
+   "combat": 85
   },
   "tags": [
    "survivor",
@@ -100,8 +95,7 @@
    "intellect": 85,
    "speed": 95,
    "durability": 90,
-   "combat": 98,
-   "teamwork": 70
+   "combat": 98
   },
   "tags": [
    "chosen",
@@ -118,8 +112,7 @@
    "intellect": 85,
    "speed": 60,
    "durability": 60,
-   "combat": 85,
-   "teamwork": 65
+   "combat": 85
   },
   "tags": [
    "survivor"
@@ -135,8 +128,7 @@
    "intellect": 45,
    "speed": 55,
    "durability": 90,
-   "combat": 92,
-   "teamwork": 75
+   "combat": 92
   },
   "tags": [
    "fighter",
@@ -153,8 +145,7 @@
    "intellect": 75,
    "speed": 65,
    "durability": 80,
-   "combat": 95,
-   "teamwork": 85
+   "combat": 95
   },
   "tags": [
    "warrior",
@@ -171,8 +162,7 @@
    "intellect": 90,
    "speed": 70,
    "durability": 55,
-   "combat": 75,
-   "teamwork": 45
+   "combat": 75
   },
   "tags": [
    "trickster",
@@ -189,8 +179,7 @@
    "intellect": 85,
    "speed": 70,
    "durability": 80,
-   "combat": 92,
-   "teamwork": 95
+   "combat": 92
   },
   "tags": [
    "leader",
@@ -207,8 +196,7 @@
    "intellect": 98,
    "speed": 50,
    "durability": 85,
-   "combat": 70,
-   "teamwork": 90
+   "combat": 70
   },
   "tags": [
    "magic",
@@ -225,8 +213,7 @@
    "intellect": 80,
    "speed": 98,
    "durability": 70,
-   "combat": 95,
-   "teamwork": 85
+   "combat": 95
   },
   "tags": [
    "ranged",
@@ -243,8 +230,7 @@
    "intellect": 55,
    "speed": 45,
    "durability": 92,
-   "combat": 88,
-   "teamwork": 85
+   "combat": 88
   },
   "tags": [
    "tank",
@@ -261,8 +247,7 @@
    "intellect": 85,
    "speed": 65,
    "durability": 90,
-   "combat": 95,
-   "teamwork": 40
+   "combat": 95
   },
   "tags": [
    "villain",
@@ -279,8 +264,7 @@
    "intellect": 70,
    "speed": 80,
    "durability": 55,
-   "combat": 80,
-   "teamwork": 80
+   "combat": 80
   },
   "tags": [
    "rogue",
@@ -297,8 +281,7 @@
    "intellect": 85,
    "speed": 60,
    "durability": 50,
-   "combat": 60,
-   "teamwork": 95
+   "combat": 60
   },
   "tags": [
    "leader"
@@ -314,8 +297,7 @@
    "intellect": 98,
    "speed": 75,
    "durability": 50,
-   "combat": 90,
-   "teamwork": 90
+   "combat": 90
   },
   "tags": [
    "magic",
@@ -332,8 +314,7 @@
    "intellect": 75,
    "speed": 80,
    "durability": 75,
-   "combat": 88,
-   "teamwork": 92
+   "combat": 88
   },
   "tags": [
    "chosen",
@@ -350,8 +331,7 @@
    "intellect": 80,
    "speed": 80,
    "durability": 60,
-   "combat": 88,
-   "teamwork": 70
+   "combat": 88
   },
   "tags": [
    "ranged",
@@ -368,8 +348,7 @@
    "intellect": 75,
    "speed": 70,
    "durability": 65,
-   "combat": 70,
-   "teamwork": 92
+   "combat": 70
   },
   "tags": [
    "magic",
@@ -386,8 +365,7 @@
    "intellect": 98,
    "speed": 65,
    "durability": 50,
-   "combat": 75,
-   "teamwork": 100
+   "combat": 75
   },
   "tags": [
    "magic",
@@ -404,8 +382,7 @@
    "intellect": 65,
    "speed": 70,
    "durability": 50,
-   "combat": 50,
-   "teamwork": 10
+   "combat": 50
   },
   "tags": [
    "trickster"
@@ -421,8 +398,7 @@
    "intellect": 80,
    "speed": 60,
    "durability": 92,
-   "combat": 90,
-   "teamwork": 100
+   "combat": 90
   },
   "tags": [
    "leader",
@@ -440,8 +416,7 @@
    "intellect": 70,
    "speed": 55,
    "durability": 92,
-   "combat": 90,
-   "teamwork": 40
+   "combat": 90
   },
   "tags": [
    "tech",
@@ -458,8 +433,7 @@
    "intellect": 55,
    "speed": 50,
    "durability": 40,
-   "combat": 60,
-   "teamwork": 10
+   "combat": 60
   },
   "tags": [
    "villain",
@@ -476,8 +450,7 @@
    "intellect": 100,
    "speed": 40,
    "durability": 35,
-   "combat": 70,
-   "teamwork": 15
+   "combat": 70
   },
   "tags": [
    "villain",
@@ -494,8 +467,7 @@
    "intellect": 70,
    "speed": 70,
    "durability": 70,
-   "combat": 88,
-   "teamwork": 55
+   "combat": 88
   },
   "tags": [
    "survivor",
@@ -512,8 +484,7 @@
    "intellect": 92,
    "speed": 80,
    "durability": 75,
-   "combat": 98,
-   "teamwork": 45
+   "combat": 98
   },
   "tags": [
    "spy",
@@ -530,8 +501,7 @@
    "intellect": 92,
    "speed": 55,
    "durability": 45,
-   "combat": 70,
-   "teamwork": 60
+   "combat": 70
   },
   "tags": [
    "villain",
@@ -548,8 +518,7 @@
    "intellect": 50,
    "speed": 85,
    "durability": 70,
-   "combat": 25,
-   "teamwork": 95
+   "combat": 25
   },
   "tags": [
    "heart",
@@ -566,8 +535,7 @@
    "intellect": 92,
    "speed": 60,
    "durability": 35,
-   "combat": 20,
-   "teamwork": 85
+   "combat": 20
   },
   "tags": [
    "trickster"
@@ -583,8 +551,7 @@
    "intellect": 55,
    "speed": 45,
    "durability": 92,
-   "combat": 80,
-   "teamwork": 75
+   "combat": 80
   },
   "tags": [
    "tank",
@@ -601,8 +568,7 @@
    "intellect": 40,
    "speed": 50,
    "durability": 45,
-   "combat": 20,
-   "teamwork": 100
+   "combat": 20
   },
   "tags": [
    "support",
@@ -619,8 +585,7 @@
    "intellect": 25,
    "speed": 80,
    "durability": 90,
-   "combat": 95,
-   "teamwork": 5
+   "combat": 95
   },
   "tags": [
    "monster",
@@ -637,8 +602,7 @@
    "intellect": 40,
    "speed": 55,
    "durability": 98,
-   "combat": 92,
-   "teamwork": 45
+   "combat": 92
   },
   "tags": [
    "monster",
@@ -655,8 +619,7 @@
    "intellect": 45,
    "speed": 50,
    "durability": 100,
-   "combat": 92,
-   "teamwork": 35
+   "combat": 92
   },
   "tags": [
    "monster",
@@ -673,8 +636,7 @@
    "intellect": 70,
    "speed": 70,
    "durability": 80,
-   "combat": 98,
-   "teamwork": 50
+   "combat": 98
   },
   "tags": [
    "soldier",
@@ -691,8 +653,7 @@
    "intellect": 92,
    "speed": 60,
    "durability": 40,
-   "combat": 60,
-   "teamwork": 30
+   "combat": 60
   },
   "tags": [
    "trickster",
