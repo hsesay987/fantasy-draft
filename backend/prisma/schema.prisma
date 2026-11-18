@@ -595,3 +595,14 @@ model DailyResult {
   @@unique([game, day, player])
   @@index([game, day])
 }
+
+/// How often players gave an NPAT answer in a finished game. `answer` is the list entry's name, normalised; rows whose
+/// category starts with "review:" are accepted unknown answers kept for review and never feed tiers.
+model NpatAnswer {
+  category  String
+  answer    String
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@id([category, answer])
+}

@@ -3,7 +3,7 @@
 // Where the NPAT engine gets its accepted-answer lists. The engine is shared with the room screens on phones, and the
 // lists (the answers) must never ship there, so the engine asks this module and only the places that really score
 // answers (the server and solo play) fill it in, by importing lists.ts, which registers the full lists here.
-import { lettersFor, normAnswer, type Tier } from "./rules";
+import { adjustTier, lettersFor, normAnswer, type Tier } from "./rules";
 
 export type NpatEntry = { name: string; also?: string[]; tier: Tier };
 
@@ -60,4 +60,20 @@ function countsOf(list: NpatEntry[]): Map<string, number> {
 export function lettersAvailable(categories: string[], hard: boolean): string[] {
   const counts = categories.map((c) => countsOf(entriesOf(c)));
   return lettersFor(hard).filter((l) => counts.every((m) => (m.get(l) ?? 0) >= MIN_PER_LETTER));
+}
+
+let history: ((category: string, answer: string) => { count: number; plays: number } | null) | null = null;
+
+/** Where finished games' answer counts come from (the server fills it in; the phones never do). History is keyed by
+ * the matched entry's canonical `name` run through `normAnswer`, the same key `record` stores under. `plays` is the
+ * category's total recorded answers, review rows excluded. */
+export function setHistorySource(f: ((category: string, answer: string) => { count: number; plays: number } | null) | null): void {
+  history = f;
+}
+
+/** An entry's tier for scoring: its list tier, moved by how often players give it once the category has enough plays. */
+export function tierOf(category: string, entry: NpatEntry): Tier {
+  const h = history?.(category, normAnswer(entry.name));
+  if (!h || h.plays <= 0) return entry.tier;
+  return adjustTier(entry.tier, h.count / h.plays, h.plays);
 }
