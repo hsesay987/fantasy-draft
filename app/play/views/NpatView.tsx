@@ -11,18 +11,17 @@ import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 import { canMoveOn, DrinkCard, LeaveGame, PartyActions, PartyClock, WaterLine } from "./partyBits";
 import { npatClock } from "./npatBoard";
+import { makeSaver, type Saver } from "./npatSaver";
 import { catTitle, FillBoard, LetterTile, NPTable, RevealList, RoundRecap, RoundSummary, VoteCard } from "./npatParts";
 
 type Dispatch = GameCtl["dispatch"];
 type Play = ReturnType<typeof useSound>["play"];
 
 const NOT_SENT = "Not saved, try again";
-/** Unsaved typing is sent this long before the clock runs out, so an answer still in its field counts. */
-const FLUSH_BEFORE_MS = 1500;
 
 /**
- * NPAT on a phone: the letter and one field per category while the clock runs (saved when a field is left or on
- * Enter), then each category revealed in turn, with a table vote on answers our lists don't know. A seat with no player
+ * NPAT on a phone: the letter and one field per category while the clock runs (saved as you type, a moment after you
+ * stop), then each category revealed in turn, with a table vote on answers our lists don't know. A seat with no player
  * (the screen host, or someone watching) gets the letter and how many answers each player has filled in, never the words.
  */
 export function NpatView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
@@ -118,7 +117,12 @@ function TvWrite({ s, gone, out }: { s: NPView; gone: string[]; out: boolean }) 
   );
 }
 
-/** A player's sheet: one field per category, saved when a field is left or on Enter, and Done. */
+/**
+ * A player's sheet: one field per category and Done. Each field is saved 300 ms after typing in it stops (and on leaving
+ * it or Enter), within the server's rate. Whatever is unsaved goes the moment the clock runs out: the server still takes
+ * answers for half a second past the deadline. If another player's Done closes writing early, at most the last 300 ms
+ * of typing in one field is lost.
+ */
 function WriteDesk({ s, me, offset, dispatch, play }: { s: NPView; me: string; offset: number; dispatch: Dispatch; play: Play }) {
   const n = s.categories.length;
   const server = has(s.answers, me) ? s.answers[me]! : [];
@@ -131,46 +135,53 @@ function WriteDesk({ s, me, offset, dispatch, play }: { s: NPView; me: string; o
   useEffect(() => { textsRef.current = texts; });
   const done = s.submitted.includes(me);
 
-  // Fields close when the clock runs out, a moment before the server closes writing.
+  // Fields close when the clock runs out; the server closes writing half a second later.
   const deadline = s.phaseAt + s.roundMs;
   const [expired, setExpired] = useState(false);
-  const offsetRef = useRef(offset);
-  useEffect(() => { offsetRef.current = offset; }, [offset]);
 
-  const save = async (i: number): Promise<boolean> => {
+  /** Sends field `i` if it changed. While a send is out, the same text waits on that send rather than going twice. */
+  const inflight = useRef<(Promise<boolean> | null)[]>([]);
+  const send = (i: number): Promise<boolean> | null => {
     const t = textsRef.current[i] ?? "";
-    if (t === sent.current[i]) return true;
+    if (t === sent.current[i]) return inflight.current[i] ?? null;
     const before = sent.current[i];
     sent.current[i] = t;
-    const r = await dispatch({ type: "answer", by: me, cat: i, text: t });
-    if (r && !r.ok) {
-      sent.current[i] = before ?? "";
-      setError(r.error && r.error !== "Not allowed right now" ? r.error : NOT_SENT);
-      return false;
-    }
-    setError(null);
-    return true;
+    const p: Promise<boolean> = Promise.resolve(dispatch({ type: "answer", by: me, cat: i, text: t })).then((r) => {
+      if (inflight.current[i] === p) inflight.current[i] = null;
+      if (r && !r.ok) {
+        if (sent.current[i] === t) sent.current[i] = before ?? "";
+        setError(r.error && r.error !== "Not allowed right now" ? r.error : NOT_SENT);
+        return false;
+      }
+      setError(null);
+      return true;
+    });
+    inflight.current[i] = p;
+    return p;
   };
-  const saveAll = async () => {
-    let ok = true;
-    for (let i = 0; i < n; i++) ok = (await save(i)) && ok;
-    return ok;
-  };
-
+  const sendRef = useRef(send);
+  useEffect(() => { sendRef.current = send; });
+  const saver = useRef<Saver | null>(null);
   useEffect(() => {
-    const left = deadline - (Date.now() + offsetRef.current);
-    const flush = setTimeout(() => { void saveAll(); }, Math.max(0, left - FLUSH_BEFORE_MS));
-    const close = setTimeout(() => setExpired(true), Math.max(0, left));
-    return () => { clearTimeout(flush); clearTimeout(close); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deadline]);
+    const sv = makeSaver(n, (i) => sendRef.current(i));
+    saver.current = sv;
+    return () => { sv.stop(); saver.current = null; };
+  }, [n]);
+  const flush = () => saver.current?.flush() ?? Promise.resolve(true);
+
+  // Re-armed when the clock offset is corrected, so the fields close at the server's deadline, not a stale guess of it.
+  useEffect(() => {
+    const left = deadline - (Date.now() + offset);
+    const close = setTimeout(() => { setExpired(true); void saver.current?.flush(); }, Math.max(0, left));
+    return () => clearTimeout(close);
+  }, [deadline, offset]);
 
   const finish = async () => {
     if (done || finishing || expired) return;
     setFinishing(true);
     play("click");
     try {
-      if (!(await saveAll())) return;
+      if (!(await flush())) return;
       const r = await dispatch({ type: "finish", by: me });
       if (r && !r.ok) setError(NOT_SENT);
     } finally { setFinishing(false); }
@@ -191,12 +202,17 @@ function WriteDesk({ s, me, offset, dispatch, play }: { s: NPView; me: string; o
             <input
               ref={(el) => { inputs.current[i] = el; }}
               value={texts[i] ?? ""} maxLength={ANSWER_MAX} disabled={!open}
-              onChange={(e) => { const v = e.target.value; setTexts((t) => t.map((x, j) => (j === i ? v : x))); }}
-              onBlur={() => { void save(i); }}
+              onChange={(e) => {
+                const v = e.target.value;
+                textsRef.current = textsRef.current.map((x, j) => (j === i ? v : x));
+                setTexts(textsRef.current);
+                saver.current?.changed(i);
+              }}
+              onBlur={() => { void flush(); }}
               onKeyDown={(e) => {
                 if (e.key !== "Enter") return;
                 e.preventDefault();
-                void save(i);
+                void flush();
                 const nextField = inputs.current[i + 1];
                 if (nextField) nextField.focus(); else e.currentTarget.blur();
               }}
