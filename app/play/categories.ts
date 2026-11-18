@@ -189,7 +189,7 @@ export const FORMAT_WHY: Record<FormatId, string> = {
   vowelparty: "Race to name it with the vowels missing",
   pecking: "Guess where things rank",
   sayless: "Describe it in as few words as you can",
-  npat: "Race to fill in a name, place, animal and thing for a letter",
+  npat: "Fill in a name, place, animal and thing for a letter",
 };
 
 /** Formats that make sense for a category (Loadout needs hero-ish items). */

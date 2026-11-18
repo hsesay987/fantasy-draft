@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button, Chip, PageHeader, PageShell, Panel } from "../components/ui";
+import { NPAT_CATEGORIES } from "../topicDraft/npat/categories";
 import { DECKS } from "../topicDraft/party/decks";
 import { INSYNC_DECKS } from "../topicDraft/party/insyncDecks";
 import { TEAM_MIN_PLAYERS } from "../topicDraft/formats/partytrivia";
@@ -9,6 +10,7 @@ import { MIN_PLAYERS as MAFIA_MIN, NIGHT_MS, QUIET_FIRST_NIGHT_AT, TALK_MS, VOTE
 import { newSeed } from "../topicDraft/rng";
 import { formatMeta } from "./formats";
 import { setRoomGame } from "./onlineApi";
+import { NPAT_CAT, NPAT_CLASSIC_IDS, NPAT_MAX_CATS, NPAT_MIN_CATS, npatCustomCheck } from "./npatSetup";
 import { PoolPicker } from "./PoolPicker";
 import { Stepper } from "./setupParts";
 import { TeamPicker } from "./TeamPicker";
@@ -18,7 +20,7 @@ import { DEFAULT_OPTS, type GameSetup } from "./types";
 import { DrinkingToggle, ShowVotesToggle } from "./views/partyBits";
 
 /** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
-export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless"; room: { code: string; token: string; pool?: string; pools?: string[]; slotPools?: string[] | null; inTournament?: boolean; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
+export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat"; room: { code: string; token: string; pool?: string; pools?: string[]; slotPools?: string[] | null; inTournament?: boolean; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
   const meta = formatMeta(format)!;
   const decks = format === "insync" ? INSYNC_DECKS : DECKS;
   const options = topicOptions(format);
@@ -29,6 +31,14 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const [saylessWords, setSaylessWords] = useState(3);
   const [saylessSlack, setSaylessSlack] = useState(5);
   const [saylessGuard, setSaylessGuard] = useState(false);
+  const [npatRounds, setNpatRounds] = useState(3);
+  const [npatSeconds, setNpatSeconds] = useState(60);
+  const [npatHard, setNpatHard] = useState(false);
+  const [npatStop, setNpatStop] = useState(false);
+  /** NPAT's Custom option: the host's own 4 to 6 categories instead of a set. */
+  const [npatCustom, setNpatCustom] = useState(false);
+  const [npatCats, setNpatCats] = useState<string[]>(NPAT_CLASSIC_IDS);
+  const custom = format === "npat" && npatCustom ? npatCustomCheck(npatCats, npatHard, npatRounds) : null;
   const [vowelMode, setVowelMode] = useState<"first" | "duel">("first");
   const [vowelAnswer, setVowelAnswer] = useState<"voice" | "type">("voice");
   const vowel = format === "vowelplay" || format === "vowelparty";
@@ -44,7 +54,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const teamFormat = format === "partytrivia" || format === "vote" || format === "imposter" || format === "vowelparty" || format === "pecking" || format === "sayless";
+  const teamFormat = format === "partytrivia" || format === "vote" || format === "imposter" || format === "vowelparty" || format === "pecking" || format === "sayless" || format === "npat";
   const teamsOpen = teamFormat && seats.length >= TEAM_MIN_PLAYERS;
   const pickTeams = (n: number) => {
     setTeams(n);
@@ -52,12 +62,14 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   };
 
   const save = async () => {
+    if (custom && !custom.ok) return setError(custom.reason ?? "Pick the categories first");
     setBusy(true);
     setError(null);
+    const chosen = custom ? npatCats.map((id) => `${NPAT_CAT}${id}`) : pools;
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
-      id: "", format, pool: pools[0]!, pools, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...teamOpts }, seed: 0,
+      id: "", format, pool: chosen[0]!, pools: chosen, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...(format === "npat" ? { npatRounds, npatSeconds, npatHard, npatStop } : {}), ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -87,6 +99,17 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
       ) : format === "sayless" ? (
         <Panel title="Lists and topics" hint="Words come from what you select. Pick several to mix them. Each deck has a par, the clue count a good describer hits.">
           <PoolPicker options={options} value={pools} onChange={setPools} />
+        </Panel>
+      ) : format === "npat" ? (
+        <Panel title="Categories" hint="Every round fills in this set. Pick one, or choose Custom to build your own.">
+          <div className="grid gap-2 sm:grid-cols-2">
+            {[...topicOptions("npat").map((o) => ({ ...o, on: !npatCustom && pools[0] === o.id, pick: () => { setNpatCustom(false); setPools([o.id]); } })), { id: "custom", title: "Custom", blurb: "Pick 4 to 6 categories yourself", on: npatCustom, pick: () => setNpatCustom(true) }].map((o) => (
+              <button key={o.id} type="button" onClick={o.pick} aria-pressed={o.on}
+                className={`min-h-11 rounded-xl border p-3 text-left ${o.on ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+                <b className="block">{o.title}</b><span className="break-words text-sm text-muted-foreground">{o.blurb}</span>
+              </button>
+            ))}
+          </div>
         </Panel>
       ) : vowel ? (
         <Panel title="Topic" hint="Names come from the topics you select. Each word shows its own topic as the only hint.">
@@ -159,6 +182,52 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </>
       )}
 
+      {format === "npat" && custom && (
+        <Panel title="Your categories" hint={`Tick ${NPAT_MIN_CATS} to ${NPAT_MAX_CATS}. ${npatCats.length} picked.`}>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {NPAT_CATEGORIES.map((c) => {
+              const on = npatCats.includes(c.id);
+              const full = !on && npatCats.length >= NPAT_MAX_CATS;
+              return (
+                <label key={c.id} className={`flex min-h-11 items-center gap-3 rounded-xl border p-3 ${on ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5"} ${full ? "opacity-50" : "cursor-pointer hover:bg-white/10"}`}>
+                  <input type="checkbox" className="h-4 w-4 shrink-0" checked={on} disabled={full}
+                    onChange={() => setNpatCats((cur) => (on ? cur.filter((x) => x !== c.id) : [...cur, c.id]))} />
+                  <span className="min-w-0"><b className="block">{c.title}</b><span className="break-words text-sm text-muted-foreground">{c.blurb}</span></span>
+                </label>
+              );
+            })}
+          </div>
+          <p className={`mt-3 text-sm ${custom.ok && !custom.warn ? "text-muted-foreground" : "text-accent"}`} role={custom.ok ? undefined : "alert"}>
+            {custom.reason ?? custom.warn ?? `${custom.letters.length} letters fit these categories.`}
+          </p>
+        </Panel>
+      )}
+
+      {format === "npat" && (
+        <>
+          <Panel title="Rounds" hint="One letter each round.">
+            <Stepper value={npatRounds} min={1} max={8} onChange={setNpatRounds} label="Rounds" />
+          </Panel>
+          <Panel title="Timer" hint="Seconds to fill in every category.">
+            <div className="flex flex-wrap gap-2">
+              {[45, 60, 90].map((n) => <Chip key={n} selected={npatSeconds === n} onClick={() => setNpatSeconds(n)}>{n} s</Chip>)}
+            </div>
+          </Panel>
+          <Panel title="Hard letters" hint="Adds Q, X, Y and Z to the letters that can come up. Off by default.">
+            <div className="flex flex-wrap gap-2">
+              <Chip selected={!npatHard} onClick={() => setNpatHard(false)}>Off</Chip>
+              <Chip selected={npatHard} onClick={() => setNpatHard(true)}>On</Chip>
+            </div>
+          </Panel>
+          <Panel title="First to finish stops the clock" hint="When one player has filled every category, the round ends for everyone. Off by default.">
+            <div className="flex flex-wrap gap-2">
+              <Chip selected={!npatStop} onClick={() => setNpatStop(false)}>Off</Chip>
+              <Chip selected={npatStop} onClick={() => setNpatStop(true)}>On</Chip>
+            </div>
+          </Panel>
+        </>
+      )}
+
       {format === "pecking" && (
         <Panel title="Question type" hint={peckMode === "rank" ? "Each question names an item. Guess its rank." : peckMode === "name" ? "Each question gives a rank. Name who is there." : "A mix of both kinds."}>
           <div className="flex flex-wrap gap-2">
@@ -171,7 +240,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         <Panel title="Words">
           <p className="text-sm text-muted-foreground">{answer === "buzz" ? "10 words, 20 seconds each. First to buzz says it out loud, and the rest judge." : "10 words, 20 seconds each. Everyone types on their own phone."}</p>
         </Panel>
-      ) : format === "sayless" ? null : format === "insync" ? (
+      ) : format === "sayless" || format === "npat" ? null : format === "insync" ? (
         <Panel title="Rounds">
           <p className="text-sm text-muted-foreground">One round per player, so everyone gets the mic. Never fewer than 4.</p>
         </Panel>
@@ -221,7 +290,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
 
       {error && <p role="alert" className="text-sm text-accent">{error}</p>}
       <div className="flex gap-3">
-        <Button variant="accent" className="flex-1" disabled={busy} onClick={save}>{busy ? "Saving…" : "Use this game"}</Button>
+        <Button variant="accent" className="flex-1" disabled={busy || (!!custom && !custom.ok)} onClick={save}>{busy ? "Saving…" : "Use this game"}</Button>
         <Button variant="ghost" onClick={room.onCancel}>Back</Button>
       </div>
     </PageShell>

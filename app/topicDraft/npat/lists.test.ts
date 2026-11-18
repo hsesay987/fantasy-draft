@@ -19,6 +19,10 @@ describe("NPAT category lists", () => {
     expect(categoryOf("nope")).toBeUndefined();
   });
 
+  it("keeps the lobby's letters meta in step with the lists", () => {
+    for (const c of NPAT_CATEGORIES) expect(c.letters, c.id).toBe(lettersAvailable([c.id], true).join(""));
+  });
+
   for (const c of NPAT_CATEGORIES) {
     describe(c.id, () => {
       it("has an entry file with at least 150 entries", () => {

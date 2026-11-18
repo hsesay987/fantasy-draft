@@ -679,19 +679,31 @@ function entries(id: string, cands: Cand[]): NpatEntry[] {
 }
 
 // ---------------- metadata ----------------
-type Meta = { id: string; title: string; blurb: string; source: string; asOf: string };
+type Meta = { id: string; title: string; blurb: string; source: string; asOf: string; letters: string };
+
+/** The letters a category has at least 15 answers for (the same count `lettersAvailable` makes, hard letters included),
+ * read back from the written list so the lobby can tell which letters a mix fits without loading any answers. */
+function lettersOf(id: string): string {
+  const list: NpatEntry[] = JSON.parse(fs.readFileSync(path.join(OUT, `${id}.json`), "utf8"));
+  const counts = new Map<string, number>();
+  for (const e of list) {
+    const firsts = new Set([e.name, ...(e.also ?? [])].map((a) => norm(a).charAt(0).toUpperCase()).filter((c) => c >= "A" && c <= "Z"));
+    for (const c of firsts) counts.set(c, (counts.get(c) ?? 0) + 1);
+  }
+  return [...counts].filter(([, n]) => n >= 15).map(([c]) => c).sort().join("");
+}
 function writeMeta(built: string[]) {
   const prev = new Map<string, Meta>();
   const metaFile = path.join(ROOT, "categories.ts");
   if (fs.existsSync(metaFile)) for (const m of fs.readFileSync(metaFile, "utf8").matchAll(/^  (\{"id".*\}),$/gm)) { const x = JSON.parse(m[1]!); if (x.blurb) prev.set(x.id, x); }
   const cats: Meta[] = ORDER.filter((id) => fs.existsSync(path.join(OUT, `${id}.json`)))
-    .map((id) => ({ id, title: SPECS[id]!.title, blurb: SPECS[id]!.blurb, source: SPECS[id]!.source, asOf: built.includes(id) ? TODAY : prev.get(id)?.asOf ?? TODAY }));
+    .map((id) => ({ id, title: SPECS[id]!.title, blurb: SPECS[id]!.blurb, source: SPECS[id]!.source, asOf: built.includes(id) ? TODAY : prev.get(id)?.asOf ?? TODAY, letters: lettersOf(id) }));
   const sets = [
     { id: "classic", title: "Classic", categories: CLASSIC },
     ...cats.filter((c) => !CLASSIC.includes(c.id) && !NO_SET.includes(c.id)).map((c) => ({ id: c.id, title: c.title, categories: [c.id, ...topicPartners(c.id)] })),
   ];
   const body = `// Written by scripts/buildNpat.ts. Category and set metadata only: no answers, so room screens can import it.\n` +
-    `export type NpatCategory = { id: string; title: string; blurb: string; source: string; asOf: string };\n` +
+    `export type NpatCategory = { id: string; title: string; blurb: string; source: string; asOf: string; letters: string };\n` +
     `export type NpatSet = { id: string; title: string; categories: string[] };\n\n` +
     `export const NPAT_CATEGORIES: NpatCategory[] = [\n${cats.map((m) => `  ${JSON.stringify(m)},`).join("\n")}\n];\n\n` +
     `/** Classic first; then one set per topic category (not Country: too few letters): the topic plus Name, Animal, Thing. */\n` +
