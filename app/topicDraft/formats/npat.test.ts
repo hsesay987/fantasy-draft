@@ -436,3 +436,54 @@ describe("drinking", () => {
     expect(make().drinks).toBeUndefined();
   });
 });
+
+describe("solo daily options", () => {
+  const solo = (o: Partial<InitOpts> = {}) => init({ players: ["You"], categories: ["superhero", "animal"], rounds: 1, roundSeconds: 60, teams: 0, teamMap: {}, seed: 5, now: T0, ...o });
+
+  it("letter forces round 1's letter instead of the draw", () => {
+    for (const seed of [1, 2, 3, 4, 5, 6]) {
+      expect(solo({ seed, letter: "H" }).letter).toBe("H");
+      expect(solo({ seed, letter: "b" }).letters[0]).toBe("B");
+    }
+    const two = solo({ rounds: 2, letter: "H" });
+    expect(two.letters).toHaveLength(2);
+    expect(two.letters[0]).toBe("H");
+  });
+
+  it("strict: an unknown answer is never voted on or auto-accepted; it scores 0 and is still kept for review", () => {
+    let s = solo({ strict: true, letter: "H" });
+    s = answer(s, "You", 0, "Hypnotoad", T0 + 1);
+    s = answer(s, "You", 1, "Horse", T0 + 1);
+    s = finish(s, "You", T0 + 2);
+    expect(s.phase).toBe("reveal");
+    expect(ans(s, "You", 0)).toMatchObject({ status: "unknown", accepted: false, review: true, points: 0 });
+    expect(ans(s, "You", 0).tier).toBeUndefined();
+    expect(reviewItems(s)).toEqual([{ player: "You", category: "superhero", answer: "Hypnotoad" }]);
+    s = next(s, T0 + 3);
+    expect(ans(s, "You", 1)).toMatchObject({ status: "ok", points: 10, tier: "common" });
+    expect(s.points.You).toBe(10);
+  });
+
+  it("strict with a full table still never votes", () => {
+    const s = close(write(make({ strict: true, letter: "H" }), { Ann: ["Hypnotoad"] }));
+    expect(s.phase).toBe("reveal");
+    expect(ans(s, "Ann")).toMatchObject({ accepted: false, review: true, points: 0 });
+  });
+
+  it("strict: wrong-letter and blank answers stay at 0 and are not for review", () => {
+    let s = solo({ strict: true, letter: "H" });
+    s = answer(s, "You", 0, "Batman", T0 + 1);
+    s = tick(s, T0 + 60_000);
+    expect(ans(s, "You", 0)).toMatchObject({ status: "wrong-letter", points: 0 });
+    s = next(s, T0 + 60_001);
+    expect(ans(s, "You", 1)).toMatchObject({ status: "blank", points: 0 });
+    expect(reviewItems(s)).toEqual([]);
+  });
+
+  it("without strict, a solo unknown is still accepted as common", () => {
+    let s = solo({ letter: "H" });
+    s = answer(s, "You", 0, "Hypnotoad", T0 + 1);
+    s = finish(s, "You", T0 + 2);
+    expect(ans(s, "You", 0)).toMatchObject({ accepted: true, points: 10 });
+  });
+});

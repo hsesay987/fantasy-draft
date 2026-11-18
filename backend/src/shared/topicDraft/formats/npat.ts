@@ -18,7 +18,8 @@ export const MIN_VOTERS = 3;
 /**
  * One player's answer to one category, decided when writing closes. `entry` is the matched list entry's name. An
  * unknown answer gets `votes` while it is voted on and `accepted` once settled. `points`, `tier` and `shared` are filled
- * in when its category is revealed; `review` marks an accepted unknown, to be checked for the lists later.
+ * in when its category is revealed; `review` marks an accepted unknown (or, with `strict`, any unknown), to be checked
+ * for the lists later.
  */
 export type NPAnswer = {
   text: string;
@@ -63,6 +64,8 @@ export type NPState = {
   startedAt: number;
   done: boolean;
   seed: number;
+  /** Solo daily: unknown answers are never voted on or accepted. They score 0 and are kept for review. */
+  strict?: boolean;
   drinks?: DrinkState;
 };
 
@@ -87,17 +90,23 @@ function drawLetters(categories: string[], hard: boolean, rounds: number, avoid:
 export function init(o: {
   players: string[]; categories: string[]; rounds: number; roundSeconds?: 45 | 60 | 90; hard?: boolean; stopEarly?: boolean;
   teams: number; teamMap: Record<string, number>; avoid?: string[]; drinking?: boolean; seed: number; now: number;
+  /** Solo daily: see `NPState.strict`. */
+  strict?: boolean;
+  /** Round 1's letter instead of the draw (the solo daily's letter of the day). Later rounds still draw. */
+  letter?: string;
 }): NPState {
   const rounds = Math.max(1, Math.floor(o.rounds) || 1);
   const hard = !!o.hard;
-  const [letters, seed] = drawLetters(o.categories, hard, rounds, o.avoid ?? [], o.seed);
+  const forced = typeof o.letter === "string" && /^[a-z]$/i.test(o.letter) ? o.letter.toUpperCase() : null;
+  const [drawn, seed] = drawLetters(o.categories, hard, rounds, o.avoid ?? [], o.seed);
+  const letters = forced ? [forced, ...drawn.slice(1)] : drawn;
   const built = o.teams >= 2 && o.players.length >= TEAM_MIN_PLAYERS ? buildTeams(o.players, o.teams, o.teamMap ?? {}).filter((t) => t.length > 0) : [];
   const teams = built.length >= 2 ? built : null;
   return {
     players: o.players, teams, categories: o.categories, rounds, round: 0, letter: letters[0]!, letters, phase: "write", cat: 0,
     answers: {}, submitted: [], stopEarly: !!o.stopEarly, roundMs: ROUND_MS[o.roundSeconds ?? DEFAULT_ROUND_S] ?? ROUND_MS[DEFAULT_ROUND_S],
     hard, history: [], points: Object.fromEntries(o.players.map((p) => [p, 0])), teamPoints: teams ? teams.map(() => 0) : [],
-    voteOn: null, gone: [], phaseAt: o.now, startedAt: o.now, done: false, seed,
+    voteOn: null, gone: [], phaseAt: o.now, startedAt: o.now, done: false, seed, ...(o.strict ? { strict: true } : {}),
     ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),
   };
 }
@@ -171,13 +180,15 @@ function edit(s: NPState, members: string[], f: (a: NPAnswer, p: string) => NPAn
   return { ...s, history: [...s.history.slice(0, -1), { ...r, answers }] };
 }
 
-/** Shows category `cat`: players who left are blank for it, unknown answers go to a vote (or straight in), then the reveal. */
+/** Shows category `cat`: players who left are blank for it, unknown answers go to a vote (or straight in; with `strict`,
+ * straight out but kept for review), then the reveal. */
 function openCat(s: NPState, cat: number, now: number): NPState {
   let t: NPState = { ...s, cat };
   const left = t.gone.filter((p) => answerOf(current(t), p, cat).status !== "blank");
   if (left.length) t = edit(t, left, () => BLANK);
   for (const g of unknownGroups(t)) {
-    t = edit(t, g.members, (a) => (votersFor(t, g.members).length < MIN_VOTERS ? { ...a, accepted: true } : { ...a, votes: {} }));
+    t = edit(t, g.members, (a) => (t.strict ? { ...a, accepted: false, review: true as const }
+      : votersFor(t, g.members).length < MIN_VOTERS ? { ...a, accepted: true } : { ...a, votes: {} }));
   }
   return nextVote(t, -1, now);
 }
@@ -270,7 +281,7 @@ function reveal(s: NPState, now: number): NPState {
   for (const p of s.players) {
     const a = mine[p]!;
     if (a.status === "wrong-letter") calls.push({ to: p, sips: 1, reason: "Wrong letter" });
-    else if (a.status === "unknown" && a.accepted === false) calls.push({ to: p, sips: 1, reason: "Voted out" });
+    else if (a.status === "unknown" && a.accepted === false && !s.strict) calls.push({ to: p, sips: 1, reason: "Voted out" });
   }
   const drinks = s.drinks && calls.length ? addCalls(s.drinks, calls, s.players) : s.drinks;
   return { ...t, phase: "reveal", voteOn: null, points, teamPoints, ...(drinks ? { drinks } : {}), phaseAt: now };
@@ -327,7 +338,7 @@ export function seenKeys(s: NPState): string[] {
   return [...new Set(s.letters.slice(0, s.round + 1).map((l) => `np:${l}`))];
 }
 
-/** Accepted answers that were not on the lists, for the server to save as `review:<category>` rows. */
+/** Accepted answers that were not on the lists (with `strict`, every unknown), for the server to save as `review:<category>` rows. */
 export function reviewItems(s: NPState): { player: string; category: string; answer: string }[] {
   return s.history.flatMap((r) => s.players.flatMap((p) => (own(r.answers, p) ?? []).flatMap((a, i) =>
     a.review ? [{ player: p, category: s.categories[i]!, answer: a.text }] : [])));

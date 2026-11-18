@@ -1,10 +1,26 @@
 import { Router } from "express";
 import { captureError } from "../lib/monitoring";
 import { pickProducts, prismaCostStore, type CostProductDto } from "../services/costimation.service";
-import { dayKey, dayNumber, isDailyGame, peckingPuzzle, prismaDailyStore, puzzleFor, statsOf, submitResult, topicFor, type DailyGame } from "../services/daily.service";
+import {
+  dayKey, dayNumber, isDailyGame, npatOverlay, npatPlays, npatPuzzle, peckingPuzzle, prismaDailyStore, puzzleFor, recordNpatDaily, statsOf,
+  submitResult, topicFor, type DailyGame, type NpatPuzzle,
+} from "../services/daily.service";
+import type { NpatHistoryStore } from "../services/npatHistory.service";
 import { getFeud, getJeopardy } from "../services/trivia.service";
 
 const router = Router();
+
+/** The NPAT answer counts the rooms use too (the server sets it at start): the daily's tier overlay and its plays. */
+let npatHistory: NpatHistoryStore | null = null;
+export function setDailyNpatHistory(h: NpatHistoryStore | null) {
+  npatHistory = h;
+}
+
+/** The saved NPAT puzzle for a day, or the one the day would build if none was saved (or it is malformed). */
+async function npatOf(day: string): Promise<NpatPuzzle> {
+  const saved = (await prismaDailyStore.puzzle("npat", day)) as Partial<NpatPuzzle> | null;
+  return saved && typeof saved.letter === "string" && Array.isArray(saved.categories) ? { letter: saved.letter, categories: saved.categories } : npatPuzzle(day);
+}
 
 const hits = new Map<string, number[]>();
 function limited(key: string): boolean {
@@ -28,6 +44,7 @@ function pickFive(all: CostProductDto[]): CostProductDto[] {
 async function build(game: DailyGame, day: string) {
   if (game === "summit" || game === "toprung") { const pool = topicFor(game, day); return { pool, categories: await getJeopardy(pool, []) }; }
   if (game === "pecking") return peckingPuzzle(day);
+  if (game === "npat") return npatPuzzle(day);
   if (game === "hotair") { const pool = topicFor(game, day); return { pool, surveys: await getFeud(pool, 5, []) }; }
   return { products: pickFive(await pickProducts(prismaCostStore, { n: 120 })) };
 }
@@ -40,7 +57,10 @@ router.get("/:game", async (req, res) => {
   const day = dayKey();
   try {
     const content = await puzzleFor(prismaDailyStore, game, day, () => build(game, day));
-    res.json({ game, day, number: dayNumber(day), content });
+    // NPAT's tiers move with the answer counts, so the overlay is worked out fresh, never saved with the puzzle.
+    const store = npatHistory;
+    const extra = game === "npat" ? { overlay: store ? npatOverlay(content as NpatPuzzle, (c, a) => store.lookup(c, a)) : {} } : {};
+    res.json({ game, day, number: dayNumber(day), content: { ...(content as object), ...extra } });
   } catch (e) {
     captureError(e, { where: "daily_puzzle", game });
     res.status(500).json({ error: "Couldn't load today's puzzle" });
@@ -61,7 +81,12 @@ router.post("/:game/result", async (req, res) => {
   if (day !== today && day !== yesterday) return res.status(400).json({ error: "That puzzle is closed" });
   const detail = req.body?.detail && JSON.stringify(req.body.detail).length < 4000 ? req.body.detail : undefined;
   try {
-    res.json(await submitResult(prismaDailyStore, { game, day, player, score, detail }));
+    // NPAT sends its answers too: re-checked here, they add to the answer counts on the player's first result of the day.
+    const plays = game === "npat" ? npatPlays(await npatOf(day), req.body?.answers ?? []) : [];
+    if (!plays) return res.status(400).json({ error: "answers must be up to 4 of today's categories, each at most 40 characters" });
+    const { added, ...result } = await submitResult(prismaDailyStore, { game, day, player, score, detail });
+    if (added && plays.length) await recordNpatDaily(npatHistory, day, player, plays);
+    res.json(result);
   } catch (e) {
     captureError(e, { where: "daily_result", game });
     res.status(500).json({ error: "Couldn't save your result" });

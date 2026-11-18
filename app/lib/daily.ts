@@ -1,11 +1,13 @@
 import { API_URL } from "../play/onlineApi";
 import { voterId } from "./triviaRate";
 
-export type DailyGame = "summit" | "hotair" | "costimation" | "toprung" | "pecking";
-export const DAILY_GAMES: DailyGame[] = ["summit", "hotair", "costimation", "toprung", "pecking"];
-export const DAILY_TITLES: Record<DailyGame, string> = { summit: "Summit", hotair: "Hot Air", costimation: "Costimation", toprung: "Top Rung", pecking: "Pecking Order" };
-/** The dailies that play in a pixel world. Pecking Order has none: it is scored in bands instead (`PECKING_BANDS`). */
-export type WorldDaily = Exclude<DailyGame, "pecking">;
+export type DailyGame = "summit" | "hotair" | "costimation" | "toprung" | "pecking" | "npat";
+export const DAILY_GAMES: DailyGame[] = ["summit", "hotair", "costimation", "toprung", "pecking", "npat"];
+export const DAILY_TITLES: Record<DailyGame, string> = { summit: "Summit", hotair: "Hot Air", costimation: "Costimation", toprung: "Top Rung", pecking: "Pecking Order", npat: "Name Place Animal Thing" };
+/** The dailies that play in a pixel world. Pecking Order and NPAT have none: they are scored in points and named by
+ * bands instead (`bandsFor`). */
+export type WorldDaily = Exclude<DailyGame, "pecking" | "npat">;
+export type PointsDaily = Exclude<DailyGame, WorldDaily>;
 export const DAILY_WORLD: Record<WorldDaily, "summit" | "sky" | "launch" | "ladder"> = { summit: "summit", hotair: "sky", costimation: "launch", toprung: "ladder" };
 export const hasWorld = (g: DailyGame): g is WorldDaily => g in DAILY_WORLD;
 
@@ -20,6 +22,22 @@ export const PECKING_BANDS: { name: string; at: number; mark?: string }[] = [
 export const peckingBand = (score: number) => [...PECKING_BANDS].reverse().find((b) => score >= b.at)!.name;
 /** One square per question: green from 80 points, yellow from 40, red below. */
 export const peckingSquare = (points: number) => (points >= 80 ? "🟩" : points >= 40 ? "🟨" : "🟥");
+
+/** NPAT's checkpoints, by share of the 400 points on offer (four categories, a Unicorn each). */
+export const NPAT_BANDS: { name: string; at: number; mark?: string }[] = [
+  { name: "Blank page", at: 0 },
+  { name: "First scribbles", at: 0.15, mark: "Scribbles" },
+  { name: "Filling in", at: 0.3 },
+  { name: "Sharp pencil", at: 0.5 },
+  { name: "Full marks", at: 0.75 },
+];
+/** One square per category: green from 60 points (Rare or better), yellow from 30 (Solid), red below. */
+export const npatSquare = (points: number) => (points >= 60 ? "🟩" : points >= 30 ? "🟨" : "🟥");
+
+/** The points-scored dailies: their total on offer and their bands. */
+export const DAILY_POINTS: Record<PointsDaily, number> = { pecking: 500, npat: 400 };
+export const bandsFor = (g: PointsDaily) => (g === "npat" ? NPAT_BANDS : PECKING_BANDS);
+export const bandOf = (g: PointsDaily, score: number) => [...bandsFor(g)].reverse().find((b) => score >= b.at)!.name;
 export const isDailyGame = (g: string): g is DailyGame => (DAILY_GAMES as string[]).includes(g);
 
 /** Puzzle numbers count up from the first daily (31 October 2026, UTC). */
@@ -61,9 +79,10 @@ export async function fetchPuzzle(g: DailyGame): Promise<Puzzle> {
   return res.json();
 }
 
-export async function sendResult(g: DailyGame, day: string, score: number, detail: unknown): Promise<Stats | null> {
+/** `answers` is NPAT's typed answers, `{ category, text }` each, for the server to re-check and count. */
+export async function sendResult(g: DailyGame, day: string, score: number, detail: unknown, answers?: { category: string; text: string }[]): Promise<Stats | null> {
   try {
-    const res = await fetch(`${API_URL}/daily/${g}/result`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player: voterId(), day, score, detail }) });
+    const res = await fetch(`${API_URL}/daily/${g}/result`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player: voterId(), day, score, detail, ...(answers ? { answers } : {}) }) });
     return res.ok ? (await res.json()).stats : null;
   } catch {
     return null;
@@ -87,5 +106,6 @@ export function untilNext(now = Date.now()): string {
 }
 
 export function shareText(g: DailyGame, p: Played): string {
-  return [`TopPic ${DAILY_TITLES[g]} #${p.number}`, `${p.checkpoint} · ${g === "pecking" ? `${Math.round(p.score * 500)}/500` : `${Math.round(p.score * 100)}%`}`, p.grid, "toppicgames.com/trivia"].join("\n");
+  const result = hasWorld(g) ? `${Math.round(p.score * 100)}%` : `${Math.round(p.score * DAILY_POINTS[g])}/${DAILY_POINTS[g]}`;
+  return [`TopPic ${DAILY_TITLES[g]} #${p.number}`, `${p.checkpoint} · ${result}`, p.grid, "toppicgames.com/trivia"].join("\n");
 }

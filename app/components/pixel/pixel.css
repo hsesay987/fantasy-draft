@@ -1546,6 +1546,12 @@ button.tn-slot:hover { background: var(--px-rose); }
 .np-recap .w { display: grid; min-width: 0; overflow-wrap: anywhere; } .np-recap .w b { font-weight: 400; color: var(--px-gold); }
 .np-recap em { font-style: normal; font-size: 17px; color: var(--px-dim); }
 
+/* The solo daily: today's categories before the clock starts, and the share grid on the reveal. */
+.np-cats { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.np-cats li { padding: 4px 8px; background: var(--px-ink); font-size: 19px; color: var(--px-dim); overflow-wrap: anywhere; }
+.np-cats b { font-weight: 400; color: var(--px-gold); }
+.np-winner .np-grid { margin: 0; font-size: 30px; letter-spacing: 4px; line-height: 1; }
+
 .screen-board .np-page { max-width: none; }
 .screen-board .np-page .np-head, .screen-board .np-page .np-roster { display: none; }
 @media (max-width: 380px) { .np-card { padding: 12px 8px 12px 16px; } .np-letter { width: 52px; height: 52px; font-size: 38px; } .np-field input { font-size: 22px; } .np-head { gap: 8px; } .np-head .stat b { font-size: 22px; } }

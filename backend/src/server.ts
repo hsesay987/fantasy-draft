@@ -16,7 +16,7 @@ import billingRoutes from "./routes/billing.route";
 import adRoutes from "./routes/ad.route";
 import triviaRoutes from "./routes/trivia.route";
 import costimationRoutes from "./routes/costimation.route";
-import dailyRoutes from "./routes/daily.route";
+import dailyRoutes, { setDailyNpatHistory } from "./routes/daily.route";
 import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
 import judgeRoutes from "./routes/judge.route";
@@ -100,6 +100,7 @@ startTicker();
 // NPAT answer counts: finished rooms add to them and scoring reads them. A failed load just scores by the lists for now.
 const npatHistory = createNpatHistory(prismaNpatAnswerDb);
 setNpatHistory(npatHistory);
+setDailyNpatHistory(npatHistory);
 setHistorySource((category, answer) => npatHistory.lookup(category, answer));
 npatHistory.load().catch((e) => console.error("NPAT history load failed", e));
 
