@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { tierPools } from "../shared/topicDraft/trivia/tiers";
-import { DAILY_TOPICS, dayNumber, isDailyGame, npatOverlay, npatPlays, npatPuzzle, peckingPuzzle, puzzleFor, recordNpatDaily, statsOf, submitResult, topicFor, type DailyStore } from "./daily.service";
+import { createNpatDailyCap, DAILY_TOPICS, dayNumber, isDailyGame, npatOverlay, npatPlays, npatPuzzle, peckingPuzzle, puzzleFor, recordNpatDaily, statsOf, submitResult, topicFor, type DailyStore } from "./daily.service";
 import { NPAT_CATEGORIES } from "../shared/topicDraft/npat/categories";
 import { entriesOf, lettersAvailable, MIN_PER_LETTER } from "../shared/topicDraft/npat/source";
 import { normAnswer, startsWith } from "../shared/topicDraft/npat/rules";
@@ -196,5 +196,34 @@ describe("NPAT daily", () => {
     const s = memory();
     expect((await submitResult(s, { game: "npat", day: "2026-11-18", player: "a", score: 0.2 })).added).toBe(true);
     expect((await submitResult(s, { game: "npat", day: "2026-11-18", player: "a", score: 0.9 })).added).toBe(false);
+  });
+});
+
+describe("NPAT daily history cap", () => {
+  it("lets one IP record 3 daily plays a day; a 4th that day never reaches the store", async () => {
+    const cap = createNpatDailyCap();
+    const calls: string[] = [];
+    const store: NpatHistoryStore = { async load() {}, async record(_d, p) { calls.push(p); }, lookup: () => null };
+    for (const p of ["a1", "a2", "a3", "a4", "a5"]) {
+      if (cap.allow("1.2.3.4", "2026-11-18")) await recordNpatDaily(store, "2026-11-18", p, [{ category: "animal", answer: "Bear" }]);
+    }
+    expect(calls).toEqual(["a1", "a2", "a3"]);
+  });
+  it("a new day resets the cap", () => {
+    const cap = createNpatDailyCap();
+    for (let i = 0; i < 3; i++) expect(cap.allow("ip", "2026-11-18")).toBe(true);
+    expect(cap.allow("ip", "2026-11-18")).toBe(false);
+    expect(cap.allow("ip", "2026-11-19")).toBe(true);
+  });
+  it("caps each IP on its own", () => {
+    const cap = createNpatDailyCap();
+    for (let i = 0; i < 3; i++) cap.allow("a", "2026-11-18");
+    expect(cap.allow("a", "2026-11-18")).toBe(false);
+    expect(cap.allow("b", "2026-11-18")).toBe(true);
+  });
+  it("keeps only the latest two days", () => {
+    const cap = createNpatDailyCap();
+    for (const d of ["2026-11-16", "2026-11-17", "2026-11-18"]) cap.allow("a", d);
+    expect(cap.days()).toEqual(["2026-11-17", "2026-11-18"]);
   });
 });

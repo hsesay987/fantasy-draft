@@ -95,6 +95,31 @@ export function npatPlays(p: NpatPuzzle, answers: unknown): { category: string; 
   return out;
 }
 
+/** How many daily plays one IP may add to the NPAT answer counts per UTC day. */
+export const NPAT_DAILY_RECORDS_PER_IP = 3;
+
+/**
+ * Per-IP, per-day budget for NPAT daily history writes. The daily's player id is whatever the browser sends, so without
+ * this one IP could post ~30 fresh ids and move any answer's tier (rooms share the counts) or flood the review queue.
+ * Past the cap the result still counts for stats; only the history write is skipped. In memory, like the rate limiter:
+ * it resets on restart, and only the latest two days are kept.
+ */
+export function createNpatDailyCap(max = NPAT_DAILY_RECORDS_PER_IP) {
+  const byDay = new Map<string, Map<string, number>>(); // day -> ip -> recordings
+  return {
+    allow(ip: string, day: string): boolean {
+      const today = byDay.get(day) ?? new Map<string, number>();
+      byDay.set(day, today);
+      for (const d of [...byDay.keys()].sort().slice(0, -2)) byDay.delete(d);
+      const n = today.get(ip) ?? 0;
+      if (n >= max) return false;
+      today.set(ip, n + 1);
+      return true;
+    },
+    days: () => [...byDay.keys()].sort(),
+  };
+}
+
 /** Adds a daily play to the NPAT answer counts. A missing or failing store is logged and never fails the result. */
 export async function recordNpatDaily(store: NpatHistoryStore | null, day: string, player: string, plays: { category: string; answer: string }[]) {
   if (!store || !plays.length) return;

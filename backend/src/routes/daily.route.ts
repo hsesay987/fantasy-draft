@@ -2,7 +2,7 @@ import { Router } from "express";
 import { captureError } from "../lib/monitoring";
 import { pickProducts, prismaCostStore, type CostProductDto } from "../services/costimation.service";
 import {
-  dayKey, dayNumber, isDailyGame, npatOverlay, npatPlays, npatPuzzle, peckingPuzzle, prismaDailyStore, puzzleFor, recordNpatDaily, statsOf,
+  createNpatDailyCap, dayKey, dayNumber, isDailyGame, npatOverlay, npatPlays, npatPuzzle, peckingPuzzle, prismaDailyStore, puzzleFor, recordNpatDaily, statsOf,
   submitResult, topicFor, type DailyGame, type NpatPuzzle,
 } from "../services/daily.service";
 import type { NpatHistoryStore } from "../services/npatHistory.service";
@@ -12,6 +12,7 @@ const router = Router();
 
 /** The NPAT answer counts the rooms use too (the server sets it at start): the daily's tier overlay and its plays. */
 let npatHistory: NpatHistoryStore | null = null;
+const npatCap = createNpatDailyCap();
 export function setDailyNpatHistory(h: NpatHistoryStore | null) {
   npatHistory = h;
 }
@@ -85,7 +86,8 @@ router.post("/:game/result", async (req, res) => {
     const plays = game === "npat" ? npatPlays(await npatOf(day), req.body?.answers ?? []) : [];
     if (!plays) return res.status(400).json({ error: "answers must be up to 4 of today's categories, each at most 40 characters" });
     const { added, ...result } = await submitResult(prismaDailyStore, { game, day, player, score, detail });
-    if (added && plays.length) await recordNpatDaily(npatHistory, day, player, plays);
+    // Player ids are self-issued, so history writes are also capped per IP and day (see createNpatDailyCap).
+    if (added && plays.length && npatCap.allow(req.ip ?? "anon", day)) await recordNpatDaily(npatHistory, day, player, plays);
     res.json(result);
   } catch (e) {
     captureError(e, { where: "daily_result", game });
