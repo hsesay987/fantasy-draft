@@ -91,11 +91,17 @@ export function awardsFor(setup: GameSetup, state: GameState, seated: string[], 
     case "imposter":
     case "vowelparty":
     case "pecking":
-    case "sayless":
-    case "npat": {
-      // Say Less and NPAT play teams only when every team has 2+ players, so their own state says whether teams played.
-      const teams = setup.format === "sayless" ? (state as SLState).teams ?? null : setup.format === "npat" ? (state as NPState).teams ?? null : teamsFor(setup, setup.players);
+    case "sayless": {
+      // Say Less plays teams only when every team has 2+ players, so its own state says whether teams played.
+      const teams = setup.format === "sayless" ? (state as SLState).teams ?? null : teamsFor(setup, setup.players);
       if (teams) return byTeams(teams, teams.map(sumOf), seated);
+      return byPoints(points(), seated);
+    }
+    case "npat": {
+      // NPAT's own state has the teams it played and their scores. A team scores a shared answer once, so summing its
+      // members' points (each teammate gets the full points) would rank teams differently from the game.
+      const t = state as unknown as NPState;
+      if (t.teams) return byTeams(t.teams, t.teamPoints, seated);
       return byPoints(points(), seated);
     }
     case "jeopardy":
