@@ -3,28 +3,34 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("./judge.service", () => ({ judge: vi.fn(() => new Promise(() => {})) }));
 
 import { _rooms, act, createRoom, joinRoom, leaveRoom, sanitizeSetup, setGame, setNpatHistory, setScreen, snapshot, startRoom, startTournament, tickRooms } from "./playRooms";
-import type { NPState } from "../shared/topicDraft/formats/npat";
+import type { NPState, NPView } from "../shared/topicDraft/formats/npat";
 import { entriesOf } from "../shared/topicDraft/npat/source";
-import { startsWith, TIER_POINTS } from "../shared/topicDraft/npat/rules";
+import { startsWith, TIER_POINTS, WRITE_GRACE_MS } from "../shared/topicDraft/npat/rules";
 import type { NpatHistoryStore } from "./npatHistory.service";
 
-const npat = (opts: any = {}, top: any = {}) => ({ format: "npat", pool: "classic", opts: { npatRounds: 1, ...opts }, ...top });
+type Made = Extract<ReturnType<typeof createRoom>, { room: unknown }>;
+type Room = Made["room"];
+/** What these tests read from a snapshot. */
+type Snap = { me: string | null; state: NPView; setup: { seed: number } };
+const snap = (r: Room, tok: string | null) => snapshot(r, tok) as unknown as Snap;
 
-function seated(names: string[], setup: any = npat()) {
-  const made = createRoom(setup, names[0]!) as any;
+const npat = (opts: Record<string, unknown> = {}, top: Record<string, unknown> = {}) => ({ format: "npat", pool: "classic", opts: { npatRounds: 1, ...opts }, ...top });
+
+function seated(names: string[], setup: unknown = npat()) {
+  const made = createRoom(setup, names[0]!) as Made;
   const toks: Record<string, string> = { [names[0]!]: made.seat.token };
-  for (const n of names.slice(1)) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+  for (const n of names.slice(1)) toks[n] = (joinRoom(made.room.code, n) as Made).seat.token;
   return { r: made.room, toks };
 }
-function running(names: string[], setup: any = npat()) {
+function running(names: string[], setup: unknown = npat()) {
   const made = seated(names, setup);
   expect(startRoom(made.r, made.toks[names[0]!])).toEqual({ ok: true });
   return made;
 }
-const state = (r: any) => r.state as NPState;
+const state = (r: Room) => r.state as NPState;
 
 /** Distinct list entries for this round's letter, `n` per category, never a player's name (so a JSON search finds only answers). */
-function entries(r: any, n: number, avoid: string[] = []): string[][] {
+function entries(r: Room, n: number, avoid: string[] = []): string[][] {
   const used = new Set(avoid.map((x) => x.toLowerCase()));
   return state(r).categories.map((c) => {
     const out: string[] = [];
@@ -40,10 +46,10 @@ function entries(r: any, n: number, avoid: string[] = []): string[][] {
   });
 }
 /** An answer with the right letter that no list has. */
-const unknown = (r: any) => `${state(r).letter}qzxqv`;
+const unknown = (r: Room) => `${state(r).letter}qzxqv`;
 
 /** Plays to the end: `fill` types each seat's answers, everyone finishes, and the host moves every vote and reveal on. */
-function playOut(r: any, toks: Record<string, string>, host: string, fill: (r: any) => void = () => {}) {
+function playOut(r: Room, toks: Record<string, string>, host: string, fill: (r: Room) => void = () => {}) {
   for (let i = 0; i < 200 && r.status === "playing"; i++) {
     r.answerAt = undefined; // this helper types faster than the rate limit allows
     if (state(r).phase === "write") {
@@ -78,7 +84,7 @@ afterEach(() => vi.restoreAllMocks());
 
 describe("NPAT setup", () => {
   it("clamps rounds, snaps the round length, reads the switches, and titles the game", () => {
-    const o = (opts: any) => sanitizeSetup({ format: "npat", pool: "classic", opts })!.opts;
+    const o = (opts: unknown) => sanitizeSetup({ format: "npat", pool: "classic", opts })!.opts;
     expect(o({})).toMatchObject({ npatRounds: 3, npatSeconds: 60, npatHard: false, npatStop: false, answer: "phones" });
     expect(o({ npatRounds: 99, npatSeconds: 90, npatHard: true, npatStop: true })).toMatchObject({ npatRounds: 8, npatSeconds: 90, npatHard: true, npatStop: true });
     expect(o({ npatRounds: 0, npatSeconds: 45 })).toMatchObject({ npatRounds: 1, npatSeconds: 45 });
@@ -110,16 +116,16 @@ describe("NPAT hidden info", () => {
     NAMES.forEach((n, p) => state(r).categories.forEach((_, c) => expect(act(r, toks[n]!, { type: "answer", cat: c, text: picks[c]![p]! })).toEqual({ ok: true })));
     expect(state(r).phase).toBe("write");
     for (const tok of [...NAMES.map((n) => toks[n]!), toks.Host!, null, "bad"]) {
-      const snap = snapshot(r, tok) as any;
-      const json = JSON.stringify(snap);
-      const me = NAMES.indexOf(snap.me);
+      const got = snap(r, tok);
+      const json = JSON.stringify(got);
+      const me = NAMES.indexOf(got.me ?? "");
       NAMES.forEach((_, p) => picks.forEach((cat) => {
         if (p === me) expect(json).toContain(`"${cat[p]}"`);
         else expect(json).not.toContain(`"${cat[p]}"`);
       }));
-      expect(snap.state.filled).toEqual({ Ann: 4, Bob: 4, Cy: 4, Di: 4 });
-      expect(snap.state.seed).toBe(0);
-      expect(snap.setup.seed).toBe(0);
+      expect(got.state.filled).toEqual({ Ann: 4, Bob: 4, Cy: 4, Di: 4 });
+      expect(got.state.seed).toBe(0);
+      expect(got.setup.seed).toBe(0);
     }
     for (const n of NAMES) expect(act(r, toks[n]!, { type: "finish" })).toEqual({ ok: true });
     const cats = state(r).categories.length;
@@ -144,13 +150,13 @@ describe("NPAT hidden info", () => {
     expect(act(r, toks.Ann!, { type: "answer", cat: 0, text: odd })).toEqual({ ok: true });
     for (const n of NAMES) act(r, toks[n]!, { type: "finish" });
     expect(state(r)).toMatchObject({ phase: "vote", cat: 0 });
-    for (const tok of [toks.Ann!, toks.Bob!, null]) expect((snapshot(r, tok) as any).state.vote).toMatchObject({ text: odd, members: ["Ann"], voters: ["Bob", "Cy", "Di"] });
+    for (const tok of [toks.Ann!, toks.Bob!, null]) expect(snap(r, tok).state.vote).toMatchObject({ text: odd, members: ["Ann"], voters: ["Bob", "Cy", "Di"] });
     expect(act(r, toks.Ann!, { type: "vote", ok: true })).toMatchObject({ ok: false });
     expect(act(r, toks.Bob!, { type: "vote", ok: "yes" })).toEqual({ ok: false, error: "Vote yes or no" });
     expect(act(r, toks.Bob!, { type: "vote", ok: true })).toEqual({ ok: true });
     // Each seat sees only its own vote, and who has voted.
-    expect((snapshot(r, toks.Cy!) as any).state.vote.voted).toEqual(["Bob"]);
-    expect(JSON.stringify((snapshot(r, toks.Cy!) as any).state.history)).not.toContain('"Bob":true');
+    expect(snap(r, toks.Cy!).state.vote!.voted).toEqual(["Bob"]);
+    expect(JSON.stringify(snap(r, toks.Cy!).state.history)).not.toContain('"Bob":true');
     expect(act(r, toks.Cy!, { type: "vote", ok: false })).toEqual({ ok: true });
     expect(act(r, toks.Di!, { type: "vote", ok: true })).toEqual({ ok: true });
     expect(state(r).phase).toBe("reveal");
@@ -169,9 +175,29 @@ describe("NPAT actions", () => {
     expect(state(r).phase).not.toBe("write");
     expect(state(r).history).toHaveLength(1);
     _rooms.clear();
+    // Stop early: a Done with a blank category only counts as finished; one with every category filled ends writing.
     const stop = running(["Ann", "Bob", "Cy"], npat({ npatStop: true }));
+    expect(act(stop.r, stop.toks.Ann!, { type: "finish" })).toEqual({ ok: true });
+    expect(state(stop.r).phase).toBe("write");
+    const picks = entries(stop.r, 1);
+    picks.forEach(([text], c) => expect(act(stop.r, stop.toks.Bob!, { type: "answer", cat: c, text })).toEqual({ ok: true }));
     expect(act(stop.r, stop.toks.Bob!, { type: "finish" })).toEqual({ ok: true });
     expect(state(stop.r).phase).not.toBe("write");
+  });
+
+  it("an answer that arrives just after the deadline (within the grace) still counts", () => {
+    const { r, toks } = running(["Ann", "Bob"]);
+    const s = state(r);
+    const [[e0]] = entries(r, 1) as [string[]];
+    const at = vi.spyOn(Date, "now").mockReturnValue(s.phaseAt + s.roundMs + WRITE_GRACE_MS - 100);
+    tickRooms(s.phaseAt + s.roundMs + WRITE_GRACE_MS - 100); // the server's clock passes the deadline: writing stays open
+    expect(state(r).phase).toBe("write");
+    expect(act(r, toks.Ann!, { type: "answer", cat: 0, text: e0! })).toEqual({ ok: true });
+    at.mockReturnValue(s.phaseAt + s.roundMs + WRITE_GRACE_MS);
+    tickRooms(s.phaseAt + s.roundMs + WRITE_GRACE_MS);
+    expect(state(r).phase).not.toBe("write");
+    expect(state(r).history[0]!.answers.Ann![0]).toMatchObject({ status: "ok", entry: e0 });
+    expect(act(r, toks.Ann!, { type: "answer", cat: 1, text: e0! })).toMatchObject({ ok: false });
   });
 
   it("refuses malformed answers with a clear error and leaves the state alone", () => {
@@ -254,7 +280,7 @@ describe("NPAT results", () => {
     playOut(r, toks, "Ann");
     expect(r.seen.filter((k: string) => k.startsWith("np:"))).toEqual(first.map((l) => `np:${l}`));
     expect(startRoom(r, toks.Ann!)).toEqual({ ok: true });
-    expect(r.setup.opts.avoid).toEqual(first.map((l) => `np:${l}`));
+    expect(r.setup!.opts.avoid).toEqual(first.map((l) => `np:${l}`));
     expect(state(r).letters.filter((l) => first.includes(l))).toEqual([]);
   });
 
@@ -317,8 +343,8 @@ describe("NPAT in a tournament", () => {
       expect(startRoom(r, toks.Ann!)).toEqual({ ok: true });
       playOut(r, toks, "Ann", (r) => act(r, toks.Ann!, { type: "answer", cat: 0, text: entries(r, 1)[0]![0]! }));
       // Ann scored; Bob and Cy tie on 0 and share second place.
-      const aw = r.tournament.games[g].awards;
-      expect(aw.Ann).toBeGreaterThan(aw.Bob);
+      const aw = r.tournament!.games[g]!.awards!;
+      expect(aw.Ann).toBeGreaterThan(aw.Bob!);
       expect(aw.Bob).toBe(aw.Cy);
     }
     expect(r.tournament).toMatchObject({ index: 2, done: true });

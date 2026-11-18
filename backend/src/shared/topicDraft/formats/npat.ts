@@ -8,7 +8,7 @@ import { has, own } from "../party/own";
 import { buildTeams, TEAM_MIN_PLAYERS } from "../party/teams";
 import { shuffle } from "../rng";
 import {
-  ANSWER_MAX, DEFAULT_ROUND_S, normAnswer, REVEAL_MS, ROUND_MS, sharedPoints, startsWith, TIER_POINTS, VOTE_MS, type Tier,
+  ANSWER_MAX, DEFAULT_ROUND_S, normAnswer, REVEAL_MS, ROUND_MS, sharedPoints, startsWith, TIER_POINTS, VOTE_MS, WRITE_GRACE_MS, type Tier,
 } from "../npat/rules";
 import { lettersAvailable, lookup, tierOf } from "../npat/source";
 
@@ -112,7 +112,8 @@ export function init(o: {
 }
 
 const here = (s: NPState) => s.players.filter((p) => !s.gone.includes(p));
-const writing = (s: NPState, now: number) => !s.done && s.phase === "write" && now - s.phaseAt < s.roundMs;
+/** Writing is open until the deadline plus the grace: an answer sent as the clock runs out still arrives in time. */
+const writing = (s: NPState, now: number) => !s.done && s.phase === "write" && now - s.phaseAt < s.roundMs + WRITE_GRACE_MS;
 
 /** Saves (or replaces) one answer while writing. Anything out of range, too long or not text is refused. */
 export function answer(s: NPState, by: string, cat: number, text: unknown, now: number): NPState {
@@ -123,11 +124,16 @@ export function answer(s: NPState, by: string, cat: number, text: unknown, now: 
   return { ...s, answers: { ...s.answers, [by]: mine } };
 }
 
-/** A player is done writing. Writing closes once everyone still here is, or on the first finish with `stopEarly`. */
+/**
+ * A player is done writing. Writing closes once everyone still here is, or, with `stopEarly`, on the first finish by a
+ * player who filled every category (a finish with a blank one only counts as finished).
+ */
 export function finish(s: NPState, by: string, now: number): NPState {
   if (!writing(s, now) || !s.players.includes(by) || s.submitted.includes(by)) return s;
   const next = { ...s, submitted: [...s.submitted, by] };
-  return next.stopEarly || allFinished(next) ? closeWrite(next, now) : next;
+  const typed = own(s.answers, by) ?? [];
+  const full = s.categories.every((_, i) => normAnswer(typed[i]) !== "");
+  return (next.stopEarly && full) || allFinished(next) ? closeWrite(next, now) : next;
 }
 
 const allFinished = (s: NPState) => here(s).length > 0 && here(s).every((p) => s.submitted.includes(p));
@@ -303,11 +309,11 @@ export function next(s: NPState, now: number): NPState {
   return s;
 }
 
-/** Clocks, one step per call: writing closes, a vote closes, a reveal or summary moves on. Deadlines are inclusive. */
+/** Clocks, one step per call: writing closes (after its grace), a vote closes, a reveal or summary moves on. Deadlines are inclusive. */
 export function tick(s: NPState, now: number): NPState {
   if (s.done) return s;
   const t = now - s.phaseAt;
-  if (s.phase === "write") return t >= s.roundMs ? closeWrite(s, now) : s;
+  if (s.phase === "write") return t >= s.roundMs + WRITE_GRACE_MS ? closeWrite(s, now) : s;
   if (s.phase === "vote") return t >= VOTE_MS ? closeVote(s, now) : s;
   return t >= REVEAL_MS ? advance(s, now) : s;
 }

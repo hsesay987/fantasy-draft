@@ -11,6 +11,11 @@ export const ROUND_MS = { 45: 45_000, 60: 60_000, 90: 90_000 } as const;
 export const DEFAULT_ROUND_S = 60;
 export const VOTE_MS = 8_000;
 export const REVEAL_MS = 6_000;
+/**
+ * Answers still count for this long after the write deadline, so typing sent as the clock runs out isn't lost on the way.
+ * Clocks show the deadline without it; the engine closes writing at the deadline plus this.
+ */
+export const WRITE_GRACE_MS = 500;
 export const ANSWER_MAX = 40;
 export const HARD_LETTERS = ["Q", "X", "Z", "Y"];
 

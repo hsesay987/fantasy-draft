@@ -3,7 +3,7 @@ import {
   answer, finish, init, next, redactFor, reviewItems, scoreCategory, seenKeys, settle, tick, vote, winners,
   type NPAnswer, type NPState,
 } from "./npat";
-import { REVEAL_MS, VOTE_MS } from "../npat/rules";
+import { REVEAL_MS, VOTE_MS, WRITE_GRACE_MS } from "../npat/rules";
 import { setHistorySource, setListSource, type NpatEntry } from "../npat/source";
 
 // Fixture lists: B, H and (hard) Q have 15 answers in both categories, so they are the only letters a round can draw.
@@ -42,7 +42,7 @@ const write = (s: NPState, rows: Record<string, string[]>, now = T0 + 1): NPStat
   for (const [p, texts] of Object.entries(rows)) texts.forEach((t, c) => { s = answer(s, p, c, t, now); });
   return s;
 };
-const close = (s: NPState) => tick(s, s.phaseAt + s.roundMs);
+const close = (s: NPState) => tick(s, s.phaseAt + s.roundMs + WRITE_GRACE_MS);
 const ans = (s: NPState, p: string, c = 0): NPAnswer => s.history[s.history.length - 1]!.answers[p]![c]!;
 const step = (s: NPState) => tick(s, s.phaseAt + 600_000);
 
@@ -170,7 +170,7 @@ describe("unknown answers", () => {
   });
 
   it("no votes at all is a tie, so it is accepted", () => {
-    const s = tick(unknown(), T0 + 60_000 + VOTE_MS);
+    const s = tick(unknown(), T0 + 60_000 + WRITE_GRACE_MS + VOTE_MS);
     expect(ans(s, "Ann").accepted).toBe(true);
   });
 
@@ -217,12 +217,21 @@ describe("unknown answers", () => {
 });
 
 describe("rounds and timing", () => {
-  it("write ends on the timer at roundMs (inclusive)", () => {
+  it("write ends on the timer at roundMs plus the grace (inclusive)", () => {
     const s = make({ roundSeconds: 45 });
     expect(s.roundMs).toBe(45_000);
-    expect(tick(s, T0 + 44_999)).toBe(s);
-    expect(tick(s, T0 + 45_000).phase).not.toBe("write");
+    expect(WRITE_GRACE_MS).toBe(500);
+    expect(tick(s, T0 + 45_000 + WRITE_GRACE_MS - 1)).toBe(s);
+    expect(tick(s, T0 + 45_000 + WRITE_GRACE_MS).phase).not.toBe("write");
     expect(make().roundMs).toBe(60_000);
+  });
+
+  it("an answer sent within the grace after the deadline still counts; one after it does not", () => {
+    const s = make({ letter: "H", roundSeconds: 45 });
+    const late = answer(s, "Ann", 0, "Hulk", T0 + 45_000 + WRITE_GRACE_MS - 1);
+    expect(late.answers.Ann).toEqual(["Hulk", ""]);
+    expect(ans(close(late), "Ann")).toMatchObject({ status: "ok", entry: "Hulk" });
+    expect(answer(s, "Ann", 0, "Hulk", T0 + 45_000 + WRITE_GRACE_MS)).toBe(s);
   });
 
   it("write ends when everyone has finished", () => {
@@ -235,8 +244,20 @@ describe("rounds and timing", () => {
     expect(s.phase).not.toBe("write");
   });
 
-  it("with stopEarly, write ends after one finish", () => {
-    expect(finish(make({ stopEarly: true }), "Bob", T0 + 1).phase).not.toBe("write");
+  it("with stopEarly, write ends after one finish with every category filled", () => {
+    const s = write(make({ stopEarly: true, letter: "H" }), { Bob: ["Hulk", "Horse"] });
+    expect(finish(s, "Bob", T0 + 2).phase).not.toBe("write");
+  });
+
+  it("with stopEarly, a finish with a blank (or blank after normalising) category only counts as finished", () => {
+    let s = write(make({ stopEarly: true, letter: "H" }), { Ann: ["Hulk", "  "], Bob: ["Hulk", "?!"], Cy: ["Hulk"] });
+    for (const p of ["Ann", "Bob", "Cy"]) {
+      s = finish(s, p, T0 + 2);
+      expect(s.phase).toBe("write");
+    }
+    expect(s.submitted).toEqual(["Ann", "Bob", "Cy"]);
+    s = finish(s, "Dee", T0 + 3); // everyone has finished, so writing closes anyway
+    expect(s.phase).not.toBe("write");
   });
 
   it("answer overwrites and refuses an out-of-range cat, a non-string and over 40 characters", () => {
@@ -249,7 +270,7 @@ describe("rounds and timing", () => {
     }
     expect(answer(s, "Zed", 0, "Hulk", T0 + 3)).toBe(s);
     expect(answer(s, "Ann", 0, "x".repeat(40), T0 + 3).answers.Ann![0]).toHaveLength(40);
-    expect(answer(s, "Ann", 0, "Hulk", T0 + 60_000)).toBe(s); // time is up
+    expect(answer(s, "Ann", 0, "Hulk", T0 + 60_000 + WRITE_GRACE_MS)).toBe(s); // time is up
     expect(answer(finish(s, "Ann", T0 + 3), "Ann", 0, "Hulk", T0 + 4).answers.Ann![0]).toBe("Hawkeye"); // done writing
   });
 
@@ -473,9 +494,9 @@ describe("solo daily options", () => {
   it("strict: wrong-letter and blank answers stay at 0 and are not for review", () => {
     let s = solo({ strict: true, letter: "H" });
     s = answer(s, "You", 0, "Batman", T0 + 1);
-    s = tick(s, T0 + 60_000);
+    s = tick(s, T0 + 60_000 + WRITE_GRACE_MS);
     expect(ans(s, "You", 0)).toMatchObject({ status: "wrong-letter", points: 0 });
-    s = next(s, T0 + 60_001);
+    s = next(s, T0 + 60_000 + WRITE_GRACE_MS + 1);
     expect(ans(s, "You", 1)).toMatchObject({ status: "blank", points: 0 });
     expect(reviewItems(s)).toEqual([]);
   });
