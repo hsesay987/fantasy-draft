@@ -1477,6 +1477,8 @@ button.tn-slot:hover { background: var(--px-rose); }
 .np-msg { margin: 0; font-size: 20px; color: var(--px-dim); overflow-wrap: anywhere; }
 .np-msg b { font-weight: 400; color: var(--px-gold); }
 .np-msg.no { color: var(--px-rose); }
+.np-source { display: grid; gap: 2px; }
+.np-source p { margin: 0; font-size: 16px; color: var(--px-dim); overflow-wrap: anywhere; }
 
 .np-letter { flex: none; display: grid; place-items: center; width: 64px; height: 64px; background: var(--np-paper); color: var(--np-margin); box-shadow: 0 0 0 4px var(--px-ink), 4px 4px 0 4px #0007; font: 400 48px/1 var(--px-head); }
 .np-letter.big { width: clamp(88px, 18vw, 160px); height: clamp(88px, 18vw, 160px); font-size: clamp(60px, 12vw, 120px); }

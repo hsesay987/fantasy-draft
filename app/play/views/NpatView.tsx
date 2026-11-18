@@ -12,7 +12,7 @@ import type { GameSetup } from "../types";
 import { canMoveOn, DrinkCard, LeaveGame, PartyActions, PartyClock, WaterLine } from "./partyBits";
 import { npatClock } from "./npatBoard";
 import { makeSaver, type Saver } from "./npatSaver";
-import { catTitle, FillBoard, LetterTile, NPTable, RevealList, RoundRecap, RoundSummary, VoteCard } from "./npatParts";
+import { catTitle, FillBoard, LetterTile, ListSources, NPTable, RevealList, RoundRecap, RoundSummary, VoteCard } from "./npatParts";
 
 type Dispatch = GameCtl["dispatch"];
 type Play = ReturnType<typeof useSound>["play"];
@@ -78,6 +78,7 @@ export function NpatView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
             <h2 className="np-title" role="status">{catTitle(s.categories[s.cat] ?? "")}</h2>
             <RevealList s={s} round={live} cat={s.cat} me={me} big={tv} />
             {seated && <MyLine s={s} round={live} me={me} />}
+            <ListSources categories={[s.categories[s.cat] ?? ""]} />
           </section>
         )}
 

@@ -12,7 +12,7 @@ import { ANSWER_MAX } from "../topicDraft/npat/rules";
 import { setHistorySource } from "../topicDraft/npat/source";
 import { PartyClock } from "../play/views/partyBits";
 import { tierBadge } from "../play/views/npatBoard";
-import { catTitle, LetterTile } from "../play/views/npatParts";
+import { catTitle, LetterTile, ListSources } from "../play/views/npatParts";
 import { overlaySource, playToEnd, SOLO_MAX, SOLO_PLAYER as ME, soloResult } from "./solo";
 
 export type NpatDaily = { letter: string; categories: string[]; overlay?: unknown };
@@ -92,6 +92,7 @@ function Game({ puzzle, number, onFinish, onContinue, backHref = "/trivia", back
             </ul>
             <p className="np-msg">Rarer answers score more, up to 100 each. An answer we don&apos;t have on our lists scores 0 for now, and we save it to check later.</p>
             <PixelButton variant="gold" className="np-done" onClick={start}>Start the clock</PixelButton>
+            <ListSources categories={puzzle.categories} />
           </section>
         </div>
       </PixelShell>
@@ -172,6 +173,7 @@ function Game({ puzzle, number, onFinish, onContinue, backHref = "/trivia", back
               );
             })}
           </ul>
+          <ListSources categories={s.categories} />
         </section>
         <div className="party-actions">
           <PixelButton variant="gold" onClick={onContinue}>See today&apos;s results</PixelButton>

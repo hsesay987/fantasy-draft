@@ -13,6 +13,17 @@ import { bestAnswer, groupAnswers, missLabel, placeOf, roundTotals, tierBadge, t
 import { playerSprite } from "./partyBits";
 
 export const catTitle = (id: string) => categoryOf(id)?.title ?? id;
+
+/** Where each category's list comes from, with its licence: one small line per category. */
+export function ListSources({ categories }: { categories: string[] }) {
+  const rows = categories.flatMap((c) => { const m = categoryOf(c); return m ? [m] : []; });
+  if (!rows.length) return null;
+  return (
+    <div className="np-source" aria-label="Where the lists come from">
+      {rows.map((m) => <p key={m.id}>{rows.length > 1 ? `${m.title}: ` : "List from "}{m.source} · as of {m.asOf}</p>)}
+    </div>
+  );
+}
 const fmt = (n: number) => n.toLocaleString("en-US");
 const seatOf = (s: Pick<NPView, "players">, p: string) => Math.max(0, s.players.indexOf(p));
 
