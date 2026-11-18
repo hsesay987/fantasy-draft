@@ -124,9 +124,10 @@ const allFinished = (s: NPState) => here(s).length > 0 && here(s).every((p) => s
 function classify(category: string, letter: string, raw: string): NPAnswer {
   const text = raw.trim();
   if (!normAnswer(text)) return { text: "", entry: null, status: "blank" };
+  // Only what was typed counts for the letter: an entry's name or aliases never rescue an answer starting with another.
+  if (!startsWith(letter, text)) return { text, entry: null, status: "wrong-letter" };
   const e = lookup(category, text);
-  if (e) return { text, entry: e.name, status: startsWith(letter, text, [e.name, ...(e.also ?? [])]) ? "ok" : "wrong-letter" };
-  return { text, entry: null, status: startsWith(letter, text) ? "unknown" : "wrong-letter" };
+  return e ? { text, entry: e.name, status: "ok" } : { text, entry: null, status: "unknown" };
 }
 
 const BLANK: NPAnswer = { text: "", entry: null, status: "blank" };

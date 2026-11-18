@@ -10,10 +10,11 @@ import { setHistorySource, setListSource, type NpatEntry } from "../npat/source"
 const filler = (l: string) => Array.from({ length: 15 }, (_, i): NpatEntry => ({ name: `${l} filler ${i}`, tier: "solid" }));
 const LISTS: Record<string, NpatEntry[]> = {
   superhero: [
-    { name: "Hulk", also: ["Incredible Hulk"], tier: "unicorn" },
+    { name: "Hulk", also: ["Hulk Smash"], tier: "unicorn" },
     { name: "Hellboy", tier: "deep" },
     { name: "Hawkeye", tier: "rare" },
     { name: "Batman", also: ["Dark Knight"], tier: "common" },
+    { name: "Éclair", tier: "rare" },
     ...filler("B"), ...filler("H"), ...filler("Q"),
   ],
   animal: [
@@ -62,15 +63,22 @@ describe("scoring", () => {
   });
 
   it("'The Hulk' and 'hulk' group, and an alias groups with its name", () => {
-    const s = close(write(make({ letter: "H" }), { Ann: ["The Hulk"], Bob: ["hulk"], Cy: ["Incredible Hulk"] }));
+    const s = close(write(make({ letter: "H" }), { Ann: ["The Hulk"], Bob: ["hulk"], Cy: ["Hulk Smash"] }));
     expect([ans(s, "Ann").entry, ans(s, "Bob").entry, ans(s, "Cy").entry]).toEqual(["Hulk", "Hulk", "Hulk"]);
     expect([s.points.Ann, s.points.Bob, s.points.Cy]).toEqual([50, 50, 50]);
   });
 
-  it("an alias counts for the letter its entry starts with", () => {
+  it("the letter check judges only what was typed: an alias match never rescues another letter", () => {
     const s = close(write(make({ letter: "B" }), { Ann: ["Dark Knight"], Bob: ["Batman"] }));
-    expect(ans(s, "Ann")).toMatchObject({ status: "ok", entry: "Batman" });
-    expect(s.points.Ann).toBe(5);
+    expect(ans(s, "Ann")).toMatchObject({ status: "wrong-letter", entry: null, points: 0 });
+    expect(ans(s, "Bob")).toMatchObject({ status: "ok", entry: "Batman", points: 10, shared: false });
+  });
+
+  it("a leading 'the' and accents are ignored for the letter", () => {
+    let s = close(write(make({ letter: "H" }), { Ann: ["The Hulk"] }));
+    expect(ans(s, "Ann")).toMatchObject({ status: "ok", entry: "Hulk", points: 100 });
+    s = close(write(make({ letter: "E" }), { Ann: ["Éclair"] }));
+    expect(ans(s, "Ann")).toMatchObject({ status: "ok", entry: "Éclair", points: 60 });
   });
 
   it("a wrong-letter answer scores 0 and never reaches the vote", () => {
