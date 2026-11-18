@@ -218,10 +218,7 @@ function VoteDesk({ s, me, out, dispatch, play }: { s: NPView; me: string; out: 
   const [error, setError] = useState<string | null>(null);
   const busy = useRef(false);
   // The server's copy of this seat's vote, if it already voted (say, before a refresh).
-  const giver = v.members[0];
-  const cast = giver ? own(s.history[s.history.length - 1]?.answers ?? {}, giver)?.[s.cat]?.votes : undefined;
-  const server = cast && has(cast, me) ? cast[me]! : null;
-  const choice = server ?? mine;
+  const choice = v.mine ?? mine;
 
   if (v.members.includes(me)) return <p className="np-msg" role="status">That&apos;s your answer. The table is deciding.</p>;
   if (out || !v.voters.includes(me)) return <p className="np-msg">The table is voting.</p>;

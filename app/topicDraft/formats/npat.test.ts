@@ -358,16 +358,38 @@ describe("redactFor", () => {
     s = step(s); // Hornet x is unknown, with 3 voters
     expect(s.phase).toBe("vote");
     json = JSON.stringify(redactFor(s, "Ann"));
-    expect(json).toContain("Hedgehog");
+    expect(json).toContain("Hawkeye"); // the revealed category stays public
+    expect(json).toContain("Hornet x"); // the answer under vote
+    expect(json).not.toContain("Hedgehog"); // the rest of the category waits for its reveal
+  });
+
+  it("during a vote, the category's answers stay hidden from every seat and the screen, except the one under vote", () => {
+    let s = close(write(make({ letter: "H" }), { Ann: ["Hypnotoad"], Bob: ["Hawkeye"] }));
+    expect(s.phase).toBe("vote");
+    for (const me of [...P4, null]) {
+      const v = redactFor(s, me);
+      const json = JSON.stringify(v);
+      expect(json).not.toContain("Hawkeye");
+      expect(json).toContain("Hypnotoad");
+      expect(v.vote?.text).toBe("Hypnotoad");
+      expect(v.history[0]!.answers.Ann).toEqual([]);
+    }
+    s = tick(s, s.phaseAt + VOTE_MS);
+    expect(s.phase).toBe("reveal");
+    for (const me of [...P4, null]) {
+      const json = JSON.stringify(redactFor(s, me));
+      expect(json).toContain("Hawkeye");
+      expect(json).toContain("Hypnotoad");
+    }
   });
 
   it("an open vote shows each seat only its own vote and who has voted", () => {
     let s = close(write(make({ letter: "H" }), { Ann: ["Hypnotoad"] }));
     s = vote(s, "Bob", false, s.phaseAt + 1);
     const cy = redactFor(s, "Cy");
-    expect(cy.history[0]!.answers.Ann![0]!.votes).toEqual({});
-    expect(cy.vote).toEqual({ text: "Hypnotoad", members: ["Ann"], voters: ["Bob", "Cy", "Dee"], voted: ["Bob"] });
-    expect(redactFor(s, "Bob").history[0]!.answers.Ann![0]!.votes).toEqual({ Bob: false });
+    expect(cy.vote).toEqual({ text: "Hypnotoad", members: ["Ann"], voters: ["Bob", "Cy", "Dee"], voted: ["Bob"], mine: null });
+    expect(redactFor(s, "Bob").vote!.mine).toBe(false);
+    expect(redactFor(s, null).vote!.mine).toBeNull();
     s = tick(s, s.phaseAt + VOTE_MS);
     expect(redactFor(s, "Cy").history[0]!.answers.Ann![0]!.votes).toEqual({ Bob: false });
     expect(redactFor(s, "Cy").vote).toBeNull();

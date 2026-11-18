@@ -66,8 +66,8 @@ export type NPState = {
   drinks?: DrinkState;
 };
 
-/** The open vote, as a seat sees it: the answer, who gave it, who may vote and who already has. */
-export type NPVote = { text: string; members: string[]; voters: string[]; voted: string[] };
+/** The open vote, as a seat sees it: the answer, who gave it, who may vote, who already has, and this seat's own vote. */
+export type NPVote = { text: string; members: string[]; voters: string[]; voted: string[]; mine: boolean | null };
 /** What a seat is sent: see `redactFor`. `filled` is how many answers each player has typed (writing only). */
 export type NPView = NPState & { filled: Record<string, number>; vote: NPVote | null };
 
@@ -335,24 +335,23 @@ export function reviewItems(s: NPState): { player: string; category: string; ans
 
 /**
  * What one seat may see. Never the seed or a letter not yet reached. While writing, only `me`'s own typing (nothing for
- * a screen) plus how many answers each player has filled in. During a round's reveal, only the categories opened so far.
- * An open vote shows each seat its own vote and, in `vote`, who has voted.
+ * a screen) plus how many answers each player has filled in. During a round's reveal, only the categories opened so far;
+ * during a vote, only the ones already revealed: the category being voted on stays hidden but for the answer under vote,
+ * which `vote` carries along with who has voted and `me`'s own vote.
  */
 export function redactFor(s: NPState, me: string | null): NPView {
   const live = !s.done && (s.phase === "vote" || s.phase === "reveal");
+  const shown = s.phase === "vote" ? s.cat : s.cat + 1;
   const g = !s.done && s.phase === "vote" && s.voteOn !== null ? unknownGroups(s)[s.voteOn] ?? null : null;
   const history = s.history.map((r, i) => {
     if (!(live && i === s.history.length - 1)) return r;
-    const answers = Object.fromEntries(Object.entries(r.answers).map(([p, list]) => [p, list.slice(0, s.cat + 1).map((a, c) => {
-      if (!g || c !== s.cat || !g.members.includes(p) || !a.votes) return a;
-      return { ...a, votes: me !== null && has(a.votes, me) ? { [me]: a.votes[me]! } : {} };
-    })]));
-    return { ...r, answers };
+    return { ...r, answers: Object.fromEntries(Object.entries(r.answers).map(([p, list]) => [p, list.slice(0, shown)])) };
   });
   const writing = !s.done && s.phase === "write";
   const answers = writing && me !== null && has(s.answers, me) ? { [me]: s.answers[me]! } : writing ? {} : s.answers;
   const filled = writing ? Object.fromEntries(s.players.map((p) => [p, (own(s.answers, p) ?? []).filter((t) => normAnswer(t)).length])) : {};
   const votes = g ? answerOf(current(s), g.members[0]!, s.cat).votes ?? {} : {};
-  const vote = g ? { text: g.text, members: g.members, voters: votersFor(s, g.members), voted: Object.keys(votes) } : null;
+  const mine = me !== null && has(votes, me) ? votes[me]! : null;
+  const vote = g ? { text: g.text, members: g.members, voters: votersFor(s, g.members), voted: Object.keys(votes), mine } : null;
   return { ...s, letters: s.letters.slice(0, s.round + 1), seed: 0, history, answers, filled, vote };
 }
