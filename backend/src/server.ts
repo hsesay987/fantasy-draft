@@ -21,7 +21,9 @@ import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
 import judgeRoutes from "./routes/judge.route";
 import playRoomRoutes from "./routes/playRooms.route";
-import { startTicker } from "./services/playRooms";
+import { setNpatHistory, startTicker } from "./services/playRooms";
+import { createNpatHistory, prismaNpatAnswerDb } from "./services/npatHistory.service";
+import { setHistorySource } from "./shared/topicDraft/npat/source";
 import { authOptional } from "./middleware/auth";
 
 const app = express();
@@ -94,6 +96,12 @@ const server = http.createServer(app);
 /* 🔹 Socket.IO must match CORS */
 initSocket(server, corsOrigin);
 startTicker();
+
+// NPAT answer counts: finished rooms add to them and scoring reads them. A failed load just scores by the lists for now.
+const npatHistory = createNpatHistory(prismaNpatAnswerDb);
+setNpatHistory(npatHistory);
+setHistorySource((category, answer) => npatHistory.lookup(category, answer));
+npatHistory.load().catch((e) => console.error("NPAT history load failed", e));
 
 // Bind to localhost behind nginx by default; containers set HOST=0.0.0.0.
 const HOST = process.env.HOST || "127.0.0.1";
