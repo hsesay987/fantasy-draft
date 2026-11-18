@@ -49,9 +49,11 @@ export function createNpatHistory(db: NpatAnswerDb): NpatHistoryStore {
       seen.set(day, today);
       for (const d of [...seen.keys()].sort().slice(0, -2)) seen.delete(d); // keep only the latest two days
       for (const p of played) {
-        const answer = normAnswer(p.answer);
-        if (!p.category || !answer) continue;
-        const key = `${player}|${p.category}|${answer}`;
+        const norm = normAnswer(p.answer);
+        if (!p.category || !norm) continue;
+        // List answers count under their normalised key; review rows keep the typed text, for a person to read.
+        const answer = p.category.startsWith("review:") ? String(p.answer).trim().slice(0, 40) : norm;
+        const key = `${player}|${p.category}|${norm}`;
         if (today.has(key)) continue;
         today.add(key);
         try {
@@ -71,15 +73,14 @@ export function createNpatHistory(db: NpatAnswerDb): NpatHistoryStore {
 }
 
 // Loaded on first use so importing this file (and its tests) never needs a database connection.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const prisma = () => require("../lib/prisma").default as typeof import("../lib/prisma").default;
+const prisma = async () => (await import("../lib/prisma")).default;
 
 export const prismaNpatAnswerDb: NpatAnswerDb = {
   async all() {
-    return prisma().npatAnswer.findMany({ select: { category: true, answer: true, count: true } });
+    return (await prisma()).npatAnswer.findMany({ select: { category: true, answer: true, count: true } });
   },
   async increment(category, answer) {
-    await prisma().npatAnswer.upsert({
+    await (await prisma()).npatAnswer.upsert({
       where: { category_answer: { category, answer } },
       create: { category, answer, count: 1 },
       update: { count: { increment: 1 } },

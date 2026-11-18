@@ -198,7 +198,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
             })}
           </div>
           <p className={`mt-3 text-sm ${custom.ok && !custom.warn ? "text-muted-foreground" : "text-accent"}`} role={custom.ok ? undefined : "alert"}>
-            {custom.reason ?? custom.warn ?? `${custom.letters.length} letters fit these categories.`}
+            {custom.reason ?? custom.warn ?? `${custom.letters.length} letter${custom.letters.length === 1 ? "" : "s"} fit${custom.letters.length === 1 ? "s" : ""} these categories.`}
           </p>
         </Panel>
       )}

@@ -591,9 +591,9 @@ const VOWEL_GUESS_MAX = 60;
 const VOWEL_GUESSES_PER_SECOND = 3;
 /** Say Less clues: the engine trims a clue to 40 characters, but nothing longer than this reaches it. */
 const SAY_CLUE_MAX = 60;
-/** What the describer's phone says when the engine refuses a clue, by the engine's reason. */
 /** NPAT answers save as they are typed, so they come faster than guesses: 10 a second per seat. */
 const NPAT_ANSWERS_PER_SECOND = 10;
+/** What the describer's phone says when the engine refuses a clue, by the engine's reason. */
 const SAY_REFUSED: Record<string, string> = { empty: "Type a clue", spaces: "One word only", contains: "That gives it away", contained: "That gives it away", plural: "That gives it away" };
 
 /** True when this seat already sent `limit` (3 unless said) in the last second; otherwise counts this one. */

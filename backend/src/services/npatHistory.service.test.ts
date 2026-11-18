@@ -46,6 +46,14 @@ describe("createNpatHistory", () => {
     expect(h.lookup("animal", "cat")?.plays).toBe(1);
     expect(adjustTier("rare", 1 / (h.lookup("animal", "cat")?.plays ?? 1), h.lookup("animal", "cat")!.plays)).toBe("rare"); // under 30 plays
   });
+  it("stores review rows as typed (trimmed, at most 40 characters), deduped per player by the normalised text", async () => {
+    const db = fakeDb();
+    const h = createNpatHistory(db);
+    await h.record("d", "p1", [{ category: "review:place", answer: "  New York City " }, { category: "review:place", answer: "new york city" }]);
+    expect([...db.rows.keys()]).toEqual(["review:place|New York City"]);
+    await h.record("d", "p2", [{ category: "review:place", answer: "x".repeat(60) }]);
+    expect(db.rows.has(`review:place|${"x".repeat(40)}`)).toBe(true);
+  });
   it("forgets a play whose write failed so it can be retried", async () => {
     const db = fakeDb();
     const h = createNpatHistory(db);
