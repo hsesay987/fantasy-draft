@@ -8,7 +8,8 @@ import { WORLDS } from "../components/pixel/worlds";
 import { bandsFor, DAILY_POINTS, DAILY_TITLES, DAILY_WORLD, hasWorld, myStats, shareText, untilNext, type DailyGame, type Played } from "../lib/daily";
 import { LADDER, LEDGES, RUNGS } from "../toprung/engine";
 
-const FREE_PLAY: Record<DailyGame, string> = { summit: "/play/jeopardy", hotair: "/play/feud", costimation: "/costimation", toprung: "/toprung", pecking: "/pecking", npat: "/play/npat" };
+/** Where each daily's free play lives. NPAT has no free-play page yet (its only page is the daily), so it gets no button. */
+const FREE_PLAY: Record<DailyGame, string | null> = { summit: "/play/jeopardy", hotair: "/play/feud", costimation: "/costimation", toprung: "/toprung", pecking: "/pecking", npat: null };
 
 /** Top Rung's low rungs sit at 1%, 2% and 3% of the score, so only its safe ledges and the lamp fit as labelled marks. */
 const LADDER_MARKS = [...LEDGES, RUNGS].map((r) => LADDER[r - 1]! / LADDER[RUNGS - 1]!);
@@ -71,7 +72,7 @@ export function DailyStats({ game, played }: { game: DailyGame; played: Played }
           <pre className="mt-4 overflow-x-auto bg-[var(--px-ink)] p-3 text-[22px] leading-tight">{shareText(game, played)}</pre>
           <div className="mt-3 flex flex-wrap items-center">
             <PixelButton variant="gold" onClick={copy}>{copied ? "COPIED!" : "SHARE"}</PixelButton>
-            <Link href={FREE_PLAY[game]} className="px-btn alt no-underline">FREE PLAY</Link>
+            {FREE_PLAY[game] && <Link href={FREE_PLAY[game]} className="px-btn alt no-underline">FREE PLAY</Link>}
             <Link href="/trivia" className="px-btn alt no-underline">OTHER DAILIES</Link>
             <span className="px-note ml-2">Next puzzle in {clock}</span>
           </div>
