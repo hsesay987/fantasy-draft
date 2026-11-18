@@ -103,7 +103,7 @@ export default function Home() {
         {TOPIC_GROUPS.map((g) => (
           <Group key={g.id} id={`topics-${g.id}`} title={g.title} sub={g.blurb} small>
             {topicsIn(g.id).map((t) => (
-              <motion.div key={t.id} variants={item}><GameTile title={t.title} blurb={t.blurb} iconSrc={t.iconSrc} gradient={t.gradient} href={`/category/${t.id}`} /></motion.div>
+              <motion.div key={t.id} variants={item}><GameTile title={t.title} blurb={t.blurb} topic={t.id} tint={g.tint} href={`/category/${t.id}`} /></motion.div>
             ))}
           </Group>
         ))}

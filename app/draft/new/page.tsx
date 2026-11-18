@@ -625,7 +625,7 @@ export default function NewDraftPage() {
       <PageHeader
         title={`${league} Draft${league === "NFL" ? " (Beta)" : ""}`}
         subtitle={`Pick how you want to play, then jump in.${league === "NFL" ? " NFL beta requires a premium account." : ""}`}
-        iconSrc={league === "NFL" ? "/icons/football.png" : "/icons/basketball.png"}
+        topic={league === "NFL" ? "nfl" : "nba"} tint="sports"
         back={{ href: `/category/${league.toLowerCase()}`, label: `All ${league} ways to play` }}
       >
         <button onClick={() => setShowRules(true)} className="min-h-11 text-sm underline text-muted-foreground hover:text-white">View rules</button>
@@ -1696,7 +1696,7 @@ function CartoonDraftBuilder({
       <PageHeader
         title="Cartoon Draft"
         subtitle="Community-voted drafts for characters or shows. Classic is online-focused with a 60s timer."
-        iconSrc="/icons/turtle.png"
+        topic="cartoon" tint="characters"
         back={{ href: "/category/cartoon", label: "All Cartoon ways to play" }}
       >
         {!isPremium && <p className="text-xs text-amber-300">Cartoon drafts are available to premium members.</p>}

@@ -5,6 +5,7 @@ import { Crosshair } from "lucide-react";
 import { GameTile, PageHeader, PageShell } from "../components/ui";
 import { PINPOINT_TOPICS, loadPinpoint } from "./topics";
 import { dayNumber } from "./engine";
+import { topicTint } from "../play/categories";
 
 /** Pick a topic for today's Pinpoint. Topics you already solved today show your result. */
 export default function PinpointHub() {
@@ -21,7 +22,7 @@ export default function PinpointHub() {
       <PageHeader title="Pinpoint" subtitle={`Daily #${dayNumber()}: guess today's hidden pick. Every guess tells you how close you are.`} icon={Crosshair} gradient="from-emerald-600/50 to-primary/20" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {PINPOINT_TOPICS.map((t) => (
-          <GameTile key={t.id} title={t.title} blurb={t.blurb} iconSrc={t.iconSrc} gradient={t.gradient} badge={done[t.id]} href={`/pinpoint/${t.id}`} />
+          <GameTile key={t.id} title={t.title} blurb={t.blurb} topic={t.id} tint={topicTint(t.id)} badge={done[t.id]} href={`/pinpoint/${t.id}`} />
         ))}
       </div>
     </PageShell>

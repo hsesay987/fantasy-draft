@@ -13,6 +13,7 @@ import type { Item } from "../../topicDraft/types";
 import { PINPOINT_TOPICS, loadPinpoint, pinpointPicks, savePinpoint } from "../topics";
 import { track } from "../../lib/analytics";
 import { PinpointRadar } from "../PinpointRadar";
+import { topicTint } from "../../play/categories";
 import "../pinpoint.css";
 
 /** Counts up to `to` once when `run` is set, so a fresh guess's closeness ticks up with its bar. */
@@ -95,7 +96,7 @@ export default function PinpointGame() {
 
   return (
     <PageShell width="md">
-      <PageHeader title={`Pinpoint · ${topic.title}`} subtitle={practice ? "Practice round: a random pick, not saved." : `Daily #${day}. ${MAX_GUESSES} guesses to find today's pick.`} iconSrc={topic.iconSrc} back={{ href: "/pinpoint", label: "All topics" }} />
+      <PageHeader title={`Pinpoint · ${topic.title}`} subtitle={practice ? "Practice round: a random pick, not saved." : `Daily #${day}. ${MAX_GUESSES} guesses to find today's pick.`} topic={topic.id} tint={topicTint(topic.id)} back={{ href: "/pinpoint", label: "All topics" }} />
 
       <PinpointRadar hints={hints} fresh={fresh} won={won} />
 

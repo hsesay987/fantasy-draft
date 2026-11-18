@@ -5,5 +5,5 @@ export { Modal } from "./Modal";
 export { TimerRing } from "./TimerRing";
 export { GameTile } from "./GameTile";
 export { Toast } from "./Toast";
-export { PageShell, PageHeader, Panel, controlCls } from "./PageShell";
-export { IconBadge } from "./IconBadge";
+export { PageShell, PageHeader, Panel, Section, controlCls } from "./PageShell";
+export { IconBadge, TINT, type Tint } from "./IconBadge";

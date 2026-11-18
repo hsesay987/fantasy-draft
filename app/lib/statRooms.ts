@@ -2,10 +2,10 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export type League = "NBA" | "NFL" | "CARTOON";
-export const STAT_LEAGUES: { league: League; title: string; blurb: string; iconSrc: string; premium: boolean }[] = [
-  { league: "NBA", title: "NBA stat draft", blurb: "Real career stats by era and team. Needs a login.", iconSrc: "/icons/basketball.png", premium: false },
-  { league: "NFL", title: "NFL stat draft", blurb: "Gridiron greats by position. Needs a premium plan.", iconSrc: "/icons/football.png", premium: true },
-  { league: "CARTOON", title: "Cartoon stat draft", blurb: "Shows and characters, scored by the community. Needs a premium plan.", iconSrc: "/icons/turtle.png", premium: true },
+export const STAT_LEAGUES: { league: League; title: string; blurb: string; topic: string; premium: boolean }[] = [
+  { league: "NBA", title: "NBA stat draft", blurb: "Real career stats by era and team. Needs a login.", topic: "nba", premium: false },
+  { league: "NFL", title: "NFL stat draft", blurb: "Gridiron greats by position. Needs a premium plan.", topic: "nfl", premium: true },
+  { league: "CARTOON", title: "Cartoon stat draft", blurb: "Shows and characters, scored by the community. Needs a premium plan.", topic: "cartoon", premium: true },
 ];
 
 /** Opens a stat draft room for the logged-in user and returns its code. */

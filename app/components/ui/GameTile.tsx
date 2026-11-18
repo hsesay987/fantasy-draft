@@ -1,59 +1,45 @@
-"use client";
-
 import Link from "next/link";
-import { motion } from "motion/react";
 import type { ComponentType } from "react";
-import { IconBadge } from "./IconBadge";
+import { IconBadge, type Tint } from "./IconBadge";
 
-type IconLike = ComponentType<{ className?: string }>;
-
+/**
+ * A row-shaped card for one thing you can open: a game, a topic, a community game.
+ * Icon on the left, title and one line of text, an optional badge. Flat, so a grid of them reads as a list, not a wall.
+ */
 export function GameTile({
-  title,
-  blurb,
-  href,
-  icon: Icon,
-  iconSrc,
-  badge,
-  soon,
-  gradient = "from-primary/40 to-accent/20",
-  onClick,
+  title, blurb, href, icon, topic, tint, badge, meta, soon, onClick,
 }: {
   title: string;
-  blurb: string;
+  blurb?: string;
   href?: string;
-  icon?: IconLike;
-  /** Flat image icon; shown on a light badge so dark line art stays readable. */
-  iconSrc?: string;
+  icon?: ComponentType<{ className?: string }>;
+  /** Topic id: shows that topic's own icon. */
+  topic?: string;
+  tint?: Tint | (string & {});
   badge?: string;
+  /** Quiet second line under the blurb: "1 to 6 players". */
+  meta?: string;
   soon?: boolean;
-  gradient?: string;
   /** Use instead of `href` when the tile runs an action. */
   onClick?: () => void;
+  /** No longer used: tiles are flat. Kept so older callers compile. */
+  gradient?: string;
 }) {
   const inner = (
-    <motion.div
-      whileHover={soon ? undefined : { y: -4, scale: 1.015 }}
-      whileTap={soon ? undefined : { scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 400, damping: 26 }}
-      className={`relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${gradient} p-5 ${
-        soon ? "opacity-55" : ""
-      }`}
-    >
-      <IconBadge icon={Icon} src={iconSrc} className="mb-8" />
-      <h3 className="text-lg">{title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{blurb}</p>
-      {(badge || soon) && (
-        <span className="absolute right-4 top-4 rounded-full bg-black/40 px-2.5 py-1 text-xs font-semibold text-secondary">
-          {soon ? "Soon" : badge}
+    <>
+      <IconBadge icon={icon} topic={topic} tint={tint} />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span className="truncate font-display text-base">{title}</span>
+          {(badge || soon) && <span className="shrink-0 rounded-full bg-white/8 px-2 py-0.5 text-[11px] font-semibold text-secondary">{soon ? "Soon" : badge}</span>}
         </span>
-      )}
-    </motion.div>
+        {blurb && <span className="mt-0.5 line-clamp-2 block text-sm text-muted-foreground">{blurb}</span>}
+        {meta && <span className="mt-1 block text-xs text-muted-foreground/80">{meta}</span>}
+      </span>
+    </>
   );
-  if (onClick && !soon) return <button type="button" onClick={onClick} className="block h-full w-full rounded-2xl text-left">{inner}</button>;
-  if (!href || soon) return <div aria-disabled={soon}>{inner}</div>;
-  return (
-    <Link href={href} className="block rounded-2xl">
-      {inner}
-    </Link>
-  );
+  const cls = `surface flex h-full w-full items-start gap-3 p-4 text-left ${soon ? "opacity-50" : ""}`;
+  if (onClick && !soon) return <button type="button" onClick={onClick} className={cls}>{inner}</button>;
+  if (!href || soon) return <div aria-disabled={soon} className={cls}>{inner}</div>;
+  return <Link href={href} className={cls}>{inner}</Link>;
 }

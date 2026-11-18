@@ -206,7 +206,7 @@ function OnlinePageInner() {
             <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} href={`/play/${f.id}?online=1`} />
           ))}
           {STAT_LEAGUES.map((l) => (
-            <GameTile key={l.league} title={l.title} blurb={l.blurb} iconSrc={l.iconSrc} gradient="from-emerald-700/40 to-primary/20"
+            <GameTile key={l.league} title={l.title} blurb={l.blurb} topic={l.topic} tint="sports"
               badge={loading && league === l.league ? "Opening…" : !user ? "Login" : l.premium && !isPremium ? "Premium" : undefined}
               onClick={() => { setLeague(l.league); void handleCreateRoom(l.league); }} />
           ))}
