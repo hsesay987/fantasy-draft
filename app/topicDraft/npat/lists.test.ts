@@ -147,7 +147,8 @@ describe("lookup", () => {
   });
 
   it("finds an entry by an alias", () => {
-    expect(lookup("country", "USA")?.name).toBe("United States");
+    expect(lookup("country", "United States of America")?.name).toBe("United States");
+    expect(lookup("country", "Burma")?.name).toBe("Myanmar");
     expect(lookup("country", "Cote d'Ivoire")?.name).toBe("Ivory Coast");
   });
 
@@ -156,5 +157,32 @@ describe("lookup", () => {
     expect(lookup("country", "")).toBeNull();
     expect(lookup("country", 42)).toBeNull();
     expect(lookup("no-such-category", "France")).toBeNull();
+  });
+});
+
+describe("aliases (after the buildNpat --aliases-only re-filter)", () => {
+  it("nicknames, old or foreign names and plain words no longer stand for an entry", () => {
+    const wrong: [string, string][] = [
+      ["musician", "Evil"], ["musician", "Love"], ["musician", "Puff"], ["musician", "Starfish"], ["musician", "Therapist"],
+      ["animal", "Painter"], ["animal", "Killer"], ["film", "Rebellion"], ["film", "Cubic"], ["film", "Spell"],
+      ["place", "Augusta"], ["place", "Maurice"], ["food", "Ail"], ["food", "Chou"], ["food", "Porc"],
+    ];
+    for (const [c, text] of wrong) expect(lookup(c, text), `${c}: ${text}`).toBeNull();
+  });
+
+  it("keeps the aliases players really type", () => {
+    const right: [string, string, string][] = [
+      ["footballer", "Messi", "Lionel Messi"], ["musician", "Elvis", "Elvis Presley"], ["musician", "Puff Daddy", "Sean Combs"],
+      ["superhero", "Spidey", "Spider-Man"], ["place", "Burma", "Myanmar"], ["country", "Holland", "Netherlands"],
+      ["country", "Swaziland", "Eswatini"], ["tv", "SNL", "Saturday Night Live"], ["animal", "Puma", "Cougar"],
+    ];
+    for (const [c, text, name] of right) expect(lookup(c, text)?.name, `${c}: ${text}`).toBe(name);
+  });
+
+  it("no place or country alias is a code or three characters or fewer", () => {
+    for (const c of ["place", "country"]) for (const e of entriesOf(c)) for (const a of e.also ?? []) {
+      expect(normAnswer(a).length, `${e.name}: ${a}`).toBeGreaterThan(3);
+      expect(/^[A-Z0-9][A-Z0-9 .'-]*$/.test(a), `${e.name}: ${a}`).toBe(false);
+    }
   });
 });

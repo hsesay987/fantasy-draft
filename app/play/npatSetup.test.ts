@@ -30,7 +30,7 @@ describe("Custom categories", () => {
     const ids = ["place", "name", "animal", "thing"];
     expect(npatCustomCheck(ids, true, 3).letters.join("")).toBe(allLetters(ids, true));
     expect(npatCustomCheck(["place", "footballer", "musician", "tv"], false, 3).letters.some((l) => "QXZY".includes(l))).toBe(false);
-    expect(npatCustomCheck(["place", "footballer", "musician", "tv"], true, 3).letters).toContain("Y");
+    expect(npatCustomCheck(["place", "footballer", "tv"], true, 3).letters).toContain("Y");
   });
 
   it("warns, but still allows a start, when fewer letters fit than there are rounds", () => {

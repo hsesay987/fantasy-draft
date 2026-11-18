@@ -4,6 +4,7 @@
 // then Solid, Rare, Deep Cut, bottom 25% Unicorn); the rank is then dropped. "Too Obvious" is never assigned here:
 // only player history (Task 3) produces it.
 // Run: npx tsx scripts/buildNpat.ts [id ...]   (no ids = every category)
+//      npx tsx scripts/buildNpat.ts --aliases-only [--dry] [--verbose]   (re-filters the written lists' aliases offline; see aliasVerdict)
 //
 // Sources and licences:
 // - Wikidata (CC0): the candidate entries for name, place, superhero, footballer, film, musician and tv, with their
@@ -103,8 +104,9 @@ async function cached(name: string, url: string): Promise<Buffer> {
 }
 
 // ---------------- Wikidata ----------------
-async function sparql(query: string, tries = 4): Promise<any[]> {
-  let d: any;
+type Binding = Record<string, { value: string }>;
+async function sparql(query: string, tries = 4): Promise<Binding[]> {
+  let d: { results: { bindings: Binding[] } };
   try {
     d = await getJson("https://query.wikidata.org/sparql", {
     method: "POST",
@@ -171,8 +173,9 @@ async function pageViews(titles: string[], follow: boolean): Promise<Map<string,
   for (const part of chunk(todo, 50)) {
     const base = `https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&prop=pageviews|pageprops&ppprop=disambiguation|wikibase_item&pvipdays=60${follow ? "&redirects=1" : ""}`;
     const body = new URLSearchParams({ titles: part.join("|") }).toString();
-    const pages = new Map<string, any>();
-    let map: Record<string, string> = {};
+    type WikiPage = { title: string; missing?: boolean; invalid?: boolean; pageviews?: Record<string, number | null>; pageprops?: Record<string, string> };
+    const pages = new Map<string, WikiPage>();
+    const map: Record<string, string> = {};
     let cont: Record<string, string> = {};
     for (;;) {
       const d = await getJson(base + Object.entries(cont).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join(""), {
@@ -181,7 +184,7 @@ async function pageViews(titles: string[], follow: boolean): Promise<Map<string,
       for (const n of d.query?.normalized ?? []) map[n.from] = n.to;
       for (const r of d.query?.redirects ?? []) map[`>${r.from}`] = r.to;
       for (const p of d.query?.pages ?? []) {
-        const prev = pages.get(p.title) ?? {};
+        const prev: Partial<WikiPage> = pages.get(p.title) ?? {};
         pages.set(p.title, { ...prev, ...p, pageviews: { ...(prev.pageviews ?? {}), ...(p.pageviews ?? {}) } });
       }
       if (!d.continue) break;
@@ -239,7 +242,7 @@ async function monthlyViews(page: string, start: Date): Promise<{ months: number
   if (res?.status === 404) return { months: [], span }; // no views recorded in the window
   const d = res?.ok ? await res.json() : await getJson(res?.url || `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/${encodeURIComponent(page.replace(/ /g, "_"))}/monthly/${ymd(start)}/${ymd(end)}`);
   await sleep(100);
-  return { months: (d.items ?? []).map((i: any) => i.views ?? 0), span };
+  return { months: (d.items ?? []).map((i: { views?: number }) => i.views ?? 0), span };
 }
 
 async function yearViews(page: string): Promise<number> {
@@ -700,7 +703,7 @@ function writeMeta(built: string[]) {
     .map((id) => ({ id, title: SPECS[id]!.title, blurb: SPECS[id]!.blurb, source: SPECS[id]!.source, asOf: built.includes(id) ? TODAY : prev.get(id)?.asOf ?? TODAY, letters: lettersOf(id) }));
   const sets = [
     { id: "classic", title: "Classic", categories: CLASSIC },
-    ...cats.filter((c) => !CLASSIC.includes(c.id) && !NO_SET.includes(c.id)).map((c) => ({ id: c.id, title: c.title, categories: [c.id, ...topicPartners(c.id)] })),
+    ...cats.filter((c) => !CLASSIC.includes(c.id) && !NO_SET.includes(c.id)).map((c) => ({ id: c.id, title: c.title, categories: [c.id, ...topicPartners()] })),
   ];
   const body = `// Written by scripts/buildNpat.ts. Category and set metadata only: no answers, so room screens can import it.\n` +
     `export type NpatCategory = { id: string; title: string; blurb: string; source: string; asOf: string; letters: string };\n` +
@@ -715,9 +718,139 @@ function writeMeta(built: string[]) {
 
 /** A topic set is the topic plus Name, Animal and Thing; Place is the one dropped because it overlaps Country and is
  * the classic players find easiest, so the topic takes its slot. */
-const topicPartners = (_id: string) => ["name", "animal", "thing"];
+const topicPartners = (): string[] => ["name", "animal", "thing"];
+
+// ---------------- alias re-filter ----------------
+// Wikidata and WordNet aliases include nicknames, old and foreign names and plain words that let a wrong answer in with
+// no vote ("Evil" as Eminem, "Painter" as a cougar, "Augusta" as London) and count toward a letter's 15 answers.
+// `--aliases-only` re-filters the written lists offline with these rules, keeping names, tiers and order:
+// - every category: Latin script only; no slur (SLURS) and not a generic word (GENERIC); at least 3 characters once normalised; no
+//   foreign function word ("de", "la", "der" and so on) the name doesn't have.
+// - people (PEOPLE): the alias shares a word of 3+ characters with the name ("Messi" for Lionel Messi), or is on the
+//   short KEEP_ALIAS list of well-known stage names and nicknames.
+// - titles (TITLES): shares such a word, or is the name's initials ("SNL").
+// - places (PLACES): no code (all capitals, "DPRK"), and either shares such a word or is a synonym of the name in
+//   WordNet ("Burma" for Myanmar, "Holland" for the Netherlands; not "Augusta" for London).
+// - everything else: a one-word alias among the COMMON_WORDS most said words (FrequencyWords) that shares no word with
+//   the name is dropped ("Painter", "Killer"), and so is a short one (5 letters or fewer) that is no English word on
+//   that list at all, which catches cooking French ("Porc", "Ail").
+const PEOPLE = new Set(["musician", "footballer", "superhero", "name"]);
+const TITLES = new Set(["film", "tv"]);
+const PLACES = new Set(["place", "country"]);
+const COMMON_WORDS = 20_000;
+/** Stage names, nicknames and other names players really use, by entry name. Only ever keeps an alias the data already has. */
+const KEEP_ALIAS: Record<string, string[]> = {
+  Eminem: ["Slim Shady"],
+  "Tupac Shakur": ["2Pac", "Makaveli"],
+  "Kanye West": ["Ye", "Yeezy"],
+  "Jennifer Lopez": ["J Lo"],
+  "Lionel Messi": ["La Pulga"],
+  "Cristiano Ronaldo": ["CR7"],
+  "Spider-Man": ["Spidey"],
+  Wolverine: ["Logan"],
+  Batman: ["Caped Crusader", "Dark Knight"],
+  Superman: ["The Man of Steel", "Man of Steel"],
+  "Sean Combs": ["Diddy", "P Diddy", "Puff Daddy"],
+  "Czech Republic": ["Czechia"],
+  "New York City": ["Big Apple"],
+  "Washington, D.C.": ["District of Columbia"],
+  Turkey: ["Türkiye"],
+  "Ivory Coast": ["Côte d'Ivoire"],
+  Eswatini: ["Swaziland"],
+  "Vatican City": ["Holy See"],
+};
+// Slurs (an ethnic slur Wikidata lists for one country, and others like it), matched as a word anywhere in an alias.
+// Built from pieces so the words themselves never sit in the source.
+const SLURS = new Set([["j", "ap"], ["ni", "p"], ["ch", "ink"], ["go", "ok"], ["wo", "p"], ["sp", "ic"], ["ki", "ke"], ["neg", "ro"]].map((p) => p.join("")));
+/** Whole aliases that are titles or plain words naming nobody in particular. */
+const GENERIC = new Set([
+  "junior", "jr", "senior", "sir", "king", "queen", "prince", "princess", "lord", "lady", "the king", "the queen", "mister",
+  "doctor", "captain", "boss", "baby", "love", "evil", "god", "devil", "legend", "master", "star", "angel", "thing",
+  "the man", "the boss", "the one", "the city", "the district", "the bat", "the cat",
+].map((w) => norm(w)));
+const FOREIGN = new Set(["de", "la", "le", "les", "du", "des", "el", "los", "las", "del", "da", "di", "dos", "das", "der", "die", "das", "und", "et", "y", "il", "lo", "al", "ul"]);
+const STOP = new Set(["the", "and", "for", "von", "van", "mrs"]);
+
+/** Words of 3+ characters, accents and case dropped. */
+const tokens = (s: string) => new Set(s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !STOP.has(t)));
+const sharesWord = (a: string, b: string) => { const tb = tokens(b); return [...tokens(a)].some((t) => tb.has(t)); };
+const initials = (name: string, skipSmall: boolean) => name.split(/[\s:–-]+/).filter((w) => /[a-z0-9]/i.test(w) && !(skipSmall && /^(the|of|and|a|an|in|to)$/i.test(w))).map((w) => w.replace(/[^a-z0-9]/gi, "")[0] ?? "").join("").toLowerCase();
+
+type AliasContext = { rank: Map<string, number>; wnSyn: Map<string, Set<string>> };
+
+/** Why `alias` of entry `name` in category `id` is dropped, or null to keep it. */
+function aliasVerdict(id: string, name: string, alias: string, cx: AliasContext): string | null {
+  if ((KEEP_ALIAS[name] ?? []).includes(alias)) return null;
+  const k = norm(alias);
+  if (/[\p{L}]/u.test(alias) && [...alias].some((ch) => /\p{L}/u.test(ch) && !/\p{Script=Latin}/u.test(ch))) return "script";
+  if (GENERIC.has(k) || [...tokens(alias)].some((t) => SLURS.has(t))) return "deny";
+  if (k.length < 3) return "short";
+  const words = alias.toLowerCase().split(/[\s-]+/);
+  const nameWords = new Set(name.toLowerCase().split(/[\s-]+/));
+  if (words.length > 1 && words.some((w) => FOREIGN.has(w) && !nameWords.has(w))) return "foreign";
+  const shares = sharesWord(alias, name);
+  if (PEOPLE.has(id)) return shares ? null : "person";
+  if (TITLES.has(id)) {
+    const letters = alias.replace(/[^a-z0-9]/gi, "").toLowerCase();
+    return shares || letters === initials(name, false) || letters === initials(name, true) ? null : "title";
+  }
+  if (PLACES.has(id)) {
+    if (k.length <= 3) return "short";
+    if (/^[A-Z0-9][A-Z0-9 .'-]*$/.test(alias) || /^[A-Z]{2}-[A-Z]{2,3}$/.test(alias)) return "code";
+    if (/[^\x00-\x7f]/.test(alias.normalize("NFC")) && ![...alias].filter((c) => /[^\x00-\x7f]/.test(c)).every((c) => name.includes(c))) return "foreign";
+    if (shares) return null;
+    const a = cx.wnSyn.get(k), n = cx.wnSyn.get(norm(name));
+    return a && n && [...a].some((x) => n.has(x)) ? null : "place";
+  }
+  if (!alias.includes(" ") && !shares) {
+    const r = cx.rank.get(alias.toLowerCase());
+    if (r !== undefined && r <= COMMON_WORDS) return "common";
+    if (r === undefined && k.length <= 5) return "foreign";
+  }
+  return null;
+}
+
+/** Re-filters every written list's aliases with `aliasVerdict`, then rewrites the metadata (letters change with them). */
+async function aliasesOnly(dry: boolean, verbose: boolean) {
+  const [freq, wn] = await Promise.all([frequency(), wordnet()]);
+  const rank = new Map<string, number>();
+  [...freq.entries()].forEach(([w], i) => rank.set(w, i + 1));
+  const wnSyn = new Map<string, Set<string>>();
+  for (const [lemma, ids] of wn.senses) {
+    const k = norm(lemma);
+    const set = wnSyn.get(k) ?? new Set<string>();
+    for (const x of ids) set.add(x);
+    wnSyn.set(k, set);
+  }
+  const cx: AliasContext = { rank, wnSyn };
+  const ids = ORDER.filter((id) => fs.existsSync(path.join(OUT, `${id}.json`)));
+  for (const id of ids) {
+    const file = path.join(OUT, `${id}.json`);
+    const list: NpatEntry[] = JSON.parse(fs.readFileSync(file, "utf8"));
+    let before = 0, after = 0;
+    const why = new Map<string, number>();
+    const out = list.map((e) => {
+      const also = e.also ?? [];
+      before += also.length;
+      const kept = also.filter((a) => {
+        const v = aliasVerdict(id, e.name, a, cx);
+        if (v) why.set(v, (why.get(v) ?? 0) + 1);
+        if (v && verbose) console.log(`  - ${e.name} | ${a} (${v})`);
+        return !v;
+      });
+      after += kept.length;
+      const { also: _old, ...rest } = e;
+      void _old;
+      return kept.length ? { ...rest, also: kept } : rest;
+    });
+    console.log(`${id.padEnd(11)} aliases ${before} -> ${after}  dropped: ${[...why].map(([w, n]) => `${w} ${n}`).join(", ")}`);
+    if (!dry) fs.writeFileSync(file, `[\n${out.map((e) => JSON.stringify(e)).join(",\n")}\n]\n`);
+  }
+  if (!dry) writeMeta([]);
+}
 
 async function main() {
+  if (process.argv.includes("--aliases-only")) return aliasesOnly(process.argv.includes("--dry"), process.argv.includes("--verbose"));
   const want = process.argv.slice(2);
   const ids = want.length ? want : ORDER;
   fs.mkdirSync(OUT, { recursive: true });
