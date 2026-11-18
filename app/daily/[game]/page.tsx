@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { notFound, useParams } from "next/navigation";
 import { PixelBox, PixelShell } from "../../components/pixel/PixelUI";
 import { checkpointAt, WORLDS } from "../../components/pixel/worlds";
 import { Play } from "../../costimation/CostimationGame";
 import { track } from "../../lib/analytics";
 import { bandOf, DAILY_TITLES, DAILY_WORLD, fetchPuzzle, fetchStats, hasWorld, isDailyGame, peckingSquare, playedOn, remember, sendResult, type Played, type Puzzle } from "../../lib/daily";
-import { NpatSolo, type NpatSoloResult } from "../../npat/NpatSolo";
+import type { NpatSoloResult } from "../../npat/NpatSolo";
 import { PeckingSolo, SOLO_PLAYER } from "../../pecking/PeckingSolo";
 import { DAILY_COUNT, type PeckState } from "../../topicDraft/formats/pecking";
 import { CATEGORIES } from "../../play/categories";
@@ -16,6 +17,9 @@ import { scoreFraction } from "../../toprung/engine";
 import { TopRungGame } from "../../toprung/TopRungGame";
 import { DailyQuiz } from "../DailyQuiz";
 import { DailyStats } from "../DailyStats";
+
+// NPAT's solo page carries every answer list, so only its own daily loads it.
+const NpatSolo = dynamic(() => import("../../npat/NpatSolo").then((m) => m.NpatSolo), { ssr: false });
 
 export default function DailyPage() {
   const { game } = useParams<{ game: string }>();
