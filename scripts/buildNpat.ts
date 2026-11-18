@@ -44,9 +44,11 @@
 //   by the page views of its Wikipedia article ("<Word> (animal)", "(bird)" or "(fish)" when the word alone is a
 //   disambiguation page or not an animal), counting only pages whose Wikidata item is a taxon, an organism known by
 //   a common name or a breed.
-// - place, animal, superhero, footballer, film, musician, tv: the 60-day views pick the candidates, then the best
-//   of them are re-ranked by their last 12 months of views (Wikimedia REST pageviews, CC0), so this month's releases
-//   and news don't outrank the classics.
+// - place, animal, footballer: the 60-day views pick the candidates, then the best of them are re-ranked by their
+//   median month over the last 12 months (Wikimedia REST pageviews, CC0), so news spikes don't decide the rank.
+// - film, tv, musician, superhero: re-ranked on a long window instead: monthly views since January 2016, months
+//   before a page existed counting as zero, busiest 20% of months dropped, then averaged. A 12-month window still
+//   put this year's releases in Common ("The Odyssey", "Widow's Bay").
 // - superhero: Wikidata has no clean "superhero" class; it is items whose occupation is superhero, or whose type is
 //   superhero or one of its subclasses, leaving out characters Wikipedia's categories file under Marvel or DC
 //   supervillains but not superheroes (Wikidata tags villains such as Lex Luthor as superheroes).
@@ -228,27 +230,47 @@ async function scoreByViews(cands: Cand[], follow: boolean, accept: (p: PageInfo
 
 /** Typical yearly views over the last 12 full months (Wikimedia REST pageviews, CC0), human readers only. Slower than pageViews
  * (one request per page), so only for short lists where a 60-day window swings with the news. */
-async function yearViews(page: string): Promise<number> {
+async function monthlyViews(page: string, start: Date): Promise<{ months: number[]; span: number }> {
   const now = new Date();
   const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0));
-  const start = new Date(Date.UTC(end.getUTCFullYear() - 1, end.getUTCMonth() + 1, 1));
+  const span = (end.getUTCFullYear() - start.getUTCFullYear()) * 12 + end.getUTCMonth() - start.getUTCMonth() + 1;
   const ymd = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, "");
   const res = await fetch(`https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/${encodeURIComponent(page.replace(/ /g, "_"))}/monthly/${ymd(start)}/${ymd(end)}`, { headers: { "User-Agent": UA } }).catch(() => null);
-  if (res?.status === 404) return 0; // no views recorded in the window
+  if (res?.status === 404) return { months: [], span }; // no views recorded in the window
   const d = res?.ok ? await res.json() : await getJson(res?.url || `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/${encodeURIComponent(page.replace(/ /g, "_"))}/monthly/${ymd(start)}/${ymd(end)}`);
   await sleep(100);
+  return { months: (d.items ?? []).map((i: any) => i.views ?? 0), span };
+}
+
+async function yearViews(page: string): Promise<number> {
+  const now = new Date();
+  const { months } = await monthlyViews(page, new Date(Date.UTC(now.getUTCFullYear() - 1, now.getUTCMonth(), 1)));
   // The median month, times 12: one viral month (a World Cup run, a news story) doesn't decide the rank.
-  const months = (d.items ?? []).map((i: any) => i.views ?? 0).sort((x: number, y: number) => x - y);
+  months.sort((x, y) => x - y);
   return months.length ? 12 * months[Math.floor(months.length / 2)] : 0;
+}
+
+/** Lasting familiarity: monthly views since January 2016 (as far back as the REST data goes), months before a page
+ * existed counting as zero, with the busiest 20% of months dropped before averaging. A film out this year has only
+ * its few months to give, and those are its busiest, so it can't outrank a film people have looked up for a decade;
+ * a decade-old classic keeps most of its months. */
+async function longViews(page: string): Promise<number> {
+  const { months, span } = await monthlyViews(page, new Date(Date.UTC(2016, 0, 1)));
+  const all = [...months, ...Array(Math.max(0, span - months.length)).fill(0)].sort((x, y) => x - y);
+  const kept = all.slice(0, Math.ceil(all.length * 0.8));
+  return kept.length ? kept.reduce((n, v) => n + v, 0) / kept.length : 0;
 }
 
 /** Re-ranks the best of a page-view list by its last 12 months, so a film or show out this month doesn't outrank
  * the classics. Only the top `n` (by 60-day views) are fetched; the rest keep their 60-day order below them. */
-async function byYear(cands: Cand[], n: number): Promise<Cand[]> {
+async function byYear(cands: Cand[], n: number, long = false): Promise<Cand[]> {
   const head = [...cands].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   const top = head.slice(0, n);
   for (const part of chunk(top, 4)) {
-    await Promise.all(part.map(async (c) => { c.score = 1e12 + (await yearViews(c.page!)); }));
+    await Promise.all(part.map(async (c) => {
+      // Ties (pages too new to have kept months) fall back to their 60-day order.
+      c.score = 1e12 + Math.round(long ? await longViews(c.page!) : await yearViews(c.page!)) + (c.score ?? 0) / 1e10;
+    }));
   }
   return head;
 }
@@ -388,6 +410,8 @@ const EXCLUDE: Record<string, string[]> = {
   name: [],
   place: [],
   superhero: ["Lex Luthor"],
+  // Its page views come from people typing "xxx" into Wikipedia's search, not from the films' fame.
+  film: ["xXx", "xXx Return of Xander Cage", "xXx: Return of Xander Cage", "xXx: State of the Union"],
   animal: [
     "Homo", "Human", "Metazoan", "Bird", "Mammal", "Fish", "Arthropod", "Chordate", "Insect", "Reptile", "Vertebrate",
     "Invertebrate", "Mollusk", "Crustacean", "Arachnid", "Amphibia", "Cephalopod", "Primate", "Rodent", "Marsupial",
@@ -525,7 +549,7 @@ const SPECS: Record<string, Spec> = {
       };
       const [heroes, villains] = [await cats("superheroes"), await cats("supervillains")];
       const cands = await wikidata(`{ ?i wdt:P106 wd:Q188784 . } UNION { ?i wdt:P31/wdt:P279* wd:Q188784 . }`);
-      return byYear(await scoreByViews(cands.filter((c) => !c.titles!.some((t) => villains.has(t) && !heroes.has(t))), false), 1300);
+      return byYear(await scoreByViews(cands.filter((c) => !c.titles!.some((t) => villains.has(t) && !heroes.has(t))), false), 1300, true);
     },
   },
   footballer: {
@@ -539,7 +563,7 @@ const SPECS: Record<string, Spec> = {
   film: {
     title: "Film", blurb: "A film title", top: 1500,
     source: "Wikidata (films with articles in 35+ Wikipedias); familiarity from Wikipedia page views",
-    build: async () => byYear(await scoreByViews(await wikidata(`?i wdt:P31 wd:Q11424; wikibase:sitelinks ?s . FILTER(?s >= 35)`), false), 2000),
+    build: async () => byYear(await scoreByViews(await wikidata(`?i wdt:P31 wd:Q11424; wikibase:sitelinks ?s . FILTER(?s >= 35)`), false), 2000, true),
   },
   food: {
     title: "Food", blurb: "Something to eat: a dish, fruit, vegetable or ingredient", top: 1200,
@@ -598,19 +622,24 @@ const SPECS: Record<string, Spec> = {
     source: "Wikidata (singers, rappers and musicians in 40+ Wikipedias, bands in 30+); familiarity from Wikipedia page views",
     build: async () => {
       const people = await wikidata(`VALUES ?o { wd:Q177220 wd:Q2252262 wd:Q639669 wd:Q488205 } ?i wdt:P106 ?o; wikibase:sitelinks ?s . FILTER(?s >= 40)
-        ?i schema:description ?d . FILTER(LANG(?d) = "en" && REGEX(?d, "singer|rapper|musician|songwriter|band|guitarist|drummer|pianist|vocalist|DJ|composer|record producer", "i"))`);
+        ?i schema:description ?d . FILTER(LANG(?d) = "en" && REGEX(?d, "singer|rapper|musician|songwriter|band|guitarist|drummer|pianist|vocalist|DJ|composer|record producer", "i"))
+        # "American actress and singer" is an actor first; "singer and actress" stays.
+        FILTER(!REGEX(?d, "(actor|actress|comedian|presenter|television personality|model)[^;]*(singer|rapper|musician|songwriter|band|guitarist|drummer|pianist|vocalist|DJ|composer|record producer)", "i"))`);
       const bands = await wikidata(`VALUES ?t { wd:Q215380 wd:Q5741069 } ?i wdt:P31 ?t; wikibase:sitelinks ?s . FILTER(?s >= 30)`);
-      return byYear(await scoreByViews([...people, ...bands], false), 2000);
+      return byYear(await scoreByViews([...people, ...bands], false), 2000, true);
     },
   },
   tv: {
     title: "TV show", blurb: "A television series, cartoon or miniseries", top: 1200,
     source: "Wikidata (TV series, animated series and miniseries in 15+ Wikipedias); familiarity from Wikipedia page views",
-    build: async () => byYear(await scoreByViews(await wikidata(`VALUES ?t { wd:Q5398426 wd:Q581714 wd:Q1259759 } ?i wdt:P31 ?t; wikibase:sitelinks ?s . FILTER(?s >= 15)`), false), 1600),
+    build: async () => byYear(await scoreByViews(await wikidata(`VALUES ?t { wd:Q5398426 wd:Q581714 wd:Q1259759 } ?i wdt:P31 ?t; wikibase:sitelinks ?s . FILTER(?s >= 15)`), false), 1600, true),
   },
 };
 const ORDER = Object.keys(SPECS);
 const CLASSIC = ["name", "place", "animal", "thing"];
+/** Categories with no topic set: too few letters have 15 answers (Country: only B, C, K, M, R, S). They can still be
+ * picked for a Custom game. */
+const NO_SET = ["country"];
 
 /** Wikidata labels some countries by their long names ("People's Republic of China"); use the short name players
  * type, from Pecking Order's country list, keeping the long one as an alias. */
@@ -659,13 +688,13 @@ function writeMeta(built: string[]) {
     .map((id) => ({ id, title: SPECS[id]!.title, blurb: SPECS[id]!.blurb, source: SPECS[id]!.source, asOf: built.includes(id) ? TODAY : prev.get(id)?.asOf ?? TODAY }));
   const sets = [
     { id: "classic", title: "Classic", categories: CLASSIC },
-    ...cats.filter((c) => !CLASSIC.includes(c.id)).map((c) => ({ id: c.id, title: c.title, categories: [c.id, ...topicPartners(c.id)] })),
+    ...cats.filter((c) => !CLASSIC.includes(c.id) && !NO_SET.includes(c.id)).map((c) => ({ id: c.id, title: c.title, categories: [c.id, ...topicPartners(c.id)] })),
   ];
   const body = `// Written by scripts/buildNpat.ts. Category and set metadata only: no answers, so room screens can import it.\n` +
     `export type NpatCategory = { id: string; title: string; blurb: string; source: string; asOf: string };\n` +
     `export type NpatSet = { id: string; title: string; categories: string[] };\n\n` +
     `export const NPAT_CATEGORIES: NpatCategory[] = [\n${cats.map((m) => `  ${JSON.stringify(m)},`).join("\n")}\n];\n\n` +
-    `/** Classic first; then one set per topic category: the topic plus three classic categories. */\n` +
+    `/** Classic first; then one set per topic category (not Country: too few letters): the topic plus Name, Animal, Thing. */\n` +
     `export const NPAT_SETS: NpatSet[] = [\n${sets.map((s) => `  ${JSON.stringify(s)},`).join("\n")}\n];\n\n` +
     `export const categoryOf = (id: string): NpatCategory | undefined => NPAT_CATEGORIES.find((c) => c.id === id);\n` +
     `export const setOf = (id: string): NpatSet | undefined => NPAT_SETS.find((s) => s.id === id);\n`;

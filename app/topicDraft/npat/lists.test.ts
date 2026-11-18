@@ -57,8 +57,11 @@ describe("NPAT_SETS", () => {
   });
 
   it("has a four-category set for each topic category, each naming real categories", () => {
-    const topics = NPAT_CATEGORIES.map((c) => c.id).filter((id) => !["name", "place", "animal", "thing"].includes(id));
+    // Country has too few letters with 15 answers to carry a set; it stays pickable for Custom games.
+    const topics = NPAT_CATEGORIES.map((c) => c.id).filter((id) => !["name", "place", "animal", "thing", "country"].includes(id));
     for (const t of topics) expect(NPAT_SETS.some((s) => s.categories[0] === t)).toBe(true);
+    expect(NPAT_SETS.some((s) => s.categories.includes("country"))).toBe(false);
+    expect(categoryOf("country")).toBeDefined();
     for (const s of NPAT_SETS) {
       expect(s.categories).toHaveLength(4);
       expect(new Set(s.categories).size).toBe(4);
@@ -86,11 +89,50 @@ describe("lettersAvailable", () => {
     }
   });
 
+  it("gives every set, Classic included, at least 10 letters without hard letters", () => {
+    for (const s of NPAT_SETS) expect(lettersAvailable(s.categories, false).length, s.id).toBeGreaterThanOrEqual(10);
+  });
+
+  it("reports a single category's letters, so a Custom picker can warn about thin ones", () => {
+    expect(lettersAvailable(["country"], false).length).toBeLessThan(10);
+    expect(lettersAvailable(["name"], false).length).toBeGreaterThanOrEqual(10);
+  });
+
   it("offers at least the default letters with hard letters on", () => {
     const easy = lettersAvailable(classic, false);
     const hard = lettersAvailable(classic, true);
     for (const l of easy) expect(hard).toContain(l);
   });
+});
+
+// Familiarity sanity: a classic everyone knows must rank above this year's release or a name that rose on news.
+// The second of each pair may be missing from the list altogether (Zendaya is filed as an actor first).
+const ABOVE: [string, string, string][] = [
+  ["film", "The Godfather", "Obsession"],
+  ["film", "Titanic", "Project Hail Mary"],
+  ["film", "The Shawshank Redemption", "The Odyssey"],
+  ["film", "Forrest Gump", "Backrooms"],
+  ["tv", "Friends", "Widow's Bay"],
+  ["tv", "Breaking Bad", "The Pitt"],
+  ["tv", "Game of Thrones", "Slow Horses"],
+  ["musician", "The Beatles", "Zendaya"],
+  ["musician", "Michael Jackson", "Teyana Taylor"],
+  ["musician", "Elvis Presley", "Raye"],
+  ["superhero", "Batman", "Spider-Man Noir"],
+  ["superhero", "Superman", "Omni-Man"],
+  ["superhero", "Wonder Woman", "Sentry"],
+];
+
+describe("familiarity order", () => {
+  for (const [cat, classic, other] of ABOVE) {
+    it(`${cat}: ${classic} ranks above ${other}, as Common or Solid`, () => {
+      const list = entriesOf(cat);
+      const at = (n: string) => list.findIndex((e) => e.name === n);
+      expect(at(classic)).toBeGreaterThanOrEqual(0);
+      expect(["common", "solid"]).toContain(list[at(classic)]!.tier);
+      if (at(other) >= 0) expect(at(classic)).toBeLessThan(at(other));
+    });
+  }
 });
 
 describe("lookup", () => {

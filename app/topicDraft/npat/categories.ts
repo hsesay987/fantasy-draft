@@ -17,14 +17,13 @@ export const NPAT_CATEGORIES: NpatCategory[] = [
   {"id":"tv","title":"TV show","blurb":"A television series, cartoon or miniseries","source":"Wikidata (TV series, animated series and miniseries in 15+ Wikipedias); familiarity from Wikipedia page views","asOf":"2026-11-18"},
 ];
 
-/** Classic first; then one set per topic category: the topic plus three classic categories. */
+/** Classic first; then one set per topic category (not Country: too few letters): the topic plus Name, Animal, Thing. */
 export const NPAT_SETS: NpatSet[] = [
   {"id":"classic","title":"Classic","categories":["name","place","animal","thing"]},
   {"id":"superhero","title":"Superhero","categories":["superhero","name","animal","thing"]},
   {"id":"footballer","title":"Footballer","categories":["footballer","name","animal","thing"]},
   {"id":"film","title":"Film","categories":["film","name","animal","thing"]},
   {"id":"food","title":"Food","categories":["food","name","animal","thing"]},
-  {"id":"country","title":"Country","categories":["country","name","animal","thing"]},
   {"id":"pokemon","title":"Pokémon","categories":["pokemon","name","animal","thing"]},
   {"id":"musician","title":"Musician","categories":["musician","name","animal","thing"]},
   {"id":"tv","title":"TV show","categories":["tv","name","animal","thing"]},
