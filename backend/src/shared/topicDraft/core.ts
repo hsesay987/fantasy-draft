@@ -24,6 +24,9 @@ import * as MF from "./formats/mafia";
 import * as VP from "./formats/vowelplay";
 import * as PK from "./formats/pecking";
 import * as SL from "./formats/sayless";
+import * as NP from "./formats/npat";
+import { NPAT_SETS, categoryOf, setOf } from "./npat/categories";
+import { lettersAvailable } from "./npat/source";
 import { listFor } from "./pecking/source";
 import { deckOf } from "./party/decks";
 import { insyncDeckOf } from "./party/insyncDecks";
@@ -33,7 +36,7 @@ import type { Item, State } from "./types";
 import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
-export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState | PK.PeckState | SL.SLState;
+export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState | PK.PeckState | SL.SLState | NP.NPState;
 
 /** Every action says who is acting; the server checks that against the seat's token. */
 export type Action =
@@ -53,14 +56,15 @@ export type Action =
   | { type: "lock"; by: string }
   | { type: "place"; by: string; rank: number; seed?: number }
   | { type: "choose"; by: string; cell: number }
-  | { type: "answer"; by: string; choice?: string | number; rank?: number; seed?: number }
+  | { type: "answer"; by: string; choice?: string | number; rank?: number; seed?: number; cat?: number; text?: string }
   | { type: "clue"; by: string; text: string }
   | { type: "accuse"; by: string; target: string }
   | { type: "guess"; by: string; name?: string; text?: string }
-  | { type: "vote"; by: string; side: string }
+  | { type: "vote"; by: string; side?: string; ok?: boolean }
   | { type: "guessVote"; by: string; target: string; side: string }
   | { type: "move"; by: string; pos: number }
   | { type: "next"; by: string }
+  | { type: "finish"; by: string }
   | { type: "nightAct"; by: string; target: string }
   | { type: "dayVote"; by: string; target: string }
   | { type: "skipTalk"; by: string }
@@ -133,11 +137,32 @@ export function initGame(setup: GameSetup, now: number): GameState {
       return PK.init({ players: setup.players, lists: poolsOf(setup).flatMap((id) => listFor(id) ?? []), mode: o.peckMode ?? "mixed", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "sayless":
       return SL.init({ players: setup.players, decks: poolsOf(setup), rounds: o.saylessRounds ?? 2, wordsPerTurn: o.saylessWords ?? 3, slack: o.saylessSlack ?? 5, teams: o.teams, teamMap: o.teamMap, guard: o.saylessGuard ?? false, answer: o.answer === "buzz" ? "buzz" : "phones", avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+    case "npat": {
+      const categories = npatCategories(poolsOf(setup), !!o.npatHard);
+      const seconds = o.npatSeconds === 45 || o.npatSeconds === 90 ? o.npatSeconds : 60;
+      const rounds = Math.max(1, Math.min(8, Math.floor(Number.isFinite(o.npatRounds) ? o.npatRounds! : 3)));
+      return NP.init({ players: setup.players, categories, rounds, roundSeconds: seconds, hard: o.npatHard ?? false, stopEarly: o.npatStop ?? false, teams: o.teams, teamMap: o.teamMap, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+    }
     default:
       return rolling(setup)
         ? { kind: "spin", spin: spin.init(snakeConfig(setup), pool, o.options, o.rerolls, setup.seed) }
         : { kind: "snake", draft: initSnake(snakeConfig(setup), pool) };
   }
+}
+
+const NPAT_MAX_CATEGORIES = 6;
+
+/** The categories a Name Place Animal Thing game plays: set ids and `cat:<id>` picks merged in order, de-duplicated, capped
+ * at 6. Unknown ids are ignored; nothing valid, or no letter that suits the mix, falls back to the Classic set. */
+function npatCategories(pools: string[], hard: boolean): string[] {
+  const classic = setOf("classic")?.categories ?? NPAT_SETS[0]!.categories;
+  const merged: string[] = [];
+  for (const id of pools) {
+    const cats = id.startsWith("cat:") ? (categoryOf(id.slice(4)) ? [id.slice(4)] : []) : setOf(id)?.categories ?? [];
+    for (const c of cats) if (!merged.includes(c)) merged.push(c);
+  }
+  const picked = merged.slice(0, NPAT_MAX_CATEGORIES);
+  return picked.length && lettersAvailable(picked, hard).length ? picked : classic;
 }
 
 export function isDone(setup: GameSetup, s: GameState): boolean {
@@ -309,6 +334,15 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       if (a.type === "tick") return PK.tick(x, now);
       return s;
     }
+    case "npat": {
+      const x = s as NP.NPState;
+      if (a.type === "answer") return NP.answer(x, a.by, a.cat as number, a.text, now);
+      if (a.type === "finish") return NP.finish(x, a.by, now);
+      if (a.type === "vote") return NP.vote(x, a.by, a.ok as boolean, now);
+      if (a.type === "next") return NP.next(x, now);
+      if (a.type === "tick") return NP.tick(x, now);
+      return s;
+    }
     case "sayless": {
       const x = s as SL.SLState;
       if (a.type === "clue") return SL.clue(x, a.by, a.text, now);
@@ -464,6 +498,7 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
     case "vowelparty":
     case "pecking":
     case "sayless":
+    case "npat":
     case "vote": {
       const pts = (s as { points: Record<string, number> }).points;
       return { extra: null, teams: setup.players.map((player) => ({ player, baseline: pts[player] ?? 0, items: [] })) };

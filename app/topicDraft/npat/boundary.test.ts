@@ -42,7 +42,7 @@ const isLists = (f: string) => f === "app/topicDraft/npat/lists.ts" || f.startsW
 const views = fs.readdirSync(path.join(ROOT, "app/play/views"))
   .filter((f) => /\.tsx?$/.test(f) && !/\.test\.tsx?$/.test(f))
   .map((f) => `app/play/views/${f}`);
-const ENTRIES = ["app/room/[code]/page.tsx", "app/play/GameScreen.tsx", "app/play/screenInfo.ts", "app/topicDraft/core.ts", ...views];
+const ENTRIES = ["app/room/[code]/page.tsx", "app/play/GameScreen.tsx", "app/play/screenInfo.ts", "app/topicDraft/core.ts", "app/topicDraft/party/pools.ts", "app/topicDraft/party/tournament.ts", "app/play/types.ts", ...views];
 
 describe("room bundles", () => {
   const files = reached(ENTRIES);
@@ -50,6 +50,15 @@ describe("room bundles", () => {
   it("walks a real graph", () => {
     expect(files.has("app/topicDraft/core.ts")).toBe(true);
     expect(files.has("app/topicDraft/formats/pecking.ts")).toBe(true);
+  });
+
+  it("wires core.ts and pools.ts to the NPAT engine and meta, not the lists", () => {
+    for (const e of ["app/topicDraft/core.ts", "app/topicDraft/party/pools.ts"]) {
+      const r = reached([e]);
+      expect(r.has("app/topicDraft/npat/categories.ts")).toBe(true);
+      expect([...r].filter(isLists)).toEqual([]);
+    }
+    expect(reached(["app/topicDraft/core.ts"]).has("app/topicDraft/formats/npat.ts")).toBe(true);
   });
 
   it("would catch a file that does import the lists", () => {

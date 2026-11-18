@@ -36,7 +36,7 @@ import { GROUP_CALL } from "../shared/topicDraft/party/drinks";
 import { teamsFor } from "../shared/topicDraft/party/teams";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless"];
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless", "npat"];
 /** Party games take a bigger group; drafts and trivia stay at six. */
 const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
