@@ -1,0 +1,34 @@
+// Written by scripts/buildNpat.ts. Category and set metadata only: no answers, so room screens can import it.
+export type NpatCategory = { id: string; title: string; blurb: string; source: string; asOf: string };
+export type NpatSet = { id: string; title: string; categories: string[] };
+
+export const NPAT_CATEGORIES: NpatCategory[] = [
+  {"id":"name","title":"Name","blurb":"A first name","source":"Wikidata given names (how many people bear each) and FrequencyWords (OpenSubtitles 2018, CC BY-SA 4.0)","asOf":"2026-11-18"},
+  {"id":"place","title":"Place","blurb":"A city, country, state or continent","source":"Wikidata (big cities, capitals, countries, states and provinces, continents); familiarity from Wikipedia page views","asOf":"2026-11-18"},
+  {"id":"animal","title":"Animal","blurb":"Any animal: mammal, bird, fish, insect and more","source":"Open English WordNet 2025 (CC BY 4.0); familiarity from Wikipedia page views","asOf":"2026-11-18"},
+  {"id":"thing","title":"Thing","blurb":"An object, something people make and use","source":"Open English WordNet 2025 (CC BY 4.0); familiarity from FrequencyWords (OpenSubtitles 2018, CC BY-SA 4.0)","asOf":"2026-11-18"},
+  {"id":"superhero","title":"Superhero","blurb":"A superhero from comics, film or TV","source":"Wikidata (superheroes); familiarity from Wikipedia page views","asOf":"2026-11-18"},
+  {"id":"footballer","title":"Footballer","blurb":"A football (soccer) player, past or present; surnames count","source":"Wikidata (association football players with articles in 40+ Wikipedias); familiarity from Wikipedia page views","asOf":"2026-11-18"},
+  {"id":"film","title":"Film","blurb":"A film title","source":"Wikidata (films with articles in 35+ Wikipedias); familiarity from Wikipedia page views","asOf":"2026-11-18"},
+  {"id":"food","title":"Food","blurb":"Something to eat: a dish, fruit, vegetable or ingredient","source":"Open English WordNet 2025 (CC BY 4.0); familiarity from FrequencyWords (OpenSubtitles 2018, CC BY-SA 4.0)","asOf":"2026-11-18"},
+  {"id":"country","title":"Country","blurb":"A country, including the four UK nations","source":"UN members (Wikidata, via Pecking Order's country list) plus the UK nations, Taiwan, Kosovo, Palestine and Vatican City; familiarity from Wikipedia page views","asOf":"2026-11-17"},
+  {"id":"pokemon","title":"Pokémon","blurb":"Any Pokémon species","source":"PokéAPI species names (via Pecking Order's Pokémon list); familiarity from Wikipedia page views","asOf":"2026-11-17"},
+  {"id":"musician","title":"Musician","blurb":"A singer, rapper, musician or band","source":"Wikidata (singers, rappers and musicians in 40+ Wikipedias, bands in 30+); familiarity from Wikipedia page views","asOf":"2026-11-18"},
+  {"id":"tv","title":"TV show","blurb":"A television series, cartoon or miniseries","source":"Wikidata (TV series, animated series and miniseries in 15+ Wikipedias); familiarity from Wikipedia page views","asOf":"2026-11-18"},
+];
+
+/** Classic first; then one set per topic category: the topic plus three classic categories. */
+export const NPAT_SETS: NpatSet[] = [
+  {"id":"classic","title":"Classic","categories":["name","place","animal","thing"]},
+  {"id":"superhero","title":"Superhero","categories":["superhero","name","animal","thing"]},
+  {"id":"footballer","title":"Footballer","categories":["footballer","name","animal","thing"]},
+  {"id":"film","title":"Film","categories":["film","name","animal","thing"]},
+  {"id":"food","title":"Food","categories":["food","name","animal","thing"]},
+  {"id":"country","title":"Country","categories":["country","name","animal","thing"]},
+  {"id":"pokemon","title":"Pokémon","categories":["pokemon","name","animal","thing"]},
+  {"id":"musician","title":"Musician","categories":["musician","name","animal","thing"]},
+  {"id":"tv","title":"TV show","categories":["tv","name","animal","thing"]},
+];
+
+export const categoryOf = (id: string): NpatCategory | undefined => NPAT_CATEGORIES.find((c) => c.id === id);
+export const setOf = (id: string): NpatSet | undefined => NPAT_SETS.find((s) => s.id === id);
