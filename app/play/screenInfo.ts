@@ -3,7 +3,9 @@ import * as IM from "../topicDraft/formats/imposter";
 import * as IS from "../topicDraft/formats/insync";
 import * as MF from "../topicDraft/formats/mafia";
 import * as PK from "../topicDraft/formats/pecking";
+import type { NPView } from "../topicDraft/formats/npat";
 import * as PT from "../topicDraft/formats/partytrivia";
+import { categoryOf } from "../topicDraft/npat/categories";
 import { currentDescriber, type SLState, type SLView } from "../topicDraft/formats/sayless";
 import * as SLR from "../topicDraft/sayless/rules";
 import { own } from "../topicDraft/party/own";
@@ -12,6 +14,7 @@ import type { VPState } from "../topicDraft/formats/vowelplay";
 import { TEAM_COLORS, teamName } from "./teamMoves";
 import { teamStandings, teamsFor } from "./teamStandings";
 import type { GameSetup } from "./types";
+import { npatClock } from "./views/npatBoard";
 
 /** What the big screen says above the board: whose turn it is (null when nobody's in particular) and the phase. */
 export type ScreenInfo = { turn: string | null; phase: string };
@@ -60,6 +63,13 @@ export function screenInfo(setup: GameSetup, state: GameState): ScreenInfo {
       if (done) return { turn: null, phase: "Final scores" };
       const step = s.phase === "clue" ? "Describing" : s.phase === "speak" ? "Say it" : s.phase === "judge" ? "Right or wrong?" : "Reveal";
       return { turn: currentDescriber(s as unknown as SLState) || null, phase: `Turn ${s.turn + 1} of ${s.total ?? s.turns.length} · ${step}` };
+    }
+    case "npat": {
+      const s = state as unknown as NPView;
+      if (done) return { turn: null, phase: "Final scores" };
+      const cat = s.categories[s.cat] ?? "";
+      const step = s.phase === "write" ? `Letter ${s.letter} · Writing` : s.phase === "reveal" ? `Reveal: ${categoryOf(cat)?.title ?? cat}` : s.phase === "vote" ? "Vote" : "Round results";
+      return { turn: null, phase: `Round ${s.round + 1} of ${s.rounds} · ${step}` };
     }
     case "mafia": {
       const s = state as MF.MafiaState;
@@ -113,6 +123,8 @@ export function screenClock(setup: GameSetup, state: GameState): { deadline: num
       const s = state as unknown as SLView;
       return s.phase === "clue" ? at(SLR.WORD_MS, s.wordAt) : at(s.phase === "speak" ? SLR.SPEAK_MS : s.phase === "judge" ? SLR.JUDGE_MS : SLR.REVEAL_MS, s.phaseAt);
     }
+    case "npat":
+      return npatClock(state as unknown as NPView);
     default:
       return null;
   }
@@ -181,6 +193,17 @@ export function screenBoard(setup: GameSetup, state: GameState, gone: string[] =
       };
       return {
         rows: rowsFor(s.players, (p) => s.points[p] ?? 0, h ? gain : undefined, teams),
+        teams: teams ? teams.map((_, i) => ({ name: `${teamName(i)} team`, score: s.teamPoints[i] ?? 0, color: TEAM_COLORS[i] })).sort((a, b) => b.score - a.score) : undefined,
+      };
+    }
+    case "npat": {
+      const s = state as unknown as NPView;
+      // The engine keeps team points itself: a team scores each answer once, however many members gave it.
+      const teams = s.teams && s.teams.length >= 2 ? s.teams : null;
+      const r = s.phase === "reveal" && !done ? s.history[s.history.length - 1] : undefined;
+      const gain = (p: string) => { const n = own(r?.answers ?? {}, p)?.[s.cat]?.points; return n && n > 0 ? n : undefined; };
+      return {
+        rows: rowsFor(s.players, (p) => own(s.points, p) ?? 0, r ? gain : undefined, teams),
         teams: teams ? teams.map((_, i) => ({ name: `${teamName(i)} team`, score: s.teamPoints[i] ?? 0, color: TEAM_COLORS[i] })).sort((a, b) => b.score - a.score) : undefined,
       };
     }

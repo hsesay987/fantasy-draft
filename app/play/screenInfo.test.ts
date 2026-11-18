@@ -4,6 +4,7 @@ import { DEFAULT_OPTS, type GameSetup } from "./types";
 import * as IM from "../topicDraft/formats/imposter";
 import * as V from "../topicDraft/formats/vote";
 import * as PK from "../topicDraft/formats/pecking";
+import { REVEAL_MS as NP_REVEAL_MS, VOTE_MS as NP_VOTE_MS } from "../topicDraft/npat/rules";
 import { JUDGE_MS as SL_JUDGE_MS, REVEAL_MS as SL_REVEAL_MS, SPEAK_MS as SL_SPEAK_MS, WORD_MS as SL_WORD_MS } from "../topicDraft/sayless/rules";
 
 const players = ["Ann", "Bob", "Cy", "Di"];
@@ -55,6 +56,15 @@ describe("screenInfo turn", () => {
     expect(screenInfo(setup("sayless"), s("reveal"))).toEqual({ turn: "Cy", phase: "Turn 2 of 4 · Reveal" });
     expect(screenInfo(setup("sayless"), s("reveal", { done: true }))).toEqual({ turn: null, phase: "Final scores" });
   });
+  it("NPAT: the round, then the letter while writing, the category on its reveal, the vote and the round results", () => {
+    const s = (phase: string, o: Record<string, unknown> = {}) => st({ phase, round: 1, rounds: 3, letter: "B", cat: 2, categories: ["name", "place", "animal", "thing"], points: {}, teamPoints: [], teams: null, history: [], roundMs: 60_000, ...o });
+    expect(screenInfo(setup("npat"), s("write"))).toEqual({ turn: null, phase: "Round 2 of 3 · Letter B · Writing" });
+    expect(screenInfo(setup("npat"), s("reveal"))).toEqual({ turn: null, phase: "Round 2 of 3 · Reveal: Animal" });
+    expect(screenInfo(setup("npat"), s("reveal", { cat: 0, categories: ["pokemon"] }))).toEqual({ turn: null, phase: "Round 2 of 3 · Reveal: Pokémon" });
+    expect(screenInfo(setup("npat"), s("vote"))).toEqual({ turn: null, phase: "Round 2 of 3 · Vote" });
+    expect(screenInfo(setup("npat"), s("summary"))).toEqual({ turn: null, phase: "Round 2 of 3 · Round results" });
+    expect(screenInfo(setup("npat"), s("summary", { done: true }))).toEqual({ turn: null, phase: "Final scores" });
+  });
   it("nobody's turn once the game is done", () => {
     expect(screenInfo(setup("imposter"), st({ phase: "done", done: true, order: players, clues: [], rounds: 1 })).turn).toBeNull();
   });
@@ -73,6 +83,11 @@ describe("screenClock", () => {
     expect(screenClock(setup("sayless"), st({ phase: "judge", wordAt: 400 }))).toEqual({ deadline: 1000 + SL_JUDGE_MS, total: SL_JUDGE_MS });
     expect(screenClock(setup("sayless"), st({ phase: "reveal", wordAt: 400 }))).toEqual({ deadline: 1000 + SL_REVEAL_MS, total: SL_REVEAL_MS });
     expect(screenClock(setup("sayless"), st({ phase: "reveal", done: true }))).toBeNull();
+    expect(screenClock(setup("npat"), st({ phase: "write", roundMs: 45_000 }))).toEqual({ deadline: 1000 + 45_000, total: 45_000 });
+    expect(screenClock(setup("npat"), st({ phase: "vote", roundMs: 45_000 }))).toEqual({ deadline: 1000 + NP_VOTE_MS, total: NP_VOTE_MS });
+    expect(screenClock(setup("npat"), st({ phase: "reveal", roundMs: 45_000 }))).toEqual({ deadline: 1000 + NP_REVEAL_MS, total: NP_REVEAL_MS });
+    expect(screenClock(setup("npat"), st({ phase: "summary", roundMs: 45_000 }))).toEqual({ deadline: 1000 + NP_REVEAL_MS, total: NP_REVEAL_MS });
+    expect(screenClock(setup("npat"), st({ phase: "summary", done: true }))).toBeNull();
   });
 });
 
@@ -118,6 +133,18 @@ describe("screenBoard", () => {
     expect(screenBoard(setup("sayless"), s("clue"))!.rows.every((r) => r.last === undefined)).toBe(true);
     const teamed = screenBoard(setup("sayless"), s("clue", { teams: [["Ann", "Cy"], ["Bob", "Di"]], teamPoints: [5, 2] }))!;
     expect(teamed.teams!.map((t) => [t.name, t.score])).toEqual([["Red team", 5], ["Blue team", 2]]);
+    expect(teamed.rows.find((r) => r.name === "Di")!.team).toBe(1);
+  });
+  it("NPAT: rows from points, what the category just paid on its reveal, and the engine's team points", () => {
+    const a = (points: number) => ({ text: "x", entry: "x", status: "ok", tier: "common", points, shared: false });
+    const round = { letter: "B", answers: { Ann: [a(10), a(60)], Bob: [a(30), a(0)], Cy: [a(10), a(10)] } };
+    const s = (phase: string, o: Record<string, unknown> = {}) => st({ phase, cat: 1, round: 0, rounds: 2, categories: ["name", "place"], points: { Ann: 70, Bob: 30, Cy: 20 }, teams: null, teamPoints: [], history: [round], ...o });
+    const reveal = screenBoard(setup("npat"), s("reveal"))!;
+    expect(reveal.rows.map((r) => [r.name, r.score, r.last])).toEqual([["Ann", 70, 60], ["Bob", 30, undefined], ["Cy", 20, 10], ["Di", 0, undefined]]);
+    expect(reveal.teams).toBeUndefined();
+    expect(screenBoard(setup("npat"), s("summary"))!.rows.every((r) => r.last === undefined)).toBe(true);
+    const teamed = screenBoard(setup("npat"), s("write", { teams: [["Ann", "Cy"], ["Bob", "Di"]], teamPoints: [80, 30] }))!;
+    expect(teamed.teams!.map((t) => [t.name, t.score])).toEqual([["Red team", 80], ["Blue team", 30]]);
     expect(teamed.rows.find((r) => r.name === "Di")!.team).toBe(1);
   });
   it("Head to head counts words won", () => {
