@@ -40,6 +40,7 @@ const ROLL_COPY: Record<FormatId, string> = {
   vowelparty: "",
   pecking: "",
   sayless: "",
+  npat: "",
 };
 // Topics judged on a lens (what the night is for) rather than a mission, so there is no "write your own".
 const SCREEN_POOLS = new Set(["films", "shows", "flags", "books"]);

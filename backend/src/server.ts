@@ -16,12 +16,16 @@ import billingRoutes from "./routes/billing.route";
 import adRoutes from "./routes/ad.route";
 import triviaRoutes from "./routes/trivia.route";
 import costimationRoutes from "./routes/costimation.route";
-import dailyRoutes from "./routes/daily.route";
+import dailyRoutes, { setDailyNpatHistory } from "./routes/daily.route";
+import npatRoutes, { setNpatRouteHistory } from "./routes/npat.route";
 import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
 import judgeRoutes from "./routes/judge.route";
 import playRoomRoutes from "./routes/playRooms.route";
-import { startTicker } from "./services/playRooms";
+import { setNpatHistory, setNpatJudge, startTicker } from "./services/playRooms";
+import { judge as npatJudge } from "./services/npatJudge.instance";
+import { createNpatHistory, prismaNpatAnswerDb } from "./services/npatHistory.service";
+import { setHistorySource } from "./shared/topicDraft/npat/source";
 import { authOptional } from "./middleware/auth";
 
 const app = express();
@@ -74,6 +78,7 @@ app.use("/play-rooms", playRoomRoutes);
 app.use("/trivia", triviaRoutes);
 app.use("/costimation", costimationRoutes);
 app.use("/daily", dailyRoutes);
+app.use("/npat", npatRoutes);
 
 // Sentry must see errors before our own handler responds (no-op without SENTRY_DSN).
 Sentry.setupExpressErrorHandler(app);
@@ -94,6 +99,15 @@ const server = http.createServer(app);
 /* 🔹 Socket.IO must match CORS */
 initSocket(server, corsOrigin);
 startTicker();
+
+// NPAT answer counts: finished rooms add to them and scoring reads them. A failed load just scores by the lists for now.
+const npatHistory = createNpatHistory(prismaNpatAnswerDb);
+setNpatHistory(npatHistory);
+setNpatJudge(npatJudge); // dig rooms ask it about answers not on the lists
+setDailyNpatHistory(npatHistory);
+setNpatRouteHistory(npatHistory);
+setHistorySource((category, answer) => npatHistory.lookup(category, answer));
+npatHistory.load().catch((e) => console.error("NPAT history load failed", e));
 
 // Bind to localhost behind nginx by default; containers set HOST=0.0.0.0.
 const HOST = process.env.HOST || "127.0.0.1";

@@ -1458,3 +1458,103 @@ button.tn-slot:hover { background: var(--px-rose); }
 .screen-board .sl-page .sl-head, .screen-board .sl-page .sl-roster { display: none; }
 @media (max-width: 380px) { .party-page .sl-word { font-size: 32px; } .sl-tape .slip { font-size: 19px; min-width: 2.6em; } .sl-roster li { gap: 6px; padding: 4px 6px; } }
 @media (prefers-reduced-motion: reduce) { .sl-tape .slip.new, .sl-reveal .sl-word, .pixel .sl-buzz-btn:not(:disabled), .sl-term.shake .in { animation: none; } }
+
+/* ---------- NPAT: a school exercise book. Ruled paper for the sheet, a stamped letter, red-pen marks on the reveal. ---------- */
+.pixel[data-world="notebook"] { --px-bg: #111a2c; --px-bg2: #152036; --px-panel: #1f2d4a; --px-panel2: #2c3e63; --px-ink: #070b16; --px-fg: #f3efe2; --px-dim: #aeb8cf; --px-lav: #9fc3ff; --px-rose: #e2483d; --px-gold: #f5c84c; --px-mint: #7fdca4; --px-sky: #8cc8ff; --px-violet: #34477a;
+  --np-paper: #f6f1e1; --np-paper-ink: #1d2433; --np-rule: #a9c4e6; --np-margin: #e2483d; }
+.pixel[data-world="notebook"] .px-box::before { content: ""; position: absolute; top: 8px; bottom: 8px; left: 10px; width: 2px; pointer-events: none; background: var(--np-margin); opacity: .45; }
+.np-page { max-width: 36rem; gap: 10px; }
+.np-head { display: flex; align-items: center; gap: 12px; margin: 4px; padding: 8px 10px; background: var(--px-panel2); box-shadow: 0 0 0 4px var(--px-ink); }
+.np-head .stat { display: grid; line-height: 1; }
+.np-head .stat em { font: 400 8px/1.4 var(--px-head); font-style: normal; color: var(--px-lav); text-transform: uppercase; }
+.np-head .stat b { font: 400 26px/1 var(--px-body); color: var(--px-gold); }
+.np-head .stat small { font-size: 18px; color: var(--px-dim); }
+.np-head .px-clock { margin-left: auto; }
+.np-card { padding: 14px 12px 14px 20px; display: grid; gap: 10px; min-width: 0; }
+.np-eyebrow { margin: 0; font: 400 9px/1.5 var(--px-head); color: var(--px-lav); text-transform: uppercase; overflow-wrap: anywhere; }
+.np-sub { margin: 0; color: var(--px-lav); text-transform: uppercase; }
+.party-page .np-title { margin: 0; font: 400 34px/1 var(--px-body); color: var(--px-gold); overflow-wrap: anywhere; }
+.np-msg { margin: 0; font-size: 20px; color: var(--px-dim); overflow-wrap: anywhere; }
+.np-msg b { font-weight: 400; color: var(--px-gold); }
+.np-msg.no { color: var(--px-rose); }
+.np-source { display: grid; gap: 2px; }
+.np-source p { margin: 0; font-size: 16px; color: var(--px-dim); overflow-wrap: anywhere; }
+
+.np-letter { flex: none; display: grid; place-items: center; width: 64px; height: 64px; background: var(--np-paper); color: var(--np-margin); box-shadow: 0 0 0 4px var(--px-ink), 4px 4px 0 4px #0007; font: 400 48px/1 var(--px-head); }
+.np-letter.big { width: clamp(88px, 18vw, 160px); height: clamp(88px, 18vw, 160px); font-size: clamp(60px, 12vw, 120px); }
+.np-sheet-top, .np-tv-top { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.np-tv-top > div { display: grid; gap: 6px; min-width: 0; }
+
+.np-fields { display: grid; gap: 8px; min-width: 0; }
+.np-field { display: grid; gap: 2px; min-width: 0; padding: 6px 10px 4px; margin: 4px; background: var(--np-paper); color: var(--np-paper-ink); box-shadow: 0 0 0 3px var(--px-ink); background-image: linear-gradient(transparent calc(100% - 2px), var(--np-rule) 0); }
+.np-field .lbl { font: 400 8px/1.4 var(--px-head); color: var(--np-margin); text-transform: uppercase; }
+.np-field input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--np-paper-ink); font: 400 26px var(--px-body); padding: 2px 0 4px; caret-color: var(--np-margin); }
+.np-field input::placeholder { color: #1d243355; }
+.np-field input:focus-visible { outline: 0; }
+.np-field:focus-within { box-shadow: 0 0 0 3px var(--px-gold); }
+.np-field:has(input:disabled) { opacity: .8; }
+.pixel .np-done { justify-self: stretch; min-height: 56px; font-size: 14px; }
+.pixel .np-skip { justify-self: end; }
+
+.np-fill { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 4px; }
+.np-fill li { display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: var(--px-ink); font-size: 20px; min-width: 0; }
+.np-fill .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-fill b { flex: none; font: 400 11px/1 var(--px-head); color: var(--px-gold); }
+.np-fill li.done b { color: var(--px-mint); } .np-fill li.is-gone { opacity: .45; }
+
+.np-vote { text-align: center; justify-items: center; }
+.party-page .np-vote-text { margin: 0; padding: 8px 14px; background: var(--np-paper); color: var(--np-paper-ink); box-shadow: 0 0 0 4px var(--px-ink); font: 400 34px/1.05 var(--px-body); overflow-wrap: anywhere; max-width: 100%; }
+.np-vote.big .np-vote-text { font-size: clamp(36px, 5vw, 64px); }
+.np-yesno { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.pixel .np-yesno .px-btn { min-height: 64px; min-width: 0; font-size: 15px; }
+.pixel .np-yesno .yes { background: #2f7a5b; } .pixel .np-yesno .no { background: var(--px-rose); }
+.np-voted b { color: var(--px-gold); }
+
+.np-groups { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; min-width: 0; }
+.np-groups li { display: grid; gap: 2px; padding: 6px 10px; background: var(--np-paper); color: var(--np-paper-ink); box-shadow: 0 0 0 3px var(--px-ink); animation: px-flip .4s steps(4); min-width: 0; }
+.np-groups li.me { box-shadow: 0 0 0 3px var(--px-gold); }
+.np-groups li.k-voted-out, .np-groups li.k-wrong-letter, .np-groups li.k-blank { background: #d9d3c2; }
+.np-groups li.k-voted-out .txt, .np-groups li.k-wrong-letter .txt { text-decoration: line-through; text-decoration-color: var(--np-margin); }
+.np-groups .top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; min-width: 0; }
+.np-groups .txt { min-width: 0; font-size: 26px; line-height: 1.05; overflow-wrap: anywhere; }
+.np-groups .as { margin: 0; font-size: 16px; color: #4b5468; overflow-wrap: anywhere; }
+.np-groups .who { margin: 0; display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 17px; color: #39425a; }
+.np-groups .who span { display: inline-flex; align-items: center; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
+.np-groups .who em { font-style: normal; color: var(--np-margin); }
+.np-groups.big .txt { font-size: clamp(26px, 3vw, 40px); } .np-groups.big .who { font-size: 20px; }
+.np-badge { flex: none; padding: 3px 6px; font: 400 8px/1.3 var(--px-head); color: #fff; background: #5b6478; text-transform: uppercase; }
+.np-badge b { font-weight: 400; }
+.np-badge.t-common, .np-badge.t-obvious { background: #5b6478; } .np-badge.t-solid { background: #2f6fb0; } .np-badge.t-rare { background: #2f7a5b; }
+.np-badge.t-deep { background: #7a3fb0; } .np-badge.t-unicorn { background: #c4307a; }
+.np-badge.miss { background: transparent; color: var(--np-margin); box-shadow: inset 0 0 0 2px var(--np-margin); }
+.np-mine { margin: 0; font-size: 22px; overflow-wrap: anywhere; } .np-mine.good { color: var(--px-mint); } .np-mine.bad { color: var(--px-rose); }
+.np-best { margin: 0; font-size: 20px; color: var(--px-dim); overflow-wrap: anywhere; } .np-best b { font-weight: 400; color: var(--px-gold); }
+
+.np-roster { padding: 8px 8px 8px 18px; }
+.np-table, .np-teams { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; }
+.np-table li, .np-teams li { display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: var(--px-ink); font-size: 20px; min-width: 0; }
+.np-table li.top { background: var(--px-violet); } .np-table li.me .name, .np-teams li.me .name { text-decoration: underline; } .np-table li.is-gone { opacity: .45; }
+.np-table .rk { flex: none; min-width: 1.2em; font: 400 11px/1 var(--px-head); color: var(--px-dim); }
+.np-table .name, .np-teams .name { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-table .swatch, .np-teams .swatch { flex: none; width: 8px; height: 8px; }
+.np-table b, .np-teams b { flex: none; font: 400 13px/1 var(--px-head); color: var(--px-gold); }
+
+.np-winner { text-align: center; justify-items: center; }
+.party-page .np-winner h2 { margin: 0; font: 700 34px/1 var(--px-title); color: var(--px-gold); overflow-wrap: anywhere; }
+.np-winner p { margin: 0; font-size: 22px; overflow-wrap: anywhere; }
+.np-recap { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.np-recap li { display: flex; align-items: center; gap: 10px; padding: 4px 0; border-bottom: 2px dotted #ffffff22; font-size: 20px; min-width: 0; }
+.np-recap .l { flex: none; display: grid; place-items: center; width: 34px; height: 34px; background: var(--np-paper); color: var(--np-margin); font: 400 18px/1 var(--px-head); }
+.np-recap .w { display: grid; min-width: 0; overflow-wrap: anywhere; } .np-recap .w b { font-weight: 400; color: var(--px-gold); }
+.np-recap em { font-style: normal; font-size: 17px; color: var(--px-dim); }
+
+/* The solo daily: today's categories before the clock starts, and the share grid on the reveal. */
+.np-cats { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.np-cats li { padding: 4px 8px; background: var(--px-ink); font-size: 19px; color: var(--px-dim); overflow-wrap: anywhere; }
+.np-cats b { font-weight: 400; color: var(--px-gold); }
+.np-winner .np-grid { margin: 0; font-size: 30px; letter-spacing: 4px; line-height: 1; }
+
+.screen-board .np-page { max-width: none; }
+.screen-board .np-page .np-head, .screen-board .np-page .np-roster { display: none; }
+@media (max-width: 380px) { .np-card { padding: 12px 8px 12px 16px; } .np-letter { width: 52px; height: 52px; font-size: 38px; } .np-field input { font-size: 22px; } .np-head { gap: 8px; } .np-head .stat b { font-size: 22px; } }
+@media (prefers-reduced-motion: reduce) { .np-groups li { animation: none; } }

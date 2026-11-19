@@ -6,10 +6,10 @@ import type { Role } from "../topicDraft/formats/position";
 import type { PeckMode } from "../topicDraft/formats/pecking";
 import type { QuizData } from "../topicDraft/trivia/types";
 
-export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless";
+export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat";
 
 /** Party games: online only, played on phones in one room. `pool` is a topic (Imposter) or a card deck (vote games). */
-export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless"]);
+export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless", "npat"]);
 
 export type Opts = {
   teamSize: number;
@@ -58,6 +58,13 @@ export type Opts = {
   saylessWords?: number;
   saylessSlack?: number;
   saylessGuard?: boolean;
+  /** Name Place Animal Thing: rounds (1 to 8, default 3), seconds to write (45, 60 or 90, default 60), hard letters, and whether the first finisher stops the clock. */
+  npatRounds?: number;
+  npatSeconds?: number;
+  npatHard?: boolean;
+  npatStop?: boolean;
+  /** Name Place Animal Thing: "dig" asks five categories one at a time (20 s each); "sheet" fills every category at once. Absent means sheet. */
+  npatStyle?: "dig" | "sheet";
   /** Vowel Play: say it aloud and let the others judge, or type it. */
   vowelAnswer: "voice" | "type";
   /** Party games with one right answer: everyone answers on their phone, or buzz in at the table. */
@@ -81,6 +88,9 @@ export type GameSetup = {
   quiz?: QuizData;
   seed: number;
 };
+
+/** NPAT dig's starting five (Classic plus Food), and what a dig plays when its picks don't make five sharing a letter. */
+export const NPAT_DIG_IDS = ["name", "place", "animal", "thing", "food"];
 
 /** The pool ids a setup draws from: its `pools`, or just `pool` for one-topic setups. */
 export const poolsOf = (setup: Pick<GameSetup, "pool" | "pools">): string[] => (setup.pools?.length ? setup.pools : [setup.pool]);
