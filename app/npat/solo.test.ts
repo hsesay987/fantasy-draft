@@ -1,21 +1,30 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { answer, finish, init } from "../topicDraft/formats/npat";
+import { answer, init, judged, lock, next, pendingUnknowns, type DigState } from "../topicDraft/formats/npatDig";
 import "../topicDraft/npat/lists";
 import { adjustTier, normAnswer, type Tier } from "../topicDraft/npat/rules";
 import { entriesOf, lookup, setHistorySource, tierOf } from "../topicDraft/npat/source";
-import { overlaySource, playToEnd, soloResult, SOLO_PLAYER } from "./solo";
+import { overlaySource, soloResult, SOLO_MAX, SOLO_PLAYER } from "./solo";
 
 afterEach(() => setHistorySource(null));
 
-const CATS = ["name", "place", "animal", "thing"];
+const CATS = ["name", "place", "animal", "thing", "food"];
 const start = (overlay?: unknown) => {
   setHistorySource(overlaySource(overlay));
-  return init({ players: [SOLO_PLAYER], categories: CATS, rounds: 1, roundSeconds: 60, strict: true, teams: 0, teamMap: {}, seed: 19, now: 0, letter: "B" });
+  return init({ players: [SOLO_PLAYER], categories: CATS, strict: true, teams: 0, teamMap: {}, seed: 19, now: 0, letter: "B" });
 };
-const write = (texts: string[]) => {
-  let s = start();
-  texts.forEach((t, i) => { s = answer(s, SOLO_PLAYER, i, t, 1); });
-  return playToEnd(finish(s, SOLO_PLAYER, 2), 3);
+/** Plays the dig through: each category's answer typed and locked; unknowns are judged by `judge` (default: left to the timeout). */
+const play = (texts: string[], judge?: (text: string) => { ok: boolean; niche: number }) => {
+  let s: DigState = next(start(), 1); // the reel lands
+  texts.forEach((t, i) => {
+    s = answer(s, SOLO_PLAYER, t, 2 + i);
+    s = lock(s, SOLO_PLAYER, 3 + i);
+    if (s.phase === "judge") {
+      const v = pendingUnknowns(s).map((u) => ({ player: u.player, ...(judge ? judge(u.text) : { ok: false, niche: 0 }) }));
+      s = judge ? judged(s, v, 4 + i) : next(s, 4 + i);
+    }
+    s = next(s, 5 + i); // verdict -> next category (or the summary)
+  });
+  return s;
 };
 
 describe("overlay", () => {
@@ -40,31 +49,40 @@ describe("overlay", () => {
 });
 
 describe("a solo daily", () => {
-  it("plays the whole round out after writing closes", () => {
-    const s = write(["", "", "", ""]);
-    expect(s.done).toBe(true);
-    expect(s.history).toHaveLength(1);
+  it("has a 500 point maximum: five categories, a Unicorn each", () => expect(SOLO_MAX).toBe(500));
+
+  it("plays through five categories to the summary", () => {
+    const s = play(["", "", "", "", ""]);
+    expect(s.phase).toBe("summary");
+    expect(s.results[SOLO_PLAYER]).toHaveLength(5);
   });
 
-  it("scores list answers, gives unknowns 0, and builds the grid, score and answers to send", () => {
+  it("scores list answers, builds the grid, score and answers to send, and fills unknowns by the judge's verdict", () => {
     const bob = lookup("name", "Bob")!;
-    const s = write(["Bob", "Bzzzqqq", "Paris", ""]);
+    const s = play(["Bob", "Bzzzqqq", "Paris", "", "Bzzznope"], (t) => (t === "Bzzzqqq" ? { ok: true, niche: 90 } : { ok: false, niche: 0 }));
     const r = soloResult(s);
     const bobPts = { common: 10, obvious: 15, solid: 30, rare: 60, deep: 85, unicorn: 100 }[tierOf("name", bob)];
-    expect(r.points).toEqual([bobPts, 0, 0, 0]);
-    expect(r.total).toBe(bobPts);
-    expect(r.score).toBeCloseTo(bobPts / 400);
-    expect(r.grid).toBe(`${bobPts >= 60 ? "🟩" : bobPts >= 30 ? "🟨" : "🟥"}🟥🟥🟥`);
-    expect(r.history).toEqual([bobPts / 400, bobPts / 400, bobPts / 400, bobPts / 400]);
+    expect(r.points).toEqual([bobPts, 60, 0, 0, 0]);
+    expect(r.total).toBe(bobPts + 60);
+    expect(r.score).toBeCloseTo((bobPts + 60) / 500);
+    expect(r.grid).toBe(`${bobPts >= 60 ? "🟩" : bobPts >= 30 ? "🟨" : "🟥"}🟩🟥🟥🟥`);
+    const t = (bobPts + 60) / 500;
+    expect(r.history[0]).toBeCloseTo(bobPts / 500);
+    expect(r.history[4]).toBeCloseTo(t);
     expect(r.answers).toEqual([
-      { category: "name", text: "Bob" }, { category: "place", text: "Bzzzqqq" }, { category: "animal", text: "Paris" }, { category: "thing", text: "" },
+      { category: "name", text: "Bob" }, { category: "place", text: "Bzzzqqq" }, { category: "animal", text: "Paris" }, { category: "thing", text: "" }, { category: "food", text: "Bzzznope" },
     ]);
   });
 
+  it("an unchecked unknown that starts with the letter scores as common (the engine's timeout fallback)", () => {
+    const r = soloResult(play(["Bzzzqqq", "", "", "", ""]));
+    expect(r.points[0]).toBe(10);
+  });
+
   it("caps the score at 1", () => {
-    const s = write(["", "", "", ""]);
-    const fake = { ...s, history: [{ ...s.history[0]!, answers: { [SOLO_PLAYER]: s.history[0]!.answers[SOLO_PLAYER]!.map((a) => ({ ...a, points: 150 })) } }] };
+    const s = play(["", "", "", "", ""]);
+    const fake = { ...s, results: { [SOLO_PLAYER]: s.results[SOLO_PLAYER]!.map((a) => ({ ...a, points: 150 })) } };
     expect(soloResult(fake).score).toBe(1);
-    expect(soloResult(fake).grid).toBe("🟩🟩🟩🟩");
+    expect(soloResult(fake).grid).toBe("🟩🟩🟩🟩🟩");
   });
 });

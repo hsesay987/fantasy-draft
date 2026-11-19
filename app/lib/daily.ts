@@ -23,7 +23,7 @@ export const peckingBand = (score: number) => [...PECKING_BANDS].reverse().find(
 /** One square per question: green from 80 points, yellow from 40, red below. */
 export const peckingSquare = (points: number) => (points >= 80 ? "🟩" : points >= 40 ? "🟨" : "🟥");
 
-/** NPAT's checkpoints, by share of the 400 points on offer (four categories, a Unicorn each). */
+/** NPAT's checkpoints, by share of the 500 points on offer (five categories, a Unicorn each). */
 export const NPAT_BANDS: { name: string; at: number; mark?: string }[] = [
   { name: "Blank page", at: 0 },
   { name: "First scribbles", at: 0.15, mark: "Scribbles" },
@@ -35,7 +35,7 @@ export const NPAT_BANDS: { name: string; at: number; mark?: string }[] = [
 export const npatSquare = (points: number) => (points >= 60 ? "🟩" : points >= 30 ? "🟨" : "🟥");
 
 /** The points-scored dailies: their total on offer and their bands. */
-export const DAILY_POINTS: Record<PointsDaily, number> = { pecking: 500, npat: 400 };
+export const DAILY_POINTS: Record<PointsDaily, number> = { pecking: 500, npat: 500 };
 export const bandsFor = (g: PointsDaily) => (g === "npat" ? NPAT_BANDS : PECKING_BANDS);
 export const bandOf = (g: PointsDaily, score: number) => [...bandsFor(g)].reverse().find((b) => score >= b.at)!.name;
 export const isDailyGame = (g: string): g is DailyGame => (DAILY_GAMES as string[]).includes(g);

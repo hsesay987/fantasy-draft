@@ -31,15 +31,15 @@ describe("daily history", () => {
   it("shares Pecking Order as points out of 500, as its stats show", () => {
     expect(shareText("pecking", { ...p("2026-11-02", 0.84), checkpoint: "Top perch" })).toBe("TopPic Pecking Order #1\nTop perch · 420/500\n🟩\ntoppicgames.com/trivia");
   });
-  it("shares NPAT as points out of 400, with one square per category", () => {
-    expect(shareText("npat", { ...p("2026-11-18", 0.5), number: 19, grid: "🟩🟨🟥🟥", checkpoint: "Sharp pencil" })).toBe("TopPic Name Place Animal Thing #19\nSharp pencil · 200/400\n🟩🟨🟥🟥\ntoppicgames.com/trivia");
+  it("shares NPAT as points out of 500, with one square per category", () => {
+    expect(shareText("npat", { ...p("2026-11-18", 0.5), number: 19, grid: "🟩🟨🟥🟥🟥", checkpoint: "Sharp pencil" })).toBe("TopPic Name Place Animal Thing #19\nSharp pencil · 250/500\n🟩🟨🟥🟥🟥\ntoppicgames.com/trivia");
   });
 });
 
 describe("NPAT daily", () => {
-  it("is a daily, out of 400 points", () => {
+  it("is a daily, out of 500 points", () => {
     expect(isDailyGame("npat")).toBe(true);
-    expect(DAILY_POINTS.npat).toBe(400);
+    expect(DAILY_POINTS.npat).toBe(500);
   });
   it("squares: green from 60 points, yellow from 30, red below", () => {
     expect([100, 60, 59, 30, 29, 10, 0].map(npatSquare).join("")).toBe("🟩🟩🟨🟨🟥🟥🟥");

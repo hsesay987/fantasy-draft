@@ -1,13 +1,12 @@
-// The NPAT solo daily's pure helpers: the history overlay the API sends, playing the round out once writing closes, and
-// the result to record and share. Solo pages score in the browser, so they load the lists; room screens never import this.
-import { next, type NPState } from "../topicDraft/formats/npat";
+// The NPAT solo daily's pure helpers: the history overlay the API sends and the result to record and share. Solo pages score in the browser, so they load the lists; room screens never import this.
+import type { DigState } from "../topicDraft/formats/npatDig";
 import { npatSquare } from "../lib/daily";
 import { TIER_POINTS, type Tier } from "../topicDraft/npat/rules";
 
 /** The solo player's seat; the round's answers and points are kept under this name. */
 export const SOLO_PLAYER = "You";
-/** Four categories, a Unicorn (100) each. */
-export const SOLO_MAX = 400;
+/** Five categories, a Unicorn (100) each. */
+export const SOLO_MAX = 500;
 
 const isTier = (t: unknown): t is Tier => typeof t === "string" && Object.hasOwn(TIER_POINTS, t);
 
@@ -27,21 +26,10 @@ export function overlaySource(overlay: unknown): (category: string, answer: stri
   };
 }
 
-/** Once writing has closed: every category revealed and scored at once, then done. Writing itself is left alone. */
-export function playToEnd(s: NPState, now: number): NPState {
-  let t = s;
-  for (let i = 0; i < 50 && !t.done && t.phase !== "write"; i++) {
-    const n = next(t, now);
-    if (n === t) break;
-    t = n;
-  }
-  return t;
-}
-
-/** The finished round as a daily result: points per category, the total, the score (share of 400, capped at 1), the
+/** The finished round as a daily result: points per category, the total, the score (share of 500, capped at 1), the
  * share grid, the running score after each category, and the typed answers for the server to re-check. */
-export function soloResult(s: NPState) {
-  const mine = s.history[0]?.answers[SOLO_PLAYER] ?? [];
+export function soloResult(s: DigState) {
+  const mine = s.results[SOLO_PLAYER] ?? [];
   const points = s.categories.map((_, i) => mine[i]?.points ?? 0);
   const total = points.reduce((a, b) => a + b, 0);
   let run = 0;
