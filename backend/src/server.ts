@@ -17,6 +17,7 @@ import adRoutes from "./routes/ad.route";
 import triviaRoutes from "./routes/trivia.route";
 import costimationRoutes from "./routes/costimation.route";
 import dailyRoutes, { setDailyNpatHistory } from "./routes/daily.route";
+import npatRoutes, { setNpatRouteHistory } from "./routes/npat.route";
 import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
 import judgeRoutes from "./routes/judge.route";
@@ -76,6 +77,7 @@ app.use("/play-rooms", playRoomRoutes);
 app.use("/trivia", triviaRoutes);
 app.use("/costimation", costimationRoutes);
 app.use("/daily", dailyRoutes);
+app.use("/npat", npatRoutes);
 
 // Sentry must see errors before our own handler responds (no-op without SENTRY_DSN).
 Sentry.setupExpressErrorHandler(app);
@@ -101,6 +103,7 @@ startTicker();
 const npatHistory = createNpatHistory(prismaNpatAnswerDb);
 setNpatHistory(npatHistory);
 setDailyNpatHistory(npatHistory);
+setNpatRouteHistory(npatHistory);
 setHistorySource((category, answer) => npatHistory.lookup(category, answer));
 npatHistory.load().catch((e) => console.error("NPAT history load failed", e));
 
