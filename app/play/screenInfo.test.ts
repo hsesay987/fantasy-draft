@@ -152,3 +152,22 @@ describe("screenBoard", () => {
     expect(b.rows.map((r) => r.score)).toEqual([0, 2]);
   });
 });
+
+describe("NPAT dig on the screen", () => {
+  const dig = setup("npat", { npatStyle: "dig" });
+  const d = (o: Record<string, unknown>) => st({ phase: "ask", cat: 0, categories: ["name", "place", "animal", "thing", "food"], letter: "B", points: { Ann: 30, Bob: 0, Cy: 10, Di: 0 }, results: {}, teams: null, teamPoints: [], ...o });
+
+  it("names the category and step, runs the 20 s clock, and says Final depths at the end", () => {
+    expect(screenInfo(dig, d({ cat: 2 }))).toEqual({ turn: null, phase: "Category 3 of 5 · Animal · B · Answering" });
+    expect(screenInfo(dig, d({ done: true }))).toEqual({ turn: null, phase: "Final depths" });
+    expect(screenClock(dig, d({}))).toEqual({ deadline: 1000 + 20_000, total: 20_000 });
+  });
+
+  it("shows this category's points on the board only at the verdict", () => {
+    const results = { Ann: [{ points: 30 }], Bob: [{ points: 0 }], Cy: [{ points: 10 }], Di: [] };
+    const v = screenBoard(dig, d({ phase: "verdict", results }))!;
+    expect(v.rows.find((r) => r.name === "Ann")).toMatchObject({ score: 30, last: 30 });
+    expect(v.rows.find((r) => r.name === "Bob")!.last).toBeUndefined();
+    expect(screenBoard(dig, d({ results }))!.rows.every((r) => r.last === undefined)).toBe(true);
+  });
+});

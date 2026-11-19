@@ -22,7 +22,8 @@ import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
 import judgeRoutes from "./routes/judge.route";
 import playRoomRoutes from "./routes/playRooms.route";
-import { setNpatHistory, startTicker } from "./services/playRooms";
+import { setNpatHistory, setNpatJudge, startTicker } from "./services/playRooms";
+import { judge as npatJudge } from "./services/npatJudge.instance";
 import { createNpatHistory, prismaNpatAnswerDb } from "./services/npatHistory.service";
 import { setHistorySource } from "./shared/topicDraft/npat/source";
 import { authOptional } from "./middleware/auth";
@@ -102,6 +103,7 @@ startTicker();
 // NPAT answer counts: finished rooms add to them and scoring reads them. A failed load just scores by the lists for now.
 const npatHistory = createNpatHistory(prismaNpatAnswerDb);
 setNpatHistory(npatHistory);
+setNpatJudge(npatJudge); // dig rooms ask it about answers not on the lists
 setDailyNpatHistory(npatHistory);
 setNpatRouteHistory(npatHistory);
 setHistorySource((category, answer) => npatHistory.lookup(category, answer));

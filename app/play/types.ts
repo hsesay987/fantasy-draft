@@ -61,6 +61,8 @@ export type Opts = {
   npatSeconds?: number;
   npatHard?: boolean;
   npatStop?: boolean;
+  /** Name Place Animal Thing: "dig" asks five categories one at a time (20 s each); "sheet" fills every category at once. Absent means sheet. */
+  npatStyle?: "dig" | "sheet";
   /** Vowel Play: say it aloud and let the others judge, or type it. */
   vowelAnswer: "voice" | "type";
   /** Party games with one right answer: everyone answers on their phone, or buzz in at the table. */
@@ -84,6 +86,9 @@ export type GameSetup = {
   quiz?: QuizData;
   seed: number;
 };
+
+/** NPAT dig's starting five (Classic plus Food), and what a dig plays when its picks don't make five sharing a letter. */
+export const NPAT_DIG_IDS = ["name", "place", "animal", "thing", "food"];
 
 /** The pool ids a setup draws from: its `pools`, or just `pool` for one-topic setups. */
 export const poolsOf = (setup: Pick<GameSetup, "pool" | "pools">): string[] => (setup.pools?.length ? setup.pools : [setup.pool]);

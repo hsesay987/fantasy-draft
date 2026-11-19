@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { NPAT_CATEGORIES } from "../topicDraft/npat/categories";
-import { NPAT_CLASSIC_IDS, NPAT_MAX_CATS, NPAT_MIN_CATS, npatCustomCheck, npatSummary } from "./npatSetup";
+import { NPAT_CLASSIC_IDS, NPAT_MAX_CATS, NPAT_MIN_CATS, npatCustomCheck, npatDigCheck, npatStyleFor, npatSummary } from "./npatSetup";
+import { NPAT_DIG_IDS } from "./types";
 
 const allLetters = (ids: string[], hard: boolean) => {
   const sets = ids.map((id) => NPAT_CATEGORIES.find((c) => c.id === id)!.letters);
@@ -71,5 +72,28 @@ describe("the room's summary line", () => {
     expect(line(["classic"], { rounds: 1 })).toMatch(/^1 round ·/);
     expect(line(["classic"], { teams: 2, players: 6 })).toContain("· 2 teams ·");
     expect(line(["classic"], { teams: 2, players: 3 })).toContain("· solo until 4 players ·");
+  });
+});
+
+describe("dig style", () => {
+  it("takes exactly five categories, with Custom's messages", () => {
+    expect(npatDigCheck(NPAT_DIG_IDS)).toMatchObject({ ok: true });
+    expect(npatDigCheck(NPAT_CLASSIC_IDS)).toMatchObject({ ok: false, reason: "Pick exactly 5 categories" });
+    expect(npatDigCheck([...NPAT_DIG_IDS, "film"])).toMatchObject({ ok: false, reason: "Pick exactly 5 categories" });
+    expect(npatDigCheck(["name", "place", "animal", "thing", "nope"])).toMatchObject({ ok: false, reason: expect.stringMatching(/not available/) });
+    expect(npatDigCheck(NPAT_DIG_IDS).letters.some((l) => "QXZY".includes(l))).toBe(false);
+  });
+
+  it("opens on dig, keeps a saved style, and reads an old setup as dig only with five categories", () => {
+    expect(npatStyleFor(null)).toBe("dig");
+    expect(npatStyleFor({ opts: { npatStyle: "sheet" }, pools: NPAT_DIG_IDS.map((c) => `cat:${c}`) })).toBe("sheet");
+    expect(npatStyleFor({ opts: { npatStyle: "dig" }, pools: ["classic"] })).toBe("dig");
+    expect(npatStyleFor({ opts: {}, pools: ["classic"] })).toBe("sheet");
+    expect(npatStyleFor({ opts: {}, pools: ["classic", "cat:food"] })).toBe("dig");
+    expect(npatStyleFor({ opts: {}, pool: "classic" })).toBe("sheet");
+  });
+
+  it("sums a dig up as one letter, five categories", () => {
+    expect(npatSummary({ pools: ["cat:name"], rounds: 3, seconds: 60, teams: 0, players: 3, style: "dig" })).toBe("Dig · one letter · 5 categories · 20 s each · every player for themselves · 2+ players");
   });
 });

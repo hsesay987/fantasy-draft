@@ -2,7 +2,7 @@
 // Category metadata only: nothing here may reach the answer lists (see app/topicDraft/npat/boundary.test.ts).
 import { TEAM_MIN_PLAYERS } from "../topicDraft/formats/partytrivia";
 import { NPAT_CATEGORIES, setOf, type NpatCategory } from "../topicDraft/npat/categories";
-import { HARD_LETTERS } from "../topicDraft/npat/rules";
+import { DIG_CATEGORIES, HARD_LETTERS } from "../topicDraft/npat/rules";
 
 export const NPAT_CLASSIC_IDS = ["name", "place", "animal", "thing"];
 export const NPAT_MIN_CATS = 4;
@@ -27,9 +27,29 @@ export function npatCustomCheck(ids: string[], hard: boolean, rounds: number, ca
   return { ok: true, letters };
 }
 
+/** A dig takes exactly 5 categories (hard letters never come up), with the same messages as Custom. */
+export function npatDigCheck(ids: string[], cats: NpatCategory[] = NPAT_CATEGORIES): NpatCustomCheck {
+  const r = npatCustomCheck(ids, false, 1, cats);
+  if (ids.some((id) => !cats.some((c) => c.id === id))) return r;
+  if (ids.length !== DIG_CATEGORIES) return { ok: false, letters: r.letters, reason: `Pick exactly ${DIG_CATEGORIES} categories` };
+  return r;
+}
+
+export type NpatStyle = "dig" | "sheet";
+
+/** The style a lobby opens on for a saved NPAT setup. One that never said (from before the dig) digs only if it already has five categories. */
+export function npatStyleFor(saved: { opts?: { npatStyle?: unknown }; pools?: string[]; pool?: string } | null | undefined): NpatStyle {
+  if (!saved) return "dig";
+  if (saved.opts?.npatStyle === "dig" || saved.opts?.npatStyle === "sheet") return saved.opts.npatStyle;
+  const pools = saved.pools?.length ? saved.pools : saved.pool ? [saved.pool] : [];
+  const merged = new Set(pools.flatMap((p) => (p.startsWith(NPAT_CAT) ? [p.slice(NPAT_CAT.length)] : setOf(p)?.categories ?? [])));
+  return merged.size === DIG_CATEGORIES ? "dig" : "sheet";
+}
+
 /** The room's one-line summary of an NPAT setup. */
-export function npatSummary(o: { pools: string[]; rounds: number; seconds: number; teams: number; players: number }): string {
+export function npatSummary(o: { pools: string[]; rounds: number; seconds: number; teams: number; players: number; style?: NpatStyle }): string {
   const what = o.pools.some((p) => p.startsWith(NPAT_CAT)) ? "Custom" : setOf(o.pools[0] ?? "classic")?.title ?? "Classic";
   const who = o.teams >= 2 ? (o.players >= TEAM_MIN_PLAYERS ? `${o.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves";
+  if (o.style === "dig") return `Dig · one letter · ${DIG_CATEGORIES} categories · 20 s each · ${who} · 2+ players`;
   return `${o.rounds} round${o.rounds === 1 ? "" : "s"} · ${o.seconds} s · ${what} · ${who} · 2+ players`;
 }

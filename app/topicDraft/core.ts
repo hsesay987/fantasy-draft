@@ -1,7 +1,7 @@
 // Format-agnostic game core. Pure + JSON-serializable so the browser (local play)
 // and the server (online rooms) run exactly the same rules.
 import type { GameSetup } from "../play/types";
-import { poolsOf, snakeConfig } from "../play/types";
+import { NPAT_DIG_IDS, poolsOf, snakeConfig } from "../play/types";
 import { toJudgeItem, type JudgeTeamInput } from "../play/judging";
 import { getCatalog } from "./catalogs";
 import { autoPick, init as initSnake, pick as snakePick, turnPlayer as snakeTurn } from "./engine";
@@ -23,8 +23,10 @@ import * as VP from "./formats/vowelplay";
 import * as PK from "./formats/pecking";
 import * as SL from "./formats/sayless";
 import * as NP from "./formats/npat";
+import * as DIG from "./formats/npatDig";
 import { NPAT_SETS, categoryOf, setOf } from "./npat/categories";
 import { lettersAvailable } from "./npat/source";
+import { DIG_CATEGORIES } from "./npat/rules";
 import { listFor } from "./pecking/source";
 import { deckOf } from "./party/decks";
 import { insyncDeckOf } from "./party/insyncDecks";
@@ -34,7 +36,7 @@ import type { Item, State } from "./types";
 import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
-export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState | PK.PeckState | SL.SLState | NP.NPState;
+export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState | PK.PeckState | SL.SLState | NP.NPState | DIG.DigState;
 
 /** Every action says who is acting; the server checks that against the seat's token. */
 export type Action =
@@ -136,6 +138,11 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "sayless":
       return SL.init({ players: setup.players, decks: poolsOf(setup), rounds: o.saylessRounds ?? 2, wordsPerTurn: o.saylessWords ?? 3, slack: o.saylessSlack ?? 5, teams: o.teams, teamMap: o.teamMap, guard: o.saylessGuard ?? false, answer: o.answer === "buzz" ? "buzz" : "phones", avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "npat": {
+      if (npatIsDig(setup)) {
+        const picked = npatPicked(poolsOf(setup));
+        const categories = picked.length === DIG_CATEGORIES && lettersAvailable(picked, false).length ? picked : NPAT_DIG_IDS;
+        return DIG.init({ players: setup.players, categories, teams: o.teams, teamMap: o.teamMap, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+      }
       const categories = npatCategories(poolsOf(setup), !!o.npatHard);
       const seconds = o.npatSeconds === 45 || o.npatSeconds === 90 ? o.npatSeconds : 60;
       const rounds = Math.max(1, Math.min(8, Math.floor(Number.isFinite(o.npatRounds) ? o.npatRounds! : 3)));
@@ -150,16 +157,27 @@ export function initGame(setup: GameSetup, now: number): GameState {
 
 const NPAT_MAX_CATEGORIES = 6;
 
-/** The categories a Name Place Animal Thing game plays: set ids and `cat:<id>` picks merged in order, de-duplicated, capped
- * at 6. Unknown ids are ignored; nothing valid, or no letter that suits the mix, falls back to the Classic set. */
-function npatCategories(pools: string[], hard: boolean): string[] {
-  const classic = setOf("classic")?.categories ?? NPAT_SETS[0]!.categories;
+/** NPAT's categories as picked: set ids and `cat:<id>` picks merged in order, de-duplicated; unknown ids dropped. */
+export function npatPicked(pools: string[]): string[] {
   const merged: string[] = [];
   for (const id of pools) {
     const cats = id.startsWith("cat:") ? (categoryOf(id.slice(4)) ? [id.slice(4)] : []) : setOf(id)?.categories ?? [];
     for (const c of cats) if (!merged.includes(c)) merged.push(c);
   }
-  const picked = merged.slice(0, NPAT_MAX_CATEGORIES);
+  return merged;
+}
+
+/**
+ * Does this NPAT game dig (one category at a time) or fill a sheet? The lobby always says. A setup that doesn't
+ * (an older client or saved room) plays the sheet, as it did before the dig existed.
+ */
+export const npatIsDig = (setup: Pick<GameSetup, "format" | "opts">): boolean => setup.format === "npat" && setup.opts.npatStyle === "dig";
+
+/** The categories a Name Place Animal Thing game plays: set ids and `cat:<id>` picks merged in order, de-duplicated, capped
+ * at 6. Unknown ids are ignored; nothing valid, or no letter that suits the mix, falls back to the Classic set. */
+function npatCategories(pools: string[], hard: boolean): string[] {
+  const classic = setOf("classic")?.categories ?? NPAT_SETS[0]!.categories;
+  const picked = npatPicked(pools).slice(0, NPAT_MAX_CATEGORIES);
   return picked.length && lettersAvailable(picked, hard).length ? picked : classic;
 }
 
@@ -333,6 +351,14 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       return s;
     }
     case "npat": {
+      if (npatIsDig(setup)) {
+        const d = s as DIG.DigState;
+        if (a.type === "answer") return DIG.answer(d, a.by, a.text, now);
+        if (a.type === "lock") return DIG.lock(d, a.by, now);
+        if (a.type === "next") return DIG.next(d, now);
+        if (a.type === "tick") return DIG.tick(d, now);
+        return s;
+      }
       const x = s as NP.NPState;
       if (a.type === "answer") return NP.answer(x, a.by, a.cat as number, a.text, now);
       if (a.type === "finish") return NP.finish(x, a.by, now);

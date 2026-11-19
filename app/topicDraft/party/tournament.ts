@@ -4,6 +4,7 @@ import type { GameState } from "../core";
 import type { MafiaState } from "../formats/mafia";
 import type { PTState } from "../formats/partytrivia";
 import type { NPState } from "../formats/npat";
+import type { DigState } from "../formats/npatDig";
 import type { SLState } from "../formats/sayless";
 import type { VPState } from "../formats/vowelplay";
 import { winners as vowelWinners } from "../formats/vowelplay";
@@ -97,8 +98,9 @@ export function awardsFor(setup: GameSetup, state: GameState, seated: string[], 
     }
     case "npat": {
       // NPAT's own state has the teams it played and their scores. A team scores a shared answer once, so summing its
-      // members' points (each teammate gets the full points) would rank teams differently from the game.
-      const t = state as unknown as NPState;
+      // members' points (each teammate gets the full points) would rank teams differently from the game. The dig keeps
+      // the same `teams`, `teamPoints` and `points`, so both styles rank alike.
+      const t = state as unknown as NPState | DigState;
       if (t.teams) return byTeams(t.teams, t.teamPoints, seated);
       return byPoints(points(), seated);
     }
