@@ -152,6 +152,19 @@ describe("NPAT dig judge", () => {
     expect(state(r).results.Cy![0]!.status).toBe("wrong-letter");
   });
 
+  it("stops asking the judge past 60 calls an hour in one room, and the tick's fallback decides", () => {
+    const { j, calls } = fakeJudge();
+    setNpatJudge(j);
+    const { r, toks } = running(["Ann", "Bob"]);
+    r.judgeAt = new Array(60).fill(Date.now() - 1000); // the hour's cap already spent
+    act(r, toks.Ann!, { type: "next" });
+    askRound(r, toks, { Ann: entry(r), Bob: unknown(r) });
+    expect(state(r).phase).toBe("judge");
+    expect(calls).toHaveLength(0);
+    tickRooms(state(r).phaseAt + JUDGE_MS);
+    expect(state(r).results.Bob![0]!.reason).toBe("unchecked");
+  });
+
   it("never calls the judge when nothing is unknown", () => {
     const { j, calls } = fakeJudge();
     setNpatJudge(j);

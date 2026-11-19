@@ -39,6 +39,3 @@ export function digRanked(s: Pick<DigView, "players" | "points">): DigRow[] {
   rows.forEach((r, i) => { r.place = i > 0 && rows[i - 1]!.points === r.points ? rows[i - 1]!.place : i + 1; });
   return rows;
 }
-
-/** The open category's answer for a player, once its verdict is shown (the view only carries shown results). */
-export const shownAnswer = (s: Pick<DigView, "results" | "cat">, p: string): DigAnswer | undefined => own(s.results, p)?.[s.cat];

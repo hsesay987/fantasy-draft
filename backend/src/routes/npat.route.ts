@@ -90,7 +90,7 @@ export function createNpatRouter(deps: {
     res.json(
       raw.map((answer) => {
         const found = deps.history?.lookup(category, normAnswer(canon(category, answer)));
-        return { answer, share: found && plays > 0 ? Math.round((found.count / plays) * 100) : 0 };
+        return { answer, share: found && plays > 0 ? Math.min(100, Math.round((found.count / plays) * 100)) : 0 };
       })
     );
   });

@@ -127,4 +127,39 @@ describe("createNpatJudge", () => {
     await createNpatJudge({ llm, cache: memoryVerdictCache() }).judge([item("z" + "a".repeat(100))]);
     expect(llm.calls[0]!.items[0].text.length).toBeLessThanOrEqual(40);
   });
+
+  describe("daily model-call budget", () => {
+    const okLlm = () => llmOf((input) => ({ results: input.items.map((x: Ask) => good(x.i)) }));
+
+    it("past the budget returns the fallback without calling the model, and never caches it", async () => {
+      const llm = okLlm();
+      const cache = memoryVerdictCache();
+      const j = createNpatJudge({ llm, cache, dailyCalls: 1 });
+      expect((await j.judge([item("zebu")]))[0]!.source).toBe("ai");
+      const [v] = await j.judge([item("zorse")]);
+      expect(v).toEqual({ ok: true, niche: 0, reason: "unchecked", source: "fallback" });
+      expect(llm.calls).toHaveLength(1);
+      expect(await j.cachedVerdict("animal", "Z", "zorse")).toBeNull();
+    });
+
+    it("cache hits and list answers do not spend the budget", async () => {
+      const llm = okLlm();
+      const j = createNpatJudge({ llm, cache: memoryVerdictCache(), dailyCalls: 1, onList: (_c, t) => t === "zebra" });
+      await j.judge([item("zebu")]);
+      const out = await j.judge([item("zebu"), item("zebra")]);
+      expect(out.map((v) => v.source)).toEqual(["cache", "list"]);
+      expect(llm.calls).toHaveLength(1);
+    });
+
+    it("resets when the UTC day changes", async () => {
+      const llm = okLlm();
+      let now = Date.UTC(2026, 10, 19, 23, 59);
+      const j = createNpatJudge({ llm, cache: memoryVerdictCache(), dailyCalls: 1, now: () => now });
+      await j.judge([item("zebu")]);
+      expect((await j.judge([item("zorse")]))[0]!.source).toBe("fallback");
+      now = Date.UTC(2026, 10, 20, 0, 1);
+      expect((await j.judge([item("zorse")]))[0]!.source).toBe("ai");
+      expect(llm.calls).toHaveLength(2);
+    });
+  });
 });

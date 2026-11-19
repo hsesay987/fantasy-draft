@@ -23,6 +23,7 @@ export interface VerdictCache {
 export const MODEL = "claude-haiku-5-5";
 export const CALL_TIMEOUT_MS = 4_000;
 const REASON_MAX = 80;
+const DEFAULT_DAILY_CALLS = 2000;
 
 const keyOf = (k: VerdictKey) => `${k.category}|${k.letter}|${k.answer}`;
 
@@ -89,8 +90,24 @@ export function createNpatJudge(deps: {
   onList?: (category: string, text: string) => boolean;
   /** Safety net over the SDK's own timeout, so a hung model can never stall a room. */
   timeoutMs?: number;
+  /** Real model calls allowed per UTC day, across every route and room. Default: env NPAT_JUDGE_DAILY_CALLS, else 2000. */
+  dailyCalls?: number;
+  now?: () => number;
 }) {
   const timeoutMs = deps.timeoutMs ?? CALL_TIMEOUT_MS + 500;
+  const envCap = Number(process.env.NPAT_JUDGE_DAILY_CALLS);
+  const dailyCalls = deps.dailyCalls ?? (Number.isFinite(envCap) && envCap >= 0 && process.env.NPAT_JUDGE_DAILY_CALLS ? envCap : DEFAULT_DAILY_CALLS);
+  const now = deps.now ?? Date.now;
+  let budgetDay = "";
+  let spent = 0;
+  /** Takes one call from today's budget; false once it is spent (the day rolls over at 00:00 UTC). */
+  const spend = (): boolean => {
+    const day = new Date(now()).toISOString().slice(0, 10);
+    if (day !== budgetDay) { budgetDay = day; spent = 0; }
+    if (spent >= dailyCalls) return false;
+    spent++;
+    return true;
+  };
 
   const clean = (it: JudgeItem): JudgeItem => ({
     category: String(it.category ?? "").slice(0, 40),
@@ -120,7 +137,8 @@ export function createNpatJudge(deps: {
     if (misses.size) {
       const list = [...misses.values()];
       let results = new Map<number, Raw>();
-      if (deps.llm) {
+      if (deps.llm && !spend()) trackServer("npat_judge_budget", { items: list.length });
+      else if (deps.llm) {
         try {
           const reply = await withTimeout(
             deps.llm.verdict({ items: list.map((m, i) => ({ i, category: m.item.category, letter: m.key.letter, text: m.item.text })) }),
@@ -208,6 +226,7 @@ export function anthropicVerdictLlm(): VerdictLlm | null {
           max_tokens: 1000,
           system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
           messages: [{ role: "user", content: JSON.stringify(input) }],
+          thinking: { type: "disabled" },
           output_config: { effort: "low", format: { type: "json_schema", schema: VERDICT_SCHEMA as unknown as Record<string, unknown> } },
         });
         if (res.stop_reason === "refusal" || res.stop_reason === "max_tokens") throw new Error(`npat judge stopped: ${res.stop_reason}`);

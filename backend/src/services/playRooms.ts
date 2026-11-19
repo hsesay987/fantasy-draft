@@ -91,6 +91,8 @@ type Room = {
   answerAt?: Map<string, number[]>;
   /** NPAT dig: the judge phase (game and category) the judge was last asked about, so it is asked once per phase. */
   judgeKey?: string;
+  /** NPAT dig: when this room's judge calls started, in the current hour, so one room cannot run up the model bill. */
+  judgeAt?: number[];
   /** A tournament across games in this room. Stays visible once done, until a new one starts or the room closes. */
   tournament?: Tournament;
   /** Which tournament this is, so a late judge verdict never lands in a later one. */
@@ -709,6 +711,9 @@ function commit(room: Room, next: GameState) {
   bump(room);
 }
 
+/** Judge calls one room may make per hour. */
+const ROOM_JUDGE_PER_HOUR = 60;
+
 const judgeKeyOf = (s: DIG.DigState) => `${s.startedAt}:${s.seed}:${s.cat}`;
 
 /**
@@ -726,6 +731,11 @@ function askNpatJudge(room: Room) {
   room.judgeKey = key;
   const pending = DIG.pendingUnknowns(s);
   if (!pending.length) return;
+  const nowMs = Date.now();
+  const recent = (room.judgeAt ?? []).filter((t) => nowMs - t < 3_600_000);
+  room.judgeAt = recent;
+  if (recent.length >= ROOM_JUDGE_PER_HOUR) return; // over the room's cap: the tick's fallback decides
+  recent.push(nowMs);
   let call: Promise<unknown>;
   try {
     call = Promise.resolve(j.judge(pending.map(({ category, letter, text }) => ({ category, letter, text }))));
