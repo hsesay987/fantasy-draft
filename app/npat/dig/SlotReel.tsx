@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { REEL_MS } from "../../topicDraft/npat/rules";
+import { ABC, reelLetter } from "./reel";
 import { C } from "./world";
 
-const ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const STEPS = 28, BUMP_MS = 240;
 const easeOut = (p: number) => 1 - Math.pow(1 - p, 3);
 
@@ -34,7 +34,7 @@ export default function SlotReel({ letter, spinning, onDone }: { letter: string 
       } else if (!landedAt) {
         const p = Math.min(1, (t - t0) / REEL_MS);
         const i = Math.floor(easeOut(p) * STEPS);
-        if (i !== idx) { idx = i; setShown(i >= STEPS ? target : ABC[(ABC.indexOf(target) + 26 - (STEPS - i) * 5) % 26]); }
+        if (i !== idx) { idx = i; setShown(reelLetter(target, i, STEPS)); }
         if (p >= 1) { landedAt = t; setShown(target); }
       }
       if (landedAt) {
