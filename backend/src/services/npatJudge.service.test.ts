@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createNpatJudge, memoryVerdictCache, type VerdictLlm } from "./npatJudge.service";
+import { chainVerdictLlm, createNpatJudge, GATEWAY_PROMPT, gatewayVerdictLlm, memoryVerdictCache, type VerdictLlm } from "./npatJudge.service";
 
 const good = (i: number, over: Record<string, unknown> = {}) => ({ i, real: true, fits: true, startsWithLetter: true, niche: 30, reason: "a real one", ...over });
 type Input = Parameters<VerdictLlm["verdict"]>[0];
@@ -161,5 +161,68 @@ describe("createNpatJudge", () => {
       expect((await j.judge([item("zorse")]))[0]!.source).toBe("ai");
       expect(llm.calls).toHaveLength(2);
     });
+  });
+});
+
+describe("gatewayVerdictLlm", () => {
+  const input = { items: [{ i: 0, category: "animal", letter: "Z", text: "Zorilla" }] };
+  const reply = { results: [{ i: 0, real: true, fits: true, startsWithLetter: true, niche: 70, reason: "striped polecat" }] };
+  const ok = (content: string) => new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 });
+
+  it("is null without a configured gateway", () => {
+    expect(gatewayVerdictLlm({}, vi.fn() as any)).toBeNull();
+  });
+
+  it("posts to the first gateway with its key and model, and parses JSON wrapped in prose", async () => {
+    const f = vi.fn(async () => ok("Sure: " + JSON.stringify(reply) + " done"));
+    const llm = gatewayVerdictLlm({ JUDGE_BASE_URL: "https://api.groq.com/openai/v1/", JUDGE_API_KEY: "k1", JUDGE_GATEWAY_MODEL: "m1" }, f as any)!;
+    expect(await llm.verdict(input)).toEqual(reply);
+    const [url, init] = f.mock.calls[0] as any;
+    expect(url).toBe("https://api.groq.com/openai/v1/chat/completions");
+    expect(init.headers.authorization).toBe("Bearer k1");
+    const body = JSON.parse(init.body);
+    expect(body.model).toBe("m1");
+    expect(body.messages[0].content).toBe(GATEWAY_PROMPT);
+    expect(JSON.parse(body.messages[1].content)).toEqual(input);
+  });
+
+  it("NPAT_JUDGE_MODEL overrides the gateway model", async () => {
+    const f = vi.fn(async () => ok(JSON.stringify(reply)));
+    await gatewayVerdictLlm({ JUDGE_BASE_URL: "https://x", JUDGE_GATEWAY_MODEL: "big", NPAT_JUDGE_MODEL: "fast" }, f as any)!.verdict(input);
+    expect(JSON.parse((f.mock.calls[0] as any)[1].body).model).toBe("fast");
+  });
+
+  it("falls through to the next gateway on an error status or a reply without JSON", async () => {
+    const f = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("rate limited", { status: 429 }))
+      .mockResolvedValueOnce(ok("no json here"))
+      .mockResolvedValueOnce(ok(JSON.stringify(reply)));
+    const llm = gatewayVerdictLlm({ JUDGE_BASE_URL: "https://a", JUDGE_BASE_URL_2: "https://b", JUDGE_BASE_URL_3: "https://c" }, f as any)!;
+    expect(await llm.verdict(input)).toEqual(reply);
+    expect(f.mock.calls.map((c: any) => c[0])).toEqual(["https://a/chat/completions", "https://b/chat/completions", "https://c/chat/completions"]);
+  });
+
+  it("throws when every gateway fails, so the judge uses its fallback", async () => {
+    const f = vi.fn(async () => new Response("down", { status: 503 }));
+    await expect(gatewayVerdictLlm({ JUDGE_BASE_URL: "https://a" }, f as any)!.verdict(input)).rejects.toThrow("npat gateway 503");
+  });
+
+  it("a gateway reply goes through the same strict judging", async () => {
+    const f = vi.fn(async () => ok(JSON.stringify(reply)));
+    const j = createNpatJudge({ llm: gatewayVerdictLlm({ JUDGE_BASE_URL: "https://a" }, f as any), cache: memoryVerdictCache() });
+    const [v] = await j.judge([{ category: "animal", letter: "Z", text: "Zorilla" }]);
+    expect(v).toMatchObject({ ok: true, niche: 70, source: "ai" });
+  });
+});
+
+describe("chainVerdictLlm", () => {
+  const input = { items: [] };
+  it("is null when nothing is configured and tries each adapter in order", async () => {
+    expect(chainVerdictLlm(null, null)).toBeNull();
+    const a = { verdict: vi.fn(async () => { throw new Error("a down"); }) };
+    const b = { verdict: vi.fn(async () => ({ results: [] })) };
+    expect(await chainVerdictLlm(a, null, b)!.verdict(input)).toEqual({ results: [] });
+    expect(a.verdict).toHaveBeenCalledOnce();
   });
 });

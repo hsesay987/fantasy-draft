@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { captureError, trackServer } from "../lib/monitoring";
+import { extractJson } from "./judge.service";
 import { ANSWER_MAX, normAnswer, startsWith } from "../shared/topicDraft/npat/rules";
 
 // The NPAT "Dig" judge: decides answers that start with the letter but are not on the lists. Validity (a real thing
@@ -238,6 +239,78 @@ export function anthropicVerdictLlm(): VerdictLlm | null {
         if (e instanceof Anthropic.APIError) throw new Error(`Anthropic ${e.name} ${e.status ?? ""}`.trim());
         throw e;
       }
+    },
+  };
+}
+
+/** The prompt for gateways without schema-enforced output: the same rules plus the exact reply shape. */
+export const GATEWAY_PROMPT = [
+  SYSTEM_PROMPT,
+  "Reply with ONLY a JSON object, no prose, in this exact shape:",
+  '{"results":[{"i":number,"real":boolean,"fits":boolean,"startsWithLetter":boolean,"niche":integer 0-100,"reason":string}]}',
+].join("\n");
+
+/**
+ * OpenAI-compatible chat endpoints (Groq, Gemini's compat layer, OpenRouter...), configured with the same env as the
+ * draft judge: JUDGE_BASE_URL / _2 / _3, JUDGE_API_KEY / _2 / _3 and JUDGE_GATEWAY_MODEL / _2 / _3. They are tried in
+ * order; each call has the NPAT time limit. Null when none is configured.
+ */
+export function gatewayVerdictLlm(env: Record<string, string | undefined> = process.env, doFetch: typeof fetch = fetch): VerdictLlm | null {
+  const gates: { n: string; base: string; key: string; model: string }[] = [];
+  for (const n of ["", "_2", "_3"]) {
+    const base = env[`JUDGE_BASE_URL${n}`];
+    if (!base) continue;
+    const model = env[`NPAT_JUDGE_MODEL${n}`] || env[`JUDGE_GATEWAY_MODEL${n}`] || (n === "" ? env.JUDGE_MODEL : "") || "auto";
+    gates.push({ n, base: base.replace(/\/+$/, ""), key: env[`JUDGE_API_KEY${n}`] || "", model });
+  }
+  if (!gates.length) return null;
+  return {
+    async verdict(input) {
+      let last: unknown = new Error("npat judge: no gateway answered");
+      for (const g of gates) {
+        try {
+          const res = await doFetch(`${g.base}/chat/completions`, {
+            method: "POST",
+            headers: { "content-type": "application/json", ...(g.key ? { authorization: `Bearer ${g.key}` } : {}) },
+            body: JSON.stringify({
+              model: g.model,
+              max_tokens: 1000,
+              temperature: 0,
+              messages: [{ role: "system", content: GATEWAY_PROMPT }, { role: "user", content: JSON.stringify(input) }],
+            }),
+            signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
+          });
+          // Status only: the request holds the key's header.
+          if (!res.ok) throw new Error(`npat gateway${g.n} ${res.status}`);
+          const j: any = await res.json();
+          const parsed = extractJson(String(j?.choices?.[0]?.message?.content ?? ""));
+          if (!parsed) throw new Error(`npat gateway${g.n}: no JSON in reply`);
+          return parsed;
+        } catch (e) {
+          last = e;
+        }
+      }
+      throw last;
+    },
+  };
+}
+
+/** Tries each adapter in order until one answers; null when none is configured. */
+export function chainVerdictLlm(...llms: (VerdictLlm | null)[]): VerdictLlm | null {
+  const chain = llms.filter(Boolean) as VerdictLlm[];
+  if (!chain.length) return null;
+  if (chain.length === 1) return chain[0]!;
+  return {
+    async verdict(input) {
+      let last: unknown;
+      for (const l of chain) {
+        try {
+          return await l.verdict(input);
+        } catch (e) {
+          last = e;
+        }
+      }
+      throw last;
     },
   };
 }
