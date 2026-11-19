@@ -1,0 +1,115 @@
+<!doctype html>
+<!-- Approved NPAT v2 dig mockup (owner approved 2026-11-19). Reference for app/npat/dig/*: palette, world size,
+     depth mapping, bands, zones, landmarks, ambient animation, miner sprite, gems, core, faded in-scene ruler. -->
+<html><head><meta charset="utf-8"><title>NPAT v2 dig mockup</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:720px;margin:24px auto;padding:0 16px;background:#faf9f6;color:#1b1828}
+#rl{position:relative;width:150px;flex:none;font-size:12px;height:340px}
+.zl{position:absolute;left:14px;transform:translateY(-50%);color:#555;white-space:nowrap}
+.zl b{font-weight:500;color:#1b1828}
+.tk{position:absolute;left:0;height:0;border-top:1px solid #bbb}
+#mk{position:absolute;left:-6px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #2a78d6;transform:translateY(-50%)}
+#bn{position:absolute;left:50%;top:calc(1rem + 10px);transform:translateX(-50%);background:#1b1828;color:#f4f1e8;font-size:12px;padding:3px 10px;border-radius:4px;opacity:0;transition:opacity .3s;white-space:nowrap}
+.hb{font:12px ui-monospace,monospace;background:#1b1828;color:#f4f1e8;padding:3px 8px;border-radius:4px}
+.gb{display:inline-flex;align-items:center;gap:6px}
+.gb canvas,.slot canvas{width:15px;height:15px;image-rendering:pixelated}
+#tray{display:flex;gap:8px;margin:10px 0 0;flex-wrap:wrap}
+.slot{display:flex;align-items:center;gap:6px;font-size:12px;color:#555;border:1px solid #ddd;border-radius:8px;padding:4px 8px;min-width:96px}
+button{padding:8px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer}
+</style></head><body>
+<div style="display:flex;gap:14px;align-items:flex-start">
+<div style="position:relative;padding:1rem 0 0;overflow:hidden;flex:1;min-width:0">
+<canvas id="cv" width="240" height="150" style="width:100%;height:auto;image-rendering:pixelated;border-radius:12px;display:block"></canvas>
+<div id="ruler" style="position:absolute;inset:1rem 0 0 0;pointer-events:none"></div>
+<div style="position:absolute;top:calc(1rem + 8px);right:10px;display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="hb" id="hud">0 m</span><span class="hb" id="sc">0 pts</span></div>
+<div id="bn"></div>
+</div>
+<div id="rl" style="margin-top:1rem"><div style="position:absolute;left:0;top:0;bottom:0;border-left:1px solid #bbb"></div><div id="mk" style="top:0"></div></div>
+</div>
+<div id="tray"></div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px" id="bt"></div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px"><button id="pf">Demo perfect run</button><button id="rs">Reset</button></div>
+<p id="say" style="font-size:13px;color:#555;margin:4px 0 0">Category 1 of 5. 1 point = 10 m.</p>
+<script>
+const W=240,VH=150,WH=720,G=40,K=.13,MAXM=5000,my=m=>G+m*K;
+const C={sky:"#8fd3ff",cl:"#f4f1e8",gr:"#4fb36a",gd:"#2f7a4a",so:"#6b4a32",sd:"#4f3524",cy:"#8a6440",ro:"#5d5f70",rd:"#43455a",mg:"#2b1d2e",la:"#ff7a2e",ll:"#ffc35a",ink:"#1b1828",bo:"#e6dcc2",bl:"#4c6ef5",cyan:"#7fd6e6",pu:"#9b6bd6"};
+const GEMS=[{p:10,n:"Coal",t:"Common",a:"#3a3446",b:"#6b6478"},{p:15,n:"Quartz",t:"Too obvious",a:"#d9d4c6",b:C.cl},{p:30,n:"Amethyst",t:"Solid",a:"#6d45a8",b:C.pu},{p:60,n:"Sapphire",t:"Rare",a:"#2c45b8",b:C.bl},{p:85,n:"Emerald",t:"Deep cut",a:C.gd,b:C.gr},{p:100,n:"Diamond",t:"Unicorn",a:"#4fb4c8",b:C.cyan}];
+const GS=["  a  "," abb ","abbbl"," abb ","  a  "];
+const Z=[[0,"Topsoil"],[400,"Root tangle"],[1000,"Clay beds"],[1800,"Bedrock"],[2600,"Fossil seam"],[3400,"Crystal caves"],[4200,"Magma line"],[5000,"The core"]];
+const cv=document.getElementById("cv"),c=cv.getContext("2d"),bg=document.createElement("canvas");bg.width=W;bg.height=WH;const g=bg.getContext("2d");
+let s=11;const R=()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const F=(x,y,w,h,col,k=g)=>{k.fillStyle=col;k.fillRect(Math.round(x),Math.round(y),w,h)},P=(x,y,col,k=g)=>F(x,y,1,1,col,k);
+const drawGem=(k,x,y,gm,o=0)=>GS.forEach((row,j)=>[...row].forEach((ch,i)=>{if(ch!=" ")P(x+i,y+j-o,ch=="a"?gm.a:ch=="b"?gm.b:C.cl,k)}));
+const icon=gm=>{const e=document.createElement("canvas");e.width=5;e.height=5;drawGem(e.getContext("2d"),0,0,gm);return e};
+const disc=(cx,cy,r,col,ry=r,k=g)=>{for(let y=-ry;y<=ry;y++)for(let x=-r;x<=r;x++)if(x*x/(r*r)+y*y/(ry*ry)<=1)P(cx+x,cy+y,col,k)};
+const walk=(x,y,n,col,sp=.5)=>{for(let i=0;i<n;i++){P(x,y,col);if(R()<sp)x+=R()<.5?-1:1;else y++}};
+const bands=[[0,C.so,C.sd],[1000,C.cy,C.so],[1800,C.ro,C.rd],[3400,C.rd,C.ink],[4200,C.mg,C.ink]];
+const edge=bands.map(([m],k)=>Array.from({length:W},(_,x)=>k?Math.round(my(m)+Math.sin(x*.14+k)*1.5+(R()-.5)*2):G));
+F(0,0,W,G,C.sky);
+for(let x=0;x<W;x++){const h=G-8+Math.round(Math.sin(x*.05)*3);F(x,h,1,G-h,C.gd)}
+for(let x=0;x<W;x++)for(let y=G;y<WH;y++){let k=0;for(let j=0;j<5;j++)if(y>=edge[j][x])k=j;const [,a,b]=bands[k];let col=R()<.14?b:a;if(k==1&&(y+Math.round(Math.sin(x*.08)*2))%8==0)col=C.so;if(k==2&&(y+Math.round(Math.sin(x*.05)*3))%13==0)col=C.rd;if(k==2&&y>my(2600)&&y<my(2850)&&R()<.03)col=C.bo;P(x,y,col)}
+for(let x=0;x<W;x++){F(x,G,1,3,C.gr);P(x,G+3,C.gd)}
+const tree=(x,h)=>{F(x,G-h,2,h,C.so);disc(x+1,G-h-3,5,C.gd,4);disc(x,G-h-4,3,C.gr,3)};tree(22,6);tree(60,8);tree(190,7);
+for(let i=0;i<26;i++)walk(Math.floor(R()*W),G+4,8+Math.floor(R()*14),C.cy,.4);
+for(let i=0;i<16;i++){const x=Math.floor(R()*W),y=G+8+Math.floor(R()*50);F(x,y,2,2,C.ro);P(x,y,C.cl)}
+disc(44,G+16,6,C.sd,3);F(42,G+15,3,2,C.cl);P(41,G+14,C.cl);P(42,G+13,C.cl);P(44,G+15,C.ink);
+for(let i=0;i<6;i++){let x=30+Math.floor(R()*180),y=my(400);for(let k=0;k<60;k++){P(x,y,C.sd);if(R()<.6)x+=R()<.5?-1:1;else y++}}
+const chest=(x,y)=>{F(x-1,y-1,14,10,C.ink);F(x,y,12,8,C.cy);F(x,y+3,12,1,C.sd);F(x+5,y+3,2,2,C.ll)};chest(40,my(800));
+for(let i=0;i<12;i++){const x=Math.floor(R()*228),y=my(1100)+Math.floor(R()*80);F(x,y,4,3,C.ro);F(x,y,3,1,C.cl)}
+const cart=(x,y)=>{F(x-6,y+10,28,1,C.sd);for(let k=-6;k<22;k+=4)F(x+k,y+11,2,1,C.so);F(x,y,16,7,C.ink);F(x+1,y+1,14,5,C.rd);F(x+2,y+7,3,3,C.ink);F(x+11,y+7,3,3,C.ink);F(x+3,y-1,4,1,C.ll)};cart(176,my(1500));
+for(let i=0;i<14;i++)walk(Math.floor(R()*W),my(1850)+Math.floor(R()*120),16,C.rd,.6);
+const bone=(x,y)=>{F(x,y,9,2,C.bo);F(x-1,y-1,2,2,C.bo);F(x-1,y+2,2,1,C.bo);F(x+8,y-1,2,2,C.bo);F(x+8,y+2,2,1,C.bo)};bone(60,my(2650));bone(170,my(2800));
+const amm=(cx,cy)=>{for(let a=0;a<10;a+=.25){const r=1+a*.42;P(cx+Math.round(Math.cos(a)*r),cy+Math.round(Math.sin(a)*r),C.bo)}};amm(34,my(2900));amm(196,my(3200));
+const skull=(x,y)=>{F(x,y,10,6,C.bo);F(x+2,y+2,2,2,C.ink);F(x+10,y+3,6,2,C.bo);for(let i=0;i<5;i++)F(x+18+i*3,y+1+(i%2),2,4,C.bo)};skull(142,my(2700));
+F(150,my(3050),14,1,C.bo);for(let k=0;k<5;k++){P(152+k*2,my(3050)-2,C.bo);P(152+k*2,my(3050)+2,C.bo)}F(164,my(3050)-2,3,5,C.bo);
+for(let i=0;i<9;i++){const x=6+i*27+Math.floor(R()*8),y=edge[3][x];for(let k=0;k<6;k++)F(x+Math.floor(k/2),y+k,Math.max(1,4-k),1,C.ro)}
+const gem=(x,y)=>{P(x+1,y,C.cyan);F(x,y+1,3,1,C.cyan);P(x+1,y+2,C.rd);P(x+1,y+1,C.cl)};for(let i=0;i<12;i++)gem(Math.floor(R()*230),my(3450)+Math.floor(R()*100));
+const geo=(x,y)=>{F(x,y,12,10,C.ink);F(x+1,y+1,10,8,C.cyan);F(x+3,y+3,6,4,C.rd);P(x+4,y+4,C.cl)};geo(186,my(3700));
+disc(84,my(3800),9,C.bl,3);for(let x=-7;x<=7;x+=2)P(84+x,my(3800)-2,C.cyan);
+for(let i=0;i<10;i++){const x=Math.floor(R()*230),y=my(3950)+Math.floor(R()*60);P(x+1,y,C.ink);F(x,y+1,3,1,C.ink);F(x,y+2,4,1,C.ink);P(x+1,y+1,C.ro)}
+const lava=(x,base)=>base+Math.round(Math.sin(x*.07)*4);const L1=my(4400),L2=my(4700);
+for(let i=0;i<14;i++)walk(Math.floor(R()*W),L1+5,6,C.la,.6);
+const CY=my(4930),OX=146;for(let x=0;x<W;x++)for(let y=CY-20;y<CY+20;y++){const dx=(x-124)/48,dy=(y-CY)/16;if(dx*dx+dy*dy<1)P(x,y,dx*dx+dy*dy>.78?C.mg:C.ink)}
+const ruler=document.getElementById("ruler");let rh="";for(let m=0;m<=MAXM;m+=250)rh+=`<div data-m="${m}" style="position:absolute;left:6px;display:flex;align-items:center;gap:4px;font:11px ui-monospace,monospace;color:rgba(244,241,232,.38)"><span style="display:inline-block;width:${m%500?4:8}px;height:1px;background:rgba(244,241,232,.3)"></span>${m%500?"":`<span>${m.toLocaleString()}</span>`}</div>`;ruler.innerHTML=rh;const ticks=[...ruler.children];
+const rl=document.getElementById("rl");for(let m=0;m<=MAXM;m+=500){const t=document.createElement("div");t.className="tk";t.style.top=(m/MAXM*100)+"%";t.style.width=m%1000?"5px":"9px";rl.appendChild(t)}
+Z.forEach(([m,n])=>{const d=document.createElement("div");d.className="zl";d.style.top=(m/MAXM*100)+"%";d.innerHTML="<b>"+n+"</b> "+m.toLocaleString()+" m"+(m===MAXM?"<br><span style='color:#999'>perfect run only</span>":"");rl.appendChild(d)});
+const bt=document.getElementById("bt");GEMS.forEach((gm,i)=>{const b=document.createElement("button");b.className="gb";b.appendChild(icon(gm));b.insertAdjacentHTML("beforeend",`${gm.n} <span style="color:#777">${gm.t} +${gm.p}</span>`);b.onclick=()=>dig(i);bt.appendChild(b)});
+const wb=document.createElement("button");wb.textContent="Wrong +0";wb.onclick=()=>dig(-1);bt.appendChild(wb);
+const tray=document.getElementById("tray");function drawTray(){tray.innerHTML="";for(let i=0;i<5;i++){const d=document.createElement("div");d.className="slot";const f=found[i];if(f==null)d.textContent=`Category ${i+1}`;else if(f<0)d.innerHTML=`<span style="color:#999">No gem, 0</span>`;else{d.appendChild(icon(GEMS[f]));d.insertAdjacentHTML("beforeend",`<span style="color:#1b1828">${GEMS[f].n}</span> ${GEMS[f].p}`)}tray.appendChild(d)}}
+const worms=Array.from({length:6},()=>({x:R()*W,y:G+10+Math.floor(R()*40),d:R()<.5?-1:1}));const clouds=[[30,10],[120,16],[190,7]];const ant={x:60,y:my(560)};
+const SP=[" yyyy  ","yyyyyyl"," ssss  "," sese  "," bbbbp ","bbbbbbp"," bbbb p"," dddd  "," d  d  "," k  k  "],SC={y:C.ll,l:C.cl,s:"#e8b98f",e:C.ink,b:C.bl,d:C.so,k:C.ink,p:C.cy};
+let depth=0,shown=0,camY=0,n=0,zone=0,queue=[],last=0,score=0,found=[],wall=[],pend=null;const hud=document.getElementById("hud"),scE=document.getElementById("sc"),say=document.getElementById("say"),bn=document.getElementById("bn"),mk=document.getElementById("mk");
+function banner(t){bn.textContent=t;bn.style.opacity=1;clearTimeout(banner.h);banner.h=setTimeout(()=>bn.style.opacity=0,1700)}
+function dig(i){if(n>=5||pend)return;n++;found.push(i);drawTray();const p=i<0?0:GEMS[i].p;score+=p;depth=Math.min(MAXM,depth+p*10);pend={i,t:null};
+say.textContent=(i<0?`Answer ${n}: wrong, no gem.`:`Answer ${n}: ${GEMS[i].n}, ${GEMS[i].t.toLowerCase()}, +${p} pts, +${(p*10).toLocaleString()} m.`)+(n<5?` Category ${n+1} of 5.`:" Run over.")}
+function frame(t){const moving=Math.abs(depth-shown)>1;if(moving)shown+=(depth-shown)*.035;else{shown=depth;
+if(pend&&pend.t==null){pend.t=t;if(pend.i>=0)banner(`Found ${GEMS[pend.i].n.toLowerCase()} +${GEMS[pend.i].p}`)}
+if(pend&&t-pend.t>900){if(pend.i>=0)wall.push({i:pend.i,y:Math.round(my(shown))-2,x:wall.length%2?115:99});pend=null;last=t}
+if(!pend&&queue.length&&t-last>400)dig(queue.shift())}
+let zi=0;Z.forEach(([m],i)=>{if(shown>=m-1)zi=i});if(zi>zone){zone=zi;banner(zi===7?"You reached the core":"Entering "+Z[zi][1].toLowerCase())}
+const at=shown>=MAXM-1;
+const mY=my(shown)-10,want=Math.max(0,Math.min(WH-VH,mY-VH*.4));camY+=(want-camY)*.08;const o=Math.round(camY);
+c.drawImage(bg,0,o,W,VH,0,0,W,VH);const D=(x,y,col)=>P(x,y-o,col,c);
+clouds.forEach(cl=>{const x=((cl[0]+t/250)%280)-20;for(let i=-6;i<=6;i++)for(let j=-2;j<=2;j++)if(i*i/36+j*j/4<=1)D(x+i,cl[1]+j,C.cl)});
+for(let x=0;x<W;x+=3)if(Math.floor(t/400+x)%3==0)D(x,G-1,C.gr);
+worms.forEach(w=>{w.x+=w.d*.03;if(w.x<4||w.x>W-8)w.d*=-1;for(let k=0;k<5;k++)D(w.x+k,w.y+((k+Math.floor(t/200))%2),"#d98a8a")});
+ant.x=60+((t/80)%60);D(ant.x,ant.y+Math.round(Math.sin(t/300)),C.ink);
+if(Math.floor(t/900)%2)D(84,my(3800)+4+((t/90)%6),C.cyan);
+if(Math.floor(t/700)%3==0)D(191,my(3700)+4,C.cl);
+[L1,L2].forEach((B,i)=>{for(let x=0;x<W;x++){const y=lava(x+t/(60+i*30),B);F(x,y-o-2,1,1,C.mg,c);F(x,y-o-1,1,1,C.ll,c);F(x,y-o,1,3,C.la,c);F(x,y-o+3,1,2,C.mg,c);if((x+Math.floor(t/120))%11==0)D(x,y,C.cl)}});
+for(let i=0;i<3;i++){const x=(i*83+t/40)%W,y=L1-((t/30+i*20)%14);D(x,y,C.ll)}
+const pr=Math.round(Math.sin(t/700)),cr=at?6:4;disc(OX,CY-o,cr+pr,C.la,cr+pr,c);disc(OX,CY-o,at?3:2,C.ll,at?3:2,c);
+if(at)for(let i=0;i<8;i++){const a=i/8*6.28+t/600;D(OX+Math.round(Math.cos(a)*11),CY+Math.round(Math.sin(a)*8),C.ll)}
+const bot=Math.round(mY)+10;if(bot>G+1){F(104,G+1-o,10,bot-G-1,C.ink,c);F(105,G+1-o,1,bot-G-1,C.cy,c);F(112,G+1-o,1,bot-G-1,C.cy,c);for(let y=G+3;y<bot;y+=4)if(y-o>=0&&y-o<VH)F(105,y-o,8,1,C.so,c)}
+wall.forEach(w=>{drawGem(c,w.x,w.y,GEMS[w.i],o);if(Math.floor(t/600+w.y)%5==0)D(w.x+3,w.y+1,C.cl)});
+const dg=Math.abs(depth-shown)>1;SP.forEach((row,j)=>[...row].forEach((ch,i)=>{if(ch!=" ")D(105+i,Math.round(mY)+j,SC[ch])}));
+if(pend&&pend.t!=null&&pend.i>=0){const k=Math.min(1,(t-pend.t)/900),lift=Math.round(Math.sin(k*3.14)*8);drawGem(c,106,Math.round(mY)-6-lift,GEMS[pend.i],o);if(Math.floor(t/90)%2){D(105,Math.round(mY)-7-lift,C.cl);D(112,Math.round(mY)-3-lift,C.cl)}}
+const sw=dg&&Math.floor(t/120)%2;F(sw?110:111,Math.round(mY)+(sw?6:3)-o,3,1,C.cl,c);if(dg)for(let i=0;i<3;i++)D(104+Math.random()*10,mY+10+Math.random()*2,C.cy);
+if(!dg&&!pend&&Math.floor(t/500)%2)D(112,Math.round(mY)+1,C.ll);
+ticks.forEach(el=>{const y=my(+el.dataset.m)-o;el.style.top=`calc(${y/VH*100}% - 6px)`;el.style.display=y<-4||y>VH+4?"none":"flex";const f=Math.max(0,1-Math.abs(y-VH/2)/(VH/2));el.style.opacity=(0.25+0.75*f).toFixed(2)});
+hud.textContent=`${(Math.round(shown/10)*10).toLocaleString()} m`;scE.textContent=`${Math.round(shown/10)} pts`;mk.style.top=(shown/MAXM*100)+"%";
+requestAnimationFrame(frame)}
+document.getElementById("rs").onclick=()=>{depth=0;n=0;zone=0;queue=[];score=0;found=[];wall=[];pend=null;drawTray();say.textContent="Category 1 of 5. 1 point = 10 m."};
+document.getElementById("pf").onclick=()=>{document.getElementById("rs").onclick();shown=0;queue=[5,5,5,5,5]};
+drawTray();requestAnimationFrame(frame);
+</script></body></html>
