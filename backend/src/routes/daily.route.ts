@@ -2,9 +2,11 @@ import { Router } from "express";
 import { captureError } from "../lib/monitoring";
 import { pickProducts, prismaCostStore, type CostProductDto } from "../services/costimation.service";
 import {
-  createNpatDailyCap, dayKey, dayNumber, isDailyGame, npatOverlay, npatPlays, npatPuzzle, peckingPuzzle, prismaDailyStore, puzzleFor, recordNpatDaily, statsOf,
+  createNpatDailyCap, dayKey, dayNumber, isDailyGame, npatOverlay, npatPlays, npatRescore, npatPuzzle, peckingPuzzle, prismaDailyStore, puzzleFor, recordNpatDaily, statsOf,
   submitResult, topicFor, type DailyGame, type NpatPuzzle,
 } from "../services/daily.service";
+import { DIG_CATEGORIES } from "../shared/topicDraft/npat/rules";
+import { cachedVerdict } from "../services/npatJudge.instance";
 import type { NpatHistoryStore } from "../services/npatHistory.service";
 import { getFeud, getJeopardy } from "../services/trivia.service";
 
@@ -20,7 +22,13 @@ export function setDailyNpatHistory(h: NpatHistoryStore | null) {
 /** The saved NPAT puzzle for a day, or the one the day would build if none was saved (or it is malformed). */
 async function npatOf(day: string): Promise<NpatPuzzle> {
   const saved = (await prismaDailyStore.puzzle("npat", day)) as Partial<NpatPuzzle> | null;
-  return saved && typeof saved.letter === "string" && Array.isArray(saved.categories) ? { letter: saved.letter, categories: saved.categories } : npatPuzzle(day);
+  return validNpat(saved) ?? npatPuzzle(day);
+}
+
+/** A saved NPAT puzzle only if it is a dig's: a letter and exactly five categories (a four-category one saved before the dig shipped is rebuilt). */
+function validNpat(c: unknown): NpatPuzzle | null {
+  const p = c as Partial<NpatPuzzle> | null;
+  return p && typeof p.letter === "string" && Array.isArray(p.categories) && p.categories.length === DIG_CATEGORIES ? { letter: p.letter, categories: p.categories } : null;
 }
 
 const hits = new Map<string, number[]>();
@@ -57,7 +65,8 @@ router.get("/:game", async (req, res) => {
   if (limited(req.ip ?? "anon")) return res.status(429).json({ error: "Slow down — try again in a minute" });
   const day = dayKey();
   try {
-    const content = await puzzleFor(prismaDailyStore, game, day, () => build(game, day));
+    let content = await puzzleFor(prismaDailyStore, game, day, () => build(game, day));
+    if (game === "npat") content = validNpat(content) ?? npatPuzzle(day);
     // NPAT's tiers move with the answer counts, so the overlay is worked out fresh, never saved with the puzzle.
     const store = npatHistory;
     const extra = game === "npat" ? { overlay: store ? npatOverlay(content as NpatPuzzle, (c, a) => store.lookup(c, a)) : {} } : {};
@@ -83,9 +92,19 @@ router.post("/:game/result", async (req, res) => {
   const detail = req.body?.detail && JSON.stringify(req.body.detail).length < 4000 ? req.body.detail : undefined;
   try {
     // NPAT sends its answers too: re-checked here, they add to the answer counts on the player's first result of the day.
-    const plays = game === "npat" ? npatPlays(await npatOf(day), req.body?.answers ?? []) : [];
-    if (!plays) return res.status(400).json({ error: "answers must be up to 4 of today's categories, each at most 40 characters" });
-    const { added, ...result } = await submitResult(prismaDailyStore, { game, day, player, score, detail });
+    const puzzle = game === "npat" ? await npatOf(day) : null;
+    const plays = puzzle ? npatPlays(puzzle, req.body?.answers ?? []) : [];
+    if (!plays) return res.status(400).json({ error: "answers must be up to 5 of today's categories, each at most 40 characters" });
+    // The browser's score is never trusted: the server re-scores the typed answers from the lists and the stored verdicts.
+    let counted = score;
+    if (puzzle) {
+      const store = npatHistory;
+      let overlay = {};
+      try { overlay = store ? npatOverlay(puzzle, (c, a) => store.lookup(c, a)) : {}; } catch { overlay = {}; }
+      const typed = (req.body?.answers ?? []) as { category: string; text: string }[];
+      counted = Math.min(score, (await npatRescore(puzzle, typed, cachedVerdict, overlay)).score);
+    }
+    const { added, ...result } = await submitResult(prismaDailyStore, { game, day, player, score: counted, detail });
     // Player ids are self-issued, so history writes are also capped per IP and day (see createNpatDailyCap).
     if (added && plays.length && npatCap.allow(req.ip ?? "anon", day)) await recordNpatDaily(npatHistory, day, player, plays);
     res.json(result);

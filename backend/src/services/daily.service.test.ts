@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { tierPools } from "../shared/topicDraft/trivia/tiers";
-import { createNpatDailyCap, DAILY_TOPICS, dayNumber, isDailyGame, npatOverlay, npatPlays, npatPuzzle, peckingPuzzle, puzzleFor, recordNpatDaily, statsOf, submitResult, topicFor, type DailyStore } from "./daily.service";
+import { createNpatDailyCap, DAILY_TOPICS, dayNumber, isDailyGame, NPAT_MAX, npatOverlay, npatPlays, npatPuzzle, npatRescore, peckingPuzzle, puzzleFor, recordNpatDaily, statsOf, submitResult, topicFor, type DailyStore } from "./daily.service";
 import { NPAT_CATEGORIES } from "../shared/topicDraft/npat/categories";
-import { entriesOf, lettersAvailable, MIN_PER_LETTER } from "../shared/topicDraft/npat/source";
+import { entriesOf, lettersAvailable, lookup, MIN_PER_LETTER } from "../shared/topicDraft/npat/source";
 import { normAnswer, startsWith } from "../shared/topicDraft/npat/rules";
 import type { NpatHistoryStore } from "./npatHistory.service";
 import { getJeopardy, memoryStore } from "./trivia.service";
@@ -97,13 +97,13 @@ describe("NPAT daily", () => {
 
   it("is a daily game", () => expect(isDailyGame("npat")).toBe(true));
 
-  it("is the same all day: four distinct categories and a letter every one of them can answer, hard letters off", () => {
+  it("is the same all day: five distinct categories and a letter every one of them can answer, hard letters off", () => {
     const ids = NPAT_CATEGORIES.map((c) => c.id);
     for (const day of days) {
       const p = npatPuzzle(day);
       expect(npatPuzzle(day)).toEqual(p);
-      expect(p.categories).toHaveLength(4);
-      expect(new Set(p.categories).size).toBe(4);
+      expect(p.categories).toHaveLength(5);
+      expect(new Set(p.categories).size).toBe(5);
       for (const c of p.categories) expect(ids).toContain(c);
       expect(lettersAvailable(p.categories, false)).toContain(p.letter);
       // The rooms' rule: at least MIN_PER_LETTER (15) answers start with the letter in each category.
@@ -122,7 +122,7 @@ describe("NPAT daily", () => {
   });
 
   it("overlays only the day's entries whose history moves their tier", () => {
-    const p = { letter: "B", categories: ["animal", "name", "place", "thing"] };
+    const p = { letter: "B", categories: ["animal", "name", "place", "thing", "food"] };
     const bear = entriesOf("animal").find((e) => startsWith("B", e.name, e.also) && e.tier === "unicorn")!;
     const plain = entriesOf("animal").find((e) => startsWith("B", e.name, e.also) && e.tier === "solid")!;
     const other = entriesOf("animal").find((e) => !startsWith("B", e.name, e.also) && e.tier === "unicorn")!;
@@ -144,7 +144,7 @@ describe("NPAT daily", () => {
   });
 
   describe("recording a play", () => {
-    const p = { letter: "B", categories: ["animal", "name", "place", "thing"] };
+    const p = { letter: "B", categories: ["animal", "name", "place", "thing", "food"] };
     const known = entriesOf("animal").find((e) => normAnswer(e.name).startsWith("b"))!;
 
     it("re-checks every answer: list answers by their entry's name, unknowns with the right letter as review rows, the rest dropped", () => {
@@ -160,10 +160,10 @@ describe("NPAT daily", () => {
       ]);
     });
 
-    it("refuses bad input: not a list, more than 4, long or non-string text, other days' categories, repeats", () => {
+    it("refuses bad input: not a list, more than 5, long or non-string text, other days' categories, repeats", () => {
       expect(npatPlays(p, "nope")).toBeNull();
       expect(npatPlays(p, null)).toBeNull();
-      expect(npatPlays(p, Array.from({ length: 5 }, () => ({ category: "animal", text: "Bear" })))).toBeNull();
+      expect(npatPlays(p, Array.from({ length: 6 }, () => ({ category: "animal", text: "Bear" })))).toBeNull();
       expect(npatPlays(p, [{ category: "animal", text: "B".repeat(41) }])).toBeNull();
       expect(npatPlays(p, [{ category: "animal", text: 42 }])).toBeNull();
       expect(npatPlays(p, [{ category: "film", text: "Batman" }])).toBeNull();
@@ -189,6 +189,47 @@ describe("NPAT daily", () => {
         console.error = err;
       }
       await expect(recordNpatDaily(null, "2026-11-18", "p", [{ category: "animal", answer: "Bear" }])).resolves.toBeUndefined();
+    });
+  });
+
+  describe("re-scoring a play on the server", () => {
+    const p = { letter: "B", categories: ["animal", "name", "place", "thing", "food"] };
+    const uni = (c: string) => entriesOf(c).find((e) => e.tier === "unicorn" && startsWith("B", e.name) && lookup(c, e.name)?.name === e.name)!;
+    const none = async () => null;
+
+    it("the most a run can score is 500, and five Unicorns reach it", async () => {
+      expect(NPAT_MAX).toBe(500);
+      const r = await npatRescore(p, p.categories.map((category) => ({ category, text: uni(category).name })), none);
+      expect(r.total).toBe(500);
+      expect(r.score).toBe(1);
+    });
+
+    it("scores list answers by tier, wrong letters and blanks 0", async () => {
+      const r = await npatRescore(p, [{ category: "animal", text: uni("animal").name }, { category: "name", text: "Paris" }, { category: "place", text: "" }], none);
+      expect(r.points).toEqual([100, 0, 0, 0, 0]);
+    });
+
+    it("an unknown with a stored AI verdict scores by its niche tier (capped at rare), a rejected one 0", async () => {
+      const verdictOf = async (_c: string, _l: string, t: string) => (t === "Bzzzqqq" ? { ok: true, niche: 90 } : t === "Bnope" ? { ok: false, niche: 0 } : null);
+      const r = await npatRescore(p, [{ category: "animal", text: "Bzzzqqq" }, { category: "name", text: "Bnope" }], verdictOf);
+      expect(r.points).toEqual([60, 0, 0, 0, 0]);
+    });
+
+    it("a forged claim of an AI-accepted answer with no stored verdict only gets the fallback: common if it starts with the letter, else 0", async () => {
+      const r = await npatRescore(p, [{ category: "animal", text: "Bzzzqqq" }, { category: "name", text: "Zzzz" }], none);
+      expect(r.points).toEqual([10, 0, 0, 0, 0]);
+      expect(r.total).toBe(10);
+    });
+
+    it("a failing verdict lookup falls back instead of throwing", async () => {
+      const r = await npatRescore(p, [{ category: "animal", text: "Bzzzqqq" }], async () => { throw new Error("db"); });
+      expect(r.points[0]).toBe(10);
+    });
+
+    it("uses the history overlay's moved tier for list answers", async () => {
+      const e = uni("animal");
+      const r = await npatRescore(p, [{ category: "animal", text: e.name }], none, { animal: { [normAnswer(e.name)]: "obvious" } });
+      expect(r.points[0]).toBe(15);
     });
   });
 

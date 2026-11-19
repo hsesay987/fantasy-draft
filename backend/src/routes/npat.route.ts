@@ -7,7 +7,8 @@ import { NPAT_CATEGORIES } from "../shared/topicDraft/npat/categories";
 import { ANSWER_MAX, normAnswer } from "../shared/topicDraft/npat/rules";
 import { lookup } from "../shared/topicDraft/npat/source";
 import { REVIEW_PREFIX, type NpatHistoryStore } from "../services/npatHistory.service";
-import { anthropicVerdictLlm, createNpatJudge, prismaVerdictCache } from "../services/npatJudge.service";
+import type { createNpatJudge } from "../services/npatJudge.service";
+import { judge } from "../services/npatJudge.instance";
 
 /** Unknown-answer lookups one IP may ask the model about per UTC day, and disputes it may file. */
 export const JUDGE_LOOKUPS_PER_IP = 40;
@@ -102,14 +103,6 @@ let history: NpatHistoryStore | null = null;
 export function setNpatRouteHistory(h: NpatHistoryStore | null) {
   history = h;
 }
-
-const judge = createNpatJudge({
-  llm: anthropicVerdictLlm(),
-  cache: prismaVerdictCache(),
-  onList: (category, text) => !!lookup(category, text),
-});
-/** For a server re-score of a finished game: a stored AI verdict, never a model call. */
-export const cachedVerdict = judge.cachedVerdict;
 
 const prismaDisputes: DisputeStore = {
   async add(d) {

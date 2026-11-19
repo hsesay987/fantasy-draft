@@ -2,7 +2,7 @@ import { DAILY_COUNT, makeQuestions } from "../shared/topicDraft/formats/pecking
 import { PECKING_LISTS } from "../shared/topicDraft/pecking/lists";
 import "../shared/topicDraft/npat/lists"; // loads the answer lists the NPAT daily is picked and checked against
 import { NPAT_CATEGORIES } from "../shared/topicDraft/npat/categories";
-import { ANSWER_MAX, adjustTier, normAnswer, startsWith, type Tier } from "../shared/topicDraft/npat/rules";
+import { aiTier, ANSWER_MAX, DIG_CATEGORIES, adjustTier, normAnswer, startsWith, TIER_POINTS, type Tier } from "../shared/topicDraft/npat/rules";
 import { entriesOf, lettersAvailable, lookup } from "../shared/topicDraft/npat/source";
 import { shuffle } from "../shared/topicDraft/rng";
 import type { NpatHistoryStore } from "./npatHistory.service";
@@ -33,20 +33,20 @@ export type NpatPuzzle = { letter: string; categories: string[] };
 export type NpatOverlay = Record<string, Record<string, Tier>>;
 
 /**
- * NPAT's daily: four categories from a shuffle of them all seeded by the day, and a letter (hard ones off) that each of
- * the four can answer, as rooms require. If no letter fits a four, the next four in the shuffle, then a reshuffle.
+ * NPAT's daily: five categories from a shuffle of them all seeded by the day, and a letter (hard ones off) that each of
+ * the five can answer, as rooms require. If no letter fits a four, the next four in the shuffle, then a reshuffle.
  */
 export function npatPuzzle(day: string): NpatPuzzle {
   const ids = NPAT_CATEGORIES.map((c) => c.id);
   for (let k = 0; k < 100; k++) {
     const [order, seed] = shuffle(ids, dayNumber(day) + k);
-    for (let i = 0; i + 4 <= order.length; i += 4) {
-      const categories = order.slice(i, i + 4);
+    for (let i = 0; i + DIG_CATEGORIES <= order.length; i += DIG_CATEGORIES) {
+      const categories = order.slice(i, i + DIG_CATEGORIES);
       const letters = lettersAvailable(categories, false);
       if (letters.length) return { letter: shuffle(letters, seed)[0][0]!, categories };
     }
   }
-  throw new Error("NPAT daily: no four categories share a letter");
+  throw new Error("NPAT daily: no five categories share a letter");
 }
 
 /**
@@ -74,11 +74,11 @@ export function npatOverlay(p: NpatPuzzle, count: (category: string, answer: str
 /**
  * A daily player's answers, re-checked here (the browser's statuses are never trusted), as history rows: a list answer
  * by its entry's name, an unknown that starts with the letter as a `review:<category>` row; wrong letters and blanks are
- * dropped. Null when the input is bad: not a list, more than 4, text that isn't a string of at most 40 characters, or a
+ * dropped. Null when the input is bad: not a list, more than 5, text that isn't a string of at most 40 characters, or a
  * category that isn't one of the day's (or comes twice).
  */
 export function npatPlays(p: NpatPuzzle, answers: unknown): { category: string; answer: string }[] | null {
-  if (!Array.isArray(answers) || answers.length > 4) return null;
+  if (!Array.isArray(answers) || answers.length > DIG_CATEGORIES) return null;
   const seen = new Set<string>();
   const out: { category: string; answer: string }[] = [];
   for (const a of answers) {
@@ -93,6 +93,37 @@ export function npatPlays(p: NpatPuzzle, answers: unknown): { category: string; 
     out.push(e ? { category, answer: e.name } : { category: `review:${category}`, answer: text });
   }
   return out;
+}
+
+/** Five categories, a Unicorn (100) each. */
+export const NPAT_MAX = DIG_CATEGORIES * 100;
+
+export type StoredVerdict = { ok: boolean; niche: number } | null;
+
+/**
+ * The server's own score for a daily play, from the typed answers alone: a list answer by its tier (the history
+ * overlay's if it moved), an unknown that starts with the letter by its stored AI verdict, or, with none stored (or
+ * the lookup failing), the fallback: common. Wrong letters and blanks score 0. A client can never claim more than
+ * what the lists and the verdict cache back. `points` follows the puzzle's category order.
+ */
+export async function npatRescore(
+  p: NpatPuzzle,
+  answers: { category: string; text: string }[],
+  verdictOf: (category: string, letter: string, text: string) => Promise<StoredVerdict>,
+  overlay: NpatOverlay = {}
+) {
+  const points = await Promise.all(p.categories.map(async (category) => {
+    const a = answers.find((x) => x.category === category);
+    const text = a?.text.trim() ?? "";
+    if (!normAnswer(text) || !startsWith(p.letter, text)) return 0;
+    const e = lookup(category, text);
+    if (e) return TIER_POINTS[overlay[category]?.[normAnswer(e.name)] ?? e.tier];
+    let v: StoredVerdict = null;
+    try { v = await verdictOf(category, p.letter, text); } catch { v = null; }
+    return v ? (v.ok ? TIER_POINTS[aiTier(v.niche)] : 0) : TIER_POINTS.common;
+  }));
+  const total = points.reduce((x, y) => x + y, 0);
+  return { points, total, score: Math.min(1, total / NPAT_MAX) };
 }
 
 /** How many daily plays one IP may add to the NPAT answer counts per UTC day. */
