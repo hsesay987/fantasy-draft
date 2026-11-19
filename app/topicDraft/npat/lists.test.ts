@@ -165,22 +165,38 @@ describe("aliases (after the buildNpat --aliases-only re-filter)", () => {
     const wrong: [string, string][] = [
       ["musician", "Evil"], ["musician", "Love"], ["musician", "Puff"], ["musician", "Starfish"], ["musician", "Therapist"],
       ["animal", "Painter"], ["animal", "Killer"], ["film", "Rebellion"], ["film", "Cubic"], ["film", "Spell"],
-      ["place", "Augusta"], ["place", "Maurice"], ["food", "Ail"], ["food", "Chou"], ["food", "Porc"],
+      ["place", "Maurice"], ["food", "Ail"], ["food", "Chou"], ["food", "Porc"],
     ];
     for (const [c, text] of wrong) expect(lookup(c, text), `${c}: ${text}`).toBeNull();
+    // Augusta is a place of its own now (Augusta, Georgia), but never London.
+    expect(lookup("place", "Augusta")?.name).not.toBe("London");
+    expect(entriesOf("place").find((e) => e.name === "London")?.also ?? []).not.toContain("Augusta");
   });
 
   it("keeps the aliases players really type", () => {
     const right: [string, string, string][] = [
       ["footballer", "Messi", "Lionel Messi"], ["musician", "Elvis", "Elvis Presley"], ["musician", "Puff Daddy", "Sean Combs"],
       ["superhero", "Spidey", "Spider-Man"], ["place", "Burma", "Myanmar"], ["country", "Holland", "Netherlands"],
-      ["country", "Swaziland", "Eswatini"], ["tv", "SNL", "Saturday Night Live"], ["animal", "Puma", "Cougar"],
+      ["country", "Swaziland", "Eswatini"], ["country", "USA", "United States"], ["country", "UK", "United Kingdom"],
+      ["country", "DRC", "Democratic Republic of the Congo"], ["food", "Burger", "Hamburger"], ["food", "Eggs", "Egg"],
+      ["place", "USA", "United States"], ["place", "UK", "United Kingdom"], ["place", "UAE", "United Arab Emirates"],
+      ["place", "NYC", "New York City"], ["place", "LA", "Los Angeles"], ["place", "DC", "Washington, D.C."], ["tv", "SNL", "Saturday Night Live"], ["animal", "Puma", "Cougar"],
     ];
     for (const [c, text, name] of right) expect(lookup(c, text)?.name, `${c}: ${text}`).toBe(name);
   });
 
-  it("no place or country alias is a code or three characters or fewer", () => {
+  /** The well-known abbreviations buildNpat's KEEP_ALIAS lets through. */
+  const ABBREVIATIONS = new Set(["usa", "us", "uk", "uae", "drc", "nyc", "la", "dc"]); // normalised: "U. S. A." is "usa"
+  it("Place has every country's first-level regions and cities of 100,000 or more", () => {
+    for (const n of ["Bavaria", "Ontario", "Texas", "Queensland", "Maharashtra", "Lagos State", "Catalonia", "Paris", "Lagos", "Kyoto", "Accra", "Toronto", "Los Angeles"]) {
+      expect(lookup("place", n)?.name, n).toBe(n);
+    }
+    expect(entriesOf("place").length).toBeGreaterThanOrEqual(3000);
+  });
+
+  it("no place or country alias is a code or three characters or fewer, but for a few well-known abbreviations", () => {
     for (const c of ["place", "country"]) for (const e of entriesOf(c)) for (const a of e.also ?? []) {
+      if (ABBREVIATIONS.has(normAnswer(a))) continue;
       expect(normAnswer(a).length, `${e.name}: ${a}`).toBeGreaterThan(3);
       expect(/^[A-Z0-9][A-Z0-9 .'-]*$/.test(a), `${e.name}: ${a}`).toBe(false);
     }

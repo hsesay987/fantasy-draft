@@ -77,11 +77,22 @@ const TODAY = new Date().toISOString().slice(0, 10);
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const chunk = <T>(a: T[], n: number) => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
 
+/** Wikidata's query service may allow only one request a minute (a rule from an outage): requests to it are spaced out. */
+const WDQS_GAP_MS = 62_000;
+let wdqsAt = 0;
+
 async function get(url: string, init: RequestInit = {}): Promise<Response> {
   for (let i = 0; i < 8; i++) {
     try {
-      const res = await fetch(url, { ...init, headers: { "User-Agent": UA, ...(init.headers as object) } });
-      if (res.status === 429 || res.status >= 500) { await sleep(1000 * (Number(res.headers.get("retry-after")) || 3 * (i + 1))); continue; }
+      if (url.includes("query.wikidata.org")) {
+        await sleep(Math.max(0, wdqsAt + WDQS_GAP_MS - Date.now()));
+        wdqsAt = Date.now();
+      }
+      // A stuck request is dropped after 3 minutes and tried again (the query service stops a query at 60 seconds).
+      const res = await fetch(url, { signal: AbortSignal.timeout(180_000), ...init, headers: { "User-Agent": UA, ...(init.headers as object) } });
+      // Wikidata's query service may allow only one request a minute, with no retry-after: wait out the minute.
+      const wait = Number(res.headers.get("retry-after")) || (url.includes("query.wikidata.org") ? 0 : 3 * (i + 1));
+      if (res.status === 429 || res.status >= 500) { console.warn(`  ${res.status} from ${new URL(url).host}, waiting ${wait} s`); await sleep(1000 * wait); continue; }
       if (!res.ok) throw new Error(`${res.status} ${url.slice(0, 90)}`);
       return res;
     } catch (e) {
@@ -156,8 +167,19 @@ async function wikidata(where: string): Promise<Cand[]> {
     const name = bare(r.label.value);
     // GROUP_CONCAT order varies between runs; sort so rebuilds give the same file.
     const aliases = String(r.aliases?.value ?? "").split("|").filter(Boolean).sort();
-    return { name, also: cleanAliases(aliases, name), titles: [r.title.value] };
+    // Every alias is kept here; `entries` filters them (aliasVerdict) before keeping the first few.
+    return { name, also: cleanAliases(aliases, name, 60), titles: [r.title.value] };
   });
+}
+
+/** Like `wikidata`, for long lists: the items (with an English article) first, in one light query, then their labels
+ * and aliases in batches, so no single query runs out of time. `where` binds ?i. */
+async function wikidataMany(where: string): Promise<Cand[]> {
+  const rows = await sparql(`SELECT DISTINCT ?i WHERE { ${where} ?a schema:about ?i; schema:isPartOf <https://en.wikipedia.org/> . }`);
+  const ids = [...new Set(rows.map((r) => r.i!.value.split("/").pop()!))];
+  const out: Cand[] = [];
+  for (const part of chunk(ids, 1000)) out.push(...await wikidata(`VALUES ?i { ${part.map((i) => `wd:${i}`).join(" ")} }`));
+  return out;
 }
 
 // ---------------- Wikipedia page views ----------------
@@ -496,10 +518,23 @@ const SPECS: Record<string, Spec> = {
     },
   },
   place: {
-    title: "Place", blurb: "A city, country, state or continent", top: 2000,
-    source: "Wikidata (big cities, capitals, countries, states and provinces, continents); familiarity from Wikipedia page views",
-    build: async () => byYear(await scoreByViews(await wikidata(`{ VALUES ?t { wd:Q1549591 wd:Q3624078 wd:Q35657 wd:Q11828004 wd:Q5852411 wd:Q3336843 wd:Q5107 } ?i wdt:P31 ?t . }
-      UNION { ?c wdt:P31 wd:Q3624078; wdt:P36 ?i . }`), false), 2600).then(shortCountryNames),
+    title: "Place", blurb: "A city, country, state or continent", top: 3500,
+    source: "Wikidata (cities of 100,000+, capitals, countries, every country's states, provinces and other first-level regions, continents); familiarity from Wikipedia page views",
+    // Three lists, one query at a time: big cities, countries, capitals and continents; every first-level administrative
+    // division still in existence (Bavaria, Ontario, Lagos State); and cities of 100,000 or more people.
+    build: async () => {
+      const log = (what: string, c: Cand[]) => { console.log(`\n  ${what}: ${c.length}`); return c; };
+      const cands = [
+        ...log("cities, countries, capitals, continents", await wikidata(`{ VALUES ?t { wd:Q1549591 wd:Q3624078 wd:Q35657 wd:Q11828004 wd:Q5852411 wd:Q3336843 wd:Q5107 } ?i wdt:P31 ?t . }
+          UNION { ?c wdt:P31 wd:Q3624078; wdt:P36 ?i . }`)),
+        ...log("first-level divisions", await wikidataMany(`?t wdt:P279* wd:Q10864048 . ?i wdt:P31 ?t . FILTER NOT EXISTS { ?i wdt:P576 [] }`)),
+        ...log("cities of 100,000+", await wikidataMany(`?ct wdt:P279* wd:Q515 . ?i wdt:P31 ?ct ; wdt:P1082 ?pop . FILTER(?pop >= 100000) FILTER NOT EXISTS { ?i wdt:P576 [] }`)),
+        // Wikidata's US city classes ("charter city", "city of California") don't lead up to "city": Los Angeles is
+        // only reached through "city of the United States".
+        ...log("US cities of 100,000+", await wikidataMany(`?ct wdt:P279* wd:Q1093829 . ?i wdt:P31 ?ct ; wdt:P1082 ?pop . FILTER(?pop >= 100000)`)),
+      ];
+      return byYear(await scoreByViews(cands, false), 4500).then(shortCountryNames);
+    },
   },
   animal: {
     title: "Animal", blurb: "Any animal: mammal, bird, fish, insect and more", top: 1500,
@@ -665,7 +700,7 @@ function surname(name: string): string | null {
   return w.slice(i).join(" ");
 }
 
-function entries(id: string, cands: Cand[]): NpatEntry[] {
+function entries(id: string, cands: Cand[], cx: AliasContext): NpatEntry[] {
   const skip = new Set((EXCLUDE[id] ?? []).map(norm));
   const seen = new Set<string>();
   const rows = cands
@@ -675,7 +710,7 @@ function entries(id: string, cands: Cand[]): NpatEntry[] {
     .slice(0, SPECS[id]!.top);
   return rows.map((c, i) => {
     const e: NpatEntry = { name: c.name, tier: bandTier(i, rows.length) };
-    const also = cleanAliases(c.also ?? [], c.name);
+    const also = cleanAliases((c.also ?? []).filter((a) => !aliasVerdict(id, c.name, a, cx)), c.name);
     if (also.length) e.also = also;
     return e;
   });
@@ -752,8 +787,17 @@ const KEEP_ALIAS: Record<string, string[]> = {
   Superman: ["The Man of Steel", "Man of Steel"],
   "Sean Combs": ["Diddy", "P Diddy", "Puff Daddy"],
   "Czech Republic": ["Czechia"],
-  "New York City": ["Big Apple"],
-  "Washington, D.C.": ["District of Columbia"],
+  "Washington, D.C.": ["District of Columbia", "DC", "D.C."],
+  // Abbreviations everyone types, kept despite the short-and-codes rule for places. Only where they mean one place.
+  "United States": ["USA", "US", "U.S.", "U.S.A."],
+  "United Kingdom": ["UK", "U.K."],
+  "United Arab Emirates": ["UAE"],
+  "Democratic Republic of the Congo": ["DRC"],
+  "New York City": ["Big Apple", "NYC"],
+  "Los Angeles": ["LA", "L.A."],
+  // Plain words the common-word rule would drop, though they name the entry.
+  Hamburger: ["Burger"],
+  Egg: ["Eggs"],
   Turkey: ["Türkiye"],
   "Ivory Coast": ["Côte d'Ivoire"],
   Eswatini: ["Swaziland"],
@@ -780,7 +824,8 @@ type AliasContext = { rank: Map<string, number>; wnSyn: Map<string, Set<string>>
 
 /** Why `alias` of entry `name` in category `id` is dropped, or null to keep it. */
 function aliasVerdict(id: string, name: string, alias: string, cx: AliasContext): string | null {
-  if ((KEEP_ALIAS[name] ?? []).includes(alias)) return null;
+  // Matched normalised, so "U. S. A." counts as "USA" (only one spelling survives cleanAliases' de-duplication).
+  if ((KEEP_ALIAS[name] ?? []).some((k) => norm(k) === norm(alias))) return null;
   const k = norm(alias);
   if (/[\p{L}]/u.test(alias) && [...alias].some((ch) => /\p{L}/u.test(ch) && !/\p{Script=Latin}/u.test(ch))) return "script";
   if (GENERIC.has(k) || [...tokens(alias)].some((t) => SLURS.has(t))) return "deny";
@@ -811,7 +856,8 @@ function aliasVerdict(id: string, name: string, alias: string, cx: AliasContext)
 }
 
 /** Re-filters every written list's aliases with `aliasVerdict`, then rewrites the metadata (letters change with them). */
-async function aliasesOnly(dry: boolean, verbose: boolean) {
+/** What aliasVerdict reads: each word's FrequencyWords rank and each normalised WordNet noun's synsets. */
+async function aliasContext(): Promise<AliasContext> {
   const [freq, wn] = await Promise.all([frequency(), wordnet()]);
   const rank = new Map<string, number>();
   [...freq.entries()].forEach(([w], i) => rank.set(w, i + 1));
@@ -822,7 +868,11 @@ async function aliasesOnly(dry: boolean, verbose: boolean) {
     for (const x of ids) set.add(x);
     wnSyn.set(k, set);
   }
-  const cx: AliasContext = { rank, wnSyn };
+  return { rank, wnSyn };
+}
+
+async function aliasesOnly(dry: boolean, verbose: boolean) {
+  const cx = await aliasContext();
   const ids = ORDER.filter((id) => fs.existsSync(path.join(OUT, `${id}.json`)));
   for (const id of ids) {
     const file = path.join(OUT, `${id}.json`);
@@ -854,10 +904,11 @@ async function main() {
   const want = process.argv.slice(2);
   const ids = want.length ? want : ORDER;
   fs.mkdirSync(OUT, { recursive: true });
+  const cx = await aliasContext();
   for (const id of ids) {
     if (!SPECS[id]) { console.warn(`no spec for ${id}`); continue; }
     process.stdout.write(`${id.padEnd(11)} `);
-    const list = entries(id, await SPECS[id]!.build());
+    const list = entries(id, await SPECS[id]!.build(), cx);
     // One entry per line keeps diffs readable.
     fs.writeFileSync(path.join(OUT, `${id}.json`), `[\n${list.map((e) => JSON.stringify(e)).join(",\n")}\n]\n`);
     const at = (t: string) => list.filter((e) => e.tier === t).slice(0, 4).map((e) => e.name).join(", ");

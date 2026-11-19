@@ -4,7 +4,7 @@ export type NpatSet = { id: string; title: string; categories: string[] };
 
 export const NPAT_CATEGORIES: NpatCategory[] = [
   {"id":"name","title":"Name","blurb":"A first name","source":"Wikidata given names (how many people bear each) and FrequencyWords (OpenSubtitles 2018, CC BY-SA 4.0)","asOf":"2026-11-18","letters":"ABCDEFGHIJKLMNOPRSTVW"},
-  {"id":"place","title":"Place","blurb":"A city, country, state or continent","source":"Wikidata (big cities, capitals, countries, states and provinces, continents); familiarity from Wikipedia page views","asOf":"2026-11-18","letters":"ABCDEFGHIJKLMNOPRSTUVWYZ"},
+  {"id":"place","title":"Place","blurb":"A city, country, state or continent","source":"Wikidata (cities of 100,000+, capitals, countries, every country's states, provinces and other first-level regions, continents); familiarity from Wikipedia page views","asOf":"2026-11-19","letters":"ABCDEFGHIJKLMNOPQRSTUVWYZ"},
   {"id":"animal","title":"Animal","blurb":"Any animal: mammal, bird, fish, insect and more","source":"Open English WordNet 2025 (CC BY 4.0); familiarity from Wikipedia page views","asOf":"2026-11-18","letters":"ABCDEFGHIJKLMNOPRSTVW"},
   {"id":"thing","title":"Thing","blurb":"An object, something people make and use","source":"Open English WordNet 2025 (CC BY 4.0); familiarity from FrequencyWords (OpenSubtitles 2018, CC BY-SA 4.0)","asOf":"2026-11-18","letters":"ABCDEFGHIJKLMNOPRSTVW"},
   {"id":"superhero","title":"Superhero","blurb":"A superhero from comics, film or TV","source":"Wikidata (superheroes); familiarity from Wikipedia page views","asOf":"2026-11-18","letters":"ABCDEFGHIJKLMNOPRSTVW"},
