@@ -21,6 +21,8 @@ export interface NpatHistoryStore {
   record(day: string, player: string, plays: { category: string; answer: string }[]): Promise<void>;
   /** For setHistorySource: the answer's count and its category's plays, or null if never recorded. */
   lookup(category: string, answer: string): { count: number; plays: number } | null;
+  /** The category's plays whose answer starts with the letter: what "% said" is a share of. */
+  playsForLetter(category: string, letter: string): number;
 }
 
 const isReview = (category: string) => category.startsWith(REVIEW_PREFIX);
@@ -68,6 +70,12 @@ export function createNpatHistory(db: NpatAnswerDb): NpatHistoryStore {
     lookup(category, answer) {
       const count = counts.get(category)?.get(answer);
       return count === undefined ? null : { count, plays: plays.get(category) ?? 0 };
+    },
+    playsForLetter(category, letter) {
+      const l = letter.trim().toLowerCase();
+      let sum = 0;
+      for (const [answer, n] of counts.get(category) ?? []) if (l && answer.startsWith(l)) sum += n;
+      return sum;
     },
   };
 }

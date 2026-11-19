@@ -10,7 +10,7 @@ import { createNpatJudge, memoryVerdictCache } from "../services/npatJudge.servi
 let server: Server;
 let base = "";
 const disputes: DisputeRow[] = [];
-const history = createNpatHistory({ async all() { return [{ category: "animal", answer: "zebra", count: 1 }, { category: "animal", answer: "cat", count: 3 }]; }, async increment() {} });
+const history = createNpatHistory({ async all() { return [{ category: "animal", answer: "zebra", count: 1 }, { category: "animal", answer: "cat", count: 3 }, { category: "animal", answer: "zebu", count: 3 }, { category: "animal", answer: "dog", count: 50 }]; }, async increment() {} });
 const judge = createNpatJudge({ llm: null, cache: memoryVerdictCache() });
 
 beforeAll(async () => {
@@ -63,13 +63,16 @@ describe("npat routes", () => {
     expect((await post("/dispute", { category: "nope", letter: "Z", answer: "a", reason: "r" })).status).toBe(400);
   });
 
-  it("GET /stats gives each answer's share of the category's plays", async () => {
-    const res = await fetch(`${base}/stats?category=animal&letter=Z&answers=Zebra,Cat,Unseen`);
+  it("GET /stats gives each answer's share of the plays for that letter only (other letters' answers do not dilute it)", async () => {
+    const res = await fetch(`${base}/stats?category=animal&letter=Z&answers=Zebra,Zebu,Unseen`);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual([{ answer: "Zebra", share: 25 }, { answer: "Cat", share: 75 }, { answer: "Unseen", share: 0 }]);
+    expect(await res.json()).toEqual([{ answer: "Zebra", share: 25 }, { answer: "Zebu", share: 75 }, { answer: "Unseen", share: 0 }]);
   });
 
   it("GET /stats rejects a bad category", async () => {
-    expect((await fetch(`${base}/stats?category=nope&answers=a`)).status).toBe(400);
+    expect((await fetch(`${base}/stats?category=nope&letter=Z&answers=a`)).status).toBe(400);
+  });
+  it("GET /stats needs a letter", async () => {
+    expect((await fetch(`${base}/stats?category=animal&answers=Zebra`)).status).toBe(400);
   });
 });

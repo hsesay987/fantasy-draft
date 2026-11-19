@@ -81,12 +81,15 @@ export function createNpatRouter(deps: {
   router.get("/stats", (req, res) => {
     const category = req.query.category;
     const raw = typeof req.query.answers === "string" ? req.query.answers.split(",") : [];
+    const letter = req.query.letter;
+    if (!isLetter(letter)) return res.status(400).json({ error: "letter is required" });
     if (!isCategory(category) || raw.length < 1 || raw.length > MAX_ANSWERS || raw.some((a) => a.length > ANSWER_MAX)) return res.status(400).json({ error: "category and up to 5 answers are required" });
+    const plays = deps.history?.playsForLetter(category, letter) ?? 0;
     const canon = deps.canonical ?? ((_c: string, t: string) => t);
     res.json(
       raw.map((answer) => {
         const found = deps.history?.lookup(category, normAnswer(canon(category, answer)));
-        return { answer, share: found && found.plays > 0 ? Math.round((found.count / found.plays) * 100) : 0 };
+        return { answer, share: found && plays > 0 ? Math.round((found.count / plays) * 100) : 0 };
       })
     );
   });
