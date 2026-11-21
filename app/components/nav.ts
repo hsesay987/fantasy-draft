@@ -1,20 +1,22 @@
-import { Compass, Gamepad2, PenLine, Play, UserRound } from "lucide-react";
+import { Brain, CalendarDays, Layers, PartyPopper, PenLine } from "lucide-react";
+import { FORMATS } from "../play/formats";
 
-/** The whole site in four places: start playing, every game, every topic, and what players made. */
+/** The whole site in five tabs, named for what you do. The logo goes home; every game also has its own page under /games. */
 export const NAV = [
-  { href: "/", label: "Play", icon: Play },
-  { href: "/games", label: "Games", icon: Gamepad2 },
-  { href: "/topics", label: "Topics", icon: Compass },
+  { href: "/drafts", label: "Drafts", icon: Layers },
+  { href: "/trivia", label: "Trivia", icon: Brain },
+  { href: "/online", label: "Party", icon: PartyPopper },
   { href: "/community", label: "Community", icon: PenLine },
+  { href: "/daily", label: "Daily", icon: CalendarDays },
 ] as const;
 
-/** Phones get the account as a fifth tab; on wide screens it sits in the top bar. */
-export const ACCOUNT_TAB = { href: "/account", label: "Me", icon: UserRound } as const;
+const TRIVIA_FORMATS = new Set(["feud", "jeopardy"]);
 
-/** Older sections that now live under one of the four places, so the right tab stays lit. */
+/** Sections that live under one of the tabs, so the right tab stays lit. */
 const UNDER: Record<string, string[]> = {
-  "/games": ["/play", "/trivia", "/toppic", "/daily", "/draft", "/online", "/room", "/toprung", "/pinpoint", "/vowelplay", "/pecking", "/commonthread", "/costimation"],
-  "/topics": ["/category"],
+  "/drafts": ["/draft", "/category", "/topics", "/topic", ...FORMATS.filter((f) => !TRIVIA_FORMATS.has(f.id)).map((f) => `/play/${f.id}`)],
+  "/trivia": ["/toprung", "/pinpoint", "/vowelplay", "/pecking", "/commonthread", "/costimation", "/quiz", ...[...TRIVIA_FORMATS].map((id) => `/play/${id}`)],
+  "/online": ["/room", "/toppic", "/imposter"],
 };
 export function isActive(path: string, href: string) {
   if (href === "/") return path === "/";

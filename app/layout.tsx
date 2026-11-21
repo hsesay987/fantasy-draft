@@ -18,6 +18,7 @@ const vt = VT323({ weight: "400", subsets: ["latin"], variable: "--font-vt", dis
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://toppicgames.com"),
   title: { default: "TopPic", template: "%s · TopPic" },
   description: "Draft games, daily quizzes and party games for any topic, alone or with friends. Make your own and share it.",
 };

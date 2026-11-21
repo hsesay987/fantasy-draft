@@ -10,8 +10,11 @@ export default function SiteFooter() {
     <footer className="border-t border-white/8 px-4 pb-24 pt-6 text-xs leading-relaxed text-muted-foreground md:px-6 md:pb-8">
       <div className="mx-auto max-w-6xl space-y-3">
         <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
-          <Link href="/games" className="hover:text-white">Games</Link>
-          <Link href="/topics" className="hover:text-white">Topics</Link>
+          <Link href="/games" className="hover:text-white">All games</Link>
+          <Link href="/drafts" className="hover:text-white">Drafts</Link>
+          <Link href="/trivia" className="hover:text-white">Trivia</Link>
+          <Link href="/online" className="hover:text-white">Party</Link>
+          <Link href="/daily" className="hover:text-white">Daily</Link>
           <Link href="/community" className="hover:text-white">Community</Link>
           <Link href="/account/subscription" className="hover:text-white">Plans</Link>
           <Link href="/ads/submit" className="hover:text-white">Advertise</Link>

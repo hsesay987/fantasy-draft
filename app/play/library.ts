@@ -47,7 +47,7 @@ const standalone: LibraryGame[] = [
 ];
 
 const party: LibraryGame[] = [
-  ...PARTY_GAMES.map((f) => ({ id: f.id, kind: "party" as const, title: f.title, tagline: f.tagline, icon: f.icon, href: "/games?kind=party#room", players: f.id === "mafia" ? "5 to 12 players" : "3 to 12 players" })),
+  ...PARTY_GAMES.map((f) => ({ id: f.id, kind: "party" as const, title: f.title, tagline: f.tagline, icon: f.icon, href: "/online", daily: f.id === "npat" ? ("npat" as const) : undefined, players: f.id === "mafia" ? "5 to 12 players" : "3 to 12 players" })),
   { id: "cards", kind: "party", title: "TopPic Cards", tagline: "Everyone plays their best character card to finish the prompt. Up to 20 players.", icon: Layers, href: "/toppic", players: "3 to 20 players" },
 ];
 
