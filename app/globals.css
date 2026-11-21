@@ -1,14 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f0f23;
-  --foreground: #e2e8f0;
-  --card: #1e1c35;
-  --muted: #27273b;
-  --muted-foreground: #94a3b8;
-  --border: #4c1d95;
-  --primary: #7c3aed;
-  --secondary: #a78bfa;
+  /* One calm, neutral surface scale; violet is the only brand hue and rose is kept for the single main action on a screen. */
+  --background: #0e0f14;
+  --foreground: #e8eaf0;
+  --card: #171922;
+  --muted: #1f2230;
+  --muted-foreground: #9aa1b2;
+  --border: #2a2e3d;
+  --primary: #7c5cff;
+  --secondary: #b3a4ff;
   --accent: #f43f5e;
   --success: #22c55e;
 }
@@ -24,8 +25,8 @@
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
   --color-success: var(--success);
-  --font-display: var(--font-russo), system-ui, sans-serif;
-  --font-sans: var(--font-chakra), system-ui, sans-serif;
+  --font-display: var(--font-outfit), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
 html {
@@ -33,19 +34,19 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(60rem 40rem at 10% -10%, rgb(124 58 237 / 0.22), transparent 60%),
-    radial-gradient(50rem 36rem at 100% 0%, rgb(244 63 94 / 0.12), transparent 55%),
-    var(--background);
-  background-attachment: fixed;
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
 
 h1, h2, h3, .font-display {
   font-family: var(--font-display);
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
 }
 
 :focus-visible {
@@ -56,10 +57,35 @@ h1, h2, h3, .font-display {
 button, a, [role="button"] {
   cursor: pointer;
 }
+button:disabled {
+  cursor: not-allowed;
+}
 
 ::selection {
   background: var(--primary);
   color: white;
+}
+
+/* The app's one card: a flat surface with a hairline border. Interactive cards lift their border, never their size. */
+.surface {
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 1rem;
+  background: var(--card);
+}
+a.surface, button.surface {
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+a.surface:hover, button.surface:hover {
+  border-color: rgb(179 164 255 / 0.55);
+  background: color-mix(in srgb, var(--card) 88%, var(--primary));
+}
+/* Small caps label above a group of things. */
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
 }
 
 @media (prefers-reduced-motion: reduce) {

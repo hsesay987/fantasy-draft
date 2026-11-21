@@ -11,6 +11,7 @@ import { CUSTOM_CHALLENGE, LOADOUT_PRESETS, type LoadoutMission } from "../topic
 import { rolesFor, type Role } from "../topicDraft/formats/position";
 import { newSeed } from "../topicDraft/rng";
 import { formatMeta } from "./formats";
+import { TopicIcon } from "../components/icons/TopicIcon";
 import { category, formatsFor } from "./categories";
 import { defaultTopic, topicOptions } from "./topicOptions";
 import { DEFAULT_OPTS, type FormatId, type GameSetup, type Opts } from "./types";
@@ -315,7 +316,7 @@ export default function SetupScreen({ format: forced, room }: { format?: FormatI
             {localNames.length < 6 && <Button variant="ghost" onClick={() => setLocalNames([...localNames, `Player ${localNames.length + 1}`])}>+ Add player</Button>}
           </div>
         )}
-        <Chip selected={mystery} onClick={() => setMystery(!mystery)}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/icons/mystery-block.png" alt="" width={18} height={18} className="h-[18px] w-[18px]" /> Mystery mission — hide it until the verdict</Chip>
+        <Chip selected={mystery} onClick={() => setMystery(!mystery)}><TopicIcon id="mystery" className="h-[18px] w-[18px]" /> Mystery mission — hide it until the verdict</Chip>
       </Panel>}
       {room && <Chip selected={mystery} onClick={() => setMystery(!mystery)}>Mystery mission — hide it until the verdict</Chip>}
 

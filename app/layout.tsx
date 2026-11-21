@@ -8,18 +8,19 @@ import SiteFooter from "./components/SiteFooter";
 import FeedbackWidget from "./components/FeedbackWidget";
 import AdShell from "./components/AdShell";
 import Script from "next/script";
-import { Russo_One, Chakra_Petch, Press_Start_2P, VT323, Pixelify_Sans } from "next/font/google";
+import { Outfit, Inter, Press_Start_2P, VT323, Pixelify_Sans } from "next/font/google";
 
-const russo = Russo_One({ weight: "400", subsets: ["latin"], variable: "--font-russo", display: "swap" });
+// Two typefaces for the whole app: Outfit for headings, Inter for everything read. The pixel faces below belong to the in-game pixel worlds only.
+const outfit = Outfit({ weight: ["600", "700"], subsets: ["latin"], variable: "--font-outfit", display: "swap" });
 const press = Press_Start_2P({ weight: "400", subsets: ["latin"], variable: "--font-press", display: "swap" });
 const pixelify = Pixelify_Sans({ weight: ["500", "700"], subsets: ["latin"], variable: "--font-pixelify", display: "swap" });
 const vt = VT323({ weight: "400", subsets: ["latin"], variable: "--font-vt", display: "swap" });
-const chakra = Chakra_Petch({ weight: ["400", "500", "600", "700"], subsets: ["latin"], variable: "--font-chakra", display: "swap" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "TopPic",
-  description:
-    "A social game platform for drafts, quizzes, imposter games, and culture battles.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://toppicgames.com"),
+  title: { default: "TopPic", template: "%s · TopPic" },
+  description: "Draft games, daily quizzes and party games for any topic, alone or with friends. Make your own and share it.",
 };
 
 export default function RootLayout({
@@ -31,7 +32,7 @@ export default function RootLayout({
     process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-3005130388684291";
 
   return (
-    <html lang="en" className={`h-full ${russo.variable} ${chakra.variable} ${press.variable} ${vt.variable} ${pixelify.variable}`}>
+    <html lang="en" className={`h-full ${outfit.variable} ${inter.variable} ${press.variable} ${vt.variable} ${pixelify.variable}`}>
       {adsenseClient && (
         <Script
           id="adsense-loader"

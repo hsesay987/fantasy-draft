@@ -14,9 +14,6 @@ export type Category = {
   id: string;
   title: string;
   blurb: string;
-  /** Flat PNG/SVG icon from /public/icons (credited in the footer). */
-  iconSrc: string;
-  gradient: string;
   /** Best draft types for this topic, first is the one-tap default. */
   recommended: { format: FormatId; why: string }[];
   defaults: CategoryDefaults;
@@ -26,99 +23,114 @@ export type Category = {
 
 export const CATEGORIES: Category[] = [
   {
-    id: "fictional", title: "All Fictional Characters", blurb: "Heroes, villains, anime, games, Disney, movies and Pokémon in one pool.", iconSrc: "/icons/swords.png", gradient: "from-fuchsia-600/40 to-accent/20",
+    id: "fictional", title: "All Fictional Characters", blurb: "Heroes, villains, anime, games, Disney, movies and Pokémon in one pool.",
     recommended: [{ format: "spin", why: "Roll random fighters from every universe" }, { format: "auction", why: "Bid across franchises, blind if you dare" }],
     defaults: { teamSize: 6, missionId: "all-around", rankSize: 8, timerSeconds: 20, budget: 30 },
   },
   {
-    id: "superheroes", title: "Superheroes", blurb: "Marvel, DC and indie heroes.", iconSrc: "/icons/superman.png", gradient: "from-primary/50 to-accent/20",
+    id: "superheroes", title: "Superheroes", blurb: "Marvel, DC and indie heroes.",
     recommended: [{ format: "loadout", why: "Build a kit to beat any boss you name" }, { format: "snake", why: "Classic squad draft" }],
     defaults: { teamSize: 5, missionId: "alien-invasion", rankSize: 6, timerSeconds: 30, budget: 25 },
   },
   {
-    id: "villains", title: "Villains", blurb: "The deadliest rogues gallery.", iconSrc: "/icons/vader.png", gradient: "from-rose-700/40 to-primary/20",
+    id: "villains", title: "Villains", blurb: "The deadliest rogues gallery.",
     recommended: [{ format: "auction", why: "Bid for the biggest threats" }, { format: "snake", why: "Draft your crime syndicate" }],
     defaults: { teamSize: 5, missionId: "tournament", rankSize: 6, timerSeconds: 30, budget: 25 },
   },
   {
-    id: "heroes-villains", title: "Heroes & Villains", blurb: "One big pool, both sides.", iconSrc: "/icons/swords.png", gradient: "from-fuchsia-600/40 to-primary/20",
+    id: "heroes-villains", title: "Heroes & Villains", blurb: "One big pool, both sides.",
     recommended: [{ format: "spin", why: "Anything can show up" }, { format: "position", why: "Mix sides across roles" }],
     defaults: { teamSize: 6, missionId: "all-around", rankSize: 8, timerSeconds: 20, budget: 30 },
   },
   {
-    id: "anime", title: "Anime", blurb: "Fighters, rivals and sidekicks.", iconSrc: "/icons/dragon-ball.png", gradient: "from-orange-500/45 to-accent/20",
+    id: "anime", title: "Anime", blurb: "Fighters, rivals and sidekicks.",
     recommended: [{ format: "blind", why: "Rank who hits hardest" }, { format: "position", why: "Hero, Rival, Mentor, Sidekick" }],
     defaults: { teamSize: 5, missionId: "tournament", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
-    id: "pokemon", title: "Pokémon", blurb: "Build a team of six.", iconSrc: "/icons/pokeballs.png", gradient: "from-red-600/40 to-primary/20",
+    id: "pokemon", title: "Pokémon", blurb: "Build a team of six.",
     recommended: [{ format: "spin", why: "Roll your party" }, { format: "snake", why: "Draft a champion six" }],
     defaults: { teamSize: 6, missionId: "tournament", rankSize: 8, timerSeconds: 20, budget: 30 },
   },
   {
-    id: "videogames", title: "Video Game Icons", blurb: "Mascots, heroes and bosses.", iconSrc: "/icons/mystery-block.png", gradient: "from-emerald-600/40 to-primary/20",
+    id: "videogames", title: "Video Game Icons", blurb: "Mascots, heroes and bosses.",
     recommended: [{ format: "spin", why: "Quick-fire random picks" }, { format: "snake", why: "Draft your co-op squad" }],
     defaults: { teamSize: 4, missionId: "space-war", rankSize: 6, timerSeconds: 20, budget: 20 },
   },
   {
-    id: "disney", title: "Disney & Pixar", blurb: "Magic, heart and a few villains.", iconSrc: "/icons/mickey.png", gradient: "from-indigo-600/40 to-primary/20",
+    id: "disney", title: "Disney & Pixar", blurb: "Magic, heart and a few villains.",
     recommended: [{ format: "blind", why: "Rank the most magical" }, { format: "position", why: "Cast your fairy-tale crew" }],
     defaults: { teamSize: 4, missionId: "all-around", rankSize: 6, timerSeconds: 25, budget: 20 },
   },
   {
-    id: "movies", title: "Movie Icons", blurb: "Action stars to monsters.", iconSrc: "/icons/clapperboard.svg", gradient: "from-amber-500/40 to-accent/20",
+    id: "movies", title: "Movie Icons", blurb: "Action stars to monsters.",
     recommended: [{ format: "auction", why: "Bid like a studio head" }, { format: "position", why: "Cast the perfect heist crew" }],
     defaults: { teamSize: 5, missionId: "heist", rankSize: 8, timerSeconds: 30, budget: 25 },
   },
   {
-    id: "history", title: "Historical Figures", blurb: "Leaders, geniuses and icons.", iconSrc: "/icons/history.png", gradient: "from-stone-500/40 to-primary/20",
+    id: "history", title: "Historical Figures", blurb: "Leaders, geniuses and icons.",
     recommended: [{ format: "position", why: "Fill a cabinet" }, { format: "blind", why: "Rank the greatest minds" }],
     defaults: { teamSize: 5, missionId: "dinner-party", rankSize: 6, timerSeconds: 30, budget: 25 },
   },
   {
-    id: "football", title: "International Football", blurb: "World Cup legends and today\u2019s stars.", iconSrc: "/icons/soccer.svg", gradient: "from-green-600/40 to-accent/20",
+    id: "football", title: "International Football", blurb: "World Cup legends and today\u2019s stars.",
     recommended: [{ format: "position", why: "Choose your starting XI by position" }, { format: "auction", why: "Bid for the biggest names" }],
     defaults: { teamSize: 5, missionId: "world-cup-final", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
-    id: "films", title: "Films", blurb: "Classics, blockbusters and cult hits.", iconSrc: "/icons/film.svg", gradient: "from-red-700/40 to-primary/20",
+    id: "films", title: "Films", blurb: "Classics, blockbusters and cult hits.",
     recommended: [{ format: "blind", why: "Rank the best of the best" }, { format: "position", why: "Plan a perfect movie marathon" }],
     defaults: { teamSize: 5, missionId: "crowd-favourite", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
-    id: "shows", title: "TV Shows", blurb: "Binge-worthy series, all genres.", iconSrc: "/icons/tv.svg", gradient: "from-cyan-600/40 to-primary/20",
+    id: "shows", title: "TV Shows", blurb: "Binge-worthy series, all genres.",
     recommended: [{ format: "blind", why: "Rank the greatest series" }, { format: "snake", why: "Draft your ultimate watchlist" }],
     defaults: { teamSize: 5, missionId: "rewatch-king", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
-    id: "nba", title: "NBA Legends", blurb: "All-time greats with real heights, teams and best seasons.", iconSrc: "/icons/basketball.png", gradient: "from-orange-600/40 to-primary/20",
+    id: "nba", title: "NBA Legends", blurb: "All-time greats with real heights, teams and best seasons.",
     recommended: [{ format: "auction", why: "Bid blind on clues: height, team colours, best season" }, { format: "snake", why: "Draft your all-time starting five" }],
     defaults: { teamSize: 5, missionId: "all-around-basketball", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
-    id: "food", title: "Food", blurb: "Dishes from every kitchen in the world.", iconSrc: "/icons/food.svg", gradient: "from-amber-600/40 to-accent/20",
+    id: "food", title: "Food", blurb: "Dishes from every kitchen in the world.",
     recommended: [{ format: "position", why: "Plan a five-course menu" }, { format: "blind", why: "Rank the tastiest" }],
     defaults: { teamSize: 5, missionId: "food-festival", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
-    id: "geography", title: "Geography", blurb: "Countries, from superpowers to island hideaways.", iconSrc: "/icons/globe.svg", gradient: "from-teal-600/40 to-primary/20",
+    id: "geography", title: "Geography", blurb: "Countries, from superpowers to island hideaways.",
     recommended: [{ format: "auction", why: "Bid for the best places on Earth" }, { format: "position", why: "Build your dream world tour" }],
     defaults: { teamSize: 5, missionId: "dream-holiday", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
-    id: "flags", title: "Flags", blurb: "The world\u2019s flags, judged on design.", iconSrc: "/icons/flag.svg", gradient: "from-red-600/40 to-accent/20",
+    id: "flags", title: "Flags", blurb: "The world\u2019s flags, judged on design.",
     recommended: [{ format: "blind", why: "Rank each flag as it flies in" }, { format: "keep", why: "Keep the best, bin the rest" }],
     defaults: { teamSize: 5, missionId: "design-award", rankSize: 8, timerSeconds: 20, budget: 25 },
   },
   {
-    id: "books", title: "Books", blurb: "Classics, page-turners and epic series.", iconSrc: "/icons/book.svg", gradient: "from-yellow-700/40 to-primary/20",
+    id: "books", title: "Books", blurb: "Classics, page-turners and epic series.",
     recommended: [{ format: "snake", why: "Draft your dream bookshelf" }, { format: "blind", why: "Rank the greatest reads" }],
     defaults: { teamSize: 5, missionId: "book-club", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
   {
-    id: "music", title: "Music", blurb: "Legends, bands and today\u2019s hitmakers.", iconSrc: "/icons/music.svg", gradient: "from-violet-600/40 to-accent/20",
+    id: "music", title: "Music", blurb: "Legends, bands and today\u2019s hitmakers.",
     recommended: [{ format: "position", why: "Book a festival lineup" }, { format: "auction", why: "Bid like a record label" }],
     defaults: { teamSize: 5, missionId: "headline-festival", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
+  {
+    id: "mythology", title: "Mythology", blurb: "Gods, heroes and monsters from myths around the world.",
+    recommended: [{ format: "snake", why: "Draft your own pantheon" }, { format: "auction", why: "Bid for the mightiest gods" }],
+    defaults: { teamSize: 5, missionId: "ragnarok", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
+  {
+    id: "animals", title: "Animals", blurb: "Predators, giants and the toughest little creatures alive.",
+    recommended: [{ format: "blind", why: "Rank the deadliest as they appear" }, { format: "position", why: "Build the ultimate animal squad" }],
+    defaults: { teamSize: 5, missionId: "rule-savanna", rankSize: 8, timerSeconds: 20, budget: 25 },
+  },
+  {
+    id: "celebrities", title: "Celebrities", blurb: "Music, film, TV and sport\u2019s biggest names.",
+    recommended: [{ format: "auction", why: "Bid on the A-list" }, { format: "position", why: "Cast your dream line-up" }],
+    defaults: { teamSize: 5, missionId: "awards-night", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
 ];
 
@@ -151,23 +163,26 @@ export const CLASSIC_DRAFTS: Record<string, ClassicDraft[]> = {
 
 /** Topics that only have a classic stat draft (no pool of characters for the other draft types). */
 export const CLASSIC_ONLY: Omit<Category, "recommended" | "defaults">[] = [
-  { id: "nfl", title: "NFL", blurb: "Gridiron greats, positions and all.", iconSrc: "/icons/football.png", gradient: "from-emerald-700/40 to-primary/20" },
-  { id: "cartoon", title: "Cartoons", blurb: "Shows and characters from every era.", iconSrc: "/icons/turtle.png", gradient: "from-sky-600/40 to-accent/20" },
+  { id: "nfl", title: "NFL", blurb: "Gridiron greats, positions and all." },
+  { id: "cartoon", title: "Cartoons", blurb: "Shows and characters from every era." },
 ];
 
-export type Topic = { id: string; title: string; blurb: string; iconSrc: string; gradient: string };
+/** A topic's icon is drawn by `TopicIcon` from its id; its colour comes from the section it sits in. */
+export type Topic = { id: string; title: string; blurb: string };
 /** Topics grouped under a main heading on the home page, in display order. */
-export const TOPIC_GROUPS: { id: string; title: string; blurb: string; ids: string[] }[] = [
-  { id: "characters", title: "Characters", blurb: "Heroes, villains and icons from every universe.", ids: ["fictional", "superheroes", "villains", "heroes-villains", "anime", "pokemon", "videogames", "disney", "movies", "cartoon"] },
-  { id: "sports", title: "Sports", blurb: "Real players, real stats.", ids: ["nba", "nfl", "football"] },
-  { id: "entertainment", title: "Entertainment", blurb: "What you watch, read and listen to.", ids: ["films", "shows", "music", "books"] },
-  { id: "world", title: "The World", blurb: "Places, flags, food and the people who made history.", ids: ["geography", "flags", "food", "history"] },
+export const TOPIC_GROUPS: { id: string; title: string; blurb: string; tint: "characters" | "sports" | "screen" | "world"; ids: string[] }[] = [
+  { id: "characters", title: "Characters", blurb: "Heroes, villains and icons from every universe.", tint: "characters", ids: ["fictional", "superheroes", "villains", "heroes-villains", "anime", "pokemon", "videogames", "disney", "movies", "mythology", "cartoon"] },
+  { id: "sports", title: "Sports", blurb: "Real players, real stats.", tint: "sports", ids: ["nba", "nfl", "football"] },
+  { id: "entertainment", title: "Entertainment", blurb: "What you watch, read and listen to.", tint: "screen", ids: ["films", "shows", "music", "books", "celebrities"] },
+  { id: "world", title: "The World", blurb: "Places, flags, food, animals and the people who made history.", tint: "world", ids: ["geography", "flags", "food", "history", "animals"] },
 ];
 const HOME_ORDER = TOPIC_GROUPS.flatMap((g) => g.ids);
 /** Every topic in one list: draft pools and classic leagues side by side. */
 export const TOPICS: Topic[] = [...CATEGORIES.filter((c) => !c.hidden), ...CLASSIC_ONLY]
   .sort((a, b) => (HOME_ORDER.indexOf(a.id) + 1 || 99) - (HOME_ORDER.indexOf(b.id) + 1 || 99));
 export const topic = (id: string): Topic | undefined => TOPICS.find((t) => t.id === id);
+/** The section colour for a topic's icon. */
+export const topicTint = (id: string) => TOPIC_GROUPS.find((g) => g.ids.includes(id))?.tint ?? "neutral";
 export const topicsIn = (groupId: string): Topic[] => TOPIC_GROUPS.find((g) => g.id === groupId)?.ids.map((id) => topic(id)).filter((t): t is Topic => !!t) ?? [];
 
 export const FORMAT_WHY: Record<FormatId, string> = {

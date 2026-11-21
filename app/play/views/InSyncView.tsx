@@ -9,28 +9,29 @@ import { WorldScene } from "../../components/pixel/WorldScene";
 import { useSound } from "../../components/SoundProvider";
 import { canMoveOn, DrinkCard, LeaveGame, PartyActions, PartyClock, playerSprite, WaitingForHost, WaterLine } from "./partyBits";
 import { SignalCanvas } from "./SignalCanvas";
-import { createThrottle, locksNeeded, MARKER_HOLD_MS, REVEAL_OUTCOME_MS, shownMarker, syncGameKey, verdictFor, type LocalMarker, type Points } from "./signal";
+import { createThrottle, MARKER_HOLD_MS, REVEAL_OUTCOME_MS, shownMarker, syncGameKey, verdictFor, type LocalMarker, type Points } from "./signal";
 import type { GameCtl } from "../useGame";
 import type { GameSetup } from "../types";
 
 const SCENE = "A late-night radio station: a host at the desk, tape reels turning, and a tower blinking over the city";
 const MOVE_EVERY_MS = 200;
 
-/** In-Sync on a phone, in a late-night radio station: one host gives a clue, the rest tune one shared signal to it. */
+/** In-Sync on a phone, in a late-night radio station: one host gives a clue, everyone else tunes their own dial to it. */
 export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as IS.InSyncState;
   const me = ctl.me ?? "";
   const pair = s.pairs[s.round]!;
   const host = IS.giver(s);
-  // Watching (the screen host): no mic, no marker, no lock.
+  // Watching (the screen host): no mic, no dial, no lock. A guesser has a dial only while the round is being tuned.
   const seated = s.players.includes(me);
   const isHost = seated && me === host;
-  const canTune = s.phase === "tune" && !isHost && seated;
+  const canTune = s.phase === "tune" && me in s.markers;
+  const myDial = s.markers[me];
   const last = s.phase === "reveal" ? s.history[s.history.length - 1]! : null;
   const points = (last ? last.points : null) as Points | null;
 
-  // The marker: sent at most once per 200ms, with this seat's finger shown straight away.
+  // My dial: sent at most once per 200ms, with this seat's finger shown straight away.
   const [local, setLocal] = useState<LocalMarker | null>(null);
   const dispatch = useRef(ctl.dispatch);
   const meRef = useRef(me);
@@ -50,12 +51,15 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   // After letting go, hold the position until the server agrees, or give way once the hold runs out.
   useEffect(() => {
     if (!local || local.dragging) return;
-    if (s.marker === local.pos) return setLocal(null);
+    if (myDial === local.pos) return setLocal(null);
     const id = setTimeout(() => setLocal(null), MARKER_HOLD_MS);
     return () => clearTimeout(id);
-  }, [local, s.marker]);
+  }, [local, myDial]);
 
-  const marker = canTune ? shownMarker(s.marker, local, Date.now()) : s.marker;
+  // While tuning, a guesser's needle is their own dial; everyone else watches the room's average. The other dials show faintly.
+  const marker = canTune ? shownMarker(myDial ?? 50, local, Date.now()) : s.marker;
+  const dials = last ? Object.values(last.markers ?? {}) : Object.entries(s.markers).filter(([p]) => !canTune || p !== me).map(([, v]) => v);
+  const mineLast = last?.markers?.[me];
 
   useEffect(() => { window.scrollTo(0, 0); }, [s.round]); // each new round starts at the top of the screen
 
@@ -77,21 +81,10 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.phase, s.round]);
 
-  // A move takes back every lock: say so, because otherwise a lamp just goes out with no reason given.
-  const [cleared, setCleared] = useState(false);
-  const locksRef = useRef(s.locks.length);
-  useEffect(() => {
-    const had = locksRef.current;
-    locksRef.current = s.locks.length;
-    if (s.phase !== "tune") return setCleared(false);
-    if (s.locks.length > 0) return setCleared(false);
-    if (had > 0) setCleared(true);
-  }, [s.locks.length, s.phase]);
-
-  // Only the guessers still here count, the same as the server's majority.
+  // Every guesser still here locks before the reveal, the same as the server.
   const gone = ctl.gone ?? [];
   const guessers = s.players.filter((p) => p !== host && !gone.includes(p));
-  const need = locksNeeded(guessers.length);
+  const need = guessers.length;
   const have = s.locks.filter((p) => guessers.includes(p)).length;
   const lockedByMe = s.locks.includes(me);
   const phaseMs = s.phase === "reveal" ? IS.REVEAL_MS : s.phase === "tune" ? IS.TUNE_MS : IS.CLUE_MS;
@@ -102,7 +95,7 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
   const lock = () => {
     play("click");
-    mover.settle(() => dispatch.current({ type: "lock", by: meRef.current })); // after any waiting move, which would take the lock back
+    mover.settle(() => dispatch.current({ type: "lock", by: meRef.current })); // after any waiting move, which would take my lock back
   };
 
   return (
@@ -130,7 +123,7 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
         {isHost && s.phase === "clue" && <ClueDesk onSend={(text) => ctl.dispatch({ type: "clue", by: me, text })} />}
 
-        <SignalCanvas marker={marker} target={s.target} phase={s.phase} points={points} left={pair.left} right={pair.right}
+        <SignalCanvas marker={marker} dials={dials} target={s.target} phase={s.phase} points={points} left={pair.left} right={pair.right}
           onMove={canTune ? (pos) => { setLocal({ pos, at: Date.now(), dragging: true }); mover.push(pos); } : undefined}
           onRelease={() => setLocal((l) => (l ? { ...l, at: Date.now(), dragging: false } : l))}
           overlay={<>
@@ -140,20 +133,20 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
         {canTune && (
           <div className="sync-lock">
-            <p className="sync-hint">{cleared ? "The signal moved, so the locks went out. Lock again." : "Drag the signal. Talk it over. Anyone can move it."}</p>
+            <p className="sync-hint">{lockedByMe ? "Locked. Move your dial to change your mind." : "Drag your own dial. Talk it over: the room's signal is where all your dials average out."}</p>
             <PixelButton variant="gold" className="sync-lock-btn" disabled={lockedByMe} aria-pressed={lockedByMe} onClick={lock}>{lockedByMe ? "Locked" : "Lock it in"}</PixelButton>
             <LockLamps have={have} need={need} />
           </div>
         )}
         {!canTune && !isHost && s.phase === "tune" && (
           <div className="sync-lock">
-            <p className="sync-hint">The room is tuning the signal on their phones.</p>
+            <p className="sync-hint">The room is tuning their dials on their phones.</p>
             <LockLamps have={have} need={need} />
           </div>
         )}
         {isHost && s.phase === "tune" && (
           <div className="sync-lock">
-            <p className="sync-hint">No more clues. Watch them tune to your green flag.</p>
+            <p className="sync-hint">No more clues. The bright needle is where their dials average out. Watch it find your green flag.</p>
             <LockLamps have={have} need={need} />
           </div>
         )}
@@ -161,7 +154,8 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         {last && landed && (
           <PixelBox as="section" pad={false} className="sync-log">
             <h2 role="status" className={last.points === 0 ? "miss" : ""}>{resultLine(last.points as Points)}</h2>
-            <p className="line">Signal at <b>{last.marker}</b>. Target at <b>{last.target}</b>.</p>
+            <p className="line">The room&apos;s signal at <b>{last.marker}</b>. Target at <b>{last.target}</b>.</p>
+            {mineLast != null && <p className="line">Your dial at <b>{mineLast}</b>: {verdictFor(IS.bandPoints(last.target, mineLast)).toLowerCase()}.</p>}
             {canMoveOn(ctl)
               ? <PixelButton variant="gold" className="w-[calc(100%-8px)]" onClick={() => ctl.dispatch({ type: "next", by: me })}>{s.round + 1 >= s.pairs.length ? "Final score >" : "Next round >"}</PixelButton>
               : <WaitingForHost ctl={ctl} />}
@@ -250,8 +244,9 @@ export function InSyncResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAga
                   <p className="pair">{h.pair.left} / {h.pair.right}</p>
                   {h.skipped ? <p className="clue">{h.giver} gave no clue, so the round was skipped.</p> : <p className="clue"><Sprite sprite={playerSprite(s.players.indexOf(h.giver))} size={14} /> {h.giver}: &ldquo;{h.clue}&rdquo;</p>}
                   {!h.skipped && (
-                    <span className="mini" role="img" aria-label={`Round ${i + 1}: signal at ${h.marker}, target at ${h.target}. ${verdictFor(h.points as Points)}.`}>
+                    <span className="mini" role="img" aria-label={`Round ${i + 1}: the room's signal at ${h.marker}, target at ${h.target}. ${verdictFor(h.points as Points)}.`}>
                       <i className="t" style={{ left: `${h.target}%` }} />
+                      {Object.entries(h.markers ?? {}).map(([p, v]) => <i key={p} className="d" style={{ left: `${v}%` }} />)}
                       <i className="m" style={{ left: `${h.marker}%` }} />
                     </span>
                   )}

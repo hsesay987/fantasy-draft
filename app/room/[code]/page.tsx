@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Check, Copy, Crown, ExternalLink, ListOrdered, LogOut, Play, RefreshCw, Shuffle, Trophy, Tv, Users } from "lucide-react";
-import { Button, Card, GameTile, PageHeader, PageShell, Panel, controlCls } from "../../components/ui";
+import { Button, Card, GameTile, IconBadge, PageHeader, PageShell, Panel, controlCls } from "../../components/ui";
 import { GameBody } from "../../play/GameScreen";
 import SetupScreen from "../../play/SetupScreen";
 import { FORMATS, PARTY_GAMES, ROOM_GAMES, formatMeta } from "../../play/formats";
@@ -389,7 +389,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
       {setup && meta && picking !== "menu" && !tourMode && (isHost || !planned || setup.format === planned) && (
         <Panel title="Next game">
           <div className="flex flex-wrap items-center gap-4">
-            <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${meta.gradient}`}><meta.icon className="h-7 w-7 text-white" aria-hidden /></span>
+            <IconBadge icon={meta.icon} size="lg" />
             <div className="min-w-0 flex-1">
               <div className="text-lg font-semibold">{meta.title}{poolTitle ? ` · ${poolTitle}` : ""}</div>
               <div className="text-sm text-muted-foreground">{party ? (setup.format === "vowelplay" ? `${setup.opts.vowelMode === "duel" ? "Head to head · 2 players" : `First correct · ${setup.opts.teamSize} words · 2+ players`} · ${setup.opts.vowelAnswer === "type" ? "type it" : "say it"}` : setup.format === "vowelparty" ? (setup.opts.answer === "buzz" ? "10 words · Buzz · say it out loud · 2+ players" : "10 words · everyone races · typed · 2+ players") : setup.format === "mafia" ? `Secret roles · ${MAFIA_MIN}+ players` : setup.format === "partytrivia" ? `up to ${setup.opts.teamSize} questions · ${setup.opts.teams >= 2 ? (count >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"}${setup.opts.answer === "buzz" ? " · Buzz" : ""} · 2+ players` : setup.format === "pecking" ? `${setup.opts.teamSize} questions · ${setup.opts.peckMode === "rank" ? "Where does it rank?" : setup.opts.peckMode === "name" ? "Who's at #N?" : "Mixed"} · ${setup.opts.teams >= 2 ? (count >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"} · 2+ players` : setup.format === "sayless" ? `${setup.opts.saylessRounds ?? 2} round${(setup.opts.saylessRounds ?? 2) > 1 ? "s" : ""} · ${setup.opts.saylessWords ?? 3} words a turn · +${setup.opts.saylessSlack ?? 5} budget · ${setup.opts.answer === "buzz" ? "buzz" : "typing"} · ${setup.opts.teams >= 2 ? (count >= TEAM_MIN_PLAYERS ? `${setup.opts.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves"} · 2+ players` : setup.format === "npat" ? npatSummary({ pools: setup.pools ?? [setup.pool], rounds: setup.opts.npatRounds ?? 3, seconds: setup.opts.npatSeconds ?? 60, teams: setup.opts.teams, players: count, style: setup.opts.npatStyle === "dig" ? "dig" : "sheet" }) : setup.format === "insync" ? `${Math.max(4, count)} rounds · one group score · 2+ players` : setup.format === "imposter" ? `${setup.opts.teamSize} clue round${setup.opts.teamSize > 1 ? "s" : ""} · ${setup.opts.ending === "guess" ? "imposter can guess" : "vote only"} · 3+ players` : `${setup.opts.teamSize} cards · ${setup.opts.showVotes ? "votes shown" : "votes stay secret"} · 3+ players`) : <>{setup.mystery ? "Mystery mission" : setup.mission.title} · {setup.format === "blind" ? `${setup.opts.rankSize} ranks` : setup.format === "jeopardy" || setup.format === "feud" ? "trivia" : `team of ${setup.loadout?.slots.length ?? setup.opts.teamSize}`}</>}{party && setup.opts.drinking ? " · drinking mode" : ""}</div>
@@ -428,7 +428,7 @@ function Lobby({ code, token, snap, isHost, onLeave, refresh, closedChampion, on
               <GameTile key={f.id} title={f.title} blurb={f.tagline} icon={f.icon} gradient={f.gradient} onClick={() => setPicking(f.id as FormatId)} />
             ))}
             {STAT_LEAGUES.map((l) => (
-              <GameTile key={l.league} title={l.title} blurb={l.blurb} iconSrc={l.iconSrc} badge={opening === l.league ? "Opening…" : user ? undefined : "Login"} gradient="from-emerald-700/40 to-primary/20" onClick={() => void openStat(l.league)} />
+              <GameTile key={l.league} title={l.title} blurb={l.blurb} topic={l.topic} tint="sports" badge={opening === l.league ? "Opening…" : user ? undefined : "Login"} gradient="from-emerald-700/40 to-primary/20" onClick={() => void openStat(l.league)} />
             ))}
           </div>
         </section>

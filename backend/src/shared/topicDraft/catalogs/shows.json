@@ -5,12 +5,12 @@
   "universe": "Crime",
   "archetype": "Drama",
   "stats": {
-   "story": 99,
-   "acting": 99,
+   "critics": 99,
+   "audience": 94,
+   "longevity": 61,
+   "impact": 93,
    "visuals": 90,
-   "rewatch": 95,
-   "impact": 98,
-   "fun": 88
+   "rewatch": 95
   },
   "tags": [
    "crime",
@@ -23,12 +23,12 @@
   "universe": "Crime",
   "archetype": "Drama",
   "stats": {
-   "story": 99,
-   "acting": 95,
+   "critics": 97,
+   "audience": 79,
+   "longevity": 59,
+   "impact": 61,
    "visuals": 75,
-   "rewatch": 85,
-   "impact": 96,
-   "fun": 60
+   "rewatch": 85
   },
   "tags": [
    "crime",
@@ -41,12 +41,12 @@
   "universe": "Fantasy",
   "archetype": "Epic",
   "stats": {
-   "story": 82,
-   "acting": 94,
+   "critics": 70,
+   "audience": 99,
+   "longevity": 65,
+   "impact": 96,
    "visuals": 98,
-   "rewatch": 80,
-   "impact": 99,
-   "fun": 90
+   "rewatch": 80
   },
   "tags": [
    "fantasy",
@@ -59,12 +59,12 @@
   "universe": "Crime",
   "archetype": "Drama",
   "stats": {
-   "story": 97,
-   "acting": 98,
+   "critics": 98,
+   "audience": 88,
+   "longevity": 67,
+   "impact": 86,
    "visuals": 82,
-   "rewatch": 90,
-   "impact": 97,
-   "fun": 80
+   "rewatch": 90
   },
   "tags": [
    "crime",
@@ -77,12 +77,12 @@
   "universe": "Sitcom",
   "archetype": "Comedy",
   "stats": {
-   "story": 78,
-   "acting": 86,
+   "critics": 82,
+   "audience": 100,
+   "longevity": 83,
+   "impact": 92,
    "visuals": 60,
-   "rewatch": 100,
-   "impact": 94,
-   "fun": 100
+   "rewatch": 100
   },
   "tags": [
    "sitcom",
@@ -95,12 +95,12 @@
   "universe": "Sitcom",
   "archetype": "Comedy",
   "stats": {
-   "story": 86,
-   "acting": 90,
+   "critics": 88,
+   "audience": 100,
+   "longevity": 80,
+   "impact": 79,
    "visuals": 55,
-   "rewatch": 100,
-   "impact": 95,
-   "fun": 100
+   "rewatch": 100
   },
   "tags": [
    "sitcom",
@@ -113,12 +113,12 @@
   "universe": "Sitcom",
   "archetype": "Comedy",
   "stats": {
-   "story": 90,
-   "acting": 88,
+   "critics": 89,
+   "audience": 97,
+   "longevity": 78,
+   "impact": 67,
    "visuals": 50,
-   "rewatch": 96,
-   "impact": 92,
-   "fun": 98
+   "rewatch": 96
   },
   "tags": [
    "sitcom",
@@ -131,12 +131,12 @@
   "universe": "Sci-Fi",
   "archetype": "Horror",
   "stats": {
-   "story": 80,
-   "acting": 84,
+   "critics": 82,
+   "audience": 88,
+   "longevity": 52,
+   "impact": 80,
    "visuals": 92,
-   "rewatch": 86,
-   "impact": 92,
-   "fun": 92
+   "rewatch": 86
   },
   "tags": [
    "scifi",
@@ -149,12 +149,12 @@
   "universe": "Crime",
   "archetype": "Drama",
   "stats": {
-   "story": 98,
-   "acting": 98,
+   "critics": 98,
+   "audience": 90,
+   "longevity": 61,
+   "impact": 69,
    "visuals": 88,
-   "rewatch": 92,
-   "impact": 90,
-   "fun": 84
+   "rewatch": 92
   },
   "tags": [
    "crime",
@@ -167,12 +167,12 @@
   "universe": "Drama",
   "archetype": "Drama",
   "stats": {
-   "story": 96,
-   "acting": 99,
+   "critics": 98,
+   "audience": 88,
+   "longevity": 50,
+   "impact": 72,
    "visuals": 82,
-   "rewatch": 88,
-   "impact": 92,
-   "fun": 88
+   "rewatch": 88
   },
   "tags": [
    "drama",
@@ -185,12 +185,12 @@
   "universe": "Drama",
   "archetype": "Historical",
   "stats": {
-   "story": 96,
-   "acting": 96,
+   "critics": 81,
+   "audience": 53,
+   "longevity": 31,
+   "impact": 78,
    "visuals": 92,
-   "rewatch": 60,
-   "impact": 96,
-   "fun": 30
+   "rewatch": 60
   },
   "tags": [
    "drama",
@@ -203,12 +203,12 @@
   "universe": "Sci-Fi",
   "archetype": "Anthology",
   "stats": {
-   "story": 92,
-   "acting": 86,
+   "critics": 89,
+   "audience": 82,
+   "longevity": 47,
+   "impact": 82,
    "visuals": 88,
-   "rewatch": 86,
-   "impact": 92,
-   "fun": 70
+   "rewatch": 86
   },
   "tags": [
    "scifi",
@@ -221,12 +221,12 @@
   "universe": "Sci-Fi",
   "archetype": "Adventure",
   "stats": {
-   "story": 78,
-   "acting": 82,
+   "critics": 51,
+   "audience": 88,
+   "longevity": 41,
+   "impact": 65,
    "visuals": 95,
-   "rewatch": 86,
-   "impact": 88,
-   "fun": 92
+   "rewatch": 86
   },
   "tags": [
    "scifi",
@@ -239,12 +239,12 @@
   "universe": "Animation",
   "archetype": "Fantasy",
   "stats": {
-   "story": 97,
-   "acting": 90,
+   "critics": 94,
+   "audience": 84,
+   "longevity": 60,
+   "impact": 79,
    "visuals": 90,
-   "rewatch": 96,
-   "impact": 96,
-   "fun": 95
+   "rewatch": 96
   },
   "tags": [
    "animation",
@@ -257,12 +257,12 @@
   "universe": "Animation",
   "archetype": "Comedy",
   "stats": {
-   "story": 90,
-   "acting": 90,
+   "critics": 90,
+   "audience": 98,
+   "longevity": 64,
+   "impact": 78,
    "visuals": 80,
-   "rewatch": 98,
-   "impact": 92,
-   "fun": 96
+   "rewatch": 98
   },
   "tags": [
    "animation",
@@ -275,12 +275,12 @@
   "universe": "Animation",
   "archetype": "Comedy",
   "stats": {
-   "story": 84,
-   "acting": 88,
-   "visuals": 60,
-   "rewatch": 92,
+   "critics": 86,
+   "audience": 94,
+   "longevity": 95,
    "impact": 99,
-   "fun": 98
+   "visuals": 60,
+   "rewatch": 92
   },
   "tags": [
    "animation",
@@ -293,12 +293,12 @@
   "universe": "Animation",
   "archetype": "Comedy",
   "stats": {
-   "story": 80,
-   "acting": 86,
+   "critics": 83,
+   "audience": 94,
+   "longevity": 88,
+   "impact": 88,
    "visuals": 50,
-   "rewatch": 92,
-   "impact": 92,
-   "fun": 98
+   "rewatch": 92
   },
   "tags": [
    "animation",
@@ -311,12 +311,12 @@
   "universe": "Anime",
   "archetype": "Action",
   "stats": {
-   "story": 96,
-   "acting": 90,
+   "critics": 93,
+   "audience": 92,
+   "longevity": 67,
+   "impact": 58,
    "visuals": 92,
-   "rewatch": 92,
-   "impact": 94,
-   "fun": 90
+   "rewatch": 92
   },
   "tags": [
    "anime",
@@ -329,12 +329,12 @@
   "universe": "Anime",
   "archetype": "Thriller",
   "stats": {
-   "story": 94,
-   "acting": 88,
+   "critics": 91,
+   "audience": 66,
+   "longevity": 49,
+   "impact": 40,
    "visuals": 82,
-   "rewatch": 92,
-   "impact": 90,
-   "fun": 86
+   "rewatch": 92
   },
   "tags": [
    "anime",
@@ -347,12 +347,12 @@
   "universe": "Anime",
   "archetype": "Fantasy",
   "stats": {
-   "story": 98,
-   "acting": 90,
+   "critics": 94,
+   "audience": 92,
+   "longevity": 62,
+   "impact": 48,
    "visuals": 90,
-   "rewatch": 92,
-   "impact": 94,
-   "fun": 92
+   "rewatch": 92
   },
   "tags": [
    "anime",
@@ -365,12 +365,12 @@
   "universe": "Anime",
   "archetype": "Action",
   "stats": {
-   "story": 74,
-   "acting": 80,
+   "critics": 77,
+   "audience": 90,
+   "longevity": 86,
+   "impact": 75,
    "visuals": 86,
-   "rewatch": 88,
-   "impact": 98,
-   "fun": 96
+   "rewatch": 88
   },
   "tags": [
    "anime",
@@ -383,12 +383,12 @@
   "universe": "Anime",
   "archetype": "Action",
   "stats": {
-   "story": 82,
-   "acting": 82,
+   "critics": 82,
+   "audience": 88,
+   "longevity": 82,
+   "impact": 41,
    "visuals": 86,
-   "rewatch": 86,
-   "impact": 96,
-   "fun": 92
+   "rewatch": 86
   },
   "tags": [
    "anime",
@@ -401,12 +401,12 @@
   "universe": "Anime",
   "archetype": "Adventure",
   "stats": {
-   "story": 88,
-   "acting": 84,
+   "critics": 86,
+   "audience": 90,
+   "longevity": 99,
+   "impact": 47,
    "visuals": 90,
-   "rewatch": 88,
-   "impact": 96,
-   "fun": 96
+   "rewatch": 88
   },
   "tags": [
    "anime",
@@ -419,12 +419,12 @@
   "universe": "Mystery",
   "archetype": "Drama",
   "stats": {
-   "story": 90,
-   "acting": 95,
+   "critics": 93,
+   "audience": 88,
+   "longevity": 34,
+   "impact": 86,
    "visuals": 90,
-   "rewatch": 88,
-   "impact": 88,
-   "fun": 86
+   "rewatch": 88
   },
   "tags": [
    "mystery",
@@ -437,12 +437,12 @@
   "universe": "Crime",
   "archetype": "Drama",
   "stats": {
-   "story": 88,
-   "acting": 94,
+   "critics": 91,
+   "audience": 86,
+   "longevity": 48,
+   "impact": 74,
    "visuals": 92,
-   "rewatch": 86,
-   "impact": 90,
-   "fun": 86
+   "rewatch": 86
   },
   "tags": [
    "crime",
@@ -455,12 +455,12 @@
   "universe": "Drama",
   "archetype": "Historical",
   "stats": {
-   "story": 88,
-   "acting": 96,
+   "critics": 92,
+   "audience": 62,
+   "longevity": 59,
+   "impact": 70,
    "visuals": 92,
-   "rewatch": 65,
-   "impact": 86,
-   "fun": 50
+   "rewatch": 65
   },
   "tags": [
    "drama",
@@ -473,12 +473,12 @@
   "universe": "Fantasy",
   "archetype": "Epic",
   "stats": {
-   "story": 80,
-   "acting": 90,
+   "critics": 85,
+   "audience": 74,
+   "longevity": 43,
+   "impact": 72,
    "visuals": 96,
-   "rewatch": 70,
-   "impact": 86,
-   "fun": 84
+   "rewatch": 70
   },
   "tags": [
    "fantasy",
@@ -491,12 +491,12 @@
   "universe": "Drama",
   "archetype": "Horror",
   "stats": {
-   "story": 94,
-   "acting": 96,
+   "critics": 88,
+   "audience": 79,
+   "longevity": 36,
+   "impact": 76,
    "visuals": 92,
-   "rewatch": 80,
-   "impact": 94,
-   "fun": 76
+   "rewatch": 80
   },
   "tags": [
    "drama",
@@ -509,12 +509,12 @@
   "universe": "Thriller",
   "archetype": "Thriller",
   "stats": {
-   "story": 84,
-   "acting": 84,
+   "critics": 84,
+   "audience": 82,
+   "longevity": 40,
+   "impact": 87,
    "visuals": 90,
-   "rewatch": 80,
-   "impact": 96,
-   "fun": 88
+   "rewatch": 80
   },
   "tags": [
    "thriller",
@@ -527,12 +527,12 @@
   "universe": "Crime",
   "archetype": "Thriller",
   "stats": {
-   "story": 80,
-   "acting": 80,
+   "critics": 99,
+   "audience": 86,
+   "longevity": 56,
+   "impact": 84,
    "visuals": 84,
-   "rewatch": 84,
-   "impact": 88,
-   "fun": 92
+   "rewatch": 84
   },
   "tags": [
    "crime",
@@ -545,12 +545,12 @@
   "universe": "Sci-Fi",
   "archetype": "Mystery",
   "stats": {
-   "story": 98,
-   "acting": 92,
+   "critics": 64,
+   "audience": 87,
+   "longevity": 43,
+   "impact": 61,
    "visuals": 92,
-   "rewatch": 92,
-   "impact": 90,
-   "fun": 70
+   "rewatch": 92
   },
   "tags": [
    "scifi",
@@ -563,12 +563,12 @@
   "universe": "Mystery",
   "archetype": "Adventure",
   "stats": {
-   "story": 78,
-   "acting": 86,
+   "critics": 82,
+   "audience": 79,
+   "longevity": 71,
+   "impact": 81,
    "visuals": 86,
-   "rewatch": 76,
-   "impact": 94,
-   "fun": 86
+   "rewatch": 76
   },
   "tags": [
    "mystery",
@@ -581,12 +581,12 @@
   "universe": "Horror",
   "archetype": "Drama",
   "stats": {
-   "story": 72,
-   "acting": 80,
+   "critics": 76,
+   "audience": 73,
+   "longevity": 77,
+   "impact": 83,
    "visuals": 84,
-   "rewatch": 70,
-   "impact": 92,
-   "fun": 80
+   "rewatch": 70
   },
   "tags": [
    "horror",
@@ -599,12 +599,12 @@
   "universe": "Sci-Fi",
   "archetype": "Drama",
   "stats": {
-   "story": 78,
-   "acting": 92,
+   "critics": 85,
+   "audience": 77,
+   "longevity": 48,
+   "impact": 66,
    "visuals": 96,
-   "rewatch": 76,
-   "impact": 84,
-   "fun": 80
+   "rewatch": 76
   },
   "tags": [
    "scifi",
@@ -617,12 +617,12 @@
   "universe": "Drama",
   "archetype": "Drama",
   "stats": {
-   "story": 94,
-   "acting": 96,
+   "critics": 95,
+   "audience": 77,
+   "longevity": 68,
+   "impact": 64,
    "visuals": 92,
-   "rewatch": 82,
-   "impact": 92,
-   "fun": 60
+   "rewatch": 82
   },
   "tags": [
    "drama",
@@ -635,12 +635,12 @@
   "universe": "Drama",
   "archetype": "Comedy",
   "stats": {
-   "story": 92,
-   "acting": 96,
+   "critics": 94,
+   "audience": 85,
+   "longevity": 54,
+   "impact": 55,
    "visuals": 86,
-   "rewatch": 86,
-   "impact": 88,
-   "fun": 82
+   "rewatch": 86
   },
   "tags": [
    "drama",
@@ -653,12 +653,12 @@
   "universe": "Sitcom",
   "archetype": "Comedy",
   "stats": {
-   "story": 90,
-   "acting": 94,
+   "critics": 92,
+   "audience": 93,
+   "longevity": 53,
+   "impact": 53,
    "visuals": 70,
-   "rewatch": 92,
-   "impact": 92,
-   "fun": 96
+   "rewatch": 92
   },
   "tags": [
    "sitcom",
@@ -671,12 +671,12 @@
   "universe": "Sitcom",
   "archetype": "Comedy",
   "stats": {
-   "story": 92,
-   "acting": 92,
+   "critics": 92,
+   "audience": 100,
+   "longevity": 63,
+   "impact": 64,
    "visuals": 60,
-   "rewatch": 100,
-   "impact": 88,
-   "fun": 98
+   "rewatch": 100
   },
   "tags": [
    "sitcom",
@@ -689,12 +689,12 @@
   "universe": "Sitcom",
   "archetype": "Comedy",
   "stats": {
-   "story": 86,
-   "acting": 92,
+   "critics": 89,
+   "audience": 98,
+   "longevity": 71,
+   "impact": 59,
    "visuals": 55,
-   "rewatch": 98,
-   "impact": 88,
-   "fun": 98
+   "rewatch": 98
   },
   "tags": [
    "sitcom",
@@ -707,12 +707,12 @@
   "universe": "Sitcom",
   "archetype": "Comedy",
   "stats": {
-   "story": 82,
-   "acting": 86,
+   "critics": 84,
+   "audience": 93,
+   "longevity": 80,
+   "impact": 89,
    "visuals": 60,
-   "rewatch": 92,
-   "impact": 88,
-   "fun": 94
+   "rewatch": 92
   },
   "tags": [
    "sitcom",
@@ -725,12 +725,12 @@
   "universe": "Sitcom",
   "archetype": "Comedy",
   "stats": {
-   "story": 78,
-   "acting": 88,
+   "critics": 83,
+   "audience": 95,
+   "longevity": 75,
+   "impact": 71,
    "visuals": 58,
-   "rewatch": 94,
-   "impact": 84,
-   "fun": 98
+   "rewatch": 94
   },
   "tags": [
    "sitcom",
@@ -743,12 +743,12 @@
   "universe": "Sitcom",
   "archetype": "Comedy",
   "stats": {
-   "story": 76,
-   "acting": 88,
+   "critics": 82,
+   "audience": 91,
+   "longevity": 84,
+   "impact": 84,
    "visuals": 55,
-   "rewatch": 90,
-   "impact": 86,
-   "fun": 94
+   "rewatch": 90
   },
   "tags": [
    "sitcom",
@@ -761,12 +761,12 @@
   "universe": "Sitcom",
   "archetype": "Comedy",
   "stats": {
-   "story": 68,
-   "acting": 84,
+   "critics": 56,
+   "audience": 92,
+   "longevity": 85,
+   "impact": 94,
    "visuals": 50,
-   "rewatch": 92,
-   "impact": 90,
-   "fun": 92
+   "rewatch": 92
   },
   "tags": [
    "sitcom",
@@ -779,12 +779,12 @@
   "universe": "Crime",
   "archetype": "Drama",
   "stats": {
-   "story": 84,
-   "acting": 88,
+   "critics": 86,
+   "audience": 79,
+   "longevity": 45,
+   "impact": 63,
    "visuals": 86,
-   "rewatch": 76,
-   "impact": 84,
-   "fun": 88
+   "rewatch": 76
   },
   "tags": [
    "crime",
@@ -797,12 +797,12 @@
   "universe": "Crime",
   "archetype": "Thriller",
   "stats": {
-   "story": 86,
-   "acting": 92,
+   "critics": 89,
+   "audience": 78,
+   "longevity": 53,
+   "impact": 57,
    "visuals": 84,
-   "rewatch": 76,
-   "impact": 80,
-   "fun": 82
+   "rewatch": 76
   },
   "tags": [
    "crime",
@@ -815,12 +815,12 @@
   "universe": "Mystery",
   "archetype": "Drama",
   "stats": {
-   "story": 88,
-   "acting": 96,
+   "critics": 92,
+   "audience": 69,
+   "longevity": 45,
+   "impact": 60,
    "visuals": 90,
-   "rewatch": 72,
-   "impact": 88,
-   "fun": 60
+   "rewatch": 72
   },
   "tags": [
    "mystery",
@@ -833,12 +833,12 @@
   "universe": "Crime",
   "archetype": "Anthology",
   "stats": {
-   "story": 92,
-   "acting": 96,
+   "critics": 94,
+   "audience": 82,
+   "longevity": 57,
+   "impact": 58,
    "visuals": 86,
-   "rewatch": 82,
-   "impact": 84,
-   "fun": 80
+   "rewatch": 82
   },
   "tags": [
    "crime",
@@ -851,12 +851,12 @@
   "universe": "Sci-Fi",
   "archetype": "Adventure",
   "stats": {
-   "story": 78,
-   "acting": 84,
+   "critics": 81,
+   "audience": 87,
+   "longevity": 96,
+   "impact": 91,
    "visuals": 70,
-   "rewatch": 86,
-   "impact": 94,
-   "fun": 88
+   "rewatch": 86
   },
   "tags": [
    "scifi",
@@ -869,12 +869,12 @@
   "universe": "Sci-Fi",
   "archetype": "Adventure",
   "stats": {
-   "story": 84,
-   "acting": 86,
+   "critics": 85,
+   "audience": 47,
+   "longevity": 77,
+   "impact": 65,
    "visuals": 72,
-   "rewatch": 86,
-   "impact": 94,
-   "fun": 82
+   "rewatch": 86
   },
   "tags": [
    "scifi",
@@ -887,12 +887,12 @@
   "universe": "Fantasy",
   "archetype": "Drama",
   "stats": {
-   "story": 82,
-   "acting": 82,
+   "critics": 82,
+   "audience": 86,
+   "longevity": 73,
+   "impact": 70,
    "visuals": 70,
-   "rewatch": 84,
-   "impact": 92,
-   "fun": 90
+   "rewatch": 84
   },
   "tags": [
    "fantasy",
@@ -905,12 +905,12 @@
   "universe": "Mystery",
   "archetype": "Sci-Fi",
   "stats": {
-   "story": 80,
-   "acting": 86,
+   "critics": 83,
+   "audience": 84,
+   "longevity": 81,
+   "impact": 82,
    "visuals": 76,
-   "rewatch": 84,
-   "impact": 92,
-   "fun": 84
+   "rewatch": 84
   },
   "tags": [
    "mystery",
@@ -923,12 +923,12 @@
   "universe": "Mystery",
   "archetype": "Drama",
   "stats": {
-   "story": 82,
-   "acting": 86,
+   "critics": 84,
+   "audience": 81,
+   "longevity": 56,
+   "impact": 74,
    "visuals": 88,
-   "rewatch": 88,
-   "impact": 92,
-   "fun": 60
+   "rewatch": 88
   },
   "tags": [
    "mystery",
@@ -941,12 +941,12 @@
   "universe": "Drama",
   "archetype": "Comedy",
   "stats": {
-   "story": 80,
-   "acting": 88,
+   "critics": 84,
+   "audience": 95,
+   "longevity": 75,
+   "impact": 66,
    "visuals": 60,
-   "rewatch": 96,
-   "impact": 84,
-   "fun": 92
+   "rewatch": 96
   },
   "tags": [
    "drama",
@@ -959,12 +959,12 @@
   "universe": "Animation",
   "archetype": "Comedy",
   "stats": {
-   "story": 78,
-   "acting": 82,
+   "critics": 80,
+   "audience": 96,
+   "longevity": 88,
+   "impact": 91,
    "visuals": 66,
-   "rewatch": 94,
-   "impact": 96,
-   "fun": 100
+   "rewatch": 94
   },
   "tags": [
    "animation",
@@ -977,12 +977,12 @@
   "universe": "Animation",
   "archetype": "Family",
   "stats": {
-   "story": 88,
-   "acting": 88,
+   "critics": 88,
+   "audience": 92,
+   "longevity": 75,
+   "impact": 76,
    "visuals": 76,
-   "rewatch": 90,
-   "impact": 90,
-   "fun": 98
+   "rewatch": 90
   },
   "tags": [
    "animation",
@@ -995,12 +995,12 @@
   "universe": "Animation",
   "archetype": "Fantasy",
   "stats": {
-   "story": 94,
-   "acting": 90,
+   "critics": 92,
+   "audience": 86,
+   "longevity": 37,
+   "impact": 60,
    "visuals": 100,
-   "rewatch": 86,
-   "impact": 92,
-   "fun": 86
+   "rewatch": 86
   },
   "tags": [
    "animation",
@@ -1013,12 +1013,12 @@
   "universe": "Sci-Fi",
   "archetype": "Thriller",
   "stats": {
-   "story": 94,
-   "acting": 94,
+   "critics": 94,
+   "audience": 80,
+   "longevity": 38,
+   "impact": 55,
    "visuals": 92,
-   "rewatch": 80,
-   "impact": 88,
-   "fun": 78
+   "rewatch": 80
   },
   "tags": [
    "scifi",
@@ -1031,12 +1031,12 @@
   "universe": "Drama",
   "archetype": "Drama",
   "stats": {
-   "story": 76,
-   "acting": 92,
+   "critics": 44,
+   "audience": 63,
+   "longevity": 43,
+   "impact": 62,
    "visuals": 96,
-   "rewatch": 62,
-   "impact": 86,
-   "fun": 64
+   "rewatch": 62
   },
   "tags": [
    "drama",
@@ -1049,12 +1049,12 @@
   "universe": "Drama",
   "archetype": "Western",
   "stats": {
-   "story": 70,
-   "acting": 82,
+   "critics": 76,
+   "audience": 73,
+   "longevity": 57,
+   "impact": 54,
    "visuals": 86,
-   "rewatch": 70,
-   "impact": 80,
-   "fun": 82
+   "rewatch": 70
   },
   "tags": [
    "drama",
@@ -1067,12 +1067,12 @@
   "universe": "War",
   "archetype": "Historical",
   "stats": {
-   "story": 94,
-   "acting": 94,
+   "critics": 94,
+   "audience": 81,
+   "longevity": 31,
+   "impact": 68,
    "visuals": 92,
-   "rewatch": 86,
-   "impact": 96,
-   "fun": 64
+   "rewatch": 86
   },
   "tags": [
    "war",
@@ -1085,12 +1085,12 @@
   "universe": "Superhero",
   "archetype": "Action",
   "stats": {
-   "story": 86,
-   "acting": 90,
+   "critics": 88,
+   "audience": 84,
+   "longevity": 51,
+   "impact": 68,
    "visuals": 90,
-   "rewatch": 80,
-   "impact": 88,
-   "fun": 94
+   "rewatch": 80
   },
   "tags": [
    "superhero",

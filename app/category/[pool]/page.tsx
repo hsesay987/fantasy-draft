@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { BarChart3, Sparkles } from "lucide-react";
 import { track } from "../../lib/analytics";
 import { PageHeader, PageShell } from "../../components/ui";
-import { category, CLASSIC_DRAFTS, formatsFor, FORMAT_WHY, topic } from "../../play/categories";
+import { category, CLASSIC_DRAFTS, formatsFor, FORMAT_WHY, topic, topicTint } from "../../play/categories";
 import { formatMeta } from "../../play/formats";
 import { getCatalog } from "../../topicDraft/catalogs";
 
@@ -30,7 +30,7 @@ export default function CategoryPage() {
 
   return (
     <PageShell>
-      <PageHeader title={top.title} subtitle={cat ? `${top.blurb} · ${getCatalog(pool).length} to choose from` : top.blurb} iconSrc={top.iconSrc} gradient={top.gradient} back={{ href: "/", label: "All topics" }} />
+      <PageHeader title={top.title} subtitle={cat ? `${top.blurb} · ${getCatalog(pool).length} to choose from` : top.blurb} topic={top.id} tint={topicTint(top.id)} back={{ href: "/", label: "All topics" }} />
 
       {quick && quickMeta && (
         <Link

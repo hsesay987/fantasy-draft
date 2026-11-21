@@ -9,8 +9,7 @@
    "intellect": 70,
    "speed": 95,
    "durability": 90,
-   "combat": 98,
-   "teamwork": 80
+   "combat": 98
   },
   "tags": [
    "hero",
@@ -29,8 +28,7 @@
    "intellect": 78,
    "speed": 92,
    "durability": 88,
-   "combat": 96,
-   "teamwork": 60
+   "combat": 96
   },
   "tags": [
    "hero",
@@ -48,8 +46,7 @@
    "intellect": 85,
    "speed": 90,
    "durability": 85,
-   "combat": 90,
-   "teamwork": 80
+   "combat": 90
   },
   "tags": [
    "hero",
@@ -67,8 +64,7 @@
    "intellect": 88,
    "speed": 85,
    "durability": 82,
-   "combat": 88,
-   "teamwork": 88
+   "combat": 88
   },
   "tags": [
    "hero",
@@ -86,8 +82,7 @@
    "intellect": 78,
    "speed": 88,
    "durability": 90,
-   "combat": 92,
-   "teamwork": 95
+   "combat": 92
   },
   "tags": [
    "hero",
@@ -105,8 +100,7 @@
    "intellect": 88,
    "speed": 92,
    "durability": 82,
-   "combat": 96,
-   "teamwork": 60
+   "combat": 96
   },
   "tags": [
    "antihero",
@@ -123,8 +117,7 @@
    "intellect": 95,
    "speed": 88,
    "durability": 75,
-   "combat": 92,
-   "teamwork": 88
+   "combat": 92
   },
   "tags": [
    "hero",
@@ -142,8 +135,7 @@
    "intellect": 98,
    "speed": 90,
    "durability": 75,
-   "combat": 95,
-   "teamwork": 50
+   "combat": 95
   },
   "tags": [
    "antihero",
@@ -160,8 +152,7 @@
    "intellect": 60,
    "speed": 88,
    "durability": 92,
-   "combat": 92,
-   "teamwork": 98
+   "combat": 92
   },
   "tags": [
    "hero",
@@ -179,8 +170,7 @@
    "intellect": 65,
    "speed": 82,
    "durability": 92,
-   "combat": 98,
-   "teamwork": 90
+   "combat": 98
   },
   "tags": [
    "hero",
@@ -197,8 +187,7 @@
    "intellect": 72,
    "speed": 90,
    "durability": 80,
-   "combat": 92,
-   "teamwork": 90
+   "combat": 92
   },
   "tags": [
    "hero",
@@ -215,8 +204,7 @@
    "intellect": 92,
    "speed": 65,
    "durability": 50,
-   "combat": 55,
-   "teamwork": 92
+   "combat": 55
   },
   "tags": [
    "hero",
@@ -234,8 +222,7 @@
    "intellect": 95,
    "speed": 80,
    "durability": 75,
-   "combat": 88,
-   "teamwork": 70
+   "combat": 88
   },
   "tags": [
    "antihero",
@@ -252,8 +239,7 @@
    "intellect": 75,
    "speed": 90,
    "durability": 85,
-   "combat": 95,
-   "teamwork": 85
+   "combat": 95
   },
   "tags": [
    "hero",
@@ -270,8 +256,7 @@
    "intellect": 82,
    "speed": 82,
    "durability": 65,
-   "combat": 85,
-   "teamwork": 80
+   "combat": 85
   },
   "tags": [
    "hero",
@@ -289,8 +274,7 @@
    "intellect": 95,
    "speed": 75,
    "durability": 70,
-   "combat": 85,
-   "teamwork": 88
+   "combat": 85
   },
   "tags": [
    "hero",
@@ -307,8 +291,7 @@
    "intellect": 88,
    "speed": 55,
    "durability": 92,
-   "combat": 82,
-   "teamwork": 95
+   "combat": 82
   },
   "tags": [
    "hero",
@@ -326,8 +309,7 @@
    "intellect": 88,
    "speed": 70,
    "durability": 65,
-   "combat": 80,
-   "teamwork": 85
+   "combat": 80
   },
   "tags": [
    "hero",
@@ -345,8 +327,7 @@
    "intellect": 78,
    "speed": 70,
    "durability": 90,
-   "combat": 85,
-   "teamwork": 60
+   "combat": 85
   },
   "tags": [
    "antihero",
@@ -363,8 +344,7 @@
    "intellect": 88,
    "speed": 98,
    "durability": 60,
-   "combat": 100,
-   "teamwork": 85
+   "combat": 100
   },
   "tags": [
    "hero",
@@ -382,8 +362,7 @@
    "intellect": 80,
    "speed": 92,
    "durability": 62,
-   "combat": 98,
-   "teamwork": 85
+   "combat": 98
   },
   "tags": [
    "hero",
@@ -400,8 +379,7 @@
    "intellect": 88,
    "speed": 85,
    "durability": 80,
-   "combat": 85,
-   "teamwork": 95
+   "combat": 85
   },
   "tags": [
    "hero",
@@ -419,8 +397,7 @@
    "intellect": 80,
    "speed": 92,
    "durability": 90,
-   "combat": 95,
-   "teamwork": 95
+   "combat": 95
   },
   "tags": [
    "hero",
@@ -438,8 +415,7 @@
    "intellect": 82,
    "speed": 88,
    "durability": 75,
-   "combat": 92,
-   "teamwork": 60
+   "combat": 92
   },
   "tags": [
    "hero",
@@ -456,8 +432,7 @@
    "intellect": 85,
    "speed": 80,
    "durability": 78,
-   "combat": 85,
-   "teamwork": 78
+   "combat": 85
   },
   "tags": [
    "hero",
@@ -475,8 +450,7 @@
    "intellect": 82,
    "speed": 85,
    "durability": 80,
-   "combat": 90,
-   "teamwork": 95
+   "combat": 90
   },
   "tags": [
    "hero",
@@ -494,8 +468,7 @@
    "intellect": 70,
    "speed": 98,
    "durability": 65,
-   "combat": 88,
-   "teamwork": 85
+   "combat": 88
   },
   "tags": [
    "hero",
@@ -513,8 +486,7 @@
    "intellect": 82,
    "speed": 88,
    "durability": 78,
-   "combat": 95,
-   "teamwork": 70
+   "combat": 95
   },
   "tags": [
    "hero",
@@ -532,8 +504,7 @@
    "intellect": 98,
    "speed": 95,
    "durability": 92,
-   "combat": 98,
-   "teamwork": 70
+   "combat": 98
   },
   "tags": [
    "hero",
@@ -551,8 +522,7 @@
    "intellect": 65,
    "speed": 90,
    "durability": 92,
-   "combat": 92,
-   "teamwork": 92
+   "combat": 92
   },
   "tags": [
    "hero",
@@ -569,8 +539,7 @@
    "intellect": 96,
    "speed": 92,
    "durability": 95,
-   "combat": 98,
-   "teamwork": 5
+   "combat": 98
   },
   "tags": [
    "villain",
@@ -587,8 +556,7 @@
    "intellect": 60,
    "speed": 95,
    "durability": 100,
-   "combat": 100,
-   "teamwork": 50
+   "combat": 100
   },
   "tags": [
    "hero",
@@ -605,8 +573,7 @@
    "intellect": 85,
    "speed": 88,
    "durability": 85,
-   "combat": 88,
-   "teamwork": 88
+   "combat": 88
   },
   "tags": [
    "hero",
@@ -624,8 +591,7 @@
    "intellect": 90,
    "speed": 98,
    "durability": 70,
-   "combat": 92,
-   "teamwork": 88
+   "combat": 92
   },
   "tags": [
    "hero",
@@ -643,8 +609,7 @@
    "intellect": 70,
    "speed": 85,
    "durability": 75,
-   "combat": 88,
-   "teamwork": 95
+   "combat": 88
   },
   "tags": [
    "hero",
@@ -661,8 +626,7 @@
    "intellect": 92,
    "speed": 85,
    "durability": 80,
-   "combat": 92,
-   "teamwork": 30
+   "combat": 92
   },
   "tags": [
    "antihero",
@@ -679,8 +643,7 @@
    "intellect": 100,
    "speed": 40,
    "durability": 35,
-   "combat": 40,
-   "teamwork": 70
+   "combat": 40
   },
   "tags": [
    "antihero",
@@ -698,8 +661,7 @@
    "intellect": 100,
    "speed": 30,
    "durability": 30,
-   "combat": 40,
-   "teamwork": 45
+   "combat": 40
   },
   "tags": [
    "hero",
@@ -716,8 +678,7 @@
    "intellect": 80,
    "speed": 85,
    "durability": 60,
-   "combat": 95,
-   "teamwork": 70
+   "combat": 95
   },
   "tags": [
    "antihero",
@@ -735,8 +696,7 @@
    "intellect": 80,
    "speed": 92,
    "durability": 75,
-   "combat": 95,
-   "teamwork": 80
+   "combat": 95
   },
   "tags": [
    "hero",
@@ -753,8 +713,7 @@
    "intellect": 70,
    "speed": 75,
    "durability": 70,
-   "combat": 70,
-   "teamwork": 95
+   "combat": 70
   },
   "tags": [
    "hero",
@@ -772,8 +731,7 @@
    "intellect": 85,
    "speed": 92,
    "durability": 85,
-   "combat": 80,
-   "teamwork": 90
+   "combat": 80
   },
   "tags": [
    "hero",

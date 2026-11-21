@@ -3,7 +3,7 @@
 // Vote games: a card shows a scenario with two sides. Everyone votes in secret, then guesses how the others voted.
 // A right guess scores. Someone nobody read correctly scores too, and on Did That Happen a true vote earns a point.
 import { shuffle } from "../rng";
-import type { VoteCard } from "../party/decks";
+import { namesPlayers, type VoteCard } from "../party/decks";
 import { addCalls, DRINK_CARD_MS, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { has, own } from "../party/own";
 
@@ -55,12 +55,30 @@ export type VoteState = {
 /** Time to read a reveal: longer with more rows of "who guessed whom", plus the time a sip card sits on top of them. */
 export const revealMs = (s: Pick<VoteState, "players" | "drinks">) => REVEAL_MS + Math.max(0, s.players.length - EVERYONE_MAX) * REVEAL_PER_EXTRA_PLAYER_MS + (s.drinks ? DRINK_CARD_MS : 0);
 
+/**
+ * Fills cards that name people at the table. Players are taken in turn round a shuffled circle, so everyone gets named
+ * before anyone is named twice, and `{p1}` and `{p2}` are always two different people.
+ */
+export function namePlayers(cards: VoteCard[], players: string[], seed: number): VoteCard[] {
+  const [order] = shuffle(players, seed ^ 0x5eed);
+  let k = 0;
+  return cards.map((c) => {
+    if (!namesPlayers(c)) return c;
+    const p1 = order[k % order.length]!, p2 = order[(k + 1) % order.length]!;
+    k++;
+    const fill = (t: string) => t.split("{p1}").join(p1).split("{p2}").join(p2);
+    return { ...c, prompt: fill(c.prompt), a: fill(c.a), b: fill(c.b) };
+  });
+}
+
 export function init(o: { players: string[]; deck: string; cards: VoteCard[]; rounds: number; avoid?: string[]; showVotes?: boolean; drinking?: boolean; seed: number; now: number }): VoteState {
   const avoid = new Set(o.avoid ?? []);
+  // A card that names two people needs two people to name.
+  const usable = o.players.length >= 2 ? o.cards : o.cards.filter((c) => !namesPlayers(c));
   // Unseen cards first; if there are too few, seen ones fill the rest.
-  const [fresh, s1] = shuffle(o.cards.filter((c) => !avoid.has(c.id)), o.seed);
-  const [seen] = shuffle(o.cards.filter((c) => avoid.has(c.id)), s1);
-  const cards = [...fresh, ...seen].slice(0, Math.max(3, Math.min(15, o.rounds)));
+  const [fresh, s1] = shuffle(usable.filter((c) => !avoid.has(c.id)), o.seed);
+  const [seen] = shuffle(usable.filter((c) => avoid.has(c.id)), s1);
+  const cards = namePlayers([...fresh, ...seen].slice(0, Math.max(3, Math.min(15, o.rounds))), o.players, o.seed);
   return {
     players: o.players, deck: o.deck, cards, total: cards.length, round: 0, phase: "vote", votes: {}, guesses: {}, targets: {}, history: [],
     points: Object.fromEntries(o.players.map((p) => [p, 0])), showVotes: o.showVotes !== false, ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),

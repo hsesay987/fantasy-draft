@@ -5,8 +5,11 @@ const clamp = (n: number) => Math.min(100, Math.max(0, Number.isFinite(n) ? n : 
 export function itemScore(item: Item, weights: Record<string, number>): number {
   let num = 0;
   let den = 0;
+  // A stat the item does not have (Pokémon have no "brains" number) is left out instead of counting as zero.
   for (const [k, w] of Object.entries(weights)) {
-    num += clamp(item.stats[k] ?? 0) * w;
+    const v = item.stats[k];
+    if (typeof v !== "number") continue;
+    num += clamp(v) * w;
     den += w;
   }
   return den ? num / den : 0;
@@ -25,7 +28,8 @@ export function scoreTeam(items: Item[], scenario: Scenario): TeamScore {
 
   const breakdown: Record<string, number> = {};
   for (const k of Object.keys(scenario.weights)) {
-    breakdown[k] = Math.round(items.reduce((a, i) => a + clamp(i.stats[k] ?? 0), 0) / items.length);
+    const have = items.filter((i) => typeof i.stats[k] === "number");
+    breakdown[k] = have.length ? Math.round(have.reduce((a, i) => a + clamp(i.stats[k]!), 0) / have.length) : 0;
   }
 
   // Synergy: up to +6 for archetype variety, up to +6 for covering wanted tags.

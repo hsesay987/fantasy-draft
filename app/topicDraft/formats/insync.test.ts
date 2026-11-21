@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CLUE_MS, REVEAL_MS, TUNE_MS, bandPoints, clue, giver, init, lock, move, next, rankFor, redactFor, settle, tick, type InSyncState } from "./insync";
+import { CLUE_MS, REVEAL_MS, TUNE_MS, average, bandPoints, clue, giver, init, lock, move, next, rankFor, redactFor, settle, tick, type InSyncState } from "./insync";
 import { INSYNC_DECKS, insyncDeckOf } from "../party/insyncDecks";
 
 const pairs = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `p${i}`, left: `L${i}`, right: `R${i}` }));
@@ -7,11 +7,11 @@ const start = (players: string[], extra: Partial<Parameters<typeof init>[0]> = {
   init({ players, deck: "friends", pairs: pairs(10), rounds: Math.max(4, players.length), seed: 5, now: 0, ...extra });
 /** Pin the hidden target so the scoring in a test is exact. */
 const pin = (s: InSyncState, target: number): InSyncState => ({ ...s, target });
-/** Gets a round through clue and tune with the marker at `at`, then every guesser locks. */
+/** Gets a round through clue and tune with every dial at `at`, then every guesser locks. */
 const play = (s: InSyncState, at: number, now = 1): InSyncState => {
   s = clue(s, giver(s), "a clue", now);
   const guessers = s.players.filter((p) => p !== giver(s));
-  s = move(s, guessers[0]!, at, now);
+  for (const g of guessers) s = move(s, g, at, now);
   for (const g of guessers) s = lock(s, g, now);
   return s;
 };
@@ -39,14 +39,15 @@ describe("in-sync rounds", () => {
     s = clue(s, "A", "  Sunday roast  ", 1);
     expect(s.phase).toBe("tune");
     expect(s.clue).toBe("Sunday roast");
+    expect(s.markers).toEqual({ B: 50 });
     s = move(s, "B", 52, 2);
+    expect(s.markers).toEqual({ B: 52 });
     expect(s.marker).toBe(52);
-    expect(s.markerBy).toBe("B");
     s = lock(s, "B", 3);
     expect(s.phase).toBe("reveal");
     expect(s.score).toBe(4);
     expect(s.maxScore).toBe(4);
-    expect(s.history).toEqual([{ pair: s.pairs[0], clue: "Sunday roast", target: 50, marker: 52, points: 4, giver: "A" }]);
+    expect(s.history).toEqual([{ pair: s.pairs[0], clue: "Sunday roast", target: 50, marker: 52, markers: { B: 52 }, points: 4, giver: "A" }]);
   });
 
   it("gives at least 4 rounds and rotates the clue giver", () => {
@@ -69,24 +70,43 @@ describe("in-sync rounds", () => {
     expect(start(["A", "B", "C", "D", "E", "F"], { pairs: pairs(30) }).pairs).toHaveLength(6);
   });
 
-  it("needs more than half the guessers to lock", () => {
+  it("gives every guesser their own dial, and the room's signal is their average", () => {
+    let s = pin(start(["A", "B", "C", "D"]), 50);
+    expect(s.markers).toEqual({}); // no dials until the clue is in
+    s = clue(s, "A", "hello", 1);
+    expect(s.markers).toEqual({ B: 50, C: 50, D: 50 });
+    s = move(s, "B", 20, 2);
+    s = move(s, "C", 60, 2);
+    s = move(s, "D", 61, 2);
+    expect(s.markers).toEqual({ B: 20, C: 60, D: 61 });
+    expect(s.marker).toBe(47);
+    expect(average({})).toBe(50);
+    s = lock(lock(lock(s, "B", 3), "C", 3), "D", 3);
+    expect(s.phase).toBe("reveal");
+    expect(s.score).toBe(4); // 47 is within 3 of 50, though B alone was far off
+    expect(s.history[0]!.markers).toEqual({ B: 20, C: 60, D: 61 });
+  });
+
+  it("waits for every guesser to lock", () => {
     let s = pin(start(["A", "B", "C", "D", "E"]), 50);
     s = clue(s, "A", "hello", 1);
     s = lock(s, "B", 2);
     s = lock(s, "C", 2);
+    s = lock(s, "D", 2);
     expect(s.phase).toBe("tune");
-    expect(s.locks).toEqual(["B", "C"]);
+    expect(s.locks).toEqual(["B", "C", "D"]);
     expect(lock(s, "B", 3)).toBe(s); // a second lock from the same player does nothing
-    s = lock(s, "D", 3);
+    s = lock(s, "E", 3);
     expect(s.phase).toBe("reveal");
   });
 
-  it("moving the marker takes back locks, so a lock always means this spot", () => {
+  it("moving your dial takes back only your own lock", () => {
     let s = pin(start(["A", "B", "C", "D", "E"]), 50);
     s = clue(s, "A", "hello", 1);
-    s = lock(s, "B", 2);
+    s = lock(lock(s, "B", 2), "C", 2);
     s = move(s, "C", 80, 3);
-    expect(s.locks).toEqual([]);
+    expect(s.locks).toEqual(["B"]);
+    expect(s.markers.B).toBe(50);
     expect(move(s, "C", 80, 4)).toBe(s); // same spot again changes nothing
   });
 
@@ -96,10 +116,11 @@ describe("in-sync rounds", () => {
     const tuning = clue(clueing, "A", "x", 0);
     expect(move(tuning, giver(tuning), 10, 0)).toBe(tuning);
     expect(move(tuning, "B", NaN, 0)).toBe(tuning);
-    expect(move(tuning, "B", 500, 0).marker).toBe(100);
-    expect(move(tuning, "B", -20, 0).marker).toBe(0);
+    expect(move(tuning, "B", 500, 0).markers.B).toBe(100);
+    expect(move(tuning, "B", -20, 0).markers.B).toBe(0);
     expect(move(tuning, "Zed", 20, 0)).toBe(tuning);
-    expect(move(tuning, "B", 33.6, 0).marker).toBe(34);
+    expect(move(tuning, "B", 33.6, 0).markers.B).toBe(34);
+    expect(move(tuning, "B", 30, 0).markers.C).toBe(50); // one dial never moves another
     for (const bad of [null, "", "40", [], false, true, undefined, {}, Infinity, -Infinity]) expect(move(tuning, "B", bad as any, 0), String(bad)).toBe(tuning);
   });
 
@@ -155,6 +176,7 @@ describe("in-sync rounds", () => {
     expect(auto.round).toBe(1);
     expect(auto.phase).toBe("clue");
     expect(auto.marker).toBe(50);
+    expect(auto.markers).toEqual({});
     expect(auto.locks).toEqual([]);
     expect(auto.clue).toBe("");
     expect(next(s, 11).round).toBe(1);
@@ -271,24 +293,26 @@ describe("in-sync when someone leaves", () => {
   const five = ["A", "B", "C", "D", "E"];
   const tuning = () => clue(start(five), "A", "a clue", 1); // A gives the clue
 
-  it("bases the majority on the guessers still here", () => {
+  it("waits only for the guessers still here", () => {
     let s = tuning();
     s = lock(lock(s, "B", 2), "C", 2);
-    expect(s.phase).toBe("tune"); // 2 of 4 is not more than half
+    expect(s.phase).toBe("tune");
     expect(settle(s, [], 3)).toBe(s);
     expect(settle(s, ["D", "E"], 3).phase).toBe("reveal");
   });
 
-  it("needs a real majority of those here, and a departed guesser's lock doesn't count", () => {
-    const one = lock(tuning(), "B", 2);
-    expect(settle(one, ["D", "E"], 3)).toBe(one); // 1 of 2
-    const gone = lock(lock(tuning(), "B", 2), "C", 2);
-    const left = settle(gone, ["B", "C"], 3); // the two locks left with them; D and E haven't locked
+  it("drops a departed guesser's dial from the average, and their lock with it", () => {
+    let s = pin(tuning(), 50);
+    s = move(s, "B", 0, 2);
+    s = lock(s, "B", 2);
+    const left = settle(s, ["B"], 3);
     expect(left.phase).toBe("tune");
+    expect(left.markers).toEqual({ C: 50, D: 50, E: 50 });
+    expect(left.marker).toBe(50);
     expect(left.locks).toEqual([]);
   });
 
-  it("reveals where the marker is when no guesser is left", () => {
+  it("reveals where the signal is when no guesser is left", () => {
     expect(settle(tuning(), ["B", "C", "D", "E"], 3).phase).toBe("reveal");
   });
 
@@ -313,7 +337,7 @@ describe("in-sync when someone leaves", () => {
   });
 
   it("a giver who left after giving the clue doesn't stop the tuning", () => {
-    const s = lock(lock(lock(tuning(), "B", 2), "C", 2), "D", 2);
+    const s = lock(lock(lock(lock(tuning(), "B", 2), "C", 2), "D", 2), "E", 2);
     expect(s.phase).toBe("reveal");
     const t = tuning();
     expect(settle(t, ["A"], 3)).toBe(t);

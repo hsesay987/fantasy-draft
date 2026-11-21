@@ -57,3 +57,6 @@ backups/
 /.impeccable/
 /AGENTS.md
 /Icon?
+
+# fetched source data for scripts/buildStats.mjs
+.cache/

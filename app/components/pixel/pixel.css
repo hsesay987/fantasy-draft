@@ -482,6 +482,7 @@
 .sync-rounds .mini i { position: absolute; top: 0; width: 4px; height: 10px; margin-left: -2px; }
 .sync-rounds .mini .t { background: var(--px-mint); }
 .sync-rounds .mini .m { background: #ff5a3c; }
+.sync-rounds .mini .d { width: 2px; margin-left: -1px; background: #c8ffe4; opacity: .55; }
 
 @media (prefers-reduced-motion: reduce) {
   .sync-scope[data-phase="reveal"] .sync-glass { animation: sync-fade .6s linear both; }

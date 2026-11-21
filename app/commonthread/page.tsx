@@ -7,6 +7,7 @@ import { WorldScene } from "../components/pixel/WorldScene";
 import { dayNumber } from "../pinpoint/engine";
 import { CLUES, savedRun, score, type ThreadRun } from "./engine";
 import { THREAD_TOPICS } from "./topics";
+import { TopicIcon } from "../components/icons/TopicIcon";
 
 /** Pick a topic's case file. The hub reads only what is saved, so it never downloads a topic's clues. */
 export default function CommonThreadHub() {
@@ -37,7 +38,7 @@ export default function CommonThreadHub() {
               <li key={t.id}>
                 <Link href={`/commonthread/${t.id}`} className="ct-file">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={t.iconSrc} alt="" />
+                  <TopicIcon id={t.id} />
                   <span className="min-w-0">
                     <b>{t.title}</b>
                     {r?.over && <em className={r.won ? "won" : "cold"}>{r.won ? `${score(r)}/${CLUES}` : `X/${CLUES}`}</em>}

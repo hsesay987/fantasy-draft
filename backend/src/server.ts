@@ -22,6 +22,7 @@ import cartoonRoutes from "./routes/cartoon.route";
 import toppicRoutes from "./routes/toppic.route";
 import judgeRoutes from "./routes/judge.route";
 import playRoomRoutes from "./routes/playRooms.route";
+import customRoutes from "./routes/custom.route";
 import { setNpatHistory, setNpatJudge, startTicker } from "./services/playRooms";
 import { judge as npatJudge } from "./services/npatJudge.instance";
 import { createNpatHistory, prismaNpatAnswerDb } from "./services/npatHistory.service";
@@ -78,6 +79,7 @@ app.use("/play-rooms", playRoomRoutes);
 app.use("/trivia", triviaRoutes);
 app.use("/costimation", costimationRoutes);
 app.use("/daily", dailyRoutes);
+app.use("/custom", customRoutes);
 app.use("/npat", npatRoutes);
 
 // Sentry must see errors before our own handler responds (no-op without SENTRY_DSN).

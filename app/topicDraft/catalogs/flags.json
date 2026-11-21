@@ -5,12 +5,11 @@
   "universe": "Asia",
   "archetype": "Plain Field",
   "stats": {
-   "colors": 55,
-   "symbolism": 85,
+   "colors": 42,
+   "recognition": 82,
    "simplicity": 99,
-   "recognition": 98,
-   "uniqueness": 90,
-   "boldness": 92
+   "symbolism": 85,
+   "uniqueness": 90
   },
   "tags": [
    "simple",
@@ -24,12 +23,11 @@
   "universe": "North America",
   "archetype": "Emblem",
   "stats": {
-   "colors": 60,
-   "symbolism": 90,
+   "colors": 42,
+   "recognition": 86,
    "simplicity": 88,
-   "recognition": 99,
-   "uniqueness": 95,
-   "boldness": 92
+   "symbolism": 90,
+   "uniqueness": 95
   },
   "tags": [
    "leaf",
@@ -43,12 +41,11 @@
   "universe": "North America",
   "archetype": "Stars and Stripes",
   "stats": {
-   "colors": 75,
-   "symbolism": 92,
+   "colors": 60,
+   "recognition": 96,
    "simplicity": 45,
-   "recognition": 99,
-   "uniqueness": 82,
-   "boldness": 85
+   "symbolism": 92,
+   "uniqueness": 82
   },
   "tags": [
    "stars",
@@ -62,12 +59,11 @@
   "universe": "Europe",
   "archetype": "Crosses",
   "stats": {
-   "colors": 75,
-   "symbolism": 90,
+   "colors": 60,
+   "recognition": 89,
    "simplicity": 40,
-   "recognition": 98,
-   "uniqueness": 88,
-   "boldness": 85
+   "symbolism": 90,
+   "uniqueness": 88
   },
   "tags": [
    "crosses"
@@ -80,12 +76,11 @@
   "universe": "South America",
   "archetype": "Emblem",
   "stats": {
-   "colors": 92,
-   "symbolism": 88,
+   "colors": 76,
+   "recognition": 77,
    "simplicity": 40,
-   "recognition": 95,
-   "uniqueness": 95,
-   "boldness": 90
+   "symbolism": 88,
+   "uniqueness": 95
   },
   "tags": [
    "stars",
@@ -99,12 +94,11 @@
   "universe": "Africa",
   "archetype": "Bands",
   "stats": {
-   "colors": 99,
-   "symbolism": 92,
+   "colors": 96,
+   "recognition": 68,
    "simplicity": 50,
-   "recognition": 88,
-   "uniqueness": 97,
-   "boldness": 92
+   "symbolism": 92,
+   "uniqueness": 97
   },
   "tags": [
    "colourful"
@@ -117,12 +111,11 @@
   "universe": "Asia",
   "archetype": "Unique Shape",
   "stats": {
-   "colors": 70,
-   "symbolism": 90,
+   "colors": 60,
+   "recognition": 69,
    "simplicity": 55,
-   "recognition": 85,
-   "uniqueness": 99,
-   "boldness": 88
+   "symbolism": 90,
+   "uniqueness": 99
   },
   "tags": [
    "unique-shape"
@@ -135,12 +128,11 @@
   "universe": "Europe",
   "archetype": "Crosses",
   "stats": {
-   "colors": 55,
-   "symbolism": 85,
+   "colors": 42,
+   "recognition": 63,
    "simplicity": 98,
-   "recognition": 95,
-   "uniqueness": 92,
-   "boldness": 95
+   "symbolism": 85,
+   "uniqueness": 92
   },
   "tags": [
    "square",
@@ -154,12 +146,11 @@
   "universe": "Asia",
   "archetype": "Emblem",
   "stats": {
-   "colors": 70,
-   "symbolism": 97,
+   "colors": 76,
+   "recognition": 76,
    "simplicity": 45,
-   "recognition": 88,
-   "uniqueness": 96,
-   "boldness": 75
+   "symbolism": 97,
+   "uniqueness": 96
   },
   "tags": [
    "symbols"
@@ -172,12 +163,11 @@
   "universe": "North America",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 85,
-   "symbolism": 97,
+   "colors": 60,
+   "recognition": 85,
    "simplicity": 45,
-   "recognition": 92,
-   "uniqueness": 88,
-   "boldness": 85
+   "symbolism": 97,
+   "uniqueness": 88
   },
   "tags": [
    "emblem",
@@ -191,12 +181,11 @@
   "universe": "Asia",
   "archetype": "Emblem",
   "stats": {
-   "colors": 80,
-   "symbolism": 96,
+   "colors": 76,
+   "recognition": 46,
    "simplicity": 35,
-   "recognition": 70,
-   "uniqueness": 99,
-   "boldness": 90
+   "symbolism": 96,
+   "uniqueness": 99
   },
   "tags": [
    "dragon"
@@ -209,12 +198,11 @@
   "universe": "Asia",
   "archetype": "Emblem",
   "stats": {
-   "colors": 80,
-   "symbolism": 95,
+   "colors": 76,
+   "recognition": 55,
    "simplicity": 30,
-   "recognition": 65,
-   "uniqueness": 96,
-   "boldness": 88
+   "symbolism": 95,
+   "uniqueness": 96
   },
   "tags": [
    "lion"
@@ -227,12 +215,11 @@
   "universe": "Europe",
   "archetype": "Emblem",
   "stats": {
-   "colors": 80,
-   "symbolism": 90,
+   "colors": 60,
+   "recognition": 67,
    "simplicity": 45,
-   "recognition": 88,
-   "uniqueness": 99,
-   "boldness": 96
+   "symbolism": 90,
+   "uniqueness": 99
   },
   "tags": [
    "dragon"
@@ -245,12 +232,11 @@
   "universe": "Africa",
   "archetype": "Bands",
   "stats": {
-   "colors": 85,
-   "symbolism": 94,
+   "colors": 76,
+   "recognition": 50,
    "simplicity": 50,
-   "recognition": 80,
-   "uniqueness": 92,
-   "boldness": 92
+   "symbolism": 94,
+   "uniqueness": 92
   },
   "tags": [
    "shield"
@@ -263,12 +249,11 @@
   "universe": "North America",
   "archetype": "Saltire",
   "stats": {
-   "colors": 82,
-   "symbolism": 85,
+   "colors": 60,
+   "recognition": 58,
    "simplicity": 85,
-   "recognition": 90,
-   "uniqueness": 95,
-   "boldness": 92
+   "symbolism": 85,
+   "uniqueness": 95
   },
   "tags": [
    "saltire"
@@ -281,12 +266,11 @@
   "universe": "Asia",
   "archetype": "Crescent",
   "stats": {
-   "colors": 55,
-   "symbolism": 88,
+   "colors": 42,
+   "recognition": 66,
    "simplicity": 92,
-   "recognition": 92,
-   "uniqueness": 82,
-   "boldness": 92
+   "symbolism": 88,
+   "uniqueness": 82
   },
   "tags": [
    "crescent",
@@ -300,12 +284,11 @@
   "universe": "Asia",
   "archetype": "Stripes",
   "stats": {
-   "colors": 45,
-   "symbolism": 96,
+   "colors": 42,
+   "recognition": 69,
    "simplicity": 80,
-   "recognition": 92,
-   "uniqueness": 85,
-   "boldness": 70
+   "symbolism": 96,
+   "uniqueness": 85
   },
   "tags": [
    "star"
@@ -319,11 +302,10 @@
   "archetype": "Emblem",
   "stats": {
    "colors": 60,
-   "symbolism": 92,
+   "recognition": 58,
    "simplicity": 70,
-   "recognition": 82,
-   "uniqueness": 95,
-   "boldness": 85
+   "symbolism": 92,
+   "uniqueness": 95
   },
   "tags": [
    "cedar"
@@ -336,12 +318,11 @@
   "universe": "Europe",
   "archetype": "Map",
   "stats": {
-   "colors": 50,
-   "symbolism": 85,
+   "colors": 60,
+   "recognition": 44,
    "simplicity": 75,
-   "recognition": 70,
-   "uniqueness": 95,
-   "boldness": 55
+   "symbolism": 85,
+   "uniqueness": 95
   },
   "tags": [
    "map"
@@ -354,12 +335,11 @@
   "universe": "Oceania",
   "archetype": "Emblem",
   "stats": {
-   "colors": 85,
-   "symbolism": 90,
+   "colors": 76,
+   "recognition": 36,
    "simplicity": 40,
-   "recognition": 45,
-   "uniqueness": 96,
-   "boldness": 88
+   "symbolism": 90,
+   "uniqueness": 96
   },
   "tags": [
    "sun",
@@ -373,12 +353,11 @@
   "universe": "Africa",
   "archetype": "Rays",
   "stats": {
-   "colors": 97,
-   "symbolism": 80,
+   "colors": 88,
+   "recognition": 36,
    "simplicity": 70,
-   "recognition": 55,
-   "uniqueness": 97,
-   "boldness": 92
+   "symbolism": 80,
+   "uniqueness": 97
   },
   "tags": [
    "colourful"
@@ -392,11 +371,10 @@
   "archetype": "Emblem",
   "stats": {
    "colors": 88,
-   "symbolism": 92,
+   "recognition": 56,
    "simplicity": 35,
-   "recognition": 60,
-   "uniqueness": 96,
-   "boldness": 88
+   "symbolism": 92,
+   "uniqueness": 96
   },
   "tags": [
    "rifle"
@@ -409,12 +387,11 @@
   "universe": "Europe",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 70,
-   "symbolism": 82,
+   "colors": 60,
+   "recognition": 88,
    "simplicity": 95,
-   "recognition": 96,
-   "uniqueness": 70,
-   "boldness": 82
+   "symbolism": 82,
+   "uniqueness": 70
   },
   "tags": [
    "tricolour",
@@ -428,12 +405,11 @@
   "universe": "Europe",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 70,
-   "symbolism": 92,
+   "colors": 60,
+   "recognition": 85,
    "simplicity": 97,
-   "recognition": 97,
-   "uniqueness": 70,
-   "boldness": 80
+   "symbolism": 92,
+   "uniqueness": 70
   },
   "tags": [
    "tricolour"
@@ -446,12 +422,11 @@
   "universe": "Europe",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 72,
-   "symbolism": 85,
+   "colors": 60,
+   "recognition": 79,
    "simplicity": 97,
-   "recognition": 94,
-   "uniqueness": 65,
-   "boldness": 78
+   "symbolism": 85,
+   "uniqueness": 65
   },
   "tags": [
    "tricolour"
@@ -464,12 +439,11 @@
   "universe": "Europe",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 72,
-   "symbolism": 90,
+   "colors": 60,
+   "recognition": 99,
    "simplicity": 97,
-   "recognition": 85,
-   "uniqueness": 62,
-   "boldness": 75
+   "symbolism": 90,
+   "uniqueness": 62
   },
   "tags": [
    "tricolour"
@@ -482,12 +456,11 @@
   "universe": "Europe",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 72,
-   "symbolism": 75,
+   "colors": 60,
+   "recognition": 53,
    "simplicity": 97,
-   "recognition": 80,
-   "uniqueness": 65,
-   "boldness": 80
+   "symbolism": 75,
+   "uniqueness": 65
   },
   "tags": [
    "tricolour"
@@ -500,12 +473,11 @@
   "universe": "Europe",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 65,
-   "symbolism": 78,
+   "colors": 60,
+   "recognition": 70,
    "simplicity": 97,
-   "recognition": 85,
-   "uniqueness": 60,
-   "boldness": 72
+   "symbolism": 78,
+   "uniqueness": 60
   },
   "tags": [
    "tricolour",
@@ -519,12 +491,11 @@
   "universe": "Europe",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 65,
-   "symbolism": 78,
+   "colors": 60,
+   "recognition": 81,
    "simplicity": 96,
-   "recognition": 88,
-   "uniqueness": 55,
-   "boldness": 72
+   "symbolism": 78,
+   "uniqueness": 55
   },
   "tags": [
    "tricolour",
@@ -538,12 +509,11 @@
   "universe": "Europe",
   "archetype": "Nordic Cross",
   "stats": {
-   "colors": 65,
-   "symbolism": 82,
+   "colors": 42,
+   "recognition": 62,
    "simplicity": 92,
-   "recognition": 90,
-   "uniqueness": 80,
-   "boldness": 85
+   "symbolism": 82,
+   "uniqueness": 80
   },
   "tags": [
    "nordic"
@@ -556,12 +526,11 @@
   "universe": "Europe",
   "archetype": "Nordic Cross",
   "stats": {
-   "colors": 70,
-   "symbolism": 82,
+   "colors": 60,
+   "recognition": 78,
    "simplicity": 85,
-   "recognition": 85,
-   "uniqueness": 75,
-   "boldness": 85
+   "symbolism": 82,
+   "uniqueness": 75
   },
   "tags": [
    "nordic"
@@ -574,12 +543,11 @@
   "universe": "Europe",
   "archetype": "Nordic Cross",
   "stats": {
-   "colors": 55,
-   "symbolism": 92,
+   "colors": 42,
+   "recognition": 57,
    "simplicity": 95,
-   "recognition": 85,
-   "uniqueness": 82,
-   "boldness": 90
+   "symbolism": 92,
+   "uniqueness": 82
   },
   "tags": [
    "nordic",
@@ -593,12 +561,11 @@
   "universe": "Europe",
   "archetype": "Nordic Cross",
   "stats": {
-   "colors": 50,
-   "symbolism": 82,
+   "colors": 42,
+   "recognition": 55,
    "simplicity": 95,
-   "recognition": 80,
-   "uniqueness": 72,
-   "boldness": 75
+   "symbolism": 82,
+   "uniqueness": 72
   },
   "tags": [
    "nordic"
@@ -611,12 +578,11 @@
   "universe": "Europe",
   "archetype": "Nordic Cross",
   "stats": {
-   "colors": 68,
-   "symbolism": 85,
+   "colors": 60,
+   "recognition": 44,
    "simplicity": 85,
-   "recognition": 75,
-   "uniqueness": 72,
-   "boldness": 82
+   "symbolism": 85,
+   "uniqueness": 72
   },
   "tags": [
    "nordic"
@@ -629,12 +595,11 @@
   "universe": "Europe",
   "archetype": "Stripes",
   "stats": {
-   "colors": 55,
-   "symbolism": 90,
+   "colors": 42,
+   "recognition": 62,
    "simplicity": 70,
-   "recognition": 88,
-   "uniqueness": 82,
-   "boldness": 82
+   "symbolism": 90,
+   "uniqueness": 82
   },
   "tags": [
    "stripes",
@@ -648,12 +613,11 @@
   "universe": "Asia",
   "archetype": "Stars",
   "stats": {
-   "colors": 55,
-   "symbolism": 92,
+   "colors": 42,
+   "recognition": 80,
    "simplicity": 82,
-   "recognition": 95,
-   "uniqueness": 80,
-   "boldness": 92
+   "symbolism": 92,
+   "uniqueness": 80
   },
   "tags": [
    "stars",
@@ -667,12 +631,11 @@
   "universe": "Asia",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 82,
-   "symbolism": 96,
-   "simplicity": 72,
+   "colors": 76,
    "recognition": 92,
-   "uniqueness": 88,
-   "boldness": 82
+   "simplicity": 72,
+   "symbolism": 96,
+   "uniqueness": 88
   },
   "tags": [
    "tricolour",
@@ -687,11 +650,10 @@
   "archetype": "Stripes",
   "stats": {
    "colors": 60,
-   "symbolism": 90,
+   "recognition": 65,
    "simplicity": 80,
-   "recognition": 90,
-   "uniqueness": 85,
-   "boldness": 75
+   "symbolism": 90,
+   "uniqueness": 85
   },
   "tags": [
    "sun"
@@ -705,11 +667,10 @@
   "archetype": "Ensign",
   "stats": {
    "colors": 60,
-   "symbolism": 88,
+   "recognition": 84,
    "simplicity": 45,
-   "recognition": 88,
-   "uniqueness": 60,
-   "boldness": 72
+   "symbolism": 88,
+   "uniqueness": 60
   },
   "tags": [
    "stars",
@@ -724,11 +685,10 @@
   "archetype": "Ensign",
   "stats": {
    "colors": 60,
-   "symbolism": 88,
+   "recognition": 71,
    "simplicity": 48,
-   "recognition": 82,
-   "uniqueness": 58,
-   "boldness": 72
+   "symbolism": 88,
+   "uniqueness": 58
   },
   "tags": [
    "stars",
@@ -742,12 +702,11 @@
   "universe": "Asia",
   "archetype": "Stars",
   "stats": {
-   "colors": 55,
-   "symbolism": 85,
+   "colors": 42,
+   "recognition": 59,
    "simplicity": 95,
-   "recognition": 82,
-   "uniqueness": 75,
-   "boldness": 95
+   "symbolism": 85,
+   "uniqueness": 75
   },
   "tags": [
    "star",
@@ -761,12 +720,11 @@
   "universe": "Asia",
   "archetype": "Plain Field",
   "stats": {
-   "colors": 55,
-   "symbolism": 85,
+   "colors": 42,
+   "recognition": 52,
    "simplicity": 95,
-   "recognition": 75,
-   "uniqueness": 80,
-   "boldness": 85
+   "symbolism": 85,
+   "uniqueness": 80
   },
   "tags": [
    "disc",
@@ -780,12 +738,11 @@
   "universe": "Oceania",
   "archetype": "Plain Field",
   "stats": {
-   "colors": 55,
-   "symbolism": 82,
+   "colors": 42,
+   "recognition": 38,
    "simplicity": 97,
-   "recognition": 50,
-   "uniqueness": 85,
-   "boldness": 82
+   "symbolism": 82,
+   "uniqueness": 85
   },
   "tags": [
    "disc",
@@ -799,12 +756,11 @@
   "universe": "Africa",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 82,
-   "symbolism": 92,
+   "colors": 76,
+   "recognition": 48,
    "simplicity": 75,
-   "recognition": 78,
-   "uniqueness": 85,
-   "boldness": 88
+   "symbolism": 92,
+   "uniqueness": 85
   },
   "tags": [
    "star",
@@ -818,12 +774,11 @@
   "universe": "Africa",
   "archetype": "Tricolour",
   "stats": {
-   "colors": 50,
-   "symbolism": 80,
+   "colors": 42,
+   "recognition": 51,
    "simplicity": 97,
-   "recognition": 82,
-   "uniqueness": 70,
-   "boldness": 78
+   "symbolism": 80,
+   "uniqueness": 70
   },
   "tags": [
    "tricolour",
@@ -837,12 +792,11 @@
   "universe": "Africa",
   "archetype": "Emblem",
   "stats": {
-   "colors": 82,
-   "symbolism": 92,
+   "colors": 76,
+   "recognition": 52,
    "simplicity": 60,
-   "recognition": 72,
-   "uniqueness": 85,
-   "boldness": 85
+   "symbolism": 92,
+   "uniqueness": 85
   },
   "tags": [
    "star"
@@ -855,12 +809,11 @@
   "universe": "Africa",
   "archetype": "Emblem",
   "stats": {
-   "colors": 50,
-   "symbolism": 88,
+   "colors": 42,
+   "recognition": 54,
    "simplicity": 92,
-   "recognition": 75,
-   "uniqueness": 85,
-   "boldness": 92
+   "symbolism": 88,
+   "uniqueness": 85
   },
   "tags": [
    "star",
@@ -874,12 +827,11 @@
   "universe": "Asia",
   "archetype": "Emblem",
   "stats": {
-   "colors": 45,
-   "symbolism": 97,
+   "colors": 42,
+   "recognition": 71,
    "simplicity": 60,
-   "recognition": 85,
-   "uniqueness": 92,
-   "boldness": 82
+   "symbolism": 97,
+   "uniqueness": 92
   },
   "tags": [
    "script",
@@ -893,12 +845,11 @@
   "universe": "Asia",
   "archetype": "Crescent",
   "stats": {
-   "colors": 50,
-   "symbolism": 92,
+   "colors": 42,
+   "recognition": 64,
    "simplicity": 85,
-   "recognition": 80,
-   "uniqueness": 82,
-   "boldness": 85
+   "symbolism": 92,
+   "uniqueness": 82
   },
   "tags": [
    "crescent",
@@ -912,12 +863,11 @@
   "universe": "Asia",
   "archetype": "Unique Shape",
   "stats": {
-   "colors": 45,
-   "symbolism": 85,
+   "colors": 42,
+   "recognition": 47,
    "simplicity": 88,
-   "recognition": 70,
-   "uniqueness": 92,
-   "boldness": 85
+   "symbolism": 85,
+   "uniqueness": 92
   },
   "tags": [
    "serrated"
@@ -930,12 +880,11 @@
   "universe": "Europe",
   "archetype": "Bands",
   "stats": {
-   "colors": 60,
-   "symbolism": 92,
+   "colors": 42,
+   "recognition": 67,
    "simplicity": 99,
-   "recognition": 92,
-   "uniqueness": 72,
-   "boldness": 88
+   "symbolism": 92,
+   "uniqueness": 72
   },
   "tags": [
    "bicolour"
@@ -948,12 +897,11 @@
   "universe": "Europe",
   "archetype": "Bands",
   "stats": {
-   "colors": 45,
-   "symbolism": 82,
+   "colors": 42,
+   "recognition": 72,
    "simplicity": 99,
-   "recognition": 82,
-   "uniqueness": 55,
-   "boldness": 72
+   "symbolism": 82,
+   "uniqueness": 55
   },
   "tags": [
    "bicolour"
@@ -966,12 +914,11 @@
   "universe": "Asia",
   "archetype": "Bands",
   "stats": {
-   "colors": 45,
-   "symbolism": 85,
+   "colors": 42,
+   "recognition": 60,
    "simplicity": 99,
-   "recognition": 78,
-   "uniqueness": 50,
-   "boldness": 82
+   "symbolism": 85,
+   "uniqueness": 50
   },
   "tags": [
    "bicolour",
@@ -985,12 +932,11 @@
   "universe": "Europe",
   "archetype": "Saltire",
   "stats": {
-   "colors": 50,
-   "symbolism": 92,
+   "colors": 42,
+   "recognition": 74,
    "simplicity": 95,
-   "recognition": 88,
-   "uniqueness": 82,
-   "boldness": 85
+   "symbolism": 92,
+   "uniqueness": 82
   },
   "tags": [
    "saltire",

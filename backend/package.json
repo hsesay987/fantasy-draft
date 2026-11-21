@@ -23,6 +23,8 @@
     "trivia:ingest": "ts-node --transpile-only src/scripts/ingestTrivia.ts",
     "trivia:audit": "ts-node --transpile-only src/scripts/auditTrivia.ts",
     "prices:ingest": "ts-node --transpile-only src/scripts/ingestPrices.ts",
+    "content:seed": "ts-node --transpile-only src/scripts/seedContent.ts",
+    "content:export": "ts-node --transpile-only src/scripts/exportContent.ts",
     "nba:export": "ts-node --transpile-only src/scripts/exportNbaCatalog.ts"
   },
   "keywords": [],

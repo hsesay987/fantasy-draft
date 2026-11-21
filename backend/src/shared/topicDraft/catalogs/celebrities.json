@@ -1,0 +1,784 @@
+[
+ {
+  "id": "celeb-beyonce",
+  "name": "Beyoncé",
+  "universe": "Music",
+  "archetype": "Pop icon",
+  "stats": {
+   "fame": 97,
+   "talent": 97,
+   "charisma": 94,
+   "style": 95,
+   "influence": 95,
+   "longevity": 90
+  },
+  "tags": [
+   "singer",
+   "performer"
+  ]
+ },
+ {
+  "id": "celeb-taylor-swift",
+  "name": "Taylor Swift",
+  "universe": "Music",
+  "archetype": "Pop icon",
+  "stats": {
+   "fame": 99,
+   "talent": 92,
+   "charisma": 90,
+   "style": 85,
+   "influence": 96,
+   "longevity": 88
+  },
+  "tags": [
+   "singer",
+   "songwriter"
+  ]
+ },
+ {
+  "id": "celeb-rihanna",
+  "name": "Rihanna",
+  "universe": "Music",
+  "archetype": "Pop icon and mogul",
+  "stats": {
+   "fame": 96,
+   "talent": 85,
+   "charisma": 93,
+   "style": 98,
+   "influence": 92,
+   "longevity": 85
+  },
+  "tags": [
+   "singer",
+   "business"
+  ]
+ },
+ {
+  "id": "celeb-lady-gaga",
+  "name": "Lady Gaga",
+  "universe": "Music",
+  "archetype": "Pop icon",
+  "stats": {
+   "fame": 93,
+   "talent": 94,
+   "charisma": 88,
+   "style": 97,
+   "influence": 88,
+   "longevity": 85
+  },
+  "tags": [
+   "singer",
+   "actor",
+   "performer"
+  ]
+ },
+ {
+  "id": "celeb-adele",
+  "name": "Adele",
+  "universe": "Music",
+  "archetype": "Voice of a generation",
+  "stats": {
+   "fame": 90,
+   "talent": 96,
+   "charisma": 90,
+   "style": 80,
+   "influence": 82,
+   "longevity": 82
+  },
+  "tags": [
+   "singer"
+  ]
+ },
+ {
+  "id": "celeb-ed-sheeran",
+  "name": "Ed Sheeran",
+  "universe": "Music",
+  "archetype": "Singer-songwriter",
+  "stats": {
+   "fame": 88,
+   "talent": 85,
+   "charisma": 74,
+   "style": 62,
+   "influence": 78,
+   "longevity": 82
+  },
+  "tags": [
+   "singer",
+   "songwriter"
+  ]
+ },
+ {
+  "id": "celeb-billie-eilish",
+  "name": "Billie Eilish",
+  "universe": "Music",
+  "archetype": "Pop star",
+  "stats": {
+   "fame": 88,
+   "talent": 88,
+   "charisma": 80,
+   "style": 90,
+   "influence": 85,
+   "longevity": 65
+  },
+  "tags": [
+   "singer",
+   "songwriter"
+  ]
+ },
+ {
+  "id": "celeb-ariana-grande",
+  "name": "Ariana Grande",
+  "universe": "Music",
+  "archetype": "Pop star and actor",
+  "stats": {
+   "fame": 92,
+   "talent": 90,
+   "charisma": 82,
+   "style": 88,
+   "influence": 84,
+   "longevity": 75
+  },
+  "tags": [
+   "singer",
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-harry-styles",
+  "name": "Harry Styles",
+  "universe": "Music",
+  "archetype": "Pop star",
+  "stats": {
+   "fame": 90,
+   "talent": 82,
+   "charisma": 92,
+   "style": 96,
+   "influence": 84,
+   "longevity": 70
+  },
+  "tags": [
+   "singer",
+   "performer"
+  ]
+ },
+ {
+  "id": "celeb-bad-bunny",
+  "name": "Bad Bunny",
+  "universe": "Music",
+  "archetype": "Latin superstar",
+  "stats": {
+   "fame": 92,
+   "talent": 84,
+   "charisma": 88,
+   "style": 92,
+   "influence": 90,
+   "longevity": 62
+  },
+  "tags": [
+   "singer",
+   "performer"
+  ]
+ },
+ {
+  "id": "celeb-drake",
+  "name": "Drake",
+  "universe": "Music",
+  "archetype": "Rap star",
+  "stats": {
+   "fame": 93,
+   "talent": 84,
+   "charisma": 82,
+   "style": 82,
+   "influence": 90,
+   "longevity": 85
+  },
+  "tags": [
+   "rapper"
+  ],
+  "q": "Drake (musician)"
+ },
+ {
+  "id": "celeb-shakira",
+  "name": "Shakira",
+  "universe": "Music",
+  "archetype": "Latin pop icon",
+  "stats": {
+   "fame": 91,
+   "talent": 90,
+   "charisma": 88,
+   "style": 85,
+   "influence": 85,
+   "longevity": 90
+  },
+  "tags": [
+   "singer",
+   "performer"
+  ]
+ },
+ {
+  "id": "celeb-dolly-parton",
+  "name": "Dolly Parton",
+  "universe": "Music",
+  "archetype": "Country legend",
+  "stats": {
+   "fame": 88,
+   "talent": 93,
+   "charisma": 97,
+   "style": 90,
+   "influence": 88,
+   "longevity": 99
+  },
+  "tags": [
+   "singer",
+   "songwriter"
+  ]
+ },
+ {
+  "id": "celeb-snoop-dogg",
+  "name": "Snoop Dogg",
+  "universe": "Music",
+  "archetype": "Rap legend",
+  "stats": {
+   "fame": 90,
+   "talent": 80,
+   "charisma": 92,
+   "style": 85,
+   "influence": 82,
+   "longevity": 95
+  },
+  "tags": [
+   "rapper"
+  ]
+ },
+ {
+  "id": "celeb-dwayne-johnson",
+  "name": "Dwayne Johnson",
+  "universe": "Film",
+  "archetype": "Action star",
+  "stats": {
+   "fame": 96,
+   "talent": 75,
+   "charisma": 96,
+   "style": 75,
+   "influence": 88,
+   "longevity": 88
+  },
+  "tags": [
+   "actor",
+   "athlete"
+  ]
+ },
+ {
+  "id": "celeb-tom-hanks",
+  "name": "Tom Hanks",
+  "universe": "Film",
+  "archetype": "Movie legend",
+  "stats": {
+   "fame": 92,
+   "talent": 95,
+   "charisma": 92,
+   "style": 70,
+   "influence": 85,
+   "longevity": 98
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-meryl-streep",
+  "name": "Meryl Streep",
+  "universe": "Film",
+  "archetype": "Acting legend",
+  "stats": {
+   "fame": 88,
+   "talent": 99,
+   "charisma": 85,
+   "style": 78,
+   "influence": 85,
+   "longevity": 99
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-leonardo-dicaprio",
+  "name": "Leonardo DiCaprio",
+  "universe": "Film",
+  "archetype": "Movie star",
+  "stats": {
+   "fame": 94,
+   "talent": 94,
+   "charisma": 85,
+   "style": 82,
+   "influence": 85,
+   "longevity": 92
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-denzel-washington",
+  "name": "Denzel Washington",
+  "universe": "Film",
+  "archetype": "Movie legend",
+  "stats": {
+   "fame": 88,
+   "talent": 96,
+   "charisma": 90,
+   "style": 82,
+   "influence": 84,
+   "longevity": 95
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-morgan-freeman",
+  "name": "Morgan Freeman",
+  "universe": "Film",
+  "archetype": "The voice",
+  "stats": {
+   "fame": 90,
+   "talent": 92,
+   "charisma": 92,
+   "style": 75,
+   "influence": 82,
+   "longevity": 98
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-tom-cruise",
+  "name": "Tom Cruise",
+  "universe": "Film",
+  "archetype": "Action star",
+  "stats": {
+   "fame": 94,
+   "talent": 85,
+   "charisma": 88,
+   "style": 80,
+   "influence": 82,
+   "longevity": 96
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-keanu-reeves",
+  "name": "Keanu Reeves",
+  "universe": "Film",
+  "archetype": "Action star",
+  "stats": {
+   "fame": 90,
+   "talent": 80,
+   "charisma": 92,
+   "style": 80,
+   "influence": 82,
+   "longevity": 92
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-zendaya",
+  "name": "Zendaya",
+  "universe": "Film",
+  "archetype": "Actor and style star",
+  "stats": {
+   "fame": 90,
+   "talent": 88,
+   "charisma": 90,
+   "style": 99,
+   "influence": 86,
+   "longevity": 70
+  },
+  "tags": [
+   "actor",
+   "singer"
+  ]
+ },
+ {
+  "id": "celeb-margot-robbie",
+  "name": "Margot Robbie",
+  "universe": "Film",
+  "archetype": "Movie star",
+  "stats": {
+   "fame": 82,
+   "talent": 90,
+   "charisma": 88,
+   "style": 92,
+   "influence": 82,
+   "longevity": 72
+  },
+  "tags": [
+   "actor",
+   "producer"
+  ]
+ },
+ {
+  "id": "celeb-timothee-chalamet",
+  "name": "Timothée Chalamet",
+  "universe": "Film",
+  "archetype": "Movie star",
+  "stats": {
+   "fame": 78,
+   "talent": 88,
+   "charisma": 86,
+   "style": 94,
+   "influence": 80,
+   "longevity": 62
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-pedro-pascal",
+  "name": "Pedro Pascal",
+  "universe": "Film",
+  "archetype": "Fan favourite",
+  "stats": {
+   "fame": 74,
+   "talent": 86,
+   "charisma": 94,
+   "style": 82,
+   "influence": 78,
+   "longevity": 72
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-ryan-reynolds",
+  "name": "Ryan Reynolds",
+  "universe": "Film",
+  "archetype": "Comedy star",
+  "stats": {
+   "fame": 90,
+   "talent": 80,
+   "charisma": 92,
+   "style": 78,
+   "influence": 80,
+   "longevity": 85
+  },
+  "tags": [
+   "actor",
+   "business"
+  ]
+ },
+ {
+  "id": "celeb-jackie-chan",
+  "name": "Jackie Chan",
+  "universe": "Film",
+  "archetype": "Martial arts legend",
+  "stats": {
+   "fame": 93,
+   "talent": 90,
+   "charisma": 92,
+   "style": 70,
+   "influence": 88,
+   "longevity": 97
+  },
+  "tags": [
+   "actor",
+   "stunts"
+  ]
+ },
+ {
+  "id": "celeb-jennifer-lopez",
+  "name": "Jennifer Lopez",
+  "universe": "Film",
+  "archetype": "Triple threat",
+  "stats": {
+   "fame": 92,
+   "talent": 85,
+   "charisma": 88,
+   "style": 94,
+   "influence": 84,
+   "longevity": 92
+  },
+  "tags": [
+   "actor",
+   "singer",
+   "performer"
+  ]
+ },
+ {
+  "id": "celeb-robert-downey-jr",
+  "name": "Robert Downey Jr.",
+  "universe": "Film",
+  "archetype": "Movie star",
+  "stats": {
+   "fame": 93,
+   "talent": 90,
+   "charisma": 92,
+   "style": 85,
+   "influence": 84,
+   "longevity": 88
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-scarlett-johansson",
+  "name": "Scarlett Johansson",
+  "universe": "Film",
+  "archetype": "Movie star",
+  "stats": {
+   "fame": 90,
+   "talent": 86,
+   "charisma": 84,
+   "style": 85,
+   "influence": 80,
+   "longevity": 88
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-oprah-winfrey",
+  "name": "Oprah Winfrey",
+  "universe": "TV",
+  "archetype": "Talk show legend",
+  "stats": {
+   "fame": 95,
+   "talent": 85,
+   "charisma": 96,
+   "style": 78,
+   "influence": 98,
+   "longevity": 97
+  },
+  "tags": [
+   "host",
+   "business"
+  ]
+ },
+ {
+  "id": "celeb-kim-kardashian",
+  "name": "Kim Kardashian",
+  "universe": "TV",
+  "archetype": "Reality mogul",
+  "stats": {
+   "fame": 96,
+   "talent": 55,
+   "charisma": 72,
+   "style": 94,
+   "influence": 92,
+   "longevity": 82
+  },
+  "tags": [
+   "reality",
+   "business"
+  ]
+ },
+ {
+  "id": "celeb-gordon-ramsay",
+  "name": "Gordon Ramsay",
+  "universe": "TV",
+  "archetype": "Celebrity chef",
+  "stats": {
+   "fame": 82,
+   "talent": 92,
+   "charisma": 85,
+   "style": 65,
+   "influence": 82,
+   "longevity": 88
+  },
+  "tags": [
+   "chef",
+   "host"
+  ]
+ },
+ {
+  "id": "celeb-jennifer-aniston",
+  "name": "Jennifer Aniston",
+  "universe": "TV",
+  "archetype": "Sitcom icon",
+  "stats": {
+   "fame": 90,
+   "talent": 84,
+   "charisma": 88,
+   "style": 85,
+   "influence": 80,
+   "longevity": 94
+  },
+  "tags": [
+   "actor"
+  ]
+ },
+ {
+  "id": "celeb-mrbeast",
+  "name": "MrBeast",
+  "universe": "Internet",
+  "archetype": "YouTube star",
+  "stats": {
+   "fame": 92,
+   "talent": 78,
+   "charisma": 70,
+   "style": 55,
+   "influence": 92,
+   "longevity": 62
+  },
+  "tags": [
+   "creator",
+   "business"
+  ]
+ },
+ {
+  "id": "celeb-cristiano-ronaldo",
+  "name": "Cristiano Ronaldo",
+  "universe": "Sport",
+  "archetype": "Football superstar",
+  "stats": {
+   "fame": 99,
+   "talent": 96,
+   "charisma": 84,
+   "style": 90,
+   "influence": 96,
+   "longevity": 95
+  },
+  "tags": [
+   "athlete",
+   "football"
+  ]
+ },
+ {
+  "id": "celeb-lionel-messi",
+  "name": "Lionel Messi",
+  "universe": "Sport",
+  "archetype": "Football superstar",
+  "stats": {
+   "fame": 98,
+   "talent": 99,
+   "charisma": 70,
+   "style": 72,
+   "influence": 94,
+   "longevity": 95
+  },
+  "tags": [
+   "athlete",
+   "football"
+  ]
+ },
+ {
+  "id": "celeb-serena-williams",
+  "name": "Serena Williams",
+  "universe": "Sport",
+  "archetype": "Tennis legend",
+  "stats": {
+   "fame": 92,
+   "talent": 98,
+   "charisma": 85,
+   "style": 88,
+   "influence": 92,
+   "longevity": 92
+  },
+  "tags": [
+   "athlete",
+   "tennis"
+  ]
+ },
+ {
+  "id": "celeb-lebron-james",
+  "name": "LeBron James",
+  "universe": "Sport",
+  "archetype": "Basketball superstar",
+  "stats": {
+   "fame": 95,
+   "talent": 97,
+   "charisma": 85,
+   "style": 82,
+   "influence": 93,
+   "longevity": 98
+  },
+  "tags": [
+   "athlete",
+   "basketball"
+  ]
+ },
+ {
+  "id": "celeb-usain-bolt",
+  "name": "Usain Bolt",
+  "universe": "Sport",
+  "archetype": "Fastest man ever",
+  "stats": {
+   "fame": 92,
+   "talent": 98,
+   "charisma": 93,
+   "style": 80,
+   "influence": 85,
+   "longevity": 80
+  },
+  "tags": [
+   "athlete",
+   "sprinter"
+  ]
+ },
+ {
+  "id": "celeb-david-beckham",
+  "name": "David Beckham",
+  "universe": "Sport",
+  "archetype": "Football icon",
+  "stats": {
+   "fame": 94,
+   "talent": 85,
+   "charisma": 88,
+   "style": 96,
+   "influence": 88,
+   "longevity": 92
+  },
+  "tags": [
+   "athlete",
+   "football",
+   "style"
+  ]
+ },
+ {
+  "id": "celeb-michael-jordan",
+  "name": "Michael Jordan",
+  "universe": "Sport",
+  "archetype": "Basketball legend",
+  "stats": {
+   "fame": 97,
+   "talent": 99,
+   "charisma": 85,
+   "style": 88,
+   "influence": 96,
+   "longevity": 97
+  },
+  "tags": [
+   "athlete",
+   "basketball",
+   "business"
+  ]
+ },
+ {
+  "id": "celeb-simone-biles",
+  "name": "Simone Biles",
+  "universe": "Sport",
+  "archetype": "Gymnastics legend",
+  "stats": {
+   "fame": 78,
+   "talent": 100,
+   "charisma": 86,
+   "style": 82,
+   "influence": 88,
+   "longevity": 85
+  },
+  "tags": [
+   "athlete",
+   "gymnast"
+  ]
+ }
+]
