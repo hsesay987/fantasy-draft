@@ -125,15 +125,15 @@ export const LANDINGS: Landing[] = [
     aka: ["imposter party game", "who is the spy game"],
   },
   {
-    slug: "vote-games", ids: ["vote"], seoTitle: "Vote Games: Who's Wrong, Icks and Ultimatums",
-    description: "Everyone votes in secret on a scenario, then guesses how the others voted. Who's Wrong, Icks, Ultimatums and Did That Happen. A free party game on your phones.",
-    about: ["Vote Games is four decks in one: Who's Wrong, Icks, Ultimatums and Did That Happen. Each card shows a scenario with two sides.", "Everyone votes in secret, then guesses how the room voted. Read your friends right, or be the one nobody can read."],
-    aka: ["would you rather party game", "voting party game"],
+    slug: "vote-games", ids: ["vote"], seoTitle: "Vote Games: Who Would Win, Icks and Who's Wrong",
+    description: "Vote in secret, then guess how your friends voted. Who Would Win, Princess Treatment or Bare Minimum, Who's Wrong, Icks and more. A free party game on your phones.",
+    about: ["Vote Games is seven decks in one: Who Would Win, Who Would Win: The Room, Princess Treatment or Bare Minimum, Who's Wrong, Icks, Ultimatums and Did That Happen. Each card shows two sides; The Room pits people at your table against each other.", "Everyone votes in secret, then guesses how the room voted. Read your friends right, or be the one nobody can read."],
+    aka: ["who would win game", "princess treatment or bare minimum", "would you rather party game", "voting party game"],
   },
   {
     slug: "in-sync", ids: ["insync"], seoTitle: "In-Sync: One Clue, One Hidden Spot, Tune In Together",
-    description: "One player sees a hidden spot between two opposites and gives one clue. Everyone drags a shared marker to find it. A free co-op party game on your phones.",
-    about: ["In-Sync puts a hidden spot on a line between two opposites, like cold and hot. One player sees it and gives a single clue.", "Everyone else talks it over and drags one shared marker. The closer you land, the more the whole table scores."],
+    description: "One player sees a hidden spot between two opposites and gives one clue. Everyone tunes their own dial to find it. A free co-op party game on your phones.",
+    about: ["In-Sync puts a hidden spot on a line between two opposites, like cold and hot. One player sees it and gives a single clue.", "Everyone else tunes their own dial and talks it over. The room's signal is where your dials average out, and the closer it lands, the more the whole table scores."],
     aka: ["wavelength style game", "co-op guessing game"],
   },
   {

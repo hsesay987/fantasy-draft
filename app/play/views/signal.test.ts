@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { bandPoints } from "../../topicDraft/formats/insync";
-import { createPacer, createThrottle, freqOf, locksNeeded, posFromPointer, revealAt, SCORE_BANDS, shownMarker, syncGameKey, verdictFor } from "./signal";
+import { createPacer, createThrottle, freqOf, posFromPointer, revealAt, SCORE_BANDS, shownMarker, syncGameKey, verdictFor } from "./signal";
 
 describe("createThrottle", () => {
   beforeEach(() => vi.useFakeTimers());
@@ -86,12 +86,6 @@ describe("shownMarker", () => {
     expect(shownMarker(40, { pos: 70, at: 1000, dragging: false }, 1200)).toBe(70);
     expect(shownMarker(70, { pos: 70, at: 1000, dragging: false }, 1200)).toBe(70);
     expect(shownMarker(40, { pos: 70, at: 1000, dragging: false }, 9000)).toBe(40); // someone else moved it, or the send failed
-  });
-});
-
-describe("locksNeeded", () => {
-  it("is more than half of the guessers, and one guesser decides alone", () => {
-    expect([1, 2, 3, 4, 5, 11].map(locksNeeded)).toEqual([1, 2, 2, 3, 3, 6]);
   });
 });
 

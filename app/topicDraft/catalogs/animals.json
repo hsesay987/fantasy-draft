@@ -1,0 +1,743 @@
+[
+ {
+  "id": "animal-lion",
+  "name": "Lion",
+  "universe": "Savanna",
+  "archetype": "Big cat",
+  "stats": {
+   "power": 85,
+   "intellect": 45,
+   "speed": 80,
+   "durability": 72,
+   "combat": 88
+  },
+  "tags": [
+   "cat",
+   "predator",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-tiger",
+  "name": "Tiger",
+  "universe": "Forest",
+  "archetype": "Big cat",
+  "stats": {
+   "power": 90,
+   "intellect": 45,
+   "speed": 80,
+   "durability": 75,
+   "combat": 92
+  },
+  "tags": [
+   "cat",
+   "predator",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-jaguar",
+  "name": "Jaguar",
+  "universe": "Rainforest",
+  "archetype": "Big cat",
+  "stats": {
+   "power": 84,
+   "intellect": 45,
+   "speed": 78,
+   "durability": 70,
+   "combat": 88
+  },
+  "tags": [
+   "cat",
+   "predator",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-leopard",
+  "name": "Leopard",
+  "universe": "Savanna",
+  "archetype": "Big cat",
+  "stats": {
+   "power": 72,
+   "intellect": 48,
+   "speed": 82,
+   "durability": 62,
+   "combat": 85
+  },
+  "tags": [
+   "cat",
+   "predator",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-cheetah",
+  "name": "Cheetah",
+  "universe": "Savanna",
+  "archetype": "Sprinter",
+  "stats": {
+   "power": 55,
+   "intellect": 42,
+   "speed": 100,
+   "durability": 45,
+   "combat": 60
+  },
+  "tags": [
+   "cat",
+   "predator",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-grizzly-bear",
+  "name": "Grizzly Bear",
+  "universe": "Forest",
+  "archetype": "Bear",
+  "stats": {
+   "power": 92,
+   "intellect": 45,
+   "speed": 60,
+   "durability": 88,
+   "combat": 85
+  },
+  "tags": [
+   "predator",
+   "land"
+  ],
+  "q": "Grizzly bear"
+ },
+ {
+  "id": "animal-polar-bear",
+  "name": "Polar Bear",
+  "universe": "Arctic",
+  "archetype": "Bear",
+  "stats": {
+   "power": 95,
+   "intellect": 45,
+   "speed": 55,
+   "durability": 90,
+   "combat": 86
+  },
+  "tags": [
+   "predator",
+   "land",
+   "cold"
+  ],
+  "q": "Polar bear"
+ },
+ {
+  "id": "animal-gorilla",
+  "name": "Gorilla",
+  "universe": "Rainforest",
+  "archetype": "Great ape",
+  "stats": {
+   "power": 88,
+   "intellect": 72,
+   "speed": 45,
+   "durability": 80,
+   "combat": 70
+  },
+  "tags": [
+   "ape",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-chimpanzee",
+  "name": "Chimpanzee",
+  "universe": "Rainforest",
+  "archetype": "Great ape",
+  "stats": {
+   "power": 60,
+   "intellect": 80,
+   "speed": 55,
+   "durability": 55,
+   "combat": 68
+  },
+  "tags": [
+   "ape",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-african-elephant",
+  "name": "African Elephant",
+  "universe": "Savanna",
+  "archetype": "Giant",
+  "stats": {
+   "power": 100,
+   "intellect": 78,
+   "speed": 40,
+   "durability": 95,
+   "combat": 75
+  },
+  "tags": [
+   "giant",
+   "land"
+  ],
+  "q": "African bush elephant"
+ },
+ {
+  "id": "animal-rhinoceros",
+  "name": "Rhinoceros",
+  "universe": "Savanna",
+  "archetype": "Armoured giant",
+  "stats": {
+   "power": 95,
+   "intellect": 30,
+   "speed": 50,
+   "durability": 97,
+   "combat": 78
+  },
+  "tags": [
+   "giant",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-hippopotamus",
+  "name": "Hippopotamus",
+  "universe": "Rivers",
+  "archetype": "River giant",
+  "stats": {
+   "power": 94,
+   "intellect": 30,
+   "speed": 45,
+   "durability": 92,
+   "combat": 85
+  },
+  "tags": [
+   "giant",
+   "land",
+   "water"
+  ]
+ },
+ {
+  "id": "animal-giraffe",
+  "name": "Giraffe",
+  "universe": "Savanna",
+  "archetype": "Tallest animal",
+  "stats": {
+   "power": 75,
+   "intellect": 35,
+   "speed": 60,
+   "durability": 70,
+   "combat": 50
+  },
+  "tags": [
+   "giant",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-moose",
+  "name": "Moose",
+  "universe": "Forest",
+  "archetype": "Giant deer",
+  "stats": {
+   "power": 82,
+   "intellect": 30,
+   "speed": 60,
+   "durability": 80,
+   "combat": 65
+  },
+  "tags": [
+   "giant",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-american-bison",
+  "name": "American Bison",
+  "universe": "Plains",
+  "archetype": "Grazer",
+  "stats": {
+   "power": 86,
+   "intellect": 30,
+   "speed": 62,
+   "durability": 85,
+   "combat": 68
+  },
+  "tags": [
+   "giant",
+   "land"
+  ]
+ },
+ {
+  "id": "animal-grey-wolf",
+  "name": "Grey Wolf",
+  "universe": "Forest",
+  "archetype": "Pack hunter",
+  "stats": {
+   "power": 60,
+   "intellect": 70,
+   "speed": 72,
+   "durability": 60,
+   "combat": 80
+  },
+  "tags": [
+   "predator",
+   "land",
+   "pack"
+  ],
+  "q": "Wolf"
+ },
+ {
+  "id": "animal-spotted-hyena",
+  "name": "Spotted Hyena",
+  "universe": "Savanna",
+  "archetype": "Pack hunter",
+  "stats": {
+   "power": 66,
+   "intellect": 60,
+   "speed": 68,
+   "durability": 65,
+   "combat": 80
+  },
+  "tags": [
+   "predator",
+   "land",
+   "pack"
+  ],
+  "q": "Spotted hyena"
+ },
+ {
+  "id": "animal-honey-badger",
+  "name": "Honey Badger",
+  "universe": "Savanna",
+  "archetype": "Fearless digger",
+  "stats": {
+   "power": 45,
+   "intellect": 62,
+   "speed": 40,
+   "durability": 85,
+   "combat": 88
+  },
+  "tags": [
+   "land"
+  ],
+  "q": "Honey badger"
+ },
+ {
+  "id": "animal-wolverine",
+  "name": "Wolverine",
+  "universe": "Forest",
+  "archetype": "Fearless scrapper",
+  "stats": {
+   "power": 48,
+   "intellect": 50,
+   "speed": 45,
+   "durability": 80,
+   "combat": 86
+  },
+  "tags": [
+   "land",
+   "cold"
+  ],
+  "q": "Wolverine"
+ },
+ {
+  "id": "animal-red-kangaroo",
+  "name": "Red Kangaroo",
+  "universe": "Outback",
+  "archetype": "Boxer",
+  "stats": {
+   "power": 60,
+   "intellect": 35,
+   "speed": 70,
+   "durability": 60,
+   "combat": 68
+  },
+  "tags": [
+   "land"
+  ],
+  "q": "Red kangaroo"
+ },
+ {
+  "id": "animal-saltwater-crocodile",
+  "name": "Saltwater Crocodile",
+  "universe": "Rivers",
+  "archetype": "Ambush predator",
+  "stats": {
+   "power": 93,
+   "intellect": 35,
+   "speed": 40,
+   "durability": 95,
+   "combat": 90
+  },
+  "tags": [
+   "reptile",
+   "predator",
+   "water"
+  ],
+  "q": "Saltwater crocodile"
+ },
+ {
+  "id": "animal-komodo-dragon",
+  "name": "Komodo Dragon",
+  "universe": "Islands",
+  "archetype": "Giant lizard",
+  "stats": {
+   "power": 70,
+   "intellect": 35,
+   "speed": 40,
+   "durability": 78,
+   "combat": 75
+  },
+  "tags": [
+   "reptile",
+   "predator",
+   "land"
+  ],
+  "q": "Komodo dragon"
+ },
+ {
+  "id": "animal-king-cobra",
+  "name": "King Cobra",
+  "universe": "Jungle",
+  "archetype": "Venomous snake",
+  "stats": {
+   "power": 50,
+   "intellect": 40,
+   "speed": 55,
+   "durability": 40,
+   "combat": 88
+  },
+  "tags": [
+   "reptile",
+   "venom",
+   "land"
+  ],
+  "q": "King cobra"
+ },
+ {
+  "id": "animal-black-mamba",
+  "name": "Black Mamba",
+  "universe": "Savanna",
+  "archetype": "Venomous snake",
+  "stats": {
+   "power": 45,
+   "intellect": 40,
+   "speed": 75,
+   "durability": 35,
+   "combat": 90
+  },
+  "tags": [
+   "reptile",
+   "venom",
+   "land"
+  ],
+  "q": "Black mamba"
+ },
+ {
+  "id": "animal-green-anaconda",
+  "name": "Green Anaconda",
+  "universe": "Rivers",
+  "archetype": "Giant constrictor",
+  "stats": {
+   "power": 82,
+   "intellect": 30,
+   "speed": 30,
+   "durability": 78,
+   "combat": 80
+  },
+  "tags": [
+   "reptile",
+   "water"
+  ],
+  "q": "Green anaconda"
+ },
+ {
+  "id": "animal-great-white-shark",
+  "name": "Great White Shark",
+  "universe": "Ocean",
+  "archetype": "Apex predator",
+  "stats": {
+   "power": 92,
+   "intellect": 40,
+   "speed": 70,
+   "durability": 82,
+   "combat": 90
+  },
+  "tags": [
+   "fish",
+   "predator",
+   "water"
+  ],
+  "q": "Great white shark"
+ },
+ {
+  "id": "animal-orca",
+  "name": "Orca",
+  "universe": "Ocean",
+  "archetype": "Apex predator",
+  "stats": {
+   "power": 96,
+   "intellect": 90,
+   "speed": 78,
+   "durability": 88,
+   "combat": 95
+  },
+  "tags": [
+   "mammal",
+   "predator",
+   "water",
+   "pack"
+  ]
+ },
+ {
+  "id": "animal-blue-whale",
+  "name": "Blue Whale",
+  "universe": "Ocean",
+  "archetype": "Largest animal ever",
+  "stats": {
+   "power": 100,
+   "intellect": 70,
+   "speed": 45,
+   "durability": 100,
+   "combat": 30
+  },
+  "tags": [
+   "mammal",
+   "giant",
+   "water"
+  ],
+  "q": "Blue whale"
+ },
+ {
+  "id": "animal-bottlenose-dolphin",
+  "name": "Bottlenose Dolphin",
+  "universe": "Ocean",
+  "archetype": "Clever swimmer",
+  "stats": {
+   "power": 50,
+   "intellect": 95,
+   "speed": 78,
+   "durability": 55,
+   "combat": 58
+  },
+  "tags": [
+   "mammal",
+   "water",
+   "pack"
+  ],
+  "q": "Common bottlenose dolphin"
+ },
+ {
+  "id": "animal-octopus",
+  "name": "Octopus",
+  "universe": "Ocean",
+  "archetype": "Master of disguise",
+  "stats": {
+   "power": 35,
+   "intellect": 92,
+   "speed": 50,
+   "durability": 35,
+   "combat": 60
+  },
+  "tags": [
+   "water"
+  ],
+  "q": "Common octopus"
+ },
+ {
+  "id": "animal-mantis-shrimp",
+  "name": "Mantis Shrimp",
+  "universe": "Reef",
+  "archetype": "Hardest punch in the sea",
+  "stats": {
+   "power": 40,
+   "intellect": 35,
+   "speed": 85,
+   "durability": 60,
+   "combat": 82
+  },
+  "tags": [
+   "water"
+  ],
+  "q": "Mantis shrimp"
+ },
+ {
+  "id": "animal-peregrine-falcon",
+  "name": "Peregrine Falcon",
+  "universe": "Skies",
+  "archetype": "Fastest dive",
+  "stats": {
+   "power": 30,
+   "intellect": 50,
+   "speed": 100,
+   "durability": 30,
+   "combat": 70
+  },
+  "tags": [
+   "bird",
+   "predator",
+   "flyer"
+  ],
+  "q": "Peregrine falcon"
+ },
+ {
+  "id": "animal-bald-eagle",
+  "name": "Bald Eagle",
+  "universe": "Skies",
+  "archetype": "Raptor",
+  "stats": {
+   "power": 45,
+   "intellect": 55,
+   "speed": 85,
+   "durability": 40,
+   "combat": 75
+  },
+  "tags": [
+   "bird",
+   "predator",
+   "flyer"
+  ],
+  "q": "Bald eagle"
+ },
+ {
+  "id": "animal-golden-eagle",
+  "name": "Golden Eagle",
+  "universe": "Mountains",
+  "archetype": "Raptor",
+  "stats": {
+   "power": 50,
+   "intellect": 55,
+   "speed": 90,
+   "durability": 42,
+   "combat": 80
+  },
+  "tags": [
+   "bird",
+   "predator",
+   "flyer"
+  ],
+  "q": "Golden eagle"
+ },
+ {
+  "id": "animal-great-horned-owl",
+  "name": "Great Horned Owl",
+  "universe": "Forest",
+  "archetype": "Night hunter",
+  "stats": {
+   "power": 35,
+   "intellect": 60,
+   "speed": 70,
+   "durability": 35,
+   "combat": 72
+  },
+  "tags": [
+   "bird",
+   "predator",
+   "flyer"
+  ],
+  "q": "Great horned owl"
+ },
+ {
+  "id": "animal-common-raven",
+  "name": "Common Raven",
+  "universe": "Everywhere",
+  "archetype": "Problem solver",
+  "stats": {
+   "power": 15,
+   "intellect": 92,
+   "speed": 60,
+   "durability": 30,
+   "combat": 30
+  },
+  "tags": [
+   "bird",
+   "flyer"
+  ],
+  "q": "Common raven"
+ },
+ {
+  "id": "animal-ostrich",
+  "name": "Ostrich",
+  "universe": "Savanna",
+  "archetype": "Fastest bird on land",
+  "stats": {
+   "power": 60,
+   "intellect": 25,
+   "speed": 88,
+   "durability": 60,
+   "combat": 62
+  },
+  "tags": [
+   "bird",
+   "land"
+  ],
+  "q": "Common ostrich"
+ },
+ {
+  "id": "animal-southern-cassowary",
+  "name": "Southern Cassowary",
+  "universe": "Rainforest",
+  "archetype": "Dinosaur bird",
+  "stats": {
+   "power": 62,
+   "intellect": 30,
+   "speed": 75,
+   "durability": 62,
+   "combat": 78
+  },
+  "tags": [
+   "bird",
+   "land"
+  ],
+  "q": "Southern cassowary"
+ },
+ {
+  "id": "animal-canada-goose",
+  "name": "Canada Goose",
+  "universe": "Parks",
+  "archetype": "Unstoppable menace",
+  "stats": {
+   "power": 22,
+   "intellect": 40,
+   "speed": 60,
+   "durability": 40,
+   "combat": 70
+  },
+  "tags": [
+   "bird",
+   "flyer"
+  ],
+  "q": "Canada goose"
+ },
+ {
+  "id": "animal-army-ant",
+  "name": "Army Ant",
+  "universe": "Jungle",
+  "archetype": "Swarm",
+  "stats": {
+   "power": 30,
+   "intellect": 60,
+   "speed": 40,
+   "durability": 40,
+   "combat": 75
+  },
+  "tags": [
+   "insect",
+   "pack"
+  ],
+  "q": "Army ant"
+ },
+ {
+  "id": "animal-tardigrade",
+  "name": "Tardigrade",
+  "universe": "Everywhere",
+  "archetype": "Unkillable micro-animal",
+  "stats": {
+   "power": 1,
+   "intellect": 5,
+   "speed": 1,
+   "durability": 100,
+   "combat": 1
+  },
+  "tags": [
+   "micro"
+  ]
+ }
+]

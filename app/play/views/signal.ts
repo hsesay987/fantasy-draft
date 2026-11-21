@@ -9,8 +9,6 @@ export const SCORE_BANDS = [{ gap: 12, points: 2 }, { gap: 7, points: 3 }, { gap
 const VERDICTS: Record<Points, string> = { 4: "Bullseye", 3: "Close", 2: "Near", 0: "Static" };
 export const verdictFor = (points: Points) => VERDICTS[points];
 
-/** How many guessers must lock to settle the marker: more than half, so one guesser decides alone. */
-export const locksNeeded = (guessers: number) => Math.floor(guessers / 2) + 1;
 
 /**
  * Sends at most one value per `ms`: the first goes at once, then only the newest value waiting when the window ends.

@@ -13,6 +13,30 @@ export const HISTORY_MISSIONS: Scenario[] = [
   { id: "all-around-history", title: "Greatest All-Round Team", blurb: "No mission. Pure greatness.", weights: { leadership: 1, intellect: 1, courage: 1, influence: 1, charisma: 1, strategy: 1 } },
 ];
 
+export const MYTHOLOGY_MISSIONS: Scenario[] = [
+  { id: "ragnarok", title: "Survive Ragnarök", blurb: "The end of the world. Last ones standing win.", weights: { durability: 3, combat: 2.5, power: 2, speed: 1, intellect: 1 } },
+  { id: "storm-olympus", title: "Storm Mount Olympus", blurb: "Take the throne of the gods by force.", weights: { power: 3, combat: 2.5, durability: 1.5, speed: 1, intellect: 1 } },
+  { id: "golden-fleece", title: "Steal the Golden Fleece", blurb: "Get in, outwit the guardian, get out.", weights: { intellect: 3, speed: 2.5, combat: 1, power: 0.5, durability: 1 } },
+  { id: "escape-underworld", title: "Escape the Underworld", blurb: "Talk, trick or fight your way back to the living.", weights: { intellect: 2.5, durability: 2.5, speed: 1.5, combat: 1.5, power: 1 } },
+  { id: "all-around-myth", title: "Greatest Pantheon", blurb: "No quest. Pure legend.", weights: { power: 1, intellect: 1, speed: 1, durability: 1, combat: 1 } },
+];
+
+export const ANIMAL_MISSIONS: Scenario[] = [
+  { id: "rule-savanna", title: "Rule the Savanna", blurb: "Top of the food chain, by force.", weights: { power: 3, combat: 3, durability: 1.5, speed: 1, intellect: 0.5 } },
+  { id: "escape-zoo", title: "Break Out of the Zoo", blurb: "Brains to plan it, speed to pull it off.", weights: { intellect: 3, speed: 2.5, power: 1, durability: 0.5, combat: 0.5 } },
+  { id: "survive-wild", title: "Survive a Year in the Wild", blurb: "Storms, hunger and everything that wants to eat you.", weights: { durability: 3, intellect: 2, speed: 1.5, combat: 1.5, power: 1 } },
+  { id: "relay-race", title: "Win the Animal Relay", blurb: "Land, sea and sky: fastest team takes it.", weights: { speed: 3.5, durability: 1, power: 1, intellect: 0.5, combat: 0.5 } },
+  { id: "all-around-animals", title: "Greatest Animal Team", blurb: "No challenge. Pure nature.", weights: { power: 1, intellect: 1, speed: 1, durability: 1, combat: 1 } },
+];
+
+export const CELEBRITY_MISSIONS: Scenario[] = [
+  { id: "awards-night", title: "Sweep Awards Night", blurb: "Talent wins trophies. Charm wins the speeches.", weights: { talent: 3, charisma: 2, style: 1.5, fame: 1, influence: 1, longevity: 1 } },
+  { id: "blockbuster", title: "Open a Blockbuster", blurb: "Names on the poster that fill every seat.", weights: { fame: 3, charisma: 2.5, talent: 1.5, style: 1, influence: 1, longevity: 0.5 } },
+  { id: "launch-brand", title: "Launch a Brand", blurb: "Taste, reach and people who follow your lead.", weights: { influence: 3, style: 2.5, fame: 2, charisma: 1, talent: 0.5, longevity: 0.5 } },
+  { id: "celeb-dinner", title: "Host the Celebrity Dinner Party", blurb: "Great stories and better company.", weights: { charisma: 3, longevity: 2, talent: 1, fame: 1, style: 1, influence: 1 } },
+  { id: "all-around-celebs", title: "Greatest A-List", blurb: "No theme. Pure star power.", weights: { fame: 1, talent: 1, charisma: 1, style: 1, influence: 1, longevity: 1 } },
+];
+
 export const FOOTBALL_MISSIONS: Scenario[] = [
   { id: "world-cup-final", title: "Win the World Cup Final", blurb: "One match, everything on the line. Balance and nerve.", weights: { shooting: 2.5, passing: 2, defending: 2, dribbling: 1.5, pace: 1.5, physical: 1.5 } },
   { id: "counter-attack", title: "Lethal Counter-Attack", blurb: "Win the ball, burn them on the break.", weights: { pace: 3, shooting: 2.5, dribbling: 2, passing: 1.5, defending: 0.5, physical: 1 } },
@@ -107,6 +131,7 @@ export const MUSIC_MISSIONS: Scenario[] = [
 const BY_FAMILY: Record<string, Scenario[]> = {
   characters: SCENARIOS, pokemon: POKEMON_MISSIONS, basketball: BASKETBALL_MISSIONS, football: FOOTBALL_MISSIONS, films: FILM_MISSIONS, shows: SHOW_MISSIONS,
   food: FOOD_MISSIONS, countries: COUNTRY_MISSIONS, flags: FLAG_MISSIONS, books: BOOK_MISSIONS, music: MUSIC_MISSIONS, history: HISTORY_MISSIONS,
+  mythology: MYTHOLOGY_MISSIONS, animals: ANIMAL_MISSIONS, celebrities: CELEBRITY_MISSIONS,
 };
 
 /** Missions that suit a topic: the ones written for its stat family. */

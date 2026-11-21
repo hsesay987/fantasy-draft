@@ -117,6 +117,21 @@ export const CATEGORIES: Category[] = [
     recommended: [{ format: "position", why: "Book a festival lineup" }, { format: "auction", why: "Bid like a record label" }],
     defaults: { teamSize: 5, missionId: "headline-festival", rankSize: 8, timerSeconds: 25, budget: 25 },
   },
+  {
+    id: "mythology", title: "Mythology", blurb: "Gods, heroes and monsters from myths around the world.",
+    recommended: [{ format: "snake", why: "Draft your own pantheon" }, { format: "auction", why: "Bid for the mightiest gods" }],
+    defaults: { teamSize: 5, missionId: "ragnarok", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
+  {
+    id: "animals", title: "Animals", blurb: "Predators, giants and the toughest little creatures alive.",
+    recommended: [{ format: "blind", why: "Rank the deadliest as they appear" }, { format: "position", why: "Build the ultimate animal squad" }],
+    defaults: { teamSize: 5, missionId: "rule-savanna", rankSize: 8, timerSeconds: 20, budget: 25 },
+  },
+  {
+    id: "celebrities", title: "Celebrities", blurb: "Music, film, TV and sport\u2019s biggest names.",
+    recommended: [{ format: "auction", why: "Bid on the A-list" }, { format: "position", why: "Cast your dream line-up" }],
+    defaults: { teamSize: 5, missionId: "awards-night", rankSize: 8, timerSeconds: 25, budget: 25 },
+  },
 ];
 
 /** Spin Draft is the default way in for every topic; each topic's other best fits follow it. */
@@ -156,10 +171,10 @@ export const CLASSIC_ONLY: Omit<Category, "recommended" | "defaults">[] = [
 export type Topic = { id: string; title: string; blurb: string };
 /** Topics grouped under a main heading on the home page, in display order. */
 export const TOPIC_GROUPS: { id: string; title: string; blurb: string; tint: "characters" | "sports" | "screen" | "world"; ids: string[] }[] = [
-  { id: "characters", title: "Characters", blurb: "Heroes, villains and icons from every universe.", tint: "characters", ids: ["fictional", "superheroes", "villains", "heroes-villains", "anime", "pokemon", "videogames", "disney", "movies", "cartoon"] },
+  { id: "characters", title: "Characters", blurb: "Heroes, villains and icons from every universe.", tint: "characters", ids: ["fictional", "superheroes", "villains", "heroes-villains", "anime", "pokemon", "videogames", "disney", "movies", "mythology", "cartoon"] },
   { id: "sports", title: "Sports", blurb: "Real players, real stats.", tint: "sports", ids: ["nba", "nfl", "football"] },
-  { id: "entertainment", title: "Entertainment", blurb: "What you watch, read and listen to.", tint: "screen", ids: ["films", "shows", "music", "books"] },
-  { id: "world", title: "The World", blurb: "Places, flags, food and the people who made history.", tint: "world", ids: ["geography", "flags", "food", "history"] },
+  { id: "entertainment", title: "Entertainment", blurb: "What you watch, read and listen to.", tint: "screen", ids: ["films", "shows", "music", "books", "celebrities"] },
+  { id: "world", title: "The World", blurb: "Places, flags, food, animals and the people who made history.", tint: "world", ids: ["geography", "flags", "food", "history", "animals"] },
 ];
 const HOME_ORDER = TOPIC_GROUPS.flatMap((g) => g.ids);
 /** Every topic in one list: draft pools and classic leagues side by side. */

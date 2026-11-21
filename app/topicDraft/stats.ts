@@ -135,6 +135,31 @@ export const STAT_FAMILIES: Record<string, StatDef[]> = {
     d("charisma", "charisma", "Most charming", "CHA", E, "editorial", "Personal magnetism."),
     d("strategy", "strategy", "Best strategist", "STR", E, "editorial", "Planning several moves ahead."),
   ],
+  // Gods, heroes and monsters: rated on what the myths say they did. Nothing measures a god.
+  mythology: [
+    d("power", "raw power", "Strongest", "PWR", E, "editorial", "Strength and divine power, as the myths tell it."),
+    d("intellect", "wisdom", "Wisest", "WIS", E, "editorial", "Wisdom, cunning and foresight in the stories."),
+    d("speed", "speed", "Fastest", "SPD", E, "editorial", "How quickly they move or strike in the stories."),
+    d("durability", "toughness", "Toughest", "DUR", E, "editorial", "How hard they are to wound or kill."),
+    d("combat", "fighting skill", "Best fighter", "CMB", E, "editorial", "Skill in battle, apart from raw power."),
+  ],
+  // Real animals, rated relative to each other from size, strength and known behaviour.
+  animals: [
+    d("power", "strength", "Strongest", "PWR", E, "editorial", "Size and strength: how much force it can bring."),
+    d("intellect", "brains", "Smartest", "INT", E, "editorial", "Problem solving, memory and learning, from studies of the species."),
+    d("speed", "speed", "Fastest", "SPD", E, "editorial", "Top speed on land, in water or in the air."),
+    d("durability", "toughness", "Toughest", "DUR", E, "editorial", "Armour, bulk and how hard it is to bring down."),
+    d("combat", "fighting skill", "Best fighter", "CMB", E, "editorial", "Weapons and willingness to fight: teeth, claws, venom, nerve."),
+  ],
+  // Famous people. Every number is a judgement, so only qualities people admire are rated.
+  celebrities: [
+    d("fame", "fame", "Most famous", "FAM", E, "editorial", "How widely they are recognised around the world."),
+    d("talent", "talent", "Most talented", "TAL", E, "editorial", "Skill at the thing they are famous for."),
+    d("charisma", "charisma", "Most charming", "CHA", E, "editorial", "Presence on screen, on stage and in interviews."),
+    d("style", "style", "Most stylish", "STY", E, "editorial", "Fashion and image."),
+    d("influence", "influence", "Most influential", "INF", E, "editorial", "How much they shape culture and other people."),
+    d("longevity", "longevity", "Longest career", "LNG", E, "editorial", "Years at or near the top."),
+  ],
   // Loadout gear: invented objects, so every number is editorial by nature.
   gear: [
     d("damage", "damage", "Hardest hitting", "DMG", E, "editorial", "Harm done per use."),
@@ -155,6 +180,7 @@ export const STAT_FAMILIES: Record<string, StatDef[]> = {
 export const FAMILY_OF: Record<string, keyof typeof STAT_FAMILIES> = {
   fictional: "characters", superheroes: "characters", villains: "characters", "heroes-villains": "characters", anime: "characters", videogames: "characters", disney: "characters", movies: "characters",
   pokemon: "pokemon", nba: "basketball", football: "football", films: "films", shows: "shows", food: "food", geography: "countries", flags: "flags", books: "books", music: "music", history: "history",
+  mythology: "mythology", animals: "animals", celebrities: "celebrities",
   weapons: "gear", gadgets: "gear", allies: "gear", vehicles: "gear", traps: "gear",
 };
 

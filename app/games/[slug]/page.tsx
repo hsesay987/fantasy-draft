@@ -35,7 +35,7 @@ function faqOf(l: Landing, main: LibraryGame): { q: string; a: string }[] {
   ];
   const daily = landingGames(l).find((g) => g.daily)?.daily;
   if (daily) faq.push({ q: `Is there a daily ${t}?`, a: `Yes. There is a new ${DAILY_TITLES[daily]} puzzle every day, the same for everyone, and you can compare your score when you finish.` });
-  if (main.kind === "draft") faq.push({ q: `What can I draft in ${t}?`, a: "Superheroes, villains, anime, Pokémon, video game icons, movie icons, NBA legends, NFL players, countries and more. Every topic shows the drafts that suit it." });
+  if (main.kind === "draft") faq.push({ q: `What can I draft in ${t}?`, a: "Superheroes, villains, anime, Pokémon, mythology, animals, celebrities, movie icons, NBA legends, NFL players, countries and more. Every topic shows the drafts that suit it." });
   return faq;
 }
 

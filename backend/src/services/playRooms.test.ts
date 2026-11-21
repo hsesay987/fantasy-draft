@@ -470,7 +470,7 @@ describe("party rooms", () => {
       expect(act(room, toks[guesser], { type: "move", pos: "abc" }).ok).toBe(false);
       expect(act(room, toks[guesser], { type: "move", pos: NaN }).ok).toBe(false);
       expect(act(room, toks[guesser], { type: "move", pos: 9999 }).ok).toBe(true);
-      expect(room.state.marker).toBe(100);
+      expect(room.state.markers[guesser]).toBe(100); // each guesser moves only their own dial
       expect(act(room, toks[guesser], { type: "clue", text: "sneaky" }).ok).toBe(false);
       for (const n of ["Ann", "Bob", "Cy"].filter((x) => x !== giverName)) act(room, toks[n], { type: "lock" });
       expect(room.state.phase).toBe("reveal");

@@ -23,6 +23,9 @@ import gadgets from "./gadgets.json";
 import allies from "./allies.json";
 import vehicles from "./vehicles.json";
 import traps from "./traps.json";
+import mythology from "./mythology.json";
+import animals from "./animals.json";
+import celebrities from "./celebrities.json";
 
 /** Stats every fictional character has. Pokémon carry four of them, straight from their base stats. */
 export const STD_KEYS = ["power", "intellect", "speed", "durability", "combat"];
@@ -46,7 +49,7 @@ const dedupe = (...lists: Item[][]): Item[] => {
 /** Which public image source suits each pool (none = initials avatar). Query format: "kind:name". */
 const IMAGE_KIND: Record<string, string> = {
   superheroes: "hero", villains: "hero", "heroes-villains": "hero", anime: "anilist", pokemon: "poke", history: "wiki", football: "wiki", films: "wiki", shows: "wiki", nba: "wiki",
-  food: "wiki", geography: "wiki", books: "wiki", music: "wiki", flags: "flag",
+  food: "wiki", geography: "wiki", books: "wiki", music: "wiki", flags: "flag", mythology: "wiki", animals: "wiki", celebrities: "wiki",
 };
 
 /** Attach an image lookup key to every item so pictures can be fetched lazily. A catalog row may carry its own `q`
@@ -79,6 +82,9 @@ const DATA: Record<string, Item[]> = {
   flags: withQuery(flags as Item[], "flags"),
   books: withQuery(books as Item[], "books"),
   music: withQuery(music as Item[], "music"),
+  mythology: withQuery(mythology as Item[], "mythology"),
+  animals: withQuery(animals as Item[], "animals"),
+  celebrities: withQuery(celebrities as Item[], "celebrities"),
   weapons: withQuery(weapons as Item[], "weapons"),
   gadgets: withQuery(gadgets as Item[], "gadgets"),
   allies: withQuery(allies as Item[], "allies"),
@@ -112,6 +118,9 @@ export const CATALOG_META: CatalogMeta[] = [
   { id: "flags", title: "Flags", blurb: "The world\u2019s flags, judged on design.", statKeys: keysOf("flags"), kind: "character" },
   { id: "books", title: "Books", blurb: "Classics, page-turners and epic series.", statKeys: keysOf("books"), kind: "character" },
   { id: "music", title: "Music", blurb: "Legends, bands and today\u2019s hitmakers.", statKeys: keysOf("music"), kind: "character" },
+  { id: "mythology", title: "Mythology", blurb: "Gods, heroes and monsters from myths around the world.", statKeys: STD_KEYS, kind: "character" },
+  { id: "animals", title: "Animals", blurb: "Predators, giants and the toughest little creatures alive.", statKeys: STD_KEYS, kind: "character" },
+  { id: "celebrities", title: "Celebrities", blurb: "Music, film, TV and sport\u2019s biggest names.", statKeys: keysOf("celebrities"), kind: "character" },
   { id: "weapons", title: "Weapons", blurb: "Blades, blasters and artifacts.", statKeys: keysOf("weapons"), kind: "item" },
   { id: "gadgets", title: "Gadgets", blurb: "Tech and gear.", statKeys: keysOf("gadgets"), kind: "item" },
   { id: "allies", title: "Allies & Sidekicks", blurb: "Villain help and loyal partners.", statKeys: keysOf("allies"), kind: "item" },

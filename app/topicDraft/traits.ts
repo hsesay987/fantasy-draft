@@ -31,6 +31,9 @@ export const VOICES: Record<string, Voice> = {
   flags: v((u) => `Flies in ${u}`, (a) => `Design: ${a}`),
   books: v((u) => `Genre: ${u}`, (a) => `Written by ${a}`),
   music: v((u) => `Genre: ${u}`, (a) => `A ${a.toLowerCase()}`),
+  mythology: v((u) => `From ${u} mythology`, (a) => `Known as: ${a}`),
+  animals: v((u) => `Lives in: ${u}`, (a) => `Known as: ${a}`),
+  celebrities: v((u) => `Famous in: ${u}`, (a) => `Known as: ${a}`),
 };
 const FALLBACK: Voice = v((u) => `Category: ${u}`, (a) => `Type: ${a}`);
 

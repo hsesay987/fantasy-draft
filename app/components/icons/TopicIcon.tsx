@@ -47,6 +47,12 @@ const GLYPHS: Record<string, ReactNode> = {
   food: <><path d="M3 11h18a9 9 0 0 1-18 0zM9 20h6" /><path d="M8 7.5c0-1.5 1-1.5 1-3M12 7.5c0-1.5 1-1.5 1-3M16 7.5c0-1.5 1-1.5 1-3" /></>,
   // A temple.
   history: <path d="M3 9l9-5 9 5zM6 9v9M10 9v9M14 9v9M18 9v9M4 18h16M3 21h18" />,
+  // A trident.
+  mythology: <path d="M12 21V6M12 3l-2 3h4zM6 4v4a6 6 0 0 0 12 0V4M6 4L5 6.5M18 4l1 2.5M9.5 21h5" />,
+  // A paw print.
+  animals: <>{c(12, 15.5, 3.8)}{c(6, 10.5, 1.8)}{c(9.5, 6.5, 1.8)}{c(14.5, 6.5, 1.8)}{c(18, 10.5, 1.8)}</>,
+  // A star on the walk of fame.
+  celebrities: <><path d="M12 3.5l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4-3.9-3.8 5.4-.8z" /><path d="M5 21h14" /></>,
   // A pencil: made by a player.
   custom: <path d="M4 20l1-4L16 5l3 3L8 19zM14 7l3 3" />,
   // A question mark: hidden until the reveal.

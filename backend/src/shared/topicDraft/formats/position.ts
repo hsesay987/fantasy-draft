@@ -27,6 +27,13 @@ const R = (id: string, label: string, weights: Record<string, number>): Role => 
 
 /** Role sets that suit each topic. Anything not listed uses the standard Captain/Healer/Tank set. */
 export const POOL_ROLES: Record<string, Role[]> = {
+  celebrities: [
+    R("headliner", "Headliner", { fame: 3, charisma: 1.5 }),
+    R("virtuoso", "The Talent", { talent: 3, longevity: 1 }),
+    R("host", "Host", { charisma: 3, longevity: 1 }),
+    R("icon", "Style Icon", { style: 3, influence: 1 }),
+    R("mogul", "Mogul", { influence: 3, fame: 1 }),
+  ],
   food: [
     R("starter", "Starter", { presentation: 2.5, taste: 2, health: 1 }),
     R("main", "Main Course", { taste: 3, comfort: 2 }),

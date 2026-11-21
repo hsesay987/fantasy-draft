@@ -1,0 +1,816 @@
+[
+ {
+  "id": "myth-zeus",
+  "name": "Zeus",
+  "universe": "Greek",
+  "archetype": "King of the gods",
+  "stats": {
+   "power": 97,
+   "intellect": 85,
+   "speed": 88,
+   "durability": 90,
+   "combat": 85
+  },
+  "tags": [
+   "god",
+   "sky",
+   "ruler"
+  ]
+ },
+ {
+  "id": "myth-poseidon",
+  "name": "Poseidon",
+  "universe": "Greek",
+  "archetype": "God of the sea",
+  "stats": {
+   "power": 94,
+   "intellect": 75,
+   "speed": 80,
+   "durability": 90,
+   "combat": 82
+  },
+  "tags": [
+   "god",
+   "sea"
+  ]
+ },
+ {
+  "id": "myth-hades",
+  "name": "Hades",
+  "universe": "Greek",
+  "archetype": "Lord of the underworld",
+  "stats": {
+   "power": 90,
+   "intellect": 85,
+   "speed": 60,
+   "durability": 92,
+   "combat": 75
+  },
+  "tags": [
+   "god",
+   "underworld"
+  ]
+ },
+ {
+  "id": "myth-athena",
+  "name": "Athena",
+  "universe": "Greek",
+  "archetype": "Goddess of wisdom and war",
+  "stats": {
+   "power": 82,
+   "intellect": 98,
+   "speed": 78,
+   "durability": 85,
+   "combat": 95
+  },
+  "tags": [
+   "god",
+   "war",
+   "wisdom"
+  ]
+ },
+ {
+  "id": "myth-ares",
+  "name": "Ares",
+  "universe": "Greek",
+  "archetype": "God of war",
+  "stats": {
+   "power": 88,
+   "intellect": 45,
+   "speed": 75,
+   "durability": 85,
+   "combat": 94
+  },
+  "tags": [
+   "god",
+   "war"
+  ]
+ },
+ {
+  "id": "myth-apollo",
+  "name": "Apollo",
+  "universe": "Greek",
+  "archetype": "God of the sun and music",
+  "stats": {
+   "power": 84,
+   "intellect": 85,
+   "speed": 85,
+   "durability": 82,
+   "combat": 80
+  },
+  "tags": [
+   "god",
+   "sun"
+  ]
+ },
+ {
+  "id": "myth-artemis",
+  "name": "Artemis",
+  "universe": "Greek",
+  "archetype": "Goddess of the hunt",
+  "stats": {
+   "power": 76,
+   "intellect": 80,
+   "speed": 92,
+   "durability": 75,
+   "combat": 90
+  },
+  "tags": [
+   "god",
+   "hunter"
+  ]
+ },
+ {
+  "id": "myth-hermes",
+  "name": "Hermes",
+  "universe": "Greek",
+  "archetype": "Messenger of the gods",
+  "stats": {
+   "power": 65,
+   "intellect": 88,
+   "speed": 99,
+   "durability": 70,
+   "combat": 68
+  },
+  "tags": [
+   "god",
+   "trickster"
+  ]
+ },
+ {
+  "id": "myth-heracles",
+  "name": "Heracles",
+  "universe": "Greek",
+  "archetype": "Hero of the twelve labours",
+  "stats": {
+   "power": 95,
+   "intellect": 55,
+   "speed": 75,
+   "durability": 92,
+   "combat": 92
+  },
+  "tags": [
+   "hero",
+   "demigod"
+  ],
+  "q": "Heracles"
+ },
+ {
+  "id": "myth-achilles",
+  "name": "Achilles",
+  "universe": "Greek",
+  "archetype": "Greatest warrior of Troy",
+  "stats": {
+   "power": 85,
+   "intellect": 55,
+   "speed": 90,
+   "durability": 88,
+   "combat": 98
+  },
+  "tags": [
+   "hero",
+   "demigod",
+   "war"
+  ]
+ },
+ {
+  "id": "myth-perseus",
+  "name": "Perseus",
+  "universe": "Greek",
+  "archetype": "Slayer of Medusa",
+  "stats": {
+   "power": 70,
+   "intellect": 72,
+   "speed": 78,
+   "durability": 70,
+   "combat": 85
+  },
+  "tags": [
+   "hero",
+   "demigod"
+  ]
+ },
+ {
+  "id": "myth-odysseus",
+  "name": "Odysseus",
+  "universe": "Greek",
+  "archetype": "The cunning king",
+  "stats": {
+   "power": 65,
+   "intellect": 97,
+   "speed": 70,
+   "durability": 72,
+   "combat": 82
+  },
+  "tags": [
+   "hero",
+   "trickster"
+  ]
+ },
+ {
+  "id": "myth-medusa",
+  "name": "Medusa",
+  "universe": "Greek",
+  "archetype": "Gorgon",
+  "stats": {
+   "power": 78,
+   "intellect": 60,
+   "speed": 50,
+   "durability": 70,
+   "combat": 72
+  },
+  "tags": [
+   "monster"
+  ]
+ },
+ {
+  "id": "myth-minotaur",
+  "name": "Minotaur",
+  "universe": "Greek",
+  "archetype": "Beast of the labyrinth",
+  "stats": {
+   "power": 85,
+   "intellect": 25,
+   "speed": 55,
+   "durability": 85,
+   "combat": 80
+  },
+  "tags": [
+   "monster"
+  ]
+ },
+ {
+  "id": "myth-cerberus",
+  "name": "Cerberus",
+  "universe": "Greek",
+  "archetype": "Hound of the underworld",
+  "stats": {
+   "power": 86,
+   "intellect": 30,
+   "speed": 72,
+   "durability": 88,
+   "combat": 84
+  },
+  "tags": [
+   "monster",
+   "underworld"
+  ]
+ },
+ {
+  "id": "myth-lernaean-hydra",
+  "name": "Lernaean Hydra",
+  "universe": "Greek",
+  "archetype": "Many-headed serpent",
+  "stats": {
+   "power": 84,
+   "intellect": 25,
+   "speed": 50,
+   "durability": 97,
+   "combat": 78
+  },
+  "tags": [
+   "monster"
+  ]
+ },
+ {
+  "id": "myth-odin",
+  "name": "Odin",
+  "universe": "Norse",
+  "archetype": "All-father",
+  "stats": {
+   "power": 92,
+   "intellect": 97,
+   "speed": 70,
+   "durability": 85,
+   "combat": 85
+  },
+  "tags": [
+   "god",
+   "ruler",
+   "wisdom"
+  ]
+ },
+ {
+  "id": "myth-thor",
+  "name": "Thor",
+  "universe": "Norse",
+  "archetype": "God of thunder",
+  "stats": {
+   "power": 96,
+   "intellect": 60,
+   "speed": 78,
+   "durability": 94,
+   "combat": 92
+  },
+  "tags": [
+   "god",
+   "sky",
+   "war"
+  ]
+ },
+ {
+  "id": "myth-loki",
+  "name": "Loki",
+  "universe": "Norse",
+  "archetype": "God of mischief",
+  "stats": {
+   "power": 72,
+   "intellect": 94,
+   "speed": 82,
+   "durability": 70,
+   "combat": 70
+  },
+  "tags": [
+   "god",
+   "trickster"
+  ]
+ },
+ {
+  "id": "myth-freyja",
+  "name": "Freyja",
+  "universe": "Norse",
+  "archetype": "Goddess of love and war",
+  "stats": {
+   "power": 78,
+   "intellect": 82,
+   "speed": 80,
+   "durability": 78,
+   "combat": 85
+  },
+  "tags": [
+   "god",
+   "war"
+  ]
+ },
+ {
+  "id": "myth-heimdallr",
+  "name": "Heimdallr",
+  "universe": "Norse",
+  "archetype": "Watchman of the gods",
+  "stats": {
+   "power": 78,
+   "intellect": 80,
+   "speed": 85,
+   "durability": 85,
+   "combat": 86
+  },
+  "tags": [
+   "god",
+   "guardian"
+  ]
+ },
+ {
+  "id": "myth-fenrir",
+  "name": "Fenrir",
+  "universe": "Norse",
+  "archetype": "The great wolf",
+  "stats": {
+   "power": 93,
+   "intellect": 40,
+   "speed": 88,
+   "durability": 92,
+   "combat": 90
+  },
+  "tags": [
+   "monster"
+  ]
+ },
+ {
+  "id": "myth-jormungandr",
+  "name": "Jörmungandr",
+  "universe": "Norse",
+  "archetype": "The world serpent",
+  "stats": {
+   "power": 97,
+   "intellect": 35,
+   "speed": 45,
+   "durability": 97,
+   "combat": 80
+  },
+  "tags": [
+   "monster",
+   "sea"
+  ]
+ },
+ {
+  "id": "myth-ra",
+  "name": "Ra",
+  "universe": "Egyptian",
+  "archetype": "God of the sun",
+  "stats": {
+   "power": 95,
+   "intellect": 88,
+   "speed": 75,
+   "durability": 88,
+   "combat": 72
+  },
+  "tags": [
+   "god",
+   "sun",
+   "ruler"
+  ],
+  "q": "Ra"
+ },
+ {
+  "id": "myth-anubis",
+  "name": "Anubis",
+  "universe": "Egyptian",
+  "archetype": "Guardian of the dead",
+  "stats": {
+   "power": 78,
+   "intellect": 85,
+   "speed": 72,
+   "durability": 82,
+   "combat": 78
+  },
+  "tags": [
+   "god",
+   "underworld",
+   "guardian"
+  ]
+ },
+ {
+  "id": "myth-osiris",
+  "name": "Osiris",
+  "universe": "Egyptian",
+  "archetype": "Lord of the afterlife",
+  "stats": {
+   "power": 82,
+   "intellect": 88,
+   "speed": 55,
+   "durability": 90,
+   "combat": 65
+  },
+  "tags": [
+   "god",
+   "underworld",
+   "ruler"
+  ]
+ },
+ {
+  "id": "myth-isis",
+  "name": "Isis",
+  "universe": "Egyptian",
+  "archetype": "Goddess of magic",
+  "stats": {
+   "power": 85,
+   "intellect": 95,
+   "speed": 70,
+   "durability": 80,
+   "combat": 68
+  },
+  "tags": [
+   "god",
+   "magic"
+  ]
+ },
+ {
+  "id": "myth-horus",
+  "name": "Horus",
+  "universe": "Egyptian",
+  "archetype": "Sky god and avenger",
+  "stats": {
+   "power": 86,
+   "intellect": 78,
+   "speed": 88,
+   "durability": 84,
+   "combat": 90
+  },
+  "tags": [
+   "god",
+   "sky",
+   "war"
+  ]
+ },
+ {
+  "id": "myth-set",
+  "name": "Set",
+  "universe": "Egyptian",
+  "archetype": "God of storms and chaos",
+  "stats": {
+   "power": 90,
+   "intellect": 72,
+   "speed": 80,
+   "durability": 88,
+   "combat": 88
+  },
+  "tags": [
+   "god",
+   "trickster",
+   "war"
+  ],
+  "q": "Set (deity)"
+ },
+ {
+  "id": "myth-sekhmet",
+  "name": "Sekhmet",
+  "universe": "Egyptian",
+  "archetype": "Lioness goddess of war",
+  "stats": {
+   "power": 90,
+   "intellect": 60,
+   "speed": 85,
+   "durability": 85,
+   "combat": 94
+  },
+  "tags": [
+   "god",
+   "war"
+  ]
+ },
+ {
+  "id": "myth-shiva",
+  "name": "Shiva",
+  "universe": "Hindu",
+  "archetype": "The destroyer",
+  "stats": {
+   "power": 99,
+   "intellect": 95,
+   "speed": 85,
+   "durability": 95,
+   "combat": 90
+  },
+  "tags": [
+   "god"
+  ]
+ },
+ {
+  "id": "myth-vishnu",
+  "name": "Vishnu",
+  "universe": "Hindu",
+  "archetype": "The preserver",
+  "stats": {
+   "power": 97,
+   "intellect": 96,
+   "speed": 82,
+   "durability": 95,
+   "combat": 88
+  },
+  "tags": [
+   "god",
+   "guardian"
+  ]
+ },
+ {
+  "id": "myth-kali",
+  "name": "Kali",
+  "universe": "Hindu",
+  "archetype": "Goddess of time and destruction",
+  "stats": {
+   "power": 96,
+   "intellect": 80,
+   "speed": 88,
+   "durability": 90,
+   "combat": 96
+  },
+  "tags": [
+   "god",
+   "war"
+  ]
+ },
+ {
+  "id": "myth-durga",
+  "name": "Durga",
+  "universe": "Hindu",
+  "archetype": "Warrior goddess",
+  "stats": {
+   "power": 93,
+   "intellect": 85,
+   "speed": 85,
+   "durability": 90,
+   "combat": 97
+  },
+  "tags": [
+   "god",
+   "war"
+  ]
+ },
+ {
+  "id": "myth-hanuman",
+  "name": "Hanuman",
+  "universe": "Hindu",
+  "archetype": "Monkey god",
+  "stats": {
+   "power": 92,
+   "intellect": 82,
+   "speed": 95,
+   "durability": 92,
+   "combat": 90
+  },
+  "tags": [
+   "god",
+   "hero"
+  ]
+ },
+ {
+  "id": "myth-amaterasu",
+  "name": "Amaterasu",
+  "universe": "Japanese",
+  "archetype": "Goddess of the sun",
+  "stats": {
+   "power": 90,
+   "intellect": 88,
+   "speed": 75,
+   "durability": 85,
+   "combat": 70
+  },
+  "tags": [
+   "god",
+   "sun",
+   "ruler"
+  ]
+ },
+ {
+  "id": "myth-susanoo",
+  "name": "Susanoo",
+  "universe": "Japanese",
+  "archetype": "God of storms",
+  "stats": {
+   "power": 90,
+   "intellect": 60,
+   "speed": 85,
+   "durability": 85,
+   "combat": 92
+  },
+  "tags": [
+   "god",
+   "sea",
+   "war"
+  ],
+  "q": "Susanoo-no-Mikoto"
+ },
+ {
+  "id": "myth-raijin",
+  "name": "Raijin",
+  "universe": "Japanese",
+  "archetype": "God of thunder",
+  "stats": {
+   "power": 88,
+   "intellect": 55,
+   "speed": 88,
+   "durability": 82,
+   "combat": 82
+  },
+  "tags": [
+   "god",
+   "sky"
+  ]
+ },
+ {
+  "id": "myth-sun-wukong",
+  "name": "Sun Wukong",
+  "universe": "Chinese",
+  "archetype": "The Monkey King",
+  "stats": {
+   "power": 90,
+   "intellect": 85,
+   "speed": 97,
+   "durability": 95,
+   "combat": 95
+  },
+  "tags": [
+   "hero",
+   "trickster"
+  ]
+ },
+ {
+  "id": "myth-nezha",
+  "name": "Nezha",
+  "universe": "Chinese",
+  "archetype": "The lotus warrior",
+  "stats": {
+   "power": 82,
+   "intellect": 70,
+   "speed": 90,
+   "durability": 80,
+   "combat": 90
+  },
+  "tags": [
+   "hero",
+   "demigod"
+  ]
+ },
+ {
+  "id": "myth-gilgamesh",
+  "name": "Gilgamesh",
+  "universe": "Mesopotamian",
+  "archetype": "The first hero-king",
+  "stats": {
+   "power": 86,
+   "intellect": 75,
+   "speed": 72,
+   "durability": 85,
+   "combat": 88
+  },
+  "tags": [
+   "hero",
+   "demigod",
+   "ruler"
+  ]
+ },
+ {
+  "id": "myth-tiamat",
+  "name": "Tiamat",
+  "universe": "Mesopotamian",
+  "archetype": "Dragon of the primordial sea",
+  "stats": {
+   "power": 95,
+   "intellect": 70,
+   "speed": 60,
+   "durability": 95,
+   "combat": 80
+  },
+  "tags": [
+   "monster",
+   "sea"
+  ]
+ },
+ {
+  "id": "myth-quetzalcoatl",
+  "name": "Quetzalcoatl",
+  "universe": "Aztec",
+  "archetype": "The feathered serpent",
+  "stats": {
+   "power": 88,
+   "intellect": 90,
+   "speed": 85,
+   "durability": 85,
+   "combat": 75
+  },
+  "tags": [
+   "god",
+   "sky",
+   "wisdom"
+  ]
+ },
+ {
+  "id": "myth-anansi",
+  "name": "Anansi",
+  "universe": "West African",
+  "archetype": "The spider trickster",
+  "stats": {
+   "power": 40,
+   "intellect": 96,
+   "speed": 75,
+   "durability": 55,
+   "combat": 50
+  },
+  "tags": [
+   "trickster"
+  ]
+ },
+ {
+  "id": "myth-maui",
+  "name": "Māui",
+  "universe": "Polynesian",
+  "archetype": "Demigod and trickster",
+  "stats": {
+   "power": 82,
+   "intellect": 85,
+   "speed": 85,
+   "durability": 80,
+   "combat": 80
+  },
+  "tags": [
+   "hero",
+   "demigod",
+   "trickster"
+  ],
+  "q": "Māui (Māori mythology)"
+ },
+ {
+  "id": "myth-cu-chulainn",
+  "name": "Cú Chulainn",
+  "universe": "Irish",
+  "archetype": "Hound of Ulster",
+  "stats": {
+   "power": 85,
+   "intellect": 60,
+   "speed": 85,
+   "durability": 85,
+   "combat": 97
+  },
+  "tags": [
+   "hero",
+   "demigod",
+   "war"
+  ]
+ },
+ {
+  "id": "myth-the-morrigan",
+  "name": "The Morrígan",
+  "universe": "Irish",
+  "archetype": "Goddess of fate and battle",
+  "stats": {
+   "power": 80,
+   "intellect": 88,
+   "speed": 80,
+   "durability": 78,
+   "combat": 85
+  },
+  "tags": [
+   "god",
+   "war"
+  ]
+ }
+]

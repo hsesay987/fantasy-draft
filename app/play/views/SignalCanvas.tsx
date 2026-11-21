@@ -109,6 +109,16 @@ function drawNeedle(c: CanvasRenderingContext2D, W: number, pos: number, hot: bo
   rect(c, x, SCREEN + 13, 1, 1, "#000");
 }
 
+/** Someone else's dial: a thin, dim line with a small cap on the strip, so your own needle stays the one that stands out. */
+function drawDial(c: CanvasRenderingContext2D, W: number, pos: number) {
+  const x = xOf(pos, W);
+  c.globalAlpha = 0.55;
+  rect(c, x, 4, 1, SCREEN - 4, "#c8ffe4");
+  c.globalAlpha = 1;
+  rect(c, x - 1, SCREEN + 2, 3, 4, "#000");
+  rect(c, x, SCREEN + 2, 1, 3, "#c8ffe4");
+}
+
 function drawTargetFlag(c: CanvasRenderingContext2D, W: number, pos: number) {
   const x = xOf(pos, W);
   for (let y = 0; y < SCREEN; y += 2) rect(c, x, y, 1, 1, INK.flag);
@@ -182,15 +192,16 @@ export type SignalPhase = "clue" | "tune" | "reveal";
 /**
  * The signal scope. `target` is -1 for a seat that may not see it, and nothing about the hidden spot is drawn then.
  * Pass `onMove` to let this seat drag the marker; `points` is the round's result, once the phase is `reveal`.
+ * `dials` are the other players' own dials, drawn faintly beside the marker.
  */
-export function SignalCanvas({ marker, target, phase, points, left, right, onMove, onRelease, overlay }: {
-  marker: number; target: number; phase: SignalPhase; points: Points | null; left: string; right: string;
+export function SignalCanvas({ marker, dials = [], target, phase, points, left, right, onMove, onRelease, overlay }: {
+  marker: number; dials?: number[]; target: number; phase: SignalPhase; points: Points | null; left: string; right: string;
   onMove?: (pos: number) => void; onRelease?: () => void; overlay?: ReactNode;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const live = useRef({ marker, target, phase, points, dragging: false, canMove: !!onMove });
-  useEffect(() => { live.current = { ...live.current, marker, target, phase, points, canMove: !!onMove }; });
+  const live = useRef({ marker, dials, target, phase, points, dragging: false, canMove: !!onMove });
+  useEffect(() => { live.current = { ...live.current, marker, dials, target, phase, points, canMove: !!onMove }; });
   const repaint = useRef<() => void>(() => {});
   const cbs = useRef({ onMove, onRelease });
   useEffect(() => { cbs.current = { onMove, onRelease }; });
@@ -245,6 +256,7 @@ export function SignalCanvas({ marker, target, phase, points, left, right, onMov
         }
         if (r.flat > 0) drawFizzle(ctx, W, frame, still ? 1000 : r.age);
         if (r.bands > 0.3) drawTargetFlag(ctx, W, s.target);
+        for (const d of s.dials) drawDial(ctx, W, d);
         drawNeedle(ctx, W, s.marker, merged);
         if (!still && r.outcome) {
           const ox = xOf(s.marker, W);
@@ -272,6 +284,7 @@ export function SignalCanvas({ marker, target, phase, points, left, right, onMov
         }
         if (tuning) {
           drawWave(ctx, { W, centre: shown, freq: freqOf(shown), phase: t / 420, amp: AMP + boost * 3, ink: boost > 0.1 ? "#c8ffe4" : INK.calm, shade: INK.calmDim, thick: boost > 0.5 ? 2 : 1, frame, seed: 1 });
+          for (const d of s.dials) drawDial(ctx, W, d);
           drawNeedle(ctx, W, shown, s.dragging);
           if (!still) drawStatic(ctx, W, noise, frame, 0, showTarget ? 0.08 : 0.16);
         } else if (!still) {
@@ -321,7 +334,8 @@ export function SignalCanvas({ marker, target, phase, points, left, right, onMov
   }, []);
 
   // With reduced motion there is no loop: redraw when something changes.
-  useEffect(() => repaint.current(), [marker, target, phase, points]);
+  const dialKey = dials.join(",");
+  useEffect(() => repaint.current(), [marker, dialKey, target, phase, points]);
 
   const emit = (pos: number) => {
     if (pos === sent.current) return;
