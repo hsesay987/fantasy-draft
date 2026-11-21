@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { notFound, useParams } from "next/navigation";
 import { PixelBox, PixelShell } from "../../components/pixel/PixelUI";
 import { checkpointAt, WORLDS } from "../../components/pixel/worlds";
 import { Play } from "../../costimation/CostimationGame";
 import { track } from "../../lib/analytics";
-import { DAILY_TITLES, DAILY_WORLD, fetchPuzzle, fetchStats, hasWorld, isDailyGame, peckingBand, peckingSquare, playedOn, remember, sendResult, type Played, type Puzzle } from "../../lib/daily";
+import { bandOf, DAILY_TITLES, DAILY_WORLD, fetchPuzzle, fetchStats, hasWorld, isDailyGame, peckingSquare, playedOn, remember, sendResult, type Played, type Puzzle } from "../../lib/daily";
+import type { NpatSoloResult } from "../../npat/NpatSolo";
 import { PeckingSolo, SOLO_PLAYER } from "../../pecking/PeckingSolo";
 import { DAILY_COUNT, type PeckState } from "../../topicDraft/formats/pecking";
 import { CATEGORIES } from "../../play/categories";
@@ -15,6 +17,9 @@ import { scoreFraction } from "../../toprung/engine";
 import { TopRungGame } from "../../toprung/TopRungGame";
 import { DailyQuiz } from "../DailyQuiz";
 import { DailyStats } from "../DailyStats";
+
+// NPAT's solo page carries every answer list, so only its own daily loads it.
+const NpatSolo = dynamic(() => import("../../npat/NpatSolo").then((m) => m.NpatSolo), { ssr: false });
 
 export default function DailyPage() {
   const { game } = useParams<{ game: string }>();
@@ -40,7 +45,7 @@ export default function DailyPage() {
   }, [game]);
 
   if (!isDailyGame(game)) return notFound();
-  // Pecking Order has no pixel world; its pages use the ladder backdrop and its result is named by score band.
+  // Pecking Order and NPAT have no pixel world; their pages use the ladder backdrop and their results are named by score band.
   const world = hasWorld(game) ? DAILY_WORLD[game] : null;
   if (played) return <DailyStats game={game} played={played} />;
   if (error || !puzzle) {
@@ -55,11 +60,11 @@ export default function DailyPage() {
     );
   }
 
-  const record = async (score: number, history: number[], grid: string, detail: unknown) => {
+  const record = async (score: number, history: number[], grid: string, detail: unknown, answers?: { category: string; text: string }[]) => {
     const s = Math.max(0, Math.min(1, score));
-    const base: Played = { day: puzzle.day, number: puzzle.number, score: s, history, grid, checkpoint: world ? checkpointAt(WORLDS[world], s).name : peckingBand(s) };
+    const base: Played = { day: puzzle.day, number: puzzle.number, score: s, history, grid, checkpoint: hasWorld(game) ? checkpointAt(WORLDS[DAILY_WORLD[game]], s).name : bandOf(game, s) };
     remember(game, base);
-    const stats = await sendResult(game, puzzle.day, s, detail);
+    const stats = await sendResult(game, puzzle.day, s, detail, answers);
     const withStats = stats ? { ...base, stats } : base;
     remember(game, withStats);
     return withStats;
@@ -69,6 +74,7 @@ export default function DailyPage() {
   if (game === "pecking") {
     return <PeckingSolo daily questions={puzzle.content.questions ?? []} backHref="/trivia" backLabel="All trivia" onFinish={(s) => finishPecking(s, puzzle.day, finish)} />;
   }
+  if (game === "npat") return <NpatDaily puzzle={puzzle} onFinish={record} onStats={setPlayed} />;
   if (game === "toprung") {
     return (
       <TopRungDaily puzzle={puzzle} onFinish={record} onStats={setPlayed} />
@@ -94,6 +100,24 @@ function finishPecking(s: PeckState, day: string, finish: (score: number, histor
   track("pecking_finished", { daily: true, points: total });
   let run = 0;
   finish(total / max, points.map((p) => (run += p) / max), points.map(peckingSquare).join(""), { points });
+}
+
+/** Today's NPAT page. The result goes in the moment the round is scored; the stats wait until the player has seen the reveal. */
+function NpatDaily({ puzzle, onFinish, onStats }: { puzzle: Puzzle; onFinish: (score: number, history: number[], grid: string, detail: unknown, answers?: { category: string; text: string }[]) => Promise<Played>; onStats: (p: Played) => void }) {
+  const recorded = useRef<Promise<Played> | null>(null);
+  const done = (r: NpatSoloResult) => {
+    if (playedOn("npat", puzzle.day)) return;
+    track("npat_finished", { daily: true, points: r.total });
+    recorded.current = onFinish(r.score, r.history, r.grid, { points: r.points }, r.answers);
+  };
+  return (
+    <NpatSolo puzzle={{ letter: puzzle.content.letter, categories: puzzle.content.categories ?? [], overlay: puzzle.content.overlay }} number={puzzle.number}
+      onFinish={done}
+      onContinue={async () => {
+        const p = (await recorded.current) ?? playedOn("npat", puzzle.day);
+        if (p) onStats(p);
+      }} />
+  );
 }
 
 /** Today's climb. The result goes in the moment the climb ends; the stats wait until the player has seen how it ended. */

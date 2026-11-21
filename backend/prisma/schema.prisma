@@ -795,3 +795,45 @@ model CustomGameReport {
 
   @@unique([gameId, reporter])
 }
+
+/// How often players gave an NPAT answer in a finished game. `answer` is the list entry's name, normalised; rows whose
+/// category starts with "review:" are accepted unknown answers kept for review and never feed tiers.
+model NpatAnswer {
+  category  String
+  answer    String
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@id([category, answer])
+}
+
+/// What the Claude judge decided about an answer that is not on an NPAT list. `answer` is the typed text, normalised.
+/// Only valid AI verdicts are stored (never the fallback), so a later server re-score can read them. Rows with ok=true
+/// are also the list of AI-accepted answers a person reviews.
+model NpatVerdict {
+  id        String   @id @default(cuid())
+  category  String
+  letter    String
+  answer    String
+  ok        Boolean
+  niche     Int
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@unique([category, letter, answer])
+}
+
+/// A player disputing a judged NPAT answer. `ipHash` is a one-way hash, never the address.
+model NpatDispute {
+  id        String   @id @default(cuid())
+  category  String
+  letter    String
+  answer    String
+  typed     String
+  reason    String
+  tier      String?
+  ipHash    String
+  createdAt DateTime @default(now())
+
+  @@index([category, letter, answer])
+}

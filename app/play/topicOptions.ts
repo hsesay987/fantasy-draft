@@ -5,6 +5,7 @@ import { OPTION_COUNT } from "../topicDraft/formats/imposter";
 import { DECKS } from "../topicDraft/party/decks";
 import { INSYNC_DECKS } from "../topicDraft/party/insyncDecks";
 import { SAY_DECKS } from "../topicDraft/sayless/decks";
+import { NPAT_SETS, categoryOf } from "../topicDraft/npat/categories";
 import { PECKING_META } from "../topicDraft/pecking/meta";
 import { mixTitle } from "../topicDraft/party/mixTitle";
 import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
@@ -28,6 +29,7 @@ export function topicOptions(format: FormatId): TopicOption[] {
     case "vowelplay":
     case "vowelparty": return VOWEL_TOPICS.map((t) => ({ id: t.id, title: t.title }));
     case "pecking": return PECKING_META.map((m) => ({ id: m.id, title: m.title, blurb: `${m.size} items · ${m.source} · as of ${m.asOf}` }));
+    case "npat": return NPAT_SETS.map((s) => ({ id: s.id, title: s.title, blurb: s.categories.map((c) => categoryOf(c)?.title ?? c).join(", ") }));
     case "sayless": return SAY_DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "vote": return DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "insync": return INSYNC_DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
@@ -77,5 +79,5 @@ export function topicTitle(format: FormatId, pools: string[] | null | undefined)
 }
 
 /** Party games the host sets up on PartySetup (every party format); drafts use SetupScreen. */
-export const usesPartySetup = (format: string): format is Extract<FormatId, "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless"> =>
+export const usesPartySetup = (format: string): format is Extract<FormatId, "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat"> =>
   PARTY_FORMATS.has(format as FormatId);

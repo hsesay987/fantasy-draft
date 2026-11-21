@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_OPTS, type GameSetup } from "../../play/types";
 import type { GameState } from "../core";
+import { answer, init, tick, type NPState } from "../formats/npat";
+import { setHistorySource, setListSource, type NpatEntry } from "../npat/source";
 import { addGame, awardsFor, rankAwards, standings, type Tournament } from "./tournament";
 
 const setup = (format: GameSetup["format"], players: string[], opts: Partial<GameSetup["opts"]> = {}): GameSetup =>
@@ -61,6 +63,15 @@ describe("awardsFor", () => {
     const s = setup("sayless", ["a", "b", "c", "d"], { teams: 2, teamMap: { a: 0, b: 0, c: 0, d: 1 } });
     expect(awardsFor(s, st({ teams: null, points: { a: 4, b: 2, c: 9, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 3, b: 2, c: 5, d: 1 });
   });
+  it("NPAT ranks per-player points, ties share a place", () => {
+    const s = setup("npat", ["a", "b", "c", "d"]);
+    expect(awardsFor(s, st({ teams: null, points: { a: 30, b: 30, c: 10, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 5, b: 5, c: 2, d: 1 });
+  });
+  it("NPAT teams rank by the engine's team points, not summed member points", () => {
+    const s = setup("npat", ["a", "b", "c", "d"], { teams: 2, teamMap: { a: 0, b: 0, c: 1, d: 1 } });
+    // Members' sums say team 1 (9 + 0) leads team 0 (4 + 4), but the game's team points put team 0 ahead.
+    expect(awardsFor(s, st({ teams: [["a", "b"], ["c", "d"]], teamPoints: [9, 4], points: { a: 4, b: 4, c: 9, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 5, b: 5, c: 3, d: 3 });
+  });
   const duel = (rope: number, forfeit: string | null = null) => st({ mode: "duel", players: ["a", "b"], rope, forfeit, points: {} });
   it("duel winner 5/1, draw 3 each", () => {
     const s = setup("vowelplay", ["a", "b"], { vowelMode: "duel" });
@@ -101,6 +112,37 @@ describe("awardsFor", () => {
 });
 
 const empty: Tournament = { plan: ["vote", "insync"], topics: [null, null], index: 0, games: [], totals: {}, done: false };
+
+describe("awardsFor on a real NPAT game", () => {
+  // Fixture list: only H has the 15 answers a letter needs, so every round is H.
+  const filler = Array.from({ length: 15 }, (_, i): NpatEntry => ({ name: `H filler ${i}`, tier: "common" }));
+  const LIST: NpatEntry[] = [{ name: "Hawkeye", tier: "rare" }, { name: "Hela", tier: "rare" }, { name: "Havok", tier: "solid" }, { name: "Hulk", tier: "unicorn" }, ...filler];
+  const P = ["a", "b", "c", "d"];
+  const played = (teamMap: Record<string, number>, rows: Record<string, string>): NPState => {
+    setListSource((c) => (c === "superhero" ? LIST : []));
+    setHistorySource(null);
+    let s = init({ players: P, categories: ["superhero"], rounds: 1, teams: 2, teamMap, seed: 3, now: 0 });
+    for (const [p, t] of Object.entries(rows)) s = answer(s, p, 0, t, 1);
+    for (let i = 0; i < 20 && !s.done; i++) s = tick(s, s.phaseAt + 600_000);
+    expect(s.done).toBe(true);
+    return s;
+  };
+
+  it("teammates sharing an answer: the team the game ranks first is the one the tournament ranks first", () => {
+    // Team 0 both give the same Rare (60 each, counted once: 60). Team 1 gives a Solid and a Rare (30 + 60 = 90).
+    const s = played({ a: 0, b: 0, c: 1, d: 1 }, { a: "Hawkeye", b: "Hawkeye", c: "Havok", d: "Hela" });
+    expect(s.teamPoints).toEqual([60, 90]);
+    expect(awardsFor(setup("npat", P, { teams: 2 }), st(s), P)).toEqual({ a: 3, b: 3, c: 5, d: 5 });
+  });
+
+  it("a lopsided 3-1 team map plays as those teams, ranked by the game's team points", () => {
+    // Members' sums would say 180 to 100; the game counts the shared Rare once, so the lone Unicorn wins 100 to 60.
+    const s = played({ a: 0, b: 0, c: 0, d: 1 }, { a: "Hawkeye", b: "Hawkeye", c: "Hawkeye", d: "Hulk" });
+    expect(s.teams).toEqual([["a", "b", "c"], ["d"]]);
+    expect(s.teamPoints).toEqual([60, 100]);
+    expect(awardsFor(setup("npat", P, { teams: 2, teamMap: { a: 0, b: 0, c: 0, d: 1 } }), st(s), P)).toEqual({ a: 3, b: 3, c: 3, d: 5 });
+  });
+});
 
 describe("addGame and standings", () => {
   it("adds awards, advances and finishes", () => {

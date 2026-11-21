@@ -5,17 +5,18 @@ import { useEffect, useState } from "react";
 import { PixelBox, PixelButton, PixelShell } from "../components/pixel/PixelUI";
 import { WorldScene } from "../components/pixel/WorldScene";
 import { WORLDS } from "../components/pixel/worlds";
-import { DAILY_TITLES, DAILY_WORLD, hasWorld, myStats, PECKING_BANDS, shareText, untilNext, type DailyGame, type Played } from "../lib/daily";
+import { bandsFor, DAILY_POINTS, DAILY_TITLES, DAILY_WORLD, hasWorld, myStats, shareText, untilNext, type DailyGame, type Played } from "../lib/daily";
 import { LADDER, LEDGES, RUNGS } from "../toprung/engine";
 
-const FREE_PLAY: Record<DailyGame, string> = { summit: "/play/jeopardy", hotair: "/play/feud", costimation: "/costimation", toprung: "/toprung", pecking: "/pecking" };
+/** Where each daily's free play lives. NPAT has no free-play page yet (its only page is the daily), so it gets no button. */
+const FREE_PLAY: Record<DailyGame, string | null> = { summit: "/play/jeopardy", hotair: "/play/feud", costimation: "/costimation", toprung: "/toprung", pecking: "/pecking", npat: null };
 
 /** Top Rung's low rungs sit at 1%, 2% and 3% of the score, so only its safe ledges and the lamp fit as labelled marks. */
 const LADDER_MARKS = [...LEDGES, RUNGS].map((r) => LADDER[r - 1]! / LADDER[RUNGS - 1]!);
 
 /** After a daily: your result in the world, how everyone else did, your streaks, and how your run unfolded. */
 export function DailyStats({ game, played }: { game: DailyGame; played: Played }) {
-  // Pecking Order has no world to climb: it sits on Top Rung's ladder backdrop and is scored in points.
+  // Pecking Order and NPAT have no world to climb: they sit on Top Rung's ladder backdrop and are scored in points.
   const world = hasWorld(game) ? DAILY_WORLD[game] : null;
   const st = played.stats;
   const mine = myStats(game, played.day);
@@ -32,7 +33,7 @@ export function DailyStats({ game, played }: { game: DailyGame; played: Played }
         <PixelBox>
           <p className="px-eyebrow">DAILY {DAILY_TITLES[game].toUpperCase()} #{played.number} · {played.day}</p>
           <h1 className="mt-2">{played.checkpoint}</h1>
-          <p className="mt-2 text-[26px] text-[var(--px-gold)]">{world ? `${Math.round(played.score * 100)}% of the way` : `${Math.round(played.score * 500)} of 500 points`}</p>
+          <p className="mt-2 text-[26px] text-[var(--px-gold)]">{hasWorld(game) ? `${Math.round(played.score * 100)}% of the way` : `${Math.round(played.score * DAILY_POINTS[game])} of ${DAILY_POINTS[game]} points`}</p>
           <p className="px-note mt-1">
             {st && st.players > 1 && st.percentile != null ? `You ${world ? "went further" : "scored more"} than ${st.percentile}% of the ${st.players} players today.` : st ? "You are one of the first to play today. Check back later to see how you compare." : "Stats are not available right now."}
           </p>
@@ -71,7 +72,7 @@ export function DailyStats({ game, played }: { game: DailyGame; played: Played }
           <pre className="mt-4 overflow-x-auto bg-[var(--px-ink)] p-3 text-[22px] leading-tight">{shareText(game, played)}</pre>
           <div className="mt-3 flex flex-wrap items-center">
             <PixelButton variant="gold" onClick={copy}>{copied ? "COPIED!" : "SHARE"}</PixelButton>
-            <Link href={FREE_PLAY[game]} className="px-btn alt no-underline">FREE PLAY</Link>
+            {FREE_PLAY[game] && <Link href={FREE_PLAY[game]} className="px-btn alt no-underline">FREE PLAY</Link>}
             <Link href="/trivia" className="px-btn alt no-underline">OTHER DAILIES</Link>
             <span className="px-note ml-2">Next puzzle in {clock}</span>
           </div>
@@ -83,7 +84,7 @@ export function DailyStats({ game, played }: { game: DailyGame; played: Played }
 
 /** A stepped line of how far along you were after each question, with the world's checkpoints as gridlines. */
 function RunChart({ game, history }: { game: DailyGame; history: number[] }) {
-  const cps = hasWorld(game) ? WORLDS[DAILY_WORLD[game]].checkpoints.filter((c) => game !== "toprung" || LADDER_MARKS.includes(c.at)) : PECKING_BANDS.map((b) => ({ name: b.mark ?? b.name, at: b.at }));
+  const cps = hasWorld(game) ? WORLDS[DAILY_WORLD[game]].checkpoints.filter((c) => game !== "toprung" || LADDER_MARKS.includes(c.at)) : bandsFor(game).map((b) => ({ name: b.mark ?? b.name, at: b.at }));
   const pts = [0, ...history];
   const W = 300, H = 160, L = 8, R = 92, T = 6, B = 22;
   const x = (i: number) => L + (i / Math.max(1, pts.length - 1)) * (W - L - R);

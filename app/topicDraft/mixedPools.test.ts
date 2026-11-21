@@ -19,6 +19,11 @@ import "./sayless/words";
 import { SAY_DECK_IDS } from "./sayless/decks";
 import { wordsOf } from "./sayless/source";
 import type { SLState } from "./formats/sayless";
+import "./npat/lists";
+import { NPAT_SETS, categoryOf, setOf } from "./npat/categories";
+import { lettersAvailable } from "./npat/source";
+import { poolTitleFor } from "./party/pools";
+import type { NPState } from "./formats/npat";
 
 const setup = (format: GameSetup["format"], pools: string[], opts: Partial<GameSetup["opts"]> = {}, seed = 3): GameSetup => ({
   id: "t", format, pool: pools[0]!, pools, players: ["A", "B", "C", "D"], aiPlayers: [], mission: { id: "party", title: "t", blurb: "", weights: { fun: 1 } },
@@ -164,5 +169,58 @@ describe("sayless pools", () => {
     expect(s.turns.length).toBe(4);
     const d = initGame(setup("sayless", ["easy"]), 0) as SLState;
     expect([d.wordsPerTurn, d.guard, d.answerMode, d.turns.length]).toEqual([3, false, "type", 8]);
+  });
+});
+
+describe("npat pools", () => {
+  const cats = (pools: string[], opts: Partial<GameSetup["opts"]> = {}) => (initGame(setup("npat", pools, opts), 0) as NPState).categories;
+  const classic = setOf("classic")!.categories;
+  it("poolIdsFor lists the set ids only", () => {
+    expect(poolIdsFor("npat")).toEqual(NPAT_SETS.map((x) => x.id));
+  });
+  it("poolTitleFor names a set and a custom category", () => {
+    expect(poolTitleFor("npat", "film")).toBe(setOf("film")!.title);
+    expect(poolTitleFor("npat", "cat:food")).toBe(categoryOf("food")!.title);
+  });
+  it("a set id maps to its categories", () => {
+    expect(cats(["superhero"])).toEqual(setOf("superhero")!.categories);
+  });
+  it("mixed pools merge in order and drop duplicates, keeping the first", () => {
+    expect(cats(["classic", "superhero"])).toEqual(["name", "place", "animal", "thing", "superhero"]);
+  });
+  it("cat: ids pick single categories, and unknown ids are ignored", () => {
+    expect(cats(["cat:food", "nope", "cat:nope", "cat:animal"])).toEqual(["food", "animal"]);
+  });
+  it("caps the list at 6 categories", () => {
+    expect(cats(["cat:name", "cat:place", "cat:animal", "cat:thing", "cat:food", "cat:film", "cat:tv"])).toEqual(["name", "place", "animal", "thing", "food", "film"]);
+  });
+  it("falls back to Classic when nothing valid is chosen", () => {
+    expect(cats(["nope"])).toEqual(classic);
+    expect(cats([""])).toEqual(classic);
+  });
+  it("falls back to Classic when no letter suits the chosen categories", () => {
+    // Find a combination with no usable letter, if the data has one; otherwise the guard is untestable here.
+    const all = NPAT_SETS.flatMap((x) => x.categories).filter((c, i, a) => a.indexOf(c) === i);
+    const picks = all.slice(0, 6).map((c) => `cat:${c}`);
+    const merged = all.slice(0, 6);
+    if (lettersAvailable(merged, false).length === 0) expect(cats(picks)).toEqual(classic);
+    else expect(cats(picks)).toEqual(merged);
+  });
+  it("applies the options and defaults", () => {
+    const s = initGame(setup("npat", ["classic"], { npatRounds: 5, npatSeconds: 90, npatHard: true, npatStop: true, drinking: true }), 0) as NPState;
+    expect([s.rounds, s.roundMs, s.hard, s.stopEarly, !!s.drinks]).toEqual([5, 90_000, true, true, true]);
+    const d = initGame(setup("npat", ["classic"]), 0) as NPState;
+    expect([d.rounds, d.roundMs, d.hard, d.stopEarly, d.drinks]).toEqual([3, 60_000, false, false, undefined]);
+  });
+  it("clamps rounds and rejects other round lengths", () => {
+    const r = (o: Partial<GameSetup["opts"]>) => initGame(setup("npat", ["classic"], o), 0) as NPState;
+    expect(r({ npatRounds: 0 }).rounds).toBe(1);
+    expect(r({ npatRounds: 99 }).rounds).toBe(8);
+    expect(r({ npatRounds: 2.7 }).rounds).toBe(2);
+    expect(r({ npatSeconds: 50 }).roundMs).toBe(60_000);
+  });
+  it("applies the team map to teams of 2+ players", () => {
+    const s = initGame(setup("npat", ["classic"], { teams: 2, teamMap: { A: 0, B: 0, C: 1, D: 1 } }), 0) as NPState;
+    expect(s.teams).toEqual([["A", "B"], ["C", "D"]]);
   });
 });

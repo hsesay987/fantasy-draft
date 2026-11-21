@@ -8,7 +8,7 @@ import { VerdictView } from "../topicDraft/components/VerdictView";
 import { loadSetup, saveSetup, clearRun } from "./storage";
 import { fetchVerdict, type Verdict } from "./judging";
 import { newSeed } from "../topicDraft/rng";
-import { buildTeams, isDone } from "../topicDraft/core";
+import { buildTeams, isDone, npatIsDig } from "../topicDraft/core";
 import { useSound } from "../components/SoundProvider";
 import { track } from "../lib/analytics";
 import { saveSeen } from "../lib/seenTrivia";
@@ -31,6 +31,8 @@ import { MafiaResults, MafiaView } from "./views/MafiaView";
 import { VowelPlayResults, VowelPlayView } from "./views/VowelPlayView";
 import { PeckingResults, PeckingView } from "./views/PeckingView";
 import { SayLessResults, SayLessView } from "./views/SayLessView";
+import { NpatResults, NpatView } from "./views/NpatView";
+import { NpatDigResults, NpatDigView } from "./views/NpatDigView";
 import { ScreenFrame } from "./views/ScreenFrame";
 import { PARTY_FORMATS } from "./types";
 
@@ -95,6 +97,8 @@ function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: Game
   if (done && (setup.format === "vowelplay" || setup.format === "vowelparty")) return <VowelPlayResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "pecking") return <PeckingResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "sayless") return <SayLessResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
+  if (done && npatIsDig(setup)) return <NpatDigResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
+  if (done && setup.format === "npat") return <NpatResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && finished && trivia) return <TriviaResults setup={setup} ctl={ctl} onAgain={onNew ?? noop} onRematch={onRematch} />;
 
   if (done && finished) {
@@ -146,6 +150,8 @@ function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: Game
       return <PeckingView setup={setup} ctl={ctl} />;
     case "sayless":
       return <SayLessView setup={setup} ctl={ctl} />;
+    case "npat":
+      return npatIsDig(setup) ? <NpatDigView setup={setup} ctl={ctl} /> : <NpatView setup={setup} ctl={ctl} />;
     default:
       return <SnakeView setup={setup} ctl={ctl} />;
   }

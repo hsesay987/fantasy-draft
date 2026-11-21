@@ -1,4 +1,4 @@
-import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, BarChart3, HelpCircle, VenetianMask, Vote, AudioWaveform, Brain, CloudRain, Keyboard, Trophy, MessageSquareText } from "lucide-react";
+import { Swords, Gavel, Boxes, Users2, ListOrdered, Dices, ThumbsUp, BarChart3, HelpCircle, VenetianMask, Vote, AudioWaveform, Brain, CloudRain, Keyboard, Trophy, MessageSquareText, CaseSensitive } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { FormatId } from "./types";
 
@@ -34,6 +34,7 @@ export const PARTY_GAMES: FormatMeta[] = [
   { id: "vowelparty", title: "Vowel Party", tagline: "Everyone races the same missing-vowel name. Faster scores more.", how: ["Everyone sees the same name with its vowels removed.", "Type it fast: a quick right answer scores up to 100.", "Give up on a word to move on without waiting."], icon: Keyboard, gradient: "from-amber-500/50 to-primary/20", usesPool: true },
   { id: "pecking", title: "Pecking Order", tagline: "Guess where things rank, from big countries to tall buildings. The closest guess scores the most.", how: ["Each question shows an item from a real top list and asks for its rank, or gives a rank and asks who is there.", "Everyone answers at once on their own phone.", "Exact scores 100 and the points fall off the further away you are. Most points wins."], icon: Trophy, gradient: "from-emerald-600/50 to-primary/20", usesPool: true },
   { id: "sayless", title: "Say Less", tagline: "Describe the word in as few words as you can. Everyone else guesses.", how: ["One player sees a secret word and describes it to the room, with a small budget of words.", "Everyone else guesses. A guess that lands early scores the most.", "Everyone takes turns describing. Most points wins."], icon: MessageSquareText, gradient: "from-amber-600/50 to-primary/20", usesPool: true },
+  { id: "npat", title: "Name Place Animal Thing", tagline: "A letter comes up. Fill in every category with something that starts with it, before the clock runs out.", how: ["One letter is drawn for the round. Everyone types a name, a place, an animal and a thing that start with it.", "Fill them in before the clock runs out. Each answer is checked against the lists, and the table can vote on ones it does not know.", "Rarer answers score more, and an answer someone else gave too scores half. Most points wins."], icon: CaseSensitive, gradient: "from-cyan-600/50 to-primary/20", usesPool: true },
 ];
 
 /** Room-only games that are not parties: kept out of FORMATS so they never show as a solo draft. */

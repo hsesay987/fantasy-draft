@@ -156,3 +156,14 @@ describe("resultsActions", () => {
     expect(resultsActions(true, "vote", tour(["sayless", "vote"], 2, true))).toEqual({ lobby: true, rematch: true });
   });
 });
+
+describe("NPAT in a tournament", () => {
+  it("can be added with its own set, and needs 2 players", () => {
+    const slot = (format: FormatId, pools: string[] | null = null): PlanSlot => ({ format, pools });
+    const plan = addToPlan<FormatId>(["imposter"], "npat");
+    expect(plan).toEqual(["imposter", "npat"]);
+    expect(setSlotPools(plan.map((f) => slot(f)), 1, ["food"])[1]).toEqual(slot("npat", ["food"]));
+    expect(fitsTable("npat", 2)).toBe(true);
+    expect(fitsTable("npat", 1)).toBe(false);
+  });
+});

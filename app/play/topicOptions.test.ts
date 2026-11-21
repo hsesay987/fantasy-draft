@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SAY_DECK_IDS } from "../topicDraft/sayless/decks";
 import { PECKING_META } from "../topicDraft/pecking/meta";
+import { NPAT_SETS } from "../topicDraft/npat/categories";
 import { PARTY_FORMATS } from "./types";
 import { defaultTopic, usesPartySetup, singleTopic, startPools, topicOptions, topicTitle } from "./topicOptions";
 
@@ -72,5 +73,23 @@ describe("where a setup starts", () => {
     expect(usesPartySetup("sayless")).toBe(true);
     expect(usesPartySetup("snake")).toBe(false);
     expect(usesPartySetup("menu")).toBe(false);
+  });
+});
+
+describe("NPAT", () => {
+  it("lists Classic first, then every set, with no answer data behind it", () => {
+    const ids = topicOptions("npat").map((o) => o.id);
+    expect(ids[0]).toBe("classic");
+    expect(ids).toEqual(NPAT_SETS.map((s) => s.id));
+    expect(topicOptions("npat")[0]!.blurb).toBe("Name, Place, Animal, Thing");
+  });
+
+  it("is a party game with one set at a time", () => {
+    expect(usesPartySetup("npat")).toBe(true);
+    expect(singleTopic("npat")).toBe(true);
+    expect(defaultTopic("npat")).toBe("classic");
+    expect(startPools("npat", ["film", "tv"], [], true)).toEqual(["film"]);
+    expect(startPools("npat", null, ["cat:name"], false)).toEqual(["classic"]); // a Custom mix is not a set
+    expect(topicTitle("npat", ["food"])).toBe("Food");
   });
 });

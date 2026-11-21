@@ -8,7 +8,7 @@ import { getIo } from "../socket";
 import { trackServer } from "../lib/monitoring";
 import { judge, type Verdict } from "./judge.service";
 import type { QuizData } from "../shared/topicDraft/trivia/types";
-import { applyAction, autoAction, buildTeams, currentTurn, initGame, isDone, QUICK_FORMATS, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
+import { applyAction, autoAction, buildTeams, currentTurn, initGame, isDone, npatIsDig, npatPicked, QUICK_FORMATS, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
 import { CATALOG_META, getCatalog } from "../shared/topicDraft/catalogs";
 import type { GameSetup, FormatId } from "../shared/play/types";
 import { DEFAULT_OPTS, PARTY_FORMATS } from "../shared/play/types";
@@ -23,9 +23,16 @@ import * as MF from "../shared/topicDraft/formats/mafia";
 import * as VP from "../shared/topicDraft/formats/vowelplay";
 import * as PK from "../shared/topicDraft/formats/pecking";
 import * as SL from "../shared/topicDraft/formats/sayless";
+import * as NP from "../shared/topicDraft/formats/npat";
+import * as DIG from "../shared/topicDraft/formats/npatDig";
 import "../shared/topicDraft/party/vowelWords"; // loads the word list the Vowel Play engine deals from
 import "../shared/topicDraft/pecking/lists"; // loads the ranked lists the Pecking Order engine deals from
 import "../shared/topicDraft/sayless/words"; // loads the words the Say Less engine deals from
+import "../shared/topicDraft/npat/lists"; // loads the answer lists the NPAT engine checks and draws letters from
+import { NPAT_CATEGORIES } from "../shared/topicDraft/npat/categories";
+import { ANSWER_MAX as NPAT_ANSWER_MAX, DIG_CATEGORIES } from "../shared/topicDraft/npat/rules";
+import { lettersAvailable } from "../shared/topicDraft/npat/source";
+import type { NpatHistoryStore } from "./npatHistory.service";
 import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelTopics";
 import { TRIVIA_POOLS } from "../shared/topicDraft/trivia";
 import { deckOf } from "../shared/topicDraft/party/decks";
@@ -36,7 +43,7 @@ import { GROUP_CALL } from "../shared/topicDraft/party/drinks";
 import { teamsFor } from "../shared/topicDraft/party/teams";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless"];
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless", "npat"];
 /** Party games take a bigger group; drafts and trivia stay at six. */
 const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
@@ -80,6 +87,12 @@ type Room = {
   guessAt?: Map<string, number[]>;
   /** Say Less: recent clue times per seat name, kept apart from guesses so one never uses up the other. */
   clueAt?: Map<string, number[]>;
+  /** NPAT: recent answer times per seat name, for its own rate limit. */
+  answerAt?: Map<string, number[]>;
+  /** NPAT dig: the judge phase (game and category) the judge was last asked about, so it is asked once per phase. */
+  judgeKey?: string;
+  /** NPAT dig: when this room's judge calls started, in the current hour, so one room cannot run up the model bill. */
+  judgeAt?: number[];
   /** A tournament across games in this room. Stays visible once done, until a new one starts or the room closes. */
   tournament?: Tournament;
   /** Which tournament this is, so a late judge verdict never lands in a later one. */
@@ -89,6 +102,20 @@ type Room = {
 };
 
 const rooms = new Map<string, Room>();
+
+/** Where finished NPAT games count their answers. The server sets the real store at start; tests pass a fake; null records nothing. */
+let npatHistory: NpatHistoryStore | null = null;
+export function setNpatHistory(h: NpatHistoryStore | null) {
+  npatHistory = h;
+}
+
+/** What the room asks about dig answers not on the lists: verdicts in input order. The server sets the real one at start. */
+export type NpatRoomJudge = { judge(items: { category: string; letter: string; text: string }[]): Promise<{ ok: boolean; niche: number; reason?: string }[]> };
+/** Null asks nothing: every unknown waits for the engine's own timeout (accepted unchecked). */
+let npatJudge: NpatRoomJudge | null = null;
+export function setNpatJudge(j: NpatRoomJudge | null) {
+  npatJudge = j;
+}
 
 const clean = (v: unknown, max: number) => String(v ?? "").replace(/[\u0000-\u001f\u007f<>]/g, " ").trim().slice(0, max);
 const num = (v: unknown, lo: number, hi: number, d: number) => {
@@ -178,7 +205,8 @@ export function sanitizeSetup(input: any): GameSetup | null {
 
 /** A party game's topics, checked the way its setup checks them: de-duplicated, each a known id, no more than the format has. `null` when not valid. */
 function partyPools(format: FormatId, asked: unknown[]): string[] | null {
-  const valid = poolIdsFor(format);
+  // NPAT also takes single categories as `cat:<id>`, mixed in with the sets.
+  const valid = format === "npat" ? [...poolIdsFor(format), ...NPAT_CATEGORIES.map((c) => `cat:${c.id}`)] : poolIdsFor(format);
   if (!asked.length || asked.length > Math.max(1, valid.length)) return null;
   const pools = [...new Set(asked.map((p) => clean(p, 30)))];
   return pools.every((p) => valid.includes(p)) ? pools : null;
@@ -208,7 +236,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     pools = ok;
   }
   const pool = pools[0]!;
-  const teamed = format === "partytrivia" || format === "vowelparty" || format === "vote" || format === "imposter" || format === "pecking" || format === "sayless"; // the others have no teams
+  const teamed = format === "partytrivia" || format === "vowelparty" || format === "vote" || format === "imposter" || format === "pecking" || format === "sayless" || format === "npat"; // the others have no teams
   const teams = teamed ? num(o.teams, 0, 4, 0) : 0;
   const teamMap: Record<string, number> = {};
   if (teams > 0 && o.teamMap && typeof o.teamMap === "object") {
@@ -218,7 +246,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     }
   }
   const mixed = mixTitle(pools.map((p) => poolTitleFor(format, p)));
-  const title = format === "vowelplay" ? `Vowel Play: ${mixed}` : format === "vowelparty" ? `Vowel Party: ${mixed}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${mixed}` : format === "insync" ? `In-Sync: ${mixed}` : format === "partytrivia" ? `Party Trivia: ${mixed}` : format === "pecking" ? `Pecking Order: ${mixed}` : format === "sayless" ? `Say Less: ${mixed}` : mixed;
+  const title = format === "vowelplay" ? `Vowel Play: ${mixed}` : format === "vowelparty" ? `Vowel Party: ${mixed}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${mixed}` : format === "insync" ? `In-Sync: ${mixed}` : format === "partytrivia" ? `Party Trivia: ${mixed}` : format === "pecking" ? `Pecking Order: ${mixed}` : format === "sayless" ? `Say Less: ${mixed}` : format === "npat" ? `NPAT: ${mixed}` : mixed;
   const vowel = format === "vowelplay" || format === "vowelparty";
   const wanted = o.teamSize == null || o.teamSize === "" ? 15 : Number(o.teamSize);
   const opts = {
@@ -235,9 +263,15 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     // Buzz mode is in-person: only Party Trivia, Vowel Party and Say Less have it, every other format plays on phones.
     answer: ((format === "partytrivia" || format === "vowelparty" || format === "sayless") && o.answer === "buzz" ? "buzz" : "phones") as "phones" | "buzz",
     ...(format === "sayless" ? { saylessRounds: intIn(o.saylessRounds, 1, 10, 2), saylessWords: intIn(o.saylessWords, 2, 8, 3), saylessSlack: intIn(o.saylessSlack, 0, 15, 5), saylessGuard: o.saylessGuard === true } : {}),
+    ...(format === "npat" ? { npatRounds: intIn(o.npatRounds, 1, 8, 3), npatSeconds: [45, 60, 90].includes(o.npatSeconds) ? (o.npatSeconds as number) : 60, npatHard: o.npatHard === true, npatStop: o.npatStop === true, ...(o.npatStyle === "dig" || o.npatStyle === "sheet" ? { npatStyle: o.npatStyle as "dig" | "sheet" } : {}) } : {}),
     ...(format === "pecking" ? { peckMode: (o.peckMode === "rank" || o.peckMode === "name" ? o.peckMode : "mixed") as PK.PeckMode } : {}),
     vowelAnswer: (format === "vowelparty" ? (o.answer === "buzz" ? "voice" : "type") : o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
+  // A dig plays exactly five categories, and they need a letter in common.
+  if (format === "npat" && opts.npatStyle === "dig") {
+    const cats = npatPicked(pools);
+    if (cats.length !== DIG_CATEGORIES || !lettersAvailable(cats, false).length) return null;
+  }
   return { id: "", format, pool, pools, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
 }
 
@@ -509,6 +543,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   if (setup.format === "vowelplay" || setup.format === "vowelparty") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("vp:")).map((x) => x.slice(3)) };
   if (setup.format === "pecking") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("pk:")) };
   if (setup.format === "sayless") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("sl:")) }; // the engine skips these words
+  if (setup.format === "npat") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("np:")) }; // letters already played go last
   const state = initGame(setup, Date.now());
   if (isDone(setup, state)) return { error: "No questions are available for this topic right now" }; // nothing to play
   if (room.status === "done") resetToLobby(room);
@@ -518,6 +553,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   room.freshQuiz = false;
   room.guessAt = undefined;
   room.clueAt = undefined;
+  room.answerAt = undefined;
   trackServer("room_started", { format: room.setup.format, pool: room.setup.pool, seats: room.seats.length }, room.code);
   room.turnMarker = turnMarker(room.setup, room.state);
   room.turnStartedAt = Date.now();
@@ -539,6 +575,7 @@ function settleParty(room: Room, s: GameState, now: number): GameState {
     case "vowelparty": return VP.settle(s as VP.VPState, gone, now);
     case "pecking": return PK.settle(s as PK.PeckState, gone, now);
     case "sayless": return SL.settle(s as SL.SLState, gone, now);
+    case "npat": return npatIsDig(room.setup) ? DIG.settle(s as DIG.DigState, gone, now) : NP.settle(s as NP.NPState, gone, now);
     default: return s;
   }
 }
@@ -567,27 +604,29 @@ export function leaveRoom(room: Room, token: unknown) {
 }
 
 /** A reveal is the point of these games, so one eager tap can't clear it for the whole table. */
-const HOST_MOVES_ON = new Set<FormatId>(["vote", "insync", "partytrivia", "pecking"]);
+const HOST_MOVES_ON = new Set<FormatId>(["vote", "insync", "partytrivia", "pecking", "npat"]);
 const PECK_NAME_MAX = 60;
 const VOWEL_GUESS_MAX = 60;
 const VOWEL_GUESSES_PER_SECOND = 3;
 /** Say Less clues: the engine trims a clue to 40 characters, but nothing longer than this reaches it. */
 const SAY_CLUE_MAX = 60;
+/** NPAT answers save as they are typed, so they come faster than guesses: 10 a second per seat. */
+const NPAT_ANSWERS_PER_SECOND = 10;
 /** What the describer's phone says when the engine refuses a clue, by the engine's reason. */
 const SAY_REFUSED: Record<string, string> = { empty: "Type a clue", spaces: "One word only", contains: "That gives it away", contained: "That gives it away", plural: "That gives it away" };
 
-/** True when this seat already sent 3 in the last second; otherwise counts this one. */
-function tooFast(log: Map<string, number[]>, name: string): boolean {
+/** True when this seat already sent `limit` (3 unless said) in the last second; otherwise counts this one. */
+function tooFast(log: Map<string, number[]>, name: string, limit = VOWEL_GUESSES_PER_SECOND): boolean {
   const now = Date.now();
   const recent = (log.get(name) ?? []).filter((t) => now - t < 1000);
-  if (recent.length >= VOWEL_GUESSES_PER_SECOND) {
+  if (recent.length >= limit) {
     log.set(name, recent);
     return true;
   }
   log.set(name, [...recent, now]);
   return false;
 }
-const ACTION_TYPES = new Set(["buzz", "spoke", "mark", "giveUp", "pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next", "nightAct", "dayVote", "skipTalk"]);
+const ACTION_TYPES = new Set(["buzz", "spoke", "mark", "giveUp", "pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next", "nightAct", "dayVote", "skipTalk", "finish"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
   const seat = seatFor(room, token);
@@ -618,10 +657,29 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
     if (raw.type === "pick" && typeof raw.name !== "string") return { ok: false, error: "Not allowed right now" };
     if (raw.type === "pick" && raw.name.length > PECK_NAME_MAX) return { ok: false, error: "That name is too long" };
   }
+  // NPAT: answers are checked here so the reason reaches the phone, then rate limited. A refused one counts too.
+  if (format === "npat" && npatIsDig(room.setup)) {
+    if (raw.type === "answer") {
+      if (typeof raw.text !== "string") return { ok: false, error: "Type an answer" };
+      if (raw.text.length > NPAT_ANSWER_MAX) return { ok: false, error: "That answer is too long" };
+      if (tooFast((room.answerAt ??= new Map()), seat.name, NPAT_ANSWERS_PER_SECOND)) return { ok: false, error: "Slow down" };
+    }
+  } else if (format === "npat") {
+    if (raw.type === "answer") {
+      const cats = (room.state as NP.NPState).categories.length;
+      if (!Number.isInteger(raw.cat) || raw.cat < 0 || raw.cat >= cats) return { ok: false, error: "No such category" };
+      if (typeof raw.text !== "string") return { ok: false, error: "Type an answer" };
+      if (raw.text.length > NPAT_ANSWER_MAX) return { ok: false, error: "That answer is too long" };
+      if (tooFast((room.answerAt ??= new Map()), seat.name, NPAT_ANSWERS_PER_SECOND)) return { ok: false, error: "Slow down" };
+    }
+    if (raw.type === "vote" && typeof raw.ok !== "boolean") return { ok: false, error: "Vote yes or no" };
+  }
   // The seat decides who is acting; clients can't act for someone else, set the clock or pick RNG seeds.
   const { seed: _seed, at: _at, now: _now, ...rest } = raw;
   // The engine only lets players skip Mafia's talk; the screen host is no player, so its skip goes in under the first player's name.
-  const by = raw.type === "skipTalk" && !room.setup.players.includes(seat.name) ? room.setup.players[0] ?? seat.name : seat.name;
+  // A dig's host skip from the screen goes in the same way (the dig's `next` doesn't care who sends it).
+  const asFirst = raw.type === "skipTalk" || (raw.type === "next" && npatIsDig(room.setup));
+  const by = asFirst && !room.setup.players.includes(seat.name) ? room.setup.players[0] ?? seat.name : seat.name;
   const action = { ...rest, by } as Action;
   const applied = applyAction(room.setup, room.state, action, Date.now());
   if (applied === room.state) return { ok: false, error: "Not allowed right now" };
@@ -649,7 +707,55 @@ function commit(room: Room, next: GameState) {
     room.turnStartedAt = Date.now();
   }
   if (isDone(setup, next)) finish(room);
+  else askNpatJudge(room);
   bump(room);
+}
+
+/** Judge calls one room may make per hour. */
+const ROOM_JUDGE_PER_HOUR = 60;
+
+const judgeKeyOf = (s: DIG.DigState) => `${s.startedAt}:${s.seed}:${s.cat}`;
+
+/**
+ * NPAT dig: the first time a room is in a category's judge phase, ask the judge once about that category's unknown
+ * answers. Its verdicts land only if the room is still judging that same category of the same game; anything later is
+ * dropped. A judge that never answers is no problem: the engine's tick ends the phase at JUDGE_MS with its fallback.
+ */
+function askNpatJudge(room: Room) {
+  const j = npatJudge;
+  if (!j || room.status !== "playing" || !room.setup || !npatIsDig(room.setup)) return;
+  const s = room.state as DIG.DigState;
+  if (s.phase !== "judge" || s.done) return;
+  const key = judgeKeyOf(s);
+  if (room.judgeKey === key) return;
+  room.judgeKey = key;
+  const pending = DIG.pendingUnknowns(s);
+  if (!pending.length) return;
+  const nowMs = Date.now();
+  const recent = (room.judgeAt ?? []).filter((t) => nowMs - t < 3_600_000);
+  room.judgeAt = recent;
+  if (recent.length >= ROOM_JUDGE_PER_HOUR) return; // over the room's cap: the tick's fallback decides
+  recent.push(nowMs);
+  let call: Promise<unknown>;
+  try {
+    call = Promise.resolve(j.judge(pending.map(({ category, letter, text }) => ({ category, letter, text }))));
+  } catch (e) {
+    console.error("NPAT room judge failed", e);
+    return;
+  }
+  call.then((v) => {
+    const cur = room.state as DIG.DigState | null;
+    if (rooms.get(room.code) !== room || room.status !== "playing" || !room.setup || !npatIsDig(room.setup) || !cur || cur.phase !== "judge" || judgeKeyOf(cur) !== key) return;
+    if (!Array.isArray(v)) return; // a bad shape: the tick's fallback decides
+    const verdicts = pending.flatMap((u, i) => {
+      const x = v[i] as { ok?: unknown; niche?: unknown; reason?: unknown } | undefined;
+      if (!x || typeof x.ok !== "boolean") return [];
+      return [{ player: u.player, ok: x.ok, niche: Number(x.niche) || 0, ...(typeof x.reason === "string" ? { reason: x.reason } : {}) }];
+    });
+    const now = Date.now();
+    const next = DIG.judged(cur, verdicts, now);
+    if (next !== cur) commit(room, settleParty(room, next, now));
+  }).catch((e) => console.error("NPAT room judge failed", e));
 }
 
 /** The top scorer of a trivia game, or null on a tie. */
@@ -690,6 +796,19 @@ function finish(room: Room) {
       record.winner = ss.teams ? null : triviaWinner(ss); // the engine decides whether teams played; a team game has no single winner
       room.seen = [...room.seen, ...SL.seenKeys(ss)].slice(-400); // only words that were shown
     }
+    if (setup.format === "npat" && npatIsDig(setup)) {
+      const ds = room.state as DIG.DigState;
+      const won = DIG.winners(ds);
+      record.winner = !ds.teams && won.length === 1 ? won[0]! : null; // a team game, or a tie, has no single winner
+      room.seen = [...room.seen, ...DIG.seenKeys(ds)].slice(-400);
+      recordDigHistory(room, ds);
+    } else if (setup.format === "npat") {
+      const ns = room.state as NP.NPState;
+      const won = NP.winners(ns);
+      record.winner = !ns.teams && won.length === 1 ? won[0]! : null; // a team game, or a tie, has no single winner
+      room.seen = [...room.seen, ...NP.seenKeys(ns)].slice(-400);
+      recordNpatHistory(room, ns);
+    }
     recordTournamentGame(room, awardsFor(setup, room.state!, seated));
     if (setup.format === "partytrivia") room.seen = [...room.seen, ...(setup.quiz?.categories ?? []).map((c) => `cat:${c.name}`)].slice(-400);
     if (setup.format === "insync") room.seen = [...room.seen, ...(room.state as IS.InSyncState).pairs.map((q) => q.id)].slice(-400);
@@ -722,6 +841,42 @@ function finish(room: Room) {
     });
 }
 
+/**
+ * A finished NPAT game counts its answers: each player's list answers by the entry's own name, and accepted unknowns as
+ * `review:<category>` rows. The store keeps one count per player, answer and day. A failure is logged and never reaches the room.
+ * Seats have no accounts, so a player is known by room and name.
+ */
+function recordNpatHistory(room: Room, s: NP.NPState) {
+  const store = npatHistory;
+  if (!store) return;
+  const day = new Date().toISOString().slice(0, 10);
+  const plays = new Map<string, { category: string; answer: string }[]>(s.players.map((p) => [p, []]));
+  for (const r of s.history) for (const p of s.players) (r.answers[p] ?? []).forEach((a, i) => {
+    if (a.status === "ok" && a.entry) plays.get(p)!.push({ category: s.categories[i]!, answer: a.entry });
+  });
+  for (const x of NP.reviewItems(s)) plays.get(x.player)?.push({ category: `review:${x.category}`, answer: x.answer });
+  for (const [p, list] of plays) {
+    if (!list.length) continue;
+    Promise.resolve().then(() => store.record(day, `guest:${room.code}:${p}`, list)).catch((e) => console.error("NPAT history record failed", e));
+  }
+}
+
+/** A finished dig counts its answers the way the sheet does: list answers by entry name, accepted unknowns as `review:<category>`. */
+function recordDigHistory(room: Room, s: DIG.DigState) {
+  const store = npatHistory;
+  if (!store) return;
+  const day = new Date().toISOString().slice(0, 10);
+  const plays = new Map<string, { category: string; answer: string }[]>(s.players.map((p) => [p, []]));
+  for (const p of s.players) (s.results[p] ?? []).forEach((a, i) => {
+    if (a.status === "ok" && a.entry) plays.get(p)!.push({ category: s.categories[i]!, answer: a.entry });
+  });
+  for (const x of DIG.reviewItems(s)) plays.get(x.player)?.push({ category: `review:${x.category}`, answer: x.answer });
+  for (const [p, list] of plays) {
+    if (!list.length) continue;
+    Promise.resolve().then(() => store.record(day, `guest:${room.code}:${p}`, list)).catch((e) => console.error("NPAT history record failed", e));
+  }
+}
+
 /** What to do for a seat that left (or timed out) so the game never stalls. */
 function autoplay(room: Room, name: string): Action | null {
   const s = room.state!;
@@ -731,7 +886,7 @@ function autoplay(room: Room, name: string): Action | null {
     if (x.phase === "clue" && IM.turnPlayer(x) === name) return { type: "clue", by: name, text: "" };
     return null; // votes and guesses run out on their own clocks
   }
-  if (format === "vote" || format === "insync" || format === "partytrivia" || format === "mafia" || format === "vowelplay" || format === "vowelparty" || format === "pecking" || format === "sayless") return null; // every phase ends on its own clock
+  if (format === "vote" || format === "insync" || format === "partytrivia" || format === "mafia" || format === "vowelplay" || format === "vowelparty" || format === "pecking" || format === "sayless" || format === "npat") return null; // every phase ends on its own clock
   if (format === "auction") {
     const a = s as A.AuctionState;
     if (a.nominate?.offer) return A.nominator(a) === name ? { type: "nominate", by: name, itemId: a.nominate.offer[0]! } : null;
@@ -809,6 +964,8 @@ function redact(room: Room, me: string | null): GameState | null {
   if (room.setup?.format === "vowelplay" || room.setup?.format === "vowelparty") return VP.redactFor(s as VP.VPState, me) as unknown as GameState; // opens up by itself once the game is done, to the words played
   if (room.setup?.format === "sayless") return SL.redactFor(s as SL.SLState, me) as unknown as GameState; // never the deal or seed; the live word only to its describer
   if (room.setup?.format === "pecking") return PK.redactFor(s as PK.PeckState, me) as unknown as GameState; // never the pool; answers open up once asked
+  if (room.setup?.format === "npat" && npatIsDig(room.setup)) return DIG.redactFor(s as DIG.DigState, me) as unknown as GameState; // own typing only while asking; a category's results from its verdict
+  if (room.setup?.format === "npat") return NP.redactFor(s as NP.NPState, me) as unknown as GameState; // other players' answers only from their category's reveal
   if (room.setup?.format === "mafia") return MF.redactFor(s as MF.MafiaState, me) as unknown as GameState; // same
   if (room.status === "done" || !room.setup) return s;
   if (room.setup.format === "position") {
@@ -838,7 +995,7 @@ function withoutQuiz(setup: GameSetup): GameSetup {
 }
 
 /** Formats whose setup never sends its seed or avoid list, even when done. */
-const keepsAvoid = (f: FormatId) => f === "vowelplay" || f === "vowelparty" || f === "pecking" || f === "sayless";
+const keepsAvoid = (f: FormatId) => f === "vowelplay" || f === "vowelparty" || f === "pecking" || f === "sayless" || f === "npat";
 
 export function snapshot(room: Room, token: unknown) {
   const seat = seatFor(room, token);
