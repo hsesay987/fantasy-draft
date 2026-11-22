@@ -6,9 +6,9 @@
   "archetype": "Drama",
   "stats": {
    "critics": 97,
-   "audience": 95,
-   "boxOffice": 57,
-   "impact": 91,
+   "audience": 96,
+   "boxOffice": 62,
+   "impact": 92,
    "visuals": 85,
    "rewatch": 96
   },
@@ -25,8 +25,8 @@
   "stats": {
    "critics": 69,
    "audience": 99,
-   "boxOffice": 31,
-   "impact": 72,
+   "boxOffice": 38,
+   "impact": 75,
    "visuals": 75,
    "rewatch": 97
   },
@@ -43,8 +43,8 @@
   "stats": {
    "critics": 78,
    "audience": 95,
-   "boxOffice": 85,
-   "impact": 78,
+   "boxOffice": 88,
+   "impact": 80,
    "visuals": 92,
    "rewatch": 95
   },
@@ -61,8 +61,8 @@
   "stats": {
    "critics": 89,
    "audience": 88,
-   "boxOffice": 52,
-   "impact": 88,
+   "boxOffice": 58,
+   "impact": 89,
    "visuals": 80,
    "rewatch": 97
   },
@@ -79,8 +79,8 @@
   "stats": {
    "critics": 61,
    "audience": 88,
-   "boxOffice": 82,
-   "impact": 80,
+   "boxOffice": 85,
+   "impact": 83,
    "visuals": 97,
    "rewatch": 92
   },
@@ -95,10 +95,10 @@
   "universe": "Sci-Fi",
   "archetype": "Action",
   "stats": {
-   "critics": 56,
-   "audience": 84,
-   "boxOffice": 70,
-   "impact": 83,
+   "critics": 57,
+   "audience": 85,
+   "boxOffice": 74,
+   "impact": 85,
    "visuals": 97,
    "rewatch": 93
   },
@@ -113,9 +113,9 @@
   "universe": "Drama",
   "archetype": "Drama",
   "stats": {
-   "critics": 57,
+   "critics": 58,
    "audience": 88,
-   "boxOffice": 76,
+   "boxOffice": 80,
    "impact": 93,
    "visuals": 78,
    "rewatch": 88
@@ -132,9 +132,9 @@
   "archetype": "Adventure",
   "stats": {
    "critics": 85,
-   "audience": 80,
-   "boxOffice": 79,
-   "impact": 86,
+   "audience": 82,
+   "boxOffice": 82,
+   "impact": 87,
    "visuals": 90,
    "rewatch": 95
   },
@@ -149,10 +149,10 @@
   "universe": "Adventure",
   "archetype": "Adventure",
   "stats": {
-   "critics": 59,
+   "critics": 60,
    "audience": 95,
-   "boxOffice": 86,
-   "impact": 82,
+   "boxOffice": 89,
+   "impact": 84,
    "visuals": 96,
    "rewatch": 94
   },
@@ -167,9 +167,9 @@
   "universe": "Romance",
   "archetype": "Drama",
   "stats": {
-   "critics": 62,
-   "audience": 54,
-   "boxOffice": 94,
+   "critics": 63,
+   "audience": 57,
+   "boxOffice": 95,
    "impact": 99,
    "visuals": 95,
    "rewatch": 82
@@ -186,7 +186,7 @@
   "archetype": "Adventure",
   "stats": {
    "critics": 64,
-   "audience": 78,
+   "audience": 76,
    "boxOffice": 99,
    "impact": 95,
    "visuals": 100,
@@ -204,9 +204,9 @@
   "archetype": "Superhero",
   "stats": {
    "critics": 70,
-   "audience": 69,
+   "audience": 71,
    "boxOffice": 98,
-   "impact": 72,
+   "impact": 75,
    "visuals": 94,
    "rewatch": 86
   },
@@ -222,9 +222,9 @@
   "archetype": "Thriller",
   "stats": {
    "critics": 96,
-   "audience": 75,
-   "boxOffice": 56,
-   "impact": 81,
+   "audience": 77,
+   "boxOffice": 62,
+   "impact": 84,
    "visuals": 90,
    "rewatch": 85
   },
@@ -240,9 +240,9 @@
   "archetype": "Drama",
   "stats": {
    "critics": 51,
-   "audience": 84,
-   "boxOffice": 77,
-   "impact": 70,
+   "audience": 85,
+   "boxOffice": 81,
+   "impact": 74,
    "visuals": 98,
    "rewatch": 85
   },
@@ -257,10 +257,10 @@
   "universe": "Drama",
   "archetype": "Thriller",
   "stats": {
-   "critics": 51,
+   "critics": 52,
    "audience": 88,
-   "boxOffice": 45,
-   "impact": 73,
+   "boxOffice": 51,
+   "impact": 76,
    "visuals": 85,
    "rewatch": 96
   },
@@ -276,9 +276,9 @@
   "archetype": "Epic",
   "stats": {
    "critics": 51,
-   "audience": 75,
-   "boxOffice": 69,
-   "impact": 84,
+   "audience": 77,
+   "boxOffice": 74,
+   "impact": 86,
    "visuals": 92,
    "rewatch": 90
   },
@@ -293,10 +293,10 @@
   "universe": "Fantasy",
   "archetype": "Epic",
   "stats": {
-   "critics": 89,
+   "critics": 90,
    "audience": 93,
-   "boxOffice": 88,
-   "impact": 87,
+   "boxOffice": 91,
+   "impact": 89,
    "visuals": 97,
    "rewatch": 94
   },
@@ -311,9 +311,9 @@
   "universe": "Sci-Fi",
   "archetype": "Comedy",
   "stats": {
-   "critics": 79,
-   "audience": 75,
-   "boxOffice": 66,
+   "critics": 80,
+   "audience": 77,
+   "boxOffice": 70,
    "impact": 90,
    "visuals": 80,
    "rewatch": 98
@@ -330,8 +330,8 @@
   "archetype": "Family",
   "stats": {
    "critics": 96,
-   "audience": 64,
-   "boxOffice": 67,
+   "audience": 67,
+   "boxOffice": 71,
    "impact": 92,
    "visuals": 86,
    "rewatch": 95
@@ -347,10 +347,10 @@
   "universe": "Animation",
   "archetype": "Family",
   "stats": {
-   "critics": 79,
-   "audience": 75,
-   "boxOffice": 84,
-   "impact": 88,
+   "critics": 80,
+   "audience": 77,
+   "boxOffice": 87,
+   "impact": 90,
    "visuals": 92,
    "rewatch": 94
   },
@@ -366,9 +366,9 @@
   "archetype": "Fantasy",
   "stats": {
    "critics": 93,
-   "audience": 80,
-   "boxOffice": 64,
-   "impact": 85,
+   "audience": 82,
+   "boxOffice": 68,
+   "impact": 86,
    "visuals": 98,
    "rewatch": 90
   },
@@ -385,8 +385,8 @@
   "stats": {
    "critics": 94,
    "audience": 93,
-   "boxOffice": 61,
-   "impact": 90,
+   "boxOffice": 66,
+   "impact": 91,
    "visuals": 90,
    "rewatch": 60
   },
@@ -401,10 +401,10 @@
   "universe": "Crime",
   "archetype": "Drama",
   "stats": {
-   "critics": 86,
-   "audience": 84,
-   "boxOffice": 37,
-   "impact": 58,
+   "critics": 87,
+   "audience": 85,
+   "boxOffice": 44,
+   "impact": 59,
    "visuals": 85,
    "rewatch": 95
   },
@@ -419,10 +419,10 @@
   "universe": "Thriller",
   "archetype": "Thriller",
   "stats": {
-   "critics": 52,
-   "audience": 83,
-   "boxOffice": 62,
-   "impact": 55,
+   "critics": 53,
+   "audience": 86,
+   "boxOffice": 66,
+   "impact": 56,
    "visuals": 88,
    "rewatch": 86
   },
@@ -437,9 +437,9 @@
   "universe": "Thriller",
   "archetype": "Thriller",
   "stats": {
-   "critics": 80,
-   "audience": 80,
-   "boxOffice": 58,
+   "critics": 81,
+   "audience": 82,
+   "boxOffice": 63,
    "impact": 90,
    "visuals": 80,
    "rewatch": 88
@@ -456,9 +456,9 @@
   "archetype": "Drama",
   "stats": {
    "critics": 83,
-   "audience": 82,
-   "boxOffice": 38,
-   "impact": 57,
+   "audience": 83,
+   "boxOffice": 45,
+   "impact": 58,
    "visuals": 82,
    "rewatch": 88
   },
@@ -474,9 +474,9 @@
   "archetype": "Action",
   "stats": {
    "critics": 89,
-   "audience": 57,
-   "boxOffice": 65,
-   "impact": 67,
+   "audience": 61,
+   "boxOffice": 69,
+   "impact": 70,
    "visuals": 99,
    "rewatch": 92
   },
@@ -491,10 +491,10 @@
   "universe": "Action",
   "archetype": "Sci-Fi",
   "stats": {
-   "critics": 65,
-   "audience": 80,
-   "boxOffice": 73,
-   "impact": 70,
+   "critics": 66,
+   "audience": 82,
+   "boxOffice": 77,
+   "impact": 74,
    "visuals": 94,
    "rewatch": 94
   },
@@ -510,9 +510,9 @@
   "archetype": "Sci-Fi",
   "stats": {
    "critics": 81,
-   "audience": 75,
-   "boxOffice": 46,
-   "impact": 73,
+   "audience": 77,
+   "boxOffice": 52,
+   "impact": 76,
    "visuals": 92,
    "rewatch": 92
   },
@@ -527,10 +527,10 @@
   "universe": "Action",
   "archetype": "Action",
   "stats": {
-   "critics": 65,
-   "audience": 60,
-   "boxOffice": 49,
-   "impact": 57,
+   "critics": 66,
+   "audience": 64,
+   "boxOffice": 55,
+   "impact": 58,
    "visuals": 85,
    "rewatch": 96
   },
@@ -547,8 +547,8 @@
   "stats": {
    "critics": 73,
    "audience": 97,
-   "boxOffice": 31,
-   "impact": 42,
+   "boxOffice": 39,
+   "impact": 41,
    "visuals": 78,
    "rewatch": 96
   },
@@ -564,7 +564,7 @@
   "archetype": "Comedy",
   "stats": {
    "critics": 64,
-   "audience": 94,
+   "audience": 93,
    "boxOffice": 50,
    "impact": 41,
    "visuals": 60,
@@ -600,9 +600,9 @@
   "archetype": "Thriller",
   "stats": {
    "critics": 83,
-   "audience": 86,
-   "boxOffice": 56,
-   "impact": 50,
+   "audience": 88,
+   "boxOffice": 61,
+   "impact": 49,
    "visuals": 82,
    "rewatch": 88
   },
@@ -619,8 +619,8 @@
   "stats": {
    "critics": 77,
    "audience": 71,
-   "boxOffice": 63,
-   "impact": 44,
+   "boxOffice": 67,
+   "impact": 43,
    "visuals": 86,
    "rewatch": 70
   },
@@ -636,9 +636,9 @@
   "archetype": "Historical",
   "stats": {
    "critics": 83,
-   "audience": 60,
-   "boxOffice": 83,
-   "impact": 69,
+   "audience": 64,
+   "boxOffice": 87,
+   "impact": 73,
    "visuals": 96,
    "rewatch": 70
   },
@@ -656,8 +656,8 @@
   "stats": {
    "critics": 67,
    "audience": 41,
-   "boxOffice": 90,
-   "impact": 55,
+   "boxOffice": 92,
+   "impact": 56,
    "visuals": 94,
    "rewatch": 74
   },
@@ -673,9 +673,9 @@
   "archetype": "Epic",
   "stats": {
    "critics": 69,
-   "audience": 69,
+   "audience": 71,
    "boxOffice": 50,
-   "impact": 51,
+   "impact": 49,
    "visuals": 100,
    "rewatch": 84
   },
@@ -691,9 +691,9 @@
   "archetype": "Comedy",
   "stats": {
    "critics": 73,
-   "audience": 65,
-   "boxOffice": 44,
-   "impact": 62,
+   "audience": 68,
+   "boxOffice": 50,
+   "impact": 65,
    "visuals": 92,
    "rewatch": 88
   },
@@ -710,8 +710,8 @@
   "stats": {
    "critics": 85,
    "audience": 95,
-   "boxOffice": 64,
-   "impact": 61,
+   "boxOffice": 69,
+   "impact": 63,
    "visuals": 100,
    "rewatch": 94
   },
@@ -726,10 +726,10 @@
   "universe": "Animation",
   "archetype": "Family",
   "stats": {
-   "critics": 90,
-   "audience": 60,
-   "boxOffice": 85,
-   "impact": 77,
+   "critics": 91,
+   "audience": 64,
+   "boxOffice": 88,
+   "impact": 80,
    "visuals": 92,
    "rewatch": 92
   },
@@ -744,10 +744,10 @@
   "universe": "Animation",
   "archetype": "Family",
   "stats": {
-   "critics": 87,
-   "audience": 82,
-   "boxOffice": 78,
-   "impact": 79,
+   "critics": 88,
+   "audience": 81,
+   "boxOffice": 81,
+   "impact": 82,
    "visuals": 90,
    "rewatch": 80
   },
@@ -762,10 +762,10 @@
   "universe": "War",
   "archetype": "Drama",
   "stats": {
-   "critics": 58,
-   "audience": 69,
-   "boxOffice": 60,
-   "impact": 63,
+   "critics": 59,
+   "audience": 71,
+   "boxOffice": 65,
+   "impact": 65,
    "visuals": 86,
    "rewatch": 90
   },
@@ -780,10 +780,10 @@
   "universe": "War",
   "archetype": "Drama",
   "stats": {
-   "critics": 86,
-   "audience": 80,
-   "boxOffice": 71,
-   "impact": 76,
+   "critics": 87,
+   "audience": 82,
+   "boxOffice": 76,
+   "impact": 79,
    "visuals": 92,
    "rewatch": 80
   },
@@ -799,9 +799,9 @@
   "archetype": "Thriller",
   "stats": {
    "critics": 75,
-   "audience": 75,
-   "boxOffice": 59,
-   "impact": 71,
+   "audience": 77,
+   "boxOffice": 64,
+   "impact": 75,
    "visuals": 85,
    "rewatch": 90
   },
@@ -817,9 +817,9 @@
   "archetype": "Classic",
   "stats": {
    "critics": 99,
-   "audience": 75,
+   "audience": 77,
    "boxOffice": 50,
-   "impact": 75,
+   "impact": 79,
    "visuals": 70,
    "rewatch": 88
   },
@@ -835,9 +835,9 @@
   "archetype": "Classic",
   "stats": {
    "critics": 99,
-   "audience": 64,
+   "audience": 67,
    "boxOffice": 50,
-   "impact": 64,
+   "impact": 67,
    "visuals": 85,
    "rewatch": 70
   },
@@ -853,9 +853,9 @@
   "archetype": "Family",
   "stats": {
    "critics": 93,
-   "audience": 57,
-   "boxOffice": 75,
-   "impact": 74,
+   "audience": 61,
+   "boxOffice": 79,
+   "impact": 77,
    "visuals": 92,
    "rewatch": 90
   },
@@ -872,8 +872,8 @@
   "stats": {
    "critics": 42,
    "audience": 99,
-   "boxOffice": 70,
-   "impact": 61,
+   "boxOffice": 75,
+   "impact": 63,
    "visuals": 70,
    "rewatch": 98
   },
@@ -889,9 +889,9 @@
   "archetype": "Drama",
   "stats": {
    "critics": 92,
-   "audience": 49,
-   "boxOffice": 53,
-   "impact": 67,
+   "audience": 52,
+   "boxOffice": 59,
+   "impact": 70,
    "visuals": 80,
    "rewatch": 86
   },
@@ -907,9 +907,9 @@
   "archetype": "Superhero",
   "stats": {
    "critics": 85,
-   "audience": 41,
-   "boxOffice": 91,
-   "impact": 65,
+   "audience": 43,
+   "boxOffice": 92,
+   "impact": 67,
    "visuals": 94,
    "rewatch": 80
   },
@@ -925,9 +925,9 @@
   "archetype": "Action",
   "stats": {
    "critics": 73,
-   "audience": 57,
-   "boxOffice": 92,
-   "impact": 49,
+   "audience": 61,
+   "boxOffice": 93,
+   "impact": 48,
    "visuals": 96,
    "rewatch": 88
   },
@@ -942,10 +942,10 @@
   "universe": "Drama",
   "archetype": "Thriller",
   "stats": {
-   "critics": 40,
-   "audience": 64,
-   "boxOffice": 87,
-   "impact": 62,
+   "critics": 41,
+   "audience": 67,
+   "boxOffice": 90,
+   "impact": 64,
    "visuals": 88,
    "rewatch": 78
   },
@@ -960,10 +960,10 @@
   "universe": "Animation",
   "archetype": "Comedy",
   "stats": {
-   "critics": 71,
+   "critics": 72,
    "audience": 97,
-   "boxOffice": 72,
-   "impact": 84,
+   "boxOffice": 76,
+   "impact": 85,
    "visuals": 82,
    "rewatch": 96
   },
@@ -978,10 +978,10 @@
   "universe": "Fantasy",
   "archetype": "Adventure",
   "stats": {
-   "critics": 71,
-   "audience": 51,
-   "boxOffice": 80,
-   "impact": 66,
+   "critics": 72,
+   "audience": 55,
+   "boxOffice": 84,
+   "impact": 69,
    "visuals": 92,
    "rewatch": 92
   },
@@ -997,9 +997,9 @@
   "archetype": "Sports",
   "stats": {
    "critics": 61,
-   "audience": 89,
-   "boxOffice": 54,
-   "impact": 60,
+   "audience": 90,
+   "boxOffice": 60,
+   "impact": 61,
    "visuals": 70,
    "rewatch": 90
   },
@@ -1014,10 +1014,10 @@
   "universe": "Crime",
   "archetype": "Thriller",
   "stats": {
-   "critics": 46,
-   "audience": 75,
-   "boxOffice": 35,
-   "impact": 53,
+   "critics": 47,
+   "audience": 77,
+   "boxOffice": 43,
+   "impact": 52,
    "visuals": 80,
    "rewatch": 90
   },
@@ -1032,10 +1032,10 @@
   "universe": "Comedy",
   "archetype": "Comedy",
   "stats": {
-   "critics": 53,
+   "critics": 54,
    "audience": 98,
-   "boxOffice": 36,
-   "impact": 48,
+   "boxOffice": 44,
+   "impact": 47,
    "visuals": 65,
    "rewatch": 98
   },
@@ -1050,10 +1050,10 @@
   "universe": "Thriller",
   "archetype": "Mystery",
   "stats": {
-   "critics": 75,
-   "audience": 69,
-   "boxOffice": 34,
-   "impact": 56,
+   "critics": 76,
+   "audience": 71,
+   "boxOffice": 41,
+   "impact": 57,
    "visuals": 80,
    "rewatch": 88
   },
@@ -1070,8 +1070,8 @@
   "stats": {
    "critics": 77,
    "audience": 87,
-   "boxOffice": 81,
-   "impact": 78,
+   "boxOffice": 85,
+   "impact": 81,
    "visuals": 96,
    "rewatch": 86
   },
@@ -1079,5 +1079,498 @@
    "animation",
    "emotional"
   ]
+ },
+ {
+  "id": "the-good-the-bad-and-the-ugly",
+  "name": "The Good, the Bad and the Ugly",
+  "universe": "War",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 89,
+   "audience": 91,
+   "boxOffice": 41,
+   "impact": 68,
+   "visuals": 89,
+   "rewatch": 95
+  },
+  "tags": [],
+  "q": "The Good, the Bad and the Ugly",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "spider-man",
+  "name": "Spider-Man",
+  "universe": "Action",
+  "archetype": "Superhero",
+  "stats": {
+   "critics": 70,
+   "audience": 85,
+   "boxOffice": 78,
+   "impact": 78,
+   "visuals": 85,
+   "rewatch": 84
+  },
+  "tags": [],
+  "q": "Spider-Man",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "raiders-of-the-lost-ark",
+  "name": "Raiders of the Lost Ark",
+  "universe": "Action",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 80,
+   "audience": 71,
+   "boxOffice": 70,
+   "impact": 69,
+   "visuals": 93,
+   "rewatch": 96
+  },
+  "tags": [],
+  "q": "Raiders of the Lost Ark",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "lawrence-of-arabia",
+  "name": "Lawrence of Arabia",
+  "universe": "War",
+  "archetype": "Drama",
+  "stats": {
+   "critics": 94,
+   "audience": 67,
+   "boxOffice": 43,
+   "impact": 78,
+   "visuals": 99,
+   "rewatch": 88
+  },
+  "tags": [],
+  "q": "Lawrence of Arabia",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "amelie",
+  "name": "Amélie",
+  "universe": "Romance",
+  "archetype": "Comedy",
+  "stats": {
+   "critics": 60,
+   "audience": 90,
+   "boxOffice": 56,
+   "impact": 72,
+   "visuals": 88,
+   "rewatch": 91
+  },
+  "tags": [],
+  "q": "Amélie",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "brokeback-mountain",
+  "name": "Brokeback Mountain",
+  "universe": "Romance",
+  "archetype": "Drama",
+  "stats": {
+   "critics": 74,
+   "audience": 50,
+   "boxOffice": 57,
+   "impact": 77,
+   "visuals": 82,
+   "rewatch": 84
+  },
+  "tags": [],
+  "q": "Brokeback Mountain",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "blade-runner",
+  "name": "Blade Runner",
+  "universe": "Sci-Fi",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 72,
+   "audience": 61,
+   "boxOffice": 42,
+   "impact": 66,
+   "visuals": 98,
+   "rewatch": 91
+  },
+  "tags": [],
+  "q": "Blade Runner",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "300",
+  "name": "300",
+  "universe": "War",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 40,
+   "audience": 80,
+   "boxOffice": 73,
+   "impact": 65,
+   "visuals": 95,
+   "rewatch": 85
+  },
+  "tags": [],
+  "q": "300",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "the-great-dictator",
+  "name": "The Great Dictator",
+  "universe": "War",
+  "archetype": "Comedy",
+  "stats": {
+   "critics": 85,
+   "audience": 83,
+   "boxOffice": 30,
+   "impact": 63,
+   "visuals": 65,
+   "rewatch": 85
+  },
+  "tags": [],
+  "q": "The Great Dictator",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "psycho",
+  "name": "Psycho",
+  "universe": "Horror",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 91,
+   "audience": 88,
+   "boxOffice": 35,
+   "impact": 97,
+   "visuals": 87,
+   "rewatch": 92
+  },
+  "tags": [],
+  "q": "Psycho",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "dr-no",
+  "name": "Dr. No",
+  "universe": "Action",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 72,
+   "audience": 41,
+   "boxOffice": 47,
+   "impact": 60,
+   "visuals": 68,
+   "rewatch": 85
+  },
+  "tags": [],
+  "q": "Dr. No",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "seven-samurai",
+  "name": "Seven Samurai",
+  "universe": "Action",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 98,
+   "audience": 91,
+   "boxOffice": 19,
+   "impact": 54,
+   "visuals": 85,
+   "rewatch": 93
+  },
+  "tags": [],
+  "q": "Seven Samurai",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "django-unchained",
+  "name": "Django Unchained",
+  "universe": "Action",
+  "archetype": "Comedy",
+  "stats": {
+   "critics": 67,
+   "audience": 77,
+   "boxOffice": 72,
+   "impact": 62,
+   "visuals": 87,
+   "rewatch": 93
+  },
+  "tags": [],
+  "q": "Django Unchained",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "the-bridge-on-the-river-kwai",
+  "name": "The Bridge on the River Kwai",
+  "universe": "War",
+  "archetype": "Drama",
+  "stats": {
+   "critics": 85,
+   "audience": 61,
+   "boxOffice": 37,
+   "impact": 72,
+   "visuals": 86,
+   "rewatch": 86
+  },
+  "tags": [],
+  "q": "The Bridge on the River Kwai",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "deadpool",
+  "name": "Deadpool",
+  "universe": "Action",
+  "archetype": "Superhero",
+  "stats": {
+   "critics": 54,
+   "audience": 90,
+   "boxOffice": 83,
+   "impact": 55,
+   "visuals": 85,
+   "rewatch": 91
+  },
+  "tags": [],
+  "q": "Deadpool",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "the-sound-of-music",
+  "name": "The Sound of Music",
+  "universe": "Musical",
+  "archetype": "Drama",
+  "stats": {
+   "critics": 50,
+   "audience": 87,
+   "boxOffice": 72,
+   "impact": 66,
+   "visuals": 85,
+   "rewatch": 90
+  },
+  "tags": [],
+  "q": "The Sound of Music",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "casino-royale",
+  "name": "Casino Royale",
+  "universe": "Crime",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 75,
+   "audience": 82,
+   "boxOffice": 64,
+   "impact": 73,
+   "visuals": 85,
+   "rewatch": 88
+  },
+  "tags": [],
+  "q": "Casino Royale",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "shutter-island",
+  "name": "Shutter Island",
+  "universe": "Horror",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 43,
+   "audience": 84,
+   "boxOffice": 64,
+   "impact": 52,
+   "visuals": 85,
+   "rewatch": 86
+  },
+  "tags": [],
+  "q": "Shutter Island",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "indiana-jones-and-the-temple-of-doom",
+  "name": "Indiana Jones and the Temple of Doom",
+  "universe": "Action",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 44,
+   "audience": 46,
+   "boxOffice": 67,
+   "impact": 55,
+   "visuals": 86,
+   "rewatch": 90
+  },
+  "tags": [],
+  "q": "Indiana Jones and the Temple of Doom",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "spider-man-2",
+  "name": "Spider-Man 2",
+  "universe": "Action",
+  "archetype": "Superhero",
+  "stats": {
+   "critics": 75,
+   "audience": 89,
+   "boxOffice": 83,
+   "impact": 55,
+   "visuals": 86,
+   "rewatch": 91
+  },
+  "tags": [],
+  "q": "Spider-Man 2",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "roman-holiday",
+  "name": "Roman Holiday",
+  "universe": "Romance",
+  "archetype": "Comedy",
+  "stats": {
+   "critics": 74,
+   "audience": 88,
+   "boxOffice": 31,
+   "impact": 61,
+   "visuals": 69,
+   "rewatch": 91
+  },
+  "tags": [],
+  "q": "Roman Holiday",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "it-s-a-wonderful-life",
+  "name": "It's a Wonderful Life",
+  "universe": "Fantasy",
+  "archetype": "Comedy",
+  "stats": {
+   "critics": 83,
+   "audience": 82,
+   "boxOffice": 31,
+   "impact": 55,
+   "visuals": 68,
+   "rewatch": 95
+  },
+  "tags": [],
+  "q": "It's a Wonderful Life",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "e-t-the-extra-terrestrial",
+  "name": "E.T. the Extra-Terrestrial",
+  "universe": "Sci-Fi",
+  "archetype": "Family",
+  "stats": {
+   "critics": 92,
+   "audience": 51,
+   "boxOffice": 84,
+   "impact": 74,
+   "visuals": 88,
+   "rewatch": 95
+  },
+  "tags": [],
+  "q": "E.T. the Extra-Terrestrial",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "lost-in-translation",
+  "name": "Lost in Translation",
+  "universe": "Romance",
+  "archetype": "Comedy",
+  "stats": {
+   "critics": 88,
+   "audience": 49,
+   "boxOffice": 53,
+   "impact": 71,
+   "visuals": 86,
+   "rewatch": 92
+  },
+  "tags": [],
+  "q": "Lost in Translation",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "cast-away",
+  "name": "Cast Away",
+  "universe": "Drama",
+  "archetype": "Drama",
+  "stats": {
+   "critics": 63,
+   "audience": 82,
+   "boxOffice": 72,
+   "impact": 51,
+   "visuals": 80,
+   "rewatch": 84
+  },
+  "tags": [],
+  "q": "Cast Away",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "metropolis",
+  "name": "Metropolis",
+  "universe": "Sci-Fi",
+  "archetype": "Drama",
+  "stats": {
+   "critics": 94,
+   "audience": 83,
+   "boxOffice": 13,
+   "impact": 95,
+   "visuals": 92,
+   "rewatch": 88
+  },
+  "tags": [],
+  "q": "Metropolis",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "the-sixth-sense",
+  "name": "The Sixth Sense",
+  "universe": "Horror",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 54,
+   "audience": 87,
+   "boxOffice": 80,
+   "impact": 51,
+   "visuals": 77,
+   "rewatch": 88
+  },
+  "tags": [],
+  "q": "The Sixth Sense",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "indiana-jones-and-the-last-crusade",
+  "name": "Indiana Jones and the Last Crusade",
+  "universe": "Action",
+  "archetype": "Comedy",
+  "stats": {
+   "critics": 53,
+   "audience": 90,
+   "boxOffice": 75,
+   "impact": 53,
+   "visuals": 86,
+   "rewatch": 94
+  },
+  "tags": [],
+  "q": "Indiana Jones and the Last Crusade",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "spartacus",
+  "name": "Spartacus",
+  "universe": "War",
+  "archetype": "Thriller",
+  "stats": {
+   "critics": 81,
+   "audience": 55,
+   "boxOffice": 35,
+   "impact": 60,
+   "visuals": 85,
+   "rewatch": 80
+  },
+  "tags": [],
+  "q": "Spartacus",
+  "ratedBy": "gemini+groq"
  }
 ]

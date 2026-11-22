@@ -97,4 +97,24 @@ const history: Spec = {
   surveys: [],
 };
 
-export const SPECS: Record<string, Spec> = { films, shows, videogames, disney, anime, football, superheroes: hero("superheroes", "hero", "Hero"), history };
+const music: Spec = {
+  pool: "music",
+  templates: [
+    byEra("artist", (e) => `Who released the album ${quote(e)}?`, (g) => `Albums: ${g}`),
+    { fact: "year", ask: (e) => `In what year was the album ${quote(e)} released?`, group: (e) => first(e, "artist"), name: (g) => `Album Years: ${g}`, year: true },
+    { ...byEra("label", (e) => `Which record label released ${quote(e)}?`, (g) => `Record Labels: ${g} Albums`), shared: true },
+  ],
+  surveys: [{ fact: "artist", ask: (v) => `Name an album by ${v}` }],
+};
+
+const books: Spec = {
+  pool: "books",
+  templates: [
+    byEra("author", (e) => `Who wrote ${quote(e)}?`, (g) => `Authors: ${g} Novels`),
+    { fact: "year", ask: (e) => `In what year was ${quote(e)} first published?`, group: (e) => first(e, "author"), name: (g) => `Publication Years: ${g}`, year: true },
+    { fact: "year", ask: (e) => `In what year was ${quote(e)} first published?`, group: (e) => { const c = first(e, "country"); return c ? short(c) : null; }, name: (g) => `Publication Years: ${g} Novels`, year: true },
+  ],
+  surveys: [{ fact: "author", ask: (v) => `Name a novel by ${v}` }],
+};
+
+export const SPECS: Record<string, Spec> = { films, shows, videogames, disney, anime, football, superheroes: hero("superheroes", "hero", "Hero"), history, music, books };

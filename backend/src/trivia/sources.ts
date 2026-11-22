@@ -2,6 +2,14 @@
 import type { Source } from "./wikidata";
 
 export const WIKIDATA: Record<string, Source> = {
+  // Albums: who made them, when, and on which label. Famous albums have pages in many languages.
+  music: { where: "?item wdt:P31 wd:Q482994.", minSitelinks: 25, limit: 900, facts: [
+    { key: "artist", pid: "P175", kind: "item" }, { key: "year", pid: "P577", kind: "year" }, { key: "label", pid: "P264", kind: "item" },
+  ] },
+  // Novels (Wikidata keeps the form of a work in P7937).
+  books: { where: "?item wdt:P7937 wd:Q8261.", minSitelinks: 28, limit: 900, facts: [
+    { key: "author", pid: "P50", kind: "item" }, { key: "year", pid: "P577", kind: "year" }, { key: "country", pid: "P495", kind: "item" },
+  ] },
   films: { where: "?item wdt:P31 wd:Q11424.", minSitelinks: 45, limit: 900, facts: [
     { key: "director", pid: "P57", kind: "item" }, { key: "year", pid: "P577", kind: "year" }, { key: "country", pid: "P495", kind: "item" }, { key: "composer", pid: "P86", kind: "item" },
   ] },

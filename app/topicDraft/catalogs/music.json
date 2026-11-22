@@ -855,5 +855,515 @@
   },
   "tags": [],
   "q": "U2"
+ },
+ {
+  "id": "basshunter",
+  "name": "Basshunter",
+  "universe": "Electronic",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 65,
+   "songwriting": 73,
+   "hits": 80,
+   "stage": 75,
+   "legacy": 68,
+   "longevity": 63
+  },
+  "tags": [],
+  "q": "Basshunter",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "the-carpenters",
+  "name": "The Carpenters",
+  "universe": "Pop",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 96,
+   "songwriting": 80,
+   "hits": 84,
+   "stage": 73,
+   "legacy": 84,
+   "longevity": 60
+  },
+  "tags": [],
+  "q": "The Carpenters",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "freddie-mercury",
+  "name": "Freddie Mercury",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 97,
+   "songwriting": 91,
+   "hits": 90,
+   "stage": 99,
+   "legacy": 97,
+   "longevity": 80
+  },
+  "tags": [],
+  "q": "Freddie Mercury",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "celine-dion",
+  "name": "Céline Dion",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 99,
+   "songwriting": 68,
+   "hits": 94,
+   "stage": 85,
+   "legacy": 89,
+   "longevity": 90
+  },
+  "tags": [],
+  "q": "Céline Dion",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "lana-del-rey",
+  "name": "Lana Del Rey",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 92,
+   "hits": 81,
+   "stage": 74,
+   "legacy": 83,
+   "longevity": 73
+  },
+  "tags": [],
+  "q": "Lana Del Rey",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "judy-garland",
+  "name": "Judy Garland",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 96,
+   "songwriting": 40,
+   "hits": 85,
+   "stage": 94,
+   "legacy": 95,
+   "longevity": 80
+  },
+  "tags": [],
+  "q": "Judy Garland",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "anggun",
+  "name": "Anggun",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 73,
+   "hits": 68,
+   "stage": 74,
+   "legacy": 63,
+   "longevity": 73
+  },
+  "tags": [],
+  "q": "Anggun",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "britney-spears",
+  "name": "Britney Spears",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 82,
+   "songwriting": 73,
+   "hits": 96,
+   "stage": 89,
+   "legacy": 88,
+   "longevity": 83
+  },
+  "tags": [],
+  "q": "Britney Spears",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "paul-mccartney",
+  "name": "Paul McCartney",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 88,
+   "songwriting": 99,
+   "hits": 95,
+   "stage": 85,
+   "legacy": 99,
+   "longevity": 93
+  },
+  "tags": [],
+  "q": "Paul McCartney",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "edith-piaf",
+  "name": "Édith Piaf",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 96,
+   "songwriting": 78,
+   "hits": 85,
+   "stage": 85,
+   "legacy": 95,
+   "longevity": 75
+  },
+  "tags": [],
+  "q": "Édith Piaf",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "ariana-grande",
+  "name": "Ariana Grande",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 96,
+   "songwriting": 82,
+   "hits": 96,
+   "stage": 88,
+   "legacy": 83,
+   "longevity": 75
+  },
+  "tags": [],
+  "q": "Ariana Grande",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "miley-cyrus",
+  "name": "Miley Cyrus",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 88,
+   "songwriting": 74,
+   "hits": 91,
+   "stage": 87,
+   "legacy": 78,
+   "longevity": 78
+  },
+  "tags": [],
+  "q": "Miley Cyrus",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "katy-perry",
+  "name": "Katy Perry",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 80,
+   "hits": 93,
+   "stage": 84,
+   "legacy": 78,
+   "longevity": 75
+  },
+  "tags": [],
+  "q": "Katy Perry",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "avril-lavigne",
+  "name": "Avril Lavigne",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 83,
+   "songwriting": 81,
+   "hits": 85,
+   "stage": 79,
+   "legacy": 75,
+   "longevity": 75
+  },
+  "tags": [],
+  "q": "Avril Lavigne",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "jennifer-lopez",
+  "name": "Jennifer Lopez",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 79,
+   "songwriting": 63,
+   "hits": 88,
+   "stage": 88,
+   "legacy": 78,
+   "longevity": 81
+  },
+  "tags": [],
+  "q": "Jennifer Lopez",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "demi-lovato",
+  "name": "Demi Lovato",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 92,
+   "songwriting": 78,
+   "hits": 84,
+   "stage": 85,
+   "legacy": 75,
+   "longevity": 73
+  },
+  "tags": [],
+  "q": "Demi Lovato",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "leonard-cohen",
+  "name": "Leonard Cohen",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 80,
+   "songwriting": 100,
+   "hits": 65,
+   "stage": 73,
+   "legacy": 97,
+   "longevity": 83
+  },
+  "tags": [],
+  "q": "Leonard Cohen",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "amy-winehouse",
+  "name": "Amy Winehouse",
+  "universe": "Soul",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 96,
+   "songwriting": 91,
+   "hits": 78,
+   "stage": 83,
+   "legacy": 87,
+   "longevity": 45
+  },
+  "tags": [],
+  "q": "Amy Winehouse",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "valery-leontiev",
+  "name": "Valery Leontiev",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 89,
+   "songwriting": 73,
+   "hits": 85,
+   "stage": 95,
+   "legacy": 83,
+   "longevity": 88
+  },
+  "tags": [],
+  "q": "Valery Leontiev",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "george-harrison",
+  "name": "George Harrison",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 79,
+   "songwriting": 94,
+   "hits": 79,
+   "stage": 73,
+   "legacy": 89,
+   "longevity": 78
+  },
+  "tags": [],
+  "q": "George Harrison",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "kylie-minogue",
+  "name": "Kylie Minogue",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 82,
+   "songwriting": 75,
+   "hits": 94,
+   "stage": 87,
+   "legacy": 85,
+   "longevity": 90
+  },
+  "tags": [],
+  "q": "Kylie Minogue",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "cher",
+  "name": "Cher",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 90,
+   "songwriting": 73,
+   "hits": 92,
+   "stage": 89,
+   "legacy": 90,
+   "longevity": 97
+  },
+  "tags": [],
+  "q": "Cher",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "vladimir-vysotsky",
+  "name": "Vladimir Vysotsky",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 85,
+   "songwriting": 97,
+   "hits": 70,
+   "stage": 92,
+   "legacy": 93,
+   "longevity": 68
+  },
+  "tags": [],
+  "q": "Vladimir Vysotsky",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "linkin-park",
+  "name": "Linkin Park",
+  "universe": "Pop",
+  "archetype": "Band",
+  "stats": {
+   "vocals": 87,
+   "songwriting": 87,
+   "hits": 93,
+   "stage": 91,
+   "legacy": 88,
+   "longevity": 78
+  },
+  "tags": [],
+  "q": "Linkin Park",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "enya",
+  "name": "Enya",
+  "universe": "Classical",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 90,
+   "songwriting": 83,
+   "hits": 80,
+   "stage": 65,
+   "legacy": 78,
+   "longevity": 88
+  },
+  "tags": [],
+  "q": "Enya",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "tina-turner",
+  "name": "Tina Turner",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 95,
+   "songwriting": 68,
+   "hits": 89,
+   "stage": 98,
+   "legacy": 92,
+   "longevity": 85
+  },
+  "tags": [],
+  "q": "Tina Turner",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "barbra-streisand",
+  "name": "Barbra Streisand",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 98,
+   "songwriting": 73,
+   "hits": 89,
+   "stage": 88,
+   "legacy": 93,
+   "longevity": 94
+  },
+  "tags": [],
+  "q": "Barbra Streisand",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "bjork",
+  "name": "Björk",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 91,
+   "songwriting": 96,
+   "hits": 68,
+   "stage": 92,
+   "legacy": 92,
+   "longevity": 83
+  },
+  "tags": [],
+  "q": "Björk",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "frank-zappa",
+  "name": "Frank Zappa",
+  "universe": "Rock",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 78,
+   "songwriting": 99,
+   "hits": 63,
+   "stage": 87,
+   "legacy": 94,
+   "longevity": 83
+  },
+  "tags": [],
+  "q": "Frank Zappa",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "umm-kulthum",
+  "name": "Umm Kulthum",
+  "universe": "Pop",
+  "archetype": "Solo Artist",
+  "stats": {
+   "vocals": 99,
+   "songwriting": 73,
+   "hits": 95,
+   "stage": 91,
+   "legacy": 99,
+   "longevity": 95
+  },
+  "tags": [],
+  "q": "Umm Kulthum",
+  "ratedBy": "gemini+groq"
  }
 ]

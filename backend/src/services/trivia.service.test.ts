@@ -94,10 +94,11 @@ describe("Jeopardy selection", () => {
   it("writes new categories instead of repeating ones the player just saw", async () => {
     const store = memoryStore();
     const gen = fakeGen();
-    const first = await getJeopardy("anime", [], store, gen);
-    const second = await getJeopardy("anime", first.map((c) => `cat:${c.name}`), store, gen);
+    // Food has only hand-written boards (nothing from public data), so a second game must write new ones.
+    const first = await getJeopardy("food", [], store, gen);
+    const second = await getJeopardy("food", first.map((c) => `cat:${c.name}`), store, gen);
     expect(second.map((c) => c.name).filter((n) => first.some((f) => f.name === n))).toHaveLength(0);
-    expect((await store.categories("anime")).some((c) => c.source === "ai")).toBe(true);
+    expect((await store.categories("food")).some((c) => c.source === "ai")).toBe(true);
   });
   it("rotates through least-used categories over consecutive games", async () => {
     const store = memoryStore();

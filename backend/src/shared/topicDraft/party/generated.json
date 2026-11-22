@@ -1,0 +1,1104 @@
+{
+ "note": "Cards written by one model and approved by a second (backend: npm run content:grow). Each card records which model wrote it and which checked it.",
+ "vote": {
+  "wrong": [
+   {
+    "id": "wrong-gf5942fe1",
+    "prompt": "Liam borrowed a charger at work, returned it with a broken plug.",
+    "a": "Liam",
+    "b": "The coworker",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "wrong-gdf501c59",
+    "prompt": "Megan posted a video of a surprise proposal, ruining the secret.",
+    "a": "Megan",
+    "b": "The couple",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "wrong-g54bc2f56",
+    "prompt": "Sasha ate the last donut in the break room and left a note saying 'Enjoy!'.",
+    "a": "Sasha",
+    "b": "The office staff",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "wrong-gf395da7e",
+    "prompt": "Nate pretended his Wi-Fi was down to avoid a Zoom meeting, but his video showed him gaming.",
+    "a": "Nate",
+    "b": "His manager",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "wrong-gbb4d08db",
+    "prompt": "Carlos kept the karaoke mic after his turn, blocking others from singing.",
+    "a": "Carlos",
+    "b": "The karaoke crowd",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "wrong-g3e1965e2",
+    "prompt": "A friend buys a $5 lottery ticket with his own money and wins $100. He refuses to share any of it with you, even though you drove him to the store.",
+    "a": "The friend who won",
+    "b": "You, for expecting a cut",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "wrong-ge81f870e",
+    "prompt": "You are at a restaurant and the waiter accidentally spills water on your phone. You ask them to pay for the repair.",
+    "a": "You, for asking them to pay",
+    "b": "The waiter, for the accident",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "wrong-g2e1319d7",
+    "prompt": "A colleague constantly hums while working. You ask them to stop, and they start humming even louder to 'drown out the silence'.",
+    "a": "The coworker humming",
+    "b": "You, for complaining about humming",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "wrong-g40d60cd3",
+    "prompt": "Your partner insists on watching the next episode of your shared show without you if you fall asleep on the couch.",
+    "a": "Your partner",
+    "b": "You, for falling asleep",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "wrong-g8fccd311",
+    "prompt": "You hold the elevator door for someone running toward it, causing you to be late for a meeting. The person doesn't say thank you.",
+    "a": "The person who didn't say thanks",
+    "b": "You, for holding the door",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "wrong-gb86a828a",
+    "prompt": "A guest at your house party keeps rearranging your bookshelf because they 'don't like the color coordination'.",
+    "a": "The guest",
+    "b": "You, for being annoyed",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "wrong-g34aa2809",
+    "prompt": "You tell a friend their partner is 'too good for them' as a joke, but they take it very seriously and stop talking to you.",
+    "a": "You, for the joke",
+    "b": "The friend, for overreacting",
+    "by": "gemini>groq"
+   }
+  ],
+  "icks": [
+   {
+    "id": "icks-g1cd7be22",
+    "prompt": "They bring a reusable straw to a fast-food drive-through and insist on using it.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "icks-g195f0eb9",
+    "prompt": "They loudly announce every time they find a parking spot, \"I got it!\"",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "icks-gb2b0ffa9",
+    "prompt": "They always wear a novelty tie even when it's casual.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "icks-g3b8662bb",
+    "prompt": "They constantly compare everything to their favorite childhood cartoon.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "icks-gacf445cd",
+    "prompt": "They refuse to use any emojis in texts, replying with only punctuation.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "icks-g9faeb160",
+    "prompt": "They keep a plant on the table and talk to it like a roommate.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "icks-g7f533c65",
+    "prompt": "They always order a dessert before the main course.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "icks-gbcd2a265",
+    "prompt": "They leave the plastic film on new electronics for months.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "icks-g8fd18c66",
+    "prompt": "They sign off every single text with their own name.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "icks-g6b0a8e09",
+    "prompt": "They insist on wearing a costume to a party that isn't a costume party.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "icks-g76f0aa24",
+    "prompt": "They clap for the flight attendant during the safety demonstration.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "icks-g292d6711",
+    "prompt": "They refer to their car by a human name and talk to it while driving.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "icks-g2eb8687a",
+    "prompt": "They organize their bookshelf by color instead of genre or author.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "icks-ge29c1edd",
+    "prompt": "They always ask to sit in a specific seat at a restaurant because of the 'feng shui'.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "icks-g63f59261",
+    "prompt": "They bring their own special pillow to stay at your house.",
+    "a": "Ick",
+    "b": "No ick",
+    "by": "gemini>groq"
+   }
+  ],
+  "ultimatum": [
+   {
+    "id": "ultimatum-g00255f5e",
+    "prompt": "You have to give up one essential household comfort.",
+    "a": "No toilet paper ever again",
+    "b": "No pillows or blankets ever again",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "ultimatum-g6963738c",
+    "prompt": "You have to accept a permanent change to your physical appearance.",
+    "a": "You must wear a clown nose at all times.",
+    "b": "Your hair is permanently styled into a 1980s mullet.",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "ultimatum-g292c1dca",
+    "prompt": "You are forced to change your daily commute routine.",
+    "a": "Must walk everywhere you go",
+    "b": "Must ride a unicycle everywhere you go",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "ultimatum-g63706e14",
+    "prompt": "You have to choose your permanent vacation style.",
+    "a": "Only ever visit tropical beaches",
+    "b": "Only ever visit snowy mountain cabins",
+    "by": "gemini>groq"
+   }
+  ],
+  "happen": [
+   {
+    "id": "happen-gfd2f59eb",
+    "prompt": "On The Golden Girls, Sophia gets arrested for accidentally selling stolen goods at a neighborhood garage sale.",
+    "a": "It happened",
+    "b": "Made up",
+    "answer": "b",
+    "by": "gemini>groq"
+   }
+  ],
+  "whowins": [
+   {
+    "id": "whowins-gd7f377b9",
+    "prompt": "A culinary showdown in a kitchen arena",
+    "a": "Gordon Ramsay, flaming pan",
+    "b": "Julia Child, classic butter sauce",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-g1fdfee6b",
+    "prompt": "Ultimate prank war in a high school hallway",
+    "a": "Dennis the Menace",
+    "b": "Bart Simpson",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-gc4d49b33",
+    "prompt": "Who would win a karaoke battle on a moving train?",
+    "a": "Freddie Mercury, high notes",
+    "b": "Elvis Presley, hip-shaking croon",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-gc08fb470",
+    "prompt": "A stand-up comedy face-off at a comedy club",
+    "a": "George Carlin, sharp satire",
+    "b": "Robin Williams, rapid improv",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-g3e5d5837",
+    "prompt": "A high-stakes showdown in a professional office environment",
+    "a": "Michael Scott (The Office)",
+    "b": "Ron Swanson (Parks and Rec)",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-g7ebd8f69",
+    "prompt": "An epic clash of legendary literary icons",
+    "a": "Dracula (the original vampire)",
+    "b": "The Headless Horseman",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-gc8e0ea21",
+    "prompt": "A fight to the death in a dusty, abandoned saloon",
+    "a": "A quick-draw cowboy",
+    "b": "A Victorian gentleman with a cane sword",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-g3091d625",
+    "prompt": "A battle for dominance in a high-tech kitchen",
+    "a": "A professional chef with a butcher knife",
+    "b": "A grandmother with a wooden rolling pin",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-gf8bc7ed5",
+    "prompt": "Who would dominate a desert survival challenge?",
+    "a": "Mulan, trained warrior",
+    "b": "Indiana Jones, resourceful archaeologist",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-g1454d257",
+    "prompt": "Who would win a karaoke battle in a thunderstorm?",
+    "a": "Adele, soulful powerhouse",
+    "b": "Freddie Mercury, electrifying showman",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-ge9a90099",
+    "prompt": "A battle of pure speed and chaos in a grocery store.",
+    "a": "The Road Runner",
+    "b": "The Gingerbread Man",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-gf1a355d7",
+    "prompt": "An epic showdown of pure intellect and organization.",
+    "a": "Hermione Granger",
+    "b": "Mary Poppins",
+    "by": "gemini>groq"
+   }
+  ],
+  "whowins-room": [
+   {
+    "id": "whowins-room-gccc29053",
+    "prompt": "Who would survive longer in a room full of squeaky toys?",
+    "a": "{p1}",
+    "b": "A hamster",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-room-g7e0b258d",
+    "prompt": "Who could convince a skeptical barista to give a free coffee?",
+    "a": "{p1}",
+    "b": "{p2}",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-room-g8af73419",
+    "prompt": "Who would dominate a game of extreme Jenga with spaghetti?",
+    "a": "{p1}",
+    "b": "A seasoned chef",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-room-g287cef99",
+    "prompt": "Who would be crowned the ultimate pillow fort architect?",
+    "a": "{p1}",
+    "b": "A LEGO master",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-room-gfe34a74c",
+    "prompt": "Who could out-snore a thunderstorm on a camping trip?",
+    "a": "{p1}",
+    "b": "A grizzly bear",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-room-gf11f48c1",
+    "prompt": "Who would win a debate on why pineapple belongs on pizza?",
+    "a": "{p1}",
+    "b": "A pizza delivery driver",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "whowins-room-ga0be645e",
+    "prompt": "Who would be the first to get voted off an island reality show?",
+    "a": "{p1}",
+    "b": "{p2}",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-room-g6ab09c35",
+    "prompt": "Who would win a high-stakes game of 'the floor is lava'?",
+    "a": "{p1}",
+    "b": "{p2}",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-room-g91be03a1",
+    "prompt": "Who would prevail in a contest to see who can assemble IKEA furniture the fastest?",
+    "a": "{p1}",
+    "b": "{p2}",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-room-g3424167d",
+    "prompt": "Who would last longer as a contestant on a game show where you have to hold a pose for three hours?",
+    "a": "{p1}",
+    "b": "{p2}",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-room-gfb21261e",
+    "prompt": "Who would win an epic grocery store scavenger hunt?",
+    "a": "{p1}",
+    "b": "{p2}",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-room-ga1d7bc96",
+    "prompt": "Who would win a contest to see who can keep a straight face while someone tells terrible dad jokes?",
+    "a": "{p1}",
+    "b": "{p2}",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "whowins-room-g88f4998b",
+    "prompt": "Who would be better at convincing an alien that they are the leader of Earth?",
+    "a": "{p1}",
+    "b": "{p2}",
+    "by": "gemini>groq"
+   }
+  ],
+  "princess": [
+   {
+    "id": "princess-g1f317fe1",
+    "prompt": "They offer to scrub the back you can't reach in the shower.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "princess-g46767851",
+    "prompt": "They surprise you with a fully stocked mini bar in the hotel room you're staying in.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "princess-g2504dab5",
+    "prompt": "They spend an entire weekend learning the rules of your favorite board game just to play with you.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "princess-gef20f633",
+    "prompt": "They arrange a \"no-phone\" night, turning off all devices and setting up candles and board games.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "princess-gf6b586f6",
+    "prompt": "They remember the exact temperature you like your shower at and set it for you before you step in.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "princess-gb4d65657",
+    "prompt": "They take the time to watch a documentary you love, even though they'd rather watch action movies.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "princess-g6b756da3",
+    "prompt": "They bring a spare pair of socks to a hike because they know you hate blisters.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "princess-ga2a8b2e1",
+    "prompt": "They create a custom playlist of songs that remind them of you and share it without you asking.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "princess-g5b8b5c09",
+    "prompt": "They color-code their calendar so your appointments don't clash with theirs.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "princess-g1d44c861",
+    "prompt": "They offer to sit through a three-hour musical you hate just because you want to see it.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "princess-g6a216896",
+    "prompt": "They keep a stash of your specific skincare products at their place so you don't have to pack them.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "princess-g23f6ff3f",
+    "prompt": "They let you choose the restaurant even when they've already had a bad day and just want pizza.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "princess-gfac35dcd",
+    "prompt": "They notice your gas tank is low and fill it up for you before you have to leave for work.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "princess-g7d5c3d29",
+    "prompt": "They sit through your entire vent session about a coworker without trying to 'fix' the problem.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "gemini>groq"
+   },
+   {
+    "id": "princess-gd741f3c0",
+    "prompt": "They pre-heat your side of the bed with a heating pad before you get in on a cold night.",
+    "a": "Princess treatment",
+    "b": "Bare minimum",
+    "by": "gemini>groq"
+   }
+  ]
+ },
+ "insync": {
+  "friends": [
+   {
+    "id": "sync-friends-g9d8c782c",
+    "left": "Eating dessert first",
+    "right": "Skipping dessert entirely",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-friends-g4f5e2091",
+    "left": "Reading spoilers openly",
+    "right": "Avoiding spoilers at all costs",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-friends-gcba6251c",
+    "left": "Using emojis in emails",
+    "right": "Never using emojis",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-friends-g49841dd6",
+    "left": "Sticking to a strict budget",
+    "right": "Spontaneous splurging",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-friends-g74b3b556",
+    "left": "Sharing passwords",
+    "right": "Never sharing passwords",
+    "by": "groq>gemini"
+   }
+  ],
+  "food": [
+   {
+    "id": "sync-food-gcc2b57f2",
+    "left": "Perfect for picnics",
+    "right": "Best served indoors",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-food-gf9a49a4f",
+    "left": "Savory breakfast",
+    "right": "Dessert for brunch",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-food-g6cc62a85",
+    "left": "Eat it cold",
+    "right": "Only hot from the oven",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-food-gb4ad6ba5",
+    "left": "Zero carbs",
+    "right": "Carb overload",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-food-g9edd2eb3",
+    "left": "Ideal for a diet",
+    "right": "Cheat-day champion",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-food-gcb99c7b0",
+    "left": "Breakfast on the go",
+    "right": "Sit-down morning feast",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-food-gc71c335c",
+    "left": "Vegan delight",
+    "right": "Meat lover's dream",
+    "by": "groq>gemini"
+   }
+  ],
+  "films": [
+   {
+    "id": "sync-films-g2ee4dfc6",
+    "left": "Plot twists that confuse",
+    "right": "Plot twists that enlighten",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-films-gf98cacd6",
+    "left": "Silent film vibes",
+    "right": "Non-stop dialogue overload",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-films-g42309931",
+    "left": "Epic world-building",
+    "right": "Tight, character-driven story",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-films-g4b2e3b3b",
+    "left": "Movie marathon worthy",
+    "right": "One-night-only watch",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-films-gfdd8fbbd",
+    "left": "Iconic opening scene",
+    "right": "Forgettable opening scene",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-films-g98dfa446",
+    "left": "Score that haunts you",
+    "right": "Score that disappears",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-films-g7dab7601",
+    "left": "Crowd-pleasing humor",
+    "right": "Dark, niche humor",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-films-gd144c721",
+    "left": "Documentary-style realism",
+    "right": "Fantasy-fuelled escapism",
+    "by": "groq>gemini"
+   }
+  ],
+  "shows": [
+   {
+    "id": "sync-shows-g78e4008f",
+    "left": "Plot twists every episode",
+    "right": "Slow-burn mystery over seasons",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-shows-gc7154765",
+    "left": "One-hour epic episodes",
+    "right": "15-minute bite-size episodes",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-shows-g2c86cc08",
+    "left": "Show set in the future",
+    "right": "Show set in the past",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-shows-g97727668",
+    "left": "Characters die early",
+    "right": "No character ever dies",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-shows-gf324a52e",
+    "left": "Heavy on special effects",
+    "right": "Minimalist, dialogue-driven",
+    "by": "groq>gemini"
+   }
+  ],
+  "music": [
+   {
+    "id": "sync-music-g54bb0737",
+    "left": "Song you memorize instantly",
+    "right": "Song you forget after one listen",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-music-gfb0c99cc",
+    "left": "Playlist for road trips",
+    "right": "Playlist for elevator rides",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-music-g16dd1177",
+    "left": "Music that makes you dance",
+    "right": "Music that makes you stare",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-music-gd91c3d44",
+    "left": "Song that tells a story",
+    "right": "Song that's pure vibe",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-music-g23b706ac",
+    "left": "Music you stream on repeat",
+    "right": "Music you skip after one play",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-music-g12f5068b",
+    "left": "Band that always tours",
+    "right": "Band that never leaves the studio",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-music-g39ce6136",
+    "left": "Song that feels nostalgic",
+    "right": "Song that feels futuristic",
+    "by": "groq>gemini"
+   }
+  ],
+  "books": [
+   {
+    "id": "sync-books-ga589fa26",
+    "left": "Plot twist that shocks",
+    "right": "Predictable from chapter one",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-books-g63ea28aa",
+    "left": "Page-heavy with footnotes",
+    "right": "Bare-bones, no extras",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-books-gfce91e8c",
+    "left": "Narrative that drags",
+    "right": "Narrative that flies",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-books-g0f087f12",
+    "left": "Characters you love",
+    "right": "Characters you hate",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-books-gd8448e99",
+    "left": "Dialogue that sings",
+    "right": "Dialogue that drones",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-books-g2dc905db",
+    "left": "Mystery that unravels slowly",
+    "right": "Mystery solved in minutes",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-books-g653a4748",
+    "left": "Prose that dazzles",
+    "right": "Prose that trips",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-books-gd97602de",
+    "left": "Ending that feels earned",
+    "right": "Ending that feels forced",
+    "by": "groq>gemini"
+   }
+  ],
+  "geography": [
+   {
+    "id": "sync-geography-g07b8db07",
+    "left": "Peak with a view",
+    "right": "Valley shrouded in fog",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-geography-gb2dfb263",
+    "left": "Street food capital",
+    "right": "Gourmet-only enclave",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-geography-g714fe6b4",
+    "left": "Year-round sunshine",
+    "right": "Perpetual twilight zone",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-geography-g3c53ec96",
+    "left": "Island with Wi-Fi everywhere",
+    "right": "Island with no signal",
+    "by": "groq>gemini"
+   }
+  ],
+  "history": [
+   {
+    "id": "sync-history-g3295c6b2",
+    "left": "A golden age of art",
+    "right": "A dark age of art",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-history-g8bdb30f6",
+    "left": "Revolutionary law",
+    "right": "Stagnant law",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-history-g074639b7",
+    "left": "A forgotten inventor",
+    "right": "A celebrated inventor",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-history-g8cf0ba46",
+    "left": "A treaty that held",
+    "right": "A treaty that broke",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-history-g14bb10f2",
+    "left": "A city that flourished",
+    "right": "A city that crumbled",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-history-gb6c6dd4f",
+    "left": "A dynasty that expanded",
+    "right": "A dynasty that contracted",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-history-gdf23d3db",
+    "left": "A war sparked by ideas",
+    "right": "A war sparked by greed",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-history-gc09edd25",
+    "left": "A library preserved",
+    "right": "A library lost",
+    "by": "groq>gemini"
+   }
+  ],
+  "heroes": [
+   {
+    "id": "sync-heroes-g5f99bd8d",
+    "left": "Secret identity kept",
+    "right": "Identity broadcast worldwide",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-heroes-gfcc4b51f",
+    "left": "Rescues strangers",
+    "right": "Kidnaps strangers",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-heroes-g91770cd7",
+    "left": "Honors a code",
+    "right": "Breaks every rule",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-heroes-g828034a7",
+    "left": "Selfless leader",
+    "right": "Power-hungry tyrant",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-heroes-g6178e336",
+    "left": "Gives a second chance",
+    "right": "Never forgives",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-heroes-g3fd8fb63",
+    "left": "Protects the weak",
+    "right": "Preys on the weak",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-heroes-gefe4913b",
+    "left": "Fights for truth",
+    "right": "Fights for chaos",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-heroes-g6897e253",
+    "left": "Wields a noble weapon",
+    "right": "Wields a cursed weapon",
+    "by": "groq>gemini"
+   }
+  ],
+  "anime": [
+   {
+    "id": "sync-anime-g61c152a0",
+    "left": "Opening with full lyrics",
+    "right": "Opening with silent montage",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-anime-g36c07963",
+    "left": "Protagonist with amnesia",
+    "right": "Protagonist with crystal clear past",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-anime-g049f81c8",
+    "left": "Season-long cliffhanger",
+    "right": "Episode that wraps up instantly",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-anime-ge563dc24",
+    "left": "Villain with tragic backstory",
+    "right": "Villain with no explanation",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-anime-gfab2e683",
+    "left": "Anime that ends on a smile",
+    "right": "Anime that ends on a scream",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-anime-ga885e128",
+    "left": "Series with 12 episodes total",
+    "right": "Series with 200+ episodes total",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-anime-g6b27a8c7",
+    "left": "Power-up through hard work",
+    "right": "Power-up through cheat device",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-anime-g876ae105",
+    "left": "World-building through exposition",
+    "right": "World-building through visual hints",
+    "by": "groq>gemini"
+   }
+  ],
+  "videogames": [
+   {
+    "id": "sync-videogames-gc0381b8a",
+    "left": "Epic loot drops",
+    "right": "Every chest is junk",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-videogames-gdd5a557a",
+    "left": "Pixelated nostalgia",
+    "right": "Ultra-HD polish",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-videogames-gfffd75d1",
+    "left": "Story-driven epic",
+    "right": "Pure mechanics sandbox",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-videogames-g9cf2aaaa",
+    "left": "One-handed mobile",
+    "right": "Requires a gaming chair",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-videogames-g406f1e8c",
+    "left": "Secret endings hidden",
+    "right": "All endings obvious",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-videogames-g2d191bb3",
+    "left": "Glitch-filled charm",
+    "right": "Polished to perfection",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-videogames-g3bc2c1cd",
+    "left": "Stealth-first approach",
+    "right": "Run-and-gun frenzy",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-videogames-g00d2067a",
+    "left": "Dynamic weather system",
+    "right": "Forever sunny sky",
+    "by": "groq>gemini"
+   }
+  ],
+  "nba": [
+   {
+    "id": "sync-nba-g22ddc954",
+    "left": "Buzzer-beater hero",
+    "right": "Late-game flop",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-nba-g6ba785d4",
+    "left": "All-star starter",
+    "right": "Bench warhorse",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-nba-g41e31ae2",
+    "left": "Three-point sniper",
+    "right": "Paint-dominant big",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-nba-g3b5bb918",
+    "left": "Fast-break frenzy",
+    "right": "Half-court grind",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-nba-g0a9fd7b0",
+    "left": "Coach's favorite",
+    "right": "Free-agent free-spirit",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-nba-ge92aa6c4",
+    "left": "Defensive stopper",
+    "right": "Offensive catalyst",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-nba-gbb6987e4",
+    "left": "Season-long consistency",
+    "right": "Playoff-stage spark",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-nba-gd4f092ca",
+    "left": "Veteran leader",
+    "right": "Young breakout",
+    "by": "groq>gemini"
+   }
+  ],
+  "football": [
+   {
+    "id": "sync-football-g29427733",
+    "left": "Stadium roar after a goal",
+    "right": "Silence after a missed chance",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-football-gd3185ac1",
+    "left": "Grass pitch in perfect condition",
+    "right": "Mud-filled field that slows everyone",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-football-g9e338337",
+    "left": "Manager's bold 3-5-2 formation",
+    "right": "Coach's safe 4-4-2 line-up",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-football-g5291ff76",
+    "left": "Fans chanting nonstop",
+    "right": "Fans glued to their phones",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-football-g24d2b6e0",
+    "left": "Young academy graduate debut",
+    "right": "Veteran returning for farewell",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-football-gb379895c",
+    "left": "Lightning-fast counter-attack",
+    "right": "Slow, patient possession build-up",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-football-gabec8ba9",
+    "left": "Goalkeeper's spectacular save",
+    "right": "Goalkeeper's embarrassing slip",
+    "by": "groq>gemini"
+   },
+   {
+    "id": "sync-football-gd42ace1f",
+    "left": "Season-long title chase",
+    "right": "Season-ending relegation battle",
+    "by": "groq>gemini"
+   }
+  ]
+ }
+}
