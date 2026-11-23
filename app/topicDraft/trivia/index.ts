@@ -15,13 +15,16 @@ import { geography } from "./geography";
 import { flags } from "./flags";
 import { books } from "./books";
 import { music } from "./music";
+import { mythology } from "./mythology";
+import { animals } from "./animals";
+import { celebrities } from "./celebrities";
 import sourcedJson from "./sourced.json";
 
 const SETS: Record<string, TriviaSet> = {
   superheroes,
   villains,
   "heroes-villains": { quiz: [...superheroes.quiz, ...villains.quiz], surveys: [...superheroes.surveys, ...villains.surveys] },
-  anime, pokemon, videogames, disney, movies, history, football, films, shows, food, geography, flags, books, music,
+  anime, pokemon, videogames, disney, movies, history, football, films, shows, food, geography, flags, books, music, mythology, animals, celebrities,
 };
 
 // A pool made of other pools: it plays with their questions combined.

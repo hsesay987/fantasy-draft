@@ -20,6 +20,9 @@ export const VOWEL_TOPICS: { id: string; title: string }[] = [
   { id: "flags", title: "Flags" },
   { id: "books", title: "Books" },
   { id: "music", title: "Music" },
+  { id: "mythology", title: "Mythology" },
+  { id: "animals", title: "Animals" },
+  { id: "celebrities", title: "Celebrities" },
 ];
 
 /** The topic's title, or its id for an unknown topic. */

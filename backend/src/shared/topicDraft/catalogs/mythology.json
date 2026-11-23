@@ -812,5 +812,181 @@
    "god",
    "war"
   ]
+ },
+ {
+  "id": "myth-aphrodite",
+  "name": "Aphrodite",
+  "universe": "Greek",
+  "archetype": "Goddess of love and beauty",
+  "stats": {
+   "power": 74,
+   "intellect": 81,
+   "speed": 78,
+   "durability": 70,
+   "combat": 55
+  },
+  "tags": [
+   "god",
+   "love"
+  ],
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "myth-hera",
+  "name": "Hera",
+  "universe": "Greek",
+  "archetype": "Queen of the gods",
+  "stats": {
+   "power": 90,
+   "intellect": 89,
+   "speed": 73,
+   "durability": 88,
+   "combat": 79
+  },
+  "tags": [
+   "god",
+   "ruler"
+  ],
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "myth-hephaestus",
+  "name": "Hephaestus",
+  "universe": "Greek",
+  "archetype": "God of the forge",
+  "stats": {
+   "power": 75,
+   "intellect": 91,
+   "speed": 60,
+   "durability": 83,
+   "combat": 68
+  },
+  "tags": [
+   "god",
+   "craft"
+  ],
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "myth-dionysus",
+  "name": "Dionysus",
+  "universe": "Greek",
+  "archetype": "God of wine and revelry",
+  "stats": {
+   "power": 80,
+   "intellect": 83,
+   "speed": 70,
+   "durability": 80,
+   "combat": 63
+  },
+  "tags": [
+   "god"
+  ],
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "myth-cronus",
+  "name": "Cronus",
+  "universe": "Greek",
+  "archetype": "King of the Titans",
+  "stats": {
+   "power": 95,
+   "intellect": 80,
+   "speed": 68,
+   "durability": 93,
+   "combat": 85
+  },
+  "tags": [
+   "titan",
+   "ruler"
+  ],
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "myth-baldr",
+  "name": "Baldr",
+  "universe": "Norse",
+  "archetype": "God of light",
+  "stats": {
+   "power": 83,
+   "intellect": 86,
+   "speed": 80,
+   "durability": 92,
+   "combat": 78
+  },
+  "tags": [
+   "god"
+  ],
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "myth-tyr",
+  "name": "Tyr",
+  "universe": "Norse",
+  "archetype": "God of war and justice",
+  "stats": {
+   "power": 85,
+   "intellect": 81,
+   "speed": 73,
+   "durability": 87,
+   "combat": 93
+  },
+  "tags": [
+   "god",
+   "war"
+  ],
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "myth-thoth",
+  "name": "Thoth",
+  "universe": "Egyptian",
+  "archetype": "God of writing and wisdom",
+  "stats": {
+   "power": 75,
+   "intellect": 99,
+   "speed": 70,
+   "durability": 73,
+   "combat": 58
+  },
+  "tags": [
+   "god",
+   "wisdom"
+  ],
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "myth-ganesha",
+  "name": "Ganesha",
+  "universe": "Hindu",
+  "archetype": "Remover of obstacles",
+  "stats": {
+   "power": 91,
+   "intellect": 95,
+   "speed": 72,
+   "durability": 89,
+   "combat": 78
+  },
+  "tags": [
+   "god"
+  ],
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "myth-medea",
+  "name": "Medea",
+  "universe": "Greek",
+  "archetype": "Sorceress of Colchis",
+  "stats": {
+   "power": 65,
+   "intellect": 91,
+   "speed": 55,
+   "durability": 53,
+   "combat": 53
+  },
+  "tags": [
+   "sorceress"
+  ],
+  "ratedBy": "groq+gemini"
  }
 ]

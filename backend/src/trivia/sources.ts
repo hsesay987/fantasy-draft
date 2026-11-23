@@ -48,4 +48,27 @@ export const WIKIDATA: Record<string, Source> = {
   ], minSitelinks: 90, limit: 120, facts: [
     { key: "born", pid: "P569", kind: "year" }, { key: "died", pid: "P570", kind: "year" }, { key: "country", pid: "P27", kind: "item" }, { key: "occupation", pid: "P106", kind: "item" },
   ] },
+  // Gods and goddesses from the big pantheons, with their families.
+  mythology: { where: [
+    { tag: "Greek", where: "?item wdt:P31 wd:Q22989102." },
+    { tag: "Greek", where: "?item wdt:P31 wd:Q113103481." },
+    { tag: "Titans", where: "?item wdt:P31 wd:Q45713." },
+    { tag: "Roman", where: "?item wdt:P31 wd:Q11688446." },
+    { tag: "Egyptian", where: "?item wdt:P31 wd:Q146083." },
+    { tag: "Norse", where: "?item wdt:P31 wd:Q16513881." },
+    { tag: "Hindu", where: "?item wdt:P31 wd:Q979507." },
+  ], minSitelinks: 20, limit: 150, facts: [
+    { key: "father", pid: "P22", kind: "item" }, { key: "mother", pid: "P25", kind: "item" }, { key: "spouse", pid: "P26", kind: "item" }, { key: "child", pid: "P40", kind: "item" },
+  ] },
+  // Living stars born after 1945: the names people know from screens, stages and charts.
+  celebrities: { where: [
+    { tag: "Actor", where: "?item wdt:P106 wd:Q33999; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+    { tag: "Singer", where: "?item wdt:P106 wd:Q177220; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+    { tag: "Rapper", where: "?item wdt:P106 wd:Q2252262; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+    { tag: "Comedian", where: "?item wdt:P106 wd:Q245068; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+    { tag: "TV Host", where: "?item wdt:P106 wd:Q947873; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+    { tag: "Model", where: "?item wdt:P106 wd:Q4610556; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+  ], minSitelinks: 80, limit: 150, facts: [
+    { key: "born", pid: "P569", kind: "year" }, { key: "country", pid: "P27", kind: "item" },
+  ] },
 };

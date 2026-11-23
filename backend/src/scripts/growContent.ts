@@ -4,6 +4,7 @@
 //   npm run content:grow -- vote icks 20           20 new Icks cards (or a deck id, or "all")
 //   npm run content:grow -- insync friends 15      15 new In-Sync pairs for a deck (or "all")
 //   npm run content:grow -- catalog music 40       40 new musicians from Wikidata, stats rated by both models
+//   npm run content:grow -- catalog animals 8 --from=new.json   rate a hand-picked list instead: [{name, universe, archetype, tags}]
 //   npm run content:grow -- candidates books 30    just list who Wikidata would add (no AI, writes nothing)
 //   npm run content:grow -- trivia films 6         6 Summit categories and 6 Hot Air surveys into the database
 //   add --dry to print what would be kept without writing anything
@@ -16,7 +17,7 @@ import fs from "fs";
 import path from "path";
 import { execFileSync } from "child_process";
 import { candidates } from "../content/candidates";
-import { growInSync, growVote, rateItems } from "../content/grow";
+import { growInSync, growVote, rateItems, type Candidate } from "../content/grow";
 import { pair, roles } from "../content/models";
 
 const ROOT = path.join(__dirname, "../../..");
@@ -24,6 +25,8 @@ const GENERATED = path.join(ROOT, "app/topicDraft/party/generated.json");
 const CATALOGS = path.join(ROOT, "app/topicDraft/catalogs");
 const slug = (n: string) => n.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const log = (m: string) => console.log(m);
+/** Newer catalogs prefix their ids so they never clash with a character of the same name in another catalog. */
+const ID_PREFIX: Record<string, string> = { mythology: "myth-", animals: "animal-", celebrities: "celeb-" };
 
 (async () => {
   const args = process.argv.slice(2);
@@ -72,13 +75,17 @@ const log = (m: string) => console.log(m);
     const items = JSON.parse(fs.readFileSync(file, "utf8"));
     const defs = statDefs(target);
     // Twice as many candidates as wanted: some are set aside when the models disagree.
-    const found = await candidates(target, items.map((i: { name: string }) => i.name), n * 2);
-    console.log(`Wikidata offers ${found.length} new ${target}; rating until ${n} are agreed`);
+    const from = args.find((a) => a.startsWith("--from="))?.slice(7);
+    const have = new Set(items.map((i: { name: string }) => i.name.toLowerCase()));
+    const found = from
+      ? (JSON.parse(fs.readFileSync(path.resolve(from), "utf8")) as Candidate[]).filter((c) => !have.has(c.name.toLowerCase()))
+      : await candidates(target, items.map((i: { name: string }) => i.name), n * 2);
+    console.log(`${from ? "The list" : "Wikidata"} offers ${found.length} new ${target}; rating until ${n} are agreed`);
     const examples = [...items].sort(() => 0.5 - Math.random()).slice(0, 12);
     const rated = [];
     for (let i = 0; i < found.length && rated.length < n; i += 5) rated.push(...(await rateItems(catalogMeta(target)?.title ?? target, defs, examples, found.slice(i, i + 5), p, log)));
     const ids = new Set(items.map((i: { id: string }) => i.id));
-    const added = rated.slice(0, n).map((r) => ({ id: slug(r.name), name: r.name, universe: r.universe, archetype: r.archetype, stats: r.stats, tags: r.tags, q: r.q, ratedBy: r.by })).filter((r) => !ids.has(r.id));
+    const added = rated.slice(0, n).map((r) => ({ id: (ID_PREFIX[target] ?? "") + slug(r.name), name: r.name, universe: r.universe, archetype: r.archetype, stats: r.stats, tags: r.tags, q: r.q, ratedBy: r.by })).filter((r) => !ids.has(r.id));
     console.log(`\n${target}: +${added.length}`);
     if (!dry && added.length) {
       fs.writeFileSync(file, JSON.stringify([...items, ...added], null, 1) + "\n");

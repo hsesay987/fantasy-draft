@@ -1,0 +1,266 @@
+{
+ "pool": "animals",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "class",
+   "label": "Class",
+   "kind": "cat"
+  },
+  {
+   "key": "order",
+   "label": "Order",
+   "kind": "cat"
+  },
+  {
+   "key": "habitat",
+   "label": "Habitat",
+   "kind": "cat"
+  },
+  {
+   "key": "status",
+   "label": "IUCN status",
+   "kind": "cat"
+  }
+ ],
+ "facts": {
+  "animal-lion": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Savanna",
+   "status": "Vulnerable"
+  },
+  "animal-tiger": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Forest",
+   "status": "Endangered"
+  },
+  "animal-jaguar": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Rainforest",
+   "status": "Near threatened"
+  },
+  "animal-leopard": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Savanna",
+   "status": "Vulnerable"
+  },
+  "animal-cheetah": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Savanna",
+   "status": "Vulnerable"
+  },
+  "animal-grizzly-bear": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Forest"
+  },
+  "animal-polar-bear": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Arctic",
+   "status": "Vulnerable"
+  },
+  "animal-gorilla": {
+   "class": "Mammal",
+   "order": "Primate",
+   "habitat": "Rainforest"
+  },
+  "animal-chimpanzee": {
+   "class": "Mammal",
+   "order": "Primate",
+   "habitat": "Rainforest",
+   "status": "Endangered"
+  },
+  "animal-african-elephant": {
+   "class": "Mammal",
+   "order": "Proboscidea",
+   "habitat": "Savanna",
+   "status": "Endangered"
+  },
+  "animal-rhinoceros": {
+   "class": "Mammal",
+   "order": "Odd-toed ungulate",
+   "habitat": "Savanna"
+  },
+  "animal-hippopotamus": {
+   "class": "Mammal",
+   "habitat": "Rivers",
+   "status": "Vulnerable"
+  },
+  "animal-moose": {
+   "class": "Mammal",
+   "habitat": "Forest",
+   "status": "Least concern"
+  },
+  "animal-american-bison": {
+   "class": "Mammal",
+   "habitat": "Plains",
+   "status": "Near threatened"
+  },
+  "animal-grey-wolf": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Forest",
+   "status": "Least concern"
+  },
+  "animal-spotted-hyena": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Savanna",
+   "status": "Least concern"
+  },
+  "animal-honey-badger": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Savanna",
+   "status": "Least concern"
+  },
+  "animal-wolverine": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Forest",
+   "status": "Least concern"
+  },
+  "animal-red-kangaroo": {
+   "class": "Mammal",
+   "order": "Diprotodontia",
+   "habitat": "Outback",
+   "status": "Least concern"
+  },
+  "animal-saltwater-crocodile": {
+   "class": "Reptile",
+   "order": "Crocodilia",
+   "habitat": "Rivers",
+   "status": "Least concern"
+  },
+  "animal-komodo-dragon": {
+   "class": "Reptile",
+   "order": "Squamata",
+   "habitat": "Islands",
+   "status": "Endangered"
+  },
+  "animal-king-cobra": {
+   "class": "Reptile",
+   "order": "Squamata",
+   "habitat": "Jungle",
+   "status": "Vulnerable"
+  },
+  "animal-black-mamba": {
+   "class": "Reptile",
+   "order": "Squamata",
+   "habitat": "Savanna",
+   "status": "Least concern"
+  },
+  "animal-green-anaconda": {
+   "class": "Reptile",
+   "order": "Squamata",
+   "habitat": "Rivers",
+   "status": "Least concern"
+  },
+  "animal-great-white-shark": {
+   "class": "Fish",
+   "habitat": "Ocean",
+   "status": "Vulnerable"
+  },
+  "animal-orca": {
+   "class": "Mammal",
+   "habitat": "Ocean",
+   "status": "Data Deficient"
+  },
+  "animal-blue-whale": {
+   "class": "Mammal",
+   "habitat": "Ocean",
+   "status": "Endangered"
+  },
+  "animal-bottlenose-dolphin": {
+   "class": "Mammal",
+   "habitat": "Ocean",
+   "status": "Least concern"
+  },
+  "animal-octopus": {
+   "class": "Cephalopod",
+   "order": "Octopoda",
+   "habitat": "Ocean",
+   "status": "Least concern"
+  },
+  "animal-peregrine-falcon": {
+   "class": "Bird",
+   "order": "Falconiformes",
+   "habitat": "Skies",
+   "status": "Least concern"
+  },
+  "animal-bald-eagle": {
+   "class": "Bird",
+   "order": "Accipitriformes",
+   "habitat": "Skies",
+   "status": "Least concern"
+  },
+  "animal-golden-eagle": {
+   "class": "Bird",
+   "order": "Accipitriformes",
+   "habitat": "Mountains",
+   "status": "Least concern"
+  },
+  "animal-great-horned-owl": {
+   "class": "Bird",
+   "order": "Strigiformes",
+   "habitat": "Forest",
+   "status": "Least concern"
+  },
+  "animal-common-raven": {
+   "class": "Bird",
+   "order": "Passerines",
+   "habitat": "Everywhere",
+   "status": "Least concern"
+  },
+  "animal-ostrich": {
+   "class": "Bird",
+   "order": "Struthioniformes",
+   "habitat": "Savanna",
+   "status": "Least concern"
+  },
+  "animal-southern-cassowary": {
+   "class": "Bird",
+   "order": "Casuariiformes",
+   "habitat": "Rainforest",
+   "status": "Least concern"
+  },
+  "animal-canada-goose": {
+   "class": "Bird",
+   "order": "Anseriformes",
+   "habitat": "Parks",
+   "status": "Least concern"
+  },
+  "animal-snow-leopard": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Mountains",
+   "status": "Vulnerable"
+  },
+  "animal-hammerhead-shark": {
+   "class": "Fish",
+   "order": "Carcharhiniformes",
+   "habitat": "Ocean"
+  },
+  "animal-cape-buffalo": {
+   "class": "Mammal",
+   "habitat": "Savanna",
+   "status": "Near threatened"
+  },
+  "animal-orangutan": {
+   "class": "Mammal",
+   "order": "Primate",
+   "habitat": "Rainforest"
+  },
+  "animal-kodiak-bear": {
+   "class": "Mammal",
+   "order": "Carnivora",
+   "habitat": "Forest"
+  }
+ }
+}

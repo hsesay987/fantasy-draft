@@ -12,6 +12,7 @@ import path from "path";
 import { buildCategories, buildSurveys } from "../trivia/build";
 import type { Entity, Spec } from "../trivia/model";
 import { fetchPokemon, POKEMON_SPEC } from "../trivia/pokeapi";
+import { ANIMALS_SPEC, fetchAnimals } from "../trivia/animals";
 import { WIKIDATA } from "../trivia/sources";
 import { SPECS } from "../trivia/templates";
 import { fetchEntities } from "../trivia/wikidata";
@@ -24,9 +25,9 @@ const BUNDLE_CATS = 30, BUNDLE_SURVEYS = 25;
 async function load(pool: string, refresh: boolean): Promise<{ entities: Entity[]; spec: Spec; source: string }> {
   const file = path.join(CACHE, `${pool}.json`);
   const source = pool === "pokemon" ? "pokeapi" : "wikidata";
-  const spec = pool === "pokemon" ? POKEMON_SPEC : SPECS[pool]!;
+  const spec = pool === "pokemon" ? POKEMON_SPEC : pool === "animals" ? ANIMALS_SPEC : SPECS[pool]!;
   if (!refresh && fs.existsSync(file)) return { entities: JSON.parse(fs.readFileSync(file, "utf8")), spec, source };
-  const entities = pool === "pokemon" ? await fetchPokemon() : await fetchEntities(WIKIDATA[pool]!);
+  const entities = pool === "pokemon" ? await fetchPokemon() : pool === "animals" ? await fetchAnimals() : await fetchEntities(WIKIDATA[pool]!);
   fs.mkdirSync(CACHE, { recursive: true });
   fs.writeFileSync(file, JSON.stringify(entities));
   return { entities, spec, source };
@@ -36,7 +37,7 @@ async function load(pool: string, refresh: boolean): Promise<{ entities: Entity[
   const args = process.argv.slice(2);
   const flags = new Set(args.filter((a) => a.startsWith("--")));
   const target = args.find((a) => !a.startsWith("--")) ?? "all";
-  const all = ["pokemon", ...Object.keys(WIKIDATA)];
+  const all = ["pokemon", "animals", ...Object.keys(WIKIDATA)];
   const pools = target === "all" ? all : [target];
   const dry = flags.has("--dry");
   const bundle = flags.has("--bundle");

@@ -739,5 +739,115 @@
   "tags": [
    "micro"
   ]
+ },
+ {
+  "id": "animal-snow-leopard",
+  "name": "Snow Leopard",
+  "universe": "Mountains",
+  "archetype": "Big cat",
+  "stats": {
+   "power": 82,
+   "intellect": 53,
+   "speed": 80,
+   "durability": 68,
+   "combat": 86
+  },
+  "tags": [
+   "cat",
+   "predator",
+   "land"
+  ],
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "animal-hammerhead-shark",
+  "name": "Hammerhead Shark",
+  "universe": "Ocean",
+  "archetype": "Apex predator",
+  "stats": {
+   "power": 84,
+   "intellect": 45,
+   "speed": 73,
+   "durability": 73,
+   "combat": 88
+  },
+  "tags": [
+   "fish",
+   "predator",
+   "sea"
+  ],
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "animal-cape-buffalo",
+  "name": "Cape Buffalo",
+  "universe": "Savanna",
+  "archetype": "Armoured giant",
+  "stats": {
+   "power": 92,
+   "intellect": 35,
+   "speed": 58,
+   "durability": 93,
+   "combat": 85
+  },
+  "tags": [
+   "grazer",
+   "land"
+  ],
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "animal-orangutan",
+  "name": "Orangutan",
+  "universe": "Rainforest",
+  "archetype": "Great ape",
+  "stats": {
+   "power": 74,
+   "intellect": 85,
+   "speed": 38,
+   "durability": 60,
+   "combat": 60
+  },
+  "tags": [
+   "ape",
+   "land"
+  ],
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "animal-kodiak-bear",
+  "name": "Kodiak Bear",
+  "universe": "Forest",
+  "archetype": "Bear",
+  "stats": {
+   "power": 94,
+   "intellect": 60,
+   "speed": 48,
+   "durability": 91,
+   "combat": 85
+  },
+  "tags": [
+   "predator",
+   "land"
+  ],
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "animal-electric-eel",
+  "name": "Electric Eel",
+  "universe": "Rivers",
+  "archetype": "Living battery",
+  "stats": {
+   "power": 72,
+   "intellect": 29,
+   "speed": 36,
+   "durability": 52,
+   "combat": 86
+  },
+  "tags": [
+   "fish",
+   "river"
+  ],
+  "ratedBy": "groq+gemini"
  }
 ]

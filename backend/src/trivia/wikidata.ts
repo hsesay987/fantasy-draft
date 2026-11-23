@@ -35,7 +35,7 @@ export type Source = {
 
 const chunk = <T>(a: T[], n: number) => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
 
-async function wbget(ids: string[], props: string): Promise<Record<string, any>> {
+export async function wbget(ids: string[], props: string): Promise<Record<string, any>> {
   const out: Record<string, any> = {};
   for (const part of chunk(ids, 50)) {
     const url = `https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=${props}&ids=${part.join("|")}`;

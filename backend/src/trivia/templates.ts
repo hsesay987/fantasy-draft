@@ -117,4 +117,27 @@ const books: Spec = {
   surveys: [{ fact: "author", ask: (v) => `Name a novel by ${v}` }],
 };
 
-export const SPECS: Record<string, Spec> = { films, shows, videogames, disney, anime, football, superheroes: hero("superheroes", "hero", "Hero"), history, music, books };
+const mythology: Spec = {
+  pool: "mythology",
+  templates: [
+    { fact: "father", ask: (e) => `In myth, who is the father of ${e.label}?`, group: (e) => first(e, "tag"), name: (g) => `Divine Fathers: ${g}`, entityAnswer: true },
+    { fact: "mother", ask: (e) => `In myth, who is the mother of ${e.label}?`, group: (e) => first(e, "tag"), name: (g) => `Divine Mothers: ${g}`, entityAnswer: true },
+    { fact: "spouse", ask: (e) => `In myth, who is the spouse of ${e.label}?`, group: (e) => first(e, "tag"), name: (g) => `Divine Couples: ${g}`, entityAnswer: true },
+  ],
+  // Wikidata's "child" links for gods are often reversed or mixed between pantheons, so there are no surveys from them.
+  surveys: [],
+};
+
+const onePassport = (e: Entity) => (e.facts.country?.length === 1 ? short(e.facts.country[0]!) : null);
+
+const celebrities: Spec = {
+  pool: "celebrities",
+  templates: [
+    // Stars often hold several jobs (Eminem acts too), so boards are themed by country, not by job.
+    { fact: "born", ask: (e) => `In what year was ${e.label} born?`, group: (e) => onePassport(e), name: (g) => `Birth Years: Stars from ${g}`, year: true },
+  ],
+  // Citizenship lists mix birth and adopted countries, so a "name a star from" survey would reward wrong answers.
+  surveys: [],
+};
+
+export const SPECS: Record<string, Spec> = { films, shows, videogames, disney, anime, football, superheroes: hero("superheroes", "hero", "Hero"), history, music, books, mythology, celebrities };

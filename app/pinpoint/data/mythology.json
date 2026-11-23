@@ -1,0 +1,420 @@
+{
+ "pool": "mythology",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "pantheon",
+   "label": "Pantheon",
+   "kind": "cat"
+  },
+  {
+   "key": "kind",
+   "label": "Kind",
+   "kind": "cat"
+  },
+  {
+   "key": "gender",
+   "label": "Gender",
+   "kind": "cat"
+  },
+  {
+   "key": "father",
+   "label": "Father",
+   "kind": "cat"
+  },
+  {
+   "key": "mother",
+   "label": "Mother",
+   "kind": "cat"
+  },
+  {
+   "key": "children",
+   "label": "Children",
+   "kind": "num",
+   "close": 2,
+   "fmt": "int"
+  }
+ ],
+ "facts": {
+  "myth-zeus": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Cronus",
+   "mother": "Rhea",
+   "children": 156
+  },
+  "myth-poseidon": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Cronus",
+   "mother": "Rhea",
+   "children": 149
+  },
+  "myth-hades": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Cronus",
+   "mother": "Rhea",
+   "children": 2
+  },
+  "myth-athena": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Female",
+   "father": "Zeus",
+   "mother": "Metis",
+   "children": 2
+  },
+  "myth-ares": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Zeus",
+   "mother": "Hera",
+   "children": 53
+  },
+  "myth-apollo": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Zeus",
+   "mother": "Leto",
+   "children": 82
+  },
+  "myth-artemis": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Female",
+   "father": "Zeus",
+   "mother": "Leto"
+  },
+  "myth-hermes": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Zeus",
+   "mother": "Maia",
+   "children": 36
+  },
+  "myth-heracles": {
+   "pantheon": "Greek",
+   "kind": "Hero",
+   "gender": "Male",
+   "father": "Zeus",
+   "mother": "Alkmene",
+   "children": 113
+  },
+  "myth-achilles": {
+   "pantheon": "Greek",
+   "kind": "Hero",
+   "gender": "Male",
+   "father": "Peleus",
+   "mother": "Thetis",
+   "children": 2
+  },
+  "myth-perseus": {
+   "pantheon": "Greek",
+   "kind": "Hero",
+   "gender": "Male",
+   "father": "Zeus",
+   "mother": "Danaë",
+   "children": 11
+  },
+  "myth-odysseus": {
+   "pantheon": "Greek",
+   "kind": "Hero",
+   "gender": "Male",
+   "father": "Laertes",
+   "mother": "Anticlea",
+   "children": 15
+  },
+  "myth-medusa": {
+   "pantheon": "Greek",
+   "kind": "Monster",
+   "gender": "Female",
+   "father": "Phorcys",
+   "mother": "Ceto",
+   "children": 2
+  },
+  "myth-minotaur": {
+   "pantheon": "Greek",
+   "kind": "Monster",
+   "gender": "Male",
+   "father": "Cretan Bull",
+   "mother": "Pasiphaë"
+  },
+  "myth-cerberus": {
+   "pantheon": "Greek",
+   "kind": "Monster",
+   "gender": "Male",
+   "father": "Typhon",
+   "mother": "Echidna"
+  },
+  "myth-lernaean-hydra": {
+   "pantheon": "Greek",
+   "kind": "Monster",
+   "father": "Typhon",
+   "mother": "Echidna"
+  },
+  "myth-odin": {
+   "pantheon": "Norse",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Borr",
+   "mother": "Bestla",
+   "children": 17
+  },
+  "myth-thor": {
+   "pantheon": "Norse",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Odin",
+   "mother": "Jörð",
+   "children": 3
+  },
+  "myth-loki": {
+   "pantheon": "Norse",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Fárbauti",
+   "mother": "Laufey",
+   "children": 6
+  },
+  "myth-freyja": {
+   "pantheon": "Norse",
+   "kind": "Deity",
+   "gender": "Female",
+   "father": "Njord",
+   "children": 2
+  },
+  "myth-heimdallr": {
+   "pantheon": "Norse",
+   "kind": "Deity",
+   "gender": "Male",
+   "mother": "Nine Mothers of Heimdallr"
+  },
+  "myth-fenrir": {
+   "pantheon": "Norse",
+   "kind": "Monster",
+   "gender": "Male",
+   "father": "Loki",
+   "mother": "Angrboða",
+   "children": 2
+  },
+  "myth-jormungandr": {
+   "pantheon": "Norse",
+   "kind": "Monster",
+   "gender": "Male",
+   "father": "Loki",
+   "mother": "Angrboða"
+  },
+  "myth-ra": {
+   "pantheon": "Egyptian",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Nun",
+   "mother": "Neith",
+   "children": 8
+  },
+  "myth-anubis": {
+   "pantheon": "Egyptian",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Seth",
+   "mother": "Nephthys",
+   "children": 1
+  },
+  "myth-osiris": {
+   "pantheon": "Egyptian",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Geb",
+   "mother": "Nut",
+   "children": 2
+  },
+  "myth-isis": {
+   "pantheon": "Egyptian",
+   "kind": "Deity",
+   "gender": "Female",
+   "father": "Geb",
+   "mother": "Nut",
+   "children": 2
+  },
+  "myth-horus": {
+   "pantheon": "Egyptian",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Osiris",
+   "mother": "Isis",
+   "children": 6
+  },
+  "myth-set": {
+   "pantheon": "Egyptian",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Geb",
+   "mother": "Nut",
+   "children": 2
+  },
+  "myth-sekhmet": {
+   "pantheon": "Egyptian",
+   "kind": "Deity",
+   "gender": "Female",
+   "father": "Ra",
+   "children": 1
+  },
+  "myth-shiva": {
+   "pantheon": "Hindu",
+   "kind": "Deity",
+   "gender": "Male",
+   "children": 4
+  },
+  "myth-vishnu": {
+   "pantheon": "Hindu",
+   "kind": "Deity",
+   "gender": "Male",
+   "children": 5
+  },
+  "myth-durga": {
+   "pantheon": "Hindu",
+   "kind": "Deity",
+   "gender": "Female",
+   "children": 1
+  },
+  "myth-hanuman": {
+   "pantheon": "Hindu",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Kesari",
+   "mother": "Añjanā",
+   "children": 2
+  },
+  "myth-amaterasu": {
+   "pantheon": "Japanese",
+   "kind": "Deity",
+   "gender": "Female",
+   "father": "Izanagi",
+   "mother": "Izanami",
+   "children": 8
+  },
+  "myth-nezha": {
+   "pantheon": "Chinese",
+   "kind": "Hero",
+   "gender": "Male",
+   "father": "Li Jing",
+   "mother": "Lady Yin"
+  },
+  "myth-gilgamesh": {
+   "pantheon": "Mesopotamian",
+   "kind": "Hero",
+   "gender": "Male",
+   "father": "Lugalbanda",
+   "mother": "Ninsun",
+   "children": 1
+  },
+  "myth-tiamat": {
+   "pantheon": "Mesopotamian",
+   "kind": "Monster",
+   "gender": "Female",
+   "children": 2
+  },
+  "myth-quetzalcoatl": {
+   "pantheon": "Aztec",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Mixcoatl",
+   "mother": "Chimalma"
+  },
+  "myth-anansi": {
+   "pantheon": "West African",
+   "kind": "Trickster",
+   "father": "Nyame",
+   "mother": "Asase Ya"
+  },
+  "myth-cu-chulainn": {
+   "pantheon": "Irish",
+   "kind": "Hero",
+   "gender": "Male",
+   "father": "Lugh",
+   "mother": "Deichtine",
+   "children": 1
+  },
+  "myth-the-morrigan": {
+   "pantheon": "Irish",
+   "kind": "Deity",
+   "gender": "Female",
+   "mother": "Ernmas"
+  },
+  "myth-aphrodite": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Female",
+   "father": "Zeus",
+   "mother": "Dione",
+   "children": 20
+  },
+  "myth-hera": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Female",
+   "father": "Cronus",
+   "mother": "Rhea",
+   "children": 10
+  },
+  "myth-hephaestus": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Zeus",
+   "mother": "Hera",
+   "children": 19
+  },
+  "myth-dionysus": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Zeus",
+   "mother": "Semele",
+   "children": 22
+  },
+  "myth-cronus": {
+   "pantheon": "Greek",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Uranus",
+   "mother": "Gaia",
+   "children": 13
+  },
+  "myth-baldr": {
+   "pantheon": "Norse",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Odin",
+   "mother": "Frigg",
+   "children": 1
+  },
+  "myth-tyr": {
+   "pantheon": "Norse",
+   "kind": "Deity",
+   "gender": "Male",
+   "father": "Hymir"
+  },
+  "myth-ganesha": {
+   "pantheon": "Hindu",
+   "kind": "Deity",
+   "gender": "Male",
+   "mother": "Parvati"
+  },
+  "myth-medea": {
+   "pantheon": "Greek",
+   "kind": "Hero",
+   "gender": "Female",
+   "father": "Aeëtes",
+   "mother": "Eidyia",
+   "children": 7
+  }
+ }
+}

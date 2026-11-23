@@ -513,6 +513,91 @@ SPECS.videogames = characterSpec((i) => [`${i.name} (${i.universe})`, `${i.name}
 SPECS.disney = characterSpec((i) => [`${i.name} (Disney)`, `${i.name} (Disney character)`, `${i.name} (Frozen)`]);
 SPECS.movies = characterSpec((i) => [`${i.name} (character)`, `${i.name} (film character)`], (i, e) => labels([...ids(e, "P8345"), ...ids(e, "P1080")], 1)[0] ?? i.universe);
 
+// Mythology: the pantheon is the catalog's own; the family comes from Wikidata.
+SPECS.mythology = {
+  source: "Wikidata",
+  columns: [
+    { key: "pantheon", label: "Pantheon", kind: "cat" },
+    { key: "kind", label: "Kind", kind: "cat" },
+    { key: "gender", label: "Gender", kind: "cat" },
+    { key: "father", label: "Father", kind: "cat" },
+    { key: "mother", label: "Mother", kind: "cat" },
+    { key: "children", label: "Children", kind: "num", close: 2, fmt: "int" },
+  ],
+  build: fromWiki({
+    tries: (i) => [wikiTitle(i), `${i.name} (mythology)`, `${i.name} (deity)`, `?${i.name} ${i.universe} mythology`],
+    ok: /deity|god|goddess|hero|creature|legendary|mythical|mythological|monster|demigod|titan|giant|serpent|dragon|wolf|spirit|figure|character/i,
+    pids: ["P21", "P22", "P25"],
+    row: (e, i) => {
+      // Wikidata files heroes and monsters under many loose classes, so the kind comes from the catalog's tags.
+      const kind = i.tags.some((t) => t === "god" || t === "titan") ? "Deity" : i.tags.includes("monster") ? "Monster" : i.tags.includes("trickster") && !i.tags.includes("hero") ? "Trickster" : "Hero";
+      return { pantheon: i.universe, kind, gender: gender(e), father: labels(ids(e, "P22"), 1)[0], mother: labels(ids(e, "P25"), 1)[0], children: ids(e, "P40").length || undefined };
+    },
+  }),
+};
+
+// Animals: where each sits in the tree of life (walked up from the species), its IUCN status and its size.
+const TONNE = { ...KG, Q191118: 1000 }, YEARS = { Q577: 1, Q1092296: 1 };
+const RANK_OF: Record<string, "class" | "order"> = { Q37517: "class", Q36602: "order" };
+const CLASS_LABEL: Record<string, string> = { Mammalia: "Mammal", mammal: "Mammal", Aves: "Bird", bird: "Bird", Reptilia: "Reptile", reptile: "Reptile", Chondrichthyes: "Fish", Actinopterygii: "Fish", "cartilaginous fish": "Fish", Insecta: "Insect", insect: "Insect", Cephalopoda: "Mollusc", cephalopod: "Mollusc", Malacostraca: "Crustacean", Eutardigrada: "Tardigrade", Amphibia: "Amphibian", amphibian: "Amphibian" };
+async function ranksOf(species: Ent[]): Promise<Map<string, { class?: string; order?: string }>> {
+  let frontier = uniq(species.flatMap((e) => ids(e, "P171")));
+  for (let d = 0; d < 40 && frontier.length; d++) {
+    await entities(frontier);
+    frontier = uniq(frontier.filter((q) => !ids(ent(q), "P105").includes("Q37517")).flatMap((q) => ids(ent(q), "P171"))).filter((q) => !ent(q)?.claims);
+  }
+  const out = new Map<string, { class?: string; order?: string }>();
+  for (const e of species) {
+    const r: { class?: string; order?: string } = {};
+    let cur = ids(e, "P171")[0];
+    for (let d = 0; cur && d < 40 && !r.class; d++) {
+      const rank = RANK_OF[ids(ent(cur), "P105")[0] ?? ""];
+      if (rank && !r[rank]) r[rank] = label(cur);
+      cur = ids(ent(cur), "P171")[0];
+    }
+    out.set(e.id, r);
+  }
+  return out;
+}
+let animalRanks = new Map<string, { class?: string; order?: string }>();
+SPECS.animals = {
+  source: "Wikidata",
+  columns: [
+    { key: "class", label: "Class", kind: "cat" },
+    { key: "order", label: "Order", kind: "cat" },
+    { key: "habitat", label: "Habitat", kind: "cat" },
+    { key: "status", label: "IUCN status", kind: "cat" },
+    { key: "mass", label: "Weight", kind: "num", close: 0.5, rel: true, fmt: "big", unit: "kg" },
+    { key: "lifespan", label: "Lifespan", kind: "num", close: 8, fmt: "int", unit: "yr" },
+  ],
+  build: fromWiki({
+    tries: (i) => [wikiTitle(i), `${i.name} (animal)`, `?${i.name} animal`], ok: /taxon|species/i, pids: ["P141"],
+    prep: async (ents) => { animalRanks = await ranksOf(ents); },
+    row: (e, i) => {
+      const r = animalRanks.get(e.id) ?? {};
+      const cls = r.class ? CLASS_LABEL[r.class] ?? clean(r.class) : undefined;
+      return { class: cls, order: r.order ? clean(r.order) : undefined, habitat: i.universe, status: labels(ids(e, "P141"), 1)[0]?.replace(/^(.)/, (c) => c.toUpperCase()), mass: amount(e, "P2067", TONNE), lifespan: amount(e, "P2250", YEARS) };
+    },
+  }),
+};
+
+// Celebrities: real people, so the same facts as historical figures plus height.
+SPECS.celebrities = {
+  source: "Wikidata",
+  columns: [
+    { key: "born", label: "Born", kind: "num", close: 5, fmt: "year" },
+    { key: "country", label: "Country", kind: "cat" },
+    { key: "field", label: "Known for", kind: "cat" },
+    { key: "occupation", label: "Jobs", kind: "set" },
+    { key: "gender", label: "Gender", kind: "cat" },
+    { key: "height", label: "Height", kind: "num", close: 5, fmt: "int", unit: "cm" },
+  ],
+  build: fromWiki({
+    tries: (i) => [wikiTitle(i), `${i.name} (singer)`, `${i.name} (actor)`, `?${i.name}`], ok: PERSON, pids: ["P27", "P106", "P21"],
+    row: (e, i) => ({ born: year(e, "P569"), country: labels(ids(e, "P27"), 1)[0], field: i.universe, occupation: labels(ids(e, "P106"), 3), gender: gender(e), height: amount(e, "P2048", CM) }),
+  }),
+};
+
 async function main() {
   const want = process.argv.slice(2);
   const pools = want.length ? want : Object.keys(SPECS);
