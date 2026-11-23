@@ -1,7 +1,10 @@
 // Pairs of opposites for In-Sync. Each pair is the two ends of a line; the clue giver is handed a spot between them.
 // Pairs are written for friends who will disagree about where things sit, so the topic decks stay on their topic.
 
-export type Pair = { id: string; left: string; right: string };
+import generated from "./generated.json";
+
+/** `by` is set on pairs a model wrote: "writer>checker". */
+export type Pair = { id: string; left: string; right: string; by?: string };
 export type InSyncDeck = { id: string; title: string; blurb: string; pairs: Pair[] };
 
 const deck = (id: string, title: string, blurb: string, rows: [string, string][]): InSyncDeck => ({
@@ -382,5 +385,9 @@ export const INSYNC_DECKS: InSyncDeck[] = [
     ["Midfield maestro", "Poacher in the box"],
   ]),
 ];
+
+// Cross-checked pairs from the content pipeline join their deck after the hand-written ones.
+const GENERATED_SYNC = (generated as { insync: Record<string, Pair[]> }).insync;
+for (const d of INSYNC_DECKS) d.pairs = [...d.pairs, ...(GENERATED_SYNC[d.id] ?? [])];
 
 export const insyncDeckOf = (id: string) => INSYNC_DECKS.find((d) => d.id === id);

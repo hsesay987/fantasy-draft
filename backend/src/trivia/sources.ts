@@ -2,6 +2,14 @@
 import type { Source } from "./wikidata";
 
 export const WIKIDATA: Record<string, Source> = {
+  // Albums: who made them, when, and on which label. Famous albums have pages in many languages.
+  music: { where: "?item wdt:P31 wd:Q482994.", minSitelinks: 25, limit: 900, facts: [
+    { key: "artist", pid: "P175", kind: "item" }, { key: "year", pid: "P577", kind: "year" }, { key: "label", pid: "P264", kind: "item" },
+  ] },
+  // Novels (Wikidata keeps the form of a work in P7937).
+  books: { where: "?item wdt:P7937 wd:Q8261.", minSitelinks: 28, limit: 900, facts: [
+    { key: "author", pid: "P50", kind: "item" }, { key: "year", pid: "P577", kind: "year" }, { key: "country", pid: "P495", kind: "item" },
+  ] },
   films: { where: "?item wdt:P31 wd:Q11424.", minSitelinks: 45, limit: 900, facts: [
     { key: "director", pid: "P57", kind: "item" }, { key: "year", pid: "P577", kind: "year" }, { key: "country", pid: "P495", kind: "item" }, { key: "composer", pid: "P86", kind: "item" },
   ] },
@@ -39,5 +47,28 @@ export const WIKIDATA: Record<string, Source> = {
     { tag: "Chemist", where: "?item wdt:P106 wd:Q593644; wdt:P570 ?died. FILTER(YEAR(?died) < 1990)" },
   ], minSitelinks: 90, limit: 120, facts: [
     { key: "born", pid: "P569", kind: "year" }, { key: "died", pid: "P570", kind: "year" }, { key: "country", pid: "P27", kind: "item" }, { key: "occupation", pid: "P106", kind: "item" },
+  ] },
+  // Gods and goddesses from the big pantheons, with their families.
+  mythology: { where: [
+    { tag: "Greek", where: "?item wdt:P31 wd:Q22989102." },
+    { tag: "Greek", where: "?item wdt:P31 wd:Q113103481." },
+    { tag: "Titans", where: "?item wdt:P31 wd:Q45713." },
+    { tag: "Roman", where: "?item wdt:P31 wd:Q11688446." },
+    { tag: "Egyptian", where: "?item wdt:P31 wd:Q146083." },
+    { tag: "Norse", where: "?item wdt:P31 wd:Q16513881." },
+    { tag: "Hindu", where: "?item wdt:P31 wd:Q979507." },
+  ], minSitelinks: 20, limit: 150, facts: [
+    { key: "father", pid: "P22", kind: "item" }, { key: "mother", pid: "P25", kind: "item" }, { key: "spouse", pid: "P26", kind: "item" }, { key: "child", pid: "P40", kind: "item" },
+  ] },
+  // Living stars born after 1945: the names people know from screens, stages and charts.
+  celebrities: { where: [
+    { tag: "Actor", where: "?item wdt:P106 wd:Q33999; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+    { tag: "Singer", where: "?item wdt:P106 wd:Q177220; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+    { tag: "Rapper", where: "?item wdt:P106 wd:Q2252262; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+    { tag: "Comedian", where: "?item wdt:P106 wd:Q245068; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+    { tag: "TV Host", where: "?item wdt:P106 wd:Q947873; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+    { tag: "Model", where: "?item wdt:P106 wd:Q4610556; wdt:P569 ?b. FILTER(YEAR(?b) > 1945) FILTER NOT EXISTS { ?item wdt:P570 [] }" },
+  ], minSitelinks: 80, limit: 150, facts: [
+    { key: "born", pid: "P569", kind: "year" }, { key: "country", pid: "P27", kind: "item" },
   ] },
 };

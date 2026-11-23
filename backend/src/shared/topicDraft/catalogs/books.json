@@ -885,5 +885,515 @@
    "epic"
   ],
   "q": "Les Misérables"
+ },
+ {
+  "id": "odyssey",
+  "name": "Odyssey",
+  "universe": "Adventure",
+  "archetype": "Homer",
+  "stats": {
+   "plot": 93,
+   "prose": 92,
+   "characters": 89,
+   "worldbuilding": 93,
+   "legacy": 99,
+   "pageturner": 83
+  },
+  "tags": [],
+  "q": "Odyssey",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "animal-farm",
+  "name": "Animal Farm",
+  "universe": "Dystopian",
+  "archetype": "George Orwell",
+  "stats": {
+   "plot": 88,
+   "prose": 88,
+   "characters": 83,
+   "worldbuilding": 76,
+   "legacy": 98,
+   "pageturner": 88
+  },
+  "tags": [],
+  "q": "Animal Farm",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "anna-karenina",
+  "name": "Anna Karenina",
+  "universe": "Literary",
+  "archetype": "Leo Tolstoy",
+  "stats": {
+   "plot": 90,
+   "prose": 97,
+   "characters": 97,
+   "worldbuilding": 89,
+   "legacy": 98,
+   "pageturner": 78
+  },
+  "tags": [],
+  "q": "Anna Karenina",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "harry-potter-and-the-chamber-of-secrets",
+  "name": "Harry Potter and the Chamber of Secrets",
+  "universe": "Fantasy",
+  "archetype": "J. K. Rowling",
+  "stats": {
+   "plot": 87,
+   "prose": 79,
+   "characters": 88,
+   "worldbuilding": 92,
+   "legacy": 96,
+   "pageturner": 93
+  },
+  "tags": [],
+  "q": "Harry Potter and the Chamber of Secrets",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "harry-potter-and-the-prisoner-of-azkaban",
+  "name": "Harry Potter and the Prisoner of Azkaban",
+  "universe": "Fantasy",
+  "archetype": "J. K. Rowling",
+  "stats": {
+   "plot": 91,
+   "prose": 82,
+   "characters": 91,
+   "worldbuilding": 93,
+   "legacy": 93,
+   "pageturner": 96
+  },
+  "tags": [],
+  "q": "Harry Potter and the Prisoner of Azkaban",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "harry-potter-and-the-order-of-the-phoenix",
+  "name": "Harry Potter and the Order of the Phoenix",
+  "universe": "Fantasy",
+  "archetype": "J. K. Rowling",
+  "stats": {
+   "plot": 87,
+   "prose": 79,
+   "characters": 90,
+   "worldbuilding": 94,
+   "legacy": 93,
+   "pageturner": 92
+  },
+  "tags": [],
+  "q": "Harry Potter and the Order of the Phoenix",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "harry-potter-and-the-goblet-of-fire",
+  "name": "Harry Potter and the Goblet of Fire",
+  "universe": "Fantasy",
+  "archetype": "J. K. Rowling",
+  "stats": {
+   "plot": 91,
+   "prose": 79,
+   "characters": 90,
+   "worldbuilding": 93,
+   "legacy": 93,
+   "pageturner": 96
+  },
+  "tags": [],
+  "q": "Harry Potter and the Goblet of Fire",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "harry-potter-and-the-half-blood-prince",
+  "name": "Harry Potter and the Half-Blood Prince",
+  "universe": "Fantasy",
+  "archetype": "J. K. Rowling",
+  "stats": {
+   "plot": 92,
+   "prose": 79,
+   "characters": 92,
+   "worldbuilding": 94,
+   "legacy": 93,
+   "pageturner": 95
+  },
+  "tags": [],
+  "q": "Harry Potter and the Half-Blood Prince",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "the-brothers-karamazov",
+  "name": "The Brothers Karamazov",
+  "universe": "Literary",
+  "archetype": "Fyodor Dostoyevsky",
+  "stats": {
+   "plot": 93,
+   "prose": 95,
+   "characters": 99,
+   "worldbuilding": 84,
+   "legacy": 97,
+   "pageturner": 80
+  },
+  "tags": [],
+  "q": "The Brothers Karamazov",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "the-old-man-and-the-sea",
+  "name": "The Old Man and the Sea",
+  "universe": "Literary",
+  "archetype": "Ernest Hemingway",
+  "stats": {
+   "plot": 82,
+   "prose": 95,
+   "characters": 84,
+   "worldbuilding": 65,
+   "legacy": 92,
+   "pageturner": 73
+  },
+  "tags": [],
+  "q": "The Old Man and the Sea",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "harry-potter-and-the-deathly-hallows",
+  "name": "Harry Potter and the Deathly Hallows",
+  "universe": "Fantasy",
+  "archetype": "J. K. Rowling",
+  "stats": {
+   "plot": 90,
+   "prose": 82,
+   "characters": 93,
+   "worldbuilding": 94,
+   "legacy": 98,
+   "pageturner": 96
+  },
+  "tags": [],
+  "q": "Harry Potter and the Deathly Hallows",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "the-three-musketeers",
+  "name": "The Three Musketeers",
+  "universe": "Adventure",
+  "archetype": "Alexandre Dumas",
+  "stats": {
+   "plot": 90,
+   "prose": 85,
+   "characters": 90,
+   "worldbuilding": 83,
+   "legacy": 92,
+   "pageturner": 95
+  },
+  "tags": [],
+  "q": "The Three Musketeers",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "frankenstein-or-the-modern-prometheus",
+  "name": "Frankenstein; or, The Modern Prometheus",
+  "universe": "Science Fiction",
+  "archetype": "Mary Shelley",
+  "stats": {
+   "plot": 89,
+   "prose": 89,
+   "characters": 89,
+   "worldbuilding": 83,
+   "legacy": 98,
+   "pageturner": 84
+  },
+  "tags": [],
+  "q": "Frankenstein; or, The Modern Prometheus",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "the-stranger",
+  "name": "The Stranger",
+  "universe": "Literary",
+  "archetype": "Albert Camus",
+  "stats": {
+   "plot": 82,
+   "prose": 95,
+   "characters": 83,
+   "worldbuilding": 70,
+   "legacy": 93,
+   "pageturner": 81
+  },
+  "tags": [],
+  "q": "The Stranger",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "gulliver-s-travels",
+  "name": "Gulliver's Travels",
+  "universe": "Fantasy",
+  "archetype": "Jonathan Swift",
+  "stats": {
+   "plot": 82,
+   "prose": 88,
+   "characters": 78,
+   "worldbuilding": 92,
+   "legacy": 97,
+   "pageturner": 75
+  },
+  "tags": [],
+  "q": "Gulliver's Travels",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "treasure-island",
+  "name": "Treasure Island",
+  "universe": "Adventure",
+  "archetype": "Robert Louis Stevenson",
+  "stats": {
+   "plot": 89,
+   "prose": 85,
+   "characters": 84,
+   "worldbuilding": 83,
+   "legacy": 92,
+   "pageturner": 93
+  },
+  "tags": [],
+  "q": "Treasure Island",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "the-metamorphosis",
+  "name": "The Metamorphosis",
+  "universe": "Horror",
+  "archetype": "Franz Kafka",
+  "stats": {
+   "plot": 85,
+   "prose": 92,
+   "characters": 84,
+   "worldbuilding": 70,
+   "legacy": 97,
+   "pageturner": 81
+  },
+  "tags": [],
+  "q": "The Metamorphosis",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "oliver-twist",
+  "name": "Oliver Twist",
+  "universe": "Literary",
+  "archetype": "Charles Dickens",
+  "stats": {
+   "plot": 85,
+   "prose": 88,
+   "characters": 93,
+   "worldbuilding": 84,
+   "legacy": 95,
+   "pageturner": 79
+  },
+  "tags": [],
+  "q": "Oliver Twist",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "the-picture-of-dorian-gray",
+  "name": "The Picture of Dorian Gray",
+  "universe": "Horror",
+  "archetype": "Oscar Wilde",
+  "stats": {
+   "plot": 87,
+   "prose": 97,
+   "characters": 91,
+   "worldbuilding": 78,
+   "legacy": 92,
+   "pageturner": 87
+  },
+  "tags": [],
+  "q": "The Picture of Dorian Gray",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "journey-to-the-west",
+  "name": "Journey to the West",
+  "universe": "Fantasy",
+  "archetype": "Wu Cheng'en",
+  "stats": {
+   "plot": 88,
+   "prose": 83,
+   "characters": 92,
+   "worldbuilding": 97,
+   "legacy": 99,
+   "pageturner": 80
+  },
+  "tags": [],
+  "q": "Journey to the West",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "the-master-and-margarita",
+  "name": "The Master and Margarita",
+  "universe": "Literary",
+  "archetype": "Mikhail Bulgakov",
+  "stats": {
+   "plot": 91,
+   "prose": 95,
+   "characters": 94,
+   "worldbuilding": 93,
+   "legacy": 92,
+   "pageturner": 88
+  },
+  "tags": [],
+  "q": "The Master and Margarita",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "the-count-of-monte-cristo",
+  "name": "The Count of Monte Cristo",
+  "universe": "Adventure",
+  "archetype": "Alexandre Dumas",
+  "stats": {
+   "plot": 97,
+   "prose": 85,
+   "characters": 91,
+   "worldbuilding": 84,
+   "legacy": 96,
+   "pageturner": 97
+  },
+  "tags": [],
+  "q": "The Count of Monte Cristo",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "around-the-world-in-eighty-days",
+  "name": "Around the World in Eighty Days",
+  "universe": "Children's",
+  "archetype": "Jules Verne",
+  "stats": {
+   "plot": 89,
+   "prose": 79,
+   "characters": 78,
+   "worldbuilding": 84,
+   "legacy": 90,
+   "pageturner": 92
+  },
+  "tags": [],
+  "q": "Around the World in Eighty Days",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "lolita",
+  "name": "Lolita",
+  "universe": "Mystery",
+  "archetype": "Vladimir Nabokov",
+  "stats": {
+   "plot": 88,
+   "prose": 97,
+   "characters": 94,
+   "worldbuilding": 73,
+   "legacy": 96,
+   "pageturner": 88
+  },
+  "tags": [],
+  "q": "Lolita",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "twenty-thousand-leagues-under-the-sea",
+  "name": "Twenty Thousand Leagues Under the Sea",
+  "universe": "Science Fiction",
+  "archetype": "Jules Verne",
+  "stats": {
+   "plot": 85,
+   "prose": 83,
+   "characters": 81,
+   "worldbuilding": 93,
+   "legacy": 93,
+   "pageturner": 83
+  },
+  "tags": [],
+  "q": "Twenty Thousand Leagues Under the Sea",
+  "ratedBy": "gemini+groq"
+ },
+ {
+  "id": "the-hunchback-of-notre-dame",
+  "name": "The Hunchback of Notre Dame",
+  "universe": "Horror",
+  "archetype": "Victor Hugo",
+  "stats": {
+   "plot": 88,
+   "prose": 93,
+   "characters": 91,
+   "worldbuilding": 90,
+   "legacy": 93,
+   "pageturner": 80
+  },
+  "tags": [],
+  "q": "The Hunchback of Notre Dame",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "the-adventures-of-tom-sawyer",
+  "name": "The Adventures of Tom Sawyer",
+  "universe": "Adventure",
+  "archetype": "Mark Twain",
+  "stats": {
+   "plot": 83,
+   "prose": 88,
+   "characters": 91,
+   "worldbuilding": 78,
+   "legacy": 92,
+   "pageturner": 85
+  },
+  "tags": [],
+  "q": "The Adventures of Tom Sawyer",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "a-christmas-carol",
+  "name": "A Christmas Carol",
+  "universe": "Literary",
+  "archetype": "Charles Dickens",
+  "stats": {
+   "plot": 89,
+   "prose": 90,
+   "characters": 90,
+   "worldbuilding": 78,
+   "legacy": 97,
+   "pageturner": 85
+  },
+  "tags": [],
+  "q": "A Christmas Carol",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "madame-bovary",
+  "name": "Madame Bovary",
+  "universe": "Literary",
+  "archetype": "Gustave Flaubert",
+  "stats": {
+   "plot": 82,
+   "prose": 97,
+   "characters": 93,
+   "worldbuilding": 75,
+   "legacy": 93,
+   "pageturner": 73
+  },
+  "tags": [],
+  "q": "Madame Bovary",
+  "ratedBy": "groq+gemini"
+ },
+ {
+  "id": "adventures-of-huckleberry-finn",
+  "name": "Adventures of Huckleberry Finn",
+  "universe": "Adventure",
+  "archetype": "Mark Twain",
+  "stats": {
+   "plot": 87,
+   "prose": 90,
+   "characters": 93,
+   "worldbuilding": 84,
+   "legacy": 97,
+   "pageturner": 84
+  },
+  "tags": [],
+  "q": "Adventures of Huckleberry Finn",
+  "ratedBy": "gemini+groq"
  }
 ]

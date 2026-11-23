@@ -1,0 +1,35 @@
+import type { TriviaSet } from "./types";
+
+export const celebrities: TriviaSet = {
+  quiz: [
+    ["Music Stars", 1, "Which singer is known as the 'Queen of Pop'?", "Madonna", "Beyoncé", "Lady Gaga", "Rihanna"],
+    ["Music Stars", 2, "Which singer's fans are called 'Swifties'?", "Taylor Swift", "Ariana Grande", "Selena Gomez", "Katy Perry"],
+    ["Music Stars", 3, "Rihanna is from which Caribbean country?", "Barbados", "Jamaica", "Trinidad and Tobago", "The Bahamas"],
+    ["Music Stars", 4, "What is Lady Gaga's real first name?", "Stefani", "Alecia", "Robyn", "Katheryn"],
+    ["Music Stars", 4, "Which rapper's real name is Aubrey Graham?", "Drake", "J. Cole", "Future", "Tyga"],
+    ["Film Stars", 1, "Which actor played Jack in 'Titanic'?", "Leonardo DiCaprio", "Brad Pitt", "Johnny Depp", "Matt Damon"],
+    ["Film Stars", 2, "Which actor played Iron Man in the Marvel films?", "Robert Downey Jr.", "Chris Evans", "Chris Hemsworth", "Mark Ruffalo"],
+    ["Film Stars", 3, "Which actress played Hermione Granger in the Harry Potter films?", "Emma Watson", "Emma Stone", "Keira Knightley", "Daisy Ridley"],
+    ["Film Stars", 4, "Which actress won a record four Academy Awards for acting?", "Katharine Hepburn", "Meryl Streep", "Frances McDormand", "Ingrid Bergman"],
+    ["Film Stars", 4, "Which actor was born Nicolas Kim Coppola?", "Nicolas Cage", "Joaquin Phoenix", "Christian Slater", "Andy Garcia"],
+    ["Sports Stars", 1, "In which sport is Serena Williams a champion?", "Tennis", "Golf", "Basketball", "Athletics"],
+    ["Sports Stars", 2, "Which sprinter set the 100 m world record of 9.58 seconds?", "Usain Bolt", "Carl Lewis", "Tyson Gay", "Yohan Blake"],
+    ["Sports Stars", 3, "Which country does Lionel Messi play for internationally?", "Argentina", "Spain", "Brazil", "Uruguay"],
+    ["Sports Stars", 4, "Which swimmer has won the most Olympic gold medals?", "Michael Phelps", "Mark Spitz", "Ryan Lochte", "Katie Ledecky"],
+    ["Sports Stars", 4, "Which gymnast has won the most World Championship medals?", "Simone Biles", "Nadia Comăneci", "Gabby Douglas", "Aly Raisman"],
+    ["TV & Internet", 1, "Which talk-show host gave a car to everyone in her audience in 2004?", "Oprah Winfrey", "Ellen DeGeneres", "Martha Stewart", "Tyra Banks"],
+    ["TV & Internet", 2, "Which chef is famous for shouting at cooks on 'Hell's Kitchen'?", "Gordon Ramsay", "Jamie Oliver", "Bobby Flay", "Guy Fieri"],
+    ["TV & Internet", 3, "Kim Kardashian was married to which rapper from 2014 to 2022?", "Kanye West", "Drake", "Jay-Z", "Travis Scott"],
+    ["TV & Internet", 4, "What is the real name of the YouTuber MrBeast?", "Jimmy Donaldson", "Felix Kjellberg", "Logan Paul", "Mark Rober"],
+    ["TV & Internet", 4, "Which comedian hosted 'The Daily Show' from 1999 to 2015?", "Jon Stewart", "Trevor Noah", "Stephen Colbert", "John Oliver"],
+  ],
+  surveys: [
+    ["Name a famous pop singer", "Taylor Swift|Beyoncé|Ariana Grande|Lady Gaga|Rihanna", "Tom Hanks|Serena Williams|Oprah Winfrey|LeBron James"],
+    ["Name a famous rapper", "Drake|Eminem|Jay-Z|Kanye West|Kendrick Lamar", "Adele|Ed Sheeran|Taylor Swift|Tom Cruise"],
+    ["Name an actor from the Marvel movies", "Robert Downey Jr.|Chris Evans|Chris Hemsworth|Scarlett Johansson|Tom Holland", "Leonardo DiCaprio|Meryl Streep|Tom Hanks|Will Ferrell"],
+    ["Name a famous talk-show host", "Oprah Winfrey|Ellen DeGeneres|Jimmy Fallon|Jimmy Kimmel|Stephen Colbert", "Taylor Swift|Usain Bolt|Brad Pitt|Rihanna"],
+    ["Name a celebrity famous for reality TV", "Kim Kardashian|Kylie Jenner|Paris Hilton|Snooki|Khloé Kardashian", "Meryl Streep|Denzel Washington|Adele|Roger Federer"],
+    ["Name a famous athlete", "LeBron James|Serena Williams|Cristiano Ronaldo|Lionel Messi|Usain Bolt", "Taylor Swift|Johnny Depp|Oprah Winfrey|Drake"],
+    ["Name a famous YouTuber", "MrBeast|PewDiePie|Logan Paul|KSI|Jake Paul", "Tom Cruise|Adele|Serena Williams|Brad Pitt"],
+  ],
+};

@@ -97,4 +97,47 @@ const history: Spec = {
   surveys: [],
 };
 
-export const SPECS: Record<string, Spec> = { films, shows, videogames, disney, anime, football, superheroes: hero("superheroes", "hero", "Hero"), history };
+const music: Spec = {
+  pool: "music",
+  templates: [
+    byEra("artist", (e) => `Who released the album ${quote(e)}?`, (g) => `Albums: ${g}`),
+    { fact: "year", ask: (e) => `In what year was the album ${quote(e)} released?`, group: (e) => first(e, "artist"), name: (g) => `Album Years: ${g}`, year: true },
+    { ...byEra("label", (e) => `Which record label released ${quote(e)}?`, (g) => `Record Labels: ${g} Albums`), shared: true },
+  ],
+  surveys: [{ fact: "artist", ask: (v) => `Name an album by ${v}` }],
+};
+
+const books: Spec = {
+  pool: "books",
+  templates: [
+    byEra("author", (e) => `Who wrote ${quote(e)}?`, (g) => `Authors: ${g} Novels`),
+    { fact: "year", ask: (e) => `In what year was ${quote(e)} first published?`, group: (e) => first(e, "author"), name: (g) => `Publication Years: ${g}`, year: true },
+    { fact: "year", ask: (e) => `In what year was ${quote(e)} first published?`, group: (e) => { const c = first(e, "country"); return c ? short(c) : null; }, name: (g) => `Publication Years: ${g} Novels`, year: true },
+  ],
+  surveys: [{ fact: "author", ask: (v) => `Name a novel by ${v}` }],
+};
+
+const mythology: Spec = {
+  pool: "mythology",
+  templates: [
+    { fact: "father", ask: (e) => `In myth, who is the father of ${e.label}?`, group: (e) => first(e, "tag"), name: (g) => `Divine Fathers: ${g}`, entityAnswer: true },
+    { fact: "mother", ask: (e) => `In myth, who is the mother of ${e.label}?`, group: (e) => first(e, "tag"), name: (g) => `Divine Mothers: ${g}`, entityAnswer: true },
+    { fact: "spouse", ask: (e) => `In myth, who is the spouse of ${e.label}?`, group: (e) => first(e, "tag"), name: (g) => `Divine Couples: ${g}`, entityAnswer: true },
+  ],
+  // Wikidata's "child" links for gods are often reversed or mixed between pantheons, so there are no surveys from them.
+  surveys: [],
+};
+
+const onePassport = (e: Entity) => (e.facts.country?.length === 1 ? short(e.facts.country[0]!) : null);
+
+const celebrities: Spec = {
+  pool: "celebrities",
+  templates: [
+    // Stars often hold several jobs (Eminem acts too), so boards are themed by country, not by job.
+    { fact: "born", ask: (e) => `In what year was ${e.label} born?`, group: (e) => onePassport(e), name: (g) => `Birth Years: Stars from ${g}`, year: true },
+  ],
+  // Citizenship lists mix birth and adopted countries, so a "name a star from" survey would reward wrong answers.
+  surveys: [],
+};
+
+export const SPECS: Record<string, Spec> = { films, shows, videogames, disney, anime, football, superheroes: hero("superheroes", "hero", "Hero"), history, music, books, mythology, celebrities };

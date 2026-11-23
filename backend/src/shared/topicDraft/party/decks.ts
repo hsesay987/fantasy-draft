@@ -3,7 +3,10 @@
 // Cards for the vote games. Each card is a scenario with two sides. Opinion decks score the majority;
 // Did That Happen cards have a right answer: real TV plots retold in our own words, mixed with made-up ones.
 
-export type VoteCard = { id: string; prompt: string; a: string; b: string; answer?: "a" | "b"; note?: string };
+import generated from "./generated.json";
+
+/** `by` is set on cards a model wrote: "writer>checker", e.g. "grok>gemini". */
+export type VoteCard = { id: string; prompt: string; a: string; b: string; answer?: "a" | "b"; note?: string; by?: string };
 /** `ask` is the question every ballot answers; `tag` says what a vote for a side means, shown on the ballot. */
 export type Deck = { id: string; title: string; blurb: string; how: string; ask?: string; tag?: string; cards: VoteCard[] };
 
@@ -39,6 +42,16 @@ export const DECKS: Deck[] = [
       ["Ava returns a dress after wearing it once to a party, tags tucked in. The shop notices and refuses the refund.", "Ava", "The shop"],
       ["Max gives away his friend's spoiler-free show ending in a vague tweet. His friend says he could tell from it.", "Max", "His friend"],
       ["Lily takes a work call on speakerphone in a quiet café. Someone asks her to stop and she says it's a public place.", "Lily", "The person who asked"],
+      ["Sara posts a group photo where she looks great and her friend doesn't. The friend asks her to take it down; Sara says no.", "Sara", "Her friend"],
+      ["Jay invites his ex to his birthday without telling his girlfriend. They're 'just friends'.", "Jay", "The girlfriend, for minding"],
+      ["Marco's flatmate uses his streaming account and keeps changing the profile picture as a joke. Marco changes the password.", "Marco", "The flatmate"],
+      ["Hana brings a store-bought cake to a 'homemade only' bake sale and wins first prize.", "Hana", "The judges"],
+      ["Eli tells everyone at the party that his friend's new business idea already exists. It does.", "Eli", "His friend"],
+      ["Grace saves seats for six friends at a packed gig. Two show up.", "Grace", "The four who didn't"],
+      ["Ian's friend lends him a book. Ian drops it in the bath and returns it without mentioning it.", "Ian", "The friend, for being upset"],
+      ["Zoe's neighbour's cat comes into her flat every day. Zoe starts feeding it and the cat stops going home.", "Zoe", "The neighbour"],
+      ["Raj leaves a group holiday a day early and still pays his full share, but skips the last group dinner.", "Raj", "The group"],
+      ["Tom buys a gift for his partner that's really something he wanted for himself.", "Tom", "His partner, for minding"],
     ]),
   },
   {
@@ -67,6 +80,31 @@ export const DECKS: Deck[] = [
       "They call their mum every day.",
       "They walk on their tiptoes.",
       "They have a podcast.",
+      "They reply to texts with a voice note.",
+      "They pronounce espresso 'expresso'.",
+      "They put their shoes on the sofa.",
+      "They film the whole concert on their phone.",
+      "They say 'no offence' right before something offensive.",
+      "They have a laugh you can hear from the next room.",
+      "They order the same thing at every restaurant.",
+      "They correct your grammar mid-argument.",
+      "They do a TikTok dance in public.",
+      "They read the menu out loud.",
+      "They use 'u' instead of 'you' in texts.",
+      "They clap along to the beat at a gig.",
+      "They have a strong opinion about fonts.",
+      "They bring a calculator to split the bill.",
+      "They wear sunglasses indoors.",
+      "They brag about how little sleep they get.",
+      "They watch videos on speaker on the train.",
+      "They call their partner 'babe' in every sentence.",
+      "They ask for a doggy bag on a first date.",
+      "They are rude to the waiter.",
+      "They still sleep with a childhood teddy.",
+      "They post their gym workout every day.",
+      "They don't own a single book.",
+      "They say 'let's circle back' outside of work.",
+      "They eat cereal for dinner.",
     ]),
   },
   {
@@ -93,6 +131,16 @@ export const DECKS: Deck[] = [
       ["You must pick one", "Be the funniest in the room", "Be the smartest in the room"],
       ["You must pick one", "Read minds", "Be invisible"],
       ["You must pick one", "Relive the same day forever", "Skip a year every time you sleep"],
+      ["You must pick one", "Always have a song stuck in your head", "Never hear music again"],
+      ["You must pick one", "Live in the city with no car", "Live in the countryside with no internet"],
+      ["You must pick one", "Only wear one outfit forever", "Never wear the same thing twice"],
+      ["You must pick one", "Be able to talk to animals", "Speak every human language"],
+      ["You must pick one", "Lose your sense of taste", "Lose your sense of smell"],
+      ["You must pick one", "Your phone battery is always 10%", "Your phone screen is always cracked"],
+      ["You must pick one", "Only eat breakfast food", "Never eat breakfast food again"],
+      ["You must pick one", "Win the lottery", "Live twice as long"],
+      ["You must pick one", "Be stuck in a lift with your ex", "Be stuck in a lift with your boss"],
+      ["You must pick one", "Sneeze every time you laugh", "Hiccup every time you speak"],
     ]),
   },
   {
@@ -220,9 +268,23 @@ export const DECKS: Deck[] = [
       "They wash the dishes after you cook.",
       "They get your favourite snacks on a road trip without asking.",
       "They plan a surprise for your birthday.",
+      "They let you pick the film every time.",
+      "They carry the heavy shopping bags.",
+      "They make you breakfast in bed.",
+      "They remember the anniversary of your first date.",
+      "They text you good luck before a big day.",
+      "They learn your love language.",
+      "They hold your hand in public.",
+      "They charge your phone when it's dead.",
+      "They save you the window seat.",
+      "They go to your friend's party even though they know nobody.",
     ]),
   },
 ];
+
+// Cross-checked cards from the content pipeline join their deck after the hand-written ones.
+const GENERATED_VOTE = (generated as { vote: Record<string, VoteCard[]> }).vote;
+for (const d of DECKS) d.cards = [...d.cards, ...(GENERATED_VOTE[d.id] ?? [])];
 
 /** A card that names people at the table: `{p1}` and `{p2}` are filled with two different players when a game starts. */
 export const PLAYER_SLOT = /\{p[12]\}/;

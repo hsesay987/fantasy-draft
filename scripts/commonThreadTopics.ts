@@ -569,3 +569,66 @@ SPECS.videogames = {
     dw("game", IN_GAME, "wdt:P577", decade("Appears in a game released")),
   ],
 };
+
+// Gods, heroes and monsters from the big pantheons. Families and the works they appear in make the threads.
+SPECS.mythology = {
+  where: [
+    "VALUES ?cls { wd:Q22989102 wd:Q113103481 wd:Q45713 wd:Q878099 } ?item wdt:P31 ?cls.",
+    "VALUES ?cls { wd:Q11688446 wd:Q146083 wd:Q16513881 wd:Q979507 wd:Q205985 wd:Q6058157 wd:Q178885 } ?item wdt:P31 ?cls.",
+    "VALUES ?cls { wd:Q22988604 wd:Q4271324 wd:Q2239243 wd:Q24334685 } ?item wdt:P31 ?cls.",
+  ],
+  minSitelinks: 8,
+  limit: 900,
+  facts: [
+    f("father", "wdt:P22", (v) => `A child of ${v}`),
+    f("mother", "wdt:P25", (v) => `A child of ${v}`),
+    f("parent", "wdt:P40", (v) => `A parent of ${v}`),
+    f("sibling", "wdt:P3373", (v) => `A sibling of ${v}`),
+    f("spouse", "wdt:P26", (v) => `A spouse of ${v}`),
+    f("work", "wdt:P1441", (v) => `Appears in the ${v.replace(/^the\s+/i, "")}`),
+    f("domain", "wdt:P2925", (v) => `Rules over ${v.toLowerCase()}`),
+    f("is", "wdt:P31", (v) => A_OR_AN(v), /^(deity|god|goddess|mythological character|legendary creature|literary character|character|fictional character)$/i),
+    f("worship", "wdt:P1049", (v) => `From ${v.replace(/^the\s+/i, "")}`),
+    f("symbol", "wdt:P1543", (v) => `Symbolised by ${art(v.toLowerCase())}`),
+  ],
+};
+
+// Animals with a page in many languages and an IUCN assessment. Their place in the tree of life makes most threads.
+/** A bounded climb up the tree: Wikidata times out on an open-ended wdt:P171+ for hundreds of species. */
+const up = (min: number, max: number) => [...Array(min).fill("wdt:P171"), ...Array(max - min).fill("wdt:P171?")].join("/");
+SPECS.animals = {
+  where: "?item wdt:P141 ?status; wdt:P105 wd:Q7432.",
+  minSitelinks: 25,
+  limit: 1600,
+  keep: (name) => !/^[A-Z][a-z]+ [a-z]+$/.test(name),
+  facts: [
+    { kind: "family", path: up(1, 3), as: "item", extra: "?v wdt:P105 wd:Q35409.", label: (v) => `In the family ${v}`, skip: /\s/, exclusive: true },
+    { kind: "order", path: up(2, 6), as: "item", extra: "?v wdt:P105 wd:Q36602.", label: (v) => `In the order ${v}`, skip: /\s/, exclusive: true },
+    { kind: "class", path: up(3, 9), as: "item", extra: "?v wdt:P105 wd:Q37517.", label: (v) => `In the class ${v}`, skip: /\s/, exclusive: true },
+    one("status", "wdt:P141", (v) => `Listed as ${v.toLowerCase()} by the IUCN`),
+    patchy(f("range", "wdt:P9714", (v) => `Found in ${place(v)}`)),
+    // No "endemic to": Wikidata uses it for places a bird was recorded (the starling "found only in" a national park).
+  ],
+};
+
+// Living stars of screen, stage, music, sport and the internet.
+const STAR = (qs: string) => `VALUES ?o { ${qs} } ?item wdt:P106 ?o. ?item wdt:P569 ?born. FILTER(YEAR(?born) > 1940) FILTER NOT EXISTS { ?item wdt:P570 [] }`;
+SPECS.celebrities = {
+  where: ["wd:Q33999 wd:Q10800557", "wd:Q177220 wd:Q2252262", "wd:Q947873 wd:Q245068 wd:Q4610556", "wd:Q937857 wd:Q3665646 wd:Q10833314"].map(STAR),
+  minSitelinks: 70,
+  limit: 300,
+  // Politicians who once modelled or hosted TV are not the stars this topic is about.
+  vet: { bad: ["Q82955", "Q372436"], strong: "wdt:P1411", minStrong: 99 },
+  facts: [
+    f("occupation", "wdt:P106", (v) => `Worked as ${art(v)}`),
+    one("country", "wdt:P27", (v) => `Citizen of ${place(v)}`),
+    d("bornDecade", "wdt:P569", decade("Born")),
+    one("birthplace", "wdt:P19", (v) => `Born in ${place(v)}`),
+    f("award", "wdt:P166", (v) => `Awarded the ${v}`, /^honorary/i),
+    f("school", "wdt:P69", (v) => `Studied at ${v}`),
+    f("label", "wdt:P264", (v) => `Signed to ${v}`),
+    f("genre", "wdt:P136", (v) => `Known for ${v.toLowerCase()}`),
+    f("member", "wdt:P463", (v) => `Member of ${v}`),
+    f("nominated", "wdt:P1411", (v) => `Nominated for the ${v}`),
+  ],
+};

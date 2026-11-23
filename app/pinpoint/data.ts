@@ -33,7 +33,10 @@ import villains from "./data/villains.json";
 import videogames from "./data/videogames.json";
 import disney from "./data/disney.json";
 import movies from "./data/movies.json";
+import mythology from "./data/mythology.json";
+import animals from "./data/animals.json";
+import celebrities from "./data/celebrities.json";
 
 export const PINPOINT_DATA: Record<string, PinpointData> = Object.fromEntries(
-  ([food, geography, flags, books, music, films, shows, history, football, nba, pokemon, anime, superheroes, villains, videogames, disney, movies] as PinpointData[]).map((d) => [d.pool, d])
+  ([food, geography, flags, books, music, films, shows, history, football, nba, pokemon, anime, superheroes, villains, videogames, disney, movies, mythology, animals, celebrities] as PinpointData[]).map((d) => [d.pool, d])
 );

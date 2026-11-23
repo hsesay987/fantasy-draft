@@ -1,0 +1,540 @@
+{
+ "pool": "celebrities",
+ "source": "Wikidata",
+ "columns": [
+  {
+   "key": "born",
+   "label": "Born",
+   "kind": "num",
+   "close": 5,
+   "fmt": "year"
+  },
+  {
+   "key": "country",
+   "label": "Country",
+   "kind": "cat"
+  },
+  {
+   "key": "field",
+   "label": "Known for",
+   "kind": "cat"
+  },
+  {
+   "key": "occupation",
+   "label": "Jobs",
+   "kind": "set"
+  },
+  {
+   "key": "gender",
+   "label": "Gender",
+   "kind": "cat"
+  },
+  {
+   "key": "height",
+   "label": "Height",
+   "kind": "num",
+   "close": 5,
+   "fmt": "int",
+   "unit": "cm"
+  }
+ ],
+ "facts": {
+  "celeb-beyonce": {
+   "born": 1981,
+   "country": "United States",
+   "field": "Music",
+   "occupation": [
+    "singer",
+    "songwriter",
+    "record producer"
+   ],
+   "gender": "Female"
+  },
+  "celeb-taylor-swift": {
+   "born": 1989,
+   "country": "United States",
+   "field": "Music",
+   "occupation": [
+    "singer-songwriter",
+    "singer",
+    "lyricist"
+   ],
+   "gender": "Female",
+   "height": 180
+  },
+  "celeb-rihanna": {
+   "born": 1988,
+   "country": "Barbados",
+   "field": "Music",
+   "occupation": [
+    "businessperson",
+    "actor",
+    "pop singer"
+   ],
+   "gender": "Female",
+   "height": 173
+  },
+  "celeb-lady-gaga": {
+   "born": 1986,
+   "country": "United States",
+   "field": "Music",
+   "occupation": [
+    "singer",
+    "songwriter"
+   ],
+   "gender": "Female",
+   "height": 155
+  },
+  "celeb-adele": {
+   "born": 1988,
+   "country": "United Kingdom",
+   "field": "Music",
+   "occupation": [
+    "singer-songwriter",
+    "musician",
+    "recording artist"
+   ],
+   "gender": "Female"
+  },
+  "celeb-ed-sheeran": {
+   "born": 1991,
+   "country": "United Kingdom",
+   "field": "Music",
+   "occupation": [
+    "singer-songwriter",
+    "musician",
+    "record producer"
+   ],
+   "gender": "Male"
+  },
+  "celeb-billie-eilish": {
+   "born": 2001,
+   "country": "United States",
+   "field": "Music",
+   "occupation": [
+    "singer-songwriter",
+    "singer",
+    "composer"
+   ],
+   "gender": "Female"
+  },
+  "celeb-ariana-grande": {
+   "born": 1993,
+   "country": "United States",
+   "field": "Music",
+   "occupation": [
+    "singer",
+    "songwriter",
+    "actor"
+   ],
+   "gender": "Female",
+   "height": 153
+  },
+  "celeb-harry-styles": {
+   "born": 1994,
+   "country": "United Kingdom",
+   "field": "Music",
+   "occupation": [
+    "songwriter",
+    "actor",
+    "film actor"
+   ],
+   "gender": "Male",
+   "height": 183
+  },
+  "celeb-bad-bunny": {
+   "born": 1994,
+   "country": "Puerto Rico",
+   "field": "Music",
+   "occupation": [
+    "rapper",
+    "singer",
+    "songwriter"
+   ],
+   "gender": "Male"
+  },
+  "celeb-drake": {
+   "born": 1986,
+   "country": "Canada",
+   "field": "Music",
+   "occupation": [
+    "rapper",
+    "singer",
+    "songwriter"
+   ],
+   "gender": "Male"
+  },
+  "celeb-shakira": {
+   "born": 1977,
+   "country": "Spain",
+   "field": "Music",
+   "occupation": [
+    "singer",
+    "actor",
+    "choreographer"
+   ],
+   "gender": "Female",
+   "height": 157
+  },
+  "celeb-dolly-parton": {
+   "born": 1946,
+   "country": "United States",
+   "field": "Music",
+   "occupation": [
+    "country singer",
+    "singer-songwriter",
+    "actor"
+   ],
+   "gender": "Female"
+  },
+  "celeb-snoop-dogg": {
+   "born": 1971,
+   "country": "United States",
+   "field": "Music",
+   "occupation": [
+    "rapper",
+    "singer",
+    "songwriter"
+   ],
+   "gender": "Male"
+  },
+  "celeb-dwayne-johnson": {
+   "born": 1972,
+   "country": "Canada",
+   "field": "Film",
+   "occupation": [
+    "professional wrestler",
+    "film actor",
+    "film producer"
+   ],
+   "gender": "Male"
+  },
+  "celeb-tom-hanks": {
+   "born": 1956,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "film actor",
+    "film director",
+    "film producer"
+   ],
+   "gender": "Male",
+   "height": 183
+  },
+  "celeb-meryl-streep": {
+   "born": 1949,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "film actor",
+    "stage actor",
+    "television actor"
+   ],
+   "gender": "Female"
+  },
+  "celeb-leonardo-dicaprio": {
+   "born": 1974,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "actor",
+    "film actor",
+    "screenwriter"
+   ],
+   "gender": "Male"
+  },
+  "celeb-denzel-washington": {
+   "born": 1954,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "actor"
+   ],
+   "gender": "Male",
+   "height": 185
+  },
+  "celeb-morgan-freeman": {
+   "born": 1937,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "film producer",
+    "television actor",
+    "film director"
+   ],
+   "gender": "Male",
+   "height": 188
+  },
+  "celeb-tom-cruise": {
+   "born": 1962,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "film actor",
+    "film producer",
+    "film director"
+   ],
+   "gender": "Male",
+   "height": 170
+  },
+  "celeb-keanu-reeves": {
+   "born": 1964,
+   "country": "Canada",
+   "field": "Film",
+   "occupation": [
+    "television actor",
+    "film actor",
+    "actor"
+   ],
+   "gender": "Male",
+   "height": 186
+  },
+  "celeb-zendaya": {
+   "born": 1996,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "television actor",
+    "film actor",
+    "singer"
+   ],
+   "gender": "Female",
+   "height": 178
+  },
+  "celeb-margot-robbie": {
+   "born": 1990,
+   "country": "Australia",
+   "field": "Film",
+   "occupation": [
+    "actor",
+    "film actor",
+    "model"
+   ],
+   "gender": "Female",
+   "height": 167.64000000000001
+  },
+  "celeb-timothee-chalamet": {
+   "born": 1995,
+   "country": "France",
+   "field": "Film",
+   "occupation": [
+    "actor"
+   ],
+   "gender": "Male",
+   "height": 178
+  },
+  "celeb-pedro-pascal": {
+   "born": 1975,
+   "country": "Chile",
+   "field": "Film",
+   "occupation": [
+    "actor",
+    "stage actor",
+    "television actor"
+   ],
+   "gender": "Male"
+  },
+  "celeb-ryan-reynolds": {
+   "born": 1976,
+   "country": "Canada",
+   "field": "Film",
+   "occupation": [
+    "actor",
+    "film actor",
+    "film producer"
+   ],
+   "gender": "Male",
+   "height": 188
+  },
+  "celeb-jackie-chan": {
+   "born": 1954,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "film actor",
+    "film producer",
+    "screenwriter"
+   ],
+   "gender": "Male",
+   "height": 174
+  },
+  "celeb-jennifer-lopez": {
+   "born": 1969,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "film actor",
+    "film producer",
+    "dancer"
+   ],
+   "gender": "Female"
+  },
+  "celeb-robert-downey-jr": {
+   "born": 1965,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "actor",
+    "television actor",
+    "film producer"
+   ],
+   "gender": "Male",
+   "height": 173
+  },
+  "celeb-scarlett-johansson": {
+   "born": 1984,
+   "country": "United States",
+   "field": "Film",
+   "occupation": [
+    "film actor",
+    "singer",
+    "stage actor"
+   ],
+   "gender": "Female",
+   "height": 160
+  },
+  "celeb-oprah-winfrey": {
+   "born": 1954,
+   "country": "United States",
+   "field": "TV",
+   "occupation": [
+    "television presenter",
+    "patron of the arts",
+    "television producer"
+   ],
+   "gender": "Female"
+  },
+  "celeb-kim-kardashian": {
+   "born": 1980,
+   "country": "United States",
+   "field": "TV",
+   "occupation": [
+    "fashion designer",
+    "socialite",
+    "blogger"
+   ],
+   "gender": "Female",
+   "height": 159
+  },
+  "celeb-gordon-ramsay": {
+   "born": 1966,
+   "country": "United Kingdom",
+   "field": "TV",
+   "occupation": [
+    "chef"
+   ],
+   "gender": "Male"
+  },
+  "celeb-jennifer-aniston": {
+   "born": 1969,
+   "country": "United States",
+   "field": "TV",
+   "occupation": [
+    "television actor",
+    "film actor",
+    "film producer"
+   ],
+   "gender": "Female"
+  },
+  "celeb-mrbeast": {
+   "born": 1998,
+   "country": "United States",
+   "field": "Internet",
+   "occupation": [
+    "YouTuber",
+    "entrepreneur"
+   ],
+   "gender": "Male",
+   "height": 191
+  },
+  "celeb-cristiano-ronaldo": {
+   "born": 1985,
+   "country": "Portugal",
+   "field": "Sport",
+   "occupation": [
+    "association football player"
+   ],
+   "gender": "Male",
+   "height": 185
+  },
+  "celeb-lionel-messi": {
+   "born": 1987,
+   "country": "Argentina",
+   "field": "Sport",
+   "occupation": [
+    "association football player"
+   ],
+   "gender": "Male",
+   "height": 169
+  },
+  "celeb-serena-williams": {
+   "born": 1981,
+   "country": "United States",
+   "field": "Sport",
+   "occupation": [
+    "tennis player",
+    "autobiographer",
+    "actor"
+   ],
+   "gender": "Female",
+   "height": 178
+  },
+  "celeb-lebron-james": {
+   "born": 1984,
+   "country": "United States",
+   "field": "Sport",
+   "occupation": [
+    "basketball player",
+    "screenwriter",
+    "television actor"
+   ],
+   "gender": "Male",
+   "height": 206
+  },
+  "celeb-usain-bolt": {
+   "born": 1986,
+   "country": "Jamaica",
+   "field": "Sport",
+   "occupation": [
+    "athletics competitor"
+   ],
+   "gender": "Male",
+   "height": 196
+  },
+  "celeb-david-beckham": {
+   "born": 1975,
+   "country": "United Kingdom",
+   "field": "Sport",
+   "occupation": [
+    "association football player",
+    "model",
+    "blogger"
+   ],
+   "gender": "Male",
+   "height": 183
+  },
+  "celeb-michael-jordan": {
+   "born": 1963,
+   "country": "United States",
+   "field": "Sport",
+   "occupation": [
+    "basketball player",
+    "baseball player",
+    "spokesperson"
+   ],
+   "gender": "Male",
+   "height": 198
+  },
+  "celeb-simone-biles": {
+   "born": 1997,
+   "country": "United States",
+   "field": "Sport",
+   "occupation": [
+    "artistic gymnast",
+    "athlete"
+   ],
+   "gender": "Female",
+   "height": 142
+  }
+ }
+}
