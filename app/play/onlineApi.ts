@@ -11,7 +11,10 @@ export type RoomSnapshot = {
   code: string;
   status: "lobby" | "playing" | "done";
   version: number;
+  /** The game's clock, which stands still while the host has a party game paused. */
   serverNow: number;
+  /** True while the host has the running party game paused. */
+  paused?: boolean;
   /** Null until the host picks a game. */
   setup: GameSetup | null;
   seats: { name: string; host: boolean; left: boolean; screen: boolean }[];
