@@ -26,7 +26,7 @@ import * as NP from "./formats/npat";
 import * as DIG from "./formats/npatDig";
 import { NPAT_SETS, categoryOf, setOf } from "./npat/categories";
 import { lettersAvailable } from "./npat/source";
-import { DIG_CATEGORIES } from "./npat/rules";
+import { digCountOk } from "./npat/rules";
 import { listFor } from "./pecking/source";
 import { deckOf } from "./party/decks";
 import { insyncDeckOf } from "./party/insyncDecks";
@@ -140,7 +140,7 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "npat": {
       if (npatIsDig(setup)) {
         const picked = npatPicked(poolsOf(setup));
-        const categories = picked.length === DIG_CATEGORIES && lettersAvailable(picked, false).length ? picked : NPAT_DIG_IDS;
+        const categories = digCountOk(picked.length) && lettersAvailable(picked, false).length ? picked : NPAT_DIG_IDS;
         return DIG.init({ players: setup.players, categories, teams: o.teams, teamMap: o.teamMap, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
       }
       const categories = npatCategories(poolsOf(setup), !!o.npatHard);

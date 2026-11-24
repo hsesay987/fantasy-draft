@@ -58,6 +58,9 @@ export const lettersFor = (hard: boolean): string[] =>
 
 // NPAT v2 "Dig": one letter, five categories, one at a time, each answer judged on the spot.
 export const DIG_CATEGORIES = 5;
+/** A room dig may ask more: the host ticks 5 to 10. Dailies always ask exactly DIG_CATEGORIES. */
+export const DIG_MAX_CATEGORIES = 10;
+export const digCountOk = (n: number): boolean => n >= DIG_CATEGORIES && n <= DIG_MAX_CATEGORIES;
 export const DIG_ANSWER_MS = 20_000;
 export const REEL_MS = 2_600;
 export const JUDGE_MS = 5_000;

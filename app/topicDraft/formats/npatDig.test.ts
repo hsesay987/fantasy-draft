@@ -37,10 +37,14 @@ const play = (s: DigState, rows: Record<string, string>): DigState => {
 };
 
 describe("flow", () => {
-  it("init starts in reel and requires exactly 5 categories", () => {
+  it("init starts in reel and takes 5 to 10 categories", () => {
     const s = make();
     expect(s).toMatchObject({ phase: "reel", cat: 0, letter: "H", done: false });
     expect(() => make({ categories: ["superhero"] })).toThrow();
+    expect(() => make({ categories: CATS.slice(0, 4) })).toThrow();
+    const ten = [...CATS, ...CATS].slice(0, 10);
+    expect(make({ categories: ten }).categories).toHaveLength(10);
+    expect(() => make({ categories: [...ten, CATS[0]!] })).toThrow();
     expect(DIG_CATEGORIES).toBe(5);
   });
 
