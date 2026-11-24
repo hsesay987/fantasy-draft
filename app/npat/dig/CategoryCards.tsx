@@ -22,7 +22,7 @@ export default function CategoryCards({ categories, at }: { categories: string[]
         );
       })}
       <style>{`.np-card-flip{animation:np-flip 420ms steps(6) both}@keyframes np-flip{0%{transform:rotateY(90deg) scale(1.2)}60%{transform:rotateY(0) scale(1.15)}100%{transform:none}}
-        .np-reveal{animation:np-reveal 520ms cubic-bezier(.2,1.4,.4,1) both}@keyframes np-reveal{0%{transform:scale(.4) rotate(-4deg);opacity:0}100%{transform:none;opacity:1}}
+        .np-reveal{animation:np-reveal 520ms cubic-bezier(.22,1,.36,1) both}@keyframes np-reveal{0%{transform:scale(.4) rotate(-4deg);opacity:0}100%{transform:none;opacity:1}}
         @media (prefers-reduced-motion: reduce){.np-card-flip,.np-reveal{animation:none}}`}</style>
     </ol>
   );
