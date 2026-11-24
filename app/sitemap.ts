@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { LANDINGS } from "./games/landing";
 import { TOPICS } from "./play/categories";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://toppicgames.com";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://toppic.io";
 
 /** The pages worth finding in a search: the tabs, every game's own page and every topic. */
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -105,7 +105,7 @@ function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: Game
 
   if (done && finished) {
     const v = serverVerdict ?? verdict;
-    const lines = v ? [`TopPic · ${setup.mission.title}`, ...[...v.teams].sort((a, b) => b.score - a.score).map((t, i) => `${i + 1}. ${t.player} — ${Math.round(t.score)}`), "Play at toppicgames.com"].join("\n") : undefined;
+    const lines = v ? [`TopPic · ${setup.mission.title}`, ...[...v.teams].sort((a, b) => b.score - a.score).map((t, i) => `${i + 1}. ${t.player} — ${Math.round(t.score)}`), "Play at toppic.io"].join("\n") : undefined;
     const extra = finished.extra && (
       <div className="rounded-2xl border border-white/10 bg-card/70 p-5">
         <h3 className="mb-3 text-xl">{finished.extra.title}</h3>

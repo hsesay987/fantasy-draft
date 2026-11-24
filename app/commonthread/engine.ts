@@ -65,7 +65,7 @@ export const shareGrid = (r: ThreadRun, title: string): string => {
   const wrong = r.removed.length;
   const skipped = r.shown - wrong - (r.won ? 1 : 0);
   const row = "🟥".repeat(wrong) + "⬛".repeat(Math.max(0, skipped)) + (r.won ? "🟩" : "") + "⬜".repeat(CLUES - r.shown);
-  return [`${title} ${r.won ? score(r) : "X"}/${CLUES}`, row, "toppicgames.com/commonthread"].join("\n");
+  return [`${title} ${r.won ? score(r) : "X"}/${CLUES}`, row, "toppic.io/commonthread"].join("\n");
 };
 
 const key = (pool: string, day: number) => `toppic:commonthread:${pool}:${day}`;
