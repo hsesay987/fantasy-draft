@@ -8,7 +8,7 @@ import { has, own } from "../party/own";
 import { buildTeams, TEAM_MIN_PLAYERS } from "../party/teams";
 import { shuffle } from "../rng";
 import {
-  aiTier, ANSWER_MAX, DIG_ANSWER_MS, DIG_CATEGORIES, JUDGE_MS, normAnswer, REEL_MS, sharedPoints, startsWith, TIER_POINTS,
+  aiTier, ANSWER_MAX, DIG_ANSWER_MS, DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk, JUDGE_MS, normAnswer, REEL_MS, sharedPoints, startsWith, TIER_POINTS,
   VERDICT_MS, WRITE_GRACE_MS, type Tier,
 } from "../npat/rules";
 import { lettersAvailable, lookup, tierOf } from "../npat/source";
@@ -64,7 +64,7 @@ export function init(o: {
   players: string[]; categories: string[]; teams: number; teamMap: Record<string, number>; avoid?: string[];
   letter?: string; strict?: boolean; drinking?: boolean; seed: number; now: number;
 }): DigState {
-  if (o.categories.length !== DIG_CATEGORIES) throw new Error(`NPAT dig: needs exactly ${DIG_CATEGORIES} categories`);
+  if (!digCountOk(o.categories.length)) throw new Error(`NPAT dig: needs ${DIG_CATEGORIES} to ${DIG_MAX_CATEGORIES} categories`);
   let seed = o.seed;
   let letter: string;
   if (typeof o.letter === "string" && /^[a-z]$/i.test(o.letter)) letter = o.letter.toUpperCase();

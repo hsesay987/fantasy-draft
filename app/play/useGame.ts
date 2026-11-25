@@ -31,6 +31,10 @@ export type GameCtl = {
   gone?: string[];
   /** Online rooms: walk out of this game. It carries on for everyone else. */
   leave?: () => void;
+  /** Online party games: true while the host has the game paused. */
+  paused?: boolean;
+  /** Online party games, host only: pause (true) or resume (false) the game. */
+  setPaused?: (on: boolean) => void;
 };
 
 export function useLocalGame(setup: GameSetup): GameCtl {
