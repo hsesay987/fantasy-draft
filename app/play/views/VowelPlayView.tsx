@@ -216,8 +216,6 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
               <input ref={input} value={text} onChange={(e) => typing(e.target.value)} readOnly={!canType} maxLength={60}
                 placeholder={seated ? "Name it" : "Watching"} aria-label="Type the name" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} enterKeyHint="go" />
             </label>
-            {/* Holding the press stops the input losing focus, so a phone's keyboard stays up. */}
-            {s.mode === "all" && <PixelButton type="button" variant="alt" disabled={!canType} onPointerDown={(e) => e.preventDefault()} onMouseDown={(e) => e.preventDefault()} onClick={giveUp}>Give up</PixelButton>}
           </form>
         ) : <VoiceControls s={s} me={me} seated={seated} gone={gone} dispatch={ctl.dispatch} play={play} secs={secs} />}
 
@@ -229,6 +227,8 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
             : rejected ? <span className="no">{rejected === REFUSED ? "Not that one. Keep trying." : rejected}</span>
             : s.mode === "all" ? <>Name it from the letters. Faster scores more.</> : <>Name it from the letters. The first right answer takes it.</>}
         </p>}
+        {/* Holding the press stops the input losing focus, so a phone's keyboard stays up. */}
+        {typed && s.mode === "all" && seated && <button type="button" className="vp-pass" disabled={!canType} onPointerDown={(e) => e.preventDefault()} onMouseDown={(e) => e.preventDefault()} onClick={giveUp}>Pass on this one</button>}
 
         <Roster s={s} me={me} gone={gone} reveal={reveal} />
 

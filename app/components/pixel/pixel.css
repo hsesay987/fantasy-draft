@@ -1010,6 +1010,11 @@ html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
 .vp-word b { font-weight: 400; color: var(--px-gold); }
 .vp-word .lost { color: #ef8a73; }
 .vp-word .no { color: #ef8a73; }
+/* A quiet way out under the status line, away from the typing row so it is not hit by mistake. 44px tall for a thumb. */
+.vp-pass { justify-self: start; min-height: 44px; margin: -6px 4px 0; padding: 0 2px; background: none; border: 0; color: var(--px-dim); font: 400 20px var(--px-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.vp-pass:hover, .vp-pass:focus-visible { color: var(--px-fg); }
+/* Kept in the layout between words so the roster below does not jump. */
+.vp-pass:disabled { visibility: hidden; }
 .vp-pips { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin: 0 4px; padding: 0; list-style: none; }
 .vp-rules { display: grid; gap: 8px; }
 .vp-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
