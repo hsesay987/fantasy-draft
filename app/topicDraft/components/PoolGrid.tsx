@@ -9,6 +9,8 @@ import { itemScore } from "../scorer";
 
 const label = (k: string) => k.charAt(0).toUpperCase() + k.slice(1);
 
+const NOWRAP = "shrink-0 whitespace-nowrap";
+
 export function PoolGrid({
   state, selectedId, onSelect, onQuickPick, disabled, only, highlightId, pool, weights,
 }: {
@@ -77,9 +79,10 @@ export function PoolGrid({
       </div>
       <div className="flex items-center gap-2 overflow-x-auto pb-1" role="group" aria-label="Sort by">
         <span className="shrink-0 text-xs uppercase tracking-wider text-muted-foreground">Sort</span>
-        {hasFit && <Chip selected={activeSort === "fit"} onClick={() => setSort("fit")}>Best for mission</Chip>}
-        {statKeys.map((k) => <Chip key={k} selected={activeSort === k} onClick={() => setSort(k)}>{label(k)}</Chip>)}
-        <Chip selected={activeSort === "name"} onClick={() => setSort("name")}>A–Z</Chip>
+        {/* This row scrolls sideways, so chips keep their width instead of squashing onto several lines. */}
+        {hasFit && <Chip className={NOWRAP} selected={activeSort === "fit"} onClick={() => setSort("fit")}>Best for mission</Chip>}
+        {statKeys.map((k) => <Chip key={k} className={NOWRAP} selected={activeSort === k} onClick={() => setSort(k)}>{label(k)}</Chip>)}
+        <Chip className={NOWRAP} selected={activeSort === "name"} onClick={() => setSort("name")}>A–Z</Chip>
       </div>
       <div className="flex flex-wrap gap-2">
         <Chip selected={!uni} onClick={() => setUni(null)}>All</Chip>

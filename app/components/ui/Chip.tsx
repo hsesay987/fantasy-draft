@@ -15,7 +15,7 @@ export function Chip({
 }) {
   const { play } = useSound();
   const base =
-    "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors";
+    "inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors sm:min-h-9";
   const tone = selected
     ? "border-secondary bg-primary/30 text-white"
     : "border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10";

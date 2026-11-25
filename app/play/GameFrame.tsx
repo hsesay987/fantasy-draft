@@ -24,10 +24,10 @@ export function GameFrame({
       <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-card/70 p-4">
         <div className="min-w-0">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">{kicker}</p>
-          <h1 className="truncate text-2xl md:text-3xl">{headline}</h1>
+          <h1 className="text-xl leading-tight [overflow-wrap:anywhere] sm:text-2xl md:truncate md:text-3xl">{headline}</h1>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
             {mystery ? <TopicIcon id="mystery" className="h-[18px] w-[18px] shrink-0" /> : <Eye className="h-4 w-4 shrink-0" aria-hidden />}
-            <span className="truncate">{mystery ? "Mission hidden — revealed at the verdict" : mission.title}</span>
+            <span className="min-w-0 md:truncate">{mystery ? "Mission hidden — revealed at the verdict" : mission.title}</span>
           </p>
         </div>
         {right}
