@@ -97,6 +97,8 @@ type Room = {
   answerAt?: Map<string, number[]>;
   /** NPAT dig: the judge phase (game and category) the judge was last asked about, so it is asked once per phase. */
   judgeKey?: string;
+  /** NPAT question style: when this room asked the judge, for its own hourly cap (see QUESTION_JUDGE_PER_HOUR). */
+  questionJudgeAt?: number[];
   /** NPAT dig: when this room's judge calls started, in the current hour, so one room cannot run up the model bill. */
   judgeAt?: number[];
   /** A tournament across games in this room. Stays visible once done, until a new one starts or the room closes. */
@@ -556,7 +558,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   if (setup.format === "vowelplay" || setup.format === "vowelparty") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("vp:")).map((x) => x.slice(3)) };
   if (setup.format === "pecking") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("pk:")) };
   if (setup.format === "sayless") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("sl:")) }; // the engine skips these words
-  if (setup.format === "npat") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("np:")) }; // letters already played go last
+  if (setup.format === "npat") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("np:") || x.startsWith("nq:")) }; // letters and questions already played go last
   room.pausedAt = undefined;
   room.pausedMs = 0;
   const state = initGame(setup, Date.now());
@@ -732,6 +734,7 @@ export function setPaused(room: Room, token: unknown, on: boolean): { ok: boolea
   else {
     room.pausedMs = (room.pausedMs ?? 0) + (wall - room.pausedAt!);
     room.pausedAt = undefined;
+    askNpatJudge(room); // a verdict dropped while paused is asked for again
   }
   bump(room);
   return { ok: true };
@@ -752,6 +755,11 @@ function commit(room: Room, next: GameState) {
 
 /** Judge calls one room may make per hour. */
 const ROOM_JUDGE_PER_HOUR = 60;
+/**
+ * Question style asks the judge every round (it has no lists to fall back on), so it keeps its own, larger budget:
+ * a round is at least reel + answer + verdict (about 26 s), so back-to-back games make at most about 138 calls an hour.
+ */
+export const QUESTION_JUDGE_PER_HOUR = 150;
 
 const judgeKeyOf = (s: DIG.DigState) => `${s.startedAt}:${s.seed}:${s.cat}`;
 
@@ -771,9 +779,11 @@ function askNpatJudge(room: Room) {
   const pending = DIG.pendingUnknowns(s);
   if (!pending.length) return;
   const nowMs = Date.now();
-  const recent = (room.judgeAt ?? []).filter((t) => nowMs - t < 3_600_000);
-  room.judgeAt = recent;
-  if (recent.length >= ROOM_JUDGE_PER_HOUR) return; // over the room's cap: the tick's fallback decides
+  const question = npatIsQuestion(room.setup);
+  const recent = ((question ? room.questionJudgeAt : room.judgeAt) ?? []).filter((t) => nowMs - t < 3_600_000);
+  if (question) room.questionJudgeAt = recent;
+  else room.judgeAt = recent;
+  if (recent.length >= (question ? QUESTION_JUDGE_PER_HOUR : ROOM_JUDGE_PER_HOUR)) return; // over the room's cap: the tick's fallback decides
   recent.push(nowMs);
   let call: Promise<unknown>;
   try {
@@ -791,7 +801,8 @@ function askNpatJudge(room: Room) {
       if (!x || typeof x.ok !== "boolean") return [];
       return [{ player: u.player, ok: x.ok, niche: Number(x.niche) || 0, ...(typeof x.reason === "string" ? { reason: x.reason } : {}) }];
     });
-    if (room.pausedAt) return; // paused: the tick's fallback decides once the game runs again
+    // Paused: drop the verdict but forget the ask, so resuming asks again (the phase's clock stood still meanwhile).
+    if (room.pausedAt) { if (room.judgeKey === key) room.judgeKey = undefined; return; }
     const now = gameNow(room);
     const next = DIG.judged(cur, verdicts, now);
     if (next !== cur) commit(room, settleParty(room, next, now));

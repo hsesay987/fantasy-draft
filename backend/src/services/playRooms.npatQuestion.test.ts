@@ -2,10 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("./judge.service", () => ({ judge: vi.fn(() => new Promise(() => {})) }));
 
-import { _rooms, act, createRoom, joinRoom, sanitizeSetup, setGame, setNpatHistory, setNpatJudge, snapshot, startRoom, startTournament, type NpatRoomJudge } from "./playRooms";
+import { _rooms, act, createRoom, joinRoom, QUESTION_JUDGE_PER_HOUR, sanitizeSetup, setGame, setNpatHistory, setNpatJudge, setPaused, snapshot, startRoom, startTournament, type NpatRoomJudge } from "./playRooms";
 import type { DigState, DigView } from "../shared/topicDraft/formats/npatDig";
 import { questionByText } from "../shared/topicDraft/npat/questions";
-import { QUESTION_DEFAULT_ROUNDS, QUESTION_MAX_ROUNDS } from "../shared/topicDraft/npat/rules";
+import { DIG_ANSWER_MS, QUESTION_DEFAULT_ROUNDS, QUESTION_MAX_ROUNDS, REEL_MS, VERDICT_MS } from "../shared/topicDraft/npat/rules";
 import type { NpatHistoryStore } from "./npatHistory.service";
 
 type Made = Extract<ReturnType<typeof createRoom>, { room: unknown }>;
@@ -104,6 +104,9 @@ describe("NPAT question rounds", () => {
     await flush();
     expect(calls).toEqual([]);
     expect(startRoom(r, toks.Ann!)).toEqual({ ok: true });
+    // The rematch is told to avoid every question and letter just played, whatever the seed draws.
+    for (const q of s.categories) expect(r.setup!.opts.avoid).toContain(`nq:${questionByText(q)!.id}`);
+    for (const l of s.letters!) expect(r.setup!.opts.avoid).toContain(`np:${l}`);
     expect(state(r).categories.some((q) => s.categories.includes(q))).toBe(false);
   });
 
@@ -120,5 +123,44 @@ describe("NPAT question rounds", () => {
     }
     const aw = r.tournament!.games[0]!.awards!;
     expect(aw.Ann).toBeGreaterThan(aw.Bob!);
+  });
+});
+
+describe("NPAT question judge budget and pause", () => {
+  /** Host skips the reel; Ann answers with the letter and everyone locks: the round goes to the judge. */
+  const toJudge = (r: Room, toks: Record<string, string>) => askRound(r, toks, { Ann: `${state(r).letter}ucket` });
+
+  it("has its own hourly budget, big enough for 12-round games back to back for an hour", () => {
+    const { j, calls } = fakeJudge();
+    setNpatJudge(j);
+    const { r, toks } = running(["Ann", "Bob"]);
+    r.judgeAt = new Array(60).fill(Date.now() - 1000); // a dig's hourly cap already spent
+    r.questionJudgeAt = new Array(QUESTION_JUDGE_PER_HOUR - 1).fill(Date.now() - 1000);
+    expect(QUESTION_JUDGE_PER_HOUR).toBeGreaterThanOrEqual(Math.ceil(3_600_000 / (REEL_MS + DIG_ANSWER_MS + VERDICT_MS)));
+    toJudge(r, toks);
+    expect(calls).toHaveLength(1); // the last call of the hour still goes
+    act(r, toks.Ann!, { type: "next" });
+    act(r, toks.Ann!, { type: "next" });
+    toJudge(r, toks);
+    expect(state(r)).toMatchObject({ phase: "judge", cat: 1 });
+    expect(calls).toHaveLength(1); // over the cap: the tick's fallback decides
+  });
+
+  it("asks the judge again after a pause swallowed its verdict", async () => {
+    const { j, calls } = fakeJudge();
+    setNpatJudge(j);
+    const { r, toks } = running(["Ann", "Bob"]);
+    toJudge(r, toks);
+    expect(calls).toHaveLength(1);
+    expect(setPaused(r, toks.Ann!, true)).toEqual({ ok: true });
+    calls[0]!.resolve([{ ok: true, niche: 0, source: "ai" }]);
+    await flush();
+    expect(state(r).phase).toBe("judge"); // dropped while paused
+    expect(setPaused(r, toks.Ann!, false)).toEqual({ ok: true });
+    expect(calls).toHaveLength(2);
+    calls[1]!.resolve([{ ok: false, niche: 0, reason: "not a thing", source: "ai" }]);
+    await flush();
+    expect(state(r).phase).toBe("verdict");
+    expect(state(r).results.Ann![0]).toMatchObject({ status: "ai-no", reason: "not a thing" });
   });
 });
