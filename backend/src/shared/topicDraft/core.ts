@@ -26,6 +26,8 @@ import * as PK from "./formats/pecking";
 import * as SL from "./formats/sayless";
 import * as NP from "./formats/npat";
 import * as DIG from "./formats/npatDig";
+import * as DG from "./formats/dodge";
+import { dodgeDeckOf } from "./dodge/decks";
 import { NPAT_SETS, categoryOf, setOf } from "./npat/categories";
 import { lettersAvailable } from "./npat/source";
 import { DIG_CATEGORIES } from "./npat/rules";
@@ -38,7 +40,7 @@ import type { Item, State } from "./types";
 import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
-export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState | PK.PeckState | SL.SLState | NP.NPState | DIG.DigState;
+export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState | PK.PeckState | SL.SLState | NP.NPState | DIG.DigState | DG.DodgeState;
 
 /** Every action says who is acting; the server checks that against the seat's token. */
 export type Action =
@@ -139,6 +141,8 @@ export function initGame(setup: GameSetup, now: number): GameState {
       return PK.init({ players: setup.players, lists: poolsOf(setup).flatMap((id) => listFor(id) ?? []), mode: o.peckMode ?? "mixed", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "sayless":
       return SL.init({ players: setup.players, decks: poolsOf(setup), rounds: o.saylessRounds ?? 2, wordsPerTurn: o.saylessWords ?? 3, slack: o.saylessSlack ?? 5, teams: o.teams, teamMap: o.teamMap, guard: o.saylessGuard ?? false, answer: o.answer === "buzz" ? "buzz" : "phones", avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+    case "dodge":
+      return DG.init({ players: setup.players, decks: poolsOf(setup), categories: poolsOf(setup).flatMap((id) => dodgeDeckOf(id)?.categories ?? []), laps: o.dodgeLaps ?? 1, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "npat": {
       if (npatIsDig(setup)) {
         const picked = npatPicked(poolsOf(setup));
@@ -369,6 +373,14 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       if (a.type === "tick") return NP.tick(x, now);
       return s;
     }
+    case "dodge": {
+      const x = s as DG.DodgeState;
+      if (a.type === "answer") return DG.answer(x, a.by, a.text, now);
+      if (a.type === "lock") return DG.lock(x, a.by, now);
+      if (a.type === "next") return DG.next(x, now);
+      if (a.type === "tick") return DG.tick(x, now);
+      return s;
+    }
     case "sayless": {
       const x = s as SL.SLState;
       if (a.type === "clue") return SL.clue(x, a.by, a.text, now);
@@ -525,6 +537,7 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
     case "pecking":
     case "sayless":
     case "npat":
+    case "dodge":
     case "vote": {
       const pts = (s as { points: Record<string, number> }).points;
       return { extra: null, teams: setup.players.map((player) => ({ player, baseline: pts[player] ?? 0, items: [] })) };

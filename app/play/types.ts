@@ -4,10 +4,10 @@ import type { Role } from "../topicDraft/formats/position";
 import type { PeckMode } from "../topicDraft/formats/pecking";
 import type { QuizData } from "../topicDraft/trivia/types";
 
-export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat";
+export type FormatId = "snake" | "spin" | "auction" | "loadout" | "position" | "blind" | "keep" | "feud" | "jeopardy" | "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat" | "dodge";
 
 /** Party games: online only, played on phones in one room. `pool` is a topic (Imposter) or a card deck (vote games). */
-export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless", "npat"]);
+export const PARTY_FORMATS = new Set<FormatId>(["imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless", "npat", "dodge"]);
 
 export type Opts = {
   teamSize: number;
@@ -63,6 +63,8 @@ export type Opts = {
   npatStop?: boolean;
   /** Name Place Animal Thing: "dig" asks five categories one at a time (20 s each); "sheet" fills every category at once. Absent means sheet. */
   npatStyle?: "dig" | "sheet";
+  /** Dodge: how many times each player is chosen (1 to 3, default 1). */
+  dodgeLaps?: number;
   /** Vowel Play: say it aloud and let the others judge, or type it. */
   vowelAnswer: "voice" | "type";
   /** Party games with one right answer: everyone answers on their phone, or buzz in at the table. */

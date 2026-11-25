@@ -24,6 +24,8 @@ import { NPAT_SETS, categoryOf, setOf } from "./npat/categories";
 import { lettersAvailable } from "./npat/source";
 import { poolTitleFor } from "./party/pools";
 import type { NPState } from "./formats/npat";
+import { DODGE_DECK_IDS, dodgeDeckOf } from "./dodge/decks";
+import type { DodgeState } from "./formats/dodge";
 
 const setup = (format: GameSetup["format"], pools: string[], opts: Partial<GameSetup["opts"]> = {}, seed = 3): GameSetup => ({
   id: "t", format, pool: pools[0]!, pools, players: ["A", "B", "C", "D"], aiPlayers: [], mission: { id: "party", title: "t", blurb: "", weights: { fun: 1 } },
@@ -222,5 +224,19 @@ describe("npat pools", () => {
   it("applies the team map to teams of 2+ players", () => {
     const s = initGame(setup("npat", ["classic"], { teams: 2, teamMap: { A: 0, B: 0, C: 1, D: 1 } }), 0) as NPState;
     expect(s.teams).toEqual([["A", "B"], ["C", "D"]]);
+  });
+});
+
+describe("dodge pools", () => {
+  it("poolIdsFor lists every deck, with their titles", () => {
+    expect(poolIdsFor("dodge")).toEqual(DODGE_DECK_IDS);
+    expect(poolTitleFor("dodge", "food")).toBe("Food and drink");
+  });
+  it("deals one category a player a lap from the chosen decks only", () => {
+    const [a, b] = [dodgeDeckOf("food")!, dodgeDeckOf("sport")!];
+    const s = initGame(setup("dodge", [a.id, b.id], { dodgeLaps: 2 }), 0) as DodgeState;
+    expect(s.categories).toHaveLength(8);
+    expect(s.categories.every((c) => a.categories.includes(c) || b.categories.includes(c))).toBe(true);
+    expect((initGame(setup("dodge", ["food"]), 0) as DodgeState).categories).toHaveLength(4);
   });
 });
