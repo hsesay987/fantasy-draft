@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { applyAction, initGame, poolFor, suggestion, type Action, type GameState } from "../topicDraft/core";
 import type { Item } from "../topicDraft/types";
 import type { GameSetup } from "./types";
@@ -42,15 +42,19 @@ export function useLocalGame(setup: GameSetup): GameCtl {
   const [state, setState, finish] = useRunState<GameState>(setup.id, () => initGame(setup, Date.now()));
   const pool = useMemo(() => poolFor(setup), [setup]);
   const map = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
+  // Every change to a local game goes through dispatch, so this always holds the newest state, even before React re-renders.
+  // The next state and the spelling suggestion both come from it.
   const latest = useRef(state);
-  useEffect(() => { latest.current = state; });
   const dispatch = useCallback(
     (a: Action): void | Promise<MoveResult> => {
       trackAction(setup, a, false);
       const now = Date.now();
+      const cur = latest.current;
       // Same spelling help as a room, worked out here: the engine notes the near miss, the view fills the input.
-      const suggest = suggestion(setup, latest.current, a, now);
-      setState((s) => applyAction(setup, s, a, now));
+      const suggest = suggestion(setup, cur, a, now);
+      const next = applyAction(setup, cur, a, now);
+      latest.current = next;
+      setState(next);
       if (suggest) return Promise.resolve({ ok: false, error: `Did you mean ${suggest}?`, suggest });
     },
     [setState, setup]

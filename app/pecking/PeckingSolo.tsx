@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import * as PK from "../topicDraft/formats/pecking";
 import type { PeckList } from "../topicDraft/pecking/types";
 import { PixelButton, PixelShell } from "../components/pixel/PixelUI";
@@ -34,19 +34,24 @@ export function PeckingSolo(props: PeckingSoloProps) {
 const deal = (p: PeckingSoloProps, avoid?: string[]) =>
   PK.init({ players: [ME], lists: p.lists ?? [], mode: "mixed", count: p.count ?? 6, avoid, seed: Math.floor(Math.random() * 2 ** 31), now: Date.now(), questions: p.questions });
 
+type Typed = { round: number; t: string } | null;
+type Hint = { round: number; name: string } | null;
+
 function Game(props: PeckingSoloProps) {
   const { daily, onFinish, backHref = "/pecking", backLabel = "All lists" } = props;
-  const [s, setS] = useState(() => deal(props));
+  // The game, the typed name and the spelling hint live together, so a pick's suggestion comes from the same state it
+  // was judged on, even when a clock tick lands in between.
+  const [g, setG] = useState<{ s: PK.PeckState; typed: Typed; hint: Hint }>(() => ({ s: deal(props), typed: null, hint: null }));
+  const { s, typed, hint } = g;
+  const setS = useCallback((f: (p: PK.PeckState) => PK.PeckState) => setG((p) => ({ ...p, s: f(p.s) })), []);
+  const setTyped = (t: Typed) => setG((p) => ({ ...p, typed: t }));
   const [rank, setRank] = useState<{ round: number; v: number } | null>(null);
-  const [typed, setTyped] = useState<{ round: number; t: string } | null>(null);
-  // Spelling help: the list name a near miss was close to, while the input still holds it.
-  const [hint, setHint] = useState<{ round: number; name: string } | null>(null);
 
   // The clock: a timeout closes the question and a reveal moves on. The state changes only inside the interval callback.
   useEffect(() => {
     const id = setInterval(() => setS((p) => PK.tick(p, Date.now())), 250);
     return () => clearInterval(id);
-  }, []);
+  }, [setS]);
 
   const finish = useRef(onFinish);
   useEffect(() => { finish.current = onFinish; }, [onFinish]);
@@ -57,7 +62,7 @@ function Game(props: PeckingSoloProps) {
   }, [s]);
   useEffect(() => { window.scrollTo(0, 0); }, [s.round, s.phase, s.done]);
 
-  const again = () => { setRank(null); setTyped(null); setS(deal(props, PK.seenKeys(s))); };
+  const again = () => { setRank(null); setG((p) => ({ s: deal(props, PK.seenKeys(p.s)), typed: null, hint: null })); };
 
   const view = PK.redactFor(s, ME); // the answer stays out of what is rendered until the reveal
   if (s.questions.length === 0) {
@@ -116,12 +121,12 @@ function Game(props: PeckingSoloProps) {
   const mine = last?.scores[ME];
   const pickName = (n: string) => {
     const t = Date.now();
-    const close = PK.nearMiss(s, ME, n, t);
-    if (close) {
-      setTyped({ round: s.round, t: close });
-      setHint({ round: s.round, name: close });
-    }
-    setS(PK.pickName(s, ME, n, t));
+    setG((p) => {
+      const close = PK.nearMiss(p.s, ME, n, t);
+      const next = PK.pickName(p.s, ME, n, t);
+      // A near miss: the input takes the list name, and Enter sends it.
+      return close ? { s: next, typed: { round: p.s.round, t: close }, hint: { round: p.s.round, name: close } } : { ...p, s: next };
+    });
   };
 
   return (
