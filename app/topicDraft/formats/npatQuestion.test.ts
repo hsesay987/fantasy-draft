@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { answer, judged, lock, next, pendingUnknowns, redactFor, reviewItems, settle, tick, winners, type DigState } from "./npatDig";
 import { init, seenKeys } from "./npatQuestion";
 import { DIG_ANSWER_MS, JUDGE_MS, QUESTION_LETTERS, QUESTION_MAX_ROUNDS, QUESTION_MIN_ROUNDS, REEL_MS, VERDICT_MS, WRITE_GRACE_MS } from "../npat/rules";
-import { NPAT_QUESTIONS, questionByText } from "../npat/questions";
+import { NPAT_QUESTIONS, questionByText, questionOf } from "../npat/questions";
 
 // No list source is set here on purpose: question style never looks anything up, so it must not need the lists.
 
@@ -18,7 +18,7 @@ const play = (s: DigState, rows: Record<string, string>): DigState => {
   return closeAsk(s);
 };
 /** A started round with letter B, whatever the seed drew. */
-const withB = (o: Partial<O> = {}) => ask(make({ questions: ["q1", "q2", "q3"], letters: ["B", "C", "D"], ...o }));
+const withB = (o: Partial<O> = {}) => ask(make({ questions: ["q1", "q4", "q3"], letters: ["B", "C", "D"], ...o }));
 
 describe("init", () => {
   it("draws one bank question and one letter per round, all different", () => {
@@ -48,8 +48,8 @@ describe("init", () => {
   });
 
   it("takes fixed questions and letters (by id), ignoring unknown ones", () => {
-    const s = make({ questions: ["q1", "nope", "q2", "q3"], letters: ["b", "C", "D"] });
-    expect(s.categories).toEqual([NPAT_QUESTIONS[0]!.text, NPAT_QUESTIONS[1]!.text, NPAT_QUESTIONS[2]!.text]);
+    const s = make({ questions: ["q1", "nope", "q4", "q3"], letters: ["b", "C", "D"] });
+    expect(s.categories).toEqual(["q1", "q4", "q3"].map((id) => questionOf(id)!.text));
     expect(s.letters).toEqual(["B", "C", "D"]);
   });
 });
@@ -112,7 +112,7 @@ describe("judging and scoring", () => {
   });
 
   it("a leading a, an, the or some is dropped before the letter check", () => {
-    const s = play(ask(make({ questions: ["q1", "q2", "q3"], letters: ["T", "C", "D"] })), { Ann: "a towel", Bob: "Some tongs", Cy: "an umbrella" });
+    const s = play(ask(make({ questions: ["q1", "q4", "q3"], letters: ["T", "C", "D"] })), { Ann: "a towel", Bob: "Some tongs", Cy: "an umbrella" });
     expect(a(s, "Ann")).toMatchObject({ status: "unknown", text: "towel" });
     expect(a(s, "Bob")).toMatchObject({ status: "unknown", text: "tongs" });
     expect(a(s, "Cy").status).toBe("wrong-letter");
@@ -120,7 +120,7 @@ describe("judging and scoring", () => {
   });
 
   it("simple plurals and articles count as the same answer", () => {
-    let s = play(ask(make({ questions: ["q1", "q2", "q3"], letters: ["S", "C", "D"] })), { Ann: "Sandwich", Bob: "sandwiches", Cy: "the sandwich" });
+    let s = play(ask(make({ questions: ["q1", "q4", "q3"], letters: ["S", "C", "D"] })), { Ann: "Sandwich", Bob: "sandwiches", Cy: "the sandwich" });
     s = judged(s, ["Ann", "Bob", "Cy"].map((p) => ({ player: p, ok: true, niche: 0 })), s.phaseAt + 1);
     expect(s.points).toEqual({ Ann: 5, Bob: 5, Cy: 5 });
   });
@@ -146,12 +146,12 @@ describe("judging and scoring", () => {
 
 describe("redaction", () => {
   it("later questions and letters stay hidden, and so does the open round's question until its reel ends", () => {
-    const s = make({ questions: ["q1", "q2", "q3"], letters: ["B", "C", "D"] });
+    const s = make({ questions: ["q1", "q4", "q3"], letters: ["B", "C", "D"] });
     const v = redactFor(s, "Ann");
     expect(v.categories).toEqual(["", "", ""]);
     expect(v.letters).toEqual(["B", "", ""]);
     const json = JSON.stringify(v);
-    for (const q of [NPAT_QUESTIONS[0]!.text, NPAT_QUESTIONS[1]!.text, NPAT_QUESTIONS[2]!.text]) expect(json).not.toContain(q);
+    for (const id of ["q1", "q4", "q3"]) expect(json).not.toContain(questionOf(id)!.text);
     const asking = redactFor(ask(s), null);
     expect(asking.categories).toEqual([NPAT_QUESTIONS[0]!.text, "", ""]);
     expect(asking.letters).toEqual(["B", "", ""]);
@@ -160,13 +160,13 @@ describe("redaction", () => {
 
 describe("seenKeys", () => {
   it("names the questions by id and the letters", () => {
-    expect(seenKeys(make({ questions: ["q1", "q2", "q3"], letters: ["B", "C", "D"] }))).toEqual(["nq:q1", "nq:q2", "nq:q3", "np:B", "np:C", "np:D"]);
+    expect(seenKeys(make({ questions: ["q1", "q4", "q3"], letters: ["B", "C", "D"] }))).toEqual(["nq:q1", "nq:q4", "nq:q3", "np:B", "np:C", "np:D"]);
   });
 });
 
 describe("the bank", () => {
   it("has about 150 distinct questions with distinct ids, short enough for the judge", () => {
-    expect(NPAT_QUESTIONS.length).toBeGreaterThanOrEqual(140);
+    expect(NPAT_QUESTIONS.length).toBeGreaterThanOrEqual(150);
     expect(new Set(NPAT_QUESTIONS.map((q) => q.id)).size).toBe(NPAT_QUESTIONS.length);
     expect(new Set(NPAT_QUESTIONS.map((q) => q.text.toLowerCase())).size).toBe(NPAT_QUESTIONS.length);
     for (const q of NPAT_QUESTIONS) {
