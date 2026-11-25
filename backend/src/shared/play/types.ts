@@ -58,13 +58,14 @@ export type Opts = {
   saylessWords?: number;
   saylessSlack?: number;
   saylessGuard?: boolean;
-  /** Name Place Animal Thing: rounds (1 to 8, default 3), seconds to write (45, 60 or 90, default 60), hard letters, and whether the first finisher stops the clock. */
+  /** Name Place Animal Thing: rounds (1 to 8, default 3; question style 3 to 12, default 8), seconds to write (45, 60 or 90, default 60), hard letters, and whether the first finisher stops the clock. */
   npatRounds?: number;
   npatSeconds?: number;
   npatHard?: boolean;
   npatStop?: boolean;
-  /** Name Place Animal Thing: "dig" asks five categories one at a time (20 s each); "sheet" fills every category at once. Absent means sheet. */
-  npatStyle?: "dig" | "sheet";
+  /** Name Place Animal Thing: "dig" asks five categories one at a time (20 s each); "question" asks one open question a
+   * round, each with its own letter (20 s each); "sheet" fills every category at once. Absent means sheet. */
+  npatStyle?: "dig" | "sheet" | "question";
   /** Vowel Play: say it aloud and let the others judge, or type it. */
   vowelAnswer: "voice" | "type";
   /** Party games with one right answer: everyone answers on their phone, or buzz in at the table. */

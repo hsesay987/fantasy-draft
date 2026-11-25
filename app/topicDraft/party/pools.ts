@@ -8,6 +8,7 @@ import { INSYNC_DECKS, insyncDeckOf } from "./insyncDecks";
 import { mixTitle } from "./mixTitle";
 import { SAY_DECK_IDS, sayDeckOf } from "../sayless/decks";
 import { NPAT_SETS, categoryOf, setOf } from "../npat/categories";
+import { QUESTIONS_POOL } from "../npat/questions";
 import { PECKING_META } from "../pecking/meta";
 import { VOWEL_TOPICS, vowelTopicTitle } from "./vowelTopics";
 
@@ -25,7 +26,7 @@ export function poolIdsFor(format: FormatId): string[] {
     case "vowelparty": return VOWEL_TOPICS.map((t) => t.id);
     case "pecking": return PECKING_META.map((m) => m.id);
     case "sayless": return [...SAY_DECK_IDS];
-    case "npat": return NPAT_SETS.map((x) => x.id);
+    case "npat": return [...NPAT_SETS.map((x) => x.id), QUESTIONS_POOL]; // "questions": question style
     default: return [];
   }
 }
@@ -39,7 +40,7 @@ export function poolTitleFor(format: FormatId, id: string): string {
     case "vowelparty": return vowelTopicTitle(id);
     case "pecking": return PECKING_META.find((m) => m.id === id)?.title ?? id;
     case "sayless": return sayDeckOf(id)?.title ?? id;
-    case "npat": return id.startsWith("cat:") ? categoryOf(id.slice(4))?.title ?? id : setOf(id)?.title ?? id;
+    case "npat": return id === QUESTIONS_POOL ? "Questions" : id.startsWith("cat:") ? categoryOf(id.slice(4))?.title ?? id : setOf(id)?.title ?? id;
     default: return CATALOG_META.find((m) => m.id === id)?.title ?? id;
   }
 }

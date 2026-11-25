@@ -91,3 +91,12 @@ export const aiTier = (niche: number): Tier => {
   const n = Number.isFinite(niche) ? Math.min(100, Math.max(0, niche)) : 0;
   return n < 20 ? "common" : n < 45 ? "solid" : "rare";
 };
+
+// NPAT question style: each round draws a letter and asks one open question (npat/questions.ts), 20 s to answer.
+export const QUESTION_MIN_ROUNDS = 3;
+export const QUESTION_MAX_ROUNDS = 12;
+export const QUESTION_DEFAULT_ROUNDS = 8;
+/** Letters a question round can draw: the hard four plus U and V leave too few answers for an open question. */
+export const QUESTION_LETTERS = lettersFor(false).filter((l) => l !== "U" && l !== "V");
+/** Every accepted answer is worth the same: 10, or 5 when someone else gave it too (TIER_POINTS.common, halved). */
+export const QUESTION_TIER: Tier = "common";

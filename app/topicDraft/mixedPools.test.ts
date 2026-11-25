@@ -175,8 +175,12 @@ describe("sayless pools", () => {
 describe("npat pools", () => {
   const cats = (pools: string[], opts: Partial<GameSetup["opts"]> = {}) => (initGame(setup("npat", pools, opts), 0) as NPState).categories;
   const classic = setOf("classic")!.categories;
-  it("poolIdsFor lists the set ids only", () => {
-    expect(poolIdsFor("npat")).toEqual(NPAT_SETS.map((x) => x.id));
+  it("poolIdsFor lists the set ids, then question style's pool", () => {
+    expect(poolIdsFor("npat")).toEqual([...NPAT_SETS.map((x) => x.id), "questions"]);
+    expect(poolTitleFor("npat", "questions")).toBe("Questions");
+  });
+  it("a sheet given the questions pool plays Classic", () => {
+    expect(cats(["questions"])).toEqual(classic);
   });
   it("poolTitleFor names a set and a custom category", () => {
     expect(poolTitleFor("npat", "film")).toBe(setOf("film")!.title);
