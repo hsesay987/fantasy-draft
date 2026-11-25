@@ -63,6 +63,10 @@ describe("Dodge setup", () => {
     expect(state(r).categories.every((c) => dodgeDeckOf("food")!.categories.includes(c))).toBe(true);
     expect(state(r).phase).toBe("answer");
   });
+  it("needs three players", () => {
+    const { r, toks } = seated(["Ann", "Bob"]);
+    expect(startRoom(r, toks.Ann!)).toEqual({ error: "Need at least 3 players" });
+  });
   it("can be a tournament slot with its decks", () => {
     const { r, toks } = seated(["Ann", "Bob"], null);
     expect(startTournament(r, toks.Ann!, [{ format: "dodge", pools: ["food", "nature"] }, "insync"])).toEqual({ ok: true });
@@ -72,7 +76,7 @@ describe("Dodge setup", () => {
 
 describe("Dodge actions", () => {
   it("answers are text, capped and rate limited", () => {
-    const { r, toks } = running(["Ann", "Bob"]);
+    const { r, toks } = running(["Ann", "Bob", "Cy"]);
     expect(act(r, toks.Ann!, { type: "answer", text: 5 })).toEqual({ ok: false, error: "Type an answer" });
     expect(act(r, toks.Ann!, { type: "answer", text: "x".repeat(41) })).toEqual({ ok: false, error: "That answer is too long" });
     r.answerAt = undefined;
@@ -94,27 +98,26 @@ describe("Dodge actions", () => {
     expect(snap(r, null).state.history[0]!.answers).toEqual({ Ann: "Pepperoni", Bob: "pepperoni", Cy: "ham" });
   });
   it("only the host moves on, also from a screen", () => {
-    const { r, toks } = seated(["Ann", "Bob", "Cy"]);
+    const { r, toks } = seated(["Ann", "Bob", "Cy", "Di"]);
     expect(setScreen(r, toks.Ann!, true)).toEqual({ ok: true });
     expect(startRoom(r, toks.Ann!)).toEqual({ ok: true });
-    expect(state(r).players).toEqual(["Bob", "Cy"]);
+    expect(state(r).players).toEqual(["Bob", "Cy", "Di"]);
     expect(act(r, toks.Bob!, { type: "next" })).toEqual({ ok: false, error: "Only the host can move on" });
     expect(act(r, toks.Ann!, { type: "next" })).toEqual({ ok: true });
     expect(state(r).phase).toBe("reveal");
     expect(act(r, toks.Ann!, { type: "answer", text: "x" })).toMatchObject({ ok: false });
   });
   it("runs on its clocks and finishes, recording the winner and the categories played", () => {
-    const { r, toks } = running(["Ann", "Bob"]);
+    const { r, toks } = running(["Ann", "Bob", "Cy"]);
     const t0 = Date.now();
     act(r, toks.Ann!, { type: "answer", text: "ham" });
     tickRooms(t0 + ANSWER_MS + WRITE_GRACE_MS + 10);
     expect(state(r).phase).toBe("reveal");
     tickRooms(t0 + ANSWER_MS + WRITE_GRACE_MS + REVEAL_MS + 20);
     expect(state(r).round).toBe(1);
-    act(r, toks.Ann!, { type: "next" }); // close
-    act(r, toks.Ann!, { type: "next" }); // end the reveal
+    for (let i = 0; i < 4; i++) act(r, toks.Ann!, { type: "next" }); // close, end the reveal, twice
     expect(r.status).toBe("done");
-    expect(r.seen.filter((x) => x.startsWith("dg:"))).toHaveLength(2);
+    expect(r.seen.filter((x) => x.startsWith("dg:"))).toHaveLength(3);
     expect(r.played.at(-1)).toMatchObject({ format: "dodge", winner: null }); // 0 each: a tie
   });
   it("a player who leaves is not waited for", () => {
@@ -146,9 +149,33 @@ describe("Dodge judge", () => {
     expect(state(r).history[0]!.judged).toEqual(["Bob"]);
     expect(state(r).points).toEqual({ Ann: 1, Bob: -1, Cy: 1 });
   });
-  it("a judge that fails or never answers leaves exact matches only", async () => {
+  it("a judge that fails ends the check at once, exact matches only", async () => {
     setDodgeJudge({ judge: () => Promise.reject(new Error("down")) });
-    const { r, toks } = running(["Ann", "Bob"]);
+    const { r, toks } = running(["Ann", "Bob", "Cy"]);
+    round(r, toks, { Ann: "pepperoni", Bob: "peperoni" });
+    await flush();
+    expect(state(r).phase).toBe("reveal");
+    expect(state(r).history[0]!.status.Bob).toBe("dodge");
+    expect(state(r).history[0]!.unchecked).toBe(true);
+  });
+  it("with no judge, or over the room's hourly cap, the check ends at once", () => {
+    const { r, toks } = running(["Ann", "Bob", "Cy"]);
+    round(r, toks, { Ann: "pepperoni", Bob: "peperoni" });
+    expect(state(r).phase).toBe("reveal");
+    expect(state(r).history[0]!.unchecked).toBe(true);
+    const { j, calls } = fakeJudge();
+    setDodgeJudge(j);
+    act(r, toks.Ann!, { type: "next" });
+    r.judgeAt = Array.from({ length: 60 }, () => Date.now());
+    round(r, toks, { Bob: "pepperoni", Cy: "peperoni" });
+    expect(calls).toHaveLength(0);
+    expect(state(r).phase).toBe("reveal");
+    expect(state(r).history[1]!.unchecked).toBe(true);
+  });
+  it("a judge that never answers leaves exact matches only once its time is up", async () => {
+    const { j } = fakeJudge();
+    setDodgeJudge(j);
+    const { r, toks } = running(["Ann", "Bob", "Cy"]);
     const t0 = Date.now();
     round(r, toks, { Ann: "pepperoni", Bob: "peperoni" });
     await flush();
@@ -160,16 +187,30 @@ describe("Dodge judge", () => {
   });
   it("a judge with no model ends the check at once, marked unchecked", async () => {
     setDodgeJudge({ judge: async (items) => items.map(() => ({ same: false, source: "fallback" })) });
-    const { r, toks } = running(["Ann", "Bob"]);
+    const { r, toks } = running(["Ann", "Bob", "Cy"]);
     round(r, toks, { Ann: "pepperoni", Bob: "peperoni" });
     await flush();
     expect(state(r).phase).toBe("reveal");
     expect(state(r).history[0]!.unchecked).toBe(true);
   });
+  it("a verdict that arrives while paused lands on resume", async () => {
+    const { j, calls } = fakeJudge();
+    setDodgeJudge(j);
+    const { r, toks } = running(["Ann", "Bob", "Cy"]);
+    round(r, toks, { Ann: "pepperoni", Bob: "peperoni" });
+    expect(act(r, toks.Ann!, { type: "pause" })).toEqual({ ok: true });
+    calls[0]!.resolve([{ same: true }]);
+    await flush();
+    expect(state(r).phase).toBe("judge");
+    expect(act(r, toks.Ann!, { type: "resume" })).toEqual({ ok: true });
+    expect(state(r).phase).toBe("reveal");
+    expect(state(r).history[0]!.judged).toEqual(["Bob"]);
+    expect(state(r).history[0]!.unchecked).toBeUndefined();
+  });
   it("a late verdict for an earlier round is dropped", async () => {
     const { j, calls } = fakeJudge();
     setDodgeJudge(j);
-    const { r, toks } = running(["Ann", "Bob"]);
+    const { r, toks } = running(["Ann", "Bob", "Cy"]);
     round(r, toks, { Ann: "pepperoni", Bob: "peperoni" });
     act(r, toks.Ann!, { type: "next" }); // host skips the check
     expect(state(r).phase).toBe("reveal");

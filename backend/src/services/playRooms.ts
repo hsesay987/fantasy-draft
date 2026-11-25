@@ -50,7 +50,7 @@ export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "p
 const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
 /** Fewest players each game starts with; anything not listed needs 2. */
-export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, mafia: MF.MIN_PLAYERS };
+export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, mafia: MF.MIN_PLAYERS, dodge: 3 };
 /** An empty room (no game picked yet) takes the bigger party group; picking a draft caps it at six. */
 const seatCap = (format: FormatId | undefined) => (!format || PARTY_FORMATS.has(format) ? MAX_SEATS : DRAFT_SEATS);
 const MAX_ROOMS = 500;
@@ -99,6 +99,8 @@ type Room = {
   judgeKey?: string;
   /** NPAT dig: when this room's judge calls started, in the current hour, so one room cannot run up the model bill. */
   judgeAt?: number[];
+  /** Dodge: verdicts that came back while the game was paused, applied on resume if the room is still judging that round. */
+  dodgeHeld?: { key: string; verdicts: { player: string; same: boolean }[] };
   /** A tournament across games in this room. Stays visible once done, until a new one starts or the room closes. */
   tournament?: Tournament;
   /** Which tournament this is, so a late judge verdict never lands in a later one. */
@@ -744,6 +746,9 @@ export function setPaused(room: Room, token: unknown, on: boolean): { ok: boolea
   else {
     room.pausedMs = (room.pausedMs ?? 0) + (wall - room.pausedAt!);
     room.pausedAt = undefined;
+    const held = room.dodgeHeld;
+    room.dodgeHeld = undefined;
+    if (held) { landDodge(room, held.key, held.verdicts); return { ok: true }; }
   }
   bump(room);
   return { ok: true };
@@ -816,45 +821,59 @@ function askNpatJudge(room: Room) {
 const dodgeKeyOf = (s: DG.DodgeState) => `dodge:${s.startedAt}:${s.round}`;
 
 /**
+ * Dodge: apply the judge's verdicts (possibly none) to the round `key`, if the room is still judging it, and end the
+ * judge phase there and then: nothing more is coming, so anything unchecked stays an exact-match-only call.
+ */
+function landDodge(room: Room, key: string, verdicts: { player: string; same: boolean }[]) {
+  const cur = room.state as DG.DodgeState | null;
+  if (rooms.get(room.code) !== room || room.status !== "playing" || room.setup?.format !== "dodge" || !cur || cur.phase !== "judge" || cur.done || dodgeKeyOf(cur) !== key) return;
+  if (room.pausedAt) { room.dodgeHeld = { key, verdicts }; return; } // paused: they land on resume
+  const now = gameNow(room);
+  const judged = DG.judged(cur, verdicts, now);
+  const next = judged.phase === "judge" ? DG.next(judged, now) : judged;
+  if (next !== cur) commit(room, settleParty(room, next, now));
+}
+
+/**
  * Dodge: the first time a room is judging a round's close calls, ask the judge once. Verdicts land only if the room is
- * still judging that same round of the same game. A judge that never answers is no problem: the engine's tick ends the
- * phase at JUDGE_MS and only exact matches count.
+ * still judging that same round of the same game. With no judge, over the room's hourly cap, or on a failed call, the
+ * phase ends at once and only exact matches count; a judge that never answers is cut off by the engine's tick at JUDGE_MS.
  */
 function askDodgeJudge(room: Room) {
-  const j = dodgeJudge;
-  if (!j || room.status !== "playing" || room.setup?.format !== "dodge") return;
+  if (room.status !== "playing" || room.setup?.format !== "dodge") return;
   const s = room.state as DG.DodgeState;
   if (s.phase !== "judge" || s.done) return;
   const key = dodgeKeyOf(s);
   if (room.judgeKey === key) return;
   room.judgeKey = key;
+  room.dodgeHeld = undefined;
   const pending = DG.pendingPairs(s);
   if (!pending.length) return;
+  const j = dodgeJudge;
   const nowMs = Date.now();
   const recent = (room.judgeAt ?? []).filter((t) => nowMs - t < 3_600_000);
   room.judgeAt = recent;
-  if (recent.length >= ROOM_JUDGE_PER_HOUR) return; // over the room's cap: exact matches only
+  if (!j || recent.length >= ROOM_JUDGE_PER_HOUR) return landDodge(room, key, []); // no judge, or over the cap
   recent.push(nowMs);
   let call: Promise<unknown>;
   try {
     call = Promise.resolve(j.judge(pending.map((p) => ({ category: p.category, a: p.chosen, b: p.answer }))));
   } catch (e) {
     console.error("Dodge room judge failed", e);
-    return;
+    return landDodge(room, key, []);
   }
   call.then((v) => {
-    const cur = room.state as DG.DodgeState | null;
-    if (rooms.get(room.code) !== room || room.status !== "playing" || room.setup?.format !== "dodge" || !cur || cur.phase !== "judge" || dodgeKeyOf(cur) !== key) return;
-    if (!Array.isArray(v) || room.pausedAt) return; // a bad shape, or paused: the tick's fallback decides
-    // A fallback verdict means nobody checked: those calls stay pending and the round shows as unchecked.
-    const verdicts = pending.flatMap((p, i) => {
-      const x = v[i] as { same?: unknown; source?: unknown } | undefined;
-      return x && typeof x.same === "boolean" && x.source !== "fallback" ? [{ player: p.player, same: x.same }] : [];
-    });
-    const now = gameNow(room);
-    const judged = DG.judged(cur, verdicts, now);
-    const next = judged.phase === "judge" ? DG.next(judged, now) : judged; // nothing more is coming: exact matches only, now
-    if (next !== cur) commit(room, settleParty(room, next, now));
+    // A fallback verdict, or a bad shape, means nobody checked: those calls stay pending and the round shows as unchecked.
+    const verdicts = Array.isArray(v)
+      ? pending.flatMap((p, i) => {
+          const x = v[i] as { same?: unknown; source?: unknown } | undefined;
+          return x && typeof x.same === "boolean" && x.source !== "fallback" ? [{ player: p.player, same: x.same }] : [];
+        })
+      : [];
+    landDodge(room, key, verdicts);
+  }, (e) => {
+    console.error("Dodge room judge failed", e);
+    landDodge(room, key, []);
   }).catch((e) => console.error("Dodge room judge failed", e));
 }
 
