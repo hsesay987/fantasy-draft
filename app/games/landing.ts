@@ -166,6 +166,12 @@ export const LANDINGS: Landing[] = [
     aka: ["NPAT game", "Stop game", "Scattergories style game"],
   },
   {
+    slug: "dodge", ids: ["dodge"], seoTitle: "Dodge: Guess What They'll Say, Then Don't Say It",
+    description: "A category comes up and everyone types one answer. Match the chosen player and you lose a point; dodge them and you score. A free party game on your phones.",
+    about: ["Dodge puts one player on the spot each round. A category comes up, like Pizza toppings, and everyone types one answer, the chosen player too.", "The chosen player scores for everyone who said the same thing, so they want to be obvious. Everyone else wants to be anything but. Close answers like typos go to a judge."],
+    aka: ["don't say what they say game", "party word game", "mind reading party game"],
+  },
+  {
     slug: "toppic-cards", ids: ["cards"], seoTitle: "TopPic Cards: Play Your Best Character Card",
     description: "Everyone plays the character card that best finishes the prompt. The AI judge, a vote or a rotating judge picks the winner. A free card party game for up to 20 players.",
     about: ["TopPic Cards deals everyone a hand of character cards. Each round a prompt goes up and everyone plays the card that finishes it best.", "The AI judge, a player vote or a rotating judge picks each round's winner, and up to 20 people can play."],

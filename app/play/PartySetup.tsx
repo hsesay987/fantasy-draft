@@ -21,7 +21,7 @@ import { DIG_CATEGORIES } from "../topicDraft/npat/rules";
 import { DrinkingToggle, ShowVotesToggle } from "./views/partyBits";
 
 /** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
-export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat"; room: { code: string; token: string; pool?: string; pools?: string[]; slotPools?: string[] | null; inTournament?: boolean; /** The room's last NPAT setup, if the last game picked was NPAT. */ npat?: Pick<GameSetup, "opts" | "pool" | "pools"> | null; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
+export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat" | "dodge"; room: { code: string; token: string; pool?: string; pools?: string[]; slotPools?: string[] | null; inTournament?: boolean; /** The room's last NPAT setup, if the last game picked was NPAT. */ npat?: Pick<GameSetup, "opts" | "pool" | "pools"> | null; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
   const meta = formatMeta(format)!;
   const decks = format === "insync" ? INSYNC_DECKS : DECKS;
   const options = topicOptions(format);
@@ -32,6 +32,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const [saylessWords, setSaylessWords] = useState(3);
   const [saylessSlack, setSaylessSlack] = useState(5);
   const [saylessGuard, setSaylessGuard] = useState(false);
+  const [dodgeLaps, setDodgeLaps] = useState(1);
   const [npatRounds, setNpatRounds] = useState(3);
   const [npatSeconds, setNpatSeconds] = useState(60);
   const [npatHard, setNpatHard] = useState(false);
@@ -80,7 +81,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool: chosen[0]!, pools: chosen, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...(format === "npat" ? { npatRounds, npatSeconds, npatHard, npatStop, npatStyle } : {}), ...teamOpts }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...(format === "npat" ? { npatRounds, npatSeconds, npatHard, npatStop, npatStyle } : {}), ...(format === "dodge" ? { dodgeLaps } : {}), ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -109,6 +110,10 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </Panel>
       ) : format === "sayless" ? (
         <Panel title="Lists and topics" hint="Words come from what you select. Pick several to mix them. Each deck has a par, the clue count a good describer hits.">
+          <PoolPicker options={options} value={pools} onChange={setPools} />
+        </Panel>
+      ) : format === "dodge" ? (
+        <Panel title="Decks" hint="Categories come from the decks you select. Pick several to mix them.">
           <PoolPicker options={options} value={pools} onChange={setPools} />
         </Panel>
       ) : format === "npat" ? (
@@ -250,7 +255,13 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         <Panel title="Words">
           <p className="text-sm text-muted-foreground">{answer === "buzz" ? "10 words, 20 seconds each. First to buzz says it out loud, and the rest judge." : "10 words, 20 seconds each. Everyone types on their own phone."}</p>
         </Panel>
-      ) : format === "sayless" || format === "npat" ? null : format === "insync" ? (
+      ) : format === "sayless" || format === "npat" ? null : format === "dodge" ? (
+        <Panel title="Length" hint={`Each player is chosen ${dodgeLaps === 1 ? "once" : dodgeLaps === 2 ? "twice" : "three times"}: ${seats.length ? `${seats.length * dodgeLaps} rounds with ${seats.length} players` : "one round per player per lap"}.`}>
+          <div className="flex flex-wrap gap-2">
+            {[1, 2, 3].map((n) => <Chip key={n} selected={dodgeLaps === n} onClick={() => setDodgeLaps(n)}>{n === 1 ? "1 lap" : `${n} laps`}</Chip>)}
+          </div>
+        </Panel>
+      ) : format === "insync" ? (
         <Panel title="Rounds">
           <p className="text-sm text-muted-foreground">One round per player, so everyone gets the mic. Never fewer than 4.</p>
         </Panel>
@@ -293,7 +304,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
       )}
 
       {format !== "vowelplay" && (
-        <Panel title="Drinking mode" hint={format === "sayless" ? "A sip for giving the word away, or a wrong buzz. Off by default." : "Optional. Off by default."}>
+        <Panel title="Drinking mode" hint={format === "sayless" ? "A sip for giving the word away, or a wrong buzz. Off by default." : format === "dodge" ? "A sip for everyone who said the same as the chosen player. Off by default." : "Optional. Off by default."}>
           <DrinkingToggle value={drinking} onChange={setDrinking} />
         </Panel>
       )}

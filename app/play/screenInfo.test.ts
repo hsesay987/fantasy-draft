@@ -171,3 +171,17 @@ describe("NPAT dig on the screen", () => {
     expect(screenBoard(dig, d({ results }))!.rows.every((r) => r.last === undefined)).toBe(true);
   });
 });
+
+describe("Dodge on the screen", () => {
+  const dg = setup("dodge");
+  const d = (o: Record<string, unknown>) => st({ phase: "answer", round: 1, total: 4, points: { Ann: 2, Bob: -1 }, history: [], ...o });
+  it("names the chosen player and the phase, with the answer clock", () => {
+    expect(screenInfo(dg, d({}))).toEqual({ turn: "Bob", phase: "Round 2 of 4 · Bob is chosen · Answering" });
+    expect(screenClock(dg, d({}))!.deadline).toBe(1000 + 20_000);
+    expect(screenInfo(dg, d({ done: true })).turn).toBeNull();
+  });
+  it("shows totals, below zero included, and the reveal's gains", () => {
+    const b = screenBoard(dg, d({ phase: "reveal", history: [{ gained: { Ann: 2, Bob: -1, Cy: 1, Di: 0 } }] }))!;
+    expect(b.rows.map((r) => [r.name, r.score, r.last])).toEqual([["Ann", 2, 2], ["Bob", -1, undefined], ["Cy", 0, 1], ["Di", 0, undefined]]);
+  });
+});

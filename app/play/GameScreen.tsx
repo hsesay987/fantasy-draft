@@ -33,6 +33,7 @@ import { PeckingResults, PeckingView } from "./views/PeckingView";
 import { SayLessResults, SayLessView } from "./views/SayLessView";
 import { NpatResults, NpatView } from "./views/NpatView";
 import { NpatDigResults, NpatDigView } from "./views/NpatDigView";
+import { DodgeResults, DodgeView } from "./views/DodgeView";
 import { PauseLayer } from "./views/PauseLayer";
 import { ScreenFrame } from "./views/ScreenFrame";
 import { PARTY_FORMATS } from "./types";
@@ -99,6 +100,7 @@ function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: Game
   if (done && (setup.format === "vowelplay" || setup.format === "vowelparty")) return <VowelPlayResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "pecking") return <PeckingResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "sayless") return <SayLessResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
+  if (done && setup.format === "dodge") return <DodgeResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && npatIsDig(setup)) return <NpatDigResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && setup.format === "npat") return <NpatResults setup={setup} ctl={ctl} onAgain={onNew} onRematch={onRematch} />;
   if (done && finished && trivia) return <TriviaResults setup={setup} ctl={ctl} onAgain={onNew ?? noop} onRematch={onRematch} />;
@@ -152,6 +154,8 @@ function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: Game
       return <PeckingView setup={setup} ctl={ctl} />;
     case "sayless":
       return <SayLessView setup={setup} ctl={ctl} />;
+    case "dodge":
+      return <DodgeView setup={setup} ctl={ctl} />;
     case "npat":
       return npatIsDig(setup) ? <NpatDigView setup={setup} ctl={ctl} /> : <NpatView setup={setup} ctl={ctl} />;
     default:
