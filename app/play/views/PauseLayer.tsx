@@ -1,0 +1,35 @@
+"use client";
+
+import { useEffect } from "react";
+import { PixelButton } from "../../components/pixel/PixelUI";
+import { useSound } from "../../components/SoundProvider";
+import type { GameCtl } from "../useGame";
+
+/**
+ * Online party games: the host's Pause button, and the cover every device shows while the game is paused. The cover
+ * hides the game so nobody types or reads ahead; the server refuses moves anyway and every timer stands still.
+ */
+export function PauseLayer({ ctl }: { ctl: GameCtl }) {
+  const { play } = useSound();
+  const host = !!ctl.setPaused;
+  useEffect(() => { if (ctl.paused) play("click"); }, [ctl.paused, play]);
+
+  if (ctl.paused) {
+    return (
+      <div role="dialog" aria-modal="true" aria-labelledby="pause-title" className="pixel"
+        style={{ position: "fixed", inset: 0, zIndex: 60, display: "grid", placeItems: "center", padding: 16, background: "rgba(7, 4, 25, 0.9)", backdropFilter: "blur(6px)" }}>
+        <section className="px-box px-pad" style={{ maxWidth: 360, width: "100%", textAlign: "center" }}>
+          <h2 id="pause-title" style={{ font: "400 28px var(--px-title)", color: "var(--px-gold)", margin: "4px 0 12px" }}>Paused</h2>
+          <p style={{ font: "400 20px var(--px-body)", color: "var(--px-fg)", margin: 0 }}>{host ? "Every timer has stopped. Resume when everyone is back." : "The host paused the game. Every timer has stopped."}</p>
+          {host && <PixelButton variant="gold" autoFocus onClick={() => ctl.setPaused?.(false)} style={{ marginTop: 16, width: "100%" }}>Resume</PixelButton>}
+        </section>
+      </div>
+    );
+  }
+  if (!host) return null;
+  return (
+    <div className="pixel" style={{ position: "fixed", left: 16, bottom: "calc(88px + env(safe-area-inset-bottom))", zIndex: 50, background: "none", minHeight: 0 }}>
+      <PixelButton variant="alt" aria-label="Pause the game" title="Pause" onClick={() => ctl.setPaused?.(true)} style={{ minWidth: 48, padding: "14px 12px" }}>❚❚</PixelButton>
+    </div>
+  );
+}

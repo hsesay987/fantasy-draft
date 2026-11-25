@@ -34,6 +34,7 @@ import { SayLessResults, SayLessView } from "./views/SayLessView";
 import { NpatResults, NpatView } from "./views/NpatView";
 import { NpatDigResults, NpatDigView } from "./views/NpatDigView";
 import { NpatQuestionResults, NpatQuestionView } from "./views/NpatQuestionView";
+import { PauseLayer } from "./views/PauseLayer";
 import { ScreenFrame } from "./views/ScreenFrame";
 import { PARTY_FORMATS } from "./types";
 
@@ -47,7 +48,8 @@ export type ScreenProps = { title: string; topic?: string | null; code: string; 
 const noop = () => {};
 
 export function GameBody({ screen, ...props }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew?: () => void; onRematch?: () => void; screen?: ScreenProps }) {
-  const view = <GameView {...props} />;
+  const pausable = props.ctl.online && PARTY_FORMATS.has(props.setup.format) && !isDone(props.setup, props.ctl.state);
+  const view = <>{<GameView {...props} />}{pausable && <PauseLayer ctl={props.ctl} />}</>;
   return screen ? <ScreenFrame setup={props.setup} ctl={props.ctl} {...screen}>{view}</ScreenFrame> : view;
 }
 
