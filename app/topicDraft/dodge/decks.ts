@@ -1,0 +1,91 @@
+// Dodge's category decks. Every category is everyday and has a few obvious first answers, so the room can guess what
+// the chosen player will say and try not to say it. Nothing here is secret: phones show each category as it comes up.
+
+export type DodgeDeck = { id: string; title: string; blurb: string; categories: string[] };
+
+export const DODGE_DECKS: DodgeDeck[] = [
+  {
+    id: "food", title: "Food and drink", blurb: "Toppings, snacks, drinks and what's for dinner.",
+    categories: [
+      "Pizza toppings", "Breakfast cereals", "Things in a fridge", "Fruits", "Vegetables", "Sandwich fillings",
+      "Ice cream flavours", "Fast food chains", "Fizzy drinks", "Things you put on toast", "Chocolate bars",
+      "Hot drinks", "Things you put in a salad", "Cheeses", "Sauces", "Breakfast foods",
+      "Desserts", "Things you eat with a spoon", "Things on a burger", "Nuts", "Cocktails", "Red fruits",
+      "Yellow foods", "Things you put in tea or coffee", "Types of pasta", "Soups", "Things you bake",
+      "Sweets at the cinema", "Spices", "Foods people hate", "Things at a barbecue", "Herbs", "Juice flavours",
+    ],
+  },
+  {
+    id: "home", title: "Around the house", blurb: "Rooms, kitchen drawers, bathroom shelves.",
+    categories: [
+      "Rooms in a house", "Things in a kitchen drawer", "Things in a bathroom", "Furniture", "Things in a bedroom",
+      "Kitchen appliances", "Things you plug in", "Cleaning products", "Things under the sink", "Things in a garden",
+      "Things in a garage", "Things on a desk", "Things in a handbag", "Things in a wallet", "Things you find in a sofa",
+      "Things with a remote control", "Things that beep", "Things with buttons", "Things you charge every night",
+      "Things in a first aid kit", "Things you hang on a wall", "Things in a toolbox", "Things on a bed",
+      "Things that are always lost", "Things in a junk drawer", "Things in a medicine cabinet", "Things you recycle",
+      "Things in a laundry basket",
+    ],
+  },
+  {
+    id: "everyday", title: "Everyday", blurb: "Colours, clothes, jobs, school and the rest of life.",
+    categories: [
+      "Colours", "Days of the week", "Months of the year", "Things you wear on your feet", "Things you wear on your head",
+      "Jobs", "School subjects", "Shapes", "Things that are round", "Things that are red", "Things that are cold",
+      "Things that are hot", "Things that are sticky", "Things that smell nice", "Things that smell bad",
+      "Things you do in the morning", "Things you take on holiday", "Things in a school bag", "Things in a classroom",
+      "Things you do on a rainy day", "Ways to say hello", "Things you say on the phone", "Musical instruments",
+      "Card games", "Board games", "Things with wheels", "Things with wings", "Things that are fast", "Body parts",
+      "Things you can be allergic to", "Things that make you sneeze", "Things you do at a party", "Birthday party things",
+      "Things people are scared of", "Things at a wedding", "Hobbies", "Things you can fold", "Things you can't live without",
+      "Things you do before bed", "Excuses for being late",
+    ],
+  },
+  {
+    id: "popculture", title: "Pop culture", blurb: "Films, songs, superheroes and famous faces.",
+    categories: [
+      "Superheroes", "Disney films", "Cartoon characters", "Disney princesses", "Harry Potter characters",
+      "Video games", "Social media apps", "Famous singers", "Famous wizards", "Board game pieces", "TV shows everyone has seen",
+      "Marvel heroes", "Villains", "Star Wars characters", "Famous dogs from films", "Pixar films", "Christmas films",
+      "Horror film monsters", "Fairy tale characters", "Nursery rhymes", "Famous bands", "Streaming services",
+      "Things a pirate has", "Things a superhero wears", "Famous detectives", "Toys", "Fictional bears", "Mario characters",
+      "Pokémon", "Famous robots", "Christmas songs", "Things in a fairy tale", "Famous mice", "Halloween costumes",
+    ],
+  },
+  {
+    id: "nature", title: "Animals and nature", blurb: "Pets, farm animals, weather and the outdoors.",
+    categories: [
+      "Pets", "Farm animals", "Animals at the zoo", "Sea creatures", "Birds", "Insects", "Animals with stripes",
+      "Animals that hop", "Big cats", "Animals with long necks", "Things on a farm", "Things in the sky",
+      "Weather", "Flowers", "Trees", "Things at the beach", "Things in a forest", "Things that fly", "Things that sting",
+      "Things that grow", "Things in space", "Planets", "Animals that are slow", "Animals that are pink",
+      "Baby animals", "Animals with shells", "Things you find in a pond", "Things that bite",
+    ],
+  },
+  {
+    id: "sport", title: "Sports and games", blurb: "Ball sports, playground games, things in a gym.",
+    categories: [
+      "Sports", "Sports with a ball", "Olympic sports", "Things in a gym", "Playground games", "Water sports",
+      "Winter sports", "Football positions", "Things a referee has", "Things you do at the park", "Ways to keep fit",
+      "Sports played with a racket", "Things you throw", "Things you kick", "Party games", "Things at a funfair",
+      "Things you need for camping", "Things in a sports bag", "Garden games", "Things you can ride",
+    ],
+  },
+  {
+    id: "places", title: "Places and travel", blurb: "Countries, cities, shops and ways to get there.",
+    categories: [
+      "Countries", "Capital cities", "Countries in Europe", "Things at an airport", "Ways to travel", "Shops on a high street",
+      "Places in a town", "Famous landmarks", "Places you go on holiday", "Things in a hotel room", "Things at a train station",
+      "Things on a plane", "Things in a car", "Things on a map", "Languages", "Things at a petrol station",
+      "Things in a supermarket", "Things at a hospital", "Places you have to be quiet", "Things at a cinema",
+      "Things in a city", "Islands", "Things you pack in a suitcase", "US states",
+    ],
+  },
+];
+
+export const DODGE_DECK_IDS: string[] = DODGE_DECKS.map((d) => d.id);
+
+export const dodgeDeckOf = (id: string): DodgeDeck | undefined => DODGE_DECKS.find((d) => d.id === id);
+
+/** What a room's `seen` list keeps for a category, so a rematch deals new ones first. */
+export const categoryKey = (text: string): string => `dg:${text.toLowerCase()}`;
