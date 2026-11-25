@@ -41,4 +41,10 @@ describe("feud spelling help", () => {
     const found = FD.choose(s0, "A", "Goku");
     expect(FD.nearMiss(found, "B", "guku")).toBe(null);
   });
+
+  it("a near miss of an answer already found counts like naming it again: no strike, no suggestion", () => {
+    const found = FD.choose(s0, "A", "Goku");
+    expect(FD.turnPlayer(found)).toBe("B");
+    expect(FD.choose(found, "B", "guku")).toBe(found);
+  });
 });

@@ -74,6 +74,8 @@ export function choose(s: FeudState, by: string, text: string): FeudState {
   if (nearMiss(s, by, text)) return { ...s, rounds: s.rounds.map((x, i) => (i === s.round ? { ...r, hinted: [...(r.hinted ?? []), by] } : x)) };
   const answer = matchAnswer(text, r.board);
   if (answer && r.found[answer]) return s;
+  // A near miss of an answer already on the board is naming it again: nothing happens.
+  if (!answer && closestAnswer(text, Object.keys(r.found))) return s;
   if (!answer && (fold(text).length < 2 || r.wrong.some((w) => fold(w) === fold(text)))) return s;
   const rank = answer ? r.board.indexOf(answer) : -1;
   const nr: FeudRound = answer ? { ...r, found: { ...r.found, [answer]: by } } : { ...r, wrong: [...r.wrong, text.trim().slice(0, 40)], strikes: r.strikes + 1 };

@@ -2,7 +2,7 @@
 // server (synced to backend/src/shared) and the browser all share it.
 
 /** Comparison text: lower case, no accents or punctuation, "&" as "and", no "the/a/an", single spaces. */
-export const fold = (t: string) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/&/g, " and ").replace(/[^a-z0-9 ]+/g, " ").replace(/\b(the|a|an)\b/g, " ").replace(/\s+/g, " ").trim();
+export const fold = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/&/g, " and ").replace(/[^a-z0-9 ]+/g, " ").replace(/\b(the|a|an)\b/g, " ").replace(/\s+/g, " ").trim();
 
 /** Edits between two strings: insert, delete, change a letter, or swap two neighbours (optimal string alignment). */
 export function distance(a: string, b: string): number {
