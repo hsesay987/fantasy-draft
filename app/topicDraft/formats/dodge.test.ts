@@ -161,6 +161,12 @@ describe("settle", () => {
     expect(s.round).toBe(1);
     expect(D.chosen(s)).toBe("Ben");
   });
+  it("numbers rounds without the skipped ones", () => {
+    const s = D.settle(start(), ["Ann"], 100); // Ann's round is skipped, and she won't be chosen again
+    expect(D.redactFor(s, "Ben")).toMatchObject({ round: 1, number: 1, total: 3 });
+    const t = D.next(D.next(s, 200), 300);
+    expect(D.redactFor(t, "Ben")).toMatchObject({ round: 2, number: 2, total: 3 });
+  });
   it("returns the same state when nothing changed", () => {
     const s = start();
     expect(D.settle(s, [], 10)).toBe(s);

@@ -50,8 +50,11 @@ export type DodgeState = {
   drinks?: DrinkState;
 };
 
-/** What a seat is sent: see `redactFor`. `total` is how many rounds there are; `typedCount` how many have typed. */
-export type DodgeView = DodgeState & { total: number; typedCount: number };
+/**
+ * What a seat is sent: see `redactFor`. `number` and `total` count only rounds that are played, so a round skipped for
+ * a player who left never makes the count jump. `typedCount` is how many have typed.
+ */
+export type DodgeView = DodgeState & { number: number; total: number; typedCount: number };
 
 export type DodgeVerdict = { player: string; same: boolean };
 
@@ -185,6 +188,15 @@ export function settle(s: DodgeState, gone: string[], now: number): DodgeState {
   return allLocked(t) ? close_(t, now) : t;
 }
 
+/** This round's number and the round count, leaving out rounds skipped (or to be skipped) for players who left. */
+export function progress(s: DodgeState): { number: number; total: number } {
+  const played = s.history.length;
+  const open = !s.done && s.phase !== "reveal" ? 1 : 0;
+  let ahead = 0;
+  for (let r = s.round + 1; r < s.categories.length && !s.done; r++) if (!s.gone.includes(chosen({ players: s.players, round: r }))) ahead++;
+  return { number: Math.max(1, played + open), total: Math.max(1, played + open + ahead) };
+}
+
 /** Top points; ties share. */
 export function winners(s: DodgeState): string[] {
   const pts = (p: string) => own(s.points, p) ?? 0;
@@ -207,7 +219,7 @@ export function redactFor(s: DodgeState, me: string | null): DodgeView {
   const typed = asking && me !== null && has(s.typed, me) ? { [me]: s.typed[me]! } : {};
   const typedCount = asking ? Object.values(s.typed).filter((t) => matchKey(t)).length : 0;
   return {
-    ...s, seed: 0, typed, typedCount, total: s.categories.length,
+    ...s, seed: 0, typed, typedCount, ...progress(s),
     categories: open ? s.categories : s.categories.slice(0, s.round + 1),
     closing: null,
   };

@@ -11,7 +11,7 @@ export const DRAFT_CAP = 6;
 
 /** Fewest seats each game starts with (the server enforces the same numbers). */
 // Vowel Play and Vowel Party start at 2 (Head to head needs exactly 2: see duelWrong).
-export const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" ? 3 : 2);
+export const seatsNeeded = (format: string) => (format === "mafia" ? MAFIA_MIN : format === "imposter" || format === "dodge" ? 3 : 2);
 
 /** A game this table can start: enough seats for it, and drafts and trivia only up to six. */
 export const fitsTable = (format: FormatId, players: number) =>

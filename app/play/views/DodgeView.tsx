@@ -32,6 +32,8 @@ export function DodgeView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const tv = !seated;
   const who = chosenOf(s);
   const isChosen = seated && me === who;
+  // Lock counts are over the players still at the table.
+  const here = s.players.filter((p) => !gone.includes(p));
   const category = s.categories[s.round] ?? "";
   const last = s.phase === "reveal" ? s.history[s.history.length - 1] : undefined;
 
@@ -53,7 +55,7 @@ export function DodgeView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
       <div className={`party-page dg-page ${tv ? "tv" : ""}`}>
         <header className="party-sign dg-sign">
           <div>
-            <p className="eyebrow">Dodge · Round {s.round + 1} of {s.total}</p>
+            <p className="eyebrow">Dodge · Round {s.number} of {s.total}</p>
             <h1>{category}</h1>
           </div>
           {s.phase === "answer" && <PartyClock deadline={s.phaseAt + ANSWER_MS} offset={ctl.offset} total={ANSWER_MS} />}
@@ -69,8 +71,8 @@ export function DodgeView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         </section>
 
         {s.phase === "answer" && (tv || out
-          ? <Lockers s={s} note={out ? "You left the table. Watching." : null} />
-          : <AnswerDesk key={`${s.startedAt}.${s.round}`} s={s} me={me} isChosen={isChosen} offset={ctl.offset} dispatch={ctl.dispatch} play={play} />)}
+          ? <Lockers s={s} here={here} note={out ? "You left the table. Watching." : null} />
+          : <AnswerDesk key={`${s.startedAt}.${s.round}`} s={s} here={here} me={me} isChosen={isChosen} offset={ctl.offset} dispatch={ctl.dispatch} play={play} />)}
 
         {s.phase === "judge" && (
           <section className="px-box dg-card" aria-label="Checking">
@@ -84,7 +86,7 @@ export function DodgeView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         {last && <Standings s={s} me={seated ? me : null} />}
 
         {s.phase !== "answer" && (canMoveOn(ctl)
-          ? <PixelButton variant="alt" className="dg-next" onClick={() => ctl.dispatch({ type: "next", by: me })}>{s.phase === "judge" ? "Skip the check >" : s.round + 1 < s.total ? "Next round >" : "Final scores >"}</PixelButton>
+          ? <PixelButton variant="alt" className="dg-next" onClick={() => ctl.dispatch({ type: "next", by: me })}>{s.phase === "judge" ? "Skip the check >" : s.number < s.total ? "Next round >" : "Final scores >"}</PixelButton>
           : s.phase === "reveal" && <WaitingForHost ctl={ctl} />)}
 
         {s.drinks && <WaterLine />}
@@ -97,12 +99,12 @@ export function DodgeView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 }
 
 /** Who has locked in, for the screen and for a seat that left. Never anyone's words. */
-function Lockers({ s, note }: { s: DView; note: string | null }) {
+function Lockers({ s, here, note }: { s: DView; here: string[]; note: string | null }) {
   return (
     <section className="px-box dg-card" aria-label="Locked in">
-      <p className="dg-msg">{note ?? `${s.locked.length} of ${s.players.length} locked in`}</p>
+      <p className="dg-msg">{note ?? `${s.locked.filter((p) => here.includes(p)).length} of ${here.length} locked in`}</p>
       <ul className="dg-lockers">
-        {s.players.map((p, i) => (
+        {s.players.map((p, i) => here.includes(p) && (
           <li key={p} className={s.locked.includes(p) ? "on" : ""}>
             <Sprite sprite={playerSprite(i)} size={20} /><span className="n">{p}</span><b>{s.locked.includes(p) ? "Locked" : "Typing"}</b>
           </li>
@@ -116,7 +118,7 @@ function Lockers({ s, note }: { s: DView; note: string | null }) {
  * A player's answer: saved a moment after typing stops (each save replaces the last), sent the moment the clock runs
  * out (the server takes it half a second past the deadline), and locked in with Lock in.
  */
-function AnswerDesk({ s, me, isChosen, offset, dispatch, play }: { s: DView; me: string; isChosen: boolean; offset: number; dispatch: Dispatch; play: Play }) {
+function AnswerDesk({ s, here, me, isChosen, offset, dispatch, play }: { s: DView; here: string[]; me: string; isChosen: boolean; offset: number; dispatch: Dispatch; play: Play }) {
   const [text, setText] = useState(() => own(s.typed, me) ?? "");
   const textRef = useRef(text);
   const sent = useRef(text);
@@ -192,7 +194,7 @@ function AnswerDesk({ s, me, isChosen, offset, dispatch, play }: { s: DView; me:
             placeholder="One answer" autoComplete="off" autoCorrect="off" autoCapitalize="sentences" spellCheck={false} enterKeyHint="done" />
         </label>
         <p className={`dg-msg ${error ? "no" : ""}`} role="status">
-          {error ?? (locked ? "Locked in. Waiting for the others." : expired ? "Time!" : `${s.locked.length} of ${s.players.length} locked in`)}
+          {error ?? (locked ? "Locked in. Waiting for the others." : expired ? "Time!" : `${s.locked.filter((p) => here.includes(p)).length} of ${here.length} locked in`)}
         </p>
         {!locked && <PixelButton type="submit" variant="gold" className="dg-lock" disabled={!open || locking}>Lock in</PixelButton>}
       </form>

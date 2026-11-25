@@ -174,7 +174,7 @@ describe("NPAT dig on the screen", () => {
 
 describe("Dodge on the screen", () => {
   const dg = setup("dodge");
-  const d = (o: Record<string, unknown>) => st({ phase: "answer", round: 1, total: 4, points: { Ann: 2, Bob: -1 }, history: [], ...o });
+  const d = (o: Record<string, unknown>) => st({ phase: "answer", round: 1, number: 2, total: 4, points: { Ann: 2, Bob: -1 }, history: [], ...o });
   it("names the chosen player and the phase, with the answer clock", () => {
     expect(screenInfo(dg, d({}))).toEqual({ turn: "Bob", phase: "Round 2 of 4 · Bob is chosen · Answering" });
     expect(screenClock(dg, d({}))!.deadline).toBe(1000 + 20_000);

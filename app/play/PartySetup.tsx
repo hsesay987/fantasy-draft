@@ -12,6 +12,7 @@ import { formatMeta } from "./formats";
 import { setRoomGame } from "./onlineApi";
 import { NPAT_CAT, NPAT_CLASSIC_IDS, NPAT_MAX_CATS, NPAT_MIN_CATS, npatCustomCheck, npatDigCheck, npatStyleFor, type NpatCustomCheck, type NpatStyle } from "./npatSetup";
 import { PoolPicker } from "./PoolPicker";
+import { startLaps } from "./dodgeSetup";
 import { Stepper } from "./setupParts";
 import { TeamPicker } from "./TeamPicker";
 import { startPools, topicOptions } from "./topicOptions";
@@ -21,7 +22,7 @@ import { DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk } from "../topicDraft/np
 import { DrinkingToggle, ShowVotesToggle } from "./views/partyBits";
 
 /** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
-export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat" | "dodge"; room: { code: string; token: string; pool?: string; pools?: string[]; slotPools?: string[] | null; inTournament?: boolean; /** The room's last NPAT setup, if the last game picked was NPAT. */ npat?: Pick<GameSetup, "opts" | "pool" | "pools"> | null; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
+export function PartySetup({ format, room, seats = [] }: { format: "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat" | "dodge"; room: { code: string; token: string; pool?: string; pools?: string[]; slotPools?: string[] | null; inTournament?: boolean; /** The room's last NPAT setup, if the last game picked was NPAT. */ npat?: Pick<GameSetup, "opts" | "pool" | "pools"> | null; /** The room's last game picked, so Dodge reopens on its laps. */ last?: Pick<GameSetup, "format" | "opts"> | null; onDone: () => void; onCancel: () => void }; seats?: string[] }) {
   const meta = formatMeta(format)!;
   const decks = format === "insync" ? INSYNC_DECKS : DECKS;
   const options = topicOptions(format);
@@ -32,7 +33,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const [saylessWords, setSaylessWords] = useState(3);
   const [saylessSlack, setSaylessSlack] = useState(5);
   const [saylessGuard, setSaylessGuard] = useState(false);
-  const [dodgeLaps, setDodgeLaps] = useState(1);
+  const [dodgeLaps, setDodgeLaps] = useState(() => startLaps(room.last));
   const [npatRounds, setNpatRounds] = useState(3);
   const [npatSeconds, setNpatSeconds] = useState(60);
   const [npatHard, setNpatHard] = useState(false);

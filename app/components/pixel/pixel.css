@@ -1561,7 +1561,8 @@ button.tn-slot:hover { background: var(--px-rose); }
 @media (prefers-reduced-motion: reduce) { .np-groups li { animation: none; } }
 
 /* Dodge: the chosen player's card flips first, matches line up beside it, then the dodges. */
-.dg-page { max-width: 36rem; gap: 10px; }
+/* Room space below for the host's pause button, which floats over the bottom of the page on a phone. */
+.dg-page { max-width: 36rem; gap: 10px; padding-bottom: 72px; }
 .dg-sign h1 { overflow-wrap: anywhere; }
 .dg-chosen { display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
 .dg-chosen.me { box-shadow: 0 0 0 4px var(--px-gold); }

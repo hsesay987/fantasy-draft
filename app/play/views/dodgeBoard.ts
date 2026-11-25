@@ -14,10 +14,10 @@ export function dodgeClock(s: Clocked): { deadline: number; total: number } | nu
 }
 
 /** The screen's phase line: which round, who is chosen, and what is happening. */
-export function dodgePhase(s: Pick<DodgeView, "phase" | "round" | "total" | "players" | "done">): string {
+export function dodgePhase(s: Pick<DodgeView, "phase" | "round" | "number" | "total" | "players" | "done">): string {
   if (s.done) return "Final scores";
   const step = s.phase === "answer" ? "Answering" : s.phase === "judge" ? "Checking close calls" : "Reveal";
-  return `Round ${s.round + 1} of ${s.total} · ${chosen(s)} is chosen · ${step}`;
+  return `Round ${s.number} of ${s.total} · ${chosen(s)} is chosen · ${step}`;
 }
 
 export type RevealGroups = {

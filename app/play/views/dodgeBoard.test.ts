@@ -31,8 +31,8 @@ describe("board lines", () => {
     expect(dodgeClock({ phase: "reveal", phaseAt: 0, done: true })).toBeNull();
   });
   it("names the round and the chosen player", () => {
-    expect(dodgePhase({ phase: "answer", round: 1, total: 5, players: P, done: false })).toBe("Round 2 of 5 · Ben is chosen · Answering");
-    expect(dodgePhase({ phase: "answer", round: 1, total: 5, players: P, done: true })).toBe("Final scores");
+    expect(dodgePhase({ phase: "answer", round: 1, number: 2, total: 5, players: P, done: false })).toBe("Round 2 of 5 · Ben is chosen · Answering");
+    expect(dodgePhase({ phase: "answer", round: 1, number: 2, total: 5, players: P, done: true })).toBe("Final scores");
   });
   it("ranks with shared places", () => {
     expect(dodgeRanked({ players: ["a", "b", "c"], points: { a: 1, b: 3, c: 1 } })).toEqual([
