@@ -1006,7 +1006,7 @@ html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
 .vp-term.m0 { animation: vp-shake-a .3s steps(6); } .vp-term.m1 { animation: vp-shake-b .3s steps(6); }
 @keyframes vp-shake-a { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
 @keyframes vp-shake-b { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
-.vp-word { margin: 0 4px; min-height: 30px; font-size: 24px; line-height: 1.15; }
+.vp-word { margin: 0 4px; min-height: 2.3em; font-size: 24px; line-height: 1.15; } /* two lines held, so a hint or a miss never moves what is below */
 .vp-word b { font-weight: 400; color: var(--px-gold); }
 .vp-word .lost { color: #ef8a73; }
 .vp-word .no { color: #ef8a73; }

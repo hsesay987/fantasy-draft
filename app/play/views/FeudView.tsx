@@ -128,7 +128,7 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
             <label className="px-note" htmlFor="feud-answer">{mine ? `${player}, type your answer` : `${player} is answering…`}</label>
             <div className="px-term">
               <div className="in"><span>&gt;</span>
-                <input id="feud-answer" autoComplete="off" autoFocus disabled={!mine} value={text} onChange={(e) => { setText(e.target.value); setHint(null); }} placeholder="type a name" aria-describedby="feud-hint" />
+                <input id="feud-answer" autoComplete="off" autoFocus disabled={!mine} value={text} onChange={(e) => { setText(e.target.value); setHint(null); }} placeholder="type a name" aria-describedby={mine && suggested ? "feud-hint" : undefined} />
               </div>
               <PixelButton type="submit" disabled={!mine || text.trim().length < 2}>ENTER</PixelButton>
             </div>

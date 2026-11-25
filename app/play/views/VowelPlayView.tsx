@@ -234,7 +234,7 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
             : !seated ? <>Watching this one.</>
             : got ? <>You got it! +{speedPoints(s.gotMs[me]!)}. Waiting for the others.</>
             : gaveUp ? <>You passed on this one.</>
-            : hint ? <>Did you mean {hint}? Press Enter to submit.</>
+            : hint ? <>Did you mean <b>{hint}</b>? Enter to send.</>
             : rejected ? <span className="no">{rejected === REFUSED ? "Not that one. Keep trying." : rejected}</span>
             : s.mode === "all" ? <>Name it from the letters. Faster scores more.</> : <>Name it from the letters. The first right answer takes it.</>}
         </p>}

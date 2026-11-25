@@ -263,7 +263,7 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
           <p className="vp-word" role="status">
             {reveal
               ? solved ? <><b>{shownName}</b> · +{gained}</> : <span className="lost">It was <b>{shownName}</b></span>
-              : hint?.round === s.round ? <>Did you mean {hint.name}? Press Enter to submit.</>
+              : hint?.round === s.round ? <>Did you mean <b>{hint.name}</b>? Enter to send.</>
               : rejected ? <span className="no">Not that one. Keep trying.</span>
               : <>Name it from the letters. Enter to answer.</>}
           </p>

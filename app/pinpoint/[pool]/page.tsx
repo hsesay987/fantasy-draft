@@ -115,7 +115,7 @@ export default function PinpointGame() {
         <div className="relative">
           <label className="sr-only" htmlFor="pp-guess">Guess</label>
           <input id="pp-guess" className={`${controlCls} min-h-12 text-lg`} placeholder={`Type a name (${hints.length + 1} of ${MAX_GUESSES})`} value={text} autoComplete="off"
-            onChange={(e) => { setText(e.target.value); setHint(null); }} onKeyDown={(e) => e.key === "Enter" && enter()} aria-describedby="pp-hint" />
+            onChange={(e) => { setText(e.target.value); setHint(null); }} onKeyDown={(e) => e.key === "Enter" && enter()} aria-describedby={hint && text === hint ? "pp-hint" : undefined} />
           {hint && text === hint && <p id="pp-hint" className="mt-1 text-sm text-muted-foreground" role="status">Did you mean {hint}? Press Enter to submit.</p>}
           {matches.length > 0 && (
             <ul className="absolute inset-x-0 top-full z-20 mt-1 max-h-80 overflow-auto rounded-xl border border-white/10 bg-background/95 p-1 shadow-xl backdrop-blur" role="listbox">
