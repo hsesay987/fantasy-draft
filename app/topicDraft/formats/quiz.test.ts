@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { applyAction, autoAction, buildTeams, initGame, isDone } from "../core";
+import { applyAction, autoAction, buildTeams, initGame, isDone, suggestion } from "../core";
 import { getCatalog } from "../catalogs";
 import { missionsFor } from "../missions";
 import { DEFAULT_OPTS, type FormatId, type GameSetup } from "../../play/types";
@@ -81,6 +81,17 @@ describe("family feud", () => {
     s = FD.choose(s, FD.turnPlayer(s)!, "zzzz two");
     s = FD.choose(s, FD.turnPlayer(s)!, "zzzz three");
     expect(s.round).toBe(1);
+  });
+  it("core suggests a near miss of a hidden answer only to the player whose turn it is", () => {
+    const setup = setupFor("feud");
+    const s = { ...s0, rounds: s0.rounds.map((r, i) => (i === 0 ? { ...r, board: ["Thor", ...r.board.slice(1)] } : r)) };
+    const by = FD.turnPlayer(s)!;
+    expect(suggestion(setup, s, { type: "answer", by, choice: "thro" }, 0)).toBe("Thor");
+    expect(suggestion(setup, s, { type: "answer", by: by === "A" ? "B" : "A", choice: "thro" }, 0)).toBe(null);
+    expect(suggestion(setup, s, { type: "tick" }, 0)).toBe(null);
+    const after = applyAction(setup, s, { type: "answer", by, choice: "thro" }, 0) as FD.FeudState;
+    expect(after.rounds[0]!.strikes).toBe(0);
+    expect(suggestion(setup, after, { type: "answer", by, choice: "thro" }, 0)).toBe(null);
   });
   it("naming a board answer scores it once", () => {
     const first = s0.rounds[0]!.board[0]!;

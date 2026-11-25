@@ -1,6 +1,7 @@
 // Family Feud: name the survey's top answers. Questions and answers come from the topic's trivia surveys.
 import type { Survey } from "../trivia/types";
 import { next, shuffle } from "../rng";
+import { closestAnswer, distance, fold } from "../spelling";
 
 export const BOARD_POINTS = [50, 30, 20, 15, 10];
 export const MAX_STRIKES = 3;
@@ -13,16 +14,9 @@ export type FeudRound = {
   found: Record<string, string>; // answer -> player who named it
   wrong: string[]; // what players typed that was not on the board
   strikes: number;
+  /** Players who have had a spelling suggestion this round: one each, so nobody can fish for the board. */
+  hinted?: string[];
 };
-
-const fold = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/&/g, " and ").replace(/[^a-z0-9 ]+/g, " ").replace(/\b(the|a|an)\b/g, " ").replace(/\s+/g, " ").trim();
-
-function distance(a: string, b: string): number {
-  const dp = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)] as number[]);
-  for (let j = 1; j <= b.length; j++) dp[0]![j] = j;
-  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) dp[i]![j] = Math.min(dp[i - 1]![j]! + 1, dp[i]![j - 1]! + 1, dp[i - 1]![j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1));
-  return dp[a.length]![b.length]!;
-}
 
 /** Which board answer did the player mean? Forgives case, punctuation, partial names and small typos. */
 export function matchAnswer(text: string, board: string[]): string | null {
@@ -65,10 +59,19 @@ export function init(o: { players: string[]; surveys: Survey[]; avoid?: string[]
 export const turnPlayer = (s: FeudState) => (s.done ? null : s.players[(s.round + s.turn) % s.players.length]!);
 export const roundDone = (r: FeudRound) => r.strikes >= MAX_STRIKES || Object.keys(r.found).length >= r.board.length;
 
-/** A player types an answer. Naming one already on the board changes nothing; anything off the board is a strike. */
+/** The hidden answer a typed miss was close to, if this player has had no suggestion this round. Costs nothing. */
+export function nearMiss(s: FeudState, by: string, text: string): string | null {
+  if (s.done || turnPlayer(s) !== by || typeof text !== "string") return null;
+  const r = s.rounds[s.round]!;
+  if (r.hinted?.includes(by) || matchAnswer(text, r.board)) return null;
+  return closestAnswer(text, r.board.filter((a) => !r.found[a]));
+}
+
+/** A player types an answer. Naming one already on the board changes nothing; a near miss only notes the suggestion; anything else off the board is a strike. */
 export function choose(s: FeudState, by: string, text: string): FeudState {
   if (s.done || turnPlayer(s) !== by) return s;
   const r = s.rounds[s.round]!;
+  if (nearMiss(s, by, text)) return { ...s, rounds: s.rounds.map((x, i) => (i === s.round ? { ...r, hinted: [...(r.hinted ?? []), by] } : x)) };
   const answer = matchAnswer(text, r.board);
   if (answer && r.found[answer]) return s;
   if (!answer && (fold(text).length < 2 || r.wrong.some((w) => fold(w) === fold(text)))) return s;

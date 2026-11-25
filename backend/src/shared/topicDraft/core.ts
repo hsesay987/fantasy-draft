@@ -393,6 +393,27 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
   return s;
 }
 
+/**
+ * Spelling help: the answer a typed guess nearly matched, when the engine will refuse it as a near miss (at no cost) and
+ * note that this player has had their suggestion. Ask before applyAction. null for everything else.
+ */
+export function suggestion(setup: GameSetup, s: GameState, a: Action, now: number): string | null {
+  if (!("by" in a) || !setup.players.includes(a.by)) return null;
+  switch (setup.format) {
+    case "feud":
+      return a.type === "answer" ? FD.nearMiss(s as FD.FeudState, a.by, String(a.choice)) : null;
+    case "vowelplay":
+    case "vowelparty":
+      return a.type === "guess" ? VP.nearMiss(s as VP.VPState, a.by, a.text as string, now) : null;
+    case "pecking":
+      return a.type === "pick" ? PK.nearMiss(s as PK.PeckState, a.by, a.name, now) : null;
+    case "sayless":
+      return a.type === "guess" ? SL.nearMiss(s as SL.SLState, a.by, a.text, now) : null;
+    default:
+      return null;
+  }
+}
+
 /** The move an AI (or a bot standing in for a player who left) makes right now. null = nothing to do. */
 export function autoAction(setup: GameSetup, s: GameState): Action | null {
   const by = currentTurn(setup, s);

@@ -1,0 +1,38 @@
+// Spelling help for typed answers: the closest acceptable answer to a near miss. Pure and data-free, so engines, the
+// server (synced to backend/src/shared) and the browser all share it.
+
+/** Comparison text: lower case, no accents or punctuation, "&" as "and", no "the/a/an", single spaces. */
+export const fold = (t: string) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/&/g, " and ").replace(/[^a-z0-9 ]+/g, " ").replace(/\b(the|a|an)\b/g, " ").replace(/\s+/g, " ").trim();
+
+/** Edits between two strings: insert, delete, change a letter, or swap two neighbours (optimal string alignment). */
+export function distance(a: string, b: string): number {
+  const dp = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)] as number[]);
+  for (let j = 1; j <= b.length; j++) dp[0]![j] = j;
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++) {
+      dp[i]![j] = Math.min(dp[i - 1]![j]! + 1, dp[i]![j - 1]! + 1, dp[i - 1]![j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) dp[i]![j] = Math.min(dp[i]![j]!, dp[i - 2]![j - 2]! + 1);
+    }
+  return dp[a.length]![b.length]!;
+}
+
+/** How many edits still count as close: none under 4 letters, 1 up to 8, 2 from 9. */
+const allowed = (letters: number) => (letters < 4 ? -1 : letters >= 9 ? 2 : 1);
+
+/**
+ * The answer a near miss most likely meant, or null. Spaces don't count, so "ice crem" is one edit from "Ice-cream".
+ * Ties go to the earlier answer. Callers ask only after their own matching refused the text.
+ */
+export function closestAnswer(text: string, answers: readonly string[]): string | null {
+  const t = fold(text).replace(/ /g, "");
+  if (!t) return null;
+  let best: string | null = null, bestD = Infinity;
+  for (const a of answers) {
+    const f = fold(a).replace(/ /g, "");
+    const max = allowed(f.length);
+    if (Math.abs(f.length - t.length) > max) continue;
+    const d = distance(t, f);
+    if (d <= max && d < bestD) [best, bestD] = [a, d];
+  }
+  return best;
+}
