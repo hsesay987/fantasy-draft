@@ -17,7 +17,7 @@ import { TeamPicker } from "./TeamPicker";
 import { startPools, topicOptions } from "./topicOptions";
 import { compactTeams, splitTeams, type TeamMap } from "./teamMoves";
 import { DEFAULT_OPTS, NPAT_DIG_IDS, type GameSetup } from "./types";
-import { DIG_CATEGORIES } from "../topicDraft/npat/rules";
+import { DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk } from "../topicDraft/npat/rules";
 import { DrinkingToggle, ShowVotesToggle } from "./views/partyBits";
 
 /** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
@@ -40,12 +40,12 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   /** NPAT's Custom option: the host's own 4 to 6 categories instead of a set. */
   const [npatCustom, setNpatCustom] = useState(false);
   const [npatCats, setNpatCats] = useState<string[]>(NPAT_CLASSIC_IDS);
-  /** NPAT: dig (one category at a time, exactly five) or the sheet. A planned slot's topics, else the room's last NPAT game, say which to open on. */
+  /** NPAT: dig (one category at a time, 5 to 10) or the sheet. A planned slot's topics, else the room's last NPAT game, say which to open on. */
   const [npatStyle, setNpatStyle] = useState<NpatStyle>(() => npatStyleFor(room.slotPools?.length ? { pools: room.slotPools } : room.npat ?? null));
   const [digCats, setDigCats] = useState<string[]>(() => {
     const from = room.slotPools?.length ? room.slotPools : room.npat?.pools ?? [];
     const ids = [...new Set(from.flatMap((p) => (p.startsWith(NPAT_CAT) ? [p.slice(NPAT_CAT.length)] : NPAT_SETS.find((x) => x.id === p)?.categories ?? [])))];
-    return ids.length === DIG_CATEGORIES && ids.every((id) => NPAT_CATEGORIES.some((c) => c.id === id)) ? ids : NPAT_DIG_IDS;
+    return digCountOk(ids.length) && ids.every((id) => NPAT_CATEGORIES.some((c) => c.id === id)) ? ids : NPAT_DIG_IDS;
   });
   const digging = format === "npat" && npatStyle === "dig";
   const digCheck = digging ? npatDigCheck(digCats) : null;
@@ -118,15 +118,15 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </Panel>
       ) : format === "npat" ? (
         <>
-        <Panel title="Style" hint={digging ? `One letter, ${DIG_CATEGORIES} categories asked one at a time, 20 seconds each. Every answer is judged on the spot.` : "Each round, fill in every category at once before the clock runs out."}>
+        <Panel title="Style" hint={digging ? `One letter, ${DIG_CATEGORIES} to ${DIG_MAX_CATEGORIES} categories asked one at a time, revealed as each comes up, 20 seconds each. Every answer is judged on the spot.` : "Each round, fill in every category at once before the clock runs out."}>
           <div className="flex flex-wrap gap-2">
             <Chip selected={digging} onClick={() => setNpatStyle("dig")}>Dig (one at a time)</Chip>
             <Chip selected={!digging} onClick={() => setNpatStyle("sheet")}>Sheet (all at once)</Chip>
           </div>
         </Panel>
         {digging && digCheck ? (
-          <Panel title="Your categories" hint={`Tick ${DIG_CATEGORIES}. ${digCats.length} picked.`}>
-            <CategoryTicks picked={digCats} max={DIG_CATEGORIES} onChange={setDigCats} check={digCheck} />
+          <Panel title="Your categories" hint={`Tick ${DIG_CATEGORIES} to ${DIG_MAX_CATEGORIES}. ${digCats.length} picked.`}>
+            <CategoryTicks picked={digCats} max={DIG_MAX_CATEGORIES} onChange={setDigCats} check={digCheck} />
           </Panel>
         ) : (
         <Panel title="Categories" hint="Every round fills in this set. Pick one, or choose Custom to build your own.">

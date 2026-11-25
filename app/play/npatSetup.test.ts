@@ -76,10 +76,13 @@ describe("the room's summary line", () => {
 });
 
 describe("dig style", () => {
-  it("takes exactly five categories, with Custom's messages", () => {
+  it("takes 5 to 10 categories, with Custom's messages", () => {
     expect(npatDigCheck(NPAT_DIG_IDS)).toMatchObject({ ok: true });
-    expect(npatDigCheck(NPAT_CLASSIC_IDS)).toMatchObject({ ok: false, reason: "Pick exactly 5 categories" });
-    expect(npatDigCheck([...NPAT_DIG_IDS, "film"])).toMatchObject({ ok: false, reason: "Pick exactly 5 categories" });
+    expect(npatDigCheck(NPAT_CLASSIC_IDS)).toMatchObject({ ok: false, reason: "Pick at least 5 categories" });
+    const ten = NPAT_CATEGORIES.slice(0, 11).map((c) => c.id);
+    expect(ten).toHaveLength(11);
+    expect(npatDigCheck(ten.slice(0, 10)).reason ?? "").not.toMatch(/Pick at/);
+    expect(npatDigCheck(ten)).toMatchObject({ ok: false, reason: "Pick at most 10 categories" });
     expect(npatDigCheck(["name", "place", "animal", "thing", "nope"])).toMatchObject({ ok: false, reason: expect.stringMatching(/not available/) });
     expect(npatDigCheck(NPAT_DIG_IDS).letters.some((l) => "QXZY".includes(l))).toBe(false);
   });
@@ -95,5 +98,7 @@ describe("dig style", () => {
 
   it("sums a dig up as one letter, five categories", () => {
     expect(npatSummary({ pools: ["cat:name"], rounds: 3, seconds: 60, teams: 0, players: 3, style: "dig" })).toBe("Dig · one letter · 5 categories · 20 s each · every player for themselves · 2+ players");
+    const seven = NPAT_CATEGORIES.slice(0, 7).map((c) => `cat:${c.id}`);
+    expect(npatSummary({ pools: seven, rounds: 3, seconds: 60, teams: 0, players: 3, style: "dig" })).toMatch(/^Dig · one letter · 7 categories/);
   });
 });

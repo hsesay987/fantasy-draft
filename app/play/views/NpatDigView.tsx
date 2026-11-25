@@ -10,6 +10,7 @@ import { useSound } from "../../components/SoundProvider";
 import DigScene from "../../npat/dig/DigScene";
 import GemIcon from "../../npat/dig/GemIcon";
 import GemTray from "../../npat/dig/GemTray";
+import CategoryCards from "../../npat/dig/CategoryCards";
 import SlotReel from "../../npat/dig/SlotReel";
 import type { DigAnswer, DigView } from "../../topicDraft/formats/npatDig";
 import { categoryOf } from "../../topicDraft/npat/categories";
@@ -49,7 +50,7 @@ export function NpatDigView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   useEffect(() => {
     const was = seen.current;
     seen.current = { phase: s.phase, cat: s.cat };
-    if (s.phase === "ask" && (was.phase !== "ask" || was.cat !== s.cat)) play("pick");
+    if (s.phase === "ask" && (was.phase !== "ask" || was.cat !== s.cat)) play("cardFlip");
     if (s.phase === "verdict" && (was.phase !== "verdict" || was.cat !== s.cat)) play(seated && mine ? (mine.points > 0 ? "win" : "wrong") : "reveal");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.phase, s.cat]);
@@ -76,7 +77,8 @@ export function NpatDigView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
           <section className="px-box np-card np-winner" aria-label="Drawing the letter">
             <div style={tv ? { transform: "scale(1.6)", transformOrigin: "center", margin: "24px 0" } : undefined}><SlotReel letter={s.letter} spinning /></div>
             <p className="np-msg" role="status">Drawing the letter…</p>
-            <p className="np-msg">{s.categories.map(catTitle).join(", ")}</p>
+            <p className="np-msg">{s.categories.length} categories, each revealed when its turn comes.</p>
+            <CategoryCards categories={s.categories} at={-1} />
           </section>
         )}
 
@@ -118,8 +120,9 @@ function TvAsk({ s, out }: { s: DigView; out: boolean }) {
   const category = s.categories[s.cat] ?? "";
   return (
     <section className="px-box np-card np-tv" aria-label="Answering">
+      <CategoryCards categories={s.categories} at={s.cat} />
       <p className="np-eyebrow">Category {s.cat + 1} of {s.categories.length}</p>
-      <h2 className="np-title">{catTitle(category)} starting with {s.letter}</h2>
+      <h2 key={s.cat} className="np-title np-reveal">{catTitle(category)} starting with {s.letter}</h2>
       <p className="np-msg">{out ? "You left the table. Watching." : `${categoryOf(category)?.blurb ?? ""}. Skip your first thought.`}</p>
       <ul className="np-groups" aria-label="Locked in">
         {s.players.map((p) => (
@@ -205,8 +208,9 @@ function AskDesk({ s, me, offset, dispatch, play }: { s: DigView; me: string; of
   const open = !locked && !expired;
   return (
     <section className="px-box np-card" aria-label="Your answer">
+      <CategoryCards categories={s.categories} at={s.cat} />
       <p className="np-eyebrow">Category {s.cat + 1} of {s.categories.length}</p>
-      <h2 className="np-title">{catTitle(category)}</h2>
+      <h2 className="np-title np-reveal">{catTitle(category)}</h2>
       <p className="np-msg">{categoryOf(category)?.blurb}. Starts with <b>{s.letter}</b>.</p>
       <form className="np-fields" onSubmit={(e) => { e.preventDefault(); void lockIn(); }} autoComplete="off">
         <label className="np-field">

@@ -32,7 +32,7 @@ import "../shared/topicDraft/pecking/lists"; // loads the ranked lists the Pecki
 import "../shared/topicDraft/sayless/words"; // loads the words the Say Less engine deals from
 import "../shared/topicDraft/npat/lists"; // loads the answer lists the NPAT engine checks and draws letters from
 import { NPAT_CATEGORIES } from "../shared/topicDraft/npat/categories";
-import { ANSWER_MAX as NPAT_ANSWER_MAX, DIG_CATEGORIES } from "../shared/topicDraft/npat/rules";
+import { ANSWER_MAX as NPAT_ANSWER_MAX, digCountOk } from "../shared/topicDraft/npat/rules";
 import { lettersAvailable } from "../shared/topicDraft/npat/source";
 import type { NpatHistoryStore } from "./npatHistory.service";
 import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelTopics";
@@ -282,10 +282,10 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     ...(format === "pecking" ? { peckMode: (o.peckMode === "rank" || o.peckMode === "name" ? o.peckMode : "mixed") as PK.PeckMode } : {}),
     vowelAnswer: (format === "vowelparty" ? (o.answer === "buzz" ? "voice" : "type") : o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
-  // A dig plays exactly five categories, and they need a letter in common.
+  // A dig plays 5 to 10 categories, and they need a letter in common.
   if (format === "npat" && opts.npatStyle === "dig") {
     const cats = npatPicked(pools);
-    if (cats.length !== DIG_CATEGORIES || !lettersAvailable(cats, false).length) return null;
+    if (!digCountOk(cats.length) || !lettersAvailable(cats, false).length) return null;
   }
   return { id: "", format, pool, pools, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
 }

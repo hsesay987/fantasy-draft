@@ -18,6 +18,7 @@ import { fetchShare, judgeAnswers, sendDispute } from "./api";
 import DigScene from "./dig/DigScene";
 import GemIcon from "./dig/GemIcon";
 import GemTray from "./dig/GemTray";
+import CategoryCards from "./dig/CategoryCards";
 import SlotReel from "./dig/SlotReel";
 import { overlaySource, SOLO_MAX, SOLO_PLAYER as ME, soloResult } from "./solo";
 
@@ -122,12 +123,10 @@ function Game({ puzzle, number, onFinish, onContinue, backHref = "/trivia", back
             <p className="np-eyebrow">Daily Name Place Animal Thing #{number}</p>
             <h1 className="np-title">One letter, five categories</h1>
             <p className="np-msg">You get 20 seconds for each category, all starting with the same letter. Every answer turns into a gem: the rarer the answer, the bigger the gem and the deeper you dig.</p>
-            <ul className="np-cats">
-              {puzzle.categories.map((c) => <li key={c}><b>{catTitle(c)}</b> {categoryOf(c)?.blurb}</li>)}
-            </ul>
+            <p className="np-msg">Each category stays face down until its turn comes.</p>
+            <CategoryCards categories={puzzle.categories} at={-1} />
             <p className="np-msg"><b>Skip your first thought.</b> Everyone else is thinking of it too.</p>
             <PixelButton variant="gold" className="np-done" onClick={start}>Start</PixelButton>
-            <ListSources categories={puzzle.categories} />
           </section>
         </div>
       </PixelShell>
@@ -169,8 +168,9 @@ function Game({ puzzle, number, onFinish, onContinue, backHref = "/trivia", back
 
         {s.phase === "ask" && (
           <section className="px-box np-card" aria-label="Your answer">
+            <CategoryCards categories={s.categories} at={s.cat} />
             <p className="np-eyebrow">Category {s.cat + 1} of {s.categories.length}</p>
-            <h2 className="np-title">{catTitle(category)}</h2>
+            <h2 key={s.cat} className="np-title np-reveal">{catTitle(category)}</h2>
             <p className="np-msg">{categoryOf(category)?.blurb}. Starts with <b>{s.letter}</b>.</p>
             <form className="np-fields" onSubmit={(e) => { e.preventDefault(); lockIn(); }} autoComplete="off">
               <label className="np-field">
