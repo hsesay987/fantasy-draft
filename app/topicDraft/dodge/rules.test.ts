@@ -21,6 +21,25 @@ describe("matchKey", () => {
     expect(matchKey("shoes")).toBe(matchKey("shoe"));
     expect(matchKey("boxes")).toBe(matchKey("box"));
   });
+  it("never drops the e of a bare singular", () => {
+    for (const [x, y] of [["Cape", "Cap"], ["Kite", "Kit"], ["Wine", "Win"], ["Plane", "Plan"], ["Rose", "Ros"]]) expect(matchKey(x!)).not.toBe(matchKey(y!));
+    expect(matchKey("roses")).toBe(matchKey("rose"));
+    expect(matchKey("cakes")).toBe(matchKey("cake"));
+  });
+  it("gives -ie and -ies the same stem", () => {
+    for (const [x, y] of [["Cookie", "Cookies"], ["Movie", "Movies"], ["Brownie", "Brownies"], ["zombie", "zombies"], ["Smoothie", "smoothies"], ["berry", "berries"]]) expect(matchKey(x!)).toBe(matchKey(y!));
+  });
+  it("leaves words that only look plural alone", () => {
+    expect(matchKey("tennis")).not.toBe(matchKey("tenni"));
+    expect(matchKey("octopus")).toBe("octopus");
+    expect(matchKey("dishes")).toBe(matchKey("dish"));
+    expect(matchKey("kiwis")).toBe(matchKey("kiwi"));
+  });
+  it("folds spaces and hyphens inside an answer", () => {
+    expect(matchKey("Spider-Man")).toBe(matchKey("Spiderman"));
+    expect(matchKey("Ice cream")).toBe(matchKey("Icecream"));
+    expect(matchKey("Bat man")).toBe(matchKey("Batman"));
+  });
   it("keeps different words apart", () => {
     expect(matchKey("ham")).not.toBe(matchKey("jam"));
     expect(matchKey("pineapple")).not.toBe(matchKey("apple"));

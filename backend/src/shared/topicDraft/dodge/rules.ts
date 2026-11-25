@@ -15,28 +15,39 @@ export const ANSWER_MAX = 40;
 export const LAPS = [1, 2, 3] as const;
 
 const FILLER = new Set(["the", "a", "an"]);
+/** Singular words that end in "is", which would otherwise lose their "s" like "kiwis" and "pepperonis" do. */
+const SINGULAR_IS = new Set(["tennis", "iris", "axis", "oasis", "basis", "pelvis", "chassis", "paris", "elvis", "memphis", "lewis", "genesis", "crisis", "thesis"]);
 
-/** One word, singular: "cherries" -> "cherry", "boxes" -> "box", "shoes" -> "sho" (and "shoe" -> "sho" too). */
+/**
+ * One word, singular. Only plural endings come off: "boxes" -> "box", "roses" -> "rose", "shoes" -> "shoe", while a
+ * bare singular keeps its "e" ("cape" never meets "cap"). "-ie", "-ies" and a "-y" after a consonant share one stem, so
+ * "cookie"/"cookies" and "berry"/"berries" both match. Words that only look plural ("tennis", "octopus") are left alone.
+ */
 function stem(w: string): string {
   if (w.length <= 3) return w;
   let x = w;
-  if (x.endsWith("ies") && x.length > 4) x = `${x.slice(0, -3)}y`;
-  else if (x.endsWith("s") && !x.endsWith("ss")) x = x.slice(0, -1);
-  // Both sides lose a final "e", so "tomatoes"/"tomato" and "shoes"/"shoe" land on the same key.
-  if (x.endsWith("e") && x.length > 3) x = x.slice(0, -1);
+  if (x.endsWith("ies") && x.length > 4) return x.slice(0, -2); // cookies -> cooki, berries -> berri
+  if (/(sses|xes|zzes|ches|shes|oes)$/.test(x)) x = x.endsWith("oes") && !/(tomatoes|potatoes|heroes|mangoes|echoes)$/.test(x) ? x.slice(0, -1) : x.slice(0, -2);
+  else if (x.endsWith("s") && !/(ss|us)$/.test(x) && !SINGULAR_IS.has(x)) x = x.slice(0, -1);
+  if (x.endsWith("ie")) return x.slice(0, -1); // cookie -> cooki
+  if (/[^aeiou]y$/.test(x) && x.length > 3) return `${x.slice(0, -1)}i`; // berry -> berri
   return x;
 }
 
 /**
- * The form two answers are compared in: case, accents, punctuation and spacing folded, "the/a/an" dropped, simple
- * plurals made singular. Empty for a blank.
+ * The form two answers are compared in: case, accents, punctuation, spaces and hyphens folded, "the/a/an" dropped,
+ * simple plurals made singular. "Spider-Man" and "Spiderman" share a key. Empty for a blank.
  */
 export function matchKey(text: string): string {
-  const words = String(text ?? "")
-    .normalize("NFKD").replace(/[̀-ͯ]/g, "")
+  return stems(text).join("");
+}
+
+/** The answer's words, folded and singular, in order. */
+function stems(text: string): string[] {
+  return String(text ?? "")
+    .normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
     .toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ")
-    .trim().split(" ").filter((w) => w && !FILLER.has(w));
-  return words.map(stem).join(" ");
+    .trim().split(" ").filter((w) => w && !FILLER.has(w)).map(stem);
 }
 
 function distance(a: string, b: string): number {
@@ -63,7 +74,9 @@ const slack = (n: number) => (n < 4 ? 0 : n <= 6 ? 1 : 2);
 export function close(a: string, b: string): boolean {
   const x = matchKey(a), y = matchKey(b);
   if (!x || !y || x === y) return false;
-  const [short, long] = x.length <= y.length ? [x, y] : [y, x];
+  // Containment is checked word by word, so "ham" is not inside "graham".
+  const sx = stems(a).join(" "), sy = stems(b).join(" ");
+  const [short, long] = sx.length <= sy.length ? [sx, sy] : [sy, sx];
   if (short.length >= 3 && ` ${long} `.includes(` ${short} `)) return true;
-  return distance(x, y) <= slack(short.length);
+  return distance(x, y) <= slack(Math.min(x.length, y.length));
 }
