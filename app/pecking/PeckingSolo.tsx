@@ -39,6 +39,8 @@ function Game(props: PeckingSoloProps) {
   const [s, setS] = useState(() => deal(props));
   const [rank, setRank] = useState<{ round: number; v: number } | null>(null);
   const [typed, setTyped] = useState<{ round: number; t: string } | null>(null);
+  // Spelling help: the list name a near miss was close to, while the input still holds it.
+  const [hint, setHint] = useState<{ round: number; name: string } | null>(null);
 
   // The clock: a timeout closes the question and a reveal moves on. The state changes only inside the interval callback.
   useEffect(() => {
@@ -112,6 +114,15 @@ function Game(props: PeckingSoloProps) {
   const text = typed?.round === s.round ? typed.t : "";
   const last = !asking ? s.history[s.history.length - 1] : undefined;
   const mine = last?.scores[ME];
+  const pickName = (n: string) => {
+    const t = Date.now();
+    const close = PK.nearMiss(s, ME, n, t);
+    if (close) {
+      setTyped({ round: s.round, t: close });
+      setHint({ round: s.round, name: close });
+    }
+    setS(PK.pickName(s, ME, n, t));
+  };
 
   return (
     <PixelShell world="ladder">
@@ -130,7 +141,7 @@ function Game(props: PeckingSoloProps) {
               <PixelButton variant="gold" className="pk-go" onClick={() => setS((p) => PK.guessRank(p, ME, value, Date.now()))}>Lock #{value}</PixelButton>
             </>
           ) : (
-            <NamePicker choices={q.choices ?? []} taken={[]} text={text} onText={(t) => setTyped({ round: s.round, t })} onPick={(n) => setS((p) => PK.pickName(p, ME, n, Date.now()))} />
+            <NamePicker choices={q.choices ?? []} taken={[]} text={text} onText={(t) => setTyped({ round: s.round, t })} onPick={pickName} hint={hint?.round === s.round && hint.name === text ? hint.name : null} />
           ))}
           {!asking && last && <PeckReveal q={q} scores={last.scores} players={[ME]} me={ME} />}
           {mine && <p className={`pk-mine ${mine.points > 0 ? "good" : "bad"}`} role="status">{mine.guess == null && !mine.name ? "No answer this time." : mine.points === 100 ? "Spot on! +100" : mine.points > 0 ? `+${mine.points}` : q.kind === "name" && !mine.span ? `${guessText(mine)} is not on the list.` : "Way off."}</p>}

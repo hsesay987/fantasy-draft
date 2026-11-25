@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { applyAction, initGame, poolFor, suggestion, type Action, type GameState } from "../topicDraft/core";
 import type { Item } from "../topicDraft/types";
 import type { GameSetup } from "./types";
@@ -43,7 +43,7 @@ export function useLocalGame(setup: GameSetup): GameCtl {
   const pool = useMemo(() => poolFor(setup), [setup]);
   const map = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
   const latest = useRef(state);
-  latest.current = state;
+  useEffect(() => { latest.current = state; });
   const dispatch = useCallback(
     (a: Action): void | Promise<MoveResult> => {
       trackAction(setup, a, false);

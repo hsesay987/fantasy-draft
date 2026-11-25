@@ -9,7 +9,7 @@ import { Typewriter } from "../components/pixel/Typewriter";
 import { wordPip } from "../components/pixel/sprites";
 import { useSound } from "../components/SoundProvider";
 import { track } from "../lib/analytics";
-import { giveUp, GUESS_MS, guess, init, speedPoints, tick, type VPState } from "../topicDraft/formats/vowelplay";
+import { giveUp, GUESS_MS, guess, init, nearMiss, speedPoints, tick, type VPState } from "../topicDraft/formats/vowelplay";
 import { matches, toPuzzle } from "../topicDraft/party/vowelText";
 import { bestFor, saveBest } from "./best";
 import { useTypingStage } from "./useTypingStage";
@@ -34,6 +34,8 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
   const [miss, setMiss] = useState(0);
   /** The current line was just rejected. Cleared by typing, so the warning never sits on a new attempt. */
   const [rejected, setRejected] = useState(false);
+  /** Spelling help: the name a near miss was close to, for the word it was given on. */
+  const [hint, setHint] = useState<{ round: number; name: string } | null>(null);
   /** The name the player's answer matched: with two names on the same letters, the one they typed is the one shown. */
   const [said, setSaid] = useState<string | null>(null);
   const [best, setBest] = useState(0);
@@ -128,6 +130,7 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
       setNewBest(false);
       setMiss(0);
       setRejected(false);
+      setHint(null);
     });
     input.current?.focus({ preventScroll: true });
     stage.current?.scrollIntoView({ block: "start", behavior: "auto" });
@@ -141,7 +144,16 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
     const cur = tick(s, t);
     if (cur !== s) { setS(cur); return; }
     if (!inGuess || !text.trim()) return;
+    const close = nearMiss(cur, ME, text, t);
     const next = guess(cur, ME, text, t);
+    if (close) {
+      // Refused at no cost: the input takes the name, and Enter sends it.
+      setS(next);
+      setText(close);
+      setHint({ round: cur.round, name: close });
+      setRejected(false);
+      return;
+    }
     if (next === cur) {
       setMiss((n) => n + 1);
       setRejected(true);
@@ -163,6 +175,7 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
     if (v.length > text.length) play("click");
     setText(v);
     setRejected(false);
+    setHint(null);
   };
 
   const shell = (body: ReactNode) => <PixelShell world="typewriter"><div className="vp-page">{body}</div></PixelShell>;
@@ -250,6 +263,7 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
           <p className="vp-word" role="status">
             {reveal
               ? solved ? <><b>{shownName}</b> · +{gained}</> : <span className="lost">It was <b>{shownName}</b></span>
+              : hint?.round === s.round ? <>Did you mean {hint.name}? Press Enter to submit.</>
               : rejected ? <span className="no">Not that one. Keep trying.</span>
               : <>Name it from the letters. Enter to answer.</>}
           </p>

@@ -209,6 +209,7 @@ function GuessDesk({ s, me, out, offset, dispatch, play }: { s: SLView; me: stri
 function GuessField({ s, me, offset, dispatch, play }: { s: SLView; me: string; offset: number; dispatch: Dispatch; play: Play }) {
   const [text, setText] = useState("");
   const [miss, setMiss] = useState<{ n: number; msg: string } | null>(null);
+  const [hint, setHint] = useState<string | null>(null);
   const [cool, setCool] = useState(false);
   const sending = useRef(false);
   const input = useRef<HTMLInputElement>(null);
@@ -222,7 +223,12 @@ function GuessField({ s, me, offset, dispatch, play }: { s: SLView; me: string; 
     setTimeout(() => setCool(false), COOL_MS);
     try {
       const r = await dispatch({ type: "guess", by: me, text: t });
-      if (r && !r.ok) {
+      // A near miss: the server sends the word back to this guesser only, and the input takes it.
+      if (r?.suggest) {
+        setText(r.suggest);
+        setHint(r.suggest);
+        setMiss(null);
+      } else if (r && !r.ok) {
         const late = Date.now() + offset > s.wordAt + WORD_MS;
         // The server says a plain no for a wrong guess. Anything else is a reason worth showing as it is.
         const msg = r.error === REFUSED || r.error === undefined ? (late ? "Time's up" : "Not it") : r.error;
@@ -241,13 +247,13 @@ function GuessField({ s, me, offset, dispatch, play }: { s: SLView; me: string; 
         <label className="in">
           <span aria-hidden>?</span>
           <input ref={input} value={text} maxLength={GUESS_MAX} disabled={!open} autoFocus
-            onChange={(e) => { setText(e.target.value); setMiss(null); }}
+            onChange={(e) => { setText(e.target.value); setMiss(null); setHint(null); }}
             placeholder={open ? "Your guess" : "Wait for it"} aria-label="Your guess" aria-describedby="sl-guess-msg"
             autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} enterKeyHint="go" />
         </label>
         <button type="submit" className="sl-send" disabled={!open || cool || !text.trim()} onPointerDown={(e) => e.preventDefault()}>Guess</button>
       </form>
-      <p id="sl-guess-msg" className={`sl-msg ${miss ? "no" : ""}`} role="status">{miss ? miss.msg : "Guess as often as you like. Fewer clues score more."}</p>
+      <p id="sl-guess-msg" className={`sl-msg ${miss ? "no" : ""}`} role="status">{miss ? miss.msg : hint ? `Did you mean ${hint}? Press Enter to submit.` : "Guess as often as you like. Fewer clues score more."}</p>
     </>
   );
 }
