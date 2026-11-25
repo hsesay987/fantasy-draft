@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { applyAction, initGame, poolFor, type Action, type GameState } from "../topicDraft/core";
+import { useCallback, useMemo, useRef } from "react";
+import { applyAction, initGame, poolFor, suggestion, type Action, type GameState } from "../topicDraft/core";
 import type { Item } from "../topicDraft/types";
 import type { GameSetup } from "./types";
 import { useRunState } from "./useRunState";
 import { trackAction } from "./trackAction";
 
-export type MoveResult = { ok: boolean; error?: string };
+/** `suggest`: a typed near miss was refused at no cost; this is the answer it was close to, to fill the input with. */
+export type MoveResult = { ok: boolean; error?: string; suggest?: string };
 
 /** One interface for local and online play: views read `state` and send `dispatch(action)`. */
 export type GameCtl = {
@@ -37,10 +38,16 @@ export function useLocalGame(setup: GameSetup): GameCtl {
   const [state, setState, finish] = useRunState<GameState>(setup.id, () => initGame(setup, Date.now()));
   const pool = useMemo(() => poolFor(setup), [setup]);
   const map = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
+  const latest = useRef(state);
+  latest.current = state;
   const dispatch = useCallback(
-    (a: Action) => {
+    (a: Action): void | Promise<MoveResult> => {
       trackAction(setup, a, false);
-      setState((s) => applyAction(setup, s, a, Date.now()));
+      const now = Date.now();
+      // Same spelling help as a room, worked out here: the engine notes the near miss, the view fills the input.
+      const suggest = suggestion(setup, latest.current, a, now);
+      setState((s) => applyAction(setup, s, a, now));
+      if (suggest) return Promise.resolve({ ok: false, error: `Did you mean ${suggest}?`, suggest });
     },
     [setState, setup]
   );

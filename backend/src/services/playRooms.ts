@@ -8,7 +8,7 @@ import { getIo } from "../socket";
 import { trackServer } from "../lib/monitoring";
 import { judge, type Verdict } from "./judge.service";
 import type { QuizData } from "../shared/topicDraft/trivia/types";
-import { applyAction, autoAction, buildTeams, currentTurn, initGame, isDone, npatIsDig, npatPicked, QUICK_FORMATS, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
+import { applyAction, autoAction, buildTeams, currentTurn, initGame, isDone, npatIsDig, npatPicked, QUICK_FORMATS, suggestion, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
 import { CATALOG_META, getCatalog } from "../shared/topicDraft/catalogs";
 import type { GameSetup, FormatId } from "../shared/play/types";
 import { DEFAULT_OPTS, PARTY_FORMATS } from "../shared/play/types";
@@ -628,7 +628,7 @@ function tooFast(log: Map<string, number[]>, name: string, limit = VOWEL_GUESSES
 }
 const ACTION_TYPES = new Set(["buzz", "spoke", "mark", "giveUp", "pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next", "nightAct", "dayVote", "skipTalk", "finish"]);
 
-export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string } {
+export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string; suggest?: string } {
   const seat = seatFor(room, token);
   if (!seat) return { ok: false, error: "Not in this room" };
   seat.lastSeen = Date.now();
@@ -681,8 +681,16 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   const asFirst = raw.type === "skipTalk" || (raw.type === "next" && npatIsDig(room.setup));
   const by = asFirst && !room.setup.players.includes(seat.name) ? room.setup.players[0] ?? seat.name : seat.name;
   const action = { ...rest, by } as Action;
-  const applied = applyAction(room.setup, room.state, action, Date.now());
+  const now = Date.now();
+  // Spelling help: the engine refuses a near miss at no cost and notes it, and the suggestion goes back in this reply only
+  // (Say Less and Vowel Play hide the word from guessers, so it is never in a snapshot).
+  const suggest = suggestion(room.setup, room.state, action, now);
+  const applied = applyAction(room.setup, room.state, action, now);
   if (applied === room.state) return { ok: false, error: "Not allowed right now" };
+  if (suggest) {
+    commit(room, settleParty(room, applied, now));
+    return { ok: false, error: `Did you mean ${suggest}?`, suggest };
+  }
   // Say Less refuses a clue with a new state (its reason, maybe a sip) so the describer's phone can say why: keep it, but it's still a no.
   if (format === "sayless" && raw.type === "clue") {
     const before = room.state as SL.SLState, after = applied as SL.SLState;
