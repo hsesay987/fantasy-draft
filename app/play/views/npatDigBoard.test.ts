@@ -19,6 +19,13 @@ describe("dig board", () => {
     expect(digPhase({ ...s, phase: "summary" })).toBe("Final depths");
   });
 
+  it("names question-style rounds by their question", () => {
+    const q = { phase: "ask" as const, cat: 1, categories: ["Something soft", "A hobby", ""], letter: "K", letters: ["B", "K", ""], done: false };
+    expect(digPhase(q)).toBe("Round 2 of 3 · A hobby · K · Answering");
+    expect(digPhase({ ...q, phase: "reel" })).toBe("Round 2 of 3 · Drawing the letter");
+    expect(digPhase({ ...q, phase: "summary" })).toBe("Final scores");
+  });
+
   it("ranks by points with shared places and names the zone", () => {
     const rows = digRanked({ players: ["Ann", "Bob", "Cy"], points: { Ann: 100, Bob: 300, Cy: 100 } });
     expect(rows.map((r) => [r.name, r.place, r.depth, r.zone])).toEqual([["Bob", 1, 3000, "Fossil seam"], ["Ann", 2, 1000, "Clay beds"], ["Cy", 2, 1000, "Clay beds"]]);

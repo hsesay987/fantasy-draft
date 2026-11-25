@@ -17,7 +17,8 @@ import { TeamPicker } from "./TeamPicker";
 import { startPools, topicOptions } from "./topicOptions";
 import { compactTeams, splitTeams, type TeamMap } from "./teamMoves";
 import { DEFAULT_OPTS, NPAT_DIG_IDS, type GameSetup } from "./types";
-import { DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk } from "../topicDraft/npat/rules";
+import { DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk, QUESTION_DEFAULT_ROUNDS, QUESTION_MAX_ROUNDS, QUESTION_MIN_ROUNDS } from "../topicDraft/npat/rules";
+import { NPAT_QUESTIONS, QUESTIONS_POOL } from "../topicDraft/npat/questions";
 import { DrinkingToggle, ShowVotesToggle } from "./views/partyBits";
 
 /** The host's setup for a party game: a topic or deck, how long, and how it ends or who plays with whom. Saves to the room. `seats` is the room's current players. */
@@ -47,8 +48,11 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     return digCountOk(ids.length) && ids.every((id) => NPAT_CATEGORIES.some((c) => c.id === id)) ? ids : NPAT_DIG_IDS;
   });
   const digging = format === "npat" && npatStyle === "dig";
+  /** NPAT question style: one open question a round, each with its own letter. */
+  const asking = format === "npat" && npatStyle === "question";
+  const [questionRounds, setQuestionRounds] = useState(QUESTION_DEFAULT_ROUNDS);
   const digCheck = digging ? npatDigCheck(digCats) : null;
-  const custom = format === "npat" && !digging && npatCustom ? npatCustomCheck(npatCats, npatHard, npatRounds) : null;
+  const custom = format === "npat" && !digging && !asking && npatCustom ? npatCustomCheck(npatCats, npatHard, npatRounds) : null;
   const [vowelMode, setVowelMode] = useState<"first" | "duel">("first");
   const [vowelAnswer, setVowelAnswer] = useState<"voice" | "type">("voice");
   const vowel = format === "vowelplay" || format === "vowelparty";
@@ -76,11 +80,11 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     if (digCheck && !digCheck.ok) return setError(digCheck.reason ?? "Pick the categories first");
     setBusy(true);
     setError(null);
-    const chosen = digging ? digCats.map((id) => `${NPAT_CAT}${id}`) : custom ? npatCats.map((id) => `${NPAT_CAT}${id}`) : pools;
+    const chosen = asking ? [QUESTIONS_POOL] : digging ? digCats.map((id) => `${NPAT_CAT}${id}`) : custom ? npatCats.map((id) => `${NPAT_CAT}${id}`) : pools.filter((p) => p !== QUESTIONS_POOL).length ? pools.filter((p) => p !== QUESTIONS_POOL) : ["classic"];
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool: chosen[0]!, pools: chosen, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...(format === "npat" ? { npatRounds, npatSeconds, npatHard, npatStop, npatStyle } : {}), ...teamOpts }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...(format === "npat" ? { npatRounds: asking ? questionRounds : npatRounds, npatSeconds, npatHard, npatStop, npatStyle } : {}), ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -113,20 +117,25 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </Panel>
       ) : format === "npat" ? (
         <>
-        <Panel title="Style" hint={digging ? `One letter, ${DIG_CATEGORIES} to ${DIG_MAX_CATEGORIES} categories asked one at a time, revealed as each comes up, 20 seconds each. Every answer is judged on the spot.` : "Each round, fill in every category at once before the clock runs out."}>
+        <Panel title="Style" hint={digging ? `One letter, ${DIG_CATEGORIES} to ${DIG_MAX_CATEGORIES} categories asked one at a time, revealed as each comes up, 20 seconds each. Every answer is judged on the spot.` : asking ? "Each round draws a new letter and asks one question, like \"Something you'd bring to a beach\". Answer with the letter in 20 seconds. 10 points for an answer nobody else gave, 5 if someone did." : "Each round, fill in every category at once before the clock runs out."}>
           <div className="flex flex-wrap gap-2">
             <Chip selected={digging} onClick={() => setNpatStyle("dig")}>Dig (one at a time)</Chip>
-            <Chip selected={!digging} onClick={() => setNpatStyle("sheet")}>Sheet (all at once)</Chip>
+            <Chip selected={asking} onClick={() => setNpatStyle("question")}>Questions (one a round)</Chip>
+            <Chip selected={!digging && !asking} onClick={() => setNpatStyle("sheet")}>Sheet (all at once)</Chip>
           </div>
         </Panel>
-        {digging && digCheck ? (
+        {asking ? (
+          <Panel title="Rounds" hint={`One question and one letter each round, from ${NPAT_QUESTIONS.length} questions.`}>
+            <Stepper value={questionRounds} min={QUESTION_MIN_ROUNDS} max={QUESTION_MAX_ROUNDS} onChange={setQuestionRounds} label="Rounds" />
+          </Panel>
+        ) : digging && digCheck ? (
           <Panel title="Your categories" hint={`Tick ${DIG_CATEGORIES} to ${DIG_MAX_CATEGORIES}. ${digCats.length} picked.`}>
             <CategoryTicks picked={digCats} max={DIG_MAX_CATEGORIES} onChange={setDigCats} check={digCheck} />
           </Panel>
         ) : (
         <Panel title="Categories" hint="Every round fills in this set. Pick one, or choose Custom to build your own.">
           <div className="grid gap-2 sm:grid-cols-2">
-            {[...topicOptions("npat").map((o) => ({ ...o, on: !npatCustom && pools[0] === o.id, pick: () => { setNpatCustom(false); setPools([o.id]); } })), { id: "custom", title: "Custom", blurb: "Pick 4 to 6 categories yourself", on: npatCustom, pick: () => setNpatCustom(true) }].map((o) => (
+            {[...topicOptions("npat").filter((o) => o.id !== QUESTIONS_POOL).map((o) => ({ ...o, on: !npatCustom && pools[0] === o.id, pick: () => { setNpatCustom(false); setPools([o.id]); } })), { id: "custom", title: "Custom", blurb: "Pick 4 to 6 categories yourself", on: npatCustom, pick: () => setNpatCustom(true) }].map((o) => (
               <button key={o.id} type="button" onClick={o.pick} aria-pressed={o.on}
                 className={`min-h-11 rounded-xl border p-3 text-left ${o.on ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
                 <b className="block">{o.title}</b><span className="break-words text-sm text-muted-foreground">{o.blurb}</span>
@@ -213,7 +222,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         </Panel>
       )}
 
-      {format === "npat" && !digging && (
+      {format === "npat" && !digging && !asking && (
         <>
           <Panel title="Rounds" hint="One letter each round.">
             <Stepper value={npatRounds} min={1} max={8} onChange={setNpatRounds} label="Rounds" />

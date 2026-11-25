@@ -16,11 +16,13 @@ export function digClock(s: Clocked): { deadline: number; total: number } | null
 
 const title = (id: string) => categoryOf(id)?.title ?? id;
 
-/** The screen's phase line: which category of five, and what is happening. */
-export function digPhase(s: Pick<DigView, "phase" | "cat" | "categories" | "letter" | "done">): string {
-  if (s.done || s.phase === "summary") return "Final depths";
-  if (s.phase === "reel") return "Drawing the letter";
+/** The screen's phase line: which category of five (or round, in question style), and what is happening. */
+export function digPhase(s: Pick<DigView, "phase" | "cat" | "categories" | "letter" | "done" | "letters">): string {
+  const q = !!s.letters;
+  if (s.done || s.phase === "summary") return q ? "Final scores" : "Final depths";
+  if (s.phase === "reel") return q ? `Round ${s.cat + 1} of ${s.categories.length} · Drawing the letter` : "Drawing the letter";
   const step = s.phase === "ask" ? "Answering" : s.phase === "judge" ? "Judging" : "Verdict";
+  if (q) return `Round ${s.cat + 1} of ${s.categories.length} · ${s.categories[s.cat] ?? ""} · ${s.letter} · ${step}`;
   return `Category ${s.cat + 1} of ${s.categories.length} · ${title(s.categories[s.cat] ?? "")} · ${s.letter} · ${step}`;
 }
 

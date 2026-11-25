@@ -96,6 +96,16 @@ describe("dig style", () => {
     expect(npatStyleFor({ opts: {}, pool: "classic" })).toBe("sheet");
   });
 
+  it("opens on question style when the setup or a tournament slot says so", () => {
+    expect(npatStyleFor({ opts: { npatStyle: "question" }, pools: ["questions"] })).toBe("question");
+    expect(npatStyleFor({ pools: ["questions"] })).toBe("question");
+    expect(npatStyleFor({ opts: { npatStyle: "dig" }, pools: ["questions"] })).toBe("dig");
+  });
+
+  it("sums question style up as rounds of one question each", () => {
+    expect(npatSummary({ pools: ["questions"], rounds: 8, seconds: 60, teams: 0, players: 3, style: "question" })).toBe("Questions · 8 rounds · a new letter each · 20 s each · every player for themselves · 2+ players");
+  });
+
   it("sums a dig up as one letter, five categories", () => {
     expect(npatSummary({ pools: ["cat:name"], rounds: 3, seconds: 60, teams: 0, players: 3, style: "dig" })).toBe("Dig · one letter · 5 categories · 20 s each · every player for themselves · 2+ players");
     const seven = NPAT_CATEGORIES.slice(0, 7).map((c) => `cat:${c.id}`);

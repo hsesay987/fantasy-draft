@@ -6,6 +6,7 @@ import { DECKS } from "../topicDraft/party/decks";
 import { INSYNC_DECKS } from "../topicDraft/party/insyncDecks";
 import { SAY_DECKS } from "../topicDraft/sayless/decks";
 import { NPAT_SETS, categoryOf } from "../topicDraft/npat/categories";
+import { QUESTIONS_POOL } from "../topicDraft/npat/questions";
 import { PECKING_META } from "../topicDraft/pecking/meta";
 import { mixTitle } from "../topicDraft/party/mixTitle";
 import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
@@ -29,7 +30,10 @@ export function topicOptions(format: FormatId): TopicOption[] {
     case "vowelplay":
     case "vowelparty": return VOWEL_TOPICS.map((t) => ({ id: t.id, title: t.title }));
     case "pecking": return PECKING_META.map((m) => ({ id: m.id, title: m.title, blurb: `${m.size} items · ${m.source} · as of ${m.asOf}` }));
-    case "npat": return NPAT_SETS.map((s) => ({ id: s.id, title: s.title, blurb: s.categories.map((c) => categoryOf(c)?.title ?? c).join(", ") }));
+    case "npat": return [
+      ...NPAT_SETS.map((s) => ({ id: s.id, title: s.title, blurb: s.categories.map((c) => categoryOf(c)?.title ?? c).join(", ") })),
+      { id: QUESTIONS_POOL, title: "Questions", blurb: "One open question a round, each with its own letter" },
+    ];
     case "sayless": return SAY_DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "vote": return DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "insync": return INSYNC_DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
