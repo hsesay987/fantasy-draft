@@ -8,7 +8,7 @@ import { getIo } from "../socket";
 import { trackServer } from "../lib/monitoring";
 import { judge, type Verdict } from "./judge.service";
 import type { QuizData } from "../shared/topicDraft/trivia/types";
-import { applyAction, autoAction, buildTeams, currentTurn, initGame, isDone, npatIsDig, npatPicked, QUICK_FORMATS, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
+import { applyAction, autoAction, buildTeams, currentTurn, initGame, isDone, npatIsDig, npatIsQuestion, npatPicked, QUICK_FORMATS, timeoutAction, type Action, type GameState } from "../shared/topicDraft/core";
 import { CATALOG_META, getCatalog } from "../shared/topicDraft/catalogs";
 import type { GameSetup, FormatId } from "../shared/play/types";
 import { DEFAULT_OPTS, PARTY_FORMATS } from "../shared/play/types";
@@ -25,12 +25,14 @@ import * as PK from "../shared/topicDraft/formats/pecking";
 import * as SL from "../shared/topicDraft/formats/sayless";
 import * as NP from "../shared/topicDraft/formats/npat";
 import * as DIG from "../shared/topicDraft/formats/npatDig";
+import * as NQ from "../shared/topicDraft/formats/npatQuestion";
+import { QUESTIONS_POOL } from "../shared/topicDraft/npat/questions";
 import "../shared/topicDraft/party/vowelWords"; // loads the word list the Vowel Play engine deals from
 import "../shared/topicDraft/pecking/lists"; // loads the ranked lists the Pecking Order engine deals from
 import "../shared/topicDraft/sayless/words"; // loads the words the Say Less engine deals from
 import "../shared/topicDraft/npat/lists"; // loads the answer lists the NPAT engine checks and draws letters from
 import { NPAT_CATEGORIES } from "../shared/topicDraft/npat/categories";
-import { ANSWER_MAX as NPAT_ANSWER_MAX, digCountOk } from "../shared/topicDraft/npat/rules";
+import { ANSWER_MAX as NPAT_ANSWER_MAX, digCountOk, QUESTION_DEFAULT_ROUNDS, QUESTION_MAX_ROUNDS, QUESTION_MIN_ROUNDS } from "../shared/topicDraft/npat/rules";
 import { lettersAvailable } from "../shared/topicDraft/npat/source";
 import type { NpatHistoryStore } from "./npatHistory.service";
 import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelTopics";
@@ -233,7 +235,8 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
   } else {
     const ok = partyPools(format, asked);
     if (!ok) return null;
-    pools = ok;
+    // NPAT question style plays from the question bank, whatever topics came with it.
+    pools = format === "npat" && o.npatStyle === "question" ? [QUESTIONS_POOL] : ok;
   }
   const pool = pools[0]!;
   const teamed = format === "partytrivia" || format === "vowelparty" || format === "vote" || format === "imposter" || format === "pecking" || format === "sayless" || format === "npat"; // the others have no teams
@@ -263,7 +266,11 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     // Buzz mode is in-person: only Party Trivia, Vowel Party and Say Less have it, every other format plays on phones.
     answer: ((format === "partytrivia" || format === "vowelparty" || format === "sayless") && o.answer === "buzz" ? "buzz" : "phones") as "phones" | "buzz",
     ...(format === "sayless" ? { saylessRounds: intIn(o.saylessRounds, 1, 10, 2), saylessWords: intIn(o.saylessWords, 2, 8, 3), saylessSlack: intIn(o.saylessSlack, 0, 15, 5), saylessGuard: o.saylessGuard === true } : {}),
-    ...(format === "npat" ? { npatRounds: intIn(o.npatRounds, 1, 8, 3), npatSeconds: [45, 60, 90].includes(o.npatSeconds) ? (o.npatSeconds as number) : 60, npatHard: o.npatHard === true, npatStop: o.npatStop === true, ...(o.npatStyle === "dig" || o.npatStyle === "sheet" ? { npatStyle: o.npatStyle as "dig" | "sheet" } : {}) } : {}),
+    ...(format === "npat" ? {
+      npatRounds: o.npatStyle === "question" ? intIn(o.npatRounds, QUESTION_MIN_ROUNDS, QUESTION_MAX_ROUNDS, QUESTION_DEFAULT_ROUNDS) : intIn(o.npatRounds, 1, 8, 3),
+      npatSeconds: [45, 60, 90].includes(o.npatSeconds) ? (o.npatSeconds as number) : 60, npatHard: o.npatHard === true, npatStop: o.npatStop === true,
+      ...(o.npatStyle === "dig" || o.npatStyle === "sheet" || o.npatStyle === "question" ? { npatStyle: o.npatStyle as "dig" | "sheet" | "question" } : {}),
+    } : {}),
     ...(format === "pecking" ? { peckMode: (o.peckMode === "rank" || o.peckMode === "name" ? o.peckMode : "mixed") as PK.PeckMode } : {}),
     vowelAnswer: (format === "vowelparty" ? (o.answer === "buzz" ? "voice" : "type") : o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
@@ -800,8 +807,10 @@ function finish(room: Room) {
       const ds = room.state as DIG.DigState;
       const won = DIG.winners(ds);
       record.winner = !ds.teams && won.length === 1 ? won[0]! : null; // a team game, or a tie, has no single winner
-      room.seen = [...room.seen, ...DIG.seenKeys(ds)].slice(-400);
-      recordDigHistory(room, ds);
+      // Question style has no lists, so its answers feed neither the tiers nor the review queue.
+      const question = npatIsQuestion(setup);
+      room.seen = [...room.seen, ...(question ? NQ.seenKeys(ds) : DIG.seenKeys(ds))].slice(-400);
+      if (!question) recordDigHistory(room, ds);
     } else if (setup.format === "npat") {
       const ns = room.state as NP.NPState;
       const won = NP.winners(ns);
