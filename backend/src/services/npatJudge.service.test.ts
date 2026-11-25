@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { chainVerdictLlm, createNpatJudge, GATEWAY_PROMPT, gatewayVerdictLlm, memoryVerdictCache, type VerdictLlm } from "./npatJudge.service";
+import { chainVerdictLlm, createNpatJudge, GATEWAY_PROMPT, gatewayVerdictLlm, memoryVerdictCache, SYSTEM_PROMPT, type VerdictLlm } from "./npatJudge.service";
 
 const good = (i: number, over: Record<string, unknown> = {}) => ({ i, real: true, fits: true, startsWithLetter: true, niche: 30, reason: "a real one", ...over });
 type Input = Parameters<VerdictLlm["verdict"]>[0];
@@ -120,6 +120,21 @@ describe("createNpatJudge", () => {
     const llm = llmOf(() => { throw new Error("no call"); });
     const [v] = await createNpatJudge({ llm, cache: memoryVerdictCache(), onList: (c, t) => t === "zebra" }).judge([item("zebra")]);
     expect(v).toEqual({ ok: true, niche: 0, source: "list" });
+  });
+
+  it("passes a question-style category whole to the model and keys the cache by it", async () => {
+    const q = "Something you'd find at the bottom of a pocket";
+    const llm = llmOf((input) => ({ results: input.items.map((x: Ask) => good(x.i)) }));
+    const j = createNpatJudge({ llm, cache: memoryVerdictCache() });
+    const [v] = await j.judge([item("Fluff", q, "F")]);
+    expect(v!.ok).toBe(true);
+    expect(llm.calls[0]!.items[0]!.category).toBe(q);
+    expect(await j.cachedVerdict(q, "F", "fluff")).toMatchObject({ ok: true });
+  });
+
+  it("the prompt explains question-style rounds", () => {
+    expect(SYSTEM_PROMPT).toMatch(/question/i);
+    expect(SYSTEM_PROMPT).toMatch(/sensible answer/i);
   });
 
   it("trims long answers before they reach the model", async () => {
