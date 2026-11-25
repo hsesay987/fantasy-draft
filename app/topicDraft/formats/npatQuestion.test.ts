@@ -111,6 +111,20 @@ describe("judging and scoring", () => {
     expect(winners(s)).toEqual(["Cy"]);
   });
 
+  it("a leading a, an, the or some is dropped before the letter check", () => {
+    const s = play(ask(make({ questions: ["q1", "q2", "q3"], letters: ["T", "C", "D"] })), { Ann: "a towel", Bob: "Some tongs", Cy: "an umbrella" });
+    expect(a(s, "Ann")).toMatchObject({ status: "unknown", text: "towel" });
+    expect(a(s, "Bob")).toMatchObject({ status: "unknown", text: "tongs" });
+    expect(a(s, "Cy").status).toBe("wrong-letter");
+    expect(pendingUnknowns(s).map((u) => u.text)).toEqual(["towel", "tongs"]);
+  });
+
+  it("simple plurals and articles count as the same answer", () => {
+    let s = play(ask(make({ questions: ["q1", "q2", "q3"], letters: ["S", "C", "D"] })), { Ann: "Sandwich", Bob: "sandwiches", Cy: "the sandwich" });
+    s = judged(s, ["Ann", "Bob", "Cy"].map((p) => ({ player: p, ok: true, niche: 0 })), s.phaseAt + 1);
+    expect(s.points).toEqual({ Ann: 5, Bob: 5, Cy: 5 });
+  });
+
   it("a judge that never answers accepts right-letter answers unchecked, for 10", () => {
     let s = play(withB(), { Ann: "Bucket" });
     s = tick(s, s.phaseAt + JUDGE_MS);

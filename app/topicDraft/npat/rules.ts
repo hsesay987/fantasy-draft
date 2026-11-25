@@ -98,3 +98,17 @@ export const QUESTION_DEFAULT_ROUNDS = 8;
 export const QUESTION_LETTERS = lettersFor(false).filter((l) => l !== "U" && l !== "V");
 /** Every accepted answer is worth the same: 10, or 5 when someone else gave it too (TIER_POINTS.common, halved). */
 export const QUESTION_TIER: Tier = "common";
+
+/**
+ * A question-style answer as the letter check and the grouping see it. `text` drops a leading "a", "an", "the" or
+ * "some" (answers to "Something you'd bring..." invite "a towel"); `key` also folds simple plurals, so "Sandwich" and
+ * "sandwiches" are the same answer. A rough fold, not a stemmer: it only has to make obvious twins meet.
+ */
+export function questionAnswer(raw: string): { text: string; key: string } {
+  const text = raw.trim().replace(/^(?:a|an|the|some)\s+(?=\S)/i, "");
+  let k = normAnswer(text);
+  if (k.length > 4 && k.endsWith("ies")) k = `${k.slice(0, -3)}y`;
+  else if (k.length > 3 && k.endsWith("s") && !k.endsWith("ss")) k = k.slice(0, -1);
+  if (k.length > 3 && k.endsWith("e")) k = k.slice(0, -1);
+  return { text, key: k };
+}

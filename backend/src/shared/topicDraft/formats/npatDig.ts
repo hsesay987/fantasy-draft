@@ -10,7 +10,7 @@ import { has, own } from "../party/own";
 import { buildTeams, TEAM_MIN_PLAYERS } from "../party/teams";
 import { shuffle } from "../rng";
 import {
-  aiTier, ANSWER_MAX, QUESTION_TIER, DIG_ANSWER_MS, DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk, JUDGE_MS, normAnswer, REEL_MS, sharedPoints, startsWith, TIER_POINTS,
+  aiTier, ANSWER_MAX, questionAnswer, QUESTION_TIER, DIG_ANSWER_MS, DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk, JUDGE_MS, normAnswer, REEL_MS, sharedPoints, startsWith, TIER_POINTS,
   VERDICT_MS, WRITE_GRACE_MS, type Tier,
 } from "../npat/rules";
 import { lettersAvailable, lookup, tierOf } from "../npat/source";
@@ -119,7 +119,7 @@ const allLocked = (s: DigState) => here(s).length > 0 && here(s).every((p) => s.
 
 /** `lists` false (question style): no list lookup, every right-letter answer waits for the judge. */
 function classify(category: string, letter: string, raw: string, lists: boolean): DigAnswer {
-  const text = raw.trim();
+  const text = lists ? raw.trim() : questionAnswer(raw).text;
   if (!normAnswer(text)) return BLANK;
   // Only what was typed counts for the letter: an entry's name or aliases never rescue an answer starting with another.
   if (!startsWith(letter, text)) return { ...BLANK, text, status: "wrong-letter" };
@@ -182,19 +182,20 @@ function fallback(s: DigState, now: number): DigState {
 }
 
 const scores = (a: DigAnswer) => a.status === "ok" || a.status === "ai-ok";
-const groupKey = (a: DigAnswer) => (a.status === "ok" ? `e:${normAnswer(a.entry)}` : `u:${normAnswer(a.text)}`);
+/** Question style (`q`) groups by questionAnswer's key, so a plural or an article doesn't make a second answer. */
+const groupKey = (a: DigAnswer, q = false) => (q ? `q:${questionAnswer(a.text).key}` : a.status === "ok" ? `e:${normAnswer(a.entry)}` : `u:${normAnswer(a.text)}`);
 
 /**
  * Points for one category's answers, as in NPAT v1: answers group by matched entry (an alias joins its name) or, for an
  * accepted AI answer, by normalised text; a group given by two or more players (with teams: teams) is halved, rounded up.
  */
-function scoreCategory(answers: Record<string, DigAnswer>, teams: string[][] | null): Record<string, { points: number; shared: boolean }> {
+function scoreCategory(answers: Record<string, DigAnswer>, teams: string[][] | null, q: boolean): Record<string, { points: number; shared: boolean }> {
   const unit = (p: string) => (teams ? String(teams.findIndex((t) => t.includes(p))) : `p:${p}`);
   const units = new Map<string, Set<string>>();
-  for (const [p, a] of Object.entries(answers)) if (scores(a)) units.set(groupKey(a), (units.get(groupKey(a)) ?? new Set()).add(unit(p)));
+  for (const [p, a] of Object.entries(answers)) if (scores(a)) units.set(groupKey(a, q), (units.get(groupKey(a, q)) ?? new Set()).add(unit(p)));
   return Object.fromEntries(Object.entries(answers).map(([p, a]) => {
     if (!scores(a) || !a.tier) return [p, { points: 0, shared: false }];
-    const n = units.get(groupKey(a))!.size;
+    const n = units.get(groupKey(a, q))!.size;
     return [p, { points: sharedPoints(TIER_POINTS[a.tier], n), shared: n >= 2 }];
   }));
 }
@@ -202,7 +203,7 @@ function scoreCategory(answers: Record<string, DigAnswer>, teams: string[][] | n
 /** Scores the open category, adds its points, pours any sips and shows the verdict. */
 function verdict(s: DigState, now: number): DigState {
   const mine = Object.fromEntries(s.players.map((p) => [p, answerAt(s, p)]));
-  const scored = scoreCategory(mine, s.teams);
+  const scored = scoreCategory(mine, s.teams, !!s.letters);
   let t = s;
   for (const p of s.players) t = setAnswer(t, p, (a) => ({ ...a, points: scored[p]!.points, shared: scored[p]!.shared }));
   const points = { ...s.points };
@@ -211,7 +212,7 @@ function verdict(s: DigState, now: number): DigState {
   const teamPoints = s.teams
     ? s.teams.map((team, i) => {
         const seen = new Map<string, number>();
-        for (const p of team) if (scored[p]!.points > 0) seen.set(groupKey(mine[p]!), scored[p]!.points);
+        for (const p of team) if (scored[p]!.points > 0) seen.set(groupKey(mine[p]!, !!s.letters), scored[p]!.points);
         return s.teamPoints[i]! + [...seen.values()].reduce((a, b) => a + b, 0);
       })
     : s.teamPoints;
