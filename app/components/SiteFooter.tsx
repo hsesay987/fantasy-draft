@@ -9,7 +9,7 @@ export default function SiteFooter() {
   return (
     <footer className="border-t border-white/8 px-4 pb-24 pt-6 text-xs leading-relaxed text-muted-foreground md:px-6 md:pb-8">
       <div className="mx-auto max-w-6xl space-y-3">
-        <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+        <nav aria-label="Footer" className="flex flex-wrap gap-x-5 text-sm [&>a]:inline-flex [&>a]:min-h-11 [&>a]:items-center md:[&>a]:min-h-0">
           <Link href="/games" className="hover:text-white">All games</Link>
           <Link href="/drafts" className="hover:text-white">Drafts</Link>
           <Link href="/trivia" className="hover:text-white">Trivia</Link>

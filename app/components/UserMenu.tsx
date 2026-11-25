@@ -28,7 +28,7 @@ export default function UserMenu() {
     return (
       <button
         onClick={() => router.push("/login")}
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white"
+        className="flex min-h-11 items-center gap-2 px-1 text-sm text-muted-foreground hover:text-white"
       >
         <LogIn className="w-4 h-4" />
         <span>Log in</span>

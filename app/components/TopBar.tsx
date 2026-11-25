@@ -14,7 +14,7 @@ export default function TopBar() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/8 bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4 md:px-6">
-        <Link href="/" className="font-display text-xl" aria-label="TopPic home">
+        <Link href="/" className="inline-flex min-h-11 items-center font-display text-xl" aria-label="TopPic home">
           Top<span className="text-secondary">Pic</span>
         </Link>
 

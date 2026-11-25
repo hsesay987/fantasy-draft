@@ -183,7 +183,7 @@ export default function FeedbackWidget() {
           setError(null);
         }}
         aria-label="Feedback"
-        className={`flex items-center gap-2 rounded-full bg-primary text-sm font-semibold text-white shadow-lg shadow-indigo-900/50 hover:bg-[#8b5cf6] ${inGame ? "p-2.5 opacity-80 md:px-4 md:py-2 md:opacity-100" : "px-4 py-2"}`}
+        className={`flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold text-white shadow-lg shadow-indigo-900/50 hover:bg-[#8b5cf6] ${inGame ? "p-2.5 opacity-80 md:px-4 md:py-2 md:opacity-100" : "px-4 py-2"}`}
       >
         <MessageCircle className="h-4 w-4" />
         <span className={inGame ? "hidden md:inline" : ""}>Feedback</span>

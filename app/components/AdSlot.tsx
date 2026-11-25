@@ -111,7 +111,7 @@ export default function AdSlot({
       href={target}
       target="_blank"
       rel="noreferrer noopener"
-      className="mt-2 inline-flex items-center gap-2 rounded-lg bg-white/10/70 px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted"
+      className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-lg bg-white/10/70 px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted"
     >
       Visit sponsor
     </a>
@@ -122,7 +122,7 @@ export default function AdSlot({
       rel={
         variant === "community" && target ? "noreferrer noopener" : undefined
       }
-      className="mt-2 inline-flex items-center gap-2 rounded-lg bg-white/10/70 px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted"
+      className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-lg bg-white/10/70 px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted"
     >
       {variant === "community" && ad?.targetUrl ? (
         <span>Visit sponsor</span>
