@@ -30,7 +30,7 @@ import "../shared/topicDraft/pecking/lists"; // loads the ranked lists the Pecki
 import "../shared/topicDraft/sayless/words"; // loads the words the Say Less engine deals from
 import "../shared/topicDraft/npat/lists"; // loads the answer lists the NPAT engine checks and draws letters from
 import { NPAT_CATEGORIES } from "../shared/topicDraft/npat/categories";
-import { ANSWER_MAX as NPAT_ANSWER_MAX, DIG_CATEGORIES } from "../shared/topicDraft/npat/rules";
+import { ANSWER_MAX as NPAT_ANSWER_MAX, digCountOk } from "../shared/topicDraft/npat/rules";
 import { lettersAvailable } from "../shared/topicDraft/npat/source";
 import type { NpatHistoryStore } from "./npatHistory.service";
 import { VOWEL_TOPICS } from "../shared/topicDraft/party/vowelTopics";
@@ -72,6 +72,10 @@ type Room = {
   state: GameState | null;
   turnMarker: string;
   turnStartedAt: number;
+  /** Party games: when the host paused the game (wall clock), unset while it runs. */
+  pausedAt?: number;
+  /** Party games: total time this game has spent paused, in ms. The game's clock runs this far behind the wall. */
+  pausedMs?: number;
   verdict: Verdict | null;
   version: number;
   createdAt: number;
@@ -267,10 +271,10 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     ...(format === "pecking" ? { peckMode: (o.peckMode === "rank" || o.peckMode === "name" ? o.peckMode : "mixed") as PK.PeckMode } : {}),
     vowelAnswer: (format === "vowelparty" ? (o.answer === "buzz" ? "voice" : "type") : o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
-  // A dig plays exactly five categories, and they need a letter in common.
+  // A dig plays 5 to 10 categories, and they need a letter in common.
   if (format === "npat" && opts.npatStyle === "dig") {
     const cats = npatPicked(pools);
-    if (cats.length !== DIG_CATEGORIES || !lettersAvailable(cats, false).length) return null;
+    if (!digCountOk(cats.length) || !lettersAvailable(cats, false).length) return null;
   }
   return { id: "", format, pool, pools, players: [], aiPlayers: [], mission: { id: "party", title, blurb: "", weights: { fun: 1 } }, mystery: false, loadout: null, roles: [], opts, seed: 0 };
 }
@@ -375,6 +379,8 @@ export function setScreen(room: Room, token: unknown, on: unknown): { ok: true }
 /** Back to the lobby: forget the last game's board and drop anyone who left during it. */
 function resetToLobby(room: Room) {
   room.status = "lobby";
+  room.pausedAt = undefined;
+  room.pausedMs = 0;
   room.state = null;
   room.verdict = null;
   room.seats = room.seats.filter((s) => !s.left);
@@ -544,6 +550,8 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   if (setup.format === "pecking") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("pk:")) };
   if (setup.format === "sayless") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("sl:")) }; // the engine skips these words
   if (setup.format === "npat") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("np:")) }; // letters already played go last
+  room.pausedAt = undefined;
+  room.pausedMs = 0;
   const state = initGame(setup, Date.now());
   if (isDone(setup, state)) return { error: "No questions are available for this topic right now" }; // nothing to play
   if (room.status === "done") resetToLobby(room);
@@ -556,10 +564,16 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   room.answerAt = undefined;
   trackServer("room_started", { format: room.setup.format, pool: room.setup.pool, seats: room.seats.length }, room.code);
   room.turnMarker = turnMarker(room.setup, room.state);
-  room.turnStartedAt = Date.now();
+  room.turnStartedAt = gameNow(room);
   bump(room);
   return { ok: true };
 }
+
+/**
+ * The game's clock: the wall clock minus the time spent paused, standing still while paused. Every engine call and the
+ * snapshot's `serverNow` use it, so each timer and countdown picks up after a pause with the time it had left.
+ */
+export const gameNow = (room: Room, wall = Date.now()): number => (room.pausedAt ?? wall) - (room.pausedMs ?? 0);
 
 /** Leaving between games frees the seat (the next player in line becomes host); mid-game a bot takes over. */
 /** Party games close a phase once every seat still present has acted. Only a real leave counts: a locked phone keeps its turn. */
@@ -587,7 +601,7 @@ export function leaveRoom(room: Room, token: unknown) {
   if (room.status === "playing") {
     seat.left = true;
     if (room.setup && PARTY_FORMATS.has(room.setup.format) && room.state) {
-      const settled = settleParty(room, room.state, Date.now()); // the others may all have answered already
+      const settled = settleParty(room, room.state, gameNow(room)); // the others may all have answered already
       if (settled !== room.state && room.seats.some((s) => !s.left)) commit(room, settled);
     }
   } else {
@@ -633,6 +647,8 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   if (!seat) return { ok: false, error: "Not in this room" };
   seat.lastSeen = Date.now();
   if (room.status !== "playing" || !room.state || !room.setup) return { ok: false, error: "Game is not running" };
+  if (raw && (raw.type === "pause" || raw.type === "resume")) return setPaused(room, token, raw.type === "pause");
+  if (room.pausedAt) return { ok: false, error: "The game is paused" };
   if (!raw || !ACTION_TYPES.has(raw.type)) return { ok: false, error: "Unknown action" };
   // Not in the game (the screen host, or a seat that stopped hosting a screen mid-game) means host controls only.
   if (!room.setup.players.includes(seat.name) && !HOST_ACTIONS.includes(raw.type)) return { ok: false, error: "Not allowed right now" };
@@ -681,7 +697,7 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   const asFirst = raw.type === "skipTalk" || (raw.type === "next" && npatIsDig(room.setup));
   const by = asFirst && !room.setup.players.includes(seat.name) ? room.setup.players[0] ?? seat.name : seat.name;
   const action = { ...rest, by } as Action;
-  const now = Date.now();
+  const now = gameNow(room);
   // Spelling help: the engine refuses a near miss at no cost and notes it, and the suggestion goes back in this reply only
   // (Say Less and Vowel Play hide the word from guessers, so it is never in a snapshot).
   const suggest = suggestion(room.setup, room.state, action, now);
@@ -695,14 +711,30 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   if (format === "sayless" && raw.type === "clue") {
     const before = room.state as SL.SLState, after = applied as SL.SLState;
     if (after.refused && after.refused.seq !== before.refused?.seq && after.phase === before.phase && after.clues === before.clues) {
-      commit(room, settleParty(room, applied, Date.now()));
+      commit(room, settleParty(room, applied, gameNow(room)));
       return { ok: false, error: SAY_REFUSED[after.refused.reason] ?? "Not allowed right now" };
     }
   }
   // Acting again means they are back at the table. Only an action that counted says so: this can change who hosts, and commit's bump tells the room.
   if (seat.left && PARTY_FORMATS.has(room.setup.format)) seat.left = false;
-  const next = settleParty(room, applied, Date.now());
+  const next = settleParty(room, applied, gameNow(room));
   commit(room, next);
+  return { ok: true };
+}
+
+/** The host pauses or resumes a running party game. While paused, the game's clock stands still and nobody can act. */
+export function setPaused(room: Room, token: unknown, on: boolean): { ok: boolean; error?: string } {
+  if (room.status !== "playing" || !room.state || !room.setup) return { ok: false, error: "Game is not running" };
+  if (!PARTY_FORMATS.has(room.setup.format)) return { ok: false, error: "Only party games can pause" };
+  if (!isHost(room, token)) return { ok: false, error: "Only the host can pause" };
+  const wall = Date.now();
+  if (on === !!room.pausedAt) return { ok: true };
+  if (on) room.pausedAt = wall;
+  else {
+    room.pausedMs = (room.pausedMs ?? 0) + (wall - room.pausedAt!);
+    room.pausedAt = undefined;
+  }
+  bump(room);
   return { ok: true };
 }
 
@@ -712,7 +744,7 @@ function commit(room: Room, next: GameState) {
   const marker = turnMarker(setup, next);
   if (marker !== room.turnMarker) {
     room.turnMarker = marker;
-    room.turnStartedAt = Date.now();
+    room.turnStartedAt = gameNow(room);
   }
   if (isDone(setup, next)) finish(room);
   else askNpatJudge(room);
@@ -760,7 +792,8 @@ function askNpatJudge(room: Room) {
       if (!x || typeof x.ok !== "boolean") return [];
       return [{ player: u.player, ok: x.ok, niche: Number(x.niche) || 0, ...(typeof x.reason === "string" ? { reason: x.reason } : {}) }];
     });
-    const now = Date.now();
+    if (room.pausedAt) return; // paused: the tick's fallback decides once the game runs again
+    const now = gameNow(room);
     const next = DIG.judged(cur, verdicts, now);
     if (next !== cur) commit(room, settleParty(room, next, now));
   }).catch((e) => console.error("NPAT room judge failed", e));
@@ -775,6 +808,7 @@ function triviaWinner(state: GameState): string | null {
 function finish(room: Room) {
   const setup = room.setup!;
   room.status = "done";
+  if (room.pausedAt) { room.pausedMs = (room.pausedMs ?? 0) + (Date.now() - room.pausedAt); room.pausedAt = undefined; }
   trackServer("room_finished", { format: setup.format, pool: setup.pool, seats: room.seats.length, duration_s: Math.round((Date.now() - room.createdAt) / 1000), left: room.seats.filter((s) => s.left).length }, room.code);
   const { teams } = buildTeams(setup, room.state!);
   const seated = setup.players.filter((n) => room.seats.some((x) => x.name === n && !x.left && !x.screen));
@@ -917,14 +951,15 @@ function autoplay(room: Room, name: string): Action | null {
 }
 
 /** Called ~2x per second: auction clocks, turn timers, and bots for players who left. */
-export function tickRooms(now = Date.now()) {
+export function tickRooms(wall = Date.now()) {
   for (const [c, room] of rooms) {
-    if (now - room.touchedAt > ROOM_TTL_MS) {
+    if (wall - room.touchedAt > ROOM_TTL_MS) {
       rooms.delete(c);
       continue;
     }
-    refreshScreen(room, now);
-    if (room.status !== "playing" || !room.state || !room.setup) continue;
+    refreshScreen(room, wall);
+    if (room.status !== "playing" || !room.state || !room.setup || room.pausedAt) continue;
+    const now = gameNow(room, wall);
     let s = room.state;
     const setup = room.setup;
 
@@ -1014,7 +1049,8 @@ export function snapshot(room: Room, token: unknown) {
     code: room.code,
     status: room.status,
     version: room.version,
-    serverNow: Date.now(),
+    serverNow: gameNow(room),
+    paused: !!room.pausedAt,
     // The setup seed rebuilds every shuffle and hidden pick, so a running party game never sends it.
     // Party trivia also carries its question bank (with answers) in setup.quiz, which stays on the server until the game is done.
     // Vowel Play never sends the seed, even when done: with the bundled word lists it rebuilds the names a game ended before playing.

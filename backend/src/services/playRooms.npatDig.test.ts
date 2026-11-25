@@ -1,3 +1,4 @@
+import { NPAT_CATEGORIES } from "../shared/topicDraft/npat/categories";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("./judge.service", () => ({ judge: vi.fn(() => new Promise(() => {})) }));
@@ -68,13 +69,16 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 describe("NPAT dig setup", () => {
-  it("reads the style; dig needs exactly five categories; missing stays sheet for older callers", () => {
+  it("reads the style; dig needs 5 to 10 categories; missing stays sheet for older callers", () => {
     expect(sanitizeSetup(dig())!.opts.npatStyle).toBe("dig");
     expect(sanitizeSetup({ ...dig(), opts: { npatStyle: "sheet" } })!.opts.npatStyle).toBe("sheet");
     expect(sanitizeSetup({ ...dig(), opts: {} })!.opts.npatStyle).toBeUndefined();
     expect(sanitizeSetup({ ...dig(), opts: { npatStyle: "weird" } })!.opts.npatStyle).toBeUndefined();
     expect(sanitizeSetup({ format: "npat", pool: "classic", opts: { npatStyle: "dig" } })).toBeNull(); // four
-    expect(sanitizeSetup({ format: "npat", pool: "classic", pools: ["classic", "cat:food", "cat:film"], opts: { npatStyle: "dig" } })).toBeNull(); // six
+    expect(sanitizeSetup({ format: "npat", pool: "classic", pools: ["classic", "cat:food", "cat:film"], opts: { npatStyle: "dig" } })).not.toBeNull(); // six
+    const eleven = NPAT_CATEGORIES.slice(0, 11).map((c) => `cat:${c.id}`);
+    expect(eleven).toHaveLength(11);
+    expect(sanitizeSetup({ format: "npat", pool: eleven[0], pools: eleven, opts: { npatStyle: "dig" } })).toBeNull();
     expect(sanitizeSetup({ format: "npat", pool: "cat:name", pools: ["cat:name", "cat:place", "cat:animal", "cat:thing", "cat:film"], opts: { npatStyle: "dig" } })).not.toBeNull();
   });
 

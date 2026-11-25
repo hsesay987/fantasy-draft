@@ -89,5 +89,7 @@ export function useRemoteCtl(snap: RoomSnapshot & { setup: NonNullable<RoomSnaps
     host: snap.seats.find((s) => s.host)?.name ?? null,
     gone: snap.seats.filter((s) => s.left).map((s) => s.name),
     leave,
+    paused: !!snap.paused,
+    setPaused: snap.seats.some((s) => s.host && s.name === snap.me) ? (on) => void dispatch({ type: on ? "pause" : "resume" } as unknown as Action) : undefined,
   };
 }
