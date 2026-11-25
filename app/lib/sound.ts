@@ -1,9 +1,26 @@
 // app/lib/sound.ts — synthesized SFX via Web Audio, no asset files.
-export type SfxName = "click" | "pick" | "steal" | "tick" | "reveal" | "win" | "error" | "wrong" | "lose" | "delete" | "creak" | "rung" | "rungHigh" | "ledge" | "lamp" | "fall" | "lifeline" | "walkDown";
+export type SfxName = "click" | "pick" | "steal" | "tick" | "reveal" | "win" | "error" | "wrong" | "lose" | "delete" | "creak" | "rung" | "rungHigh" | "ledge" | "lamp" | "fall" | "lifeline" | "walkDown" | "reelTick" | "reelLand" | "cardFlip";
 
 export type Note = { freq: number; dur: number; at: number; type?: OscillatorType; gain?: number };
 
 export const SFX_DEFS: Record<SfxName, Note[]> = {
+  // NPAT reel: a wooden click per letter, a coin-bright chord when it lands, and a card snapping over for a category.
+  reelTick: [
+    { freq: 1400, dur: 0.025, at: 0, type: "square", gain: 0.12 },
+    { freq: 700, dur: 0.03, at: 0.004, type: "triangle", gain: 0.1 },
+  ],
+  reelLand: [
+    { freq: 196, dur: 0.12, at: 0, type: "square", gain: 0.22 },
+    { freq: 784, dur: 0.18, at: 0.02, type: "square", gain: 0.2 },
+    { freq: 1047, dur: 0.22, at: 0.1, type: "triangle", gain: 0.32 },
+    { freq: 1319, dur: 0.3, at: 0.18, type: "triangle", gain: 0.28 },
+    { freq: 1568, dur: 0.5, at: 0.26, type: "sine", gain: 0.26 },
+  ],
+  cardFlip: [
+    { freq: 330, dur: 0.05, at: 0, type: "triangle", gain: 0.22 },
+    { freq: 660, dur: 0.06, at: 0.05, type: "triangle", gain: 0.26 },
+    { freq: 988, dur: 0.18, at: 0.1, type: "sine", gain: 0.3 },
+  ],
   // Top Rung: iron and wind. A low rub as the ladder takes your weight, a boot on a rung, a ship's bell at a safe ledge.
   creak: [
     { freq: 98, dur: 0.16, at: 0, type: "sawtooth", gain: 0.16 },
