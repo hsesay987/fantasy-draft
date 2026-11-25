@@ -21,8 +21,8 @@ describe("createDodgeJudge", () => {
   it("caches verdicts either way round", async () => {
     const llm = llmOf(yes);
     const j = createDodgeJudge({ llm, cache: memorySameCache() });
-    await j.judge([pair("Coke", "Diet Coke", "Fizzy drinks")]);
-    const [v] = await j.judge([pair("diet coke", "coke", "Fizzy drinks")]);
+    await j.judge([pair("Coke", "Diet Coke", "Sodas")]);
+    const [v] = await j.judge([pair("diet coke", "coke", "Sodas")]);
     expect(v!.source).toBe("cache");
     expect(llm.calls).toHaveLength(1);
   });

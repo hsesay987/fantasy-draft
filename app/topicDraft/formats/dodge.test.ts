@@ -3,7 +3,7 @@ import * as D from "./dodge";
 import { ANSWER_MS, JUDGE_MS, REVEAL_MS, WRITE_GRACE_MS } from "../dodge/rules";
 
 const P = ["Ann", "Ben", "Cat", "Dan"];
-const CATS = ["Pizza toppings", "Fruits", "Colours", "Pets", "Sports", "Jobs", "Shapes", "Birds", "Weather", "Toys", "Trees", "Flowers"];
+const CATS = ["Pizza toppings", "Fruits", "Colors", "Pets", "Sports", "Jobs", "Shapes", "Birds", "Weather", "Toys", "Trees", "Flowers"];
 const start = (o: Partial<Parameters<typeof D.init>[0]> = {}) => D.init({ players: P, decks: ["food"], categories: CATS, laps: 1, seed: 7, now: 0, ...o });
 
 /** Everyone types and locks; the chosen player (round 0: Ann) first. */

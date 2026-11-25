@@ -74,11 +74,24 @@ describe("close", () => {
 describe("decks", () => {
   it("has about 200 categories, none repeated", () => {
     const all = DODGE_DECKS.flatMap((d) => d.categories);
-    expect(all.length).toBeGreaterThanOrEqual(195);
+    expect(all.length).toBeGreaterThanOrEqual(200);
     expect(new Set(all.map((c) => c.toLowerCase())).size).toBe(all.length);
   });
   it("has unique deck ids, each with enough categories for a lap of 12", () => {
     expect(new Set(DODGE_DECK_IDS).size).toBe(DODGE_DECK_IDS.length);
     for (const d of DODGE_DECKS) expect(d.categories.length).toBeGreaterThanOrEqual(12);
+  });
+  it("speaks US English and asks for things, not phrases or actions", () => {
+    const text = DODGE_DECKS.flatMap((d) => [d.title, d.blurb, ...d.categories]).join(" | ");
+    for (const uk of [/colour/i, /flavour/i, /on holiday/i, /\bsweets\b/i, /petrol/i, /high street/i, /handbag/i, /\bsofa\b/i, /fizzy/i, /cinema/i, /funfair/i, /football/i, /\bfilms?\b/i, /chocolate bars/i])
+      expect(text).not.toMatch(uk);
+    for (const c of DODGE_DECKS.flatMap((d) => d.categories))
+      expect(c).not.toMatch(/^(Ways to|Excuses|Things you (do|say)|Things that are fast|Things with buttons|Hobbies$|Jobs$|Things that grow)/);
+  });
+  it("keeps one of each overlapping pair", () => {
+    const all = new Set(DODGE_DECKS.flatMap((d) => d.categories));
+    for (const pair of [["Things that fly", "Things with wings"], ["Countries", "Countries in Europe"], ["Sports", "Sports with a ball", "Olympic sports"], ["Things on a farm", "Farm animals"], ["Places you go on vacation", "Things you pack in a suitcase"], ["Things in a first aid kit", "Things in a medicine cabinet"]])
+      expect(pair.filter((c) => all.has(c)).length).toBeLessThanOrEqual(1);
+    for (const gone of ["Famous wizards", "Things in a fairy tale", "Marvel heroes", "Board game pieces"]) expect(all.has(gone)).toBe(false);
   });
 });
