@@ -28,8 +28,9 @@ export function PauseLayer({ ctl }: { ctl: GameCtl }) {
   }
   if (!host) return null;
   return (
-    <div className="pixel" style={{ position: "fixed", left: 16, bottom: "calc(88px + env(safe-area-inset-bottom))", zIndex: 50, background: "none", minHeight: 0 }}>
-      <PixelButton variant="alt" aria-label="Pause the game" title="Pause" onClick={() => ctl.setPaused?.(true)} style={{ minWidth: 48, padding: "14px 12px" }}>❚❚</PixelButton>
+    // On phones it docks in the empty middle of the top bar, where it covers no answer box or Lock in button.
+    <div className="pixel px-pause-dock">
+      <PixelButton variant="alt" aria-label="Pause the game" title="Pause" onClick={() => ctl.setPaused?.(true)}>❚❚</PixelButton>
     </div>
   );
 }

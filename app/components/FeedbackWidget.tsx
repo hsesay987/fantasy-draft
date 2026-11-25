@@ -14,7 +14,7 @@ export default function FeedbackWidget() {
   const pathname = usePathname() || "";
   // Sticky action bars live at the bottom of /play pages; keep the button clear of them.
   const lifted = pathname.startsWith("/play") || pathname.startsWith("/draft/new");
-  // In a game the pill would sit on the board; on phones it shrinks to a small icon there.
+  // In a game the pill would sit on the board, over answer boxes and Lock in buttons: phones hide it there.
   const inGame = /^\/(play\/[^/]+\/game|room\/|daily\/|pinpoint\/|commonthread\/|toprung\/|vowelplay\/|costimation)/.test(pathname);
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<FeedbackType>("feedback");
@@ -63,7 +63,7 @@ export default function FeedbackWidget() {
   }
 
   return (
-    <div className={`fixed ${lifted && !inGame ? "bottom-40 md:bottom-24" : "bottom-20 md:bottom-4"} right-4 z-50 flex flex-col items-end gap-3`}>
+    <div className={`fixed ${lifted && !inGame ? "bottom-40 md:bottom-24" : "bottom-20 md:bottom-4"} right-4 z-50 ${inGame ? "hidden md:flex" : "flex"} flex-col items-end gap-3`}>
       {open && (
         <div className="w-80 rounded-2xl border border-white/10 bg-card/95 shadow-2xl backdrop-blur">
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">

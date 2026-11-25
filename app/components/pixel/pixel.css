@@ -1566,3 +1566,11 @@ button.tn-slot:hover { background: var(--px-rose); }
 .screen-board .np-page .np-head, .screen-board .np-page .np-roster { display: none; }
 @media (max-width: 380px) { .np-card { padding: 12px 8px 12px 16px; } .np-letter { width: 52px; height: 52px; font-size: 38px; } .np-field input { font-size: 22px; } .np-head { gap: 8px; } .np-head .stat b { font-size: 22px; } }
 @media (prefers-reduced-motion: reduce) { .np-groups li { animation: none; } }
+
+/* The host's Pause button (PauseLayer). Phones: centred in the sticky top bar, clear of the game. Wider screens: bottom left. */
+.px-pause-dock { position: fixed; z-index: 50; top: calc(env(safe-area-inset-top) + 6px); left: 50%; transform: translateX(-50%); background: none; min-height: 0; }
+.px-pause-dock .px-btn { min-width: 44px; min-height: 44px; padding: 8px 12px; }
+@media (min-width: 768px) {
+  .px-pause-dock { top: auto; left: 16px; bottom: calc(88px + env(safe-area-inset-bottom)); transform: none; }
+  .px-pause-dock .px-btn { min-width: 48px; padding: 14px 12px; }
+}
