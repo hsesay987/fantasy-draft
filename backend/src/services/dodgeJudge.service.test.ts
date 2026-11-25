@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createDodgeJudge, gatewaySameLlm, memorySameCache, type SameLlm } from "./dodgeJudge.service";
+import { chainSameLlm, createDodgeJudge, gatewaySameLlm, memorySameCache, type SameLlm } from "./dodgeJudge.service";
 
 type Input = Parameters<SameLlm["same"]>[0];
 const llmOf = (reply: (input: Input) => unknown): SameLlm & { calls: Input[] } => {
@@ -59,6 +59,42 @@ describe("createDodgeJudge", () => {
     const llm = llmOf(yes);
     await createDodgeJudge({ llm, cache: memorySameCache() }).judge([pair("x".repeat(200), "y")]);
     expect(llm.calls[0]!.items[0]!.a.length).toBeLessThanOrEqual(40);
+  });
+});
+
+describe("memorySameCache", () => {
+  it("drops the least recently used verdict, counting reads", async () => {
+    const c = memorySameCache(2);
+    await c.set("Fruit", "apple", "apples", true);
+    await c.set("Fruit", "pear", "pears", true);
+    expect(await c.get("Fruit", "apple", "apples")).toBe(true); // apple is now the freshest
+    await c.set("Fruit", "kiwi", "kiwis", true);
+    expect(await c.get("Fruit", "apple", "apples")).toBe(true);
+    expect(await c.get("Fruit", "pear", "pears")).toBeNull();
+  });
+});
+
+describe("chainSameLlm", () => {
+  it("cuts a hung first adapter off in time for the next one to answer", async () => {
+    const signals: AbortSignal[] = [];
+    const hung: SameLlm = { same: (_input, signal) => { if (signal) signals.push(signal); return new Promise(() => {}); } };
+    const chain = chainSameLlm([hung, llmOf(yes)], { perMs: 30, totalMs: 80 })!;
+    const t0 = Date.now();
+    const reply = await chain.same({ items: [{ i: 0, category: "Fruit", a: "apple", b: "aple" }] });
+    expect(reply).toEqual({ results: [{ i: 0, same: true }] });
+    expect(Date.now() - t0).toBeLessThan(70);
+    expect(signals[0]!.aborted).toBe(true); // the hung call is told to stop, so it makes no more paid calls
+  });
+  it("gives up once the whole chain is out of time", async () => {
+    const hung: SameLlm = { same: () => new Promise(() => {}) };
+    const chain = chainSameLlm([hung, hung], { perMs: 20, totalMs: 40 })!;
+    await expect(chain.same({ items: [] })).rejects.toThrow();
+  });
+  it("leaves the whole judge time for the last adapter by default, under the room's judge time", async () => {
+    const { CHAIN_TOTAL_MS, CHAIN_PER_MS } = await import("./dodgeJudge.service");
+    const { JUDGE_MS } = await import("../shared/topicDraft/dodge/rules");
+    expect(CHAIN_TOTAL_MS).toBeGreaterThanOrEqual(2 * CHAIN_PER_MS);
+    expect(CHAIN_TOTAL_MS + 500).toBeLessThan(JUDGE_MS);
   });
 });
 

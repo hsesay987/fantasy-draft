@@ -11,8 +11,8 @@ export type SamePair = { category: string; a: string; b: string };
 export type SameVerdict = { same: boolean; source: "cache" | "ai" | "fallback" };
 
 export interface SameLlm {
-  /** One batched ask; resolves to the model's raw (unvalidated) reply. */
-  same(input: { items: { i: number; category: string; a: string; b: string }[] }): Promise<unknown>;
+  /** One batched ask; resolves to the model's raw (unvalidated) reply. An aborted signal means stop: the answer is no longer wanted. */
+  same(input: { items: { i: number; category: string; a: string; b: string }[] }, signal?: AbortSignal): Promise<unknown>;
 }
 export interface SameCache {
   get(category: string, a: string, b: string): Promise<boolean | null>;
@@ -21,6 +21,9 @@ export interface SameCache {
 
 export const MODEL = "claude-haiku-5-5";
 export const CALL_TIMEOUT_MS = 4_000;
+/** The chain's time for each adapter before the last, and for the whole chain. Under the room's JUDGE_MS (6 s). */
+export const CHAIN_PER_MS = 2_500;
+export const CHAIN_TOTAL_MS = 5_000;
 const DEFAULT_DAILY_CALLS = 2000;
 const CACHE_MAX = 5000;
 
@@ -30,11 +33,18 @@ const keyOf = (category: string, a: string, b: string) => {
   return `${category.toLowerCase()}|${x}|${y}`;
 };
 
-/** In memory, oldest dropped first once full. Verdicts are cheap to ask again after a restart. */
+/** In memory, least recently used dropped first once full. Verdicts are cheap to ask again after a restart. */
 export function memorySameCache(max = CACHE_MAX): SameCache {
   const m = new Map<string, boolean>();
   return {
-    async get(c, a, b) { return m.get(keyOf(c, a, b)) ?? null; },
+    async get(c, a, b) {
+      const k = keyOf(c, a, b);
+      const v = m.get(k);
+      if (v === undefined) return null;
+      m.delete(k);
+      m.set(k, v); // a read makes it the freshest
+      return v;
+    },
     async set(c, a, b, same) {
       const k = keyOf(c, a, b);
       m.delete(k);
@@ -55,11 +65,11 @@ export function createDodgeJudge(deps: {
   cache: SameCache;
   /** Safety net over the SDK's own timeout, so a hung model can never stall a room. */
   timeoutMs?: number;
-  /** Real model calls allowed per UTC day. Default: env DODGE_JUDGE_DAILY_CALLS, else 2000. */
+  /** Real model calls allowed per UTC day, a budget of its own apart from the NPAT judge's. Default: env DODGE_JUDGE_DAILY_CALLS, else 2000. */
   dailyCalls?: number;
   now?: () => number;
 }) {
-  const timeoutMs = deps.timeoutMs ?? CALL_TIMEOUT_MS + 500;
+  const timeoutMs = deps.timeoutMs ?? CHAIN_TOTAL_MS + 500;
   const envCap = Number(process.env.DODGE_JUDGE_DAILY_CALLS);
   const dailyCalls = deps.dailyCalls ?? (process.env.DODGE_JUDGE_DAILY_CALLS && Number.isFinite(envCap) && envCap >= 0 ? envCap : DEFAULT_DAILY_CALLS);
   const now = deps.now ?? Date.now;
@@ -150,7 +160,7 @@ export function anthropicSameLlm(): SameLlm | null {
   if (!apiKey) return null;
   const client = new Anthropic({ apiKey, timeout: CALL_TIMEOUT_MS, maxRetries: 0 });
   return {
-    async same(input) {
+    async same(input, signal) {
       try {
         const res = await client.messages.create({
           model: MODEL,
@@ -159,7 +169,7 @@ export function anthropicSameLlm(): SameLlm | null {
           messages: [{ role: "user", content: JSON.stringify(input) }],
           thinking: { type: "disabled" },
           output_config: { effort: "low", format: { type: "json_schema", schema: SAME_SCHEMA as unknown as Record<string, unknown> } },
-        });
+        }, signal ? { signal } : undefined);
         if (res.stop_reason === "refusal" || res.stop_reason === "max_tokens") throw new Error(`dodge judge stopped: ${res.stop_reason}`);
         const text = res.content.find((b) => b.type === "text");
         if (!text || text.type !== "text") throw new Error("dodge judge: no text in reply");
@@ -190,15 +200,16 @@ export function gatewaySameLlm(env: Record<string, string | undefined> = process
   }
   if (!gates.length) return null;
   return {
-    async same(input) {
+    async same(input, signal) {
       let last: unknown = new Error("dodge judge: no gateway answered");
       for (const g of gates) {
+        if (signal?.aborted) break;
         try {
           const res = await doFetch(`${g.base}/chat/completions`, {
             method: "POST",
             headers: { "content-type": "application/json", ...(g.key ? { authorization: `Bearer ${g.key}` } : {}) },
             body: JSON.stringify({ model: g.model, max_tokens: 600, temperature: 0, messages: [{ role: "system", content: GATEWAY_PROMPT }, { role: "user", content: JSON.stringify(input) }] }),
-            signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
+            signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(CALL_TIMEOUT_MS)]) : AbortSignal.timeout(CALL_TIMEOUT_MS),
           });
           if (!res.ok) throw new Error(`dodge gateway${g.n} ${res.status}`); // status only: the request holds the key
           const j: any = await res.json();
@@ -214,15 +225,40 @@ export function gatewaySameLlm(env: Record<string, string | undefined> = process
   };
 }
 
-/** Tries each adapter in order until one answers; null when none is configured. */
-export function chainSameLlm(...llms: (SameLlm | null)[]): SameLlm | null {
+/**
+ * Tries each adapter in order until one answers; null when none is configured. The whole chain has `totalMs`; each
+ * adapter before the last gets at most `perMs` and always leaves `perMs` for the ones after it, so a hung gateway
+ * still leaves the last adapter (Anthropic) time to answer. A cut-off adapter's signal is aborted.
+ */
+export function chainSameLlm(llms: (SameLlm | null)[], opts: { perMs?: number; totalMs?: number } = {}): SameLlm | null {
   const chain = llms.filter(Boolean) as SameLlm[];
   if (!chain.length) return null;
+  const per = opts.perMs ?? CHAIN_PER_MS;
+  const total = opts.totalMs ?? CHAIN_TOTAL_MS;
   return {
-    async same(input) {
-      let last: unknown;
-      for (const l of chain) {
-        try { return await l.same(input); } catch (e) { last = e; }
+    async same(input, outer) {
+      const end = Date.now() + total;
+      let last: unknown = new Error("dodge judge: out of time");
+      for (let n = 0; n < chain.length; n++) {
+        const left = end - Date.now();
+        const ms = n === chain.length - 1 ? left : Math.min(per, left - per);
+        if (ms <= 0 || outer?.aborted) continue;
+        const ctl = new AbortController();
+        const stop = () => ctl.abort();
+        outer?.addEventListener("abort", stop, { once: true });
+        let t: ReturnType<typeof setTimeout> | undefined;
+        try {
+          return await Promise.race([
+            chain[n]!.same(input, ctl.signal),
+            new Promise<never>((_, reject) => { t = setTimeout(() => reject(new Error("dodge judge adapter timeout")), ms); }),
+          ]);
+        } catch (e) {
+          last = e;
+        } finally {
+          clearTimeout(t);
+          ctl.abort();
+          outer?.removeEventListener("abort", stop);
+        }
       }
       throw last;
     },
@@ -230,4 +266,4 @@ export function chainSameLlm(...llms: (SameLlm | null)[]): SameLlm | null {
 }
 
 /** The server's one Dodge judge. */
-export const dodgeJudge = () => createDodgeJudge({ llm: chainSameLlm(gatewaySameLlm(), anthropicSameLlm()), cache: memorySameCache() });
+export const dodgeJudge = () => createDodgeJudge({ llm: chainSameLlm([gatewaySameLlm(), anthropicSameLlm()]), cache: memorySameCache() });
