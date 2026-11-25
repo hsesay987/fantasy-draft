@@ -70,7 +70,7 @@ export function Section({ id, title, hint, action, children }: { id?: string; ti
           <h2 className="text-lg">{title}</h2>
           {hint && <p className="mt-0.5 text-sm text-muted-foreground">{hint}</p>}
         </div>
-        {action && <Link href={action.href} className="shrink-0 text-sm font-medium text-secondary hover:text-white">{action.label} →</Link>}
+        {action && <Link href={action.href} className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-secondary hover:text-white">{action.label} →</Link>}
       </div>
       {children}
     </section>

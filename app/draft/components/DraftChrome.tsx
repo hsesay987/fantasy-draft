@@ -24,7 +24,7 @@ export function DraftTopBar({ league, title, facts, actions, back }: { league: s
   return (
     <header className="space-y-3">
       {back && (
-        <Link href={back.href} className="inline-flex min-h-9 items-center text-sm text-muted-foreground hover:text-white">
+        <Link href={back.href} className="inline-flex min-h-11 items-center sm:min-h-9 text-sm text-muted-foreground hover:text-white">
           <ChevronLeft className="h-4 w-4" aria-hidden /> {back.label}
         </Link>
       )}

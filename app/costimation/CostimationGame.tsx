@@ -96,7 +96,7 @@ export function CostimationGame() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <PixelButton variant="gold" disabled={!bank} onClick={() => { play("pick"); setStarted(true); }}>{bank ? "PRESS START" : "LOADING…"}</PixelButton>
             {bank && <span className="px-note">{pool.length} products in the pool</span>}
-            <Link href="/trivia" className="px-note underline">Back to Trivia</Link>
+            <Link href="/trivia" className="px-note inline-flex min-h-11 items-center underline">Back to Trivia</Link>
           </div>
           <p className="px-note mt-6">Product data and photos: <a href="https://prices.openfoodfacts.org" target="_blank" rel="noopener noreferrer" className="underline">Open Prices</a> and <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener noreferrer" className="underline">Open Food Facts</a> contributors, ODbL. Photos CC BY-SA.</p>
         </PixelBox>

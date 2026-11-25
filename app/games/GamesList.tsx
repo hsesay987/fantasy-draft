@@ -13,7 +13,7 @@ export function GamesList() {
   const only = KINDS.some((k) => k.kind === kindParam) ? (kindParam as GameKind) : null;
   const kinds = only ? KINDS.filter((k) => k.kind === only) : KINDS;
   const chip = (active: boolean) =>
-    `inline-flex min-h-9 items-center rounded-full border px-3 text-sm font-semibold ${active ? "border-secondary bg-primary/20 text-white" : "border-white/15 bg-white/5 hover:bg-white/10"}`;
+    `inline-flex min-h-11 items-center sm:min-h-9 rounded-full border px-3 text-sm font-semibold ${active ? "border-secondary bg-primary/20 text-white" : "border-white/15 bg-white/5 hover:bg-white/10"}`;
 
   return (
     <>

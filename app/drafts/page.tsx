@@ -26,7 +26,7 @@ export default function DraftsPage() {
           <h2 className="text-lg">Pick a topic</h2>
           <p className="mt-0.5 text-sm text-muted-foreground">Each topic shows the drafts that suit it best.</p>
           <nav aria-label="Topic groups" className="mt-3 flex flex-wrap gap-2">
-            {TOPIC_GROUPS.map((g) => <a key={g.id} href={`#topics-${g.id}`} className="inline-flex min-h-9 items-center rounded-full border border-white/15 bg-white/5 px-3 text-sm font-semibold hover:bg-white/10">{g.title}</a>)}
+            {TOPIC_GROUPS.map((g) => <a key={g.id} href={`#topics-${g.id}`} className="inline-flex min-h-11 items-center sm:min-h-9 rounded-full border border-white/15 bg-white/5 px-3 text-sm font-semibold hover:bg-white/10">{g.title}</a>)}
           </nav>
         </div>
         {TOPIC_GROUPS.map((g) => (
