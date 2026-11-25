@@ -124,7 +124,7 @@ export function setNpatJudge(j: NpatRoomJudge | null) {
 }
 
 /** What the room asks about Dodge's close calls: one verdict per pair, in input order. The server sets the real one at start. */
-export type DodgeRoomJudge = { judge(items: { category: string; a: string; b: string }[]): Promise<{ same: boolean }[]> };
+export type DodgeRoomJudge = { judge(items: { category: string; a: string; b: string }[]): Promise<{ same: boolean; source?: string }[]> };
 /** Null asks nothing: close calls wait for the engine's own timeout and count as dodges. */
 let dodgeJudge: DodgeRoomJudge | null = null;
 export function setDodgeJudge(j: DodgeRoomJudge | null) {
@@ -846,12 +846,14 @@ function askDodgeJudge(room: Room) {
     const cur = room.state as DG.DodgeState | null;
     if (rooms.get(room.code) !== room || room.status !== "playing" || room.setup?.format !== "dodge" || !cur || cur.phase !== "judge" || dodgeKeyOf(cur) !== key) return;
     if (!Array.isArray(v) || room.pausedAt) return; // a bad shape, or paused: the tick's fallback decides
+    // A fallback verdict means nobody checked: those calls stay pending and the round shows as unchecked.
     const verdicts = pending.flatMap((p, i) => {
-      const x = v[i] as { same?: unknown } | undefined;
-      return x && typeof x.same === "boolean" ? [{ player: p.player, same: x.same }] : [];
+      const x = v[i] as { same?: unknown; source?: unknown } | undefined;
+      return x && typeof x.same === "boolean" && x.source !== "fallback" ? [{ player: p.player, same: x.same }] : [];
     });
     const now = gameNow(room);
-    const next = DG.judged(cur, verdicts, now);
+    const judged = DG.judged(cur, verdicts, now);
+    const next = judged.phase === "judge" ? DG.next(judged, now) : judged; // nothing more is coming: exact matches only, now
     if (next !== cur) commit(room, settleParty(room, next, now));
   }).catch((e) => console.error("Dodge room judge failed", e));
 }

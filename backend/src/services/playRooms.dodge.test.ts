@@ -158,6 +158,14 @@ describe("Dodge judge", () => {
     expect(state(r).history[0]!.status.Bob).toBe("dodge");
     expect(state(r).history[0]!.unchecked).toBe(true);
   });
+  it("a judge with no model ends the check at once, marked unchecked", async () => {
+    setDodgeJudge({ judge: async (items) => items.map(() => ({ same: false, source: "fallback" })) });
+    const { r, toks } = running(["Ann", "Bob"]);
+    round(r, toks, { Ann: "pepperoni", Bob: "peperoni" });
+    await flush();
+    expect(state(r).phase).toBe("reveal");
+    expect(state(r).history[0]!.unchecked).toBe(true);
+  });
   it("a late verdict for an earlier round is dropped", async () => {
     const { j, calls } = fakeJudge();
     setDodgeJudge(j);
