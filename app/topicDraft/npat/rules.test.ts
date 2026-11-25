@@ -103,6 +103,13 @@ describe("questionAnswer", () => {
     same("box", "boxes");
     same("beach towel", "Beach-towels");
     expect(questionAnswer("bus").key).not.toBe(questionAnswer("bu").key);
+    same("cookie", "cookies");
+    same("dish", "dishes");
+    const differ = (x: string, y: string) => expect(questionAnswer(x).key).not.toBe(questionAnswer(y).key);
+    differ("tape", "tap");
+    differ("pine", "pin");
+    differ("kite", "kit");
+    differ("tapes", "taps");
     expect(questionAnswer("a").text).toBe("a");
   });
 });

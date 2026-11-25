@@ -109,8 +109,11 @@ export const QUESTION_TIER: Tier = "common";
 export function questionAnswer(raw: string): { text: string; key: string } {
   const text = raw.trim().replace(/^(?:a|an|the|some)\s+(?=\S)/i, "");
   let k = normAnswer(text);
-  if (k.length > 4 && k.endsWith("ies")) k = `${k.slice(0, -3)}y`;
+  // Plurals: "-es" only goes after ss, x, z, ch or sh (boxes, dishes, glasses), else a lone "-s" (houses, tapes).
+  if (k.length > 4 && /(?:ss|x|z|ch|sh)es$/.test(k)) k = k.slice(0, -2);
   else if (k.length > 3 && k.endsWith("s") && !k.endsWith("ss")) k = k.slice(0, -1);
-  if (k.length > 3 && k.endsWith("e")) k = k.slice(0, -1);
+  // cookie/cookie(s) and cherry/cherrie(s) meet on a final "i"; a final "e" otherwise stays (tape is not tap).
+  if (k.length > 3 && k.endsWith("ie")) k = k.slice(0, -1);
+  else if (k.length > 2 && /[^aeiou]y$/.test(k)) k = `${k.slice(0, -1)}i`;
   return { text, key: k };
 }
