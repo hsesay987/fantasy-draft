@@ -10,14 +10,14 @@ import { MIN_PLAYERS as MAFIA_MIN, NIGHT_MS, QUIET_FIRST_NIGHT_AT, TALK_MS, VOTE
 import { newSeed } from "../topicDraft/rng";
 import { formatMeta } from "./formats";
 import { setRoomGame } from "./onlineApi";
-import { NPAT_CAT, NPAT_CLASSIC_IDS, NPAT_MAX_CATS, NPAT_MIN_CATS, npatCustomCheck, npatDigCheck, npatStyleFor, type NpatCustomCheck, type NpatStyle } from "./npatSetup";
+import { NPAT_CAT, NPAT_CLASSIC_IDS, NPAT_MAX_CATS, NPAT_MIN_CATS, npatCustomCheck, npatDigCheck, npatQuestionRounds, npatSheetPools, npatStyleFor, type NpatCustomCheck, type NpatStyle } from "./npatSetup";
 import { PoolPicker } from "./PoolPicker";
 import { Stepper } from "./setupParts";
 import { TeamPicker } from "./TeamPicker";
 import { startPools, topicOptions } from "./topicOptions";
 import { compactTeams, splitTeams, type TeamMap } from "./teamMoves";
 import { DEFAULT_OPTS, NPAT_DIG_IDS, type GameSetup } from "./types";
-import { DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk, QUESTION_DEFAULT_ROUNDS, QUESTION_MAX_ROUNDS, QUESTION_MIN_ROUNDS } from "../topicDraft/npat/rules";
+import { DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk, QUESTION_MAX_ROUNDS, QUESTION_MIN_ROUNDS } from "../topicDraft/npat/rules";
 import { NPAT_QUESTIONS, QUESTIONS_POOL } from "../topicDraft/npat/questions";
 import { DrinkingToggle, ShowVotesToggle } from "./views/partyBits";
 
@@ -27,7 +27,10 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const decks = format === "insync" ? INSYNC_DECKS : DECKS;
   const options = topicOptions(format);
   // A planned tournament game opens on its slot's topics, else its own default; otherwise the room's last mix when it fits.
-  const [pools, setPools] = useState<string[]>(() => startPools(format, room.slotPools, room.pools?.length ? room.pools : room.pool ? [room.pool] : [], !!room.inTournament));
+  const [pools, setPools] = useState<string[]>(() => {
+    const start = startPools(format, room.slotPools, room.pools?.length ? room.pools : room.pool ? [room.pool] : [], !!room.inTournament);
+    return format === "npat" ? npatSheetPools(start) : start; // question style keeps its own pool; the sheet shows a set
+  });
   const [length, setLength] = useState(format === "imposter" ? 2 : format === "partytrivia" ? 10 : format === "vowelplay" ? 15 : format === "vowelparty" ? 10 : format === "pecking" ? 6 : 8);
   const [saylessRounds, setSaylessRounds] = useState(2);
   const [saylessWords, setSaylessWords] = useState(3);
@@ -50,7 +53,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const digging = format === "npat" && npatStyle === "dig";
   /** NPAT question style: one open question a round, each with its own letter. */
   const asking = format === "npat" && npatStyle === "question";
-  const [questionRounds, setQuestionRounds] = useState(QUESTION_DEFAULT_ROUNDS);
+  const [questionRounds, setQuestionRounds] = useState(() => npatQuestionRounds(room.npat));
   const digCheck = digging ? npatDigCheck(digCats) : null;
   const custom = format === "npat" && !digging && !asking && npatCustom ? npatCustomCheck(npatCats, npatHard, npatRounds) : null;
   const [vowelMode, setVowelMode] = useState<"first" | "duel">("first");
@@ -80,7 +83,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     if (digCheck && !digCheck.ok) return setError(digCheck.reason ?? "Pick the categories first");
     setBusy(true);
     setError(null);
-    const chosen = asking ? [QUESTIONS_POOL] : digging ? digCats.map((id) => `${NPAT_CAT}${id}`) : custom ? npatCats.map((id) => `${NPAT_CAT}${id}`) : pools.filter((p) => p !== QUESTIONS_POOL).length ? pools.filter((p) => p !== QUESTIONS_POOL) : ["classic"];
+    const chosen = asking ? [QUESTIONS_POOL] : digging ? digCats.map((id) => `${NPAT_CAT}${id}`) : custom ? npatCats.map((id) => `${NPAT_CAT}${id}`) : format === "npat" ? npatSheetPools(pools) : pools;
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool: chosen[0]!, pools: chosen, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },

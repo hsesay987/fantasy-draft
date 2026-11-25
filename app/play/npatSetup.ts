@@ -66,3 +66,16 @@ export function npatSummary(o: { pools: string[]; rounds: number; seconds: numbe
   }
   return `${o.rounds} round${o.rounds === 1 ? "" : "s"} · ${o.seconds} s · ${what} · ${who} · 2+ players`;
 }
+
+/** The sets the sheet opens on: the given pools without question style's pool, or Classic when that leaves none. */
+export function npatSheetPools(pools: string[]): string[] {
+  const sets = pools.filter((p) => p !== QUESTIONS_POOL);
+  return sets.length ? sets : ["classic"];
+}
+
+/** Question style's rounds for a saved setup: its own when it was a question game, else the default. */
+export function npatQuestionRounds(saved: { opts?: { npatStyle?: unknown; npatRounds?: unknown } } | null | undefined): number {
+  const n = Number(saved?.opts?.npatRounds);
+  if (saved?.opts?.npatStyle !== "question" || !Number.isFinite(n)) return QUESTION_DEFAULT_ROUNDS;
+  return Math.min(QUESTION_MAX_ROUNDS, Math.max(QUESTION_MIN_ROUNDS, Math.floor(n)));
+}

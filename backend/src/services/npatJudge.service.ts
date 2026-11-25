@@ -25,7 +25,7 @@ export interface VerdictCache {
 export const MODEL = "claude-haiku-5-5";
 export const CALL_TIMEOUT_MS = 4_000;
 const REASON_MAX = 80;
-/** Long enough for the question bank's questions (at most 60 characters). */
+/** Room for the question bank's questions, which the bank test keeps to 60 characters or fewer. */
 const CATEGORY_MAX = 80;
 const DEFAULT_DAILY_CALLS = 2000;
 

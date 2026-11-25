@@ -124,7 +124,7 @@ function AnswerList({ s, me }: { s: DigView; me: string }) {
             <div className="top">
               <span className="txt">{a?.text || "—"}</span>
               {scored(a)
-                ? <span className="np-badge"><b>+{a!.points}</b>{a!.shared ? " shared" : ""}</span>
+                ? <span className="np-badge"><b>+{a!.points}</b>{a!.shared ? " shared" : ""}{a!.reason === "unchecked" ? " · unchecked" : ""}</span>
                 : <span className="np-badge miss">{a?.status === "wrong-letter" ? "wrong letter" : a?.status === "ai-no" ? "not accepted" : "no answer"}</span>}
             </div>
           </li>
@@ -161,14 +161,14 @@ function Rounds({ s }: { s: DigView }) {
       <h3 className="np-sub">Every round</h3>
       <ol className="np-groups">
         {s.categories.map((q, i) => (
-          <li key={i} className="k-blank">
+          <li key={i} className={s.players.some((p) => scored(own(s.results, p)?.[i])) ? "k-ok" : "k-blank"}>
             <p className="as">{s.letters?.[i] ?? ""} · {q}</p>
             {s.players.map((p) => {
               const a = own(s.results, p)?.[i];
               return (
                 <div key={p} className="top">
                   <span className="txt">{p}: {a?.text || "—"}</span>
-                  {scored(a) ? <span className="np-badge"><b>+{a!.points}</b></span> : <span className="np-badge miss">0</span>}
+                  {scored(a) ? <span className="np-badge"><b>+{a!.points}</b>{a!.reason === "unchecked" ? " · unchecked" : ""}</span> : <span className="np-badge miss">0</span>}
                 </div>
               );
             })}
