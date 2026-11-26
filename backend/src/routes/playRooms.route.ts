@@ -130,7 +130,7 @@ router.post("/:code/screen", (req, res) => {
 router.post("/:code/tournament", (req, res) => {
   const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "Room not found" });
-  const r = startTournament(room, req.body?.token, req.body?.plan);
+  const r = startTournament(room, req.body?.token, req.body?.plan, req.body?.cut);
   if ("error" in r) return res.status(400).json({ error: r.error });
   res.json(snapshot(room, req.body?.token));
 });

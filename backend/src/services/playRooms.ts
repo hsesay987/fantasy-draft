@@ -16,7 +16,7 @@ import * as A from "../shared/topicDraft/formats/auction";
 import * as B from "../shared/topicDraft/formats/blind";
 import * as P from "../shared/topicDraft/formats/position";
 import { vetoCount, vetoOn } from "../shared/topicDraft/veto";
-import { eliminationOn, outSip, pickOut, roundOf, ELIMINATION_FORMATS } from "../shared/topicDraft/party/elimination";
+import { cutAfter, eliminationOn, outSip, pickOut, roundOf, ELIMINATION_FORMATS } from "../shared/topicDraft/party/elimination";
 import { addCalls, type DrinkState } from "../shared/topicDraft/party/drinks";
 import * as IM from "../shared/topicDraft/formats/imposter";
 import * as V from "../shared/topicDraft/formats/vote";
@@ -459,7 +459,7 @@ function planSlot(entry: unknown): { format: FormatId; pools: string[] | null } 
 }
 
 /** The host starts a tournament: 2 to 8 games, lobby only. Replaces a finished or earlier one. */
-export function startTournament(room: Room, token: unknown, plan: unknown): { ok: true } | { error: string } {
+export function startTournament(room: Room, token: unknown, plan: unknown, cut: unknown = 0): { ok: true } | { error: string } {
   refreshScreen(room);
   if (!isHost(room, token)) return { error: "Only the host can do that" };
   if (room.status !== "lobby") return { error: "Start a tournament from the lobby" };
@@ -470,7 +470,8 @@ export function startTournament(room: Room, token: unknown, plan: unknown): { ok
     if ("error" in slot) return { error: `Game ${i + 1} ${slot.error}` };
     slots.push(slot);
   }
-  room.tournament = { plan: slots.map((s) => s.format), topics: slots.map((s) => s.pools), index: 0, games: [], totals: {}, done: false };
+  const cutEach = [0, 1, 2].includes(Number(cut)) ? Number(cut) : 0;
+  room.tournament = { plan: slots.map((s) => s.format), topics: slots.map((s) => s.pools), index: 0, games: [], totals: {}, done: false, ...(cutEach ? { cut: cutEach, out: [] } : {}) };
   room.tournamentSeq = (room.tournamentSeq ?? 0) + 1;
   room.tournamentEnded = false;
   bump(room);
@@ -489,12 +490,25 @@ export function endTournament(room: Room, token: unknown): { ok: true } | { erro
   return { ok: true };
 }
 
+/** Players cut from the tournament (elimination): they watch and are not dealt into later games. */
+const tournamentOut = (room: Room): string[] => (room.tournament && !room.tournament.done ? (room.tournament.out ?? []).map((o) => o.name) : []);
+
+/** After a game's awards: cut the lowest totals, keeping ties at the line, never below 2 finalists. */
+function cutTournament(room: Room) {
+  const t = room.tournament;
+  if (!t?.cut || t.done) return;
+  const finalists = playerNames(room, false).filter((p) => !(t.out ?? []).some((o) => o.name === p));
+  const cut = cutAfter(t.totals, finalists, t.cut);
+  if (cut.length) room.tournament = { ...t, out: [...(t.out ?? []), ...cut.map((name) => ({ name, after: t.games.length }))] };
+}
+
 /** Records a finished game in the tournament and returns a way to credit its draft verdict later. */
 function recordTournamentGame(room: Room, awards: Awards | null): number | null {
   const t = room.tournament;
   const setup = room.setup!;
   if (!t || t.done) return null;
   room.tournament = addGame(t, setup.format, setup.mission.title, awards);
+  if (awards) cutTournament(room);
   return room.tournament.games.length - 1;
 }
 
@@ -506,6 +520,7 @@ function creditTournamentGame(room: Room, seq: number | undefined, idx: number, 
   for (const [p, n] of Object.entries(awards ?? {})) totals[p] = (totals[p] ?? 0) + n;
   const games = t.games.map((g, i) => (i === idx ? { ...g, awards } : g));
   room.tournament = { ...t, games, totals };
+  if (awards && idx === games.length - 1) cutTournament(room); // a draft's verdict decides the cut after it
   bump(room);
 }
 
@@ -565,7 +580,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   if (room.status === "playing") return { error: "Already started" };
   if (!room.setup) return { error: "Pick a game first" };
   // Every refusal comes before the room changes, so a refused Play again leaves the results on screen to show why.
-  const here = playerNames(room, false);
+  const here = playerNames(room, false).filter((p) => !tournamentOut(room).includes(p)); // cut players watch
   const min = MIN_PLAYERS[room.setup.format] ?? 2;
   if (here.length < min) return { error: `Need at least ${min} players` };
   if (here.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };

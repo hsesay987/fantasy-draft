@@ -84,3 +84,51 @@ describe("elimination in a room", () => {
     expect(outNames(r)).toEqual(["Di"]); // leaving after going out changes nothing
   });
 });
+
+import { setGame, startTournament } from "./playRooms";
+import { standings } from "../shared/topicDraft/party/tournament";
+
+/** Plays a whole Pecking Order game: `worst` answers badly every round, everyone else exactly. */
+function playGame(r: any, toks: Record<string, string>, worst: string) {
+  for (let i = 0; i < 30 && r.status === "playing"; i++) {
+    for (const n of Object.keys(toks)) if (r.setup.players.includes(n) && state(r).phase === "question") answer(r, toks[n]!, n !== worst);
+    act(r, toks.Ann!, { type: "next" });
+    tickRooms();
+  }
+  expect(r.status).toBe("done");
+}
+function lobbyRoom(names: string[]) {
+  const made = createRoom(peck(), names[0]!) as any;
+  const toks: Record<string, string> = { [names[0]!]: made.seat.token };
+  for (const n of names.slice(1)) toks[n] = (joinRoom(made.room.code, n) as any).seat.token;
+  return { r: made.room, toks };
+}
+
+describe("tournament cut", () => {
+  it("cuts the lowest total after each game; cut players watch and aren't dealt in", () => {
+    const { r, toks } = lobbyRoom(["Ann", "Bo", "Cy", "Di"]);
+    expect(startTournament(r, toks.Ann!, ["pecking", "pecking", "pecking"], 1)).toEqual({ ok: true });
+    startRoom(r, toks.Ann!);
+    playGame(r, toks, "Di");
+    expect(r.tournament.out).toEqual([{ name: "Di", after: 1 }]);
+    setGame(r, toks.Ann!, peck());
+    expect(startRoom(r, toks.Ann!)).toEqual({ ok: true });
+    expect(r.setup.players).not.toContain("Di");
+    expect(act(r, toks.Di!, { type: "next" }).ok).toBe(false);
+    const rows = standings(r.tournament, ["Ann", "Bo", "Cy", "Di"]);
+    expect(rows[rows.length - 1]).toMatchObject({ name: "Di", cut: 1, rank: 4 });
+  });
+
+  it("is off by default, and never cuts below 2 finalists", () => {
+    const off = lobbyRoom(["Ann", "Bo", "Cy"]);
+    startTournament(off.r, off.toks.Ann!, ["pecking", "pecking"]);
+    startRoom(off.r, off.toks.Ann!);
+    playGame(off.r, off.toks, "Cy");
+    expect(off.r.tournament.out).toBeUndefined();
+    const { r, toks } = lobbyRoom(["Ann", "Bo", "Cy"]);
+    startTournament(r, toks.Ann!, ["pecking", "pecking", "pecking"], 2);
+    startRoom(r, toks.Ann!);
+    playGame(r, toks, "Cy");
+    expect(r.tournament.out.map((o: any) => o.name)).toEqual(["Cy"]); // 2 asked, but 2 must stay
+  });
+});
