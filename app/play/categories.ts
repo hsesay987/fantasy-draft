@@ -205,6 +205,7 @@ export const FORMAT_WHY: Record<FormatId, string> = {
   pecking: "Guess where things rank",
   sayless: "Describe it in as few words as you can",
   npat: "Fill in a name, place, animal and thing for a letter",
+  dodge: "Guess what they will say, then don't say it",
 };
 
 /** Formats that make sense for a category (Loadout needs hero-ish items). */

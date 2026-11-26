@@ -44,7 +44,10 @@ describe("daily puzzles", () => {
     }
   });
   it.each(DAILY_TOPICS)("%s can fill a whole Top Rung climb and its spares from the seeded bank", async (pool) => {
-    const categories = await getJeopardy(pool, [], memoryStore(), null);
+    // A fixed seed: the bank must fill a climb, not every random draw of four categories.
+    let seed = 7;
+    const rand = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+    const categories = await getJeopardy(pool, [], memoryStore(), null, rand);
     const seen = new Set<string>();
     // The same test the climb applies: four distinct options, and no question asked twice.
     const usable = tierPools(categories, 1).map((tier) => tier.filter((q) => {

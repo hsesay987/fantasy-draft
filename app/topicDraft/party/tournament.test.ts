@@ -63,6 +63,10 @@ describe("awardsFor", () => {
     const s = setup("sayless", ["a", "b", "c", "d"], { teams: 2, teamMap: { a: 0, b: 0, c: 0, d: 1 } });
     expect(awardsFor(s, st({ teams: null, points: { a: 4, b: 2, c: 9, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 3, b: 2, c: 5, d: 1 });
   });
+  it("Dodge ranks per-player points, below zero included", () => {
+    const s = setup("dodge", ["a", "b", "c", "d"]);
+    expect(awardsFor(s, st({ points: { a: 3, b: -2, c: 3, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 5, b: 1, c: 5, d: 2 });
+  });
   it("NPAT ranks per-player points, ties share a place", () => {
     const s = setup("npat", ["a", "b", "c", "d"]);
     expect(awardsFor(s, st({ teams: null, points: { a: 30, b: 30, c: 10, d: 0 } }), ["a", "b", "c", "d"])).toEqual({ a: 5, b: 5, c: 2, d: 1 });

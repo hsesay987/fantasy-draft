@@ -6,7 +6,9 @@ import { DECKS } from "../topicDraft/party/decks";
 import { INSYNC_DECKS } from "../topicDraft/party/insyncDecks";
 import { SAY_DECKS } from "../topicDraft/sayless/decks";
 import { NPAT_SETS, categoryOf } from "../topicDraft/npat/categories";
+import { QUESTIONS_POOL } from "../topicDraft/npat/questions";
 import { PECKING_META } from "../topicDraft/pecking/meta";
+import { DODGE_DECKS } from "../topicDraft/dodge/decks";
 import { mixTitle } from "../topicDraft/party/mixTitle";
 import { VOWEL_TOPICS } from "../topicDraft/party/vowelTopics";
 import { hasTrivia } from "../topicDraft/trivia";
@@ -29,10 +31,14 @@ export function topicOptions(format: FormatId): TopicOption[] {
     case "vowelplay":
     case "vowelparty": return VOWEL_TOPICS.map((t) => ({ id: t.id, title: t.title }));
     case "pecking": return PECKING_META.map((m) => ({ id: m.id, title: m.title, blurb: `${m.size} items · ${m.source} · as of ${m.asOf}` }));
-    case "npat": return NPAT_SETS.map((s) => ({ id: s.id, title: s.title, blurb: s.categories.map((c) => categoryOf(c)?.title ?? c).join(", ") }));
+    case "npat": return [
+      ...NPAT_SETS.map((s) => ({ id: s.id, title: s.title, blurb: s.categories.map((c) => categoryOf(c)?.title ?? c).join(", ") })),
+      { id: QUESTIONS_POOL, title: "Questions", blurb: "One open question a round, each with its own letter" },
+    ];
     case "sayless": return SAY_DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "vote": return DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
     case "insync": return INSYNC_DECKS.map((d) => ({ id: d.id, title: d.title, blurb: d.blurb }));
+    case "dodge": return DODGE_DECKS.map((d) => ({ id: d.id, title: d.title, blurb: `${d.blurb} ${d.categories.length} categories.` }));
     case "mafia":
     case "loadout": return [];
     default: return CATEGORIES.filter((c) => !c.hidden && formatsFor(c.id).includes(format)).map((c) => ({ id: c.id, title: c.title }));
@@ -40,7 +46,7 @@ export function topicOptions(format: FormatId): TopicOption[] {
 }
 
 /** Drafts play from one topic; party games can mix several. */
-export const singleTopic = (format: FormatId) => !["imposter", "vote", "insync", "partytrivia", "pecking", "sayless", "vowelplay", "vowelparty"].includes(format);
+export const singleTopic = (format: FormatId) => !["imposter", "vote", "insync", "partytrivia", "pecking", "sayless", "vowelplay", "vowelparty", "dodge"].includes(format);
 
 /** The topic a game's setup starts on when nothing else applies. */
 export function defaultTopic(format: FormatId): string | null {
@@ -79,5 +85,5 @@ export function topicTitle(format: FormatId, pools: string[] | null | undefined)
 }
 
 /** Party games the host sets up on PartySetup (every party format); drafts use SetupScreen. */
-export const usesPartySetup = (format: string): format is Extract<FormatId, "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat"> =>
+export const usesPartySetup = (format: string): format is Extract<FormatId, "imposter" | "vote" | "insync" | "partytrivia" | "mafia" | "vowelplay" | "vowelparty" | "pecking" | "sayless" | "npat" | "dodge"> =>
   PARTY_FORMATS.has(format as FormatId);

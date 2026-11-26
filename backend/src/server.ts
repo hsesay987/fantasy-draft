@@ -23,7 +23,8 @@ import toppicRoutes from "./routes/toppic.route";
 import judgeRoutes from "./routes/judge.route";
 import playRoomRoutes from "./routes/playRooms.route";
 import customRoutes from "./routes/custom.route";
-import { setNpatHistory, setNpatJudge, startTicker } from "./services/playRooms";
+import { setDodgeJudge, setNpatHistory, setNpatJudge, startTicker } from "./services/playRooms";
+import { dodgeJudge } from "./services/dodgeJudge.service";
 import { judge as npatJudge } from "./services/npatJudge.instance";
 import { createNpatHistory, prismaNpatAnswerDb } from "./services/npatHistory.service";
 import { setHistorySource } from "./shared/topicDraft/npat/source";
@@ -106,6 +107,7 @@ startTicker();
 const npatHistory = createNpatHistory(prismaNpatAnswerDb);
 setNpatHistory(npatHistory);
 setNpatJudge(npatJudge); // dig rooms ask it about answers not on the lists
+setDodgeJudge(dodgeJudge()); // Dodge rooms ask it about close calls
 setDailyNpatHistory(npatHistory);
 setNpatRouteHistory(npatHistory);
 setHistorySource((category, answer) => npatHistory.lookup(category, answer));

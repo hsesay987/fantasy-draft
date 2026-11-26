@@ -62,7 +62,8 @@ export function useRemoteRoom(code: string) {
         if (s) {
           accept(s);
         } else void refresh();
-        return { ok: r.ok, error: r.data?.error };
+        const data = r.data as { error?: string; suggest?: unknown } | undefined;
+        return { ok: r.ok, error: data?.error, ...(typeof data?.suggest === "string" ? { suggest: data.suggest } : {}) };
       });
     },
     [code, offset, accept, refresh]

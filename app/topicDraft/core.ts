@@ -24,9 +24,12 @@ import * as PK from "./formats/pecking";
 import * as SL from "./formats/sayless";
 import * as NP from "./formats/npat";
 import * as DIG from "./formats/npatDig";
+import * as DG from "./formats/dodge";
+import { dodgeDeckOf } from "./dodge/decks";
+import * as NQ from "./formats/npatQuestion";
 import { NPAT_SETS, categoryOf, setOf } from "./npat/categories";
 import { lettersAvailable } from "./npat/source";
-import { digCountOk } from "./npat/rules";
+import { digCountOk, QUESTION_DEFAULT_ROUNDS } from "./npat/rules";
 import { listFor } from "./pecking/source";
 import { deckOf } from "./party/decks";
 import { insyncDeckOf } from "./party/insyncDecks";
@@ -36,7 +39,7 @@ import type { Item, State } from "./types";
 import { battle } from "./battle";
 
 export type SnakeRun = { kind: "snake"; draft: State } | { kind: "spin"; spin: spin.SpinState };
-export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState | PK.PeckState | SL.SLState | NP.NPState | DIG.DigState;
+export type GameState = SnakeRun | A.AuctionState | L.LoadoutState | P.PositionState | B.BlindState | K.KeepState | FD.FeudState | J.JeopardyState | IM.ImposterState | V.VoteState | IS.InSyncState | PT.PTState | MF.MafiaState | VP.VPState | PK.PeckState | SL.SLState | NP.NPState | DIG.DigState | DG.DodgeState;
 
 /** Every action says who is acting; the server checks that against the seat's token. */
 export type Action =
@@ -137,7 +140,12 @@ export function initGame(setup: GameSetup, now: number): GameState {
       return PK.init({ players: setup.players, lists: poolsOf(setup).flatMap((id) => listFor(id) ?? []), mode: o.peckMode ?? "mixed", count: o.teamSize, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "sayless":
       return SL.init({ players: setup.players, decks: poolsOf(setup), rounds: o.saylessRounds ?? 2, wordsPerTurn: o.saylessWords ?? 3, slack: o.saylessSlack ?? 5, teams: o.teams, teamMap: o.teamMap, guard: o.saylessGuard ?? false, answer: o.answer === "buzz" ? "buzz" : "phones", avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+    case "dodge":
+      return DG.init({ players: setup.players, decks: poolsOf(setup), categories: poolsOf(setup).flatMap((id) => dodgeDeckOf(id)?.categories ?? []), laps: o.dodgeLaps ?? 1, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "npat": {
+      if (npatIsQuestion(setup)) {
+        return NQ.init({ players: setup.players, rounds: o.npatRounds ?? QUESTION_DEFAULT_ROUNDS, teams: o.teams, teamMap: o.teamMap, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+      }
       if (npatIsDig(setup)) {
         const picked = npatPicked(poolsOf(setup));
         const categories = digCountOk(picked.length) && lettersAvailable(picked, false).length ? picked : NPAT_DIG_IDS;
@@ -168,10 +176,14 @@ export function npatPicked(pools: string[]): string[] {
 }
 
 /**
- * Does this NPAT game dig (one category at a time) or fill a sheet? The lobby always says. A setup that doesn't
- * (an older client or saved room) plays the sheet, as it did before the dig existed.
+ * Does this NPAT game play on the dig's engine (one category, or in question style one question, at a time) or fill a
+ * sheet? The lobby always says. A setup that doesn't (an older client or saved room) plays the sheet, as it did before
+ * the dig existed.
  */
-export const npatIsDig = (setup: Pick<GameSetup, "format" | "opts">): boolean => setup.format === "npat" && setup.opts.npatStyle === "dig";
+export const npatIsDig = (setup: Pick<GameSetup, "format" | "opts">): boolean => setup.format === "npat" && (setup.opts.npatStyle === "dig" || setup.opts.npatStyle === "question");
+
+/** Question style: one open question a round, each with its own letter. Set up by npatQuestion, then played as a dig. */
+export const npatIsQuestion = (setup: Pick<GameSetup, "format" | "opts">): boolean => setup.format === "npat" && setup.opts.npatStyle === "question";
 
 /** The categories a Name Place Animal Thing game plays: set ids and `cat:<id>` picks merged in order, de-duplicated, capped
  * at 6. Unknown ids are ignored; nothing valid, or no letter that suits the mix, falls back to the Classic set. */
@@ -367,6 +379,14 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
       if (a.type === "tick") return NP.tick(x, now);
       return s;
     }
+    case "dodge": {
+      const x = s as DG.DodgeState;
+      if (a.type === "answer") return DG.answer(x, a.by, a.text, now);
+      if (a.type === "lock") return DG.lock(x, a.by, now);
+      if (a.type === "next") return DG.next(x, now);
+      if (a.type === "tick") return DG.tick(x, now);
+      return s;
+    }
     case "sayless": {
       const x = s as SL.SLState;
       if (a.type === "clue") return SL.clue(x, a.by, a.text, now);
@@ -389,6 +409,27 @@ export function applyAction(setup: GameSetup, s: GameState, a: Action, now: numb
     }
   }
   return s;
+}
+
+/**
+ * Spelling help: the answer a typed guess nearly matched, when the engine will refuse it as a near miss (at no cost) and
+ * note that this player has had their suggestion. Ask before applyAction. null for everything else.
+ */
+export function suggestion(setup: GameSetup, s: GameState, a: Action, now: number): string | null {
+  if (!("by" in a) || !setup.players.includes(a.by)) return null;
+  switch (setup.format) {
+    case "feud":
+      return a.type === "answer" ? FD.nearMiss(s as FD.FeudState, a.by, String(a.choice)) : null;
+    case "vowelplay":
+    case "vowelparty":
+      return a.type === "guess" ? VP.nearMiss(s as VP.VPState, a.by, a.text as string, now) : null;
+    case "pecking":
+      return a.type === "pick" ? PK.nearMiss(s as PK.PeckState, a.by, a.name, now) : null;
+    case "sayless":
+      return a.type === "guess" ? SL.nearMiss(s as SL.SLState, a.by, a.text, now) : null;
+    default:
+      return null;
+  }
 }
 
 /** The move an AI (or a bot standing in for a player who left) makes right now. null = nothing to do. */
@@ -523,6 +564,7 @@ function buildTeamsBase(setup: GameSetup, s: GameState): { teams: JudgeTeamInput
     case "pecking":
     case "sayless":
     case "npat":
+    case "dodge":
     case "vote": {
       const pts = (s as { points: Record<string, number> }).points;
       return { extra: null, teams: setup.players.map((player) => ({ player, baseline: pts[player] ?? 0, items: [] })) };

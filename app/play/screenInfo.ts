@@ -1,4 +1,4 @@
-import { currentTurn, isDone, npatIsDig, type GameState } from "../topicDraft/core";
+import { currentTurn, isDone, npatIsDig, npatIsQuestion, type GameState } from "../topicDraft/core";
 import * as IM from "../topicDraft/formats/imposter";
 import * as IS from "../topicDraft/formats/insync";
 import * as MF from "../topicDraft/formats/mafia";
@@ -17,6 +17,8 @@ import { teamStandings, teamsFor } from "./teamStandings";
 import type { GameSetup } from "./types";
 import { npatClock } from "./views/npatBoard";
 import { digClock, digPhase } from "./views/npatDigBoard";
+import { chosen as dodgeChosen, type DodgeView } from "../topicDraft/formats/dodge";
+import { dodgeClock, dodgePhase } from "./views/dodgeBoard";
 
 /** What the big screen says above the board: whose turn it is (null when nobody's in particular) and the phase. */
 export type ScreenInfo = { turn: string | null; phase: string };
@@ -67,12 +69,16 @@ export function screenInfo(setup: GameSetup, state: GameState): ScreenInfo {
       return { turn: currentDescriber(s as unknown as SLState) || null, phase: `Turn ${s.turn + 1} of ${s.total ?? s.turns.length} · ${step}` };
     }
     case "npat": {
-      if (npatIsDig(setup)) return { turn: null, phase: done ? "Final depths" : digPhase(state as unknown as DigView) };
+      if (npatIsDig(setup)) return { turn: null, phase: done ? (npatIsQuestion(setup) ? "Final scores" : "Final depths") : digPhase(state as unknown as DigView) };
       const s = state as unknown as NPView;
       if (done) return { turn: null, phase: "Final scores" };
       const cat = s.categories[s.cat] ?? "";
       const step = s.phase === "write" ? `Letter ${s.letter} · Writing` : s.phase === "reveal" ? `Reveal: ${categoryOf(cat)?.title ?? cat}` : s.phase === "vote" ? "Vote" : "Round results";
       return { turn: null, phase: `Round ${s.round + 1} of ${s.rounds} · ${step}` };
+    }
+    case "dodge": {
+      const s = state as unknown as DodgeView;
+      return { turn: done ? null : dodgeChosen(s), phase: dodgePhase(s) };
     }
     case "mafia": {
       const s = state as MF.MafiaState;
@@ -126,6 +132,8 @@ export function screenClock(setup: GameSetup, state: GameState): { deadline: num
       const s = state as unknown as SLView;
       return s.phase === "clue" ? at(SLR.WORD_MS, s.wordAt) : at(s.phase === "speak" ? SLR.SPEAK_MS : s.phase === "judge" ? SLR.JUDGE_MS : SLR.REVEAL_MS, s.phaseAt);
     }
+    case "dodge":
+      return dodgeClock(state as unknown as DodgeView);
     case "npat":
       return npatIsDig(setup) ? digClock(state as unknown as DigView) : npatClock(state as unknown as NPView);
     default:
@@ -219,6 +227,13 @@ export function screenBoard(setup: GameSetup, state: GameState, gone: string[] =
         rows: rowsFor(s.players, (p) => own(s.points, p) ?? 0, r ? gain : undefined, teams),
         teams: teams ? teams.map((_, i) => ({ name: `${teamName(i)} team`, score: s.teamPoints[i] ?? 0, color: TEAM_COLORS[i] })).sort((a, b) => b.score - a.score) : undefined,
       };
+    }
+    case "dodge": {
+      const s = state as unknown as DodgeView;
+      // What each player just gained, while the reveal is up. Losses show as nothing: the board shows totals.
+      const h = s.phase === "reveal" && !done ? s.history[s.history.length - 1] : undefined;
+      const gain = (p: string) => { const n = h ? own(h.gained, p) : undefined; return n && n > 0 ? n : undefined; };
+      return { rows: rowsFor(s.players, (p) => own(s.points, p) ?? 0, h ? gain : undefined) };
     }
     case "vowelplay":
     case "vowelparty": {

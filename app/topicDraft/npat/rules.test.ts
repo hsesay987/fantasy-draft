@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  adjustTier, ANSWER_MAX, bandTier, DEFAULT_ROUND_S, HARD_LETTERS, lettersFor, normAnswer,
+  adjustTier, ANSWER_MAX, bandTier, questionAnswer, DEFAULT_ROUND_S, HARD_LETTERS, lettersFor, normAnswer,
   REVEAL_MS, ROUND_MS, sharedPoints, startsWith, TIER_NAMES, TIER_POINTS, VOTE_MS,
 } from "./rules";
 
@@ -86,5 +86,30 @@ describe("lettersFor", () => {
     for (const l of HARD_LETTERS) expect(easy).not.toContain(l);
     expect(easy).toHaveLength(22);
     expect(lettersFor(true)).toHaveLength(26);
+  });
+});
+
+describe("questionAnswer", () => {
+  it("drops a leading article and folds simple plurals into one key", () => {
+    expect(questionAnswer("  a Towel ")).toEqual({ text: "Towel", key: questionAnswer("towels").key });
+    expect(questionAnswer("An apple").text).toBe("apple");
+    expect(questionAnswer("some sweets").text).toBe("sweets");
+    expect(questionAnswer("Anchovies").text).toBe("Anchovies"); // "an" only as its own word
+    const same = (x: string, y: string) => expect(questionAnswer(x).key).toBe(questionAnswer(y).key);
+    same("Sandwich", "sandwiches");
+    same("house", "houses");
+    same("cherry", "cherries");
+    same("glass", "glasses");
+    same("box", "boxes");
+    same("beach towel", "Beach-towels");
+    expect(questionAnswer("bus").key).not.toBe(questionAnswer("bu").key);
+    same("cookie", "cookies");
+    same("dish", "dishes");
+    const differ = (x: string, y: string) => expect(questionAnswer(x).key).not.toBe(questionAnswer(y).key);
+    differ("tape", "tap");
+    differ("pine", "pin");
+    differ("kite", "kit");
+    differ("tapes", "taps");
+    expect(questionAnswer("a").text).toBe("a");
   });
 });

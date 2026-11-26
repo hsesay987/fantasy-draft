@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { JUDGE_MS, REVEAL_MS, SPEAK_MS, WORD_MS, turnBudget } from "../sayless/rules";
 import { setWordSource, type SayWord } from "../sayless/source";
 import {
-  buzz, clue, currentDescriber, guess, init, mark, next, pass, redactFor, seenKeys, settle, spoke, tick, winners,
+  buzz, clue, currentDescriber, guess, init, mark, nearMiss, next, pass, redactFor, seenKeys, settle, spoke, tick, winners,
   type SLState, type SLWord,
 } from "./sayless";
 
@@ -593,5 +593,36 @@ describe("seenKeys and winners", () => {
     const s = mk();
     expect(winners(s)).toEqual(["Ann", "Bo", "Cy"]);
     expect(winners({ ...s, points: { Ann: 2, Bo: 5, Cy: 5 } })).toEqual(["Bo", "Cy"]);
+  });
+});
+
+describe("spelling help", () => {
+  const krillin = () => withWords(mk(), [{ name: "Krillin", par: 3 }, { name: "walrus", par: 2 }, { name: "origami", par: 2 }]);
+
+  it("a near miss suggests the word to that guesser only, at no cost", () => {
+    const s = krillin();
+    expect(D(s)).toBe("Ann");
+    expect(nearMiss(s, "Bo", "krillion", T0 + 1)).toBe("Krillin");
+    const after = guess(s, "Bo", "krillion", T0 + 1);
+    expect(after.hinted).toEqual(["Bo"]);
+    expect(after.points).toEqual(s.points);
+    expect(after.phase).toBe("clue");
+    expect(redactFor(after, "Bo").hinted).toEqual(["Bo"]);
+    expect(redactFor(after, "Cy").hinted).toEqual([]);
+    expect(redactFor(after, "Ann").hinted).toEqual([]);
+    expect(guess(after, "Bo", "Krillin", T0 + 2).history.at(-1)!.winner).toBe("Bo");
+  });
+
+  it("gives one suggestion per guesser per word, never to the describer, and a new word starts fresh", () => {
+    let s = guess(krillin(), "Bo", "krillion", T0 + 1);
+    expect(nearMiss(s, "Bo", "krilln", T0 + 2)).toBe(null);
+    expect(guess(s, "Bo", "krilln", T0 + 2)).toBe(s);
+    expect(nearMiss(s, "Ann", "krilln", T0 + 2)).toBe(null);
+    expect(nearMiss(s, "Cy", "banana", T0 + 2)).toBe(null);
+    s = guess(s, "Cy", "Krillin", T0 + 3);
+    s = tick(s, s.phaseAt + REVEAL_MS);
+    expect(cur(s).name).toBe("walrus");
+    expect(s.hinted).toBeUndefined();
+    expect(nearMiss(s, "Bo", "walris", s.phaseAt + 1)).toBe("walrus");
   });
 });

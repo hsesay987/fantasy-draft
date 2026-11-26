@@ -9,6 +9,7 @@ import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { useSound } from "../../components/SoundProvider";
 import { MAX_GUESSES, compare, dailyAnswer, dayNumber, formatValue, shareGrid, type Hint } from "../engine";
 import { PINPOINT_DATA } from "../data";
+import { closestAnswer } from "../../topicDraft/spelling";
 import type { Item } from "../../topicDraft/types";
 import { PINPOINT_TOPICS, loadPinpoint, pinpointPicks, savePinpoint } from "../topics";
 import { track } from "../../lib/analytics";
@@ -55,6 +56,8 @@ export default function PinpointGame() {
   const [guesses, setGuesses] = useState<string[]>([]);
   const [text, setText] = useState("");
   const [copied, setCopied] = useState(false);
+  // Spelling help: a name that matched nothing was close to this one, which is now in the input.
+  const [hint, setHint] = useState<string | null>(null);
   // The guess just made, so only it plays its reveal; guesses restored from storage show at rest.
   const [fresh, setFresh] = useState<string | null>(null);
 
@@ -69,6 +72,13 @@ export default function PinpointGame() {
   const over = won || hints.length >= MAX_GUESSES;
   const q = text.trim().toLowerCase();
   const matches = q.length >= 1 ? items.filter((i) => !guesses.includes(i.id) && i.name.toLowerCase().includes(q)).slice(0, 8) : [];
+  /** Enter: the exact name, else the first match, else fill in the closest name and say so. */
+  const enter = () => {
+    const pick = matches.find((i) => i.name.toLowerCase() === q) ?? matches[0];
+    if (pick) return submit(pick);
+    const close = closestAnswer(text, items.filter((i) => !guesses.includes(i.id)).map((i) => i.name));
+    if (close) { setText(close); setHint(close); }
+  };
 
   const submit = (item: Item) => {
     if (over || guesses.includes(item.id)) return;
@@ -76,6 +86,7 @@ export default function PinpointGame() {
     setGuesses(next);
     setFresh(item.id);
     setText("");
+    setHint(null);
     const h = compare(item, answer, columns, facts);
     const done = h.correct || next.length >= MAX_GUESSES;
     play(h.correct ? "win" : done ? "lose" : h.closeness >= 70 ? "reveal" : "click");
@@ -104,7 +115,8 @@ export default function PinpointGame() {
         <div className="relative">
           <label className="sr-only" htmlFor="pp-guess">Guess</label>
           <input id="pp-guess" className={`${controlCls} min-h-12 text-lg`} placeholder={`Type a name (${hints.length + 1} of ${MAX_GUESSES})`} value={text} autoComplete="off"
-            onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && matches[0] && submit(matches[0])} />
+            onChange={(e) => { setText(e.target.value); setHint(null); }} onKeyDown={(e) => e.key === "Enter" && enter()} aria-describedby={hint && text === hint ? "pp-hint" : undefined} />
+          {hint && text === hint && <p id="pp-hint" className="mt-1 text-sm text-muted-foreground" role="status">Did you mean {hint}? Press Enter to submit.</p>}
           {matches.length > 0 && (
             <ul className="absolute inset-x-0 top-full z-20 mt-1 max-h-80 overflow-auto rounded-xl border border-white/10 bg-background/95 p-1 shadow-xl backdrop-blur" role="listbox">
               {matches.map((i) => (

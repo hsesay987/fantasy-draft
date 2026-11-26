@@ -41,6 +41,9 @@ export function PeckingView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const [typed, setTyped] = useState<{ round: number; t: string } | null>(null);
   const text = typed?.round === s.round ? typed.t : "";
   const [refused, setRefused] = useState<{ round: number; text: string; name: string } | null>(null);
+  // Spelling help from the server's reply: shown while the input still holds the suggested name.
+  const [hint, setHint] = useState<{ round: number; name: string } | null>(null);
+  const hinted = hint?.round === s.round && hint.name === text ? hint.name : null;
   // Refused because someone claimed the name first (it shows in the taken list), or lost on the way: say which.
   const error = refused?.round === s.round && refused.text === text ? (s.taken.some((t) => normName(t) === normName(refused.name)) ? TAKEN : NOT_SENT) : null;
 
@@ -95,7 +98,8 @@ export function PeckingView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
     try {
       const r = await ctl.dispatch({ type: "pick", by: me, name });
       // Refused (most often someone claimed it first): this seat may pick again.
-      if (r && !r.ok) { setTap(null); setRefused({ round: s.round, text, name }); play("wrong"); }
+      if (r?.suggest) { setTap(null); setTyped({ round: s.round, t: r.suggest }); setHint({ round: s.round, name: r.suggest }); }
+      else if (r && !r.ok) { setTap(null); setRefused({ round: s.round, text, name }); play("wrong"); }
     } finally { sending.current = false; }
   };
 
@@ -123,7 +127,7 @@ export function PeckingView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
                 <PixelButton variant="gold" className="pk-go" disabled={!canAnswer} onClick={lockRank}>Lock #{value}</PixelButton>
               </>
             ) : (
-              <NamePicker choices={q.choices ?? []} taken={s.taken} text={text} onText={(t) => setTyped({ round: s.round, t })} onPick={pickName} disabled={!canAnswer} error={error} />
+              <NamePicker choices={q.choices ?? []} taken={s.taken} text={text} onText={(t) => setTyped({ round: s.round, t })} onPick={pickName} disabled={!canAnswer} error={error} hint={hinted} />
             ))}
           {!asking && last && <PeckReveal q={q} scores={last.scores} players={s.players} me={me} />}
           {!asking && seated && last && <MyLine sc={own(last.scores, me)} q={q} />}

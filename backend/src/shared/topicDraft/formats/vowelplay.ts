@@ -7,6 +7,7 @@ import { shuffle } from "../rng";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { matches, toPuzzle } from "../party/vowelText";
 import { namesFor } from "../party/vowelSource";
+import { closestAnswer } from "../spelling";
 
 export const GUESS_MS = 20_000, SPEAK_MS = 5_000, JUDGE_MS = 6_000, REVEAL_MS = 3_000, REVEAL_ALL_MS = 5_000, DUEL_WORDS = 30, DUEL_LEAD = 5;
 
@@ -38,6 +39,8 @@ export type VPState = {
   /** Milliseconds from the start of this word to each player's right answer. */
   gotMs: Record<string, number>;
   gaveUp: string[];
+  /** Players who have had a spelling suggestion for this word: one each, so nobody can fish for it. */
+  hinted?: string[];
   history: VPHistory[];
   phaseAt: number;
   startedAt: number;
@@ -110,7 +113,7 @@ function finish(s: VPState, now: number, o: { wrongBuzz?: string; lost?: number;
 function advance(s: VPState, now: number): VPState {
   const round = s.round + 1;
   if (round >= s.total) return { ...s, done: true, phaseAt: now };
-  return { ...s, round, phase: "guess", buzzer: null, buzzMs: null, marks: {}, gotMs: {}, gaveUp: [], phaseAt: now };
+  return { ...s, round, phase: "guess", buzzer: null, buzzMs: null, marks: {}, gotMs: {}, gaveUp: [], hinted: [], phaseAt: now };
 }
 
 const allIn = (s: VPState, gone: string[] = []) => s.players.every((p) => gone.includes(p) || has(s.gotMs, p) || s.gaveUp.includes(p));
@@ -128,13 +131,24 @@ function won(s: VPState, by: string, ms: number, now: number): VPState {
   return finish({ ...s, gotMs, points: { ...s.points, [by]: (s.points[by] ?? 0) + 1 } }, now);
 }
 
-/** A typed guess. A wrong one returns the same object so a room sends nothing. */
-export function guess(s: VPState, by: string, text: string, now: number): VPState {
-  if (s.done || s.phase !== "guess" || s.answer !== "type" || !s.players.includes(by) || has(s.gotMs, by) || s.gaveUp.includes(by)) return s;
-  const ms = Math.max(0, now - s.phaseAt);
-  if (ms >= GUESS_MS) return s;
+const canGuess = (s: VPState, by: string, now: number) =>
+  !s.done && s.phase === "guess" && s.answer === "type" && s.players.includes(by) && !has(s.gotMs, by) && !s.gaveUp.includes(by) && now - s.phaseAt < GUESS_MS;
+const named = (w: VPWord, text: string) => [w.name, ...w.also].some((n) => matches(text, n));
+
+/** The name a wrong typed guess was close to, if this player has had no suggestion for this word. */
+export function nearMiss(s: VPState, by: string, text: string, now: number): string | null {
+  if (!canGuess(s, by, now) || typeof text !== "string" || s.hinted?.includes(by)) return null;
   const w = s.words[s.round]!;
-  if (typeof text !== "string" || ![w.name, ...w.also].some((n) => matches(text, n))) return s;
+  return named(w, text) ? null : closestAnswer(text, [w.name, ...w.also]);
+}
+
+/** A typed guess. A wrong one returns the same object so a room sends nothing; a near miss only notes its suggestion. */
+export function guess(s: VPState, by: string, text: string, now: number): VPState {
+  if (!canGuess(s, by, now)) return s;
+  const ms = Math.max(0, now - s.phaseAt);
+  const w = s.words[s.round]!;
+  if (nearMiss(s, by, text, now)) return { ...s, hinted: [...(s.hinted ?? []), by] };
+  if (typeof text !== "string" || !named(w, text)) return s;
   if (s.mode !== "all") return won(s, by, ms, now);
   const gotMs = { ...s.gotMs, [by]: ms };
   const next = { ...s, gotMs, points: { ...s.points, [by]: (s.points[by] ?? 0) + speedPoints(ms) } };
@@ -230,5 +244,7 @@ export function redactFor(s: VPState, me: string | null): VPState {
   const words = s.words.slice(0, s.round + 1).map((w, i) => (i === s.round && s.phase !== "reveal" && s.phase !== "judge" ? { ...w, name: "", also: [] } : w));
   // While judging, a seat sees its own mark and only that the others have voted, so nobody can follow the crowd.
   const marks = s.phase === "judge" ? Object.fromEntries(Object.keys(s.marks).map((p) => [p, p === me ? s.marks[p]! : ("voted" as const)])) : s.marks;
-  return { ...s, words, marks, seed: 0 };
+  // Who has had a suggestion is each seat's own business.
+  const hinted = (s.hinted ?? []).filter((p) => p === me);
+  return { ...s, words, marks, hinted, seed: 0 };
 }
