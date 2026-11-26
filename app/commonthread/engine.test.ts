@@ -125,7 +125,7 @@ describe("sharing", () => {
 
   it("shows the score, one square per clue and the link", () => {
     const skip = nextClue(guess(startRun(cat), cat, "W1")); // a wrong guess, then a skip, right on clue 3
-    expect(lines(guess(skip, cat, cat.label))).toEqual(["TopPic Common Thread #3 · Films 4/6", "🟥⬛🟩⬜⬜⬜", "toppicgames.com/commonthread"]);
+    expect(lines(guess(skip, cat, cat.label))).toEqual(["TopPic Common Thread #3 · Films 4/6", "🟥⬛🟩⬜⬜⬜", "toppic.io/commonthread"]);
   });
 
   it("shows a loss as X with no green", () => {

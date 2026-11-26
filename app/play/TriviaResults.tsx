@@ -28,7 +28,7 @@ export function TriviaResults({ setup, ctl, onAgain, onRematch }: { setup: GameS
 
   useEffect(() => { play(!tied && ctl.controls(top[0]) ? "win" : tied ? "reveal" : ctl.controls(top[0]) ? "win" : "lose"); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
-  const share = [`TopPic · ${setup.mission.title}`, ...ranked.map(([p, v], i) => `${i + 1}. ${p} — ${v}${unit.trim() === "M" ? "M" : " pts"}`), "Play at toppicgames.com"].join("\n");
+  const share = [`TopPic · ${setup.mission.title}`, ...ranked.map(([p, v], i) => `${i + 1}. ${p} — ${v}${unit.trim() === "M" ? "M" : " pts"}`), "Play at toppic.io"].join("\n");
   const copy = async () => { try { await navigator.clipboard.writeText(share); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* clipboard unavailable */ } };
 
   return (

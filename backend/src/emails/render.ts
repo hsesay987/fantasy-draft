@@ -12,7 +12,7 @@ const C = {
   secondary: "#a78bfa",
   accent: "#f43f5e",
 };
-const SITE = (process.env.FRONTEND_URL || "https://toppicgames.com").replace(/\/+$/, "");
+const SITE = (process.env.FRONTEND_URL || "https://toppic.io").replace(/\/+$/, "");
 const SUPPORT = "support@toppicgames.com";
 const FONT = "'Trebuchet MS','Segoe UI',Helvetica,Arial,sans-serif";
 /** The site's own background glow, rendered once as an image (public/email/bg.png). */
@@ -109,7 +109,7 @@ function layout(o: { preheader: string; title: string; eyebrow: string; hero: { 
     </td></tr>
     <tr><td align="center" style="padding:14px 16px 0;font-family:${FONT};font-size:12px;line-height:19px;color:${C.muted};">
       Questions? Just reply to this email, a real person reads it.<br>
-      TopPic Games &middot; <a href="${esc(SITE)}" style="color:${C.secondary};">toppicgames.com</a><br>
+      TopPic Games &middot; <a href="${esc(SITE)}" style="color:${C.secondary};">toppic.io</a><br>
       <span style="color:#7e7ba3;">You are getting this because of activity on your TopPic account.</span>
     </td></tr>
   </table>

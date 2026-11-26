@@ -81,5 +81,5 @@ export function compare(guess: Item, answer: Item, columns: Column[], facts: Rec
 export function shareGrid(hints: Hint[], title: string, won: boolean): string {
   const sq = (c: Cell) => (c.heat === "hit" ? "🟩" : c.heat === "warm" ? "🟨" : "⬛");
   const rows = hints.map((h) => h.cells.map(sq).join("") + ` ${h.closeness}%`);
-  return [`${title} ${won ? hints.length : "X"}/${MAX_GUESSES}`, ...rows, "toppicgames.com/pinpoint"].join("\n");
+  return [`${title} ${won ? hints.length : "X"}/${MAX_GUESSES}`, ...rows, "toppic.io/pinpoint"].join("\n");
 }
