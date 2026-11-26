@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  CLOSEST_BONUS, DAILY_COUNT, QUESTION_MS, REVEAL_MS, distance, guessRank, init, makeQuestions, next, pickName, pointsFor, redactFor, seenKeys, settle, tick,
+  CLOSEST_BONUS, DAILY_COUNT, QUESTION_MS, REVEAL_MS, distance, guessRank, init, makeQuestions, nearMiss, next, pickName, pointsFor, redactFor, seenKeys, settle, tick,
   type PeckQuestion, type PeckState,
 } from "./pecking";
 import { spanOf, type PeckList } from "../pecking/lists";
@@ -328,5 +328,34 @@ describe("pecking order engine", () => {
     const s = init({ players: ["You"], lists: [LIST], mode: "mixed", count: 5, seed: 1, now: T0, questions: [] });
     expect(s.questions).toEqual([]);
     expect(s.done).toBe(true);
+  });
+});
+
+describe("pecking order spelling help", () => {
+  it("a near miss of a list name is refused at no cost and suggests the name", () => {
+    const s = make([nameQ(4), nameQ(8)]);
+    expect(nearMiss(s, "Ann", "Novembr", T0 + 1)).toBe("November");
+    const after = pickName(s, "Ann", "Novembr", T0 + 1);
+    expect(after.answers).toEqual({});
+    expect(after.hinted).toEqual(["Ann"]);
+    expect(redactFor(after, "Bob").hinted).toEqual([]);
+    expect(pickName(after, "Ann", "November", T0 + 2).answers.Ann!.known).toBe(true);
+  });
+
+  it("one suggestion per player per question: the same text then goes in as an unlisted name", () => {
+    let s = pickName(make([nameQ(4), nameQ(8)]), "Ann", "Novembr", T0 + 1);
+    expect(nearMiss(s, "Ann", "Novembr", T0 + 2)).toBe(null);
+    expect(pickName(s, "Ann", "Novembr", T0 + 2).answers.Ann).toEqual({ guess: null, name: "Novembr", at: T0 + 2 });
+    s = tick(tick(s, T0 + QUESTION_MS + 1), T0 + QUESTION_MS + 1 + REVEAL_MS);
+    expect(s.round).toBe(1);
+    expect(s.hinted ?? []).toEqual([]);
+  });
+
+  it("suggests nothing for names taken, known, short or far off", () => {
+    const s = pickName(make([nameQ(4)]), "Bob", "November", T0 + 1);
+    expect(nearMiss(s, "Ann", "Novembr", T0 + 2)).toBe(null); // taken
+    expect(nearMiss(s, "Ann", "dee", T0 + 2)).toBe(null); // an alias, already known
+    expect(nearMiss(s, "Ann", "Gulf", T0 + 2)).toBe("Golf");
+    expect(nearMiss(s, "Ann", "Zulu", T0 + 2)).toBe(null);
   });
 });

@@ -1389,6 +1389,27 @@ describe("Vowel Play rooms", () => {
     });
   });
 
+  describe("spelling help", () => {
+    it("a near miss gets `suggest` in that guesser's reply only, once per word, and costs nothing", () => {
+      const { r, toks } = running(vp("vowelparty"), ["Ann", "Bob"]);
+      r.state = { ...st(r), words: [{ name: "Krillin", puzzle: "KRLLN", also: [] }, ...st(r).words.slice(1)] };
+      const before = st(r).points;
+      expect(act(r, toks.Ann!, { type: "guess", text: "krillion" })).toEqual({ ok: false, error: "Did you mean Krillin?", suggest: "Krillin" });
+      expect(st(r).hinted).toEqual(["Ann"]);
+      expect(st(r).points).toEqual(before);
+      expect(st(r).gotMs).toEqual({});
+      const bob = JSON.stringify(snapshot(r, toks.Bob!));
+      expect(bob).not.toContain("Krillin");
+      expect((snapshot(r, toks.Bob!) as any).state.hinted).toEqual([]);
+      expect((snapshot(r, toks.Ann!) as any).state.hinted).toEqual(["Ann"]);
+      r.guessAt = undefined;
+      expect(act(r, toks.Ann!, { type: "guess", text: "krillion" })).toEqual({ ok: false, error: "Not allowed right now" });
+      r.guessAt = undefined;
+      expect(act(r, toks.Ann!, { type: "guess", text: "Krillin" })).toEqual({ ok: true });
+      expect(st(r).gotMs.Ann).toBeDefined();
+    });
+  });
+
   describe("hidden answers", () => {
     const names = ["Ann", "Bob", "Cy"];
     const watch = (r: any, toks: Record<string, string>, buzzer: string | null) => {

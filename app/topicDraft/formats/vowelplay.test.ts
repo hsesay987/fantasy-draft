@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DUEL_WORDS, GUESS_MS, REVEAL_ALL_MS, REVEAL_MS, DUEL_LEAD, JUDGE_MS, SPEAK_MS, buzz, giveUp, guess, init, mark, redactFor, settle, speedPoints, spoke, tick, winners, type VPState, type VPMode } from "./vowelplay";
+import { DUEL_WORDS, GUESS_MS, REVEAL_ALL_MS, REVEAL_MS, DUEL_LEAD, JUDGE_MS, SPEAK_MS, buzz, giveUp, guess, init, mark, nearMiss, redactFor, settle, speedPoints, spoke, tick, winners, type VPState, type VPMode } from "./vowelplay";
 import { VOWEL_TOPICS, wordsFor } from "../party/vowelWords";
 import { toPuzzle } from "../party/vowelText";
 
@@ -433,5 +433,47 @@ describe("settle", () => {
     expect(r.forfeit).toBe("Ann");
     expect(winners(r)).toEqual(["Bo"]);
     expect(settle(r, ["Ann"], T0 + 6)).toBe(r);
+  });
+});
+
+describe("spelling help", () => {
+  // A known word in play, so the near misses are exact.
+  const krillin = (mode: VPMode = "all"): VPState => {
+    const s = mk(mode);
+    return { ...s, words: [{ name: "Krillin", puzzle: "KRLLN", also: [] }, ...s.words.slice(1)] };
+  };
+
+  it("suggests the name for a near miss and records it, at no cost", () => {
+    const s = krillin();
+    expect(nearMiss(s, "Ann", "krillion", T0 + 500)).toBe("Krillin");
+    const after = guess(s, "Ann", "krillion", T0 + 500);
+    expect(after.hinted).toEqual(["Ann"]);
+    expect(after.points).toEqual(s.points);
+    expect(after.gotMs).toEqual({});
+    expect(guess(after, "Ann", "Krillin", T0 + 900).gotMs.Ann).toBe(900 - 0);
+  });
+
+  it("gives one suggestion per player per word, and a new word starts fresh", () => {
+    let s = guess(krillin(), "Ann", "krillion", T0 + 500);
+    expect(nearMiss(s, "Ann", "krilln", T0 + 600)).toBe(null);
+    expect(guess(s, "Ann", "krilln", T0 + 600)).toBe(s);
+    expect(nearMiss(s, "Bo", "krilln", T0 + 600)).toBe("Krillin");
+    s = tick(tick(s, T0 + GUESS_MS), T0 + GUESS_MS + REVEAL_ALL_MS);
+    expect(s.round).toBe(1);
+    expect(s.hinted ?? []).toEqual([]);
+  });
+
+  it("suggests nothing when the guess is right, far off, late, or the player is done", () => {
+    const s = krillin();
+    expect(nearMiss(s, "Ann", "Krillin", T0 + 1)).toBe(null);
+    expect(nearMiss(s, "Ann", "goku", T0 + 1)).toBe(null);
+    expect(nearMiss(s, "Ann", "krillion", T0 + GUESS_MS)).toBe(null);
+    expect(nearMiss(giveUp(s, "Ann", T0 + 1), "Ann", "krillion", T0 + 2)).toBe(null);
+  });
+
+  it("each seat sees only its own suggestion mark", () => {
+    const s = guess(krillin(), "Ann", "krillion", T0 + 500);
+    expect(redactFor(s, "Ann").hinted).toEqual(["Ann"]);
+    expect(redactFor(s, "Bo").hinted).toEqual([]);
   });
 });

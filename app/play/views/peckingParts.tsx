@@ -127,7 +127,8 @@ const SUGGEST_MAX = 8;
  * "Who's #N?": a name field with suggestions from the list's names (matched loosely), names already claimed this
  * question greyed out. Anything can be sent; a name that is not on the list scores 0.
  */
-export function NamePicker({ choices, taken, text, onText, onPick, disabled, error }: { choices: string[]; taken: string[]; text: string; onText: (t: string) => void; onPick: (name: string) => void; disabled?: boolean; error?: string | null }) {
+/** `hint`: the list name a near miss was close to, now in the input; Enter sends it. */
+export function NamePicker({ choices, taken, text, onText, onPick, disabled, error, hint }: { choices: string[]; taken: string[]; text: string; onText: (t: string) => void; onPick: (name: string) => void; disabled?: boolean; error?: string | null; hint?: string | null }) {
   const takenKeys = useMemo(() => new Set(taken.map(normName)), [taken]);
   const key = normName(text);
   const hits = key ? choices.filter((c) => normName(c).includes(key)).sort((a, b) => Number(!normName(a).startsWith(key)) - Number(!normName(b).startsWith(key))).slice(0, SUGGEST_MAX) : [];
@@ -145,6 +146,7 @@ export function NamePicker({ choices, taken, text, onText, onPick, disabled, err
       </form>
       {error && <p className="pk-error" role="alert">{error}</p>}
       {exactTaken && !error && <p className="pk-error" role="status">Taken, pick another</p>}
+      {hint && !error && !exactTaken && <p className="pk-hint" role="status">Did you mean {hint}? Press Enter to submit.</p>}
       {hits.length > 0 && (
         <ul className="pk-suggest" aria-label="Names on the list">
           {hits.map((c) => {

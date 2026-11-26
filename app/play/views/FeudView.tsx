@@ -22,6 +22,8 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const s = ctl.state as FD.FeudState;
   const [text, setText] = useState("");
+  // Spelling help: the answer a near miss was close to, now in the input. Cleared by typing or a new turn.
+  const [hint, setHint] = useState<{ turn: string; answer: string } | null>(null);
   // Suggestions come from every survey answer for this topic, so they never reveal which ones are on this board.
   const vocab = useMemo(() => [...new Set(surveysFor(setup.pool).flatMap((x) => [...x.answers, ...x.decoys]))].sort(), [setup.pool]);
   // When a round ends, every answer is shown (found ones green, missed ones red) until the player moves on.
@@ -59,12 +61,19 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const done = review != null ? s.rounds[review] : null;
   const q = text.trim().toLowerCase();
   const suggestions = q.length >= 2 ? vocab.filter((v) => v.toLowerCase().includes(q) && !r.found[v]).slice(0, 6) : [];
-  const submit = (answer: string) => {
+  const turnKey = `${s.round}-${s.turn}`;
+  const suggested = hint?.turn === turnKey ? hint.answer : null;
+  const submit = async (answer: string) => {
     if (!mine || answer.trim().length < 2) return;
     const good = FD.matchAnswer(answer, r.board);
-    ctl.dispatch({ type: "answer", by: player, choice: answer.trim() });
-    if (good) play("pick");
     setText("");
+    setHint(null);
+    if (good) play("pick");
+    const res = await ctl.dispatch({ type: "answer", by: player, choice: answer.trim() });
+    if (res?.suggest) {
+      setText(res.suggest);
+      setHint({ turn: turnKey, answer: res.suggest });
+    }
   };
 
   return (
@@ -115,17 +124,18 @@ export function FeudView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
               </li>
             ))}
           </ol>
-          <form className="mt-5 space-y-2" onSubmit={(e) => { e.preventDefault(); submit(text); }}>
+          <form className="mt-5 space-y-2" onSubmit={(e) => { e.preventDefault(); void submit(text); }}>
             <label className="px-note" htmlFor="feud-answer">{mine ? `${player}, type your answer` : `${player} is answering…`}</label>
             <div className="px-term">
               <div className="in"><span>&gt;</span>
-                <input id="feud-answer" autoComplete="off" autoFocus disabled={!mine} value={text} onChange={(e) => setText(e.target.value)} placeholder="type a name" />
+                <input id="feud-answer" autoComplete="off" autoFocus disabled={!mine} value={text} onChange={(e) => { setText(e.target.value); setHint(null); }} placeholder="type a name" aria-describedby={mine && suggested ? "feud-hint" : undefined} />
               </div>
               <PixelButton type="submit" disabled={!mine || text.trim().length < 2}>ENTER</PixelButton>
             </div>
-            {mine && suggestions.length > 0 && (
+            {mine && suggested && <p id="feud-hint" className="px-note text-[var(--px-gold)]" role="status">Did you mean {suggested}? Press Enter to submit.</p>}
+            {mine && !suggested && suggestions.length > 0 && (
               <ul className="m-0 flex list-none flex-wrap gap-2 p-0" aria-label="Suggestions">
-                {suggestions.map((v) => <li key={v}><button type="button" onClick={() => submit(v)} className="px-chip cursor-pointer border-0 hover:text-[var(--px-gold)]">{v}</button></li>)}
+                {suggestions.map((v) => <li key={v}><button type="button" onClick={() => void submit(v)} className="px-chip cursor-pointer border-0 hover:text-[var(--px-gold)]">{v}</button></li>)}
               </ul>
             )}
           </form>

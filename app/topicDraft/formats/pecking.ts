@@ -7,6 +7,7 @@ import { spanOf, type PeckItem, type PeckList } from "../pecking/types";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { has, own } from "../party/own";
 import { next as rand, shuffle } from "../rng";
+import { closestAnswer } from "../spelling";
 
 export const QUESTION_MS = 20_000, REVEAL_MS = 8_000, CLOSEST_BONUS = 20, DAILY_COUNT = 5;
 /** Longest unknown name kept from what a player typed. */
@@ -39,6 +40,8 @@ export type PeckState = {
   answers: Record<string, PeckAnswer>;
   /** Name kind: canonical names already claimed this question (never who claimed them). */
   taken: string[];
+  /** Name kind: players who have had a spelling suggestion this question. One each, so a real off-list name still goes in. */
+  hinted?: string[];
   points: Record<string, number>;
   history: { scores: Record<string, PeckScore> }[];
   phaseAt: number;
@@ -167,12 +170,22 @@ function lookup(q: PeckQuestion, text: string) {
   return q.pool.find((p) => normName(p.name) === k) ?? q.pool.find((p) => (p.aliases ?? []).some((a) => normName(a) === k)) ?? null;
 }
 
+/** The untaken list name an unknown pick was close to, if this player has had no suggestion this question. */
+export function nearMiss(s: PeckState, by: string, text: unknown, now: number): string | null {
+  if (!open(s, by, "name", now) || typeof text !== "string" || s.hinted?.includes(by)) return null;
+  const q = s.questions[s.round]!;
+  if (lookup(q, text)) return null;
+  return closestAnswer(text.slice(0, NAME_MAX), (q.pool ?? []).map((p) => p.name).filter((n) => !s.taken.includes(n)));
+}
+
 /**
  * "Who's at #N?": a known name is claimed for this question, and a later pick of it is refused (that player may pick
- * again). A name not on the list is accepted, scores 0, and claims nothing.
+ * again). A near miss of a list name is refused once with a suggestion. Any other name not on the list is accepted,
+ * scores 0, and claims nothing.
  */
 export function pickName(s: PeckState, by: string, text: unknown, now: number): PeckState {
   if (!open(s, by, "name", now) || typeof text !== "string" || !text.trim()) return s;
+  if (nearMiss(s, by, text, now)) return { ...s, hinted: [...(s.hinted ?? []), by] };
   const hit = lookup(s.questions[s.round]!, text);
   if (!hit) return record(s, by, { guess: null, name: text.trim().slice(0, NAME_MAX), at: now }, s.taken, now);
   if (s.taken.includes(hit.name)) return s;
@@ -224,7 +237,7 @@ function reveal(s: PeckState, now: number): PeckState {
 function advance(s: PeckState, now: number): PeckState {
   const round = s.round + 1;
   if (round >= s.questions.length) return { ...s, done: true, phaseAt: now };
-  return { ...s, round, phase: "question", answers: {}, taken: [], phaseAt: now };
+  return { ...s, round, phase: "question", answers: {}, taken: [], hinted: [], phaseAt: now };
 }
 
 /** Closes the question early once every player still at the table (not in `gone`) has answered. */
@@ -262,7 +275,7 @@ export function redactFor(s: PeckState, me: string | null): PeckView {
     return { ...rest, answer };
   });
   const answers = asking ? Object.fromEntries(Object.entries(s.answers).map(([p, a]) => [p, p === me ? a : { guess: null, at: 0 }])) : s.answers;
-  return { ...s, questions, answers, total };
+  return { ...s, questions, answers, hinted: (s.hinted ?? []).filter((p) => p === me), total };
 }
 
 /** `pk:<list>:<name>` for each item asked so far: what a later game's `avoid` takes. */
