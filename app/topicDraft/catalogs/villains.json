@@ -308,7 +308,8 @@
    "villain",
    "magic",
    "water"
-  ]
+  ],
+  "q": "Ursula (The Little Mermaid)"
  },
  {
   "id": "scar",
@@ -325,7 +326,8 @@
   "tags": [
    "villain",
    "leader"
-  ]
+  ],
+  "q": "Scar (The Lion King)"
  },
  {
   "id": "jafar",
@@ -342,7 +344,8 @@
   "tags": [
    "villain",
    "magic"
-  ]
+  ],
+  "q": "Jafar (Aladdin)"
  },
  {
   "id": "cruella-de-vil",
@@ -393,7 +396,8 @@
   "tags": [
    "villain",
    "human"
-  ]
+  ],
+  "q": "Gaston (Beauty and the Beast)"
  },
  {
   "id": "hades",
@@ -411,7 +415,8 @@
    "villain",
    "god",
    "magic"
-  ]
+  ],
+  "q": "Hades (Disney)"
  },
  {
   "id": "syndrome",
@@ -428,7 +433,8 @@
   "tags": [
    "villain",
    "tech"
-  ]
+  ],
+  "q": "Syndrome (The Incredibles)"
  },
  {
   "id": "lotso",
@@ -653,7 +659,8 @@
   "tags": [
    "villain",
    "flyer"
-  ]
+  ],
+  "q": "Sephiroth (Final Fantasy)"
  },
  {
   "id": "handsome-jack",

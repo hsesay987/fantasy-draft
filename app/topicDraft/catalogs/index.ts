@@ -46,7 +46,7 @@ const dedupe = (...lists: Item[][]): Item[] => {
 
 /** Which public image source suits each pool (none = initials avatar). Query format: "kind:name". */
 const IMAGE_KIND: Record<string, string> = {
-  superheroes: "hero", villains: "hero", "heroes-villains": "hero", anime: "anilist", pokemon: "poke", history: "wiki", football: "wiki", films: "wiki", shows: "wiki", nba: "wiki",
+  superheroes: "herowiki", villains: "herowiki", "heroes-villains": "herowiki", anime: "anilist", pokemon: "poke", videogames: "wiki", disney: "wiki", movies: "wiki", history: "wiki", football: "wiki", films: "wiki", shows: "wiki", nba: "wiki",
   food: "wiki", geography: "wiki", books: "wiki", music: "wiki", flags: "flag", mythology: "wiki", animals: "wiki", celebrities: "wiki",
 };
 

@@ -31,7 +31,8 @@
   "tags": [
    "ice",
    "magic"
-  ]
+  ],
+  "q": "Elsa (Frozen)"
  },
  {
   "id": "simba",
@@ -65,7 +66,8 @@
   "tags": [
    "rogue",
    "acrobat"
-  ]
+  ],
+  "q": "Aladdin (Disney character)"
  },
  {
   "id": "genie",
@@ -81,7 +83,8 @@
   },
   "tags": [
    "magic"
-  ]
+  ],
+  "q": "Genie (Aladdin)"
  },
  {
   "id": "mulan",
@@ -98,7 +101,8 @@
   "tags": [
    "warrior",
    "leader"
-  ]
+  ],
+  "q": "Mulan (Disney character)"
  },
  {
   "id": "hercules",
@@ -115,7 +119,8 @@
   "tags": [
    "god",
    "strength"
-  ]
+  ],
+  "q": "Hercules (Disney character)"
  },
  {
   "id": "moana",
@@ -149,7 +154,8 @@
   "tags": [
    "god",
    "shapeshifter"
-  ]
+  ],
+  "q": "Maui (Disney)"
  },
  {
   "id": "rapunzel",
@@ -166,7 +172,8 @@
   "tags": [
    "healing",
    "hair"
-  ]
+  ],
+  "q": "Rapunzel (Disney)"
  },
  {
   "id": "tarzan",
@@ -200,7 +207,8 @@
   "tags": [
    "alien",
    "chaos"
-  ]
+  ],
+  "q": "Stitch (Lilo & Stitch)"
  },
  {
   "id": "baymax",
@@ -235,7 +243,8 @@
   "tags": [
    "leader",
    "toy"
-  ]
+  ],
+  "q": "Sheriff Woody"
  },
  {
   "id": "buzz-lightyear",
@@ -287,7 +296,8 @@
   "tags": [
    "tank",
    "monster"
-  ]
+  ],
+  "q": "James P. Sullivan"
  },
  {
   "id": "nemo-s-dory",
@@ -355,7 +365,8 @@
   "tags": [
    "chef",
    "rat"
-  ]
+  ],
+  "q": "Remy (Ratatouille)"
  },
  {
   "id": "mr-incredible",
@@ -406,7 +417,8 @@
   "tags": [
    "chaos",
    "shapeshifter"
-  ]
+  ],
+  "q": "Jack-Jack Parr"
  },
  {
   "id": "merida",
@@ -423,7 +435,8 @@
   "tags": [
    "ranged",
    "archer"
-  ]
+  ],
+  "q": "Merida (Brave)"
  },
  {
   "id": "scar",
@@ -440,7 +453,8 @@
   "tags": [
    "villain",
    "leader"
-  ]
+  ],
+  "q": "Scar (The Lion King)"
  },
  {
   "id": "maleficent",
@@ -474,7 +488,8 @@
   "tags": [
    "villain",
    "magic"
-  ]
+  ],
+  "q": "Ursula (The Little Mermaid)"
  },
  {
   "id": "captain-hook",
@@ -508,7 +523,8 @@
    "villain",
    "god",
    "magic"
-  ]
+  ],
+  "q": "Hades (Disney)"
  },
  {
   "id": "gaston",
@@ -524,7 +540,8 @@
   },
   "tags": [
    "villain"
-  ]
+  ],
+  "q": "Gaston (Beauty and the Beast)"
  },
  {
   "id": "jafar",
@@ -541,7 +558,8 @@
   "tags": [
    "villain",
    "magic"
-  ]
+  ],
+  "q": "Jafar (Aladdin)"
  },
  {
   "id": "syndrome",
@@ -558,7 +576,8 @@
   "tags": [
    "villain",
    "tech"
-  ]
+  ],
+  "q": "Syndrome (The Incredibles)"
  },
  {
   "id": "lotso",
@@ -609,7 +628,8 @@
   "tags": [
    "ice",
    "support"
-  ]
+  ],
+  "q": "Olaf (Frozen)"
  },
  {
   "id": "mushu",

@@ -177,7 +177,8 @@
   "tags": [
    "romance",
    "epic"
-  ]
+  ],
+  "q": "Titanic (1997 film)"
  },
  {
   "id": "avatar",
@@ -195,7 +196,8 @@
   "tags": [
    "scifi",
    "visual"
-  ]
+  ],
+  "q": "Avatar (2009 film)"
  },
  {
   "id": "avengers-endgame",
@@ -231,7 +233,8 @@
   "tags": [
    "thriller",
    "modern"
-  ]
+  ],
+  "q": "Parasite (2019 film)"
  },
  {
   "id": "interstellar",
@@ -249,7 +252,8 @@
   "tags": [
    "scifi",
    "emotional"
-  ]
+  ],
+  "q": "Interstellar (film)"
  },
  {
   "id": "fight-club",
@@ -285,7 +289,8 @@
   "tags": [
    "epic",
    "action"
-  ]
+  ],
+  "q": "Gladiator (2000 film)"
  },
  {
   "id": "the-lord-of-the-rings-the-return-of-the-king",
@@ -447,7 +452,8 @@
   "tags": [
    "thriller",
    "classic"
-  ]
+  ],
+  "q": "The Silence of the Lambs (film)"
  },
  {
   "id": "whiplash",
@@ -465,7 +471,8 @@
   "tags": [
    "drama",
    "intense"
-  ]
+  ],
+  "q": "Whiplash (2014 film)"
  },
  {
   "id": "mad-max-fury-road",
@@ -519,7 +526,8 @@
   "tags": [
    "horror",
    "scifi"
-  ]
+  ],
+  "q": "Alien (film)"
  },
  {
   "id": "die-hard",
@@ -591,7 +599,8 @@
   "tags": [
    "comedy",
    "cult"
-  ]
+  ],
+  "q": "Anchorman: The Legend of Ron Burgundy"
  },
  {
   "id": "get-out",
@@ -646,7 +655,8 @@
    "drama",
    "historical",
    "modern"
-  ]
+  ],
+  "q": "Oppenheimer (film)"
  },
  {
   "id": "barbie",
@@ -664,7 +674,8 @@
   "tags": [
    "comedy",
    "modern"
-  ]
+  ],
+  "q": "Barbie (film)"
  },
  {
   "id": "dune-part-two",
@@ -754,7 +765,8 @@
   "tags": [
    "animation",
    "emotional"
-  ]
+  ],
+  "q": "Up (2009 film)"
  },
  {
   "id": "inglourious-basterds",
@@ -826,7 +838,8 @@
   "tags": [
    "classic",
    "romance"
-  ]
+  ],
+  "q": "Casablanca (film)"
  },
  {
   "id": "citizen-kane",
@@ -862,7 +875,8 @@
   "tags": [
    "animation",
    "feelgood"
-  ]
+  ],
+  "q": "Ratatouille (film)"
  },
  {
   "id": "home-alone",
@@ -916,7 +930,8 @@
   "tags": [
    "superhero",
    "modern"
-  ]
+  ],
+  "q": "Black Panther (film)"
  },
  {
   "id": "top-gun-maverick",
@@ -952,7 +967,8 @@
   "tags": [
    "dark",
    "modern"
-  ]
+  ],
+  "q": "Joker (2019 film)"
  },
  {
   "id": "shrek",
@@ -1060,7 +1076,8 @@
   "tags": [
    "mindbender",
    "thriller"
-  ]
+  ],
+  "q": "Memento (film)"
  },
  {
   "id": "coco",
@@ -1078,7 +1095,8 @@
   "tags": [
    "animation",
    "emotional"
-  ]
+  ],
+  "q": "Coco (2017 film)"
  },
  {
   "id": "the-good-the-bad-and-the-ugly",
@@ -1111,7 +1129,7 @@
    "rewatch": 84
   },
   "tags": [],
-  "q": "Spider-Man",
+  "q": "Spider-Man (2002 film)",
   "ratedBy": "gemini+groq"
  },
  {
@@ -1145,7 +1163,7 @@
    "rewatch": 88
   },
   "tags": [],
-  "q": "Lawrence of Arabia",
+  "q": "Lawrence of Arabia (film)",
   "ratedBy": "groq+gemini"
  },
  {
@@ -1213,7 +1231,7 @@
    "rewatch": 85
   },
   "tags": [],
-  "q": "300",
+  "q": "300 (film)",
   "ratedBy": "groq+gemini"
  },
  {
@@ -1247,7 +1265,7 @@
    "rewatch": 92
   },
   "tags": [],
-  "q": "Psycho",
+  "q": "Psycho (1960 film)",
   "ratedBy": "groq+gemini"
  },
  {
@@ -1264,7 +1282,7 @@
    "rewatch": 85
   },
   "tags": [],
-  "q": "Dr. No",
+  "q": "Dr. No (film)",
   "ratedBy": "gemini+groq"
  },
  {
@@ -1332,7 +1350,7 @@
    "rewatch": 91
   },
   "tags": [],
-  "q": "Deadpool",
+  "q": "Deadpool (film)",
   "ratedBy": "gemini+groq"
  },
  {
@@ -1366,7 +1384,7 @@
    "rewatch": 88
   },
   "tags": [],
-  "q": "Casino Royale",
+  "q": "Casino Royale (2006 film)",
   "ratedBy": "gemini+groq"
  },
  {
@@ -1383,7 +1401,7 @@
    "rewatch": 86
   },
   "tags": [],
-  "q": "Shutter Island",
+  "q": "Shutter Island (film)",
   "ratedBy": "gemini+groq"
  },
  {
@@ -1519,7 +1537,7 @@
    "rewatch": 88
   },
   "tags": [],
-  "q": "Metropolis",
+  "q": "Metropolis (1927 film)",
   "ratedBy": "groq+gemini"
  },
  {
@@ -1570,7 +1588,7 @@
    "rewatch": 80
   },
   "tags": [],
-  "q": "Spartacus",
+  "q": "Spartacus (film)",
   "ratedBy": "gemini+groq"
  }
 ]

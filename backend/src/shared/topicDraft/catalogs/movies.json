@@ -14,7 +14,8 @@
   "tags": [
    "assassin",
    "human"
-  ]
+  ],
+  "q": "John Wick (character)"
  },
  {
   "id": "indiana-jones",
@@ -31,7 +32,8 @@
   "tags": [
    "explorer",
    "human"
-  ]
+  ],
+  "q": "Indiana Jones (character)"
  },
  {
   "id": "james-bond",
@@ -100,7 +102,8 @@
   "tags": [
    "chosen",
    "tech"
-  ]
+  ],
+  "q": "Neo (The Matrix)"
  },
  {
   "id": "sarah-connor",
@@ -116,7 +119,8 @@
   },
   "tags": [
    "survivor"
-  ]
+  ],
+  "q": "Sarah Connor (Terminator)"
  },
  {
   "id": "rocky-balboa",
@@ -235,7 +239,8 @@
   "tags": [
    "tank",
    "axe"
-  ]
+  ],
+  "q": "Gimli (Middle-earth)"
  },
  {
   "id": "darth-vader",
@@ -353,7 +358,8 @@
   "tags": [
    "magic",
    "leader"
-  ]
+  ],
+  "q": "Harry Potter (character)"
  },
  {
   "id": "hermione-granger",
@@ -438,7 +444,8 @@
   "tags": [
    "villain",
    "stalker"
-  ]
+  ],
+  "q": "Ghostface (identity)"
  },
  {
   "id": "hannibal-lecter",
@@ -472,7 +479,8 @@
   "tags": [
    "survivor",
    "driver"
-  ]
+  ],
+  "q": "Max Rockatansky"
  },
  {
   "id": "jason-bourne",
@@ -573,7 +581,8 @@
   "tags": [
    "support",
    "comedy"
-  ]
+  ],
+  "q": "Donkey (Shrek)"
  },
  {
   "id": "jaws-shark",
@@ -641,7 +650,8 @@
   "tags": [
    "soldier",
    "survivor"
-  ]
+  ],
+  "q": "John Rambo"
  },
  {
   "id": "wednesday-addams",
