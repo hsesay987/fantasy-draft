@@ -91,3 +91,29 @@ export const aiTier = (niche: number): Tier => {
   const n = Number.isFinite(niche) ? Math.min(100, Math.max(0, niche)) : 0;
   return n < 20 ? "common" : n < 45 ? "solid" : "rare";
 };
+
+// NPAT question style: each round draws a letter and asks one open question (npat/questions.ts), 20 s to answer.
+export const QUESTION_MIN_ROUNDS = 3;
+export const QUESTION_MAX_ROUNDS = 12;
+export const QUESTION_DEFAULT_ROUNDS = 8;
+/** Letters a question round can draw: the hard four plus U and V leave too few answers for an open question. */
+export const QUESTION_LETTERS = lettersFor(false).filter((l) => l !== "U" && l !== "V");
+/** Every accepted answer is worth the same: 10, or 5 when someone else gave it too (TIER_POINTS.common, halved). */
+export const QUESTION_TIER: Tier = "common";
+
+/**
+ * A question-style answer as the letter check and the grouping see it. `text` drops a leading "a", "an", "the" or
+ * "some" (answers to "Something you'd bring..." invite "a towel"); `key` also folds simple plurals, so "Sandwich" and
+ * "sandwiches" are the same answer. A rough fold, not a stemmer: it only has to make obvious twins meet.
+ */
+export function questionAnswer(raw: string): { text: string; key: string } {
+  const text = raw.trim().replace(/^(?:a|an|the|some)\s+(?=\S)/i, "");
+  let k = normAnswer(text);
+  // Plurals: "-es" only goes after ss, x, z, ch or sh (boxes, dishes, glasses), else a lone "-s" (houses, tapes).
+  if (k.length > 4 && /(?:ss|x|z|ch|sh)es$/.test(k)) k = k.slice(0, -2);
+  else if (k.length > 3 && k.endsWith("s") && !k.endsWith("ss")) k = k.slice(0, -1);
+  // cookie/cookie(s) and cherry/cherrie(s) meet on a final "i"; a final "e" otherwise stays (tape is not tap).
+  if (k.length > 3 && k.endsWith("ie")) k = k.slice(0, -1);
+  else if (k.length > 2 && /[^aeiou]y$/.test(k)) k = `${k.slice(0, -1)}i`;
+  return { text, key: k };
+}

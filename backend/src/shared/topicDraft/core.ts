@@ -28,9 +28,10 @@ import * as NP from "./formats/npat";
 import * as DIG from "./formats/npatDig";
 import * as DG from "./formats/dodge";
 import { dodgeDeckOf } from "./dodge/decks";
+import * as NQ from "./formats/npatQuestion";
 import { NPAT_SETS, categoryOf, setOf } from "./npat/categories";
 import { lettersAvailable } from "./npat/source";
-import { digCountOk } from "./npat/rules";
+import { digCountOk, QUESTION_DEFAULT_ROUNDS } from "./npat/rules";
 import { listFor } from "./pecking/source";
 import { deckOf } from "./party/decks";
 import { insyncDeckOf } from "./party/insyncDecks";
@@ -144,6 +145,9 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "dodge":
       return DG.init({ players: setup.players, decks: poolsOf(setup), categories: poolsOf(setup).flatMap((id) => dodgeDeckOf(id)?.categories ?? []), laps: o.dodgeLaps ?? 1, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
     case "npat": {
+      if (npatIsQuestion(setup)) {
+        return NQ.init({ players: setup.players, rounds: o.npatRounds ?? QUESTION_DEFAULT_ROUNDS, teams: o.teams, teamMap: o.teamMap, avoid: o.avoid, drinking: o.drinking, seed: setup.seed, now });
+      }
       if (npatIsDig(setup)) {
         const picked = npatPicked(poolsOf(setup));
         const categories = digCountOk(picked.length) && lettersAvailable(picked, false).length ? picked : NPAT_DIG_IDS;
@@ -174,10 +178,14 @@ export function npatPicked(pools: string[]): string[] {
 }
 
 /**
- * Does this NPAT game dig (one category at a time) or fill a sheet? The lobby always says. A setup that doesn't
- * (an older client or saved room) plays the sheet, as it did before the dig existed.
+ * Does this NPAT game play on the dig's engine (one category, or in question style one question, at a time) or fill a
+ * sheet? The lobby always says. A setup that doesn't (an older client or saved room) plays the sheet, as it did before
+ * the dig existed.
  */
-export const npatIsDig = (setup: Pick<GameSetup, "format" | "opts">): boolean => setup.format === "npat" && setup.opts.npatStyle === "dig";
+export const npatIsDig = (setup: Pick<GameSetup, "format" | "opts">): boolean => setup.format === "npat" && (setup.opts.npatStyle === "dig" || setup.opts.npatStyle === "question");
+
+/** Question style: one open question a round, each with its own letter. Set up by npatQuestion, then played as a dig. */
+export const npatIsQuestion = (setup: Pick<GameSetup, "format" | "opts">): boolean => setup.format === "npat" && setup.opts.npatStyle === "question";
 
 /** The categories a Name Place Animal Thing game plays: set ids and `cat:<id>` picks merged in order, de-duplicated, capped
  * at 6. Unknown ids are ignored; nothing valid, or no letter that suits the mix, falls back to the Classic set. */

@@ -115,15 +115,24 @@ export function NpatDigView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   );
 }
 
-/** The screen (or a seat that left) while answering: the category, and who has locked in. Never anyone's words. */
-function TvAsk({ s, out }: { s: DigView; out: boolean }) {
+/** What the ask shows: a category with its cards, or in question style (`letters` set) the round's question. */
+function promptOf(s: DigView) {
   const category = s.categories[s.cat] ?? "";
+  if (s.letters) {
+    return { cards: false, eyebrow: `Round ${s.cat + 1} of ${s.categories.length}`, title: category, blurb: "Answer the question", label: `Your answer starting with ${s.letter}` };
+  }
+  return { cards: true, eyebrow: `Category ${s.cat + 1} of ${s.categories.length}`, title: catTitle(category), blurb: categoryOf(category)?.blurb ?? "", label: `${catTitle(category)} starting with ${s.letter}` };
+}
+
+/** The screen (or a seat that left) while answering: the category, and who has locked in. Never anyone's words. */
+export function TvAsk({ s, out }: { s: DigView; out: boolean }) {
+  const p = promptOf(s);
   return (
     <section className="px-box np-card np-tv" aria-label="Answering">
-      <CategoryCards categories={s.categories} at={s.cat} />
-      <p className="np-eyebrow">Category {s.cat + 1} of {s.categories.length}</p>
-      <h2 key={s.cat} className="np-title np-reveal">{catTitle(category)} starting with {s.letter}</h2>
-      <p className="np-msg">{out ? "You left the table. Watching." : `${categoryOf(category)?.blurb ?? ""}. Skip your first thought.`}</p>
+      {p.cards && <CategoryCards categories={s.categories} at={s.cat} />}
+      <p className="np-eyebrow">{p.eyebrow}</p>
+      <h2 key={s.cat} className="np-title np-reveal">{p.title} starting with {s.letter}</h2>
+      <p className="np-msg">{out ? "You left the table. Watching." : `${p.blurb}. Skip your first thought.`}</p>
       <ul className="np-groups" aria-label="Locked in">
         {s.players.map((p) => (
           <li key={p} className={s.locked.includes(p) ? "k-ok" : "k-blank"}>
@@ -139,8 +148,8 @@ function TvAsk({ s, out }: { s: DigView; out: boolean }) {
  * A player's answer for the open category: saved a moment after typing stops (each save replaces the last), sent the
  * moment the clock runs out (the server takes it half a second past the deadline), and locked in with Lock in.
  */
-function AskDesk({ s, me, offset, dispatch, play }: { s: DigView; me: string; offset: number; dispatch: Dispatch; play: Play }) {
-  const category = s.categories[s.cat] ?? "";
+export function AskDesk({ s, me, offset, dispatch, play }: { s: DigView; me: string; offset: number; dispatch: Dispatch; play: Play }) {
+  const prompt = promptOf(s);
   const [text, setText] = useState(() => own(s.typed, me) ?? "");
   const textRef = useRef(text);
   const sent = useRef(text);
@@ -208,13 +217,13 @@ function AskDesk({ s, me, offset, dispatch, play }: { s: DigView; me: string; of
   const open = !locked && !expired;
   return (
     <section className="px-box np-card" aria-label="Your answer">
-      <CategoryCards categories={s.categories} at={s.cat} />
-      <p className="np-eyebrow">Category {s.cat + 1} of {s.categories.length}</p>
-      <h2 className="np-title np-reveal">{catTitle(category)}</h2>
-      <p className="np-msg">{categoryOf(category)?.blurb}. Starts with <b>{s.letter}</b>.</p>
+      {prompt.cards && <CategoryCards categories={s.categories} at={s.cat} />}
+      <p className="np-eyebrow">{prompt.eyebrow}</p>
+      <h2 className="np-title np-reveal">{prompt.title}</h2>
+      <p className="np-msg">{prompt.blurb}. Starts with <b>{s.letter}</b>.</p>
       <form className="np-fields" onSubmit={(e) => { e.preventDefault(); void lockIn(); }} autoComplete="off">
         <label className="np-field">
-          <span className="lbl">{catTitle(category)} starting with {s.letter}</span>
+          <span className="lbl">{prompt.label}</span>
           <input
             ref={input} value={text} maxLength={ANSWER_MAX} disabled={!open}
             onChange={(e) => { textRef.current = e.target.value; setText(e.target.value); saver.current?.changed(0); }}

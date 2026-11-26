@@ -1,12 +1,14 @@
 // NPAT v2 "Dig": one letter, five categories asked one at a time. Each answer is checked against the lists when its
 // category closes; answers not on the lists go to a short judge phase (the server or browser feeds `judged`), then the
 // category's gems and points are shown. Pure: the server runs it for rooms and the browser for solo.
+// Question style (npatQuestion.ts) plays on the same state: `letters` holds one letter per round and `categories` the
+// questions, every answer goes to the judge, and every accepted answer is worth the same.
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { has, own } from "../party/own";
 import { buildTeams, TEAM_MIN_PLAYERS } from "../party/teams";
 import { shuffle } from "../rng";
 import {
-  aiTier, ANSWER_MAX, DIG_ANSWER_MS, DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk, JUDGE_MS, normAnswer, REEL_MS, sharedPoints, startsWith, TIER_POINTS,
+  aiTier, ANSWER_MAX, questionAnswer, QUESTION_TIER, DIG_ANSWER_MS, DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk, JUDGE_MS, normAnswer, REEL_MS, sharedPoints, startsWith, TIER_POINTS,
   VERDICT_MS, WRITE_GRACE_MS, type Tier,
 } from "../npat/rules";
 import { lettersAvailable, lookup, tierOf } from "../npat/source";
@@ -29,8 +31,12 @@ export type DigAnswer = {
 export type DigState = {
   players: string[];
   teams: string[][] | null;
+  /** Category ids, or in question style the questions themselves. */
   categories: string[];
+  /** The open category's letter (in question style, the open round's). */
   letter: string;
+  /** Question style only: one letter per round, each drawn by its own reel. */
+  letters?: string[];
   phase: "reel" | "ask" | "judge" | "verdict" | "summary";
   cat: number;
   /** What each player has typed for the open category; cleared when it closes. */
@@ -60,12 +66,16 @@ const BLANK: DigAnswer = { text: "", entry: null, status: "blank", points: 0, ti
 
 export function init(o: {
   players: string[]; categories: string[]; teams: number; teamMap: Record<string, number>; avoid?: string[];
-  letter?: string; strict?: boolean; drinking?: boolean; seed: number; now: number;
+  letter?: string; letters?: string[]; strict?: boolean; drinking?: boolean; seed: number; now: number;
 }): DigState {
-  if (!digCountOk(o.categories.length)) throw new Error(`NPAT dig: needs ${DIG_CATEGORIES} to ${DIG_MAX_CATEGORIES} categories`);
+  const questions = Array.isArray(o.letters);
+  if (questions ? !o.categories.length || o.letters!.length !== o.categories.length || !o.letters!.every((l) => /^[A-Z]$/.test(l)) : !digCountOk(o.categories.length)) {
+    throw new Error(questions ? "NPAT questions: needs one letter per question" : `NPAT dig: needs ${DIG_CATEGORIES} to ${DIG_MAX_CATEGORIES} categories`);
+  }
   let seed = o.seed;
   let letter: string;
-  if (typeof o.letter === "string" && /^[a-z]$/i.test(o.letter)) letter = o.letter.toUpperCase();
+  if (questions) letter = o.letters![0]!;
+  else if (typeof o.letter === "string" && /^[a-z]$/i.test(o.letter)) letter = o.letter.toUpperCase();
   else {
     const all = lettersAvailable(o.categories, false);
     if (all.length === 0) throw new Error("NPAT: no letter has enough answers in every chosen category");
@@ -78,7 +88,7 @@ export function init(o: {
   const built = o.teams >= 2 && o.players.length >= TEAM_MIN_PLAYERS ? buildTeams(o.players, o.teams, o.teamMap ?? {}).filter((t) => t.length > 0) : [];
   const teams = built.length >= 2 ? built : null;
   return {
-    players: o.players, teams, categories: o.categories, letter, phase: "reel", cat: 0, typed: {}, locked: [],
+    players: o.players, teams, categories: o.categories, letter, ...(questions ? { letters: [...o.letters!] } : {}), phase: "reel", cat: 0, typed: {}, locked: [],
     results: Object.fromEntries(o.players.map((p) => [p, []])), points: Object.fromEntries(o.players.map((p) => [p, 0])),
     teamPoints: teams ? teams.map(() => 0) : [], gone: [], phaseAt: o.now, startedAt: o.now, done: false, seed,
     ...(o.strict ? { strict: true } : {}), ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),
@@ -105,11 +115,13 @@ export function lock(s: DigState, by: string, now: number): DigState {
 
 const allLocked = (s: DigState) => here(s).length > 0 && here(s).every((p) => s.locked.includes(p));
 
-function classify(category: string, letter: string, raw: string): DigAnswer {
-  const text = raw.trim();
+/** `lists` false (question style): no list lookup, every right-letter answer waits for the judge. */
+function classify(category: string, letter: string, raw: string, lists: boolean): DigAnswer {
+  const text = lists ? raw.trim() : questionAnswer(raw).text;
   if (!normAnswer(text)) return BLANK;
   // Only what was typed counts for the letter: an entry's name or aliases never rescue an answer starting with another.
   if (!startsWith(letter, text)) return { ...BLANK, text, status: "wrong-letter" };
+  if (!lists) return { ...BLANK, text, status: "unknown" };
   const e = lookup(category, text);
   return e ? { ...BLANK, text, entry: e.name, status: "ok", tier: tierOf(category, e) } : { ...BLANK, text, status: "unknown" };
 }
@@ -119,7 +131,7 @@ function closeAsk(s: DigState, now: number): DigState {
   const category = s.categories[s.cat]!;
   const results = Object.fromEntries(s.players.map((p) => {
     const raw = s.gone.includes(p) ? "" : (own(s.typed, p) ?? "");
-    return [p, [...(own(s.results, p) ?? []), classify(category, s.letter, raw)]];
+    return [p, [...(own(s.results, p) ?? []), classify(category, s.letter, raw, !s.letters)]];
   }));
   const t: DigState = { ...s, results, typed: {}, locked: [] };
   return pendingUnknowns({ ...t, phase: "judge" }).length ? { ...t, phase: "judge", phaseAt: now } : verdict(t, now);
@@ -146,8 +158,11 @@ export function judged(s: DigState, verdicts: DigVerdict[], now: number): DigSta
     if (!v || typeof v.player !== "string" || typeof v.ok !== "boolean" || !t.players.includes(v.player)) continue;
     if (answerAt(t, v.player).status !== "unknown") continue;
     const reason = typeof v.reason === "string" ? v.reason.slice(0, 200) : undefined;
+    // Question style has no lists to grow, so nothing is queued for review and rarity doesn't count.
     t = setAnswer(t, v.player, (a) => v.ok
-      ? { ...a, status: "ai-ok", tier: aiTier(v.niche), review: true as const, ...(reason ? { reason } : {}) }
+      ? t.letters
+        ? { ...a, status: "ai-ok", tier: QUESTION_TIER, ...(reason ? { reason } : {}) }
+        : { ...a, status: "ai-ok", tier: aiTier(v.niche), review: true as const, ...(reason ? { reason } : {}) }
       : { ...a, status: "ai-no", tier: null, ...(reason ? { reason } : {}) });
   }
   return pendingUnknowns(t).length ? t : verdict(t, now);
@@ -158,26 +173,27 @@ function fallback(s: DigState, now: number): DigState {
   let t = s;
   for (const u of pendingUnknowns(s)) {
     t = setAnswer(t, u.player, (a) => startsWith(s.letter, a.text)
-      ? { ...a, status: "ai-ok", tier: "common", review: true as const, reason: "unchecked" }
+      ? { ...a, status: "ai-ok", tier: "common", ...(s.letters ? {} : { review: true as const }), reason: "unchecked" }
       : { ...a, status: "ai-no" });
   }
   return verdict(t, now);
 }
 
 const scores = (a: DigAnswer) => a.status === "ok" || a.status === "ai-ok";
-const groupKey = (a: DigAnswer) => (a.status === "ok" ? `e:${normAnswer(a.entry)}` : `u:${normAnswer(a.text)}`);
+/** Question style (`q`) groups by questionAnswer's key, so a plural or an article doesn't make a second answer. */
+const groupKey = (a: DigAnswer, q = false) => (q ? `q:${questionAnswer(a.text).key}` : a.status === "ok" ? `e:${normAnswer(a.entry)}` : `u:${normAnswer(a.text)}`);
 
 /**
  * Points for one category's answers, as in NPAT v1: answers group by matched entry (an alias joins its name) or, for an
  * accepted AI answer, by normalised text; a group given by two or more players (with teams: teams) is halved, rounded up.
  */
-function scoreCategory(answers: Record<string, DigAnswer>, teams: string[][] | null): Record<string, { points: number; shared: boolean }> {
+function scoreCategory(answers: Record<string, DigAnswer>, teams: string[][] | null, q: boolean): Record<string, { points: number; shared: boolean }> {
   const unit = (p: string) => (teams ? String(teams.findIndex((t) => t.includes(p))) : `p:${p}`);
   const units = new Map<string, Set<string>>();
-  for (const [p, a] of Object.entries(answers)) if (scores(a)) units.set(groupKey(a), (units.get(groupKey(a)) ?? new Set()).add(unit(p)));
+  for (const [p, a] of Object.entries(answers)) if (scores(a)) units.set(groupKey(a, q), (units.get(groupKey(a, q)) ?? new Set()).add(unit(p)));
   return Object.fromEntries(Object.entries(answers).map(([p, a]) => {
     if (!scores(a) || !a.tier) return [p, { points: 0, shared: false }];
-    const n = units.get(groupKey(a))!.size;
+    const n = units.get(groupKey(a, q))!.size;
     return [p, { points: sharedPoints(TIER_POINTS[a.tier], n), shared: n >= 2 }];
   }));
 }
@@ -185,7 +201,7 @@ function scoreCategory(answers: Record<string, DigAnswer>, teams: string[][] | n
 /** Scores the open category, adds its points, pours any sips and shows the verdict. */
 function verdict(s: DigState, now: number): DigState {
   const mine = Object.fromEntries(s.players.map((p) => [p, answerAt(s, p)]));
-  const scored = scoreCategory(mine, s.teams);
+  const scored = scoreCategory(mine, s.teams, !!s.letters);
   let t = s;
   for (const p of s.players) t = setAnswer(t, p, (a) => ({ ...a, points: scored[p]!.points, shared: scored[p]!.shared }));
   const points = { ...s.points };
@@ -194,7 +210,7 @@ function verdict(s: DigState, now: number): DigState {
   const teamPoints = s.teams
     ? s.teams.map((team, i) => {
         const seen = new Map<string, number>();
-        for (const p of team) if (scored[p]!.points > 0) seen.set(groupKey(mine[p]!), scored[p]!.points);
+        for (const p of team) if (scored[p]!.points > 0) seen.set(groupKey(mine[p]!, !!s.letters), scored[p]!.points);
         return s.teamPoints[i]! + [...seen.values()].reduce((a, b) => a + b, 0);
       })
     : s.teamPoints;
@@ -212,6 +228,8 @@ function verdict(s: DigState, now: number): DigState {
 function advance(s: DigState, now: number): DigState {
   if (s.phase === "summary") return { ...s, done: true, phaseAt: now };
   if (s.cat + 1 >= s.categories.length) return { ...s, phase: "summary", phaseAt: now };
+  // Question style: each round draws its own letter, so it opens on the reel.
+  if (s.letters) return { ...s, phase: "reel", cat: s.cat + 1, letter: s.letters[s.cat + 1]!, typed: {}, locked: [], phaseAt: now };
   return { ...s, phase: "ask", cat: s.cat + 1, typed: {}, locked: [], phaseAt: now };
 }
 
@@ -277,5 +295,11 @@ export function redactFor(s: DigState, me: string | null): DigView {
   const typed = asking ? (me !== null && has(s.typed, me) ? { [me]: s.typed[me]! } : {}) : {};
   const typedCount = asking ? Object.values(s.typed).filter((t) => normAnswer(t)).length : 0;
   const results = Object.fromEntries(Object.entries(s.results).map(([p, list]) => [p, list.slice(0, shown)]));
-  return { ...s, seed: 0, typed, results, typedCount };
+  if (!s.letters) return { ...s, seed: 0, typed, results, typedCount };
+  // Question style: later rounds' questions and letters stay hidden, and the open round's question until its reel ends.
+  const end = s.done || s.phase === "summary" ? s.categories.length : s.cat + 1;
+  const asked = s.phase === "reel" && !s.done ? s.cat : end;
+  const categories = s.categories.map((q, i) => (i < asked ? q : ""));
+  const letters = s.letters.map((l, i) => (i < end ? l : ""));
+  return { ...s, seed: 0, typed, results, typedCount, categories, letters };
 }

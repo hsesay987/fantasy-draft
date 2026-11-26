@@ -1,4 +1,4 @@
-import { currentTurn, isDone, npatIsDig, type GameState } from "../topicDraft/core";
+import { currentTurn, isDone, npatIsDig, npatIsQuestion, type GameState } from "../topicDraft/core";
 import * as IM from "../topicDraft/formats/imposter";
 import * as IS from "../topicDraft/formats/insync";
 import * as MF from "../topicDraft/formats/mafia";
@@ -69,7 +69,7 @@ export function screenInfo(setup: GameSetup, state: GameState): ScreenInfo {
       return { turn: currentDescriber(s as unknown as SLState) || null, phase: `Turn ${s.turn + 1} of ${s.total ?? s.turns.length} · ${step}` };
     }
     case "npat": {
-      if (npatIsDig(setup)) return { turn: null, phase: done ? "Final depths" : digPhase(state as unknown as DigView) };
+      if (npatIsDig(setup)) return { turn: null, phase: done ? (npatIsQuestion(setup) ? "Final scores" : "Final depths") : digPhase(state as unknown as DigView) };
       const s = state as unknown as NPView;
       if (done) return { turn: null, phase: "Final scores" };
       const cat = s.categories[s.cat] ?? "";

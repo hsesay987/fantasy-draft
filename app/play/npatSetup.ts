@@ -2,7 +2,8 @@
 // Category metadata only: nothing here may reach the answer lists (see app/topicDraft/npat/boundary.test.ts).
 import { TEAM_MIN_PLAYERS } from "../topicDraft/formats/partytrivia";
 import { NPAT_CATEGORIES, setOf, type NpatCategory } from "../topicDraft/npat/categories";
-import { DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk, HARD_LETTERS } from "../topicDraft/npat/rules";
+import { QUESTIONS_POOL } from "../topicDraft/npat/questions";
+import { DIG_CATEGORIES, DIG_MAX_CATEGORIES, digCountOk, HARD_LETTERS, QUESTION_DEFAULT_ROUNDS, QUESTION_MAX_ROUNDS, QUESTION_MIN_ROUNDS } from "../topicDraft/npat/rules";
 
 export const NPAT_CLASSIC_IDS = ["name", "place", "animal", "thing"];
 export const NPAT_MIN_CATS = 4;
@@ -32,24 +33,49 @@ export function npatDigCheck(ids: string[], cats: NpatCategory[] = NPAT_CATEGORI
   return npatCustomCheck(ids, false, 1, cats, DIG_CATEGORIES, DIG_MAX_CATEGORIES);
 }
 
-export type NpatStyle = "dig" | "sheet";
+export type NpatStyle = "dig" | "sheet" | "question";
 
-/** The style a lobby opens on for a saved NPAT setup. One that never said (from before the dig) digs only if it already has 5 to 10 categories. */
+/**
+ * The style a lobby opens on for a saved NPAT setup. A tournament slot (pools only) of Questions opens on question style.
+ * One that never said (from before the dig) digs only if it already has 5 to 10 categories.
+ */
 export function npatStyleFor(saved: { opts?: { npatStyle?: unknown }; pools?: string[]; pool?: string } | null | undefined): NpatStyle {
   if (!saved) return "dig";
-  if (saved.opts?.npatStyle === "dig" || saved.opts?.npatStyle === "sheet") return saved.opts.npatStyle;
+  const style = saved.opts?.npatStyle;
+  if (style === "dig" || style === "sheet" || style === "question") return style;
   const pools = saved.pools?.length ? saved.pools : saved.pool ? [saved.pool] : [];
+  if (pools.includes(QUESTIONS_POOL)) return "question";
   const merged = new Set(pools.flatMap((p) => (p.startsWith(NPAT_CAT) ? [p.slice(NPAT_CAT.length)] : setOf(p)?.categories ?? [])));
   return digCountOk(merged.size) ? "dig" : "sheet";
 }
 
+const whoPlays = (o: { teams: number; players: number }) =>
+  o.teams >= 2 ? (o.players >= TEAM_MIN_PLAYERS ? `${o.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves";
+
 /** The room's one-line summary of an NPAT setup. */
 export function npatSummary(o: { pools: string[]; rounds: number; seconds: number; teams: number; players: number; style?: NpatStyle }): string {
+  if (o.style === "question") {
+    const n = Math.min(QUESTION_MAX_ROUNDS, Math.max(QUESTION_MIN_ROUNDS, Math.floor(Number.isFinite(o.rounds) ? o.rounds : QUESTION_DEFAULT_ROUNDS)));
+    return `Questions · ${n} rounds · a new letter each · 20 s each · ${whoPlays(o)} · 2+ players`;
+  }
   const what = o.pools.some((p) => p.startsWith(NPAT_CAT)) ? "Custom" : setOf(o.pools[0] ?? "classic")?.title ?? "Classic";
-  const who = o.teams >= 2 ? (o.players >= TEAM_MIN_PLAYERS ? `${o.teams} teams` : `solo until ${TEAM_MIN_PLAYERS} players`) : "every player for themselves";
+  const who = whoPlays(o);
   if (o.style === "dig") {
     const n = new Set(o.pools.flatMap((p) => (p.startsWith(NPAT_CAT) ? [p.slice(NPAT_CAT.length)] : setOf(p)?.categories ?? []))).size;
     return `Dig · one letter · ${digCountOk(n) ? n : DIG_CATEGORIES} categories · 20 s each · ${who} · 2+ players`;
   }
   return `${o.rounds} round${o.rounds === 1 ? "" : "s"} · ${o.seconds} s · ${what} · ${who} · 2+ players`;
+}
+
+/** The sets the sheet opens on: the given pools without question style's pool, or Classic when that leaves none. */
+export function npatSheetPools(pools: string[]): string[] {
+  const sets = pools.filter((p) => p !== QUESTIONS_POOL);
+  return sets.length ? sets : ["classic"];
+}
+
+/** Question style's rounds for a saved setup: its own when it was a question game, else the default. */
+export function npatQuestionRounds(saved: { opts?: { npatStyle?: unknown; npatRounds?: unknown } } | null | undefined): number {
+  const n = Number(saved?.opts?.npatRounds);
+  if (saved?.opts?.npatStyle !== "question" || !Number.isFinite(n)) return QUESTION_DEFAULT_ROUNDS;
+  return Math.min(QUESTION_MAX_ROUNDS, Math.max(QUESTION_MIN_ROUNDS, Math.floor(n)));
 }

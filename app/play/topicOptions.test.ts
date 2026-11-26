@@ -80,7 +80,7 @@ describe("NPAT", () => {
   it("lists Classic first, then every set, with no answer data behind it", () => {
     const ids = topicOptions("npat").map((o) => o.id);
     expect(ids[0]).toBe("classic");
-    expect(ids).toEqual(NPAT_SETS.map((s) => s.id));
+    expect(ids).toEqual([...NPAT_SETS.map((s) => s.id), "questions"]);
     expect(topicOptions("npat")[0]!.blurb).toBe("Name, Place, Animal, Thing");
   });
 
