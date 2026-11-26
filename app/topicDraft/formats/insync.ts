@@ -1,7 +1,7 @@
 // In-Sync: a party game. Each round one player privately sees a pair of opposites and a hidden spot on the line between
 // them, and types one clue for that spot. Everyone else tunes their own dial and locks it. Each guesser scores 4 / 3 / 2 / 0
 // by how close their own dial lands, and the clue giver scores the guessers' average for that round, rounded.
-// Games started before per-player points (no `points` in the state) still play co-operatively: the room's signal is
+// Duos, and games started before per-player points (no `points` in the state), play co-operatively: the room's signal is
 // where the dials average out, and the whole table shares one score.
 import { next as rand, shuffle } from "../rng";
 import type { Pair } from "../party/insyncDecks";
@@ -50,6 +50,12 @@ export type InSyncState = {
   drinks?: DrinkState;
 };
 
+/**
+ * Per-player points need 3 or more: with 2, the giver's average is the lone guesser's score, so every game would tie.
+ * A duo plays as a team on one shared score instead.
+ */
+export const perPlayer = (players: number) => players >= 3;
+
 export const giver = (s: InSyncState): string => s.players[s.giverAt % s.players.length]!;
 
 /** Points for a marker this far from the target: within 3 is a bullseye (4), 7 close (3), 12 near (2). */
@@ -91,7 +97,7 @@ export function init(o: { players: string[]; deck: string; pairs: Pair[]; rounds
   const [target, seed] = draw(s2);
   return {
     players: o.players, deck: o.deck, pairs, round: 0, giverAt: 0, phase: "clue", target, clue: "", markers: {}, marker: 50, locks: [],
-    score: 0, maxScore: 0, points: Object.fromEntries(o.players.map((p) => [p, 0])), history: [], phaseAt: o.now, done: pairs.length === 0, seed, ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),
+    score: 0, maxScore: 0, ...(perPlayer(o.players.length) ? { points: Object.fromEntries(o.players.map((p) => [p, 0])) } : {}), history: [], phaseAt: o.now, done: pairs.length === 0, seed, ...(o.drinking ? { drinks: initDrinks(o.players) } : {}),
   };
 }
 

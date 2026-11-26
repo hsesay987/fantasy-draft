@@ -351,6 +351,14 @@ describe("in-sync when someone leaves", () => {
 });
 
 describe("in-sync per-player points", () => {
+  it("a duo plays as a team on one shared score, since the giver's average would always tie the guesser", () => {
+    let s = pin(fresh(["A", "B"]), 50);
+    expect(s.points).toBeUndefined();
+    s = play(s, 50);
+    expect(s.score).toBe(4);
+    expect(s.history[0]!.gained).toBeUndefined();
+  });
+
   it("starts everyone on 0", () => {
     expect(fresh(["A", "B", "C"]).points).toEqual({ A: 0, B: 0, C: 0 });
   });
