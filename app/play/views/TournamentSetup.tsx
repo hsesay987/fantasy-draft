@@ -23,7 +23,7 @@ export type LiveTournament = Tournament & { standings: Standing[] };
  * The host's lineup for a night of games: numbered slots, each with its topic, a way to reorder it and take it out.
  * Games are added from the game tiles below it. `options` are the games this table can start right now (for Surprise me).
  */
-export function LineupPanel({ options, plan, onPlan, onStart, busy, error }: { options: FormatId[]; plan: PlanSlot[]; onPlan: (plan: PlanSlot[]) => void; /** Leave out when the page has its own Start. */ onStart?: () => void; busy: boolean; error: string | null }) {
+export function LineupPanel({ options, plan, onPlan, onStart, busy, error, cut, onCut }: { options: FormatId[]; plan: PlanSlot[]; onPlan: (plan: PlanSlot[]) => void; /** Leave out when the page has its own Start. */ onStart?: () => void; busy: boolean; error: string | null; /** Players cut after each game (elimination): 0, 1 or 2. */ cut?: number; onCut?: (n: number) => void }) {
   // The slot whose topic picker is open.
   const [open, setOpen] = useState<number | null>(null);
   const edit = (next: PlanSlot[], keepOpen: number | null = null) => { setOpen(keepOpen); onPlan(next); };
@@ -69,6 +69,12 @@ export function LineupPanel({ options, plan, onPlan, onStart, busy, error }: { o
             );
           })}
         </ol>
+        {onCut && (
+          <div className="tn-cut" role="group" aria-label="Cut after each game">
+            <p className="px-note">Cut after each game: the lowest totals sit out the rest of the night and watch. Never below 2.</p>
+            <div className="flex flex-wrap gap-2">{[0, 1, 2].map((n) => <Chip key={n} selected={(cut ?? 0) === n} onClick={() => onCut(n)}>{n === 0 ? "No cut" : `Cut ${n}`}</Chip>)}</div>
+          </div>
+        )}
         {error && <p role="alert" className="tn-error">{error}</p>}
         <div className="tn-actions">
           <PixelButton variant="alt" onClick={() => edit(surpriseLineup(options, (f) => topicOptions(f).map((o) => o.id)))} disabled={!options.length}>Surprise me</PixelButton>
@@ -143,7 +149,7 @@ export function TournamentBoard({ t, seats }: { t: LiveTournament; seats: string
 /** The end of the night: the winner (or a shared title), the final leaderboard, and for the host a rerun of the same plan. */
 export function ChampionScreen({ t, seats, isHost, onPlayAgain, onBack, onLeave, busy, error }: { t: LiveTournament; seats: string[]; isHost: boolean; onPlayAgain: () => void; onBack: () => void; onLeave: () => void; busy: boolean; error: string | null }) {
   const top = t.standings.length ? Math.max(...t.standings.map((s) => s.total)) : 0;
-  const winners = top > 0 ? t.standings.filter((s) => s.total === top) : [];
+  const winners = top > 0 ? t.standings.filter((s) => s.total === top && s.cut == null) : [];
   return (
     <div className="pixel tn-champ-page">
       <div className="tn-champ">

@@ -191,7 +191,7 @@ export function VoteBooths({ players, voted, reveal, labels, gone = [] }: { play
 }
 
 /** Only the host ends a reveal early (the server checks it too). A game on one device has no host to wait for. */
-export const canMoveOn = (ctl: GameCtl) => !ctl.online || (!!ctl.me && ctl.host === ctl.me);
+export const canMoveOn = (ctl: GameCtl) => !ctl.online || (!!(ctl.seat ?? ctl.me) && ctl.host === (ctl.seat ?? ctl.me)); // an out host still moves on
 
 /** Instead of the Next button, for everyone but the host. */
 export const WaitingForHost = ({ ctl }: { ctl: GameCtl }) => <p className="party-status">{ctl.host ?? "The host"} moves on when ready.</p>;
