@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { esc, receiptEmail, resetEmail, safeUrl, verifyEmail } from "./render";
 
 describe("email rendering", () => {
-  const verify = verifyEmail({ to: "ann@example.com", name: "Ann Lee", verifyUrl: "https://toppicgames.com/verify-email?token=abc123" });
+  const verify = verifyEmail({ to: "ann@example.com", name: "Ann Lee", verifyUrl: "https://toppic.io/verify-email?token=abc123" });
   it("verify email has the link in the button, fallback link and plain text", () => {
-    expect(verify.html).toContain('href="https://toppicgames.com/verify-email?token=abc123"');
+    expect(verify.html).toContain('href="https://toppic.io/verify-email?token=abc123"');
     expect((verify.html.match(/token=abc123/g) ?? []).length).toBeGreaterThanOrEqual(3);
-    expect(verify.text).toContain("https://toppicgames.com/verify-email?token=abc123");
+    expect(verify.text).toContain("https://toppic.io/verify-email?token=abc123");
     expect(verify.subject).toMatch(/confirm your email/i);
     expect(verify.html).toContain("Oh hey, Ann");
     expect(verify.html).toContain("welcome to TopPic");
