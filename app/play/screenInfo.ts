@@ -173,8 +173,11 @@ export function screenBoard(setup: GameSetup, state: GameState, gone: string[] =
     }
     case "insync": {
       const s = state as IS.InSyncState;
-      // One team: the room's group score is the only standing.
-      return { rows: [], teams: [{ name: "Group score", score: s.score }] };
+      // Older co-operative games: the room's group score is the only standing.
+      if (!s.points) return { rows: [], teams: [{ name: "Group score", score: s.score }] };
+      const pts = s.points;
+      const h = s.phase === "reveal" && !done ? s.history[s.history.length - 1] : undefined;
+      return { rows: rowsFor(s.players, (p) => pts[p] ?? 0, h?.gained ? (p) => h.gained![p] : undefined, null) };
     }
     case "partytrivia": {
       const s = state as PT.PTState;

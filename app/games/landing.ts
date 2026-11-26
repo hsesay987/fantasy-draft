@@ -131,10 +131,10 @@ export const LANDINGS: Landing[] = [
     aka: ["who would win game", "princess treatment or bare minimum", "would you rather party game", "voting party game"],
   },
   {
-    slug: "in-sync", ids: ["insync"], seoTitle: "In-Sync: One Clue, One Hidden Spot, Tune In Together",
-    description: "One player sees a hidden spot between two opposites and gives one clue. Everyone tunes their own dial to find it. A free co-op party game on your phones.",
-    about: ["In-Sync puts a hidden spot on a line between two opposites, like cold and hot. One player sees it and gives a single clue.", "Everyone else tunes their own dial and talks it over. The room's signal is where your dials average out, and the closer it lands, the more the whole table scores."],
-    aka: ["wavelength style game", "co-op guessing game"],
+    slug: "in-sync", ids: ["insync"], seoTitle: "In-Sync: One Clue, One Hidden Spot, Closest Dial Wins",
+    description: "One player sees a hidden spot between two opposites and gives one clue. Everyone tunes their own dial to find it, and the closest dials score most. A free party game on your phones.",
+    about: ["In-Sync puts a hidden spot on a line between two opposites, like cold and hot. One player sees it and gives a single clue.", "Everyone else tunes their own dial and locks it. Your dial scores by how close it lands, and the clue giver scores the average of everyone's dials, so a clear clue pays off."],
+    aka: ["wavelength style game", "dial guessing game"],
   },
   {
     slug: "party-trivia", ids: ["partytrivia"], seoTitle: "Party Trivia: Answer Fast, Solo or in Teams",

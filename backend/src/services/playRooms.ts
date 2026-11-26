@@ -926,7 +926,7 @@ function finish(room: Room) {
   // Party games are scored by their own rules; no AI report.
   if (PARTY_FORMATS.has(setup.format)) {
     const teamed = setup.format === "partytrivia" && !!(room.state as PT.PTState).teams; // a team game has no single winner
-    record.winner = setup.format === "insync" || teamed ? null : triviaWinner(room.state!); // In-Sync is co-operative: no winner
+    record.winner = (setup.format === "insync" && !(room.state as IS.InSyncState).points) || teamed ? null : triviaWinner(room.state!); // co-operative In-Sync (older games): no winner
     if (setup.format === "mafia") {
       const side = (room.state as MF.MafiaState).winner; // a side wins, not a player; a game everyone walked out of has no winner
       record.winner = side === "village" ? "Village" : side === "mafia" ? "Mafia" : null;
