@@ -25,6 +25,10 @@ export type Tournament = {
   games: { format: FormatId; title: string; awards: Awards | null }[];
   totals: Record<string, number>;
   done: boolean;
+  /** Players cut after each game (elimination): 0, 1 or 2. Missing on older tournaments, which means 0. */
+  cut?: number;
+  /** Cut players, in order, with the number of games played when they were cut. They watch the rest of the night. */
+  out?: { name: string; after: number }[];
 };
 
 const placePoints = (place: number): number => PLACE_POINTS[place - 1] ?? REST_POINTS;
@@ -132,7 +136,8 @@ export function addGame(t: Tournament, format: FormatId, title: string, awards: 
 }
 
 /** Best first; ties share a rank. Everyone present is listed (0 if new), and players who left stay listed as `left`. */
-export function standings(t: Tournament, present: string[]): { name: string; total: number; last: number; left: boolean; rank: number }[] {
+/** Cut players are listed after the finalists, the latest cut first; `cut` says after which game. */
+export function standings(t: Tournament, present: string[]): { name: string; total: number; last: number; left: boolean; rank: number; cut?: number }[] {
   const lastAwards = t.games[t.games.length - 1]?.awards ?? {};
   const names = [...present, ...Object.keys(t.totals).filter((n) => !present.includes(n))];
   const rows = names.map((name) => ({
@@ -141,7 +146,14 @@ export function standings(t: Tournament, present: string[]): { name: string; tot
     last: has(lastAwards, name) ? lastAwards[name]! : 0,
     left: !present.includes(name),
   }));
-  return rows
-    .map((r) => ({ ...r, rank: 1 + rows.filter((o) => o.total > r.total).length }))
+  const cutAt = (n: string) => (t.out ?? []).find((o) => o.name === n)?.after;
+  const finalists = rows.filter((r) => cutAt(r.name) == null);
+  const ranked = finalists
+    .map((r) => ({ ...r, rank: 1 + finalists.filter((o) => o.total > r.total).length }))
     .sort((a, b) => b.total - a.total || Number(a.left) - Number(b.left));
+  const cut = rows
+    .filter((r) => cutAt(r.name) != null)
+    .sort((a, b) => cutAt(b.name)! - cutAt(a.name)! || b.total - a.total)
+    .map((r, i) => ({ ...r, rank: finalists.length + 1 + i, cut: cutAt(r.name)! }));
+  return [...ranked, ...cut];
 }

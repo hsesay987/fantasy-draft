@@ -75,10 +75,15 @@ export function useRemoteRoom(code: string) {
 export function useRemoteCtl(snap: RoomSnapshot & { setup: NonNullable<RoomSnapshot["setup"]> }, offset: number, dispatch: (a: Action) => void | Promise<MoveResult>, leave?: () => void): GameCtl {
   const pool = useMemo(() => poolFor(snap.setup), [snap.setup]);
   const map = useMemo(() => new Map(pool.map((i) => [i.id, i])), [pool]);
+  // Out of this game (elimination mode): the seat watches, like a late joiner, and nobody waits on it.
+  const out = snap.out ?? [];
+  const meOut = !!snap.me && out.some((o) => o.name === snap.me);
   return {
     state: snap.state!,
     dispatch,
-    me: snap.me,
+    me: meOut ? null : snap.me,
+    seat: snap.me,
+    out,
     online: true,
     finish: () => {},
     offset,
@@ -87,7 +92,7 @@ export function useRemoteCtl(snap: RoomSnapshot & { setup: NonNullable<RoomSnaps
     controls: (p) => !!p && p === snap.me,
     isAi: () => false,
     host: snap.seats.find((s) => s.host)?.name ?? null,
-    gone: snap.seats.filter((s) => s.left).map((s) => s.name),
+    gone: [...snap.seats.filter((s) => s.left).map((s) => s.name), ...out.map((o) => o.name)],
     leave,
     paused: !!snap.paused,
     setPaused: snap.seats.some((s) => s.host && s.name === snap.me) ? (on) => void dispatch({ type: on ? "pause" : "resume" } as unknown as Action) : undefined,

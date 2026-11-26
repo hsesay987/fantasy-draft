@@ -175,3 +175,17 @@ describe("seatsNeeded for Dodge", () => {
     expect(fitsTable("dodge", 3)).toBe(true);
   });
 });
+
+import { championTitle as champ, standingRows as rowsOf } from "./tournamentPlan";
+describe("tournament cut on the leaderboard", () => {
+  const st = [
+    { name: "Ann", total: 8, last: 5, left: false, rank: 1 },
+    { name: "Bo", total: 6, last: 3, left: false, rank: 2 },
+    { name: "Cy", total: 8, last: 0, left: false, rank: 3, cut: 1 },
+  ];
+  it("cut players never win the night and are flagged on the board", () => {
+    expect(champ(st)).toContain("Ann");
+    expect(champ(st)).not.toContain("Cy");
+    expect(rowsOf(st, ["Ann", "Bo", "Cy"]).find((r) => r.name === "Cy")).toMatchObject({ cut: true });
+  });
+});

@@ -32,6 +32,10 @@ export type GameCtl = {
   gone?: string[];
   /** Online rooms: walk out of this game. It carries on for everyone else. */
   leave?: () => void;
+  /** Online rooms: this device's seat, even while it only watches (out of the game in elimination mode). */
+  seat?: string | null;
+  /** Online rooms, elimination mode: who is out of this game, in order. */
+  out?: { name: string; round: number; place: number }[];
   /** Online party games: true while the host has the game paused. */
   paused?: boolean;
   /** Online party games, host only: pause (true) or resume (false) the game. */

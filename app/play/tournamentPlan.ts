@@ -67,19 +67,20 @@ export function surpriseLineup(options: FormatId[], topicsOf: (f: FormatId) => s
   });
 }
 
-export type Standing = { name: string; total: number; last: number; left: boolean; rank: number };
+export type Standing = { name: string; total: number; last: number; left: boolean; rank: number; cut?: number };
 
 /** Leaderboard rows from the server's standings. Each player keeps the sprite of their seat in the room. */
 export const standingRows = (standings: Standing[], seats: string[]): LeaderRow[] =>
   standings.map((s, i) => {
     const seat = seats.indexOf(s.name);
-    return { name: s.name, score: s.total, seat: seat >= 0 ? seat : seats.length + i, ...(s.last ? { last: s.last } : {}), ...(s.left ? { left: true } : {}) };
+    return { name: s.name, score: s.total, seat: seat >= 0 ? seat : seats.length + i, ...(s.last ? { last: s.last } : {}), ...(s.left ? { left: true } : {}), ...(s.cut != null ? { cut: true } : {}) };
   });
 
 const joinNames = (names: string[]) => (names.length <= 2 ? names.join(" and ") : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`);
 
 /** "Ann wins the night", "Ann and Bob share the night", or no winner when nobody scored. */
-export function championTitle(standings: Standing[]): string {
+export function championTitle(all: Standing[]): string {
+  const standings = all.filter((s) => s.cut == null); // cut players can't win the night
   const top = standings.length ? Math.max(...standings.map((s) => s.total)) : 0;
   if (top <= 0) return "Nobody wins the night";
   const best = standings.filter((s) => s.total === top).map((s) => s.name);

@@ -1,0 +1,52 @@
+// Elimination mode: pure rules shared with the server (synced to backend/src/shared).
+// In a game, each time the round counter moves on, the active player with the lowest total goes out. A tie goes to the
+// one who gained least since the last round change; a full tie sends nobody out. Never below 2 active players.
+// In a tournament, the lowest totals are cut after each game; ties at the line all stay; never below 2 finalists.
+import type { FormatId, GameSetup } from "../../play/types";
+import type { DrinkCall } from "./drinks";
+
+export const ELIMINATION_FORMATS = new Set<FormatId>(["partytrivia", "pecking", "vowelparty", "sayless", "npat", "dodge", "vote", "insync"]);
+export const ELIMINATION_MIN_PLAYERS = 4;
+export const FINAL_FLOOR = 2;
+
+/** On for this game: asked for, a fitting format, 4+ players, no teams. */
+export function eliminationOn(setup: Pick<GameSetup, "format" | "opts">, players: number): boolean {
+  return !!setup.opts.elimination && ELIMINATION_FORMATS.has(setup.format) && players >= ELIMINATION_MIN_PLAYERS && !((setup.opts.teams ?? 0) >= 2);
+}
+
+/** The game's round counter: it only goes up, once per round. */
+export function roundOf(format: FormatId, s: unknown): number {
+  const x = s as { round?: number; turn?: number; cat?: number };
+  if (format === "sayless") return x.turn ?? 0;
+  if (format === "npat" && typeof x.cat === "number" && x.round === undefined) return x.cat; // dig and question styles
+  return x.round ?? 0;
+}
+
+/** Who goes out now, or null: lowest total, then least gained this round; a full tie, or 2 left, sends nobody. */
+export function pickOut(points: Record<string, number>, gained: Record<string, number>, active: string[]): string | null {
+  if (active.length <= FINAL_FLOOR) return null;
+  const total = (p: string) => points[p] ?? 0;
+  const low = Math.min(...active.map(total));
+  let tied = active.filter((p) => total(p) === low);
+  if (tied.length > 1) {
+    const g = (p: string) => gained[p] ?? 0;
+    const least = Math.min(...tied.map(g));
+    tied = tied.filter((p) => g(p) === least);
+  }
+  return tied.length === 1 ? tied[0]! : null;
+}
+
+/** Tournament cut after a game: the `cut` lowest totals among `finalists`, with every tie at the line kept in. */
+export function cutAfter(totals: Record<string, number>, finalists: string[], cut: number): string[] {
+  const n = Math.min(Math.max(0, Math.floor(cut)), finalists.length - FINAL_FLOOR);
+  if (n <= 0) return [];
+  const t = (p: string) => totals[p] ?? 0;
+  const sorted = [...finalists].sort((a, b) => t(a) - t(b));
+  const line = t(sorted[n - 1]!);
+  const out = sorted.filter((p) => t(p) < line);
+  const atLine = sorted.filter((p) => t(p) === line);
+  // Everyone tied at the line stays unless all of them fit in the cut.
+  return out.length + atLine.length <= n ? [...out, ...atLine] : out;
+}
+
+export const outSip = (name: string): DrinkCall => ({ to: name, sips: 1, reason: "Knocked out" });

@@ -23,7 +23,7 @@ import { dodgeClock, dodgePhase } from "./views/dodgeBoard";
 /** What the big screen says above the board: whose turn it is (null when nobody's in particular) and the phase. */
 export type ScreenInfo = { turn: string | null; phase: string };
 
-export type LeaderRow = { name: string; score: number; last?: number; left?: boolean; team?: number; seat?: number };
+export type LeaderRow = { name: string; score: number; last?: number; left?: boolean; team?: number; seat?: number; /** Cut from the tournament: listed after the finalists. */ cut?: boolean };
 export type LeaderTeam = { name: string; score: number; color?: string };
 export type ScreenBoard = { rows: LeaderRow[]; teams?: LeaderTeam[] };
 

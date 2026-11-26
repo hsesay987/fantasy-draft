@@ -7,6 +7,9 @@ import type { QuizData } from "../topicDraft/trivia/types";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
+/** One player out of the current game: the round they went out in and the place they finished. */
+export type OutEntry = { name: string; round: number; place: number };
+
 export type RoomSnapshot = {
   code: string;
   status: "lobby" | "playing" | "done";
@@ -28,6 +31,8 @@ export type RoomSnapshot = {
   played: { format: string; pool: string; title?: string; winner: string | null }[];
   /** An NBA, NFL or Cartoon stat draft room the host opened for the group. */
   statLink: { code: string; league: "NBA" | "NFL" | "CARTOON" } | null;
+  /** Elimination mode: who is out of the current game, in order. Missing from older servers. */
+  out?: OutEntry[];
 };
 
 const seatKey = (code: string) => `toppic:v2:seat:${code.toUpperCase()}`;
@@ -74,7 +79,7 @@ export const roomToLobby = (code: string, token: string) => call<RoomSnapshot>(`
 export const setStatLink = (code: string, token: string, link: RoomSnapshot["statLink"]) => call<RoomSnapshot>(`/${code.toUpperCase()}/stat-link`, { method: "POST", body: JSON.stringify({ token, link }) });
 export const setScreen = (code: string, token: string, on: boolean) => call<RoomSnapshot>(`/${code.toUpperCase()}/screen`, { method: "POST", body: JSON.stringify({ token, on }) });
 /** `plan`: each game as its format, or `{ format, pools }` with the topics picked for it. */
-export const startTournament = (code: string, token: string, plan: (FormatId | { format: FormatId; pools: string[] })[]) => call<RoomSnapshot>(`/${code.toUpperCase()}/tournament`, { method: "POST", body: JSON.stringify({ token, plan }) });
+export const startTournament = (code: string, token: string, plan: (FormatId | { format: FormatId; pools: string[] })[], cut = 0) => call<RoomSnapshot>(`/${code.toUpperCase()}/tournament`, { method: "POST", body: JSON.stringify({ token, plan, cut }) });
 export const endTournament = (code: string, token: string) => call<RoomSnapshot>(`/${code.toUpperCase()}/tournament/end`, { method: "POST", body: JSON.stringify({ token }) });
 export const leaveRoom = (code: string, token: string) => call<{ ok: boolean }>(`/${code.toUpperCase()}/leave`, { method: "POST", body: JSON.stringify({ token }) });
 

@@ -10,8 +10,8 @@ import { playerSprite } from "./partyBits";
  * first. Ties share a place. `last` is what a player just scored; `left` greys out a player who walked off.
  */
 export function Leaderboard({ rows, teams, title = "Leaderboard" }: { rows: LeaderRow[]; teams?: LeaderTeam[]; title?: string }) {
-  const ranked = rows.map((r, i) => ({ ...r, seat: r.seat ?? i })).sort((a, b) => b.score - a.score || a.seat - b.seat);
-  const place = (i: number) => ranked.findIndex((r) => r.score === ranked[i]!.score) + 1;
+  const ranked = rows.map((r, i) => ({ ...r, seat: r.seat ?? i })).sort((a, b) => Number(!!a.cut) - Number(!!b.cut) || b.score - a.score || a.seat - b.seat);
+  const place = (i: number) => (ranked[i]!.cut ? i + 1 : ranked.findIndex((r) => !r.cut && r.score === ranked[i]!.score) + 1);
   const best = teams?.length ? Math.max(...teams.map((t) => t.score)) : null;
   return (
     <section className="px-box lb" aria-label={title}>
@@ -30,13 +30,13 @@ export function Leaderboard({ rows, teams, title = "Leaderboard" }: { rows: Lead
       {ranked.length > 0 && (
         <ol className="lb-rows" aria-label="Players">
           {ranked.map((r, i) => (
-            <li key={r.name} className={`${place(i) === 1 && r.score > 0 ? "top" : ""} ${r.left ? "is-gone" : ""}`}>
+            <li key={r.name} className={`${place(i) === 1 && r.score > 0 && !r.cut ? "top" : ""} ${r.left || r.cut ? "is-gone" : ""}`}>
               <span className="pos">{place(i)}</span>
               <Sprite sprite={playerSprite(r.seat)} size={24} />
               <span className="name">
                 {r.team !== undefined && <i className="swatch" style={{ background: TEAM_COLORS[r.team] }} aria-hidden />}
                 {r.name}
-                {r.left && <span className="tag">left</span>}
+                {r.cut ? <span className="tag">cut</span> : r.left && <span className="tag">left</span>}
               </span>
               {r.last ? <span key={`${r.name}-${r.score}`} className="last">+{r.last}</span> : <span />}
               <b>{r.score.toLocaleString("en-US")}</b>

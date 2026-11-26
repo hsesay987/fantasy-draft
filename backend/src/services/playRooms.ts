@@ -16,6 +16,8 @@ import * as A from "../shared/topicDraft/formats/auction";
 import * as B from "../shared/topicDraft/formats/blind";
 import * as P from "../shared/topicDraft/formats/position";
 import { vetoCount, vetoOn } from "../shared/topicDraft/veto";
+import { cutAfter, eliminationOn, outSip, pickOut, roundOf, ELIMINATION_FORMATS } from "../shared/topicDraft/party/elimination";
+import { addCalls, type DrinkState } from "../shared/topicDraft/party/drinks";
 import * as IM from "../shared/topicDraft/formats/imposter";
 import * as V from "../shared/topicDraft/formats/vote";
 import * as IS from "../shared/topicDraft/formats/insync";
@@ -106,6 +108,11 @@ type Room = {
   judgeAt?: number[];
   /** Dodge: verdicts that came back while the game was paused, applied on resume if the room is still judging that round. */
   dodgeHeld?: { key: string; verdicts: { player: string; same: boolean }[] };
+  /** Elimination mode: who went out of the current game, in order, with the round and the place they went out in. */
+  out?: { name: string; round: number; place: number }[];
+  /** Elimination mode: points at the last round change (for the tie-break), and that round's counter. */
+  outPrev?: Record<string, number>;
+  outRound?: number;
   /** A tournament across games in this room. Stays visible once done, until a new one starts or the room closes. */
   tournament?: Tournament;
   /** Which tournament this is, so a late judge verdict never lands in a later one. */
@@ -280,6 +287,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     ...(format === "imposter" ? { imposterGets: (o.imposterGets === "decoy" || o.imposterGets === "nothing" ? o.imposterGets : "hint") as "hint" | "decoy" | "nothing" } : {}),
     avoid: (Array.isArray(o.avoid) ? o.avoid : []).slice(0, 200).map((x: any) => clean(x, 40)),
     drinking: format === "vowelplay" ? false : o.drinking === true,
+    ...(ELIMINATION_FORMATS.has(format) && o.elimination === true ? { elimination: true } : {}),
     showVotes: o.showVotes !== false,
     teams,
     teamMap,
@@ -451,7 +459,7 @@ function planSlot(entry: unknown): { format: FormatId; pools: string[] | null } 
 }
 
 /** The host starts a tournament: 2 to 8 games, lobby only. Replaces a finished or earlier one. */
-export function startTournament(room: Room, token: unknown, plan: unknown): { ok: true } | { error: string } {
+export function startTournament(room: Room, token: unknown, plan: unknown, cut: unknown = 0): { ok: true } | { error: string } {
   refreshScreen(room);
   if (!isHost(room, token)) return { error: "Only the host can do that" };
   if (room.status !== "lobby") return { error: "Start a tournament from the lobby" };
@@ -462,7 +470,8 @@ export function startTournament(room: Room, token: unknown, plan: unknown): { ok
     if ("error" in slot) return { error: `Game ${i + 1} ${slot.error}` };
     slots.push(slot);
   }
-  room.tournament = { plan: slots.map((s) => s.format), topics: slots.map((s) => s.pools), index: 0, games: [], totals: {}, done: false };
+  const cutEach = [0, 1, 2].includes(Number(cut)) ? Number(cut) : 0;
+  room.tournament = { plan: slots.map((s) => s.format), topics: slots.map((s) => s.pools), index: 0, games: [], totals: {}, done: false, ...(cutEach ? { cut: cutEach, out: [] } : {}) };
   room.tournamentSeq = (room.tournamentSeq ?? 0) + 1;
   room.tournamentEnded = false;
   bump(room);
@@ -481,12 +490,25 @@ export function endTournament(room: Room, token: unknown): { ok: true } | { erro
   return { ok: true };
 }
 
+/** Players cut from the tournament (elimination): they watch and are not dealt into later games. */
+const tournamentOut = (room: Room): string[] => (room.tournament && !room.tournament.done ? (room.tournament.out ?? []).map((o) => o.name) : []);
+
+/** After a game's awards: cut the lowest totals, keeping ties at the line, never below 2 finalists. */
+function cutTournament(room: Room) {
+  const t = room.tournament;
+  if (!t?.cut || t.done) return;
+  const finalists = playerNames(room, false).filter((p) => !(t.out ?? []).some((o) => o.name === p));
+  const cut = cutAfter(t.totals, finalists, t.cut);
+  if (cut.length) room.tournament = { ...t, out: [...(t.out ?? []), ...cut.map((name) => ({ name, after: t.games.length }))] };
+}
+
 /** Records a finished game in the tournament and returns a way to credit its draft verdict later. */
 function recordTournamentGame(room: Room, awards: Awards | null): number | null {
   const t = room.tournament;
   const setup = room.setup!;
   if (!t || t.done) return null;
   room.tournament = addGame(t, setup.format, setup.mission.title, awards);
+  if (awards) cutTournament(room);
   return room.tournament.games.length - 1;
 }
 
@@ -498,6 +520,7 @@ function creditTournamentGame(room: Room, seq: number | undefined, idx: number, 
   for (const [p, n] of Object.entries(awards ?? {})) totals[p] = (totals[p] ?? 0) + n;
   const games = t.games.map((g, i) => (i === idx ? { ...g, awards } : g));
   room.tournament = { ...t, games, totals };
+  if (awards && idx === games.length - 1) cutTournament(room); // a draft's verdict decides the cut after it
   bump(room);
 }
 
@@ -557,7 +580,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   if (room.status === "playing") return { error: "Already started" };
   if (!room.setup) return { error: "Pick a game first" };
   // Every refusal comes before the room changes, so a refused Play again leaves the results on screen to show why.
-  const here = playerNames(room, false);
+  const here = playerNames(room, false).filter((p) => !tournamentOut(room).includes(p)); // cut players watch
   const min = MIN_PLAYERS[room.setup.format] ?? 2;
   if (here.length < min) return { error: `Need at least ${min} players` };
   if (here.length > seatCap(room.setup.format)) return { error: `This game takes up to ${seatCap(room.setup.format)} players` };
@@ -584,6 +607,9 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   room.setup = setup;
   room.state = state;
   room.status = "playing";
+  room.out = [];
+  room.outPrev = {};
+  room.outRound = roundOf(setup.format, state);
   room.freshQuiz = false;
   room.guessAt = undefined;
   room.clueAt = undefined;
@@ -604,7 +630,7 @@ export const gameNow = (room: Room, wall = Date.now()): number => (room.pausedAt
 /** Leaving between games frees the seat (the next player in line becomes host); mid-game a bot takes over. */
 /** Party games close a phase once every seat still present has acted. Only a real leave counts: a locked phone keeps its turn. */
 function settleParty(room: Room, s: GameState, now: number): GameState {
-  const gone = room.seats.filter((x) => x.left && !x.screen).map((x) => x.name);
+  const gone = [...room.seats.filter((x) => x.left && !x.screen).map((x) => x.name), ...outNames(room)];
   switch (room.setup?.format) {
     case "partytrivia": return PT.settle(s as PT.PTState, gone, now);
     case "mafia": return MF.settle(s as MF.MafiaState, gone, now);
@@ -679,6 +705,8 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   if (!raw || !ACTION_TYPES.has(raw.type)) return { ok: false, error: "Unknown action" };
   // Not in the game (the screen host, or a seat that stopped hosting a screen mid-game) means host controls only.
   if (!room.setup.players.includes(seat.name) && !HOST_ACTIONS.includes(raw.type)) return { ok: false, error: "Not allowed right now" };
+  // Out of this game (elimination): watching only, though an out host still runs the host controls.
+  if (outNames(room).includes(seat.name) && !(HOST_ACTIONS.includes(raw.type) && isHost(room, token))) return { ok: false, error: "You're out of this game" };
   if (raw.type === "skipTalk" && !isHost(room, token)) return { ok: false, error: "Only the host can skip the talk" };
   if (raw.type === "next" && (HOST_MOVES_ON.has(room.setup.format) || !room.setup.players.includes(seat.name)) && !isHost(room, token)) return { ok: false, error: "Only the host can move on" };
   // Typed guesses are cheap to flood: about 3 a second per seat, counted whether or not they are right.
@@ -779,7 +807,8 @@ export function setPaused(room: Room, token: unknown, on: boolean): { ok: boolea
 
 function commit(room: Room, next: GameState) {
   const setup = room.setup!;
-  room.state = next;
+  room.state = eliminate(room, next);
+  next = room.state;
   const marker = turnMarker(setup, next);
   if (marker !== room.turnMarker) {
     room.turnMarker = marker;
@@ -791,6 +820,32 @@ function commit(room: Room, next: GameState) {
     askDodgeJudge(room);
   }
   bump(room);
+}
+
+/** Players out of the current game (elimination mode). */
+const outNames = (room: Room): string[] => (room.out ?? []).map((o) => o.name);
+
+/**
+ * Elimination mode: when the game's round counter moves on (and the game isn't over), the lowest active total goes out.
+ * Out players are then treated like players who left (settle skips them) and their moves are refused.
+ */
+function eliminate(room: Room, s: GameState): GameState {
+  const setup = room.setup!;
+  if (!eliminationOn(setup, setup.players.length) || isDone(setup, s)) return s;
+  const round = roundOf(setup.format, s);
+  if (round <= (room.outRound ?? 0)) return s;
+  const points = ((s as { points?: Record<string, number> }).points ?? {}) as Record<string, number>;
+  const prev = room.outPrev ?? {};
+  const gained = Object.fromEntries(Object.keys(points).map((p) => [p, (points[p] ?? 0) - (prev[p] ?? 0)]));
+  const left = room.seats.filter((x) => x.left).map((x) => x.name);
+  const active = setup.players.filter((p) => !outNames(room).includes(p) && !left.includes(p));
+  room.outRound = round;
+  room.outPrev = { ...points };
+  const who = pickOut(points, gained, active);
+  if (!who) return s;
+  room.out = [...(room.out ?? []), { name: who, round, place: active.length }];
+  const drinks = (s as { drinks?: DrinkState }).drinks;
+  return drinks ? ({ ...s, drinks: addCalls(drinks, [outSip(who)], setup.players) } as GameState) : s;
 }
 
 /** Judge calls one room may make per hour. */
@@ -1185,6 +1240,7 @@ export function snapshot(room: Room, token: unknown) {
     verdict: room.status === "done" ? room.verdict : null,
     played: room.played,
     statLink: room.statLink,
+    out: room.status === "lobby" ? [] : room.out ?? [],
     tournament: room.tournament && { ...room.tournament, standings: standings(room.tournament, playerNames(room, false)).filter((r) => !room.seats.some((x) => x.screen && x.name === r.name)) },
   };
 }

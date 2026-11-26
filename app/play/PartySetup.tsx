@@ -1,5 +1,6 @@
 "use client";
 
+import { ELIMINATION_FORMATS } from "../topicDraft/party/elimination";
 import { useState } from "react";
 import { Button, Chip, PageHeader, PageShell, Panel } from "../components/ui";
 import { NPAT_CATEGORIES, NPAT_SETS } from "../topicDraft/npat/categories";
@@ -70,6 +71,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const [ending, setEnding] = useState<"guess" | "vote">("guess");
   const [imposterGets, setImposterGets] = useState<"hint" | "decoy">("hint");
   const [drinking, setDrinking] = useState(false);
+  const [elimination, setElimination] = useState(false);
   const [showVotes, setShowVotes] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +92,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool: chosen[0]!, pools: chosen, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, ...(format === "imposter" ? { imposterGets } : {}), drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...(format === "npat" ? { npatRounds: asking ? questionRounds : npatRounds, npatSeconds, npatHard, npatStop, npatStyle } : {}), ...(format === "dodge" ? { dodgeLaps } : {}), ...teamOpts }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, ...(format === "imposter" ? { imposterGets } : {}), drinking, ...(ELIMINATION_FORMATS.has(format) && elimination ? { elimination: true } : {}), showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...(format === "npat" ? { npatRounds: asking ? questionRounds : npatRounds, npatSeconds, npatHard, npatStop, npatStyle } : {}), ...(format === "dodge" ? { dodgeLaps } : {}), ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -327,6 +329,15 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
       {format === "vote" && (
         <Panel title="Show votes" hint="On by default.">
           <ShowVotesToggle value={showVotes} onChange={setShowVotes} />
+        </Panel>
+      )}
+
+      {ELIMINATION_FORMATS.has(format) && (
+        <Panel title="Elimination" hint={teams > 0 ? "Not with teams: turn teams off to use it." : "Lowest total goes out each round, down to a final 2. Needs 4+ players. Off by default."}>
+          <div className="flex flex-wrap gap-2">
+            <Chip selected={!elimination} onClick={() => setElimination(false)}>Off</Chip>
+            <Chip selected={elimination} onClick={() => setElimination(true)}>On</Chip>
+          </div>
         </Panel>
       )}
 
