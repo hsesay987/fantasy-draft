@@ -58,10 +58,14 @@ describe("tournament start and end", () => {
     const { r, tokens } = lobby();
     startTournament(r, tokens.Ann!, ["insync", "insync"]);
     playSync(r, tokens);
-    expect(r.tournament).toMatchObject({ index: 1, done: false, totals: { Ann: 2, Bob: 2 } });
+    // In-Sync scores each player, so the places follow the dials: totals are the awards added up.
+    const first = r.tournament.games[0].awards;
+    expect(Object.keys(first).sort()).toEqual(["Ann", "Bob"]);
+    expect(r.tournament).toMatchObject({ index: 1, done: false, totals: first });
     toLobby(r, tokens);
     playSync(r, tokens);
-    expect(r.tournament).toMatchObject({ index: 2, done: true, totals: { Ann: 4, Bob: 4 } });
+    const second = r.tournament.games[1].awards;
+    expect(r.tournament).toMatchObject({ index: 2, done: true, totals: { Ann: first.Ann + second.Ann, Bob: first.Bob + second.Bob } });
     const snap = snapshot(r, null).tournament!;
     expect(snap.done).toBe(true);
     toLobby(r, tokens);
@@ -83,9 +87,10 @@ describe("tournament start and end", () => {
       act(r, tokens.Ann!, { type: "next" });
     }
     expect(r.status).toBe("done");
-    expect(r.tournament.totals.Cy).toBe(2);
-    expect(r.tournament.games[1].awards).toEqual({ Ann: 2, Bob: 2 });
-    expect(r.tournament.totals.Ann).toBe(4);
+    const first = r.tournament.games[0].awards;
+    expect(r.tournament.totals.Cy).toBe(first.Cy);
+    expect(Object.keys(r.tournament.games[1].awards).sort()).toEqual(["Ann", "Bob"]);
+    expect(r.tournament.totals.Ann).toBe(first.Ann + r.tournament.games[1].awards.Ann);
   });
 
   it("ending early sets done and later finishes change nothing", () => {

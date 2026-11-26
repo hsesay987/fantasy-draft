@@ -1,9 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { CLUE_MS, REVEAL_MS, TUNE_MS, average, bandPoints, clue, giver, init, lock, move, next, rankFor, redactFor, settle, tick, type InSyncState } from "./insync";
+import { CLUE_MS, REVEAL_MS, TUNE_MS, average, bandPoints, closest, clue, giver, init, roundGains, lock, move, next, rankFor, redactFor, settle, tick, type InSyncState } from "./insync";
 import { INSYNC_DECKS, insyncDeckOf } from "../party/insyncDecks";
 
 const pairs = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `p${i}`, left: `L${i}`, right: `R${i}` }));
-const start = (players: string[], extra: Partial<Parameters<typeof init>[0]> = {}) =>
+/** A game as it was before per-player points (co-operative: one shared score). Most tests below cover that path. */
+const start = (players: string[], extra: Partial<Parameters<typeof init>[0]> = {}): InSyncState => {
+  const { points: _drop, ...coop } = fresh(players, extra);
+  return coop;
+};
+/** A game as it starts today: every player scores their own points. */
+const fresh = (players: string[], extra: Partial<Parameters<typeof init>[0]> = {}) =>
   init({ players, deck: "friends", pairs: pairs(10), rounds: Math.max(4, players.length), seed: 5, now: 0, ...extra });
 /** Pin the hidden target so the scoring in a test is exact. */
 const pin = (s: InSyncState, target: number): InSyncState => ({ ...s, target });
@@ -341,5 +347,64 @@ describe("in-sync when someone leaves", () => {
     expect(s.phase).toBe("reveal");
     const t = tuning();
     expect(settle(t, ["A"], 3)).toBe(t);
+  });
+});
+
+describe("in-sync per-player points", () => {
+  it("a duo plays as a team on one shared score, since the giver's average would always tie the guesser", () => {
+    let s = pin(fresh(["A", "B"]), 50);
+    expect(s.points).toBeUndefined();
+    s = play(s, 50);
+    expect(s.score).toBe(4);
+    expect(s.history[0]!.gained).toBeUndefined();
+  });
+
+  it("starts everyone on 0", () => {
+    expect(fresh(["A", "B", "C"]).points).toEqual({ A: 0, B: 0, C: 0 });
+  });
+
+  it("each guesser scores by their own dial; the giver scores their rounded average", () => {
+    let s = pin(fresh(["A", "B", "C", "D"]), 60);
+    const g = giver(s);
+    s = clue(s, g, "a clue", 1);
+    const [x, y, z] = s.players.filter((p) => p !== g);
+    s = move(s, x!, 61, 1); // bullseye: 4
+    s = move(s, y!, 66, 1); // close: 3
+    s = move(s, z!, 90, 1); // miss: 0
+    for (const p of [x!, y!, z!]) s = lock(s, p, 1);
+    expect(s.phase).toBe("reveal");
+    expect(s.points).toMatchObject({ [x!]: 4, [y!]: 3, [z!]: 0, [g]: 2 }); // (4 + 3 + 0) / 3 rounds to 2
+    expect(s.history[0]!.gained).toEqual({ [x!]: 4, [y!]: 3, [z!]: 0, [g]: 2 });
+    expect(s.score).toBe(0); // no shared score in a per-player game
+  });
+
+  it("adds up over rounds, and a skipped round scores nobody", () => {
+    let s = fresh(["A", "B", "C"]);
+    s = play(pin(s, 50), 50);
+    const after1 = { ...s.points! };
+    expect(Object.values(after1).every((n) => n === 4)).toBe(true);
+    s = next(s, 2);
+    s = tick(s, 2 + CLUE_MS + 1); // the giver gives no clue
+    expect(s.points).toEqual(after1);
+  });
+
+  it("finds the closest dial and computes gains without a giver dial", () => {
+    expect(closest({ A: 10, B: 48, C: 70 }, 50)).toEqual({ player: "B", pos: 48 });
+    expect(closest({}, 50)).toBeNull();
+    expect(roundGains({ target: 50, markers: {} }, "G")).toEqual({ G: 0 });
+  });
+
+  it("drinking: the farthest dial drinks, a bullseye hands out, and a clue every dial missed costs the giver 2", () => {
+    let s = pin(fresh(["A", "B", "C"], { drinking: true }), 50);
+    const g = giver(s);
+    s = clue(s, g, "a clue", 1);
+    const [x, y] = s.players.filter((p) => p !== g);
+    s = move(s, x!, 50, 1);
+    s = move(s, y!, 80, 1);
+    s = lock(lock(s, x!, 1), y!, 1);
+    expect(s.drinks!.calls.map((c) => [c.to, c.sips, !!c.handsOut])).toEqual([[x, 1, true], [y, 1, false]]);
+    let m = pin(fresh(["A", "B", "C"], { drinking: true }), 10);
+    m = play(m, 90);
+    expect(m.drinks!.calls.map((c) => [c.to, c.sips])).toEqual([[giver(m), 2]]);
   });
 });

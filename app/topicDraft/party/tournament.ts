@@ -66,7 +66,8 @@ export function awardsFor(setup: GameSetup, state: GameState, seated: string[], 
 
   switch (f) {
     case "insync":
-      return Object.fromEntries(seated.map((p) => [p, COOP_POINTS]));
+      // Per-player games rank like any other party game; older co-operative games give everyone the same.
+      return s.points ? byPoints(points(), seated) : Object.fromEntries(seated.map((p) => [p, COOP_POINTS]));
     case "mafia": {
       const m = state as unknown as MafiaState;
       if (!m.winner) return null;

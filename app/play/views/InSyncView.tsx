@@ -29,7 +29,12 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const canTune = s.phase === "tune" && me in s.markers;
   const myDial = s.markers[me];
   const last = s.phase === "reveal" ? s.history[s.history.length - 1]! : null;
-  const points = (last ? last.points : null) as Points | null;
+  // Per-player games: a guesser's needle and verdict are their own dial; everyone else sees the closest dial.
+  const perPlayer = !!s.points;
+  const best = last && perPlayer ? IS.closest(last.markers ?? {}, last.target) : null;
+  const ownLast = last?.markers?.[me];
+  const focus = perPlayer && last ? (ownLast != null ? ownLast : best?.pos ?? null) : null;
+  const points = (last ? (perPlayer ? (focus != null ? IS.bandPoints(last.target, focus) : 0) : last.points) : null) as Points | null;
 
   // My dial: sent at most once per 200ms, with this seat's finger shown straight away.
   const [local, setLocal] = useState<LocalMarker | null>(null);
@@ -57,8 +62,11 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   }, [local, myDial]);
 
   // While tuning, a guesser's needle is their own dial; everyone else watches the room's average. The other dials show faintly.
-  const marker = canTune ? shownMarker(myDial ?? 50, local, Date.now()) : s.marker;
-  const dials = last ? Object.values(last.markers ?? {}) : Object.entries(s.markers).filter(([p]) => !canTune || p !== me).map(([, v]) => v);
+  const marker = canTune ? shownMarker(myDial ?? 50, local, Date.now()) : focus ?? s.marker;
+  const focusName = perPlayer && last ? (ownLast != null ? me : best?.player) : undefined;
+  const dials = last
+    ? Object.entries(last.markers ?? {}).filter(([p]) => !perPlayer || p !== focusName).map(([, v]) => v)
+    : Object.entries(s.markers).filter(([p]) => !canTune || p !== me).map(([, v]) => v);
   const mineLast = last?.markers?.[me];
 
   useEffect(() => { window.scrollTo(0, 0); }, [s.round]); // each new round starts at the top of the screen
@@ -123,7 +131,7 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
         {isHost && s.phase === "clue" && <ClueDesk onSend={(text) => ctl.dispatch({ type: "clue", by: me, text })} />}
 
-        <SignalCanvas marker={marker} dials={dials} target={s.target} phase={s.phase} points={points} left={pair.left} right={pair.right}
+        <SignalCanvas marker={marker} dials={dials} needle={!(perPlayer && !canTune && s.phase === "tune")} target={s.target} phase={s.phase} points={points} left={pair.left} right={pair.right}
           onMove={canTune ? (pos) => { setLocal({ pos, at: Date.now(), dragging: true }); mover.push(pos); } : undefined}
           onRelease={() => setLocal((l) => (l ? { ...l, at: Date.now(), dragging: false } : l))}
           overlay={<>
@@ -133,7 +141,7 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
         {canTune && (
           <div className="sync-lock">
-            <p className="sync-hint">{lockedByMe ? "Locked. Move your dial to change your mind." : "Drag your own dial. Talk it over: the room's signal is where all your dials average out."}</p>
+            <p className="sync-hint">{lockedByMe ? "Locked. Move your dial to change your mind." : perPlayer ? "Drag your own dial. You score by how close it lands." : "Drag your own dial. Talk it over: the room's signal is where all your dials average out."}</p>
             <PixelButton variant="gold" className="sync-lock-btn" disabled={lockedByMe} aria-pressed={lockedByMe} onClick={lock}>{lockedByMe ? "Locked" : "Lock it in"}</PixelButton>
             <LockLamps have={have} need={need} />
           </div>
@@ -146,16 +154,35 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         )}
         {isHost && s.phase === "tune" && (
           <div className="sync-lock">
-            <p className="sync-hint">No more clues. The bright needle is where their dials average out. Watch it find your green flag.</p>
+            <p className="sync-hint">{perPlayer ? "No more clues. Watch their dials hunt for your green flag. You score their average." : "No more clues. The bright needle is where their dials average out. Watch it find your green flag."}</p>
             <LockLamps have={have} need={need} />
           </div>
         )}
 
         {last && landed && (
           <PixelBox as="section" pad={false} className="sync-log">
-            <h2 role="status" className={last.points === 0 ? "miss" : ""}>{resultLine(last.points as Points)}</h2>
-            <p className="line">The room&apos;s signal at <b>{last.marker}</b>. Target at <b>{last.target}</b>.</p>
-            {mineLast != null && <p className="line">Your dial at <b>{mineLast}</b>: {verdictFor(IS.bandPoints(last.target, mineLast)).toLowerCase()}.</p>}
+            {perPlayer && last.gained ? (
+              <>
+                <h2 role="status" className={points === 0 ? "miss" : ""}>{resultLine(points ?? 0)}</h2>
+                <p className="line">Target at <b>{last.target}</b>.{best && <> Closest: <b>{best.player}</b> at <b>{best.pos}</b>.</>}</p>
+                {isHost && <p className="line">Your clue scored <b>+{last.gained[me] ?? 0}</b>, the average of their dials.</p>}
+                <ul className="sync-gains" aria-label="Points this round">
+                  {Object.entries(last.gained).sort((a, b) => b[1] - a[1]).map(([p, n]) => (
+                    <li key={p} className={`${p === me ? "me" : ""} p${p === last.giver ? "g" : n}`}>
+                      <span className="name">{p}{p === last.giver ? " (clue)" : ""}</span>
+                      {p !== last.giver && <span className="pos">{last.markers[p]}</span>}
+                      <b>+{n}</b>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <>
+                <h2 role="status" className={last.points === 0 ? "miss" : ""}>{resultLine(last.points as Points)}</h2>
+                <p className="line">The room&apos;s signal at <b>{last.marker}</b>. Target at <b>{last.target}</b>.</p>
+                {mineLast != null && <p className="line">Your dial at <b>{mineLast}</b>: {verdictFor(IS.bandPoints(last.target, mineLast)).toLowerCase()}.</p>}
+              </>
+            )}
             {canMoveOn(ctl)
               ? <PixelButton variant="gold" className="w-[calc(100%-8px)]" onClick={() => ctl.dispatch({ type: "next", by: me })}>{s.round + 1 >= s.pairs.length ? "Final score >" : "Next round >"}</PixelButton>
               : <WaitingForHost ctl={ctl} />}
@@ -163,13 +190,31 @@ export function InSyncView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         )}
 
         <Crew players={s.players} host={host} locks={s.locks} me={me} gone={gone} />
-        <p className="sync-total">Group score <b>{shownScore}</b>{shownMax > 0 && <> of {shownMax}</>}</p>
+        {perPlayer
+          ? <Standings points={s.points!} gained={held ? last?.gained : undefined} players={s.players} me={me} />
+          : <p className="sync-total">Group score <b>{shownScore}</b>{shownMax > 0 && <> of {shownMax}</>}</p>}
 
         {s.drinks && <WaterLine />}
         {s.drinks && landed && <DrinkCard calls={s.drinks.calls} seq={s.drinks.seq} game={syncGameKey(s.pairs)} names={s.players} />}
         {ctl.leave && <LeaveGame onLeave={ctl.leave} />}
       </div>
     </PixelShell>
+  );
+}
+
+/** Running points, with this round's gains held back until the reveal animation lands. */
+function Standings({ points, gained, players, me }: { points: Record<string, number>; gained?: Record<string, number>; players: string[]; me: string }) {
+  const shown = players.map((p) => ({ p, n: (points[p] ?? 0) - (gained?.[p] ?? 0), seat: players.indexOf(p) })).sort((a, b) => b.n - a.n);
+  return (
+    <ol className="sync-standings" aria-label="Scores">
+      {shown.map(({ p, n, seat }) => (
+        <li key={p} className={p === me ? "me" : ""}>
+          <Sprite sprite={playerSprite(seat)} size={18} />
+          <span className="name">{p}</span>
+          <b>{n}</b>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -224,22 +269,39 @@ export function InSyncResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAga
   const deck = insyncDeckOf(s.deck);
   const rank = IS.rankFor(s.score, s.maxScore);
   const top = s.maxScore > 0 && s.score / s.maxScore >= 0.7;
+  const pts = s.points;
+  const ranked = pts ? [...s.players].sort((a, b) => (pts[b] ?? 0) - (pts[a] ?? 0)) : [];
+  const winners = pts && ranked.length ? ranked.filter((p) => pts[p] === pts[ranked[0]!]) : [];
   return (
     <PixelShell world="studio">
       <div className="party-page">
         <WorldScene world="studio" actors={[]} labels={false} track={false} caption={SCENE} />
-        <div className={`sync-sign sync-banner ${top ? "px-confetti" : ""}`}>
-          <p className="eyebrow">{deck?.title} · end of the show</p>
-          <h1>{rank}</h1>
-          <p className="big"><b>{s.score}</b> of {s.maxScore}</p>
-          <p className="note">One score for the whole room.</p>
-        </div>
+        {pts ? (
+          <div className="sync-sign sync-banner px-confetti">
+            <p className="eyebrow">{deck?.title} · end of the show</p>
+            <h1>{winners.length === 1 ? `${winners[0]} wins` : `${winners.join(" & ")} tie`}</h1>
+            <p className="big"><b>{pts[ranked[0]!] ?? 0}</b> points</p>
+          </div>
+        ) : (
+          <div className={`sync-sign sync-banner ${top ? "px-confetti" : ""}`}>
+            <p className="eyebrow">{deck?.title} · end of the show</p>
+            <h1>{rank}</h1>
+            <p className="big"><b>{s.score}</b> of {s.maxScore}</p>
+            <p className="note">One score for the whole room.</p>
+          </div>
+        )}
+        {pts && (
+          <PixelBox as="section" pad={false} className="sync-log">
+            <h2>Final scores</h2>
+            <Standings points={pts} players={s.players} me={ctl.me ?? ""} />
+          </PixelBox>
+        )}
         <PixelBox as="section" pad={false} className="sync-log">
           <h2>Tonight&apos;s log</h2>
           <ol className="sync-rounds">
             {s.history.map((h, i) => (
               <li key={h.pair.id} className={h.skipped ? "skipped" : `p${h.points}`}>
-                <span className="pts">{h.skipped ? "-" : `+${h.points}`}</span>
+                <span className="pts">{h.skipped ? "-" : h.gained ? `+${Math.max(0, ...Object.entries(h.gained).filter(([p]) => p !== h.giver).map(([, n]) => n))}` : `+${h.points}`}</span>
                 <div className="body">
                   <p className="pair">{h.pair.left} / {h.pair.right}</p>
                   {h.skipped ? <p className="clue">{h.giver} gave no clue, so the round was skipped.</p> : <p className="clue"><Sprite sprite={playerSprite(s.players.indexOf(h.giver))} size={14} /> {h.giver}: &ldquo;{h.clue}&rdquo;</p>}
@@ -247,7 +309,7 @@ export function InSyncResults({ ctl, onAgain, onRematch }: { ctl: GameCtl; onAga
                     <span className="mini" role="img" aria-label={`Round ${i + 1}: the room's signal at ${h.marker}, target at ${h.target}. ${verdictFor(h.points as Points)}.`}>
                       <i className="t" style={{ left: `${h.target}%` }} />
                       {Object.entries(h.markers ?? {}).map(([p, v]) => <i key={p} className="d" style={{ left: `${v}%` }} />)}
-                      <i className="m" style={{ left: `${h.marker}%` }} />
+                      {!h.gained && <i className="m" style={{ left: `${h.marker}%` }} />}
                     </span>
                   )}
                 </div>
