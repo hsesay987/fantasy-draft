@@ -26,6 +26,9 @@ const hash = (s: string) => {
 const valueOf = (setup: GameSetup, a: A.AuctionState, p: string, item: { id: string; stats: Record<string, number> }) =>
   (itemScore(item as never, setup.mission.weights) / 100) * (a.budget / a.teamSize) * 1.9 * (0.75 + 0.55 * hash(p + item.id)) * (setup.opts.blind ? 0.7 + 0.6 * hash(`${p}|blind|${item.id}`) : 1);
 
+/** Solo games seat the player as "You": "You open", not "You opens". */
+const verb = (who: string | null | undefined, v: string) => (who === "You" ? v : `${v}s`);
+
 export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const { play } = useSound();
   const a = ctl.state as A.AuctionState;
@@ -138,7 +141,7 @@ export function AuctionView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
     play("click");
   };
 
-  const headline = offer ? (nom && ctl.controls(nom) ? "Your turn to nominate a lot" : `${nom} nominates a lot`) : !lot ? "Auction over" : a.bid.by ? `${a.bid.by} leads at $${a.bid.amount}` : opening ? `${opening} opens the bidding` : "Bidding is open";
+  const headline = offer ? (nom && ctl.controls(nom) ? "Your turn to nominate a lot" : `${nom} ${verb(nom, "nominate")} a lot`) : !lot ? "Auction over" : a.bid.by ? `${a.bid.by} ${verb(a.bid.by, "lead")} at $${a.bid.amount}` : opening ? `${opening} ${verb(opening, "open")} the bidding` : "Bidding is open";
 
   return (
     <PageShell width="lg" layout="sidebar">
