@@ -82,7 +82,7 @@ export function RollRow({ items, shuffleFrom, rollKey, selectedId, highlightId, 
     if (count.current === items.length) onAllLanded?.();
   };
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))] gap-3">
       {items.map((it, i) => (
         <Slot key={`${rollKey}-${it.id}`} item={it} index={i} shuffleFrom={sample} rollKey={rollKey} selected={selectedId === it.id} highlight={highlightId === it.id} dim={!!highlightId && highlightId !== it.id} price={prices?.[it.id]}
           onClick={onSelect ? () => onSelect(it.id) : undefined} onDoubleClick={onQuickPick ? () => onQuickPick(it.id) : undefined} onLanded={landed} />

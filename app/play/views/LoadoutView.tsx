@@ -157,7 +157,7 @@ export function LoadoutView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
             {s.roll ? (
               <RollRow items={items} shuffleFrom={L.poolItems(slot.pool)} rollKey={`${s.turn}-${slotId}-${offered?.join(",")}`} selectedId={selected} prices={Object.fromEntries(items.map((i) => [i.id, L.priceOf(i, slot.priceStat)]))} onSelect={mine ? (id) => { setError(null); setSelected(id); } : undefined} onQuickPick={mine ? buy : undefined} />
             ) : (
-              <div className={`grid gap-3 sm:grid-cols-2 xl:grid-cols-3 ${!mine ? "pointer-events-none opacity-60" : ""}`}>
+              <div className={`grid grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))] gap-3 ${!mine ? "pointer-events-none opacity-60" : ""}`}>
                 {items.map((i) => {
                   const ok = player ? L.validate(s, slot.id, i.id).ok : false;
                   return <HeroCard key={i.id} item={i} price={L.priceOf(i, slot.priceStat)} selected={selected === i.id} taken={taken.has(i.id)} banned={!ok && !taken.has(i.id)} onClick={() => { setError(null); setSelected(i.id); }} onDoubleClick={() => buy(i.id)} />;

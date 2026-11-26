@@ -90,7 +90,7 @@ export function PoolGrid({
           <Chip key={u} selected={uni === u} onClick={() => setUni(uni === u ? null : u)}>{u}</Chip>
         ))}
       </div>
-      <div className={`grid gap-3 sm:grid-cols-2 xl:grid-cols-3 ${disabled ? "pointer-events-none opacity-60" : ""}`}>
+      <div className={`grid grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))] gap-3 ${disabled ? "pointer-events-none opacity-60" : ""}`}>
         {items.map((i) => (
           <HeroCard
             key={i.id}
