@@ -50,7 +50,7 @@ export default async function GameLanding({ params }: Props) {
   const daily = games.find((g) => g.daily)?.daily;
   const related = gamesOf(main.kind).filter((g) => !l.ids.includes(g.id)).flatMap((g) => { const r = landingFor(g.id); return r ? [{ g, slug: r.slug }] : []; })
     .filter((x, i, all) => all.findIndex((y) => y.slug === x.slug) === i).slice(0, 6);
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://toppicgames.com";
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://toppic.io";
 
   const jsonLd = [
     {
