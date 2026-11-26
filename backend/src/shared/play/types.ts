@@ -41,6 +41,8 @@ export type Opts = {
   rankSize: number;
   /** Imposter: "guess" lets the imposter name the secret any time; "vote" leaves it to the vote. */
   ending: "guess" | "vote";
+  /** Party games: the lowest total goes out each round (see topicDraft/party/elimination.ts). */
+  elimination?: boolean;
   /** Drafts (snake, spin, loadout, auction, keep): vetoes per player, 0 or missing for off. */
   veto?: number;
   /** Imposter: what the imposter is dealt. "decoy" is a look-alike pick and the imposter is not told. Missing = nothing. */
