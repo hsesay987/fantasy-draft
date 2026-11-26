@@ -1,5 +1,6 @@
 // Format-agnostic game core. Pure + JSON-serializable so the browser (local play)
 // and the server (online rooms) run exactly the same rules.
+import { afterPick, closeExpired, initVeto, newPick, veto, vetoCount, vetoOf, vetoOn, VETO_WAITS } from "./veto";
 import type { GameSetup } from "../play/types";
 import { NPAT_DIG_IDS, poolsOf, snakeConfig } from "../play/types";
 import { toJudgeItem, type JudgeTeamInput } from "../play/judging";
@@ -74,7 +75,8 @@ export type Action =
   | { type: "buzz"; by: string }
   | { type: "spoke"; by: string }
   | { type: "mark"; by: string; verdict: "right" | "wrong" }
-  | { type: "giveUp"; by: string };
+  | { type: "giveUp"; by: string }
+  | { type: "veto"; by: string };
 
 export type Extra = { kind: "order"; title: string; names: string[] } | null;
 
@@ -96,6 +98,11 @@ const quizRounds = (setup: GameSetup) => Math.max(3, Math.min(8, setup.opts.team
 const bundledMix = (setup: GameSetup) => poolsOf(setup).flatMap((p) => bundledCategories(p));
 
 export function initGame(setup: GameSetup, now: number): GameState {
+  const s = initBase(setup, now);
+  return vetoOn(setup.format, setup.opts.veto) ? ({ ...s, veto: initVeto(setup.players, vetoCount(setup.opts.veto), setup.aiPlayers) } as unknown as GameState) : s;
+}
+
+function initBase(setup: GameSetup, now: number): GameState {
   const o = setup.opts;
   const pool = poolFor(setup);
   switch (setup.format) {
@@ -194,6 +201,7 @@ function npatCategories(pools: string[], hard: boolean): string[] {
 }
 
 export function isDone(setup: GameSetup, s: GameState): boolean {
+  if (vetoOf(s)?.open) return false; // the last pick can still be vetoed
   switch (setup.format) {
     case "snake":
     case "spin": {
@@ -208,6 +216,7 @@ export function isDone(setup: GameSetup, s: GameState): boolean {
 /** Who must act next in a strictly turn-based format (null = anyone / simultaneous). */
 export function currentTurn(setup: GameSetup, s: GameState): string | null {
   if (isDone(setup, s)) return null;
+  if (vetoOf(s)?.open && VETO_WAITS.has(setup.format)) return null; // waiting on vetoes
   switch (setup.format) {
     case "snake":
     case "spin": {
@@ -244,6 +253,21 @@ const itemsById = (setup: GameSetup) => {
 
 /** Apply one action. Returns the same reference if the action was invalid or not allowed. */
 export function applyAction(setup: GameSetup, s: GameState, a: Action, now: number): GameState {
+  if (!vetoOf(s)) return applyBase(setup, s, a, now);
+  if (a.type !== "tick" && "by" in a && !setup.players.includes(a.by)) return s;
+  if (a.type === "veto") return veto(setup.format, s, a.by, now) as GameState;
+  const open = closeExpired(s, now) as GameState;
+  if (vetoOf(open)?.open && VETO_WAITS.has(setup.format) && a.type !== "tick") return open; // no picks while vetoes are open
+  let base = applyBase(setup, open, a, now);
+  const inner = (x: GameState) => (x as { draft?: unknown; spin?: unknown }).draft ?? (x as { spin?: unknown }).spin;
+  if ((setup.format === "snake" || setup.format === "spin") && inner(base) === inner(open)) base = open; // nothing happened
+  // Snake and Spin rebuild their wrapper object, so carry the veto state across.
+  const next = base !== open && !vetoOf(base) ? ({ ...base, veto: vetoOf(open) } as unknown as GameState) : base;
+  const pk = next === open ? null : newPick(setup.format, open, next);
+  return pk ? (afterPick(setup.format, next, pk, now) as GameState) : next;
+}
+
+function applyBase(setup: GameSetup, s: GameState, a: Action, now: number): GameState {
   if (a.type !== "tick" && "by" in a && !setup.players.includes(a.by)) return s;
   const turn = currentTurn(setup, s);
   const mine = (a: Action) => !("by" in a) || turn == null || turn === a.by;

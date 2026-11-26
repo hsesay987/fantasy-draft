@@ -12,7 +12,7 @@ export type SpinState = {
   seed: number;
 };
 
-function makeOffer(draft: State, options: number, seed: number, hasRoles: boolean): [string[], number] {
+export function makeOffer(draft: State, options: number, seed: number, hasRoles: boolean): [string[], number] {
   const picked = new Set(draft.picks.map((p) => p.itemId));
   const candidates = draft.pool
     .filter((i) => !picked.has(i.id) && !draft.banned.includes(i.id))

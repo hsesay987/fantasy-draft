@@ -1,5 +1,6 @@
 "use client";
 
+import { vetoOf } from "../../topicDraft/veto";
 import { useEffect, useMemo, useState } from "react";
 import { ShieldAlert, Search, Dices } from "lucide-react";
 import { Button, Chip, PageShell, TimerRing } from "../../components/ui";
@@ -24,7 +25,7 @@ export function LoadoutView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
   const [sort, setSort] = useState<"price" | "quality">("quality");
   const [error, setError] = useState<string | null>(null);
 
-  const player = s.done ? null : L.turnPlayer(s);
+  const player = s.done || vetoOf(s)?.open ? null : L.turnPlayer(s); // null while a veto window holds the draft
   const ai = ctl.isAi(player);
   const mine = ctl.controls(player);
   const slot = mission.slots.find((x) => x.id === slotId)!;
@@ -97,7 +98,7 @@ export function LoadoutView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) 
     <PageShell width="lg" layout="sidebar" stickyBar>
       <GameFrame
         kicker={`Loadout · TopPic ${Math.min(s.turn + 1, total)}/${total}`}
-        headline={ai || !mine ? `${player} is shopping…` : `${player}: build your kit`}
+        headline={!player && !s.done ? "Veto window…" : ai || !mine ? `${player} is shopping…` : `${player}: build your kit`}
         mission={mission}
         mystery={setup.mystery}
         right={setup.opts.timerSeconds && player && mine && !ctl.online ? <TimerRing seconds={setup.opts.timerSeconds} resetKey={s.turn} onExpire={() => ctl.dispatch({ type: "auto", by: player })} /> : undefined}

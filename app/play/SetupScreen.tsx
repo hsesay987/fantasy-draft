@@ -1,5 +1,6 @@
 "use client";
 
+import { VETO_FORMATS } from "../topicDraft/veto";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
@@ -254,6 +255,17 @@ export default function SetupScreen({ format: forced, room }: { format?: FormatI
         )}
         {format === "auction" && (
           <Chip selected={opts.blind} onClick={() => setOpts((o) => ({ ...o, blind: !o.blind, roll: o.blind ? o.roll : false }))}>🕵️ Blind lots — bid on clues, see who it is when it sells</Chip>
+        )}
+        {VETO_FORMATS.has(format) && (players.length > 1 || mode === "online") && (
+          <>
+            <Chip selected={(opts.veto ?? 0) > 0} onClick={() => set("veto", (opts.veto ?? 0) > 0 ? 0 : 1)}>✋ Veto — {format === "auction" ? "cancel someone's win within 8 seconds: refunded, character gone" : format === "keep" ? "cancel someone's keep within 8 seconds: it counts as a delete" : "cancel someone's pick within 8 seconds: character gone, they pick again"}</Chip>
+            {(opts.veto ?? 0) > 0 && (
+              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Vetoes per player">
+                <span className="text-sm text-muted-foreground">Vetoes each:</span>
+                {[1, 2, 3].map((n) => <Chip key={n} selected={opts.veto === n} onClick={() => set("veto", n)}>{n}</Chip>)}
+              </div>
+            )}
+          </>
         )}
       </Panel>
 

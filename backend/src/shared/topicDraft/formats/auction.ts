@@ -150,6 +150,14 @@ function fillRemaining(s: AuctionState): AuctionState {
   return { ...s, rosters, done: true, deadline: null };
 }
 
+/** Start bidding again after a finished auction got a slot back (a vetoed sale): the next lot, or free fills when the queue is spent. */
+export function reopen(s: AuctionState, now: number): AuctionState {
+  const n: AuctionState = { ...s, done: false, deadline: null, bid: { amount: 0, by: null }, passed: {}, openTurn: 0 };
+  if (n.players.every((p) => slotsLeft(n, p) <= 0)) return { ...n, done: true };
+  if (n.index >= n.queue.length) return fillRemaining(n);
+  return { ...n, deadline: now + n.openMs, nominate: n.nominate ? { ...n.nominate, offer: rollOffer(n) } : undefined };
+}
+
 /** Close the current lot (sold to the high bidder, or unsold) and move to the next. */
 function closeLot(s: AuctionState, now: number): AuctionState {
   const itemId = s.queue[s.index]!;
