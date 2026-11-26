@@ -5,7 +5,8 @@ import { shuffle } from "../rng";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { own } from "../party/own";
 import { buildTeams, TEAM_MIN_PLAYERS } from "../party/teams";
-import { JUDGE_MS, REVEAL_MS, SPEAK_MS, WORD_MS, checkClue, clueScore, guardLoss, matchesGuess, normText, turnBudget } from "../sayless/rules";
+import { GUESS_MAX, JUDGE_MS, REVEAL_MS, SPEAK_MS, WORD_MS, checkClue, clueScore, guardLoss, matchesGuess, normText, turnBudget } from "../sayless/rules";
+import { closestAnswer } from "../spelling";
 import { wordsOf, type SayWord } from "../sayless/source";
 
 export type SLTurn = { describer: string; team: number | null };
@@ -51,6 +52,8 @@ export type SLState = {
   drinks?: DrinkState;
   /** The last refused clue, so the describer's phone can say why. `seq` goes up with each refusal; cleared by an accepted clue or a new word. */
   refused?: { seq: number; reason: string };
+  /** Guessers who have had a spelling suggestion for this word: one each, so nobody can fish for it. Cleared by a new word. */
+  hinted?: string[];
 };
 
 /** What a seat is sent. `current` is the word in play with its name, aliases and id blanked unless the word has ended;
@@ -164,8 +167,15 @@ function finish(s: SLState, now: number, o: { winner?: string; passed?: boolean;
   return { ...unrefused(s), phase: "reveal", points, teamPoints, history: [...s.history, h], phaseAt: now };
 }
 
+/** A copy for a new word: no refused clue and no spelling suggestions yet. */
+const newWord = (s: SLState): SLState => {
+  const o = unrefused(s);
+  delete o.hinted;
+  return o;
+};
+
 function startTurn(s: SLState, turn: number, now: number): SLState {
-  const rest = unrefused(s);
+  const rest = newWord(s);
   if (turn >= s.turns.length) return { ...rest, buzzer: null, done: true, phaseAt: now };
   const budget = turnBudget(s.deal[turn]!.map((w) => w.par), s.slack);
   return { ...rest, turn, at: 0, phase: "clue", clues: [], budget, budgetStart: budget, guessers: guessersFor(s, turn), locked: [], buzzer: null, phaseAt: now, wordAt: now };
@@ -173,7 +183,7 @@ function startTurn(s: SLState, turn: number, now: number): SLState {
 
 function advance(s: SLState, now: number): SLState {
   if (s.budget > 0 && s.at + 1 < s.deal[s.turn]!.length) {
-    return { ...unrefused(s), at: s.at + 1, phase: "clue", clues: [], locked: [], buzzer: null, phaseAt: now, wordAt: now };
+    return { ...newWord(s), at: s.at + 1, phase: "clue", clues: [], locked: [], buzzer: null, phaseAt: now, wordAt: now };
   }
   return startTurn(s, s.turn + 1, now);
 }
@@ -194,9 +204,19 @@ export function clue(s: SLState, by: string, text: unknown, now: number): SLStat
   return { ...unrefused(s), clues: [...s.clues, main.clue], budget: s.budget - 1 };
 }
 
-/** A typed guess. A wrong one returns the same object so a room sends nothing. */
+const canGuess = (s: SLState, by: string, now: number) => !s.done && s.phase === "clue" && s.answerMode === "type" && s.guessers.includes(by) && inTime(s, now);
+
+/** The word (or alias) a wrong guess was close to, if this guesser has had no suggestion for this word. */
+export function nearMiss(s: SLState, by: string, text: unknown, now: number): string | null {
+  if (!canGuess(s, by, now) || typeof text !== "string" || s.hinted?.includes(by)) return null;
+  const w = wordOf(s)!;
+  return matchesGuess(w, text) ? null : closestAnswer(text.slice(0, GUESS_MAX), [w.name, ...(w.also ?? [])]);
+}
+
+/** A typed guess. A wrong one returns the same object so a room sends nothing; a near miss only notes its suggestion. */
 export function guess(s: SLState, by: string, text: unknown, now: number): SLState {
-  if (s.done || s.phase !== "clue" || s.answerMode !== "type" || !s.guessers.includes(by) || !inTime(s, now)) return s;
+  if (!canGuess(s, by, now)) return s;
+  if (nearMiss(s, by, text, now)) return { ...s, hinted: [...(s.hinted ?? []), by] };
   return matchesGuess(wordOf(s)!, text) ? finish(s, now, { winner: by }) : s;
 }
 
@@ -290,5 +310,7 @@ export function redactFor(s: SLState, me: string | null): SLView {
   const open = s.phase === "reveal";
   const current = w ? (open ? w : { ...w, id: "", name: "", also: [] }) : null;
   const word = w && live(s) && me !== null && me === currentDescriber(s) ? w : null;
+  // Who has had a suggestion is each seat's own business; the suggestion itself only ever goes back in the guess's reply.
+  if (rest.hinted) rest.hinted = rest.hinted.filter((p) => p === me);
   return { ...(rest as Omit<SLState, "deal" | "seed">), total: s.turns.length, current, word };
 }

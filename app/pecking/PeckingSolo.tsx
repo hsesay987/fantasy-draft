@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import * as PK from "../topicDraft/formats/pecking";
 import type { PeckList } from "../topicDraft/pecking/types";
 import { PixelButton, PixelShell } from "../components/pixel/PixelUI";
@@ -34,17 +34,24 @@ export function PeckingSolo(props: PeckingSoloProps) {
 const deal = (p: PeckingSoloProps, avoid?: string[]) =>
   PK.init({ players: [ME], lists: p.lists ?? [], mode: "mixed", count: p.count ?? 6, avoid, seed: Math.floor(Math.random() * 2 ** 31), now: Date.now(), questions: p.questions });
 
+type Typed = { round: number; t: string } | null;
+type Hint = { round: number; name: string } | null;
+
 function Game(props: PeckingSoloProps) {
   const { daily, onFinish, backHref = "/pecking", backLabel = "All lists" } = props;
-  const [s, setS] = useState(() => deal(props));
+  // The game, the typed name and the spelling hint live together, so a pick's suggestion comes from the same state it
+  // was judged on, even when a clock tick lands in between.
+  const [g, setG] = useState<{ s: PK.PeckState; typed: Typed; hint: Hint }>(() => ({ s: deal(props), typed: null, hint: null }));
+  const { s, typed, hint } = g;
+  const setS = useCallback((f: (p: PK.PeckState) => PK.PeckState) => setG((p) => ({ ...p, s: f(p.s) })), []);
+  const setTyped = (t: Typed) => setG((p) => ({ ...p, typed: t }));
   const [rank, setRank] = useState<{ round: number; v: number } | null>(null);
-  const [typed, setTyped] = useState<{ round: number; t: string } | null>(null);
 
   // The clock: a timeout closes the question and a reveal moves on. The state changes only inside the interval callback.
   useEffect(() => {
     const id = setInterval(() => setS((p) => PK.tick(p, Date.now())), 250);
     return () => clearInterval(id);
-  }, []);
+  }, [setS]);
 
   const finish = useRef(onFinish);
   useEffect(() => { finish.current = onFinish; }, [onFinish]);
@@ -55,7 +62,7 @@ function Game(props: PeckingSoloProps) {
   }, [s]);
   useEffect(() => { window.scrollTo(0, 0); }, [s.round, s.phase, s.done]);
 
-  const again = () => { setRank(null); setTyped(null); setS(deal(props, PK.seenKeys(s))); };
+  const again = () => { setRank(null); setG((p) => ({ s: deal(props, PK.seenKeys(p.s)), typed: null, hint: null })); };
 
   const view = PK.redactFor(s, ME); // the answer stays out of what is rendered until the reveal
   if (s.questions.length === 0) {
@@ -112,6 +119,15 @@ function Game(props: PeckingSoloProps) {
   const text = typed?.round === s.round ? typed.t : "";
   const last = !asking ? s.history[s.history.length - 1] : undefined;
   const mine = last?.scores[ME];
+  const pickName = (n: string) => {
+    const t = Date.now();
+    setG((p) => {
+      const close = PK.nearMiss(p.s, ME, n, t);
+      const next = PK.pickName(p.s, ME, n, t);
+      // A near miss: the input takes the list name, and Enter sends it.
+      return close ? { s: next, typed: { round: p.s.round, t: close }, hint: { round: p.s.round, name: close } } : { ...p, s: next };
+    });
+  };
 
   return (
     <PixelShell world="ladder">
@@ -130,7 +146,7 @@ function Game(props: PeckingSoloProps) {
               <PixelButton variant="gold" className="pk-go" onClick={() => setS((p) => PK.guessRank(p, ME, value, Date.now()))}>Lock #{value}</PixelButton>
             </>
           ) : (
-            <NamePicker choices={q.choices ?? []} taken={[]} text={text} onText={(t) => setTyped({ round: s.round, t })} onPick={(n) => setS((p) => PK.pickName(p, ME, n, Date.now()))} />
+            <NamePicker choices={q.choices ?? []} taken={[]} text={text} onText={(t) => setTyped({ round: s.round, t })} onPick={pickName} hint={hint?.round === s.round && hint.name === text ? hint.name : null} />
           ))}
           {!asking && last && <PeckReveal q={q} scores={last.scores} players={[ME]} me={ME} />}
           {mine && <p className={`pk-mine ${mine.points > 0 ? "good" : "bad"}`} role="status">{mine.guess == null && !mine.name ? "No answer this time." : mine.points === 100 ? "Spot on! +100" : mine.points > 0 ? `+${mine.points}` : q.kind === "name" && !mine.span ? `${guessText(mine)} is not on the list.` : "Way off."}</p>}

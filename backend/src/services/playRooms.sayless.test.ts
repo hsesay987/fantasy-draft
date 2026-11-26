@@ -254,3 +254,25 @@ describe("Say Less in a tournament", () => {
     expect(r.tournament).toMatchObject({ index: 2, done: true });
   });
 });
+
+describe("Say Less spelling help", () => {
+  /** A near miss of the live word: its last letter dropped, or one added when the word is short. */
+  const nearly = (name: string) => (name.replace(/[^a-z]/gi, "").length > 4 ? name.slice(0, -1) : `${name}x`);
+
+  it("a near miss is refused with the word as `suggest`, only in that guesser's reply and never in any snapshot", () => {
+    const { r, toks } = running(["Ann", "Bo", "Cy"]);
+    const w = secret(r, toks).name;
+    const g = guesser(r);
+    const before = state(r).points;
+    const res = act(r, toks[g]!, { type: "guess", text: nearly(w) });
+    expect(res).toEqual({ ok: false, error: `Did you mean ${w}?`, suggest: w });
+    expect(state(r).points).toEqual(before);
+    expect(state(r).phase).toBe("clue");
+    for (const n of ["Ann", "Bo", "Cy"].filter((n) => n !== describer(r))) expect(JSON.stringify(snapshot(r, toks[n]!))).not.toContain(w);
+    // A second near miss from the same guesser gets nothing more: an ordinary wrong guess.
+    r.guessAt = undefined;
+    expect(act(r, toks[g]!, { type: "guess", text: nearly(w) })).toEqual({ ok: false, error: "Not allowed right now" });
+    r.guessAt = undefined;
+    expect(act(r, toks[g]!, { type: "guess", text: w })).toEqual({ ok: true });
+  });
+});

@@ -71,6 +71,8 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
   const [miss, setMiss] = useState(0);
   /** Why the last guess was refused, until the next keystroke or word. */
   const [rejected, setRejected] = useState<string | null>(null);
+  /** Spelling help: the name a near miss was close to, now in the input. Only the server's reply to this seat's guess has it. */
+  const [hint, setHint] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const sending = useRef(false);
@@ -104,6 +106,7 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
     if (!inGuess) return;
     setText("");
     setRejected(null);
+    setHint(null);
     if (typed) input.current?.focus({ preventScroll: true });
   }, [inGuess, s.round, typed]);
 
@@ -144,8 +147,12 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
     const round = s.round;
     try {
       const r = await ctl.dispatch({ type: "guess", by: me, text });
-      // Refused. Unless the word has moved on, or this seat has it (an answer already counted), that is a miss to show.
-      if (r && !r.ok && live.current.round === round && !live.current.got) {
+      if (r?.suggest && live.current.round === round && !live.current.got) {
+        setText(r.suggest);
+        setHint(r.suggest);
+        setRejected(null);
+      } else if (r && !r.ok && live.current.round === round && !live.current.got) {
+        // Refused. Unless the word has moved on, or this seat has it (an answer already counted), that is a miss to show.
         // A guess that came after the clock ran out was late, not wrong.
         if (r.error === REFUSED && Date.now() + ctl.offset - s.phaseAt >= GUESS_MS) {
           setRejected(LATE);
@@ -171,6 +178,7 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
     if (v.length > text.length) play("click");
     setText(v);
     setRejected(null);
+    setHint(null);
   };
 
   const solved = !!last && named(s, last, me);
@@ -226,6 +234,7 @@ export function VowelPlayView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }
             : !seated ? <>Watching this one.</>
             : got ? <>You got it! +{speedPoints(s.gotMs[me]!)}. Waiting for the others.</>
             : gaveUp ? <>You passed on this one.</>
+            : hint ? <>Did you mean <b>{hint}</b>? Enter to send.</>
             : rejected ? <span className="no">{rejected === REFUSED ? "Not that one. Keep trying." : rejected}</span>
             : s.mode === "all" ? <>Name it from the letters. Faster scores more.</> : <>Name it from the letters. The first right answer takes it.</>}
         </p>}
