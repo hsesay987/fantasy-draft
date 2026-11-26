@@ -15,6 +15,7 @@ import { DEFAULT_OPTS, PARTY_FORMATS } from "../shared/play/types";
 import * as A from "../shared/topicDraft/formats/auction";
 import * as B from "../shared/topicDraft/formats/blind";
 import * as P from "../shared/topicDraft/formats/position";
+import { vetoCount, vetoOn } from "../shared/topicDraft/veto";
 import * as IM from "../shared/topicDraft/formats/imposter";
 import * as V from "../shared/topicDraft/formats/vote";
 import * as IS from "../shared/topicDraft/formats/insync";
@@ -217,6 +218,7 @@ export function sanitizeSetup(input: any): GameSetup | null {
     roll: !!o.roll, battle: !!o.battle, options: num(o.options, 2, 6, 3), rerolls: num(o.rerolls, 0, 4, 1),
     budget: num(o.budget, 10, 100, 20), lotSeconds: num(o.lotSeconds, 5, 30, 15),
     handExtra: num(o.handExtra, 0, 4, 2), rankSize: num(o.rankSize, 4, 10, 6),
+    ...(vetoOn(format, o.veto) ? { veto: vetoCount(o.veto) } : {}),
   };
   if (!isLoadout && poolSize < DRAFT_SEATS * 2) return null;
 
@@ -665,7 +667,7 @@ function tooFast(log: Map<string, number[]>, name: string, limit = VOWEL_GUESSES
   log.set(name, [...recent, now]);
   return false;
 }
-const ACTION_TYPES = new Set(["buzz", "spoke", "mark", "giveUp", "pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next", "nightAct", "dayVote", "skipTalk", "finish"]);
+const ACTION_TYPES = new Set(["veto", "buzz", "spoke", "mark", "giveUp", "pick", "reroll", "auto", "bid", "pass", "nominate", "buy", "rollFor", "rerollSlot", "assign", "unassign", "autoAssign", "lock", "place", "choose", "answer", "clue", "accuse", "guess", "vote", "guessVote", "move", "next", "nightAct", "dayVote", "skipTalk", "finish"]);
 
 export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?: string; suggest?: string } {
   const seat = seatFor(room, token);

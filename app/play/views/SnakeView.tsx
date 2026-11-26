@@ -84,7 +84,7 @@ export function SnakeView({ setup, ctl }: { setup: GameSetup; ctl: GameCtl }) {
     <PageShell width="lg" layout="sidebar" stickyBar>
       <GameFrame
         kicker={`${offer ? (setup.format === "spin" ? "Spin Draft" : "Random Roll") : "Classic Draft"} · TopPic ${Math.min(draft.picks.length + 1, total)}/${total}`}
-        headline={ai || !mine ? `${player} is ${offer ? "rolling" : "picking"}…` : `${player}, choose the TopPic`}
+        headline={!player ? "Veto window…" : ai || !mine ? `${player} is ${offer ? "rolling" : "picking"}…` : `${player}, choose the TopPic`}
         mission={setup.mission}
         mystery={setup.mystery}
         right={timerOn ? <TimerRing seconds={draft.config.timerSeconds!} resetKey={draft.turn} onExpire={() => player && ctl.dispatch({ type: "auto", by: player })} /> : undefined}

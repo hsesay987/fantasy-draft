@@ -113,6 +113,8 @@ export type LoadoutState = {
   done: boolean;
   /** Random-roll mode: show a few random options per slot instead of the whole pool. */
   roll?: { n: number; seed: number; rerolls: Record<string, number>; offers: Record<string, string[]> };
+  /** Items vetoed out of the draft: never offered or bought again. */
+  vetoed?: string[];
 };
 
 export function poolItems(pool: string): Item[] {
@@ -142,7 +144,7 @@ export function turnPlayer(s: LoadoutState): string {
   return s.players[rev ? n - 1 - idx : idx]!;
 }
 
-export const takenItems = (s: LoadoutState) => new Set(Object.values(s.picks).flatMap((m) => Object.values(m)));
+export const takenItems = (s: LoadoutState) => new Set([...Object.values(s.picks).flatMap((m) => Object.values(m)), ...(s.vetoed ?? [])]);
 
 export const openSlots = (s: LoadoutState, player: string) => s.mission.slots.filter((sl) => !s.picks[player]![sl.id]);
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { VetoBar } from "./VetoBar";
+import { vetoOf } from "../topicDraft/veto";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../hooks/useAuth";
@@ -50,7 +52,7 @@ const noop = () => {};
 
 export function GameBody({ screen, ...props }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew?: () => void; onRematch?: () => void; screen?: ScreenProps }) {
   const pausable = props.ctl.online && PARTY_FORMATS.has(props.setup.format) && !isDone(props.setup, props.ctl.state);
-  const view = <>{<GameView {...props} />}{pausable && <PauseLayer ctl={props.ctl} />}</>;
+  const view = <>{<GameView {...props} />}{pausable && <PauseLayer ctl={props.ctl} />}{vetoOf(props.ctl.state) && <VetoBar setup={props.setup} ctl={props.ctl} />}</>;
   return screen ? <ScreenFrame setup={props.setup} ctl={props.ctl} {...screen}>{view}</ScreenFrame> : view;
 }
 
