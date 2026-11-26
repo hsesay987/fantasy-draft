@@ -260,7 +260,10 @@ describe("Say Less spelling help", () => {
   const nearly = (name: string) => (name.replace(/[^a-z]/gi, "").length > 4 ? name.slice(0, -1) : `${name}x`);
 
   it("a near miss is refused with the word as `suggest`, only in that guesser's reply and never in any snapshot", () => {
-    const { r, toks } = running(["Ann", "Bo", "Cy"]);
+    // Spelling help only covers words of 4+ letters, so deal again until the secret is one (the deal is random).
+    let room = running(["Ann", "Bo", "Cy"]);
+    for (let i = 0; i < 30 && secret(room.r, room.toks).name.replace(/[^a-z]/gi, "").length < 4; i++) room = running(["Ann", "Bo", "Cy"]);
+    const { r, toks } = room;
     const w = secret(r, toks).name;
     const g = guesser(r);
     const before = state(r).points;
@@ -268,7 +271,7 @@ describe("Say Less spelling help", () => {
     expect(res).toEqual({ ok: false, error: `Did you mean ${w}?`, suggest: w });
     expect(state(r).points).toEqual(before);
     expect(state(r).phase).toBe("clue");
-    for (const n of ["Ann", "Bo", "Cy"].filter((n) => n !== describer(r))) expect(JSON.stringify(snapshot(r, toks[n]!))).not.toContain(w);
+    for (const n of ["Ann", "Bo", "Cy"].filter((n) => n !== describer(r))) expect(JSON.stringify(snapshot(r, toks[n]!))).not.toContain(JSON.stringify(w)); // as a value: "hand" is also inside "handExtra"
     // A second near miss from the same guesser gets nothing more: an ordinary wrong guess.
     r.guessAt = undefined;
     expect(act(r, toks[g]!, { type: "guess", text: nearly(w) })).toEqual({ ok: false, error: "Not allowed right now" });
