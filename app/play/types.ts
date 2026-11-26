@@ -39,6 +39,8 @@ export type Opts = {
   rankSize: number;
   /** Imposter: "guess" lets the imposter name the secret any time; "vote" leaves it to the vote. */
   ending: "guess" | "vote";
+  /** Imposter: what the imposter is dealt. "decoy" is a look-alike pick and the imposter is not told. Missing = nothing. */
+  imposterGets?: "hint" | "decoy" | "nothing";
   /** Party games: sip cards on. Off by default. */
   drinking: boolean;
   /** Party games: show who voted what on the reveal. */

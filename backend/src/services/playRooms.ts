@@ -275,6 +275,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     timerSeconds: null,
     teamSize: format === "pecking" ? nearest([4, 6, 8, 10], o.teamSize, 6) : format === "vowelplay" ? ([10, 15, 20].reduce((a, b) => (Math.abs(b - wanted) < Math.abs(a - wanted) ? b : a), 15)) : format === "vowelparty" ? 10 : format === "imposter" ? num(o.teamSize, 1, 3, 2) : format === "partytrivia" ? ([10, 15, 20].reduce((a, b) => (Math.abs(b - Number(o.teamSize)) < Math.abs(a - Number(o.teamSize)) ? b : a))) : num(o.teamSize, 3, 15, 8),
     ending: (o.ending === "vote" ? "vote" : "guess") as "guess" | "vote",
+    ...(format === "imposter" ? { imposterGets: (o.imposterGets === "decoy" || o.imposterGets === "nothing" ? o.imposterGets : "hint") as "hint" | "decoy" | "nothing" } : {}),
     avoid: (Array.isArray(o.avoid) ? o.avoid : []).slice(0, 200).map((x: any) => clean(x, 40)),
     drinking: format === "vowelplay" ? false : o.drinking === true,
     showVotes: o.showVotes !== false,
@@ -680,6 +681,8 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
   if (raw.type === "next" && (HOST_MOVES_ON.has(room.setup.format) || !room.setup.players.includes(seat.name)) && !isHost(room, token)) return { ok: false, error: "Only the host can move on" };
   // Typed guesses are cheap to flood: about 3 a second per seat, counted whether or not they are right.
   const format = room.setup.format;
+  // Imposter: the guess is typed now, so cap its length (spelling help compares it with every name in the topic).
+  if (raw.type === "guess" && format === "imposter" && (typeof raw.name !== "string" || raw.name.length > 60)) return { ok: false, error: "That guess is too long" };
   if (raw.type === "guess" && (format === "vowelplay" || format === "vowelparty" || format === "sayless")) {
     if (typeof raw.text !== "string" || raw.text.length > VOWEL_GUESS_MAX) return { ok: false, error: "That guess is too long" };
     if (tooFast((room.guessAt ??= new Map()), seat.name)) return { ok: false, error: "Slow down" };

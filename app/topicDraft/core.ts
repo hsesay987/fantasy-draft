@@ -121,7 +121,7 @@ export function initGame(setup: GameSetup, now: number): GameState {
     case "jeopardy":
       return J.init({ players: setup.players, categories: setup.quiz?.categories?.length ? setup.quiz.categories : bundledCategories(setup.pool), avoid: o.avoid, seed: setup.seed });
     case "imposter":
-      return IM.init({ players: setup.players, pool, topic: catalogMeta(setup.pool)?.title ?? setup.pool, topics: poolsOf(setup).length > 1 ? poolsOf(setup).map((id) => ({ id, title: catalogMeta(id)?.title ?? id, pool: poolFor({ ...setup, pool: id }) })) : undefined, rounds: o.teamSize, ending: o.ending, drinking: o.drinking, seed: setup.seed, now });
+      return IM.init({ players: setup.players, pool, topic: catalogMeta(setup.pool)?.title ?? setup.pool, topics: poolsOf(setup).length > 1 ? poolsOf(setup).map((id) => ({ id, title: catalogMeta(id)?.title ?? id, pool: poolFor({ ...setup, pool: id }) })) : undefined, rounds: o.teamSize, ending: o.ending, gets: o.imposterGets ?? "nothing", drinking: o.drinking, seed: setup.seed, now });
     case "vote":
       return V.init({ players: setup.players, deck: setup.pool, cards: poolsOf(setup).flatMap((id) => deckOf(id)?.cards ?? []), rounds: o.teamSize, avoid: o.avoid, showVotes: o.showVotes, drinking: o.drinking, seed: setup.seed, now });
     case "insync":
