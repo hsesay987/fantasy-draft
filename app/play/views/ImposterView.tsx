@@ -57,6 +57,8 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
   const [peek, setPeek] = useState(false);
   const [text, setText] = useState("");
   const [guessing, setGuessing] = useState(false);
+  const [guessText, setGuessText] = useState("");
+  const [guessError, setGuessError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const turn = IM.turnPlayer(s);
   const myTurn = seated && turn === me;
@@ -88,6 +90,15 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
     setText("");
   };
 
+  const sendGuess = (typed = guessText) => {
+    const name = IM.matchName(s, typed);
+    if (!name) return setGuessError(`No one called "${typed.trim()}" in ${s.topic}.`);
+    setGuessError(null);
+    ctl.dispatch({ type: "guess", by: me, name });
+  };
+  const suggestions = IM.suggest(s, guessText);
+  const decoyGame = s.gets === "decoy";
+
   const round = Math.min(s.rounds, Math.floor(s.clues.length / s.order.length) + 1);
   const phaseMs = s.phase === "clue" ? IM.CLUE_MS : s.phase === "vote" ? IM.VOTE_MS : IM.GUESS_MS;
 
@@ -104,18 +115,20 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
 
         <WorldScene world="ball" actors={[]} labels={false} track={false} caption={SCENE} />
 
+        {decoyGame && s.phase === "clue" && <p className="ball-rule">Decoy round: one player has a different word and doesn&apos;t know it. If your clues don&apos;t fit, it might be you.</p>}
+
         {/* The secret card: tap to show, tap again to hide. It looks the same for everyone until it is opened. */}
         {seated && <button type="button" onClick={() => setPeek((p) => !p)} aria-pressed={peek} className={`ball-card ${peek && amImposter ? "mask-card" : ""}`}>
           {peek ? (
             amImposter ? (
               <>
                 <span className="ball-mask-idle"><Sprite sprite={VENETIAN} size={64} /></span>
-                <span className="txt"><b>You&apos;re the imposter</b><span className="sub">Blend in. Topic: {s.topic}.{s.ending === "guess" ? " Name the secret to win." : ""} Tap to hide.</span></span>
+                <span className="txt"><b>You&apos;re the imposter</b>{s.hint && <span className="hint-line">Hint: {s.hint}</span>}<span className="sub">Blend in. Topic: {s.topic}.{s.ending === "guess" ? " Name the secret to win." : ""} Tap to hide.</span></span>
               </>
             ) : (
               <>
                 <span className="frame"><CharacterAvatar name={s.secret} query={secretItem?.q} size={56} /></span>
-                <span className="txt"><b>{s.secret}</b><span className="sub">The secret. Don&apos;t say it. Tap to hide.</span></span>
+                <span className="txt"><b>{s.secret}</b><span className="sub">{decoyGame ? "Your word. Don't say it. One player has a different word and doesn't know it. Tap to hide." : "The secret. Don't say it. Tap to hide."}</span></span>
               </>
             )
           ) : (
@@ -191,7 +204,7 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
         )}
 
         {s.phase === "guess" && (
-          <p className="ball-alert">{amImposter ? "You were caught! Name the secret to steal the win." : `${s.imposter || "The imposter"} was caught and gets one guess at the secret…`}</p>
+          <p className="ball-alert">{amImposter ? (s.decoy ? `You were caught! Your word, ${s.decoy}, was the decoy. Name the real secret to steal the win.` : "You were caught! Name the secret to steal the win.") : `${s.imposter || "The imposter"} was caught and gets one guess at the secret…`}</p>
         )}
 
         {amImposter && (s.phase === "guess" || (s.phase === "clue" && s.ending === "guess")) && (
@@ -201,11 +214,24 @@ export function ImposterView({ ctl }: { setup: GameSetup; ctl: GameCtl }) {
                 <h2>Name the secret</h2>
                 <p className="hint">Right wins it for you. Wrong loses it.</p>
               </div>
-              <div className="ball-grid">
-                {s.options.map((o) => (
-                  <button key={o} type="button" className="ball-opt" onClick={() => ctl.dispatch({ type: "guess", by: me, name: o })}><span>{o}</span></button>
-                ))}
+              <div className="px-term ball-term">
+                <div className="in">
+                  <span aria-hidden>&gt;</span>
+                  <input maxLength={60} autoFocus autoComplete="off" placeholder={`Type a name from ${s.topic}`} value={guessText}
+                    onChange={(e) => { setGuessText(e.target.value); setGuessError(null); }} onKeyDown={(e) => e.key === "Enter" && guessText.trim() && sendGuess()}
+                    aria-label="Your guess" enterKeyHint="send" />
+                </div>
+                <PixelButton variant="gold" onClick={() => sendGuess()} disabled={!guessText.trim()} aria-label="Send guess">Guess</PixelButton>
               </div>
+              {/* Names only show up once you start typing, so the list never hands you the answer. */}
+              {suggestions.length > 0 && (
+                <ul className="ball-suggest" aria-label="Did you mean">
+                  {suggestions.map((o) => (
+                    <li key={o}><button type="button" onClick={() => { setGuessText(o); sendGuess(o); }}>{o}</button></li>
+                  ))}
+                </ul>
+              )}
+              {guessError && <p role="alert" className="ball-err">{guessError}</p>}
               {s.phase === "clue" && <PixelButton variant="alt" className="mt-2 w-[calc(100%-8px)]" onClick={() => setGuessing(false)}>Not yet</PixelButton>}
             </PixelBox>
           ) : (
@@ -256,6 +282,7 @@ export function ImposterResults({ setup, ctl, onAgain, onRematch }: { setup: Gam
             <p className="big">{s.secret}</p>
           </div>
         </PixelBox>
+        {(s.decoy || s.hint) && <p className="ball-rule">{s.decoy ? `${s.imposter} had the decoy: ${s.decoy}.` : `${s.imposter}'s hint was "${s.hint}".`}</p>}
         <PixelBox as="section" pad={false} className="ball-panel">
           <div className="top"><h2>Votes</h2></div>
           <ul className="ball-votes">

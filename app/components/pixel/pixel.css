@@ -355,6 +355,11 @@
 .ball-alert { margin: 4px; padding: 12px; text-align: center; font-size: 22px; line-height: 1.05; background: #5a1030; box-shadow: 0 0 0 3px var(--px-gold), 0 0 0 7px var(--px-ink); }
 .ball-term .in { box-shadow: 0 0 0 4px #6a4a1a; }
 .ball-err { margin: 2px 4px; color: #ff9db0; font-size: 20px; }
+.ball-card .hint-line { display: block; margin-top: 4px; font-size: 26px; line-height: 1; color: var(--px-gold); overflow-wrap: anywhere; }
+.ball-rule { margin: 0 4px; padding: 6px 10px; font-size: 19px; line-height: 1.1; color: var(--px-gold); background: var(--px-ink); box-shadow: 0 0 0 3px #6a4a1a; overflow-wrap: anywhere; }
+.ball-suggest { margin: 6px 4px 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.ball-suggest button { width: 100%; min-height: 44px; padding: 6px 10px; text-align: left; font-size: 21px; color: var(--px-fg); background: var(--px-ink); box-shadow: 0 0 0 3px var(--px-panel2); overflow-wrap: anywhere; }
+.ball-suggest button:hover, .ball-suggest button:focus-visible { box-shadow: 0 0 0 3px var(--px-gold); outline: 0; }
 .ball-wait { margin: 0; padding: 6px 10px; text-align: center; font-size: 21px; background: var(--px-ink); }
 /* Results: masks off. */
 .ball-reveal { display: flex; align-items: center; gap: 14px; margin: 4px; padding: 12px; }

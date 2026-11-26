@@ -14,11 +14,84 @@ const giveClues = (s: IM.ImposterState) => {
 };
 
 describe("imposter", () => {
-  it("deals a secret from the topic, an imposter, and options that include the secret", () => {
+  it("deals a secret from the topic, an imposter, and every topic name to guess from", () => {
     const s = start();
     expect(players).toContain(s.imposter);
     expect(s.options).toContain(s.secret);
-    expect(s.options).toHaveLength(IM.OPTION_COUNT);
+    expect(s.options).toHaveLength(new Set(getCatalog("superheroes").map((i) => i.name)).size);
+    expect(s.gets).toBe("nothing");
+  });
+
+  const dealt = (gets: IM.ImposterGets, seed = 7) => IM.init({ players, pool: getCatalog("nba"), topic: "NBA", rounds: 1, ending: "guess", gets, seed, now: 0 });
+
+  it("hint mode: the imposter alone sees a hint that never names the secret", () => {
+    for (let seed = 1; seed < 40; seed++) {
+      const s = dealt("hint", seed);
+      expect(s.hint).toBeTruthy();
+      expect(IM.givesAway(s.hint!, s.secret)).toBe(false);
+      expect(IM.redactFor(s, s.imposter).hint).toBe(s.hint);
+      expect(IM.redactFor(s, crew(s)[0]!).hint).toBeUndefined();
+      expect(IM.redactFor(s, null).hint).toBeUndefined();
+    }
+  });
+
+  it("hint mode: the same secret can deal different hints across games", () => {
+    const seen = new Map<string, Set<string>>();
+    for (let seed = 1; seed < 400; seed++) {
+      const s = dealt("hint", seed);
+      seen.set(s.secretId, (seen.get(s.secretId) ?? new Set()).add(s.hint!));
+    }
+    expect([...seen.values()].some((h) => h.size > 1)).toBe(true);
+  });
+
+  it("decoy mode: the imposter gets a different pick from the topic and is not told", () => {
+    const s = dealt("decoy");
+    expect(s.decoy).toBeTruthy();
+    expect(s.decoy).not.toBe(s.secret);
+    expect(s.options).toContain(s.decoy);
+    const mine = IM.redactFor(s, s.imposter);
+    expect(mine.secret).toBe(s.decoy);
+    expect(mine.secretId).toBe(s.decoyId);
+    expect(mine.imposter).toBe("");
+    expect(mine.decoy).toBeUndefined();
+    const theirs = IM.redactFor(s, crew(s)[0]!);
+    expect(theirs.secret).toBe(s.secret);
+    expect(theirs.decoy).toBeUndefined();
+  });
+
+  it("decoy mode: no early guess, the decoy holder can't say their pick, and a caught imposter learns the truth", () => {
+    let s = dealt("decoy");
+    expect(IM.guess(s, s.imposter, s.secret, 1)).toBe(s);
+    while (IM.turnPlayer(s) !== s.imposter) s = IM.clue(s, IM.turnPlayer(s)!, `clue ${s.clues.length}`, 1);
+    expect(IM.clue(s, s.imposter, `it is ${s.decoy}`, 1)).toBe(s);
+    s = giveClues(s);
+    for (const p of players) s = IM.accuse(s, p, p === s.imposter ? crew(s)[0]! : s.imposter, 2);
+    expect(s.phase).toBe("guess");
+    const told = IM.redactFor(s, s.imposter);
+    expect(told.imposter).toBe(s.imposter);
+    expect(told.secret).toBe("");
+    expect(told.decoy).toBe(s.decoy);
+    expect(IM.guess(s, s.imposter, s.secret, 3).winner).toBe("imposter");
+  });
+
+  it("typed guesses: case, punctuation and small typos still match; a name outside the topic is ignored", () => {
+    const s = giveClues(start("guess"));
+    expect(IM.matchName(s, s.secret.toUpperCase())).toBe(s.secret);
+    expect(IM.matchName(s, "Spiderman")).toBe("Spider-Man (Peter Parker)");
+    expect(IM.matchName(s, "spider-man")).toBe("Spider-Man (Peter Parker)");
+    expect(IM.matchName(s, "zzzz qqqq")).toBeNull();
+    const before = start("guess");
+    expect(IM.guess(before, before.imposter, "zzzz qqqq", 1)).toBe(before);
+  });
+
+  it("suggestions wait for typing and come from the topic", () => {
+    const s = start();
+    expect(IM.suggest(s, "")).toEqual([]);
+    const got = IM.suggest(s, "spi");
+    expect(got.length).toBeGreaterThan(0);
+    expect(got.length).toBeLessThanOrEqual(6);
+    expect(got.every((n) => s.options.includes(n))).toBe(true);
+    expect(got).toContain("Spider-Man (Peter Parker)");
   });
 
   it("takes clues in turn order and moves to the vote after every round", () => {

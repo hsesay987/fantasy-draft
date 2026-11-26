@@ -4,13 +4,18 @@
 // that proves they know it without giving it away. The imposter bluffs. Then everyone votes on who the imposter is.
 // With ending "guess" the imposter may name the secret at any point (right wins, wrong loses), and a caught
 // imposter gets one last guess. With ending "vote" the vote alone decides it.
+// What the imposter is dealt (`gets`): "hint" is a short hint about the secret; "decoy" is a different pick from the
+// same topic and the imposter is not told (they think it is everyone's secret); "nothing" (older games) is no card.
 import type { Item } from "../types";
+import HINTS from "../party/imposterHints.json";
+import { closestAnswer, fold as foldName } from "../spelling";
 import { shuffle } from "../rng";
 import { addCalls, initDrinks, type DrinkCall, type DrinkState } from "../party/drinks";
 import { normalizeClue } from "../party/clueText";
 import { has, own } from "../party/own";
 
 export type Ending = "guess" | "vote";
+export type ImposterGets = "hint" | "decoy" | "nothing";
 export type ImposterPhase = "clue" | "vote" | "guess" | "done";
 export const CLUE_MS = 60_000;
 export const VOTE_MS = 60_000;
@@ -25,8 +30,15 @@ export type ImposterState = {
   topic: string;
   /** Set when several topics were picked: the one this round drew from (`topic` is its title). */
   topicId?: string;
-  /** Names the imposter picks a guess from: the secret plus look-alikes from the same topic. */
+  /** Every name in the topic: what a typed guess must match (and what suggestions come from). */
   options: string[];
+  /** What the imposter was dealt. Missing on older games, which means "nothing". */
+  gets?: ImposterGets;
+  /** Hint mode: the imposter's hint. Only the imposter sees it until the end. */
+  hint?: string;
+  /** Decoy mode: the imposter's pick. The imposter sees it as their secret and is not told it differs. */
+  decoy?: string;
+  decoyId?: string;
   /** Hidden from everyone else until the end (the server blanks it). */
   imposter: string;
   order: string[];
@@ -60,8 +72,19 @@ export function givesAway(clue: string, secret: string): boolean {
 
 export type ImposterTopic = { id: string; title: string; pool: Item[] };
 
+const HINT_BANK = HINTS as Record<string, string[]>;
+
+/** The hints a secret can deal: its written hints, then its archetype and team as a fallback, minus give-aways. */
+export function hintsFor(item: Item): string[] {
+  const written = HINT_BANK[item.id] ?? [];
+  const fallback = [item.archetype, item.universe].filter((t) => t && t.trim());
+  const ok = (h: string) => !givesAway(h, item.name);
+  const good = written.filter(ok);
+  return good.length ? good : fallback.filter(ok);
+}
+
 /** With `topics` (two or more) the game draws one of them at random, and the secret and its look-alikes all come from it. */
-export function init(o: { players: string[]; pool: Item[]; topic: string; topics?: ImposterTopic[]; rounds: number; ending: Ending; drinking?: boolean; seed: number; now: number }): ImposterState {
+export function init(o: { players: string[]; pool: Item[]; topic: string; topics?: ImposterTopic[]; rounds: number; ending: Ending; gets?: ImposterGets; drinking?: boolean; seed: number; now: number }): ImposterState {
   let seed = o.seed;
   let pool = o.pool, topic = o.topic, topicId: string | undefined;
   if (o.topics && o.topics.length > 1) {
@@ -77,14 +100,20 @@ export function init(o: { players: string[]; pool: Item[]; topic: string; topics
   // Look-alikes first (same universe or archetype), so the guess is not a giveaway.
   const near = deck.slice(1).filter((i) => i.universe === secret.universe || i.archetype === secret.archetype);
   const rest = deck.slice(1).filter((i) => !near.includes(i));
-  const [opts, s2] = shuffle([secret, ...[...near, ...rest].slice(0, OPTION_COUNT - 1)], seed);
+  const gets: ImposterGets = o.gets ?? "nothing";
+  // A decoy is a look-alike (John Wall for Derrick Rose), so the imposter's clues sound close enough to pass.
+  const decoy = gets === "decoy" ? near.find((i) => foldName(i.name) !== foldName(secret.name)) ?? rest[0] : undefined;
+  const hints = gets === "hint" ? hintsFor(secret) : [];
+  const [pickedHint, s2] = shuffle(hints, seed);
   seed = s2;
+  const options = [...new Set(pool.map((i) => i.name))].sort((a, b) => a.localeCompare(b));
   const [order, s3] = shuffle(o.players, seed);
   seed = s3;
   const [who, s4] = shuffle(o.players, seed);
   seed = s4;
+  const dealt = gets === "decoy" && decoy ? { gets, decoy: decoy.name, decoyId: decoy.id } : gets === "hint" && pickedHint[0] ? { gets, hint: pickedHint[0] } : { gets: "nothing" as const };
   return {
-    players: o.players, secret: secret.name, secretId: secret.id, topic, ...(topicId ? { topicId } : {}), options: opts.map((i) => i.name), imposter: who[0]!,
+    players: o.players, secret: secret.name, secretId: secret.id, topic, ...(topicId ? { topicId } : {}), options, ...dealt, imposter: who[0]!,
     order, rounds: Math.max(1, Math.min(3, o.rounds)), clues: [], phase: "clue", ending: o.ending, votes: {}, caught: null, guess: null, winner: null,
     points: Object.fromEntries(o.players.map((p) => [p, 0])), ...(o.drinking ? { drinks: initDrinks(o.players) } : {}), phaseAt: o.now, done: false, seed, startedAt: o.now,
   };
@@ -114,6 +143,8 @@ export function clue(s: ImposterState, by: string, text: string, now: number): I
   if (s.phase !== "clue" || turnPlayer(s) !== by) return s;
   const t = normalizeClue(text);
   if (t && by !== s.imposter && givesAway(t, s.secret)) return s;
+  if (t && by === s.imposter && s.decoy && givesAway(t, s.decoy)) return s; // the decoy's holder plays by the same rule
+
   if (t && s.clues.some((c) => fold(c.text) === fold(t))) return s; // no copying someone else's clue word for word
   const clues = [...s.clues, { by, text: t || "(passed)" }];
   return { ...s, clues, phase: clues.length >= totalClues(s) ? "vote" : "clue", phaseAt: now };
@@ -136,11 +167,37 @@ export function tally(s: ImposterState, now: number): ImposterState {
   return s.ending === "guess" ? { ...s, caught: true, phase: "guess", phaseAt: now } : finish(s, "crew", now, { caught: true });
 }
 
-/** The imposter names the secret: any time during clues (ending "guess"), or as a last chance once caught. */
-export function guess(s: ImposterState, by: string, name: string, now: number): ImposterState {
-  if (by !== s.imposter || s.done || !s.options.includes(name)) return s;
-  if (!(s.phase === "guess" || (s.phase === "clue" && s.ending === "guess"))) return s;
-  return finish(s, name === s.secret ? "imposter" : "crew", now, { guess: name });
+/** The topic name a typed guess means: an exact match (ignoring case and punctuation), then the closest spelling. */
+export function matchName(s: Pick<ImposterState, "options">, typed: string): string | null {
+  const f = foldName(typed);
+  if (!f) return null;
+  // "Spider-Man" also names "Spider-Man (Peter Parker)": the part before a bracket counts on its own.
+  const bare = (o: string) => o.replace(/\s*\(.*\)\s*$/, "");
+  const exact = s.options.find((o) => foldName(o) === f) ?? s.options.find((o) => foldName(bare(o)) === f);
+  if (exact) return exact;
+  const near = closestAnswer(typed, s.options.map(bare));
+  return near ? s.options.find((o) => bare(o) === near) ?? null : null;
+}
+
+/** Up to `max` topic names for what the imposter has typed so far: names starting with it first, then containing it. */
+export function suggest(s: Pick<ImposterState, "options">, typed: string, max = 6): string[] {
+  const f = foldName(typed);
+  if (!f) return [];
+  const starts = s.options.filter((o) => foldName(o).startsWith(f) || foldName(o).split(" ").some((w) => w.startsWith(f)));
+  const contains = s.options.filter((o) => !starts.includes(o) && foldName(o).includes(f));
+  return [...starts, ...contains].slice(0, max);
+}
+
+/**
+ * The imposter types the secret: any time during clues (ending "guess", and only when they know they are the
+ * imposter, so not with a decoy), or as a last chance once caught. Text that names nobody in the topic is ignored.
+ */
+export function guess(s: ImposterState, by: string, typed: string, now: number): ImposterState {
+  if (by !== s.imposter || s.done) return s;
+  if (!(s.phase === "guess" || (s.phase === "clue" && s.ending === "guess" && s.gets !== "decoy"))) return s;
+  const name = matchName(s, typed);
+  if (!name) return s;
+  return finish(s, foldName(name) === foldName(s.secret) ? "imposter" : "crew", now, { guess: name });
 }
 
 /**
@@ -169,7 +226,14 @@ export function tick(s: ImposterState, now: number): ImposterState {
 export function redactFor(s: ImposterState, me: string | null): ImposterState {
   if (s.done) return s;
   const votes = s.phase === "vote" ? Object.fromEntries(Object.keys(s.votes).map((k) => [k, k === me ? s.votes[k]! : "?"])) : s.votes;
-  // Only a seated crew member may know the secret, and only the imposter's own seat may know the imposter.
-  const secret = me != null && me !== s.imposter ? { secret: s.secret, secretId: s.secretId } : { secret: "", secretId: "" };
-  return { ...s, ...secret, imposter: me === s.imposter ? s.imposter : "", votes, seed: 0 };
+  // Only a seated crew member may know the secret, and only the imposter's own seat may know the imposter. With a
+  // decoy the imposter's seat looks like any crew seat (the decoy as its secret, no imposter) until they are caught.
+  const crew = me != null && me !== s.imposter;
+  const imp = me != null && me === s.imposter;
+  const fooled = imp && s.gets === "decoy" && s.phase !== "guess";
+  const secret = crew ? { secret: s.secret, secretId: s.secretId } : fooled ? { secret: s.decoy ?? "", secretId: s.decoyId ?? "" } : { secret: "", secretId: "" };
+  return {
+    ...s, ...secret, imposter: imp && !fooled ? s.imposter : "", votes, seed: 0,
+    hint: imp ? s.hint : undefined, decoy: imp && !fooled ? s.decoy : undefined, decoyId: imp && !fooled ? s.decoyId : undefined,
+  };
 }

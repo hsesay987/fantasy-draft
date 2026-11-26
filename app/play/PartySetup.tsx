@@ -68,6 +68,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
   const [teams, setTeams] = useState(0);
   const [teamMap, setTeamMap] = useState<TeamMap>({});
   const [ending, setEnding] = useState<"guess" | "vote">("guess");
+  const [imposterGets, setImposterGets] = useState<"hint" | "decoy">("hint");
   const [drinking, setDrinking] = useState(false);
   const [showVotes, setShowVotes] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -89,7 +90,7 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
     const teamOpts = teamsOpen && teams ? compactTeams(seats, teams, teamMap) : { teams: 0, teamMap: {} };
     const setup: GameSetup = {
       id: "", format, pool: chosen[0]!, pools: chosen, players: [], aiPlayers: [], mission: { id: "party", title: meta.title, blurb: "", weights: { fun: 1 } },
-      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...(format === "npat" ? { npatRounds: asking ? questionRounds : npatRounds, npatSeconds, npatHard, npatStop, npatStyle } : {}), ...(format === "dodge" ? { dodgeLaps } : {}), ...teamOpts }, seed: 0,
+      mystery: false, loadout: null, roles: [], opts: { ...DEFAULT_OPTS, ...(format === "sayless" ? {} : { teamSize: length }), ending, ...(format === "imposter" ? { imposterGets } : {}), drinking, showVotes, vowelMode, vowelAnswer, answer: buzzable ? answer : "phones", ...(format === "pecking" ? { peckMode } : {}), ...(format === "sayless" ? { saylessRounds, saylessWords, saylessSlack, saylessGuard } : {}), ...(format === "npat" ? { npatRounds: asking ? questionRounds : npatRounds, npatSeconds, npatHard, npatStop, npatStyle } : {}), ...(format === "dodge" ? { dodgeLaps } : {}), ...teamOpts }, seed: 0,
     };
     const r = await setRoomGame(room.code, room.token, setup);
     setBusy(false);
@@ -282,6 +283,19 @@ export function PartySetup({ format, room, seats = [] }: { format: "imposter" | 
         <Panel title={format === "imposter" ? "Clue rounds" : format === "partytrivia" || format === "pecking" ? "Questions" : "Cards"}>
           <div className="flex flex-wrap gap-2">
             {(format === "imposter" ? [1, 2, 3] : format === "partytrivia" ? [10, 15, 20] : format === "pecking" ? [4, 6, 8, 10] : [5, 8, 12]).map((n) => <Chip key={n} selected={length === n} onClick={() => setLength(n)}>{n}</Chip>)}
+          </div>
+        </Panel>
+      )}
+
+      {format === "imposter" && (
+        <Panel title="The imposter gets">
+          <div className="grid gap-2 sm:grid-cols-2">
+            {([["hint", "A hint", "The imposter knows they're the imposter and gets a hint, like \"injury\" for Derrick Rose."], ["decoy", "A decoy word", "The imposter gets a different pick from the same topic, like John Wall for Derrick Rose, and isn't told. Everyone hears this rule before the game."]] as const).map(([id, title, blurb]) => (
+              <button key={id} type="button" onClick={() => setImposterGets(id)} aria-pressed={imposterGets === id}
+                className={`rounded-xl border p-3 text-left ${imposterGets === id ? "border-secondary bg-primary/25" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+                <b className="block">{title}</b><span className="text-sm text-muted-foreground">{blurb}</span>
+              </button>
+            ))}
           </div>
         </Panel>
       )}
