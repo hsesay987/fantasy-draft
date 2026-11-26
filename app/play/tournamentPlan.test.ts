@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addToPlan, championTitle, dropFromPlan, fitsTable, moveInPlan, planEntries, planReady, PLAN_MAX, resultsActions, setSlotPools, slotsOf, standingRows, surpriseLineup, surprisePlan, type PlanSlot, type Standing } from "./tournamentPlan";
+import { addToPlan, championTitle, dropFromPlan, fitsTable, seatsNeeded, moveInPlan, planEntries, planReady, PLAN_MAX, resultsActions, setSlotPools, slotsOf, standingRows, surpriseLineup, surprisePlan, type PlanSlot, type Standing } from "./tournamentPlan";
 import type { FormatId } from "./types";
 
 const row = (name: string, total: number, extra: Partial<Standing> = {}): Standing => ({ name, total, last: 0, left: false, rank: 1, ...extra });
@@ -165,5 +165,13 @@ describe("NPAT in a tournament", () => {
     expect(setSlotPools(plan.map((f) => slot(f)), 1, ["food"])[1]).toEqual(slot("npat", ["food"]));
     expect(fitsTable("npat", 2)).toBe(true);
     expect(fitsTable("npat", 1)).toBe(false);
+  });
+});
+
+describe("seatsNeeded for Dodge", () => {
+  it("needs three players, so a round is more than one match or one dodge", () => {
+    expect(seatsNeeded("dodge")).toBe(3);
+    expect(fitsTable("dodge", 2)).toBe(false);
+    expect(fitsTable("dodge", 3)).toBe(true);
   });
 });

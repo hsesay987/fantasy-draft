@@ -25,6 +25,8 @@ import * as PK from "../shared/topicDraft/formats/pecking";
 import * as SL from "../shared/topicDraft/formats/sayless";
 import * as NP from "../shared/topicDraft/formats/npat";
 import * as DIG from "../shared/topicDraft/formats/npatDig";
+import * as DG from "../shared/topicDraft/formats/dodge";
+import { ANSWER_MAX as DODGE_ANSWER_MAX } from "../shared/topicDraft/dodge/rules";
 import "../shared/topicDraft/party/vowelWords"; // loads the word list the Vowel Play engine deals from
 import "../shared/topicDraft/pecking/lists"; // loads the ranked lists the Pecking Order engine deals from
 import "../shared/topicDraft/sayless/words"; // loads the words the Say Less engine deals from
@@ -43,12 +45,12 @@ import { GROUP_CALL } from "../shared/topicDraft/party/drinks";
 import { teamsFor } from "../shared/topicDraft/party/teams";
 import type { Item } from "../shared/topicDraft/types";
 
-export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless", "npat"];
+export const FORMAT_IDS: FormatId[] = ["snake", "spin", "auction", "loadout", "position", "blind", "keep", "feud", "jeopardy", "imposter", "vote", "insync", "partytrivia", "mafia", "vowelplay", "vowelparty", "pecking", "sayless", "npat", "dodge"];
 /** Party games take a bigger group; drafts and trivia stay at six. */
 const MAX_SEATS = 12;
 const DRAFT_SEATS = 6;
 /** Fewest players each game starts with; anything not listed needs 2. */
-export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, mafia: MF.MIN_PLAYERS };
+export const MIN_PLAYERS: Partial<Record<FormatId, number>> = { imposter: 3, mafia: MF.MIN_PLAYERS, dodge: 3 };
 /** An empty room (no game picked yet) takes the bigger party group; picking a draft caps it at six. */
 const seatCap = (format: FormatId | undefined) => (!format || PARTY_FORMATS.has(format) ? MAX_SEATS : DRAFT_SEATS);
 const MAX_ROOMS = 500;
@@ -97,6 +99,8 @@ type Room = {
   judgeKey?: string;
   /** NPAT dig: when this room's judge calls started, in the current hour, so one room cannot run up the model bill. */
   judgeAt?: number[];
+  /** Dodge: verdicts that came back while the game was paused, applied on resume if the room is still judging that round. */
+  dodgeHeld?: { key: string; verdicts: { player: string; same: boolean }[] };
   /** A tournament across games in this room. Stays visible once done, until a new one starts or the room closes. */
   tournament?: Tournament;
   /** Which tournament this is, so a late judge verdict never lands in a later one. */
@@ -119,6 +123,14 @@ export type NpatRoomJudge = { judge(items: { category: string; letter: string; t
 let npatJudge: NpatRoomJudge | null = null;
 export function setNpatJudge(j: NpatRoomJudge | null) {
   npatJudge = j;
+}
+
+/** What the room asks about Dodge's close calls: one verdict per pair, in input order. The server sets the real one at start. */
+export type DodgeRoomJudge = { judge(items: { category: string; a: string; b: string }[]): Promise<{ same: boolean; source?: string }[]> };
+/** Null asks nothing: close calls wait for the engine's own timeout and count as dodges. */
+let dodgeJudge: DodgeRoomJudge | null = null;
+export function setDodgeJudge(j: DodgeRoomJudge | null) {
+  dodgeJudge = j;
 }
 
 const clean = (v: unknown, max: number) => String(v ?? "").replace(/[\u0000-\u001f\u007f<>]/g, " ").trim().slice(0, max);
@@ -250,7 +262,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     }
   }
   const mixed = mixTitle(pools.map((p) => poolTitleFor(format, p)));
-  const title = format === "vowelplay" ? `Vowel Play: ${mixed}` : format === "vowelparty" ? `Vowel Party: ${mixed}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${mixed}` : format === "insync" ? `In-Sync: ${mixed}` : format === "partytrivia" ? `Party Trivia: ${mixed}` : format === "pecking" ? `Pecking Order: ${mixed}` : format === "sayless" ? `Say Less: ${mixed}` : format === "npat" ? `NPAT: ${mixed}` : mixed;
+  const title = format === "vowelplay" ? `Vowel Play: ${mixed}` : format === "vowelparty" ? `Vowel Party: ${mixed}` : format === "mafia" ? "Mafia" : format === "imposter" ? `Imposter: ${mixed}` : format === "insync" ? `In-Sync: ${mixed}` : format === "partytrivia" ? `Party Trivia: ${mixed}` : format === "pecking" ? `Pecking Order: ${mixed}` : format === "sayless" ? `Say Less: ${mixed}` : format === "npat" ? `NPAT: ${mixed}` : format === "dodge" ? `Dodge: ${mixed}` : mixed;
   const vowel = format === "vowelplay" || format === "vowelparty";
   const wanted = o.teamSize == null || o.teamSize === "" ? 15 : Number(o.teamSize);
   const opts = {
@@ -268,6 +280,7 @@ function sanitizeParty(format: FormatId, input: any): GameSetup | null {
     answer: ((format === "partytrivia" || format === "vowelparty" || format === "sayless") && o.answer === "buzz" ? "buzz" : "phones") as "phones" | "buzz",
     ...(format === "sayless" ? { saylessRounds: intIn(o.saylessRounds, 1, 10, 2), saylessWords: intIn(o.saylessWords, 2, 8, 3), saylessSlack: intIn(o.saylessSlack, 0, 15, 5), saylessGuard: o.saylessGuard === true } : {}),
     ...(format === "npat" ? { npatRounds: intIn(o.npatRounds, 1, 8, 3), npatSeconds: [45, 60, 90].includes(o.npatSeconds) ? (o.npatSeconds as number) : 60, npatHard: o.npatHard === true, npatStop: o.npatStop === true, ...(o.npatStyle === "dig" || o.npatStyle === "sheet" ? { npatStyle: o.npatStyle as "dig" | "sheet" } : {}) } : {}),
+    ...(format === "dodge" ? { dodgeLaps: intIn(o.dodgeLaps, 1, 3, 1) } : {}),
     ...(format === "pecking" ? { peckMode: (o.peckMode === "rank" || o.peckMode === "name" ? o.peckMode : "mixed") as PK.PeckMode } : {}),
     vowelAnswer: (format === "vowelparty" ? (o.answer === "buzz" ? "voice" : "type") : o.vowelAnswer === "type" ? "type" : "voice") as "voice" | "type",
   };
@@ -550,6 +563,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   if (setup.format === "pecking") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("pk:")) };
   if (setup.format === "sayless") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("sl:")) }; // the engine skips these words
   if (setup.format === "npat") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("np:")) }; // letters already played go last
+  if (setup.format === "dodge") setup.opts = { ...setup.opts, avoid: room.seen.filter((x) => x.startsWith("dg:")) }; // categories already played go last
   room.pausedAt = undefined;
   room.pausedMs = 0;
   const state = initGame(setup, Date.now());
@@ -589,6 +603,7 @@ function settleParty(room: Room, s: GameState, now: number): GameState {
     case "vowelparty": return VP.settle(s as VP.VPState, gone, now);
     case "pecking": return PK.settle(s as PK.PeckState, gone, now);
     case "sayless": return SL.settle(s as SL.SLState, gone, now);
+    case "dodge": return DG.settle(s as DG.DodgeState, gone, now);
     case "npat": return npatIsDig(room.setup) ? DIG.settle(s as DIG.DigState, gone, now) : NP.settle(s as NP.NPState, gone, now);
     default: return s;
   }
@@ -618,7 +633,7 @@ export function leaveRoom(room: Room, token: unknown) {
 }
 
 /** A reveal is the point of these games, so one eager tap can't clear it for the whole table. */
-const HOST_MOVES_ON = new Set<FormatId>(["vote", "insync", "partytrivia", "pecking", "npat"]);
+const HOST_MOVES_ON = new Set<FormatId>(["vote", "insync", "partytrivia", "pecking", "npat", "dodge"]);
 const PECK_NAME_MAX = 60;
 const VOWEL_GUESS_MAX = 60;
 const VOWEL_GUESSES_PER_SECOND = 3;
@@ -690,11 +705,17 @@ export function act(room: Room, token: unknown, raw: any): { ok: boolean; error?
     }
     if (raw.type === "vote" && typeof raw.ok !== "boolean") return { ok: false, error: "Vote yes or no" };
   }
+  // Dodge: the same checks as a dig's answers, on the same log.
+  if (format === "dodge" && raw.type === "answer") {
+    if (typeof raw.text !== "string") return { ok: false, error: "Type an answer" };
+    if (raw.text.length > DODGE_ANSWER_MAX) return { ok: false, error: "That answer is too long" };
+    if (tooFast((room.answerAt ??= new Map()), seat.name, NPAT_ANSWERS_PER_SECOND)) return { ok: false, error: "Slow down" };
+  }
   // The seat decides who is acting; clients can't act for someone else, set the clock or pick RNG seeds.
   const { seed: _seed, at: _at, now: _now, ...rest } = raw;
   // The engine only lets players skip Mafia's talk; the screen host is no player, so its skip goes in under the first player's name.
   // A dig's host skip from the screen goes in the same way (the dig's `next` doesn't care who sends it).
-  const asFirst = raw.type === "skipTalk" || (raw.type === "next" && npatIsDig(room.setup));
+  const asFirst = raw.type === "skipTalk" || (raw.type === "next" && (npatIsDig(room.setup) || format === "dodge"));
   const by = asFirst && !room.setup.players.includes(seat.name) ? room.setup.players[0] ?? seat.name : seat.name;
   const action = { ...rest, by } as Action;
   const applied = applyAction(room.setup, room.state, action, gameNow(room));
@@ -725,6 +746,9 @@ export function setPaused(room: Room, token: unknown, on: boolean): { ok: boolea
   else {
     room.pausedMs = (room.pausedMs ?? 0) + (wall - room.pausedAt!);
     room.pausedAt = undefined;
+    const held = room.dodgeHeld;
+    room.dodgeHeld = undefined;
+    if (held) landDodge(room, held.key, held.verdicts);
   }
   bump(room);
   return { ok: true };
@@ -739,7 +763,10 @@ function commit(room: Room, next: GameState) {
     room.turnStartedAt = gameNow(room);
   }
   if (isDone(setup, next)) finish(room);
-  else askNpatJudge(room);
+  else {
+    askNpatJudge(room);
+    askDodgeJudge(room);
+  }
   bump(room);
 }
 
@@ -789,6 +816,65 @@ function askNpatJudge(room: Room) {
     const next = DIG.judged(cur, verdicts, now);
     if (next !== cur) commit(room, settleParty(room, next, now));
   }).catch((e) => console.error("NPAT room judge failed", e));
+}
+
+const dodgeKeyOf = (s: DG.DodgeState) => `dodge:${s.startedAt}:${s.round}`;
+
+/**
+ * Dodge: apply the judge's verdicts (possibly none) to the round `key`, if the room is still judging it, and end the
+ * judge phase there and then: nothing more is coming, so anything unchecked stays an exact-match-only call.
+ */
+function landDodge(room: Room, key: string, verdicts: { player: string; same: boolean }[]) {
+  const cur = room.state as DG.DodgeState | null;
+  if (rooms.get(room.code) !== room || room.status !== "playing" || room.setup?.format !== "dodge" || !cur || cur.phase !== "judge" || cur.done || dodgeKeyOf(cur) !== key) return;
+  if (room.pausedAt) { room.dodgeHeld = { key, verdicts }; return; } // paused: they land on resume
+  const now = gameNow(room);
+  const judged = DG.judged(cur, verdicts, now);
+  const next = judged.phase === "judge" ? DG.next(judged, now) : judged;
+  if (next !== cur) commit(room, settleParty(room, next, now));
+}
+
+/**
+ * Dodge: the first time a room is judging a round's close calls, ask the judge once. Verdicts land only if the room is
+ * still judging that same round of the same game. With no judge, over the room's hourly cap, or on a failed call, the
+ * phase ends at once and only exact matches count; a judge that never answers is cut off by the engine's tick at JUDGE_MS.
+ */
+function askDodgeJudge(room: Room) {
+  if (room.status !== "playing" || room.setup?.format !== "dodge") return;
+  const s = room.state as DG.DodgeState;
+  if (s.phase !== "judge" || s.done) return;
+  const key = dodgeKeyOf(s);
+  if (room.judgeKey === key) return;
+  room.judgeKey = key;
+  room.dodgeHeld = undefined;
+  const pending = DG.pendingPairs(s);
+  if (!pending.length) return;
+  const j = dodgeJudge;
+  const nowMs = Date.now();
+  const recent = (room.judgeAt ?? []).filter((t) => nowMs - t < 3_600_000);
+  room.judgeAt = recent;
+  if (!j || recent.length >= ROOM_JUDGE_PER_HOUR) return landDodge(room, key, []); // no judge, or over the cap
+  recent.push(nowMs);
+  let call: Promise<unknown>;
+  try {
+    call = Promise.resolve(j.judge(pending.map((p) => ({ category: p.category, a: p.chosen, b: p.answer }))));
+  } catch (e) {
+    console.error("Dodge room judge failed", e);
+    return landDodge(room, key, []);
+  }
+  call.then((v) => {
+    // A fallback verdict, or a bad shape, means nobody checked: those calls stay pending and the round shows as unchecked.
+    const verdicts = Array.isArray(v)
+      ? pending.flatMap((p, i) => {
+          const x = v[i] as { same?: unknown; source?: unknown } | undefined;
+          return x && typeof x.same === "boolean" && x.source !== "fallback" ? [{ player: p.player, same: x.same }] : [];
+        })
+      : [];
+    landDodge(room, key, verdicts);
+  }, (e) => {
+    console.error("Dodge room judge failed", e);
+    landDodge(room, key, []);
+  }).catch((e) => console.error("Dodge room judge failed", e));
 }
 
 /** The top scorer of a trivia game, or null on a tie. */
@@ -842,6 +928,12 @@ function finish(room: Room) {
       record.winner = !ns.teams && won.length === 1 ? won[0]! : null; // a team game, or a tie, has no single winner
       room.seen = [...room.seen, ...NP.seenKeys(ns)].slice(-400);
       recordNpatHistory(room, ns);
+    }
+    if (setup.format === "dodge") {
+      const ds = room.state as DG.DodgeState;
+      const won = DG.winners(ds);
+      record.winner = won.length === 1 ? won[0]! : null;
+      room.seen = [...room.seen, ...DG.seenKeys(ds)].slice(-400); // only categories that were played
     }
     recordTournamentGame(room, awardsFor(setup, room.state!, seated));
     if (setup.format === "partytrivia") room.seen = [...room.seen, ...(setup.quiz?.categories ?? []).map((c) => `cat:${c.name}`)].slice(-400);
@@ -920,7 +1012,7 @@ function autoplay(room: Room, name: string): Action | null {
     if (x.phase === "clue" && IM.turnPlayer(x) === name) return { type: "clue", by: name, text: "" };
     return null; // votes and guesses run out on their own clocks
   }
-  if (format === "vote" || format === "insync" || format === "partytrivia" || format === "mafia" || format === "vowelplay" || format === "vowelparty" || format === "pecking" || format === "sayless" || format === "npat") return null; // every phase ends on its own clock
+  if (format === "vote" || format === "insync" || format === "partytrivia" || format === "mafia" || format === "vowelplay" || format === "vowelparty" || format === "pecking" || format === "sayless" || format === "npat" || format === "dodge") return null; // every phase ends on its own clock
   if (format === "auction") {
     const a = s as A.AuctionState;
     if (a.nominate?.offer) return A.nominator(a) === name ? { type: "nominate", by: name, itemId: a.nominate.offer[0]! } : null;
@@ -1001,6 +1093,7 @@ function redact(room: Room, me: string | null): GameState | null {
   if (room.setup?.format === "pecking") return PK.redactFor(s as PK.PeckState, me) as unknown as GameState; // never the pool; answers open up once asked
   if (room.setup?.format === "npat" && npatIsDig(room.setup)) return DIG.redactFor(s as DIG.DigState, me) as unknown as GameState; // own typing only while asking; a category's results from its verdict
   if (room.setup?.format === "npat") return NP.redactFor(s as NP.NPState, me) as unknown as GameState; // other players' answers only from their category's reveal
+  if (room.setup?.format === "dodge") return DG.redactFor(s as DG.DodgeState, me) as unknown as GameState; // own typing only while answering; no answers until the reveal
   if (room.setup?.format === "mafia") return MF.redactFor(s as MF.MafiaState, me) as unknown as GameState; // same
   if (room.status === "done" || !room.setup) return s;
   if (room.setup.format === "position") {

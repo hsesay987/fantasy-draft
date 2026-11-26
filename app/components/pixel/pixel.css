@@ -1559,3 +1559,59 @@ button.tn-slot:hover { background: var(--px-rose); }
 .screen-board .np-page .np-head, .screen-board .np-page .np-roster { display: none; }
 @media (max-width: 380px) { .np-card { padding: 12px 8px 12px 16px; } .np-letter { width: 52px; height: 52px; font-size: 38px; } .np-field input { font-size: 22px; } .np-head { gap: 8px; } .np-head .stat b { font-size: 22px; } }
 @media (prefers-reduced-motion: reduce) { .np-groups li { animation: none; } }
+
+/* Dodge: the chosen player's card flips first, matches line up beside it, then the dodges. */
+/* Room space below for the host's pause button, which floats over the bottom of the page on a phone. */
+.dg-page { max-width: 36rem; gap: 10px; padding-bottom: 72px; }
+.dg-sign h1 { overflow-wrap: anywhere; }
+.dg-chosen { display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
+.dg-chosen.me { box-shadow: 0 0 0 4px var(--px-gold); }
+.dg-chosen > div { display: grid; gap: 2px; min-width: 0; }
+.dg-eyebrow { margin: 0; font: 400 9px/1.5 var(--px-head); color: var(--px-lav); text-transform: uppercase; overflow-wrap: anywhere; }
+.dg-who { margin: 0; font: 400 30px/1 var(--px-body); color: var(--px-gold); overflow-wrap: anywhere; }
+.dg-card { padding: 14px 12px; display: grid; gap: 10px; min-width: 0; }
+.party-page .dg-title { margin: 0; font: 400 30px/1 var(--px-body); color: var(--px-gold); overflow-wrap: anywhere; }
+.dg-msg { margin: 0; font-size: 20px; color: var(--px-dim); overflow-wrap: anywhere; }
+.dg-msg.no { color: var(--px-rose); }
+.dg-form { display: grid; gap: 8px; min-width: 0; }
+.dg-field { display: grid; gap: 2px; min-width: 0; padding: 6px 10px 4px; margin: 4px; background: var(--px-ink); box-shadow: 0 0 0 3px var(--px-panel2); }
+.dg-field .lbl { font: 400 8px/1.4 var(--px-head); color: var(--px-lav); text-transform: uppercase; }
+.dg-field input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--px-fg); font: 400 28px var(--px-body); padding: 2px 0 4px; caret-color: var(--px-gold); }
+.dg-field input:focus-visible { outline: 0; }
+.dg-field:focus-within { box-shadow: 0 0 0 3px var(--px-gold); }
+.dg-field:has(input:disabled) { opacity: .75; }
+.pixel .dg-lock { justify-self: stretch; min-height: 56px; font-size: 14px; }
+.pixel .dg-next { justify-self: end; }
+.dg-lockers, .dg-matched, .dg-dodged, .dg-scores, .dg-recap { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; min-width: 0; }
+.dg-lockers { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 4px; }
+.dg-lockers li { display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: var(--px-ink); font-size: 20px; min-width: 0; }
+.dg-lockers .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dg-lockers b { flex: none; font: 400 9px/1 var(--px-head); color: var(--px-dim); }
+.dg-lockers li.on b { color: var(--px-mint); }
+.dg-match-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+@media (min-width: 560px) { .dg-match-row:has(.dg-matched) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
+.dg-flip { padding: 8px 10px; background: var(--px-ink); box-shadow: 0 0 0 3px var(--px-panel2); min-width: 0; animation: dg-flip .45s steps(4) both; }
+.dg-flip p { margin: 0; overflow-wrap: anywhere; }
+.dg-flip .as { font-size: 18px; color: var(--px-dim); }
+.dg-flip .txt { font: 400 26px/1.05 var(--px-body); color: var(--px-fg); }
+.dg-flip.chosen { box-shadow: 0 0 0 3px var(--px-gold); }
+.dg-flip.chosen .txt { font-size: 34px; color: var(--px-gold); }
+.dg-flip.chosen .pts { font: 400 12px/1 var(--px-head); color: var(--px-gold); }
+.dg-flip.match { box-shadow: 0 0 0 3px var(--px-rose); }
+.dg-flip.match .badge { font: 400 9px/1.4 var(--px-head); color: var(--px-rose); text-transform: uppercase; }
+.dg-flip.dodge .as b { font: 400 10px/1 var(--px-head); color: var(--px-mint); }
+.dg-blank { font-size: 18px; }
+.dg-reveal.big .dg-flip .txt { font-size: clamp(28px, 3.4vw, 44px); }
+.dg-reveal.big .dg-flip.chosen .txt { font-size: clamp(36px, 5vw, 64px); }
+@keyframes dg-flip { from { transform: rotateX(90deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .dg-flip { animation: none; } }
+.party-status.dg-mine.no { color: var(--px-rose); }
+.dg-scores li { display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: var(--px-ink); font-size: 20px; min-width: 0; }
+.dg-scores li.me { box-shadow: 0 0 0 3px var(--px-gold); }
+.dg-scores .pl { flex: none; font: 400 9px/1 var(--px-head); color: var(--px-lav); }
+.dg-scores .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dg-scores b { flex: none; font: 400 22px/1 var(--px-body); color: var(--px-gold); }
+.dg-recap li { display: grid; gap: 2px; padding: 4px 8px; background: var(--px-ink); min-width: 0; }
+.dg-recap .c { font: 400 9px/1.4 var(--px-head); color: var(--px-lav); text-transform: uppercase; overflow-wrap: anywhere; }
+.dg-recap .a { font-size: 19px; overflow-wrap: anywhere; } .dg-recap .a b { font-weight: 400; color: var(--px-gold); }
+.party-page .dg-winner h2 { margin: 0; font: 700 34px/1 var(--px-title); color: var(--px-gold); overflow-wrap: anywhere; }

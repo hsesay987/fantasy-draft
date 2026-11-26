@@ -106,6 +106,7 @@ export function awardsFor(setup: GameSetup, state: GameState, seated: string[], 
       if (t.teams) return byTeams(t.teams, t.teamPoints, seated);
       return byPoints(points(), seated);
     }
+    case "dodge":
     case "jeopardy":
     case "feud":
       return byPoints(points(), seated);
