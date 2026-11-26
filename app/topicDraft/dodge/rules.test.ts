@@ -95,3 +95,16 @@ describe("decks", () => {
     for (const gone of ["Famous wizards", "Things in a fairy tale", "Marvel heroes", "Board game pieces"]) expect(all.has(gone)).toBe(false);
   });
 });
+
+describe("short plurals", () => {
+  it("matches three-letter words with their plurals", () => {
+    expect(matchKey("pie")).toBe(matchKey("pies"));
+    expect(matchKey("fry")).toBe(matchKey("fries"));
+    expect(matchKey("spy")).toBe(matchKey("spies"));
+    expect(matchKey("tie")).toBe(matchKey("ties"));
+  });
+  it("leaves vowel-y short words alone", () => {
+    expect(matchKey("toy")).toBe("toy");
+    expect(matchKey("toys")).toBe("toy");
+  });
+});

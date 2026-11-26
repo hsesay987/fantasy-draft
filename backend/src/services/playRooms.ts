@@ -748,7 +748,7 @@ export function setPaused(room: Room, token: unknown, on: boolean): { ok: boolea
     room.pausedAt = undefined;
     const held = room.dodgeHeld;
     room.dodgeHeld = undefined;
-    if (held) { landDodge(room, held.key, held.verdicts); return { ok: true }; }
+    if (held) landDodge(room, held.key, held.verdicts);
   }
   bump(room);
   return { ok: true };

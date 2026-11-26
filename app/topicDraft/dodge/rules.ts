@@ -22,7 +22,12 @@ const SINGULAR_IS = new Set(["tennis", "iris", "axis", "oasis", "basis", "pelvis
  * "cookie"/"cookies" and "berry"/"berries" both match. Words that only look plural ("tennis", "octopus") are left alone.
  */
 function stem(w: string): string {
-  if (w.length <= 3) return w;
+  if (w.length <= 3) {
+    // Short words still share a stem with their plural: pie/pies, fry/fries, spy/spies.
+    if (w.endsWith("ie")) return w.slice(0, -1);
+    if (/[^aeiou]y$/.test(w) && w.length === 3) return `${w.slice(0, -1)}i`;
+    return w;
+  }
   let x = w;
   if (x.endsWith("ies") && x.length > 4) return x.slice(0, -2); // cookies -> cooki, berries -> berri
   if (/(sses|xes|zzes|ches|shes|oes)$/.test(x)) x = x.endsWith("oes") && !/(tomatoes|potatoes|heroes|mangoes|echoes)$/.test(x) ? x.slice(0, -1) : x.slice(0, -2);
