@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://toppicgames.com";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://toppic.io";
 
 /** Let search engines in, but keep them out of accounts, admin and live rooms, which have nothing to index. */
 export default function robots(): MetadataRoute.Robots {

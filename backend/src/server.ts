@@ -36,7 +36,7 @@ const app = express();
 app.set("trust proxy", 1);
 
 const PORT = Number(process.env.PORT) || 4000;
-const corsOrigin = process.env.CORS_ORIGIN || "https://toppicgames.com";
+const corsOrigin = process.env.CORS_ORIGIN || "https://toppic.io";
 
 /* ✅ SINGLE CORS CONFIG */
 app.use(
