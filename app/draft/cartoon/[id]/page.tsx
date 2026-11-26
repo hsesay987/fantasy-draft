@@ -841,7 +841,7 @@ export default function CartoonDraftPage() {
                       <button
                         onClick={() => makePick(result)}
                         disabled={!canPick}
-                        className="min-h-9 rounded-lg bg-emerald-400 px-3 text-xs font-semibold text-slate-950 hover:bg-emerald-300 disabled:opacity-50"
+                        className="min-h-11 rounded-lg bg-emerald-400 px-3 text-xs font-semibold text-slate-950 hover:bg-emerald-300 disabled:opacity-50"
                       >
                         Draft
                       </button>

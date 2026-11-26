@@ -254,8 +254,6 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
           <input ref={input} value={text} onChange={(e) => typing(e.target.value)} readOnly={!inGuess} maxLength={60}
             placeholder={s ? "Name it" : "Press Start"} aria-label="Type the name" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} enterKeyHint="go" />
         </label>
-        {/* Holding the press stops the input losing focus, so a phone's keyboard stays up. */}
-        {s && <PixelButton variant="alt" disabled={!inGuess} onPointerDown={(e) => e.preventDefault()} onMouseDown={(e) => e.preventDefault()} onClick={skip}>Skip</PixelButton>}
       </form>
 
       {s ? (
@@ -267,6 +265,8 @@ export function VowelPlayGame({ topic, title }: { topic: string; title: string }
               : rejected ? <span className="no">Not that one. Keep trying.</span>
               : <>Name it from the letters. Enter to answer.</>}
           </p>
+          {/* Holding the press stops the input losing focus, so a phone's keyboard stays up. */}
+          <button type="button" className="vp-pass" disabled={!inGuess} onPointerDown={(e) => e.preventDefault()} onMouseDown={(e) => e.preventDefault()} onClick={skip}>Skip</button>
           <ol className="vp-pips" aria-label={`Name ${s.round + 1} of ${s.total}`}>
             {s.words.map((w, i) => {
               const h = s.history[i];

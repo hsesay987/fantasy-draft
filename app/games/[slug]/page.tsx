@@ -72,7 +72,7 @@ export default async function GameLanding({ params }: Props) {
     <PageShell width="md" className="space-y-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <header className="space-y-5">
-        <Link href="/games" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-white"><ChevronLeft className="h-4 w-4" aria-hidden /> All games</Link>
+        <Link href="/games" className="inline-flex min-h-11 items-center gap-1 text-sm text-muted-foreground hover:text-white"><ChevronLeft className="h-4 w-4" aria-hidden /> All games</Link>
         <div className="flex items-start gap-4">
           <IconBadge icon={main.icon} tint={kind.tint} size="lg" />
           <div className="min-w-0">

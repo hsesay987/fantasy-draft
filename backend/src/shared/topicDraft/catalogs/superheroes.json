@@ -435,7 +435,8 @@
   "tags": [
    "antihero",
    "magic"
-  ]
+  ],
+  "q": "John Constantine"
  },
  {
   "id": "plastic-man",
@@ -1707,7 +1708,8 @@
   "tags": [
    "hero",
    "flyer"
-  ]
+  ],
+  "q": "Starlight (The Boys)"
  },
  {
   "id": "a-train",

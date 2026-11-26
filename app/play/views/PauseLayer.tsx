@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { PixelButton } from "../../components/pixel/PixelUI";
 import { useSound } from "../../components/SoundProvider";
 import type { GameCtl } from "../useGame";
@@ -10,6 +11,14 @@ import type { GameCtl } from "../useGame";
  * hides the game so nobody types or reads ahead; the server refuses moves anyway and every timer stands still.
  */
 export function PauseLayer({ ctl }: { ctl: GameCtl }) {
+  // Rendered into <body>: the screen-mode board is a containing block, which would pin "fixed" to it and under the top bar.
+  const body = useSyncExternalStore(noSubscribe, () => document.body, () => null);
+  return body ? createPortal(<Layer ctl={ctl} />, body) : null;
+}
+
+const noSubscribe = () => () => {};
+
+function Layer({ ctl }: { ctl: GameCtl }): ReactNode {
   const { play } = useSound();
   const host = !!ctl.setPaused;
   useEffect(() => { if (ctl.paused) play("click"); }, [ctl.paused, play]);
@@ -28,8 +37,9 @@ export function PauseLayer({ ctl }: { ctl: GameCtl }) {
   }
   if (!host) return null;
   return (
-    <div className="pixel" style={{ position: "fixed", left: 16, bottom: "calc(88px + env(safe-area-inset-bottom))", zIndex: 50, background: "none", minHeight: 0 }}>
-      <PixelButton variant="alt" aria-label="Pause the game" title="Pause" onClick={() => ctl.setPaused?.(true)} style={{ minWidth: 48, padding: "14px 12px" }}>❚❚</PixelButton>
+    // On phones it docks in the empty middle of the top bar, where it covers no answer box or Lock in button.
+    <div className="pixel px-pause-dock">
+      <PixelButton variant="alt" aria-label="Pause the game" title="Pause" onClick={() => ctl.setPaused?.(true)}>❚❚</PixelButton>
     </div>
   );
 }

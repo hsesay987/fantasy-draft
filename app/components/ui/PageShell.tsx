@@ -22,7 +22,7 @@ export function PageShell({
   children: React.ReactNode;
 }) {
   return (
-    <main className={`mx-auto w-full ${WIDTH[width]} ${layout === "sidebar" ? "grid gap-6 lg:grid-cols-[1fr_320px]" : "space-y-6"} px-4 py-6 md:px-6 md:py-10 ${stickyBar ? "pb-40 md:pb-32" : "pb-24 md:pb-12"} ${className}`}>
+    <main className={`mx-auto w-full ${WIDTH[width]} ${layout === "sidebar" ? "grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_320px]" : "space-y-6"} px-4 py-6 md:px-6 md:py-10 ${stickyBar ? "pb-40 md:pb-32" : "pb-24 md:pb-12"} ${className}`}>
       {children}
     </main>
   );
@@ -70,7 +70,7 @@ export function Section({ id, title, hint, action, children }: { id?: string; ti
           <h2 className="text-lg">{title}</h2>
           {hint && <p className="mt-0.5 text-sm text-muted-foreground">{hint}</p>}
         </div>
-        {action && <Link href={action.href} className="shrink-0 text-sm font-medium text-secondary hover:text-white">{action.label} →</Link>}
+        {action && <Link href={action.href} className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-secondary hover:text-white">{action.label} →</Link>}
       </div>
       {children}
     </section>

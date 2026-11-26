@@ -105,7 +105,8 @@
   "tags": [
    "sitcom",
    "comfort"
-  ]
+  ],
+  "q": "The Office (American TV series)"
  },
  {
   "id": "seinfeld",
@@ -177,7 +178,8 @@
   "tags": [
    "drama",
    "modern"
-  ]
+  ],
+  "q": "Succession (TV series)"
  },
  {
   "id": "chernobyl",
@@ -195,7 +197,8 @@
   "tags": [
    "drama",
    "historical"
-  ]
+  ],
+  "q": "Chernobyl (miniseries)"
  },
  {
   "id": "black-mirror",
@@ -429,7 +432,8 @@
   "tags": [
    "mystery",
    "modern"
-  ]
+  ],
+  "q": "Sherlock (TV series)"
  },
  {
   "id": "peaky-blinders",
@@ -447,7 +451,8 @@
   "tags": [
    "crime",
    "drama"
-  ]
+  ],
+  "q": "Peaky Blinders (TV series)"
  },
  {
   "id": "the-crown",
@@ -465,7 +470,8 @@
   "tags": [
    "drama",
    "historical"
-  ]
+  ],
+  "q": "The Crown (TV series)"
  },
  {
   "id": "house-of-the-dragon",
@@ -501,7 +507,8 @@
   "tags": [
    "drama",
    "gaming"
-  ]
+  ],
+  "q": "The Last of Us (TV series)"
  },
  {
   "id": "squid-game",
@@ -555,7 +562,8 @@
   "tags": [
    "scifi",
    "mindbender"
-  ]
+  ],
+  "q": "Dark (TV series)"
  },
  {
   "id": "lost",
@@ -573,7 +581,8 @@
   "tags": [
    "mystery",
    "adventure"
-  ]
+  ],
+  "q": "Lost (TV series)"
  },
  {
   "id": "the-walking-dead",
@@ -609,7 +618,8 @@
   "tags": [
    "scifi",
    "drama"
-  ]
+  ],
+  "q": "Westworld (TV series)"
  },
  {
   "id": "mad-men",
@@ -645,7 +655,8 @@
   "tags": [
    "drama",
    "modern"
-  ]
+  ],
+  "q": "The Bear (TV series)"
  },
  {
   "id": "ted-lasso",
@@ -807,7 +818,8 @@
   "tags": [
    "crime",
    "thriller"
-  ]
+  ],
+  "q": "Ozark (TV series)"
  },
  {
   "id": "true-detective",
@@ -843,7 +855,8 @@
   "tags": [
    "crime",
    "dark"
-  ]
+  ],
+  "q": "Fargo (TV series)"
  },
  {
   "id": "doctor-who",
@@ -969,7 +982,8 @@
   "tags": [
    "animation",
    "comfort"
-  ]
+  ],
+  "q": "SpongeBob SquarePants"
  },
  {
   "id": "bluey",
@@ -1005,7 +1019,8 @@
   "tags": [
    "animation",
    "fantasy"
-  ]
+  ],
+  "q": "Arcane (TV series)"
  },
  {
   "id": "severance",
@@ -1023,7 +1038,8 @@
   "tags": [
    "scifi",
    "mindbender"
-  ]
+  ],
+  "q": "Severance (TV series)"
  },
  {
   "id": "euphoria",
@@ -1041,7 +1057,8 @@
   "tags": [
    "drama",
    "modern"
-  ]
+  ],
+  "q": "Euphoria (American TV series)"
  },
  {
   "id": "yellowstone",
@@ -1059,7 +1076,8 @@
   "tags": [
    "drama",
    "western"
-  ]
+  ],
+  "q": "Yellowstone (American TV series)"
  },
  {
   "id": "band-of-brothers",
@@ -1095,6 +1113,7 @@
   "tags": [
    "superhero",
    "dark"
-  ]
+  ],
+  "q": "The Boys (TV series)"
  }
 ]

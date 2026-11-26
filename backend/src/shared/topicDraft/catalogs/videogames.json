@@ -48,7 +48,8 @@
    "hero",
    "swordsman",
    "leader"
-  ]
+  ],
+  "q": "Link (The Legend of Zelda)"
  },
  {
   "id": "samus-aran",
@@ -83,7 +84,8 @@
   "tags": [
    "hero",
    "flyer"
-  ]
+  ],
+  "q": "Kirby (character)"
  },
  {
   "id": "donkey-kong",
@@ -100,7 +102,8 @@
   "tags": [
    "hero",
    "tank"
-  ]
+  ],
+  "q": "Donkey Kong (character)"
  },
  {
   "id": "pikachu",
@@ -152,7 +155,8 @@
   "tags": [
    "hero",
    "speedster"
-  ]
+  ],
+  "q": "Sonic the Hedgehog (character)"
  },
  {
   "id": "tails",
@@ -170,7 +174,8 @@
    "hero",
    "tech",
    "flyer"
-  ]
+  ],
+  "q": "Tails (Sonic the Hedgehog)"
  },
  {
   "id": "knuckles",
@@ -187,7 +192,8 @@
   "tags": [
    "hero",
    "martial"
-  ]
+  ],
+  "q": "Knuckles the Echidna"
  },
  {
   "id": "mega-man",
@@ -204,7 +210,8 @@
   "tags": [
    "hero",
    "tech"
-  ]
+  ],
+  "q": "Mega Man (character)"
  },
  {
   "id": "ryu",
@@ -221,7 +228,8 @@
   "tags": [
    "hero",
    "martial"
-  ]
+  ],
+  "q": "Ryu (Street Fighter)"
  },
  {
   "id": "chun-li",
@@ -362,7 +370,8 @@
    "hero",
    "tech",
    "leader"
-  ]
+  ],
+  "q": "Master Chief (Halo)"
  },
  {
   "id": "doomguy",
@@ -450,7 +459,8 @@
   "tags": [
    "antihero",
    "human"
-  ]
+  ],
+  "q": "Joel Miller (The Last of Us)"
  },
  {
   "id": "ellie",
@@ -467,7 +477,8 @@
   "tags": [
    "hero",
    "human"
-  ]
+  ],
+  "q": "Ellie (The Last of Us)"
  },
  {
   "id": "steve",
@@ -485,7 +496,8 @@
    "hero",
    "builder",
    "human"
-  ]
+  ],
+  "q": "Steve (Minecraft)"
  },
  {
   "id": "pac-man",
@@ -518,7 +530,8 @@
   },
   "tags": [
    "hero"
-  ]
+  ],
+  "q": "Crash Bandicoot (character)"
  },
  {
   "id": "spyro",
@@ -536,7 +549,8 @@
    "hero",
    "flyer",
    "fire"
-  ]
+  ],
+  "q": "Spyro (character)"
  },
  {
   "id": "ratchet",
@@ -553,7 +567,8 @@
   "tags": [
    "hero",
    "tech"
-  ]
+  ],
+  "q": "Ratchet (Ratchet & Clank)"
  },
  {
   "id": "gordon-freeman",
@@ -622,7 +637,8 @@
   "tags": [
    "antihero",
    "magic"
-  ]
+  ],
+  "q": "Bayonetta (character)"
  },
  {
   "id": "jill-valentine",
@@ -656,7 +672,8 @@
   "tags": [
    "hero",
    "human"
-  ]
+  ],
+  "q": "Leon S. Kennedy"
  },
  {
   "id": "dante",
@@ -674,7 +691,8 @@
    "antihero",
    "swordsman",
    "magic"
-  ]
+  ],
+  "q": "Dante (Devil May Cry)"
  },
  {
   "id": "isaac-clarke",
@@ -709,7 +727,8 @@
    "hero",
    "speedster",
    "tech"
-  ]
+  ],
+  "q": "Tracer (Overwatch)"
  },
  {
   "id": "mercy",
@@ -727,7 +746,8 @@
    "hero",
    "healer",
    "flyer"
-  ]
+  ],
+  "q": "Mercy (Overwatch)"
  },
  {
   "id": "reinhardt",
@@ -745,6 +765,7 @@
    "hero",
    "tank",
    "leader"
-  ]
+  ],
+  "q": "Reinhardt (Overwatch)"
  }
 ]

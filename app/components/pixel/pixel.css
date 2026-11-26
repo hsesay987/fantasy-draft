@@ -25,6 +25,8 @@
 .px-btn:disabled { opacity: .4; cursor: not-allowed; }
 .px-tag { display: inline-flex; gap: 8px; align-items: center; font-family: var(--px-head); font-size: 9px; padding: 6px 8px; background: var(--px-ink); }
 .px-chip { display: inline-block; background: var(--px-ink); padding: 4px 8px; font-size: 19px; color: var(--px-lav); }
+/* A chip that is a link or button is a thumb target. */
+a.px-chip, button.px-chip { display: inline-flex; align-items: center; min-height: 44px; }
 .px-score { display: flex; flex-wrap: wrap; gap: 10px; }
 .px-score li { list-style: none; background: var(--px-ink); padding: 6px 10px; font-size: 22px; display: flex; gap: 10px; align-items: center; }
 .px-score li.on { background: var(--px-violet); }
@@ -496,7 +498,7 @@
 .pixel[data-world="board"] { --px-bg: #17100d; --px-bg2: #1d1410; --px-panel: #33241a; --px-panel2: #4b3626; --px-ink: #0b0705; --px-fg: #f5ead2; --px-dim: #cdb99a; --px-lav: #e9b872; --px-rose: #c8232c; --px-gold: #f2b84b; --px-mint: #6fd08f; --px-sky: #8fb6c4; --px-violet: #5c3a24;
   background: #17100d repeating-linear-gradient(90deg, #1d1410 0 2px, #17100d 2px 12px); }
 .ct-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; max-width: 40rem; margin-inline: auto; }
-.ct-back { justify-self: start; color: var(--px-lav); font-size: 19px; }
+.ct-back { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; color: var(--px-lav); font-size: 19px; }
 .ct-back:hover { color: var(--px-gold); }
 .ct-sign { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px; padding: 10px 12px; min-width: 0; background: #2a1b12; box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 3px 0 0 #5c4230, inset 0 -3px 0 0 #170d08; }
 .ct-sign > div { min-width: 0; }
@@ -757,7 +759,7 @@
 
 /* The climb: enamel signs with brass rivets on a violet dusk. No letters, no ovals, no point table up the side. */
 .tr-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; max-width: 40rem; margin-inline: auto; }
-.tr-back { justify-self: start; color: var(--px-lav); font-size: 19px; }
+.tr-back { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; color: var(--px-lav); font-size: 19px; }
 .tr-back:hover { color: var(--px-gold); }
 .tr-sign { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px; padding: 10px 12px; min-width: 0; background: var(--px-panel2); box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 3px 0 0 #6d4598, inset 0 -3px 0 0 #2c1a55; }
 .tr-sign > div { min-width: 0; }
@@ -968,7 +970,7 @@
 .pixel[data-world="typewriter"] { --px-bg: #1b1312; --px-bg2: #221816; --px-panel: #33231e; --px-panel2: #4a3229; --px-ink: #120b0a; --px-fg: #f6ecd2; --px-dim: #c4ad92; --px-lav: #e8c58a; --px-rose: #c8341f; --px-gold: #e3b04b; --px-mint: #7fc8b4; --px-sky: #8cc6c9; --px-violet: #3a6a62;
   background: #1b1312 repeating-linear-gradient(0deg, #221816 0 2px, #1b1312 2px 8px); }
 .vp-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; max-width: 40rem; margin-inline: auto; }
-.vp-back { justify-self: start; color: var(--px-lav); font-size: 19px; }
+.vp-back { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; color: var(--px-lav); font-size: 19px; }
 .vp-back:hover { color: var(--px-gold); }
 .vp-sign { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px; padding: 8px 12px; min-width: 0; background: var(--px-panel2); box-shadow: 0 -4px 0 0 var(--px-ink), 0 4px 0 0 var(--px-ink), -4px 0 0 0 var(--px-ink), 4px 0 0 0 var(--px-ink), inset 0 3px 0 0 #6a4b3c, inset 0 -3px 0 0 #2c1d17; }
 .vp-sign > div { min-width: 0; }
@@ -1010,6 +1012,11 @@ html[data-vp-typing] nav[aria-label="Primary"] { display: none; }
 .vp-word b { font-weight: 400; color: var(--px-gold); }
 .vp-word .lost { color: #ef8a73; }
 .vp-word .no { color: #ef8a73; }
+/* A quiet way out under the status line, away from the typing row so it is not hit by mistake. 44px tall for a thumb. */
+.vp-pass { justify-self: start; min-height: 44px; min-width: 44px; margin: -6px 0 0; padding: 0 4px; background: none; border: 0; color: var(--px-dim); font: 400 20px var(--px-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.vp-pass:hover, .vp-pass:focus-visible { color: var(--px-fg); }
+/* Kept in the layout between words so the roster below does not jump. */
+.vp-pass:disabled { visibility: hidden; }
 .vp-pips { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin: 0 4px; padding: 0; list-style: none; }
 .vp-rules { display: grid; gap: 8px; }
 .vp-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
@@ -1561,6 +1568,13 @@ button.tn-slot:hover { background: var(--px-rose); }
 @media (max-width: 380px) { .np-card { padding: 12px 8px 12px 16px; } .np-letter { width: 52px; height: 52px; font-size: 38px; } .np-field input { font-size: 22px; } .np-head { gap: 8px; } .np-head .stat b { font-size: 22px; } }
 @media (prefers-reduced-motion: reduce) { .np-groups li { animation: none; } }
 
+/* The host's Pause button (PauseLayer). Phones: centred in the sticky top bar, clear of the game. Wider screens: bottom left. */
+.px-pause-dock { position: fixed; z-index: 50; top: calc(env(safe-area-inset-top) + 6px); left: 50%; transform: translateX(-50%); background: none; min-height: 0; }
+.px-pause-dock .px-btn { min-width: 44px; min-height: 44px; padding: 8px 12px; }
+@media (min-width: 768px) {
+  .px-pause-dock { top: auto; left: 16px; bottom: calc(88px + env(safe-area-inset-bottom)); transform: none; }
+  .px-pause-dock .px-btn { min-width: 48px; padding: 14px 12px; }
+}
 /* Dodge: the chosen player's card flips first, matches line up beside it, then the dodges. */
 /* Room space below for the host's pause button, which floats over the bottom of the page on a phone. */
 .dg-page { max-width: 36rem; gap: 10px; padding-bottom: 72px; }

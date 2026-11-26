@@ -1,5 +1,10 @@
-// Looks up a thumbnail for a character on Wikipedia (public API, CORS-enabled) and caches it.
+// Pictures for catalog items. Most come from characterImages.json, resolved ahead of time by
+// scripts/resolveImages.ts, so a fresh browser shows them at once. Anything missing from it is looked up
+// live (Wikipedia, PokéAPI, AniList, the Superhero API) and cached in localStorage.
 // Always optional: callers fall back to an initials avatar when nothing is found.
+import PRESOLVED from "./characterImages.json";
+
+const STATIC = PRESOLVED as Record<string, string>;
 const CACHE_KEY = "toppic:img:v3";
 const API = "https://en.wikipedia.org/w/api.php";
 
@@ -38,18 +43,21 @@ const release = () => {
   waiting.shift()?.();
 };
 
-export const cachedImage = (query: string): string | null | undefined => load()[query];
+export const cachedImage = (query: string): string | null | undefined => (imagesEnabled() ? STATIC[query] ?? load()[query] : undefined);
 
 type Pages = Record<string, { title?: string; thumbnail?: { source: string } }>;
 const BAD = /logo|wordmark|flag_of|disambig|symbol/i;
+/** A Wikipedia thumbnail worth showing, without its tracking query (it adds nothing but bytes). Shared with scripts/resolveImages.ts. */
+export const usableThumb = (src: string | undefined): string | null => (src && !BAD.test(src) ? src.replace(/\?utm_.*$/, "") : null);
 
 async function wikiImage(name: string): Promise<string | null> {
   const get = async (params: string) => {
-    const res = await fetch(`${API}?action=query&format=json&origin=*&prop=pageimages&piprop=thumbnail&pithumbsize=320&redirects=1&${params}`);
+    // pilicense=any: characters, films and books mostly have non-free lead images, which "free" (the default) skips.
+    const res = await fetch(`${API}?action=query&format=json&origin=*&prop=pageimages&piprop=thumbnail&pithumbsize=320&pilicense=any&redirects=1&${params}`);
     if (!res.ok) throw new Error(String(res.status));
     const data = await res.json();
     const pages = data?.query?.pages ? (Object.values(data.query.pages) as Pages[string][]) : [];
-    return pages.find((p) => p.thumbnail?.source && !BAD.test(p.thumbnail.source))?.thumbnail?.source ?? null;
+    return pages.map((p) => usableThumb(p.thumbnail?.source)).find(Boolean) ?? null;
   };
   return (await get(`titles=${encodeURIComponent(name)}`)) ?? (await get(`generator=search&gsrlimit=1&gsrsearch=${encodeURIComponent(name)}`));
 }
@@ -101,21 +109,26 @@ const heroThenWiki = async (name: string) => (await heroImage(name)) ?? wikiImag
 const PROVIDERS: Record<string, (name: string) => Promise<string | null>> = { wiki: wikiImage, poke: pokeImage, anilist: aniImage, hero: heroImage, herowiki: heroThenWiki, flag: flagImage };
 export const imagesEnabled = () => process.env.NEXT_PUBLIC_CHARACTER_IMAGES !== "off";
 
+/** Runs the provider for a "kind:name" query with no caching. Used live below and by scripts/resolveImages.ts. */
+export function resolveImage(query: string): Promise<string | null> {
+  const i = query.indexOf(":");
+  const provider = PROVIDERS[query.slice(0, i)];
+  return provider ? provider(query.slice(i + 1)) : Promise.resolve(null);
+}
+
 /** `query` is "kind:name". Returns an image URL or null. */
 export function fetchCharacterImage(query: string): Promise<string | null> {
   if (!imagesEnabled()) return Promise.resolve(null);
+  if (STATIC[query]) return Promise.resolve(STATIC[query]);
   const cache = load();
   if (query in cache) return Promise.resolve(cache[query]!);
   const running = inflight.get(query);
   if (running) return running;
-  const i = query.indexOf(":");
-  const provider = PROVIDERS[query.slice(0, i)];
-  const name = query.slice(i + 1);
-  if (!provider) return Promise.resolve(null);
+  if (!PROVIDERS[query.slice(0, query.indexOf(":"))]) return Promise.resolve(null);
   const p = (async () => {
     await slot();
     try {
-      const src = await provider(name);
+      const src = await resolveImage(query);
       cache[query] = src;
       persist();
       return src;

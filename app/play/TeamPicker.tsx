@@ -29,7 +29,7 @@ export function TeamPicker({ players, teams, map, onChange }: { players: string[
             <div className="mb-2 flex min-h-9 items-center justify-between gap-2">
               <h4 className="flex items-center gap-2 text-sm font-semibold"><i className="h-3 w-3 shrink-0 rounded-sm" style={{ background: TEAM_COLORS[t] }} aria-hidden />{teamName(t)} ({roster.length})</h4>
               {moving && placed[moving] !== t && (
-                <button type="button" className="min-h-9 rounded-lg bg-primary px-3 text-sm font-semibold" onClick={() => { onChange(moveToTeam(players, teams, placed, moving, t)); setHeld(null); }}>Move here</button>
+                <button type="button" className="min-h-11 rounded-lg bg-primary px-3 text-sm font-semibold sm:min-h-9" onClick={() => { onChange(moveToTeam(players, teams, placed, moving, t)); setHeld(null); }}>Move here</button>
               )}
             </div>
             {roster.length === 0 ? <p className="text-sm text-muted-foreground">Nobody yet.</p> : (
