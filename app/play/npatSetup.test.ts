@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NPAT_CATEGORIES } from "../topicDraft/npat/categories";
-import { NPAT_CLASSIC_IDS, NPAT_MAX_CATS, NPAT_MIN_CATS, npatCustomCheck, npatDigCheck, npatStyleFor, npatSummary } from "./npatSetup";
+import { NPAT_CLASSIC_IDS, NPAT_MAX_CATS, NPAT_MIN_CATS, npatCustomCheck, npatDigCheck, npatQuestionRounds, npatSheetPools, npatStyleFor, npatSummary } from "./npatSetup";
 import { NPAT_DIG_IDS } from "./types";
 
 const allLetters = (ids: string[], hard: boolean) => {
@@ -96,9 +96,34 @@ describe("dig style", () => {
     expect(npatStyleFor({ opts: {}, pool: "classic" })).toBe("sheet");
   });
 
+  it("opens on question style when the setup or a tournament slot says so", () => {
+    expect(npatStyleFor({ opts: { npatStyle: "question" }, pools: ["questions"] })).toBe("question");
+    expect(npatStyleFor({ pools: ["questions"] })).toBe("question");
+    expect(npatStyleFor({ opts: { npatStyle: "dig" }, pools: ["questions"] })).toBe("dig");
+  });
+
+  it("sums question style up as rounds of one question each", () => {
+    expect(npatSummary({ pools: ["questions"], rounds: 8, seconds: 60, teams: 0, players: 3, style: "question" })).toBe("Questions · 8 rounds · a new letter each · 20 s each · every player for themselves · 2+ players");
+  });
+
   it("sums a dig up as one letter, five categories", () => {
     expect(npatSummary({ pools: ["cat:name"], rounds: 3, seconds: 60, teams: 0, players: 3, style: "dig" })).toBe("Dig · one letter · 5 categories · 20 s each · every player for themselves · 2+ players");
     const seven = NPAT_CATEGORIES.slice(0, 7).map((c) => `cat:${c.id}`);
     expect(npatSummary({ pools: seven, rounds: 3, seconds: 60, teams: 0, players: 3, style: "dig" })).toMatch(/^Dig · one letter · 7 categories/);
+  });
+});
+
+describe("question style setup", () => {
+  it("the sheet's sets never open on the questions pool", () => {
+    expect(npatSheetPools(["questions"])).toEqual(["classic"]);
+    expect(npatSheetPools(["film", "questions"])).toEqual(["film"]);
+    expect(npatSheetPools([])).toEqual(["classic"]);
+  });
+
+  it("the rounds stepper opens on the last question game's rounds", () => {
+    expect(npatQuestionRounds({ opts: { npatStyle: "question", npatRounds: 12 } })).toBe(12);
+    expect(npatQuestionRounds({ opts: { npatStyle: "question", npatRounds: 99 } })).toBe(12);
+    expect(npatQuestionRounds({ opts: { npatStyle: "sheet", npatRounds: 5 } })).toBe(8);
+    expect(npatQuestionRounds(null)).toBe(8);
   });
 });
