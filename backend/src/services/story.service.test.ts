@@ -14,11 +14,11 @@ const good = {
   title: "Siege at Midnight Harbor",
   setting: "Fog over the docks. Whoever holds the lighthouse at dawn takes the harbor.",
   beats: [
-    { label: "Opening Bell", text: long("Goku opens with an Instant Transmission feint and a Kamehameha that splits the pier, but Thanos simply walks through the blast.") },
-    { label: "First Blood", text: long("Spider-Man webs the crane hooks and swings Michael Jordan in for a mid-air slam, and Ann's side reels.") },
-    { label: "The Scare", text: long("Thanos closes his fist on the gauntlet and Lelouch's plan looks finished, the harbor shaking under the Rival AI push.") },
-    { label: "Turning Point", text: long("Lelouch uses Geass on the fleet's captain and the ships turn on their own side in the fog, intellect 98 doing the work.") },
-    { label: "Final Blow", text: long("Saitama strolls up the gangway, says 'OK', and one Serious Punch clears the bay of Rival AI's last hope.") },
+    { label: "Opening Bell", side: "Ann", text: long("Goku opens with an Instant Transmission feint and a Kamehameha that splits the pier, but Thanos simply walks through the blast.") },
+    { label: "First Blood", side: "Rival AI", text: long("Spider-Man webs the crane hooks and swings Michael Jordan in for a mid-air slam, and Ann's side reels.") },
+    { label: "The Scare", side: "Rival AI", text: long("Thanos closes his fist on the gauntlet and Lelouch's plan looks finished, the harbor shaking under the Rival AI push.") },
+    { label: "Turning Point", side: "Ann", text: long("Lelouch uses Geass on the fleet's captain and the ships turn on their own side in the fog, intellect 98 doing the work.") },
+    { label: "Final Blow", side: "Ann", text: long("Saitama strolls up the gangway, says 'OK', and one Serious Punch clears the bay of Rival AI's last hope.") },
   ],
   why: "Ann won on brains: Intellect 90 to 78, with Lelouch's Geass flipping the fight.",
 };
@@ -40,8 +40,14 @@ describe("draft story", () => {
     const beats = good.beats.map((b) => ({ ...b, text: b.text.replace("Michael Jordan", "Jordan") }));
     expect(validateStory({ ...good, beats }, input)).not.toBeNull();
   });
+  it("every beat names its side, that side's pick drives it, and the last beat is the winner's", () => {
+    expect(validateStory({ ...good, beats: good.beats.map((b, i) => (i === 1 ? { ...b, side: undefined } : b)) }, input)).toBeNull();
+    expect(validateStory({ ...good, beats: good.beats.map((b, i) => (i === 4 ? { ...b, side: "Rival AI" } : b)) }, input)).toBeNull();
+    // Rival AI's beat with none of Rival AI's picks in it
+    expect(validateStory({ ...good, beats: good.beats.map((b, i) => (i === 2 ? { ...b, text: long("Lelouch's plan wobbles as the harbor shakes.") } : b)) }, input)).toBeNull();
+  });
   it("needs both teams in the story and most of the picks", () => {
-    const oneSided = good.beats.map((b) => ({ ...b, text: long("Goku, Lelouch and Saitama run the show against nobody in particular.") }));
+    const oneSided = good.beats.map((b) => ({ ...b, side: "Ann", text: long("Goku, Lelouch and Saitama run the show against nobody in particular.") }));
     expect(validateStory({ ...good, beats: oneSided }, input)).toBeNull();
   });
   it("asks for signature moves, duels and a scare, with each pick's details", () => {

@@ -3,7 +3,8 @@
 import { defaultClient, extractJson, type JudgeReq, type LLM, type Verdict } from "./judge.service";
 import { trackServer } from "../lib/monitoring";
 
-export type StoryBeat = { label: string; text: string };
+/** `side`: the team that drives this beat (the other side resists or takes the hit). */
+export type StoryBeat = { label: string; text: string; side?: string };
 export type Story = { title: string; setting: string; beats: StoryBeat[]; why: string };
 export type StoryInput = Pick<JudgeReq, "scenario" | "teams"> & { verdict: Pick<Verdict, "winner" | "teams" | "statsTable"> };
 
@@ -49,7 +50,8 @@ function pickLine(i: StoryInput["teams"][number]["items"][number]): string {
 export function storyPrompt(input: StoryInput, seeds: { setting: string; condition: string; twist: string }, avoid: string[]): { system: string; user: string } {
   const system = [
     "You are a hype sports-and-action commentator narrating a fantasy matchup for a party game, as a vivid play-by-play. Reply with JSON only.",
-    'Shape: {"title": string, "setting": string, "beats": [{"label": string, "text": string}], "why": string}.',
+    'Shape: {"title": string, "setting": string, "beats": [{"label": string, "side": string, "text": string}], "why": string}.',
+    "Each beat has a `side`: the exact team name (from the Teams list) whose characters drive that beat, attacking the other team.",
     "Write it like the best fight commentary: concrete, specific, high stakes. Never vague, never generic.",
     "Rules:",
     "- 5 to 7 beats. Each beat is 2 to 4 sentences (about 250-400 characters) and names the characters involved.",
@@ -59,6 +61,7 @@ export function storyPrompt(input: StoryInput, seeds: { setting: string; conditi
     "- Use the setting, the condition and the twist so they change what happens, not just decoration.",
     "- Give the losing side a real moment: a lead, a near win or a scare for the winner. Then the turning point flips it.",
     "- Use as many characters as you can, from both teams. Only characters from the teams; no new ones.",
+    "- In a beat, characters from `side` act and characters from the other team only resist, fall back or get hit. Alternate sides across beats; the last beat's side is the winner.",
     "- Every character fights only for their own team, start to finish. Nobody helps, saves or joins the other side, even when mind control or a twist is involved: a twist can hurt a team, never switch someone's side.",
     "- Each move must belong to the character who uses it (no borrowing another character's signature move).",
     "- The given winner must win; nothing may suggest otherwise. No gore, no slurs, no real-world politics.",
@@ -83,7 +86,13 @@ export function storyPrompt(input: StoryInput, seeds: { setting: string; conditi
 /** A story the model wrote, checked: right shape, real picks named, the winner in `why`. Null when it doesn't hold up. */
 export function validateStory(raw: any, input: StoryInput): Story | null {
   if (!raw || !Array.isArray(raw.beats)) return null;
-  const beats = raw.beats.slice(0, 7).map((b: any) => ({ label: clean(b?.label, 28), text: clean(b?.text, 520) })).filter((b: StoryBeat) => b.label && b.text);
+  const players = input.teams.map((t) => t.player);
+  const rawBeats = raw.beats.slice(0, 7);
+  // Each beat is driven by one side, named exactly, and names at least one of that side's picks; the last is the winner's.
+  const sideOf = (b: any) => players.find((p) => fold(clean(b?.side, 40)) === fold(p));
+  const beats = rawBeats.map((b: any) => ({ label: clean(b?.label, 28), text: clean(b?.text, 520), side: sideOf(b) })).filter((b: any) => b.label && b.text);
+  if (beats.some((b: any) => !b.side)) return null;
+  if (beats.length && fold(beats[beats.length - 1].side) !== fold(input.verdict.winner)) return null;
   // Thin stories fail: at least 5 beats with some substance to them.
   if (beats.length < 5 || beats.filter((b: StoryBeat) => b.text.length >= 140).length < 4) return null;
   const why = clean(raw.why, 320);
@@ -95,11 +104,13 @@ export function validateStory(raw: any, input: StoryInput): Story | null {
   // or its last word when that is distinctive (4+ letters: "Kratos", "Jordan").
   const forms = (n: string) => { const bare = n.replace(/\s*\(.*\)\s*$/, ""); const last = bare.split(" ").pop() ?? ""; return [n, bare, ...(last.length >= 4 && bare.includes(" ") ? [last] : [])].map(fold); };
   const hit = (n: string) => forms(n).some((f) => text.includes(f));
+  const hitIn = (n: string, t: string) => forms(n).some((f) => fold(t).includes(f));
+  if (!beats.every((b: any) => (input.teams.find((t) => t.player === b.side)?.items ?? []).some((i) => hitIn(i.name, b.text)))) return null;
   const named = new Set(names.filter(hit));
   // Both sides show up, and most of the picks get a moment.
   const everyTeam = input.teams.every((t) => t.items.some((i) => hit(i.name)));
   if (!everyTeam || named.size < Math.min(names.length, Math.max(2, Math.ceil(names.length * 0.6)))) return null;
-  return { title, setting: clean(raw.setting, 300), beats, why };
+  return { title, setting: clean(raw.setting, 300), beats: beats.map((b: any) => ({ label: b.label, text: b.text, side: b.side })), why };
 }
 
 /** Writes one story, or null (no AI configured, budget spent, timeout, or an answer that fails the checks). */

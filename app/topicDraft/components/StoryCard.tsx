@@ -23,7 +23,7 @@ export function StoryCard({ story, loading }: { story: Story | null | undefined;
       <ol className="mt-4 space-y-3 border-l-2 border-secondary/40 pl-4">
         {story.beats.map((b, i) => (
           <motion.li key={i} initial={still ? false : { opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * step }}>
-            <p className="text-xs font-semibold uppercase tracking-wider text-secondary">{b.label}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-secondary">{b.label}{b.side && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· {b.side}</span>}</p>
             <p className="text-pretty">{b.text}</p>
           </motion.li>
         ))}
