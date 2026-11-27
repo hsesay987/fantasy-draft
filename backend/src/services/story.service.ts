@@ -11,6 +11,9 @@ export type StoryInput = Pick<JudgeReq, "scenario" | "teams"> & { verdict: Pick<
 const TIMEOUT_MS = Number(process.env.STORY_TIMEOUT_MS) || 25_000;
 const DEFAULT_DAILY = 1000;
 
+/** Words that start or end a lot of names, so they don't count as naming that one pick on their own. */
+const TITLE_WORDS = new Set(["the", "king", "queen", "lord", "lady", "captain", "doctor", "prince", "princess", "general", "black", "green", "iron", "super", "mister", "great", "saint", "dark", "red", "white", "blue", "young", "little", "big", "woman", "girl", "team", "the"]);
+
 /** Story seeds: picked at random, so the same mission and teams still get a new story. */
 export const SETTINGS = [
   "a fog-bound harbor at midnight", "a collapsing space station", "a desert canyon at high noon", "a flooded subway system",
@@ -108,10 +111,17 @@ export function checkStory(raw: any, input: StoryInput): Story | string {
   const text = fold(beats.map((b: StoryBeat) => b.text).join(" "));
   // A pick counts when its name appears, or its name without a bracketed part ("Spider-Man" for "Spider-Man (Peter Parker)"),
   // or its last word when that is distinctive (4+ letters: "Kratos", "Jordan").
-  const forms = (n: string) => { const bare = n.replace(/\s*\(.*\)\s*$/, ""); const last = bare.split(" ").pop() ?? ""; return [n, bare, ...(last.length >= 4 && bare.includes(" ") ? [last] : [])].map(fold); };
+  const forms = (n: string) => {
+    const bare = n.replace(/\s*\(.*\)\s*$/, "");
+    const words = bare.split(/\s+/);
+    const first = words[0] ?? "", last = words[words.length - 1] ?? "";
+    const ok = (w: string) => words.length > 1 && w.length >= 4 && !TITLE_WORDS.has(fold(w));
+    return [n, bare, ...(ok(first) ? [first] : []), ...(ok(last) ? [last] : [])].map(fold);
+  };
   const hit = (n: string) => forms(n).some((f) => text.includes(f));
   const hitIn = (n: string, t: string) => forms(n).some((f) => fold(t).includes(f));
-  { const bad = beats.find((b: any) => !(input.teams.find((t) => t.player === b.side)?.items ?? []).some((i) => hitIn(i.name, b.text))); if (bad) return `beat without its side's pick: ${bad.side}: ${bad.text.slice(0, 80)}`; }
+  // One loose beat is fine (a crowd moment, a setting shift); more than that means the sides got muddled.
+  { const bad = beats.filter((b: any) => !(input.teams.find((t) => t.player === b.side)?.items ?? []).some((i) => hitIn(i.name, b.text))); if (bad.length > 1) return `beats without their side's pick: ${bad.map((b: any) => `${b.side}: ${b.text.slice(0, 60)}`).join(" | ")}`; }
   const named = new Set(names.filter(hit));
   // Both sides show up, and most of the picks get a moment.
   const everyTeam = input.teams.every((t) => t.items.some((i) => hit(i.name)));
@@ -122,23 +132,31 @@ export function checkStory(raw: any, input: StoryInput): Story | string {
 /** Writes one story, or null (no AI configured, budget spent, timeout, or an answer that fails the checks). */
 export async function writeStory(input: StoryInput, client: LLM | null = defaultClient(), rand: () => number = Math.random): Promise<Story | null> {
   if (!client || !input.teams.length || !input.verdict?.winner) return null;
-  if (!takeBudget()) { trackServer("story_call", { source: "budget" }); return null; }
-  const seeds = { setting: pick(SETTINGS, rand), condition: pick(CONDITIONS, rand), twist: pick(TWISTS, rand) };
-  const { system, user } = storyPrompt(input, seeds, recent.slice(-30));
-  const t0 = Date.now();
-  try {
-    const text = await Promise.race([
-      client.complete(system, user),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("story timeout")), TIMEOUT_MS)),
-    ]);
-    const checked = checkStory(extractJson(text), input);
-    const story = typeof checked === "string" ? null : checked;
-    if (typeof checked === "string") console.warn(`story rejected: ${checked}`);
-    trackServer("story_call", { source: story ? "ai" : "invalid", ...(typeof checked === "string" ? { reason: checked.slice(0, 120) } : {}), ms: Date.now() - t0 });
-    if (story) { recent.push(story.title); if (recent.length > 60) recent.splice(0, recent.length - 60); }
-    return story;
-  } catch {
-    trackServer("story_call", { source: "error", ms: Date.now() - t0 });
-    return null;
+  // Two tries at most: a reply that fails the checks gets one more go with fresh seeds.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (!takeBudget()) { trackServer("story_call", { source: "budget" }); return null; }
+    const seeds = { setting: pick(SETTINGS, rand), condition: pick(CONDITIONS, rand), twist: pick(TWISTS, rand) };
+    const { system, user } = storyPrompt(input, seeds, recent.slice(-30));
+    const t0 = Date.now();
+    try {
+      const text = await Promise.race([
+        client.complete(system, user),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("story timeout")), TIMEOUT_MS)),
+      ]);
+      const checked = checkStory(extractJson(text), input);
+      if (typeof checked === "string") {
+        console.warn(`story rejected (try ${attempt + 1}): ${checked}`);
+        trackServer("story_call", { source: "invalid", reason: checked.slice(0, 120), attempt, ms: Date.now() - t0 });
+        continue;
+      }
+      trackServer("story_call", { source: "ai", attempt, ms: Date.now() - t0 });
+      recent.push(checked.title);
+      if (recent.length > 60) recent.splice(0, recent.length - 60);
+      return checked;
+    } catch {
+      trackServer("story_call", { source: "error", attempt, ms: Date.now() - t0 });
+      return null; // a timeout or a down provider: don't wait twice
+    }
   }
+  return null;
 }

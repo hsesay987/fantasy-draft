@@ -43,8 +43,26 @@ describe("draft story", () => {
   it("every beat names its side, that side's pick drives it, and the last beat is the winner's", () => {
     expect(validateStory({ ...good, beats: good.beats.map((b, i) => (i === 1 ? { ...b, side: undefined } : b)) }, input)).toBeNull();
     expect(validateStory({ ...good, beats: good.beats.map((b, i) => (i === 4 ? { ...b, side: "Rival AI" } : b)) }, input)).toBeNull();
-    // Rival AI's beat with none of Rival AI's picks in it
-    expect(validateStory({ ...good, beats: good.beats.map((b, i) => (i === 2 ? { ...b, text: long("Lelouch's plan wobbles as the harbor shakes.") } : b)) }, input)).toBeNull();
+    // Two Rival AI beats with none of Rival AI's picks in them
+    expect(validateStory({ ...good, beats: good.beats.map((b, i) => (i === 1 || i === 2 ? { ...b, text: long("Lelouch's plan wobbles as the harbor shakes.") } : b)) }, input)).toBeNull();
+  });
+  it("counts a pick by a distinctive first name too (Gojo for Gojo Satoru), but not by a title word", () => {
+    const names: StoryInput = { ...input, teams: [{ player: "Ann", items: [{ name: "Gojo Satoru" }, { name: "Madara Uchiha" }, { name: "Captain America" }] }, input.teams[1]!] };
+    const beats = [
+      { label: "A", side: "Ann", text: long("Gojo expands his Domain and the harbor goes silent.") },
+      { label: "B", side: "Rival AI", text: long("Thanos answers with a snap that cracks the pier.") },
+      { label: "C", side: "Ann", text: long("Madara drops a meteor on the fleet.") },
+      { label: "D", side: "Rival AI", text: long("Spider-Man swings in and Jordan rises for the block.") },
+      { label: "E", side: "Ann", text: long("Gojo finishes it with Hollow Purple.") },
+    ];
+    expect(validateStory({ ...good, beats }, names)).not.toBeNull();
+    const captainOnly = beats.map((b) => (b.side === "Ann" ? { ...b, text: long("The captain charges.") } : b));
+    expect(validateStory({ ...good, beats: captainOnly }, names)).toBeNull();
+  });
+  it("lets one loose beat through, not two", () => {
+    const loose = (n: number) => good.beats.map((b, i) => (i < n ? { ...b, text: long("The crowd roars as the storm rolls in.") } : b));
+    expect(validateStory({ ...good, beats: loose(1) }, input)).not.toBeNull();
+    expect(validateStory({ ...good, beats: loose(2) }, input)).toBeNull();
   });
   it("needs both teams in the story and most of the picks", () => {
     const oneSided = good.beats.map((b) => ({ ...b, side: "Ann", text: long("Goku, Lelouch and Saitama run the show against nobody in particular.") }));
@@ -75,6 +93,15 @@ describe("draft story", () => {
   it("different random draws give different seeds", () => {
     const a = storyPrompt(input, { setting: "x", condition: "y", twist: "z" }, []).user;
     expect(a).not.toEqual(storyPrompt(input, { setting: "q", condition: "y", twist: "z" }, []).user);
+  });
+  it("tries once more with fresh seeds when a reply fails the checks", async () => {
+    const replies = ["not json", JSON.stringify(good)];
+    const c = { complete: vi.fn(async () => replies.shift()!) };
+    expect(await writeStory(input, c)).toMatchObject({ title: good.title });
+    expect(c.complete).toHaveBeenCalledTimes(2);
+    const bad = llm("not json");
+    expect(await writeStory(input, bad)).toBeNull();
+    expect(bad.complete).toHaveBeenCalledTimes(2);
   });
   it("returns null with no AI, on a bad reply, on an error, or once the daily budget is spent", async () => {
     expect(await writeStory(input, null)).toBeNull();
