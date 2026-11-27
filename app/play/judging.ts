@@ -28,6 +28,24 @@ export type Verdict = {
   source: "ai" | "decision" | "fallback";
 };
 
+/** The play-by-play under a draft result (written by the AI after the verdict; never changes it). */
+export type Story = { title: string; setting: string; beats: { label: string; text: string; side?: string }[]; why: string };
+
+/** Asks for the story of a judged draft. null when there is none (no AI, budget spent, or any failure). */
+export async function fetchStory(apiUrl: string, token: string | null, mission: Pick<Scenario, "title" | "blurb">, teams: JudgeTeamInput[], verdict: Verdict): Promise<Story | null> {
+  try {
+    const res = await fetch(`${apiUrl}/judge/story`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ scenario: { title: mission.title, blurb: mission.blurb }, teams: teams.map((t) => ({ player: t.player, items: t.items.map((i) => ({ name: i.name, ...(i.role ? { role: i.role } : {}), ...(i.archetype ? { archetype: i.archetype } : {}), ...(i.universe ? { universe: i.universe } : {}), ...(i.stats ? { stats: i.stats } : {}) })) })), verdict: { winner: verdict.winner, teams: verdict.teams.map((t) => ({ player: t.player, score: t.score })), statsTable: verdict.statsTable ?? [] } }),
+    });
+    if (res.status !== 200) return null;
+    return (await res.json()) as Story;
+  } catch {
+    return null;
+  }
+}
+
 export const toJudgeItem = (i: Item, extra?: { role?: string; price?: number }): JudgeItem => ({
   name: i.name,
   universe: i.universe,

@@ -1,6 +1,6 @@
 import type { GameState } from "../topicDraft/core";
 import type { Action } from "../topicDraft/core";
-import type { Verdict } from "./judging";
+import type { Story, Verdict } from "./judging";
 import type { FormatId, GameSetup } from "./types";
 import type { Tournament, standings } from "../topicDraft/party/tournament";
 import type { QuizData } from "../topicDraft/trivia/types";
@@ -28,6 +28,8 @@ export type RoomSnapshot = {
   me: string | null;
   state: GameState | null;
   verdict: Verdict | null;
+  /** Drafts: the play-by-play under the result, once written. Missing from older servers. */
+  story?: Story | null;
   played: { format: string; pool: string; title?: string; winner: string | null }[];
   /** An NBA, NFL or Cartoon stat draft room the host opened for the group. */
   statLink: { code: string; league: "NBA" | "NFL" | "CARTOON" } | null;

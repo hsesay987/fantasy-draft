@@ -1,5 +1,7 @@
 "use client";
 
+import { StoryCard } from "./StoryCard";
+import type { Story } from "../../play/judging";
 import { useEffect, useState } from "react";
 import { Confetti } from "../../components/Confetti";
 import { useCountUp } from "../../components/useCountUp";
@@ -10,7 +12,7 @@ import { Crown, Bot, RotateCcw, Share2, Repeat } from "lucide-react";
 import { Button, Card } from "../../components/ui";
 import type { Verdict } from "../../play/judging";
 
-export function VerdictView({ verdict, loading, onAgain, onRematch, extra, shareText, mission, format }: { verdict: Verdict | null; loading: boolean; onAgain: () => void; onRematch?: () => void; extra?: React.ReactNode; shareText?: string; mission?: string; format?: string }) {
+export function VerdictView({ verdict, loading, onAgain, onRematch, extra, shareText, mission, format, story, storyLoading = false }: { verdict: Verdict | null; loading: boolean; onAgain: () => void; onRematch?: () => void; extra?: React.ReactNode; shareText?: string; mission?: string; format?: string; story?: Story | null; storyLoading?: boolean }) {
   const [copied, setCopied] = useState(false);
   const { play } = useSound();
   useEffect(() => {
@@ -56,6 +58,7 @@ export function VerdictView({ verdict, loading, onAgain, onRematch, extra, share
           <p className="mt-2 text-xs text-muted-foreground">AI judge unavailable — analysis generated from the numbers.</p>
         )}
       </motion.div>
+      <StoryCard story={story} loading={storyLoading} />
       <div className="grid gap-3 md:grid-cols-2">
         {sorted.map((t, i) => (
           <motion.div

@@ -16,6 +16,7 @@ import * as A from "../shared/topicDraft/formats/auction";
 import * as B from "../shared/topicDraft/formats/blind";
 import * as P from "../shared/topicDraft/formats/position";
 import { vetoCount, vetoOn } from "../shared/topicDraft/veto";
+import { writeStory, type Story } from "./story.service";
 import { cutAfter, eliminationOn, outSip, pickOut, roundOf, ELIMINATION_FORMATS } from "../shared/topicDraft/party/elimination";
 import { addCalls, type DrinkState } from "../shared/topicDraft/party/drinks";
 import * as IM from "../shared/topicDraft/formats/imposter";
@@ -110,6 +111,8 @@ type Room = {
   dodgeHeld?: { key: string; verdicts: { player: string; same: boolean }[] };
   /** Elimination mode: who went out of the current game, in order, with the round and the place they went out in. */
   out?: { name: string; round: number; place: number }[];
+  /** Drafts: the play-by-play under the result, once the AI has written it. */
+  story?: Story | null;
   /** Elimination mode: points at the last round change (for the tie-break), and that round's counter. */
   outPrev?: Record<string, number>;
   outRound?: number;
@@ -416,6 +419,7 @@ function resetToLobby(room: Room) {
   room.pausedMs = 0;
   room.state = null;
   room.verdict = null;
+  room.story = null;
   room.seats = room.seats.filter((s) => !s.left);
   if (room.setup) room.setup = { ...room.setup, players: playerNames(room) };
 }
@@ -608,6 +612,7 @@ export function startRoom(room: Room, token: unknown, quiz?: QuizData): { ok: tr
   room.state = state;
   room.status = "playing";
   room.out = [];
+  room.story = null; // a new game: last game's story must not show under the next result
   room.outPrev = {};
   room.outRound = roundOf(setup.format, state);
   room.freshQuiz = false;
@@ -1048,6 +1053,12 @@ function finish(room: Room) {
       if (room.state !== state) return; // the room already moved on to another game
       room.verdict = v;
       bump(room);
+      // The play-by-play comes after the result, so the result never waits for it.
+      if (v) void writeStory({ scenario: { title: m.title, blurb: m.blurb }, teams: teams as any, verdict: v }).then((story) => {
+        if (!story || room.state !== state) return;
+        room.story = story;
+        bump(room);
+      }).catch(() => {});
     })
     .catch(() => {
       if (slot !== null) creditTournamentGame(room, seq, slot, awardsFor(setup, state, seated));
@@ -1238,6 +1249,7 @@ export function snapshot(room: Room, token: unknown) {
     me: seat?.name ?? null,
     state: withoutLeftDrinks(room, redact(room, playing ? seat!.name : null)),
     verdict: room.status === "done" ? room.verdict : null,
+    story: room.status === "done" ? room.story ?? null : null,
     played: room.played,
     statLink: room.statLink,
     out: room.status === "lobby" ? [] : room.out ?? [],
