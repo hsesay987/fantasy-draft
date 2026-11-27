@@ -85,19 +85,25 @@ export function storyPrompt(input: StoryInput, seeds: { setting: string; conditi
 
 /** A story the model wrote, checked: right shape, real picks named, the winner in `why`. Null when it doesn't hold up. */
 export function validateStory(raw: any, input: StoryInput): Story | null {
-  if (!raw || !Array.isArray(raw.beats)) return null;
+  const r = checkStory(raw, input);
+  return typeof r === "string" ? null : r;
+}
+
+/** The checked story, or the reason it failed (logged, so a prompt that keeps failing shows up). */
+export function checkStory(raw: any, input: StoryInput): Story | string {
+  if (!raw || !Array.isArray(raw.beats)) return "not json";
   const players = input.teams.map((t) => t.player);
   const rawBeats = raw.beats.slice(0, 7);
   // Each beat is driven by one side, named exactly, and names at least one of that side's picks; the last is the winner's.
   const sideOf = (b: any) => players.find((p) => fold(clean(b?.side, 40)) === fold(p));
   const beats = rawBeats.map((b: any) => ({ label: clean(b?.label, 28), text: clean(b?.text, 520), side: sideOf(b) })).filter((b: any) => b.label && b.text);
-  if (beats.some((b: any) => !b.side)) return null;
-  if (beats.length && fold(beats[beats.length - 1].side) !== fold(input.verdict.winner)) return null;
+  if (beats.some((b: any) => !b.side)) return `beat side not a team: ${JSON.stringify(rawBeats.map((b: any) => b?.side))}`;
+  if (beats.length && fold(beats[beats.length - 1].side) !== fold(input.verdict.winner)) return "last beat not the winner's";
   // Thin stories fail: at least 5 beats with some substance to them.
-  if (beats.length < 5 || beats.filter((b: StoryBeat) => b.text.length >= 140).length < 4) return null;
+  if (beats.length < 5 || beats.filter((b: StoryBeat) => b.text.length >= 140).length < 4) return `thin: ${beats.length} beats`;
   const why = clean(raw.why, 320);
   const title = clean(raw.title, 80);
-  if (!why || !title || !fold(why).includes(fold(input.verdict.winner))) return null;
+  if (!why || !title || !fold(why).includes(fold(input.verdict.winner))) return "why/title";
   const names = input.teams.flatMap((t) => t.items.map((i) => i.name));
   const text = fold(beats.map((b: StoryBeat) => b.text).join(" "));
   // A pick counts when its name appears, or its name without a bracketed part ("Spider-Man" for "Spider-Man (Peter Parker)"),
@@ -105,11 +111,11 @@ export function validateStory(raw: any, input: StoryInput): Story | null {
   const forms = (n: string) => { const bare = n.replace(/\s*\(.*\)\s*$/, ""); const last = bare.split(" ").pop() ?? ""; return [n, bare, ...(last.length >= 4 && bare.includes(" ") ? [last] : [])].map(fold); };
   const hit = (n: string) => forms(n).some((f) => text.includes(f));
   const hitIn = (n: string, t: string) => forms(n).some((f) => fold(t).includes(f));
-  if (!beats.every((b: any) => (input.teams.find((t) => t.player === b.side)?.items ?? []).some((i) => hitIn(i.name, b.text)))) return null;
+  { const bad = beats.find((b: any) => !(input.teams.find((t) => t.player === b.side)?.items ?? []).some((i) => hitIn(i.name, b.text))); if (bad) return `beat without its side's pick: ${bad.side}: ${bad.text.slice(0, 80)}`; }
   const named = new Set(names.filter(hit));
   // Both sides show up, and most of the picks get a moment.
   const everyTeam = input.teams.every((t) => t.items.some((i) => hit(i.name)));
-  if (!everyTeam || named.size < Math.min(names.length, Math.max(2, Math.ceil(names.length * 0.6)))) return null;
+  if (!everyTeam || named.size < Math.min(names.length, Math.max(2, Math.ceil(names.length * 0.6)))) return `few picks: ${named.size}`;
   return { title, setting: clean(raw.setting, 300), beats: beats.map((b: any) => ({ label: b.label, text: b.text, side: b.side })), why };
 }
 
@@ -125,8 +131,10 @@ export async function writeStory(input: StoryInput, client: LLM | null = default
       client.complete(system, user),
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error("story timeout")), TIMEOUT_MS)),
     ]);
-    const story = validateStory(extractJson(text), input);
-    trackServer("story_call", { source: story ? "ai" : "invalid", ms: Date.now() - t0 });
+    const checked = checkStory(extractJson(text), input);
+    const story = typeof checked === "string" ? null : checked;
+    if (typeof checked === "string") console.warn(`story rejected: ${checked}`);
+    trackServer("story_call", { source: story ? "ai" : "invalid", ...(typeof checked === "string" ? { reason: checked.slice(0, 120) } : {}), ms: Date.now() - t0 });
     if (story) { recent.push(story.title); if (recent.length > 60) recent.splice(0, recent.length - 60); }
     return story;
   } catch {
