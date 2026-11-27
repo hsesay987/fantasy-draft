@@ -17,10 +17,10 @@ const good = {
     { label: "Opening Bell", side: "Ann", text: long("Goku opens with an Instant Transmission feint and a Kamehameha that splits the pier, but Thanos simply walks through the blast.") },
     { label: "First Blood", side: "Rival AI", text: long("Spider-Man webs the crane hooks and swings Michael Jordan in for a mid-air slam, and Ann's side reels.") },
     { label: "The Scare", side: "Rival AI", text: long("Thanos closes his fist on the gauntlet and Lelouch's plan looks finished, the harbor shaking under the Rival AI push.") },
-    { label: "Turning Point", side: "Ann", text: long("Lelouch uses Geass on the fleet's captain and the ships turn on their own side in the fog, intellect 98 doing the work.") },
+    { label: "Turning Point", side: "Ann", text: long("Lelouch uses Geass on the fleet's captain and the rival ships drift blind into the fog, outthought at every turn.") },
     { label: "Final Blow", side: "Ann", text: long("Saitama strolls up the gangway, says 'OK', and one Serious Punch clears the bay of Rival AI's last hope.") },
   ],
-  why: "Ann won on brains: Intellect 90 to 78, with Lelouch's Geass flipping the fight.",
+  why: "Ann won on brains, with Lelouch's Geass flipping the fight.",
 };
 const llm = (reply: unknown) => ({ complete: vi.fn(async () => (typeof reply === "string" ? reply : JSON.stringify(reply))) });
 
@@ -59,6 +59,18 @@ describe("draft story", () => {
     const captainOnly = beats.map((b) => (b.side === "Ann" ? { ...b, text: long("The captain charges.") } : b));
     expect(validateStory({ ...good, beats: captainOnly }, names)).toBeNull();
   });
+  it("rejects stat numbers anywhere in the story, but not digits inside a pick's name", () => {
+    expect(validateStory({ ...good, why: "Ann won: Intellect 90 to 78." }, input)).toBeNull();
+    expect(validateStory({ ...good, beats: good.beats.map((b, i) => (i === 0 ? { ...b, text: b.text + " Speed 95 decides it." } : b)) }, input)).toBeNull();
+    const t1000: StoryInput = { ...input, teams: [input.teams[0]!, { player: "Rival AI", items: [{ name: "T-1000" }, { name: "Thanos" }, { name: "Spider-Man (Peter Parker)" }] }] };
+    const beats = good.beats.map((b) => ({ ...b, text: b.text.replace("Michael Jordan", "the T-1000") }));
+    expect(validateStory({ ...good, beats }, t1000)).not.toBeNull();
+  });
+  it("tells the model where the teams differ in words, not numbers", () => {
+    const { user } = storyPrompt(input, { setting: "x", condition: "y", twist: "z" }, []);
+    expect(user).toContain("intellect: Ann far ahead");
+    expect(user).not.toMatch(/\b90\b|\b78\b/);
+  });
   it("lets one loose beat through, not two", () => {
     const loose = (n: number) => good.beats.map((b, i) => (i < n ? { ...b, text: long("The crowd roars as the storm rolls in.") } : b));
     expect(validateStory({ ...good, beats: loose(1) }, input)).not.toBeNull();
@@ -75,7 +87,9 @@ describe("draft story", () => {
     expect(system).toMatch(/head-to-head/);
     expect(system).toMatch(/near win or a scare/);
     expect(system).toMatch(/only for their own team/);
-    expect(user).toContain("Goku (Saiyan, Dragon Ball) - power 99, speed 95, intellect 40");
+    expect(user).toContain("Goku (Saiyan, Dragon Ball) - strongest at power, speed, intellect");
+    expect(user).not.toMatch(/power 99/);
+    expect(system).toMatch(/Never write numbers/);
   });
   it("tells the model the winner, the teams, the seeds and the titles to avoid", () => {
     const { user } = storyPrompt(input, { setting: "a volcano", condition: "fog", twist: "an ambush" }, ["Old Title"]);

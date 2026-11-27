@@ -43,9 +43,10 @@ function takeBudget(): boolean {
 }
 export const _resetStoryBudget = () => { day = ""; spent = 0; recent.length = 0; };
 
-/** One pick for the prompt: name, what it is, and its strongest stats, so the story can use real details. */
+/** One pick for the prompt: name, what it is, and what it's best at (in words, no numbers, so none end up in the story). */
 function pickLine(i: StoryInput["teams"][number]["items"][number]): string {
-  const top = Object.entries(i.stats ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${k} ${v}`).join(", ");
+  const best = Object.entries(i.stats ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => k).join(", ");
+  const top = best ? `strongest at ${best}` : "";
   const what = [i.archetype, i.universe].filter(Boolean).join(", ");
   return `${i.name}${i.role ? ` [${i.role}]` : ""}${what ? ` (${what})` : ""}${top ? ` - ${top}` : ""}`;
 }
@@ -60,7 +61,7 @@ export function storyPrompt(input: StoryInput, seeds: { setting: string; conditi
     "- 5 to 7 beats. Each beat is 2 to 4 sentences (about 250-400 characters) and names the characters involved.",
     "- Use each character's real signature moves, powers, weapons, skills, catchphrases or play style from their own story or career. Name the move.",
     "- Stage head-to-head duels: pair specific characters from opposite teams, show who gets the upper hand and how.",
-    "- Work the stats into the action (e.g. speed 95 lets them close the gap first), but as story, not a list.",
+    "- Never write numbers or stat values anywhere (no \"speed 95\", no scores). Show strengths through the action instead: the faster side gets there first, the stronger hits harder.",
     "- Use the setting, the condition and the twist so they change what happens, not just decoration.",
     "- Give the losing side a real moment: a lead, a near win or a scare for the winner. Then the turning point flips it.",
     "- Use as many characters as you can, from both teams. Only characters from the teams; no new ones.",
@@ -69,17 +70,23 @@ export function storyPrompt(input: StoryInput, seeds: { setting: string; conditi
     "- Each move must belong to the character who uses it (no borrowing another character's signature move).",
     "- The given winner must win; nothing may suggest otherwise. No gore, no slurs, no real-world politics.",
     "- `setting` is 1-2 sentences that set the scene and the stakes. `title` is punchy, 2-6 words.",
-    "- `why` is 1-2 sentences on why the winner won, tied to the deciding stats and the key picks.",
+    "- `why` is 1-2 sentences on why the winner won, in words, tied to where the teams differ and the key picks. No numbers.",
     "- Labels are short and dramatic, like Opening Bell, First Blood, Momentum Swing, The Scare, Turning Point, Final Blow.",
   ].join("\n");
   const teams = input.teams.map((t) => `${t.player}:\n${t.items.map((i) => `  - ${pickLine(i)}`).join("\n")}`).join("\n");
   const scores = input.verdict.teams.map((t) => `${t.player} ${t.score}`).join(", ");
-  const deciding = (input.verdict.statsTable ?? []).slice(0, 5).map((r) => `${r.key}: ${Object.entries(r.values).map(([p, v]) => `${p} ${v}`).join(", ")}`).join("; ");
+  // The deciding stats in words: who leads each one, and by how much.
+  const deciding = (input.verdict.statsTable ?? []).slice(0, 5).map((r) => {
+    const ranked = Object.entries(r.values).sort((a, b) => b[1] - a[1]);
+    if (ranked.length < 2) return "";
+    const gap = ranked[0]![1] - ranked[1]![1];
+    return gap < 1 ? `${r.key}: level` : `${r.key}: ${ranked[0]![0]} ${gap >= 8 ? "far ahead" : gap >= 3 ? "ahead" : "slightly ahead"}`;
+  }).filter(Boolean).join("; ");
   const user = [
     `Mission: ${input.scenario.title}${input.scenario.blurb ? ` - ${input.scenario.blurb}` : ""}`,
     `Teams:\n${teams}`,
     `Winner: ${input.verdict.winner}. Scores: ${scores}.`,
-    deciding ? `Deciding stats (team averages): ${deciding}` : "",
+    deciding ? `Where the teams differ: ${deciding}` : "",
     `Story seeds: set it in ${seeds.setting}, with ${seeds.condition}, and include ${seeds.twist}.`,
     avoid.length ? `Do not reuse these titles: ${avoid.join(" | ")}` : "",
   ].filter(Boolean).join("\n");
@@ -119,6 +126,9 @@ export function checkStory(raw: any, input: StoryInput): Story | string {
     return [n, bare, ...(ok(first) ? [first] : []), ...(ok(last) ? [last] : [])].map(fold);
   };
   const hit = (n: string) => forms(n).some((f) => text.includes(f));
+  // No stat numbers in the story: any digit left once pick and team names are taken out fails it.
+  const withoutNames = (t: string) => [...names, ...players].reduce((acc, n) => acc.split(fold(n)).join(" "), fold(t));
+  if ([raw.setting, raw.why, ...beats.map((b: any) => b.text)].some((t) => /\d/.test(withoutNames(String(t ?? ""))))) return "numbers in the story";
   const hitIn = (n: string, t: string) => forms(n).some((f) => fold(t).includes(f));
   // One loose beat is fine (a crowd moment, a setting shift); more than that means the sides got muddled.
   { const bad = beats.filter((b: any) => !(input.teams.find((t) => t.player === b.side)?.items ?? []).some((i) => hitIn(i.name, b.text))); if (bad.length > 1) return `beats without their side's pick: ${bad.map((b: any) => `${b.side}: ${b.text.slice(0, 60)}`).join(" | ")}`; }

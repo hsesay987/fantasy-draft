@@ -140,6 +140,8 @@ function GameView({ setup, ctl, serverVerdict, serverStory, onNew, onRematch }: 
   if (done && finished) {
     const v = serverVerdict ?? verdict;
     const shownStory = serverVerdict !== undefined ? serverStory ?? null : story;
+    // Each team's picks for the line-up above the story, with pictures where the pool has them.
+    const rosters = buildTeams(setup, ctl.state).teams.map((t) => ({ player: t.player, picks: t.items.map((i) => ({ name: i.name, q: ctl.pool.find((p) => p.name === i.name)?.q })) }));
     // In a room the story may still be on its way: wait up to about 30 s after the verdict before giving up on it.
     const storyLoading = serverVerdict !== undefined ? !!serverVerdict && !shownStory && storyWait : storyAsked === "waiting";
     const lines = v ? [`TopPic · ${setup.mission.title}`, ...[...v.teams].sort((a, b) => b.score - a.score).map((t, i) => `${i + 1}. ${t.player} — ${Math.round(t.score)}`), ...(shownStory ? [`🎬 ${shownStory.title}`, shownStory.why] : []), "Play at toppic.io"].join("\n") : undefined;
@@ -152,7 +154,7 @@ function GameView({ setup, ctl, serverVerdict, serverStory, onNew, onRematch }: 
     return (
       <PageShell width="md">
         <h1 className="text-3xl md:text-4xl">{setup.mission.title}</h1>
-        <VerdictView format={setup.format} verdict={v ?? null} loading={!v} extra={extra} shareText={lines} onAgain={onNew ?? noop} onRematch={onRematch} story={shownStory} storyLoading={storyLoading} />
+        <VerdictView format={setup.format} verdict={v ?? null} loading={!v} extra={extra} shareText={lines} onAgain={onNew ?? noop} onRematch={onRematch} story={shownStory} storyLoading={storyLoading} rosters={rosters} />
       </PageShell>
     );
   }
