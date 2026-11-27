@@ -1,6 +1,7 @@
 "use client";
 
 import { VetoBar } from "./VetoBar";
+import { fetchStory, type Story } from "./judging";
 import { EliminationBar } from "./EliminationBar";
 import { vetoOf } from "../topicDraft/veto";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
@@ -51,18 +52,21 @@ export type ScreenProps = { title: string; topic?: string | null; code: string; 
 
 const noop = () => {};
 
-export function GameBody({ screen, ...props }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew?: () => void; onRematch?: () => void; screen?: ScreenProps }) {
+export function GameBody({ screen, ...props }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; serverStory?: Story | null; onNew?: () => void; onRematch?: () => void; screen?: ScreenProps }) {
   const pausable = props.ctl.online && PARTY_FORMATS.has(props.setup.format) && !isDone(props.setup, props.ctl.state);
   const view = <>{<GameView {...props} />}{pausable && <PauseLayer ctl={props.ctl} />}{vetoOf(props.ctl.state) && <VetoBar setup={props.setup} ctl={props.ctl} />}{!!props.ctl.out?.length && <EliminationBar ctl={props.ctl} done={isDone(props.setup, props.ctl.state)} />}</>;
   return screen ? <ScreenFrame setup={props.setup} ctl={props.ctl} {...screen}>{view}</ScreenFrame> : view;
 }
 
 /** `onNew` is missing for a guest: only the host takes the room back to the lobby. */
-function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; onNew?: () => void; onRematch?: () => void }) {
+function GameView({ setup, ctl, serverVerdict, serverStory, onNew, onRematch }: { setup: GameSetup; ctl: GameCtl; serverVerdict?: Verdict | null; serverStory?: Story | null; onNew?: () => void; onRematch?: () => void }) {
   const { token } = useAuth();
   const { play } = useSound();
   const done = isDone(setup, ctl.state);
   const [verdict, setVerdict] = useState<Verdict | null>(null);
+  // Local games ask for the play-by-play once the verdict is in; rooms get it from the server.
+  const [story, setStory] = useState<Story | null>(null);
+  const [storyAsked, setStoryAsked] = useState<"no" | "waiting" | "done">("no");
   const finished = done ? buildTeams(setup, ctl.state) : null;
   // Trivia games show the answers instead of asking the AI judge for a report.
   const trivia = setup.format === "jeopardy" || setup.format === "feud" || PARTY_FORMATS.has(setup.format);
@@ -89,6 +93,29 @@ function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: Game
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done, token]);
 
+  useEffect(() => {
+    if (!verdict || serverVerdict !== undefined || storyAsked !== "no") return;
+    let live = true;
+    setStoryAsked("waiting");
+    const { teams } = buildTeams(setup, ctl.state);
+    fetchStory(API_URL, token ?? null, { title: setup.mission.title, blurb: setup.mission.blurb }, teams, verdict).then((s) => {
+      if (!live) return;
+      setStory(s);
+      setStoryAsked("done");
+    });
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verdict]);
+
+  // Rooms: show "Writing the play-by-play…" for a while after the verdict, then stop waiting.
+  const [storyWait, setStoryWait] = useState(true);
+  useEffect(() => {
+    if (serverVerdict === undefined || !serverVerdict) return;
+    setStoryWait(true);
+    const id = setTimeout(() => setStoryWait(false), 30_000);
+    return () => clearTimeout(id);
+  }, [serverVerdict]);
+
   const verdictWinner = (serverVerdict ?? verdict)?.winner;
   useEffect(() => {
     if (!verdictWinner) return;
@@ -112,7 +139,10 @@ function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: Game
 
   if (done && finished) {
     const v = serverVerdict ?? verdict;
-    const lines = v ? [`TopPic · ${setup.mission.title}`, ...[...v.teams].sort((a, b) => b.score - a.score).map((t, i) => `${i + 1}. ${t.player} — ${Math.round(t.score)}`), "Play at toppic.io"].join("\n") : undefined;
+    const shownStory = serverVerdict !== undefined ? serverStory ?? null : story;
+    // In a room the story may still be on its way: wait up to about 30 s after the verdict before giving up on it.
+    const storyLoading = serverVerdict !== undefined ? !!serverVerdict && !shownStory && storyWait : storyAsked === "waiting";
+    const lines = v ? [`TopPic · ${setup.mission.title}`, ...[...v.teams].sort((a, b) => b.score - a.score).map((t, i) => `${i + 1}. ${t.player} — ${Math.round(t.score)}`), ...(shownStory ? [`🎬 ${shownStory.title}`, shownStory.why] : []), "Play at toppic.io"].join("\n") : undefined;
     const extra = finished.extra && (
       <div className="rounded-2xl border border-white/10 bg-card/70 p-5">
         <h3 className="mb-3 text-xl">{finished.extra.title}</h3>
@@ -122,7 +152,7 @@ function GameView({ setup, ctl, serverVerdict, onNew, onRematch }: { setup: Game
     return (
       <PageShell width="md">
         <h1 className="text-3xl md:text-4xl">{setup.mission.title}</h1>
-        <VerdictView format={setup.format} verdict={v ?? null} loading={!v} extra={extra} shareText={lines} onAgain={onNew ?? noop} onRematch={onRematch} />
+        <VerdictView format={setup.format} verdict={v ?? null} loading={!v} extra={extra} shareText={lines} onAgain={onNew ?? noop} onRematch={onRematch} story={shownStory} storyLoading={storyLoading} />
       </PageShell>
     );
   }

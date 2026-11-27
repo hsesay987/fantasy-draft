@@ -161,7 +161,7 @@ const hostName = (snap: RoomSnapshot) => snap.seats.find((s) => s.host)?.name ??
 function PlayingRoom({ code, snap, offset, dispatch, onNew, onRematch, onLeave, tournament }: { code: string; snap: RoomSnapshot & { setup: GameSetup }; offset: number; dispatch: ReturnType<typeof useRemoteRoom>["dispatchRemote"]; onNew?: () => void; onRematch?: () => void; onLeave: () => void; tournament?: ReactNode }) {
   const ctl = useRemoteCtl(snap, offset, dispatch, onLeave);
   const screen = snap.screen ? { title: formatMeta(snap.setup.format)?.title ?? "Party night", topic: topicOf(snap.setup), code, tournament } : undefined;
-  return <GameBody setup={snap.setup} ctl={ctl} serverVerdict={snap.verdict} onNew={onNew} onRematch={onRematch} screen={screen} />;
+  return <GameBody setup={snap.setup} ctl={ctl} serverVerdict={snap.verdict} serverStory={snap.story ?? null} onNew={onNew} onRematch={onRematch} screen={screen} />;
 }
 
 /** Names a tournament on this device, so a closed champion screen stays closed for it. */
