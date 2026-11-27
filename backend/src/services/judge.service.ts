@@ -206,7 +206,7 @@ function gatewayClients(): LLM[] {
         const res = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {
           method: "POST",
           headers: { "content-type": "application/json", ...(key ? { authorization: `Bearer ${key}` } : {}) },
-          body: JSON.stringify({ ...extra, model, max_tokens: 1200, temperature: 0.7, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
+          body: JSON.stringify({ ...extra, model, max_tokens: 2000, temperature: 0.7, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
           signal: AbortSignal.timeout(Math.max(5_000, TIMEOUT_MS - 3_000)),
         });
         if (!res.ok) throw new Error(`gateway${n} ${res.status}`);
@@ -230,7 +230,7 @@ function anthropicClient(): LLM | null {
       const client = new Anthropic({ apiKey: key });
       const res = await client.messages.create({
         model,
-        max_tokens: 1500,
+        max_tokens: 2000,
         system,
         messages: [{ role: "user", content: user }],
       });

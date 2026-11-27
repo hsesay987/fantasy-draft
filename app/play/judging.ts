@@ -37,7 +37,7 @@ export async function fetchStory(apiUrl: string, token: string | null, mission: 
     const res = await fetch(`${apiUrl}/judge/story`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ scenario: { title: mission.title, blurb: mission.blurb }, teams: teams.map((t) => ({ player: t.player, items: t.items.map((i) => ({ name: i.name, ...(i.role ? { role: i.role } : {}) })) })), verdict: { winner: verdict.winner, teams: verdict.teams.map((t) => ({ player: t.player, score: t.score })), statsTable: verdict.statsTable ?? [] } }),
+      body: JSON.stringify({ scenario: { title: mission.title, blurb: mission.blurb }, teams: teams.map((t) => ({ player: t.player, items: t.items.map((i) => ({ name: i.name, ...(i.role ? { role: i.role } : {}), ...(i.archetype ? { archetype: i.archetype } : {}), ...(i.universe ? { universe: i.universe } : {}), ...(i.stats ? { stats: i.stats } : {}) })) })), verdict: { winner: verdict.winner, teams: verdict.teams.map((t) => ({ player: t.player, score: t.score })), statsTable: verdict.statsTable ?? [] } }),
     });
     if (res.status !== 200) return null;
     return (await res.json()) as Story;
