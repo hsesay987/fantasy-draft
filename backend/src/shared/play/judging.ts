@@ -31,7 +31,7 @@ export type Verdict = {
 };
 
 /** The play-by-play under a draft result (written by the AI after the verdict; never changes it). */
-export type Story = { title: string; setting: string; beats: { label: string; text: string }[]; why: string };
+export type Story = { title: string; setting: string; beats: { label: string; text: string; side?: string }[]; why: string };
 
 /** Asks for the story of a judged draft. null when there is none (no AI, budget spent, or any failure). */
 export async function fetchStory(apiUrl: string, token: string | null, mission: Pick<Scenario, "title" | "blurb">, teams: JudgeTeamInput[], verdict: Verdict): Promise<Story | null> {
