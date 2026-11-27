@@ -59,6 +59,8 @@ export function storyPrompt(input: StoryInput, seeds: { setting: string; conditi
     "- Use the setting, the condition and the twist so they change what happens, not just decoration.",
     "- Give the losing side a real moment: a lead, a near win or a scare for the winner. Then the turning point flips it.",
     "- Use as many characters as you can, from both teams. Only characters from the teams; no new ones.",
+    "- Every character fights only for their own team, start to finish. Nobody helps, saves or joins the other side, even when mind control or a twist is involved: a twist can hurt a team, never switch someone's side.",
+    "- Each move must belong to the character who uses it (no borrowing another character's signature move).",
     "- The given winner must win; nothing may suggest otherwise. No gore, no slurs, no real-world politics.",
     "- `setting` is 1-2 sentences that set the scene and the stakes. `title` is punchy, 2-6 words.",
     "- `why` is 1-2 sentences on why the winner won, tied to the deciding stats and the key picks.",

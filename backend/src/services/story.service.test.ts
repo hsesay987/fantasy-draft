@@ -50,6 +50,7 @@ describe("draft story", () => {
     expect(system).toMatch(/signature moves/);
     expect(system).toMatch(/head-to-head/);
     expect(system).toMatch(/near win or a scare/);
+    expect(system).toMatch(/only for their own team/);
     expect(user).toContain("Goku (Saiyan, Dragon Ball) - power 99, speed 95, intellect 40");
   });
   it("tells the model the winner, the teams, the seeds and the titles to avoid", () => {
